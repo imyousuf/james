@@ -1,30 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache James - Repositories - Java Mail and News server, SMTP POP3 NNTP</title>
-<meta content="mail,email,news,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
-<meta content="Free (Open Source) Java mail server (mailserver) from Apache. Providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
-<meta content="ALL" name="ROBOTS">
-<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+<title>Apache James - Mail and News server - Repositories</title>
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet" />
 </head>
-<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
-<table cellspacing="4" width="100%" border="0">
+<body>
+<table cellspacing="0" width="100%" border="0" class="page-header">
 <!--PAGE HEADER-->
 <tr>
 <td colspan="2">
-<!--ASF LOGO--><a href="http://www.apache.org/"><img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif"></a>
-<!--PROJECT LOGO--><a href="http://james.apache.org"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org/images/james-logo.jpg"></a></td>
-</tr>
-<!--HEADER SEPARATOR-->
-<tr>
-<td colspan="2">
-<hr size="1" noshade="">
+<!--ASF LOGO-->
+<a href="http://www.apache.org/">
+<img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif" />
+</a>
+<!--PROJECT LOGO-->
+<a href="http://james.apache.org/">
+<img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org//images/james-logo.jpg" />
+</a>
 </td>
 </tr>
+</table>
+<table cellspacing="4" width="100%" border="0">
 <tr>
 <!--LEFT SIDE NAVIGATION-->
-<td nowrap="true" valign="top" width="20%">
-<p>
+<td nowrap="true" valign="top" class="left-navbar">
+<navbar name="lhs">
+      <p>
 <strong>James</strong>
 </p>
 <ul>
@@ -41,23 +43,23 @@
 <a href="http://wiki.apache.org/james">Wiki</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Downloads</strong>
 </p>
 <ul>
 <li>
-<a href="http://james.apache.org/download.cgi">Current Release(s)</a>
+<a href="http://james.apache.org/download.cgi">Releases</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./documentation_2_1.html">James 2.x Documentation</a>
+<a href="./documentation_2_1.html">James 2.X</a>
 </li>
 <li>
-<a href="./design_objectives.html">Design objectives</a>
+<a href="./design_objectives.html">Design</a>
 </li>
 <li>
 <a href="./javadocs/index.html">James Javadocs</a>
@@ -69,10 +71,115 @@
 <a href="./rfclist.html">Useful RFCs</a>
 </li>
 <li>
-<a href="./document_archive.html">Older Document Archive</a>
+<a href="./document_archive.html">Document Archive</a>
 </li>
 </ul>
+    </navbar>
+</td>
+<!--MAIN BODY-->
+<td align="left" valign="top" class="main-body">
+<div class="section">
+<div class="section-header">
+<a name="Repositories">
+<strong>Repositories</strong>
+</a>
+</div>
 <p>
+<div class="section-body">
+
+<p>James uses a number of different repositories to both store message data (email, news messages) and 
+user information.  User repositories store user information, including user names, authentication 
+information, and aliases.  Mail repositories store messages that have been delivered locally.  Spool 
+repositories store messages that are still being processed.  Finally, news repositories are used to
+store news messages.</p>
+
+</div>
+</p>
+</div>
+<div class="section">
+<div class="section-header">
+<a name="Storage Types">
+<strong>Storage Types</strong>
+</a>
+</div>
+<p>
+<div class="section-body">
+
+<p>Aside from the type of data they store, repositories are distinguished by 
+where they store data.  There are three types of storage - File, Database, and DBFile.</p>
+<div class="subsection">
+<div class="subsection-header">
+<a name="File Repositories">
+<strong>File Repositories</strong>
+</a>
+</div>
+<div class="subsection-body">
+
+<p>File-based repositories store all data in the file system.  In general, these repositories are extremely
+simple to configure, but may compare poorly in terms of performance when compared to other repository
+types.  File repositories are not recommended for large or performance-critical configurations.  In the
+default configuration, all repositories are file repositories.</p>
+
+<p>File repository paths typically begin with the prefix "file".  Paths are relative to the application
+base directory, unless the path begins with a slash.  As an example, assume that James is running in 
+/usr/james/phoenix/apps/james.  Then "file://var/mail/spool/" would refer to the directory /usr/james/phoenix/apps/james/var/mail/spool.  
+And "file:///var/mail/spool/" (note the extra '/') would refer to the directory /var/mail/spool.</p>
+
+<p>All repository types (mail, spool, user, and news) have file-based implementations.  No special configuration is required to enable file-based repositories</p>
+
+</div>
+</div>
+<div class="subsection">
+<div class="subsection-header">
+<a name="Database (JDBC) Repositories">
+<strong>Database (JDBC) Repositories</strong>
+</a>
+</div>
+<div class="subsection-body">
+
+<p>Database repositories store all data in an administrator-supplied database.  Configuration is somewhat
+more complex, requiring that the administrator adjust the data-connections section.  Detailed directions 
+are included in the sample configuration file.  The administrator will need to know the JDBC driver class,
+the appropriate URL for use with his database, and a valid username/password for the database.</p>
+
+<p>If the administrator wants to configure a database other than MySQL, it will be necessary to add the jar 
+or zip file containing the JDBC driver classes to the lib subdirectory of the installation directory.  This
+will allow Phoenix to properly load the driver when it is initializing the database repository.  The MySQL
+driver is pre-packaged with James.</p>
+
+<p>Database repository paths typically begin with the prefix "db".  The format is "db://&lt;data-source&gt;/&lt;table&gt;" 
+where &lt;data-source&gt; is the name of the data-source defined in the data-connections section.  And &lt;table&gt; is 
+the particular table associated with the repository.</p>
+
+<p>Mail, spool, and user repositories have JDBC-based implementations.</p>
+
+</div>
+</div>
+<div class="subsection">
+<div class="subsection-header">
+<a name="DBFile Repositories">
+<strong>DBFile Repositories</strong>
+</a>
+</div>
+<div class="subsection-body">
+
+<p>This is a special repository type used only for mail repositories.  DBFile repositories store the body of
+a mail message in the file system, while headers are stored in the database.  This allows the administrator 
+to minimize the size of data stored in the database, while conserving most of the performance of the 
+database repository.</p>
+
+<p>Only mail repositories have dbfile-based implementations.</p>
+</div>
+</div>
+
+</div>
+</p>
+</div>
+</td>
+<!--RIGHT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" class="right-navbar">
+<navbar name="rhs">
+      <p>
 <strong>Project</strong>
 </p>
 <ul>
@@ -80,16 +187,16 @@
 <a href="http://issues.apache.org/jira/browse/JAMES">Bug Database </a>
 </li>
 <li>
-<a href="http://svn.apache.org/">Subversion Repositories</a>
+<a href="http://svn.apache.org/">Source Code</a>
 </li>
 <li>
 <a href="./weare.html">Who We Are</a>
 </li>
 <li>
-<a href="./contribute.html">How Can I Contribute?</a>
+<a href="./contribute.html">Contributing</a>
 </li>
 <li>
-<a href="./code-standards.html">Coding Standards</a>
+<a href="./code-standards.html">Standards</a>
 </li>
 <li>
 <a href="./license.html">License</a>
@@ -101,7 +208,7 @@
 <a href="./todo.html">TODO</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Translated</strong>
 </p>
 <ul>
@@ -109,7 +216,7 @@
 <a href="http://james.terra-intl.com/">Japanese (web)</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Related Projects</strong>
 </p>
 <ul>
@@ -123,7 +230,7 @@
 <a href="http://avalon.apache.org/index.html">Avalon</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Useful Information</strong>
 </p>
 <ul>
@@ -137,145 +244,21 @@
 <a href="http://apache.org/foundation/faq.html">Apache</a>
 </li>
 </ul>
-</td>
-<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Repositories"><strong>Repositories</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>James uses a number of different repositories to both store message data (email, news messages) and 
-user information.  User repositories store user information, including user names, authentication 
-information, and aliases.  Mail repositories store messages that have been delivered locally.  Spool 
-repositories store messages that are still being processed.  Finally, news repositories are used to
-store news messages.</p>
-
-
-</blockquote>
-</td>
-</tr>
-</table>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Storage Types"><strong>Storage Types</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>Aside from the type of data they store, repositories are distinguished by 
-where they store data.  There are three types of storage - File, Database, and DBFile.</p>
-
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="File Repositories"><strong>File Repositories</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>File-based repositories store all data in the file system.  In general, these repositories are extremely
-simple to configure, but may compare poorly in terms of performance when compared to other repository
-types.  File repositories are not recommended for large or performance-critical configurations.  In the
-default configuration, all repositories are file repositories.</p>
-
-
-<p>File repository paths typically begin with the prefix "file".  Paths are relative to the application
-base directory, unless the path begins with a slash.  As an example, assume that James is running in 
-/usr/james/phoenix/apps/james.  Then "file://var/mail/spool/" would refer to the directory /usr/james/phoenix/apps/james/var/mail/spool.  
-And "file:///var/mail/spool/" (note the extra '/') would refer to the directory /var/mail/spool.</p>
-
-
-<p>All repository types (mail, spool, user, and news) have file-based implementations.  No special configuration is required to enable file-based repositories</p>
-
-
-</blockquote>
-</td>
-</tr>
-</table>
-
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Database (JDBC) Repositories"><strong>Database (JDBC) Repositories</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>Database repositories store all data in an administrator-supplied database.  Configuration is somewhat
-more complex, requiring that the administrator adjust the data-connections section.  Detailed directions 
-are included in the sample configuration file.  The administrator will need to know the JDBC driver class,
-the appropriate URL for use with his database, and a valid username/password for the database.</p>
-
-
-<p>If the administrator wants to configure a database other than MySQL, it will be necessary to add the jar 
-or zip file containing the JDBC driver classes to the lib subdirectory of the installation directory.  This
-will allow Phoenix to properly load the driver when it is initializing the database repository.  The MySQL
-driver is pre-packaged with James.</p>
-
-
-<p>Database repository paths typically begin with the prefix "db".  The format is "db://&lt;data-source&gt;/&lt;table&gt;" 
-where &lt;data-source&gt; is the name of the data-source defined in the data-connections section.  And &lt;table&gt; is 
-the particular table associated with the repository.</p>
-
-
-<p>Mail, spool, and user repositories have JDBC-based implementations.</p>
-
-
-</blockquote>
-</td>
-</tr>
-</table>
-
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="DBFile Repositories"><strong>DBFile Repositories</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>This is a special repository type used only for mail repositories.  DBFile repositories store the body of
-a mail message in the file system, while headers are stored in the database.  This allows the administrator 
-to minimize the size of data stored in the database, while conserving most of the performance of the 
-database repository.</p>
-
-
-<p>Only mail repositories have dbfile-based implementations.</p>
-
-</blockquote>
-</td>
-</tr>
-</table>
-
-
-</blockquote>
-</td>
-</tr>
-</table>
+    </navbar>
 </td>
 </tr>
 <!--FOOTER SEPARATOR-->
 <tr>
-<td colspan="2">
-<hr size="1" noshade="">
+<td colspan="3">
+<hr size="1" noshade="" />
 </td>
 </tr>
-<!--PAGE FOOTER-->
 <tr>
-<td colspan="2">
-<div align="center">
-<font size="-1" color="#525D76"><em>
-        Copyright &copy; 1999-2005, Apache Software Foundation
-        </em></font>
+<td colspan="3">
+<div class="page-footer">
+<em>
+        Copyright © 1999-2005, The Apache Software Foundation
+        </em>
 </div>
 </td>
 </tr>

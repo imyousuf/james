@@ -1,32 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache James - Migrating from Avalon database connections to DataSource - Java Mail and News server, SMTP POP3 NNTP</title>
-<meta value="Serge Knystautas" name="author">
-<meta value="serge@apache.org" name="email">
-<meta content="mail,email,news,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
-<meta content="Free (Open Source) Java mail server (mailserver) from Apache. Providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
-<meta content="ALL" name="ROBOTS">
-<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+<title>Apache James - Mail and News server - Migrating from Avalon database connections to DataSource</title>
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet" />
+<meta value="Serge Knystautas" name="author" />
+<meta value="serge@apache.org" name="email" />
 </head>
-<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
-<table cellspacing="4" width="100%" border="0">
+<body>
+<table cellspacing="0" width="100%" border="0" class="page-header">
 <!--PAGE HEADER-->
 <tr>
 <td colspan="2">
-<!--ASF LOGO--><a href="http://www.apache.org/"><img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif"></a>
-<!--PROJECT LOGO--><a href="http://james.apache.org"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org/images/james-logo.jpg"></a></td>
-</tr>
-<!--HEADER SEPARATOR-->
-<tr>
-<td colspan="2">
-<hr size="1" noshade="">
+<!--ASF LOGO-->
+<a href="http://www.apache.org/">
+<img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif" />
+</a>
+<!--PROJECT LOGO-->
+<a href="http://james.apache.org/">
+<img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org//images/james-logo.jpg" />
+</a>
 </td>
 </tr>
+</table>
+<table cellspacing="4" width="100%" border="0">
 <tr>
 <!--LEFT SIDE NAVIGATION-->
-<td nowrap="true" valign="top" width="20%">
-<p>
+<td nowrap="true" valign="top" class="left-navbar">
+<navbar name="lhs">
+      <p>
 <strong>James</strong>
 </p>
 <ul>
@@ -43,23 +45,23 @@
 <a href="http://wiki.apache.org/james">Wiki</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Downloads</strong>
 </p>
 <ul>
 <li>
-<a href="http://james.apache.org/download.cgi">Current Release(s)</a>
+<a href="http://james.apache.org/download.cgi">Releases</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./documentation_2_1.html">James 2.x Documentation</a>
+<a href="./documentation_2_1.html">James 2.X</a>
 </li>
 <li>
-<a href="./design_objectives.html">Design objectives</a>
+<a href="./design_objectives.html">Design</a>
 </li>
 <li>
 <a href="./javadocs/index.html">James Javadocs</a>
@@ -71,10 +73,65 @@
 <a href="./rfclist.html">Useful RFCs</a>
 </li>
 <li>
-<a href="./document_archive.html">Older Document Archive</a>
+<a href="./document_archive.html">Document Archive</a>
 </li>
 </ul>
+    </navbar>
+</td>
+<!--MAIN BODY-->
+<td align="left" valign="top" class="main-body">
+<div class="section">
+<div class="section-header">
+<a name="Migrating from Avalon database connections to DataSource">
+<strong>Migrating from Avalon database connections to DataSource</strong>
+</a>
+</div>
 <p>
+<div class="section-body">
+
+<p>
+  In James version 3.0, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
+</p>
+<ol>
+<li>Remove references to DataSourceSelector.</li>
+<li>Change references of DataSourceComponent to DataSource</li>
+<li>Add imports:
+<div class="source">
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+</div>
+</li>
+<li>Change how the datasource is looked up
+<br />
+Replace:
+<div class="source">
+    ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+    // Get the DataSourceSelector service
+    DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
+    // Get the data-source required.
+    datasource = (DataSourceComponent)datasources.select(datasourceName);
+</div>
+with
+<div class="source">
+    InitialContext ctx = new InitialContext();
+    datasource = (DataSource) ctx.lookup("java:comp/env/jdbc/" + datasourceName);
+</div>
+Then update exception handling appropriately.
+</li>
+</ol>
+ <p>
+   That's all there is to it.  Enjoy!
+ </p>
+
+</div>
+</p>
+</div>
+</td>
+<!--RIGHT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" class="right-navbar">
+<navbar name="rhs">
+      <p>
 <strong>Project</strong>
 </p>
 <ul>
@@ -82,16 +139,16 @@
 <a href="http://issues.apache.org/jira/browse/JAMES">Bug Database </a>
 </li>
 <li>
-<a href="http://svn.apache.org/">Subversion Repositories</a>
+<a href="http://svn.apache.org/">Source Code</a>
 </li>
 <li>
 <a href="./weare.html">Who We Are</a>
 </li>
 <li>
-<a href="./contribute.html">How Can I Contribute?</a>
+<a href="./contribute.html">Contributing</a>
 </li>
 <li>
-<a href="./code-standards.html">Coding Standards</a>
+<a href="./code-standards.html">Standards</a>
 </li>
 <li>
 <a href="./license.html">License</a>
@@ -103,7 +160,7 @@
 <a href="./todo.html">TODO</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Translated</strong>
 </p>
 <ul>
@@ -111,7 +168,7 @@
 <a href="http://james.terra-intl.com/">Japanese (web)</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Related Projects</strong>
 </p>
 <ul>
@@ -125,7 +182,7 @@
 <a href="http://avalon.apache.org/index.html">Avalon</a>
 </li>
 </ul>
-<p>
+      <p>
 <strong>Useful Information</strong>
 </p>
 <ul>
@@ -139,122 +196,21 @@
 <a href="http://apache.org/foundation/faq.html">Apache</a>
 </li>
 </ul>
-</td>
-<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Migrating from Avalon database connections to DataSource"><strong>Migrating from Avalon database connections to DataSource</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-
-<p>
-  In James version 3.0, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
-</p>
-
-<ol>
-
-<li>Remove references to DataSourceSelector.</li>
-
-<li>Change references of DataSourceComponent to DataSource</li>
-
-<li>Add imports:
-<div align="left">
-<table border="0" cellpadding="0" cellspacing="4">
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
-<pre>
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-</pre>
-</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-</table>
-</div>
-
-</li>
-
-<li>Change how the datasource is looked up
-<br>
-Replace:
-<div align="left">
-<table border="0" cellpadding="0" cellspacing="4">
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
-<pre>
-    ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-    // Get the DataSourceSelector service
-    DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
-    // Get the data-source required.
-    datasource = (DataSourceComponent)datasources.select(datasourceName);
-</pre>
-</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-</table>
-</div>
-with
-<div align="left">
-<table border="0" cellpadding="0" cellspacing="4">
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
-<pre>
-    InitialContext ctx = new InitialContext();
-    datasource = (DataSource) ctx.lookup("java:comp/env/jdbc/" + datasourceName);
-</pre>
-</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-</table>
-</div>
-Then update exception handling appropriately.
-</li>
-
-</ol>
- 
-<p>
-   That's all there is to it.  Enjoy!
- </p>
-
-
-</blockquote>
-</td>
-</tr>
-</table>
+    </navbar>
 </td>
 </tr>
 <!--FOOTER SEPARATOR-->
 <tr>
-<td colspan="2">
-<hr size="1" noshade="">
+<td colspan="3">
+<hr size="1" noshade="" />
 </td>
 </tr>
-<!--PAGE FOOTER-->
 <tr>
-<td colspan="2">
-<div align="center">
-<font size="-1" color="#525D76"><em>
-        Copyright &copy; 1999-2005, Apache Software Foundation
-        </em></font>
+<td colspan="3">
+<div class="page-footer">
+<em>
+        Copyright © 1999-2005, The Apache Software Foundation
+        </em>
 </div>
 </td>
 </tr>
