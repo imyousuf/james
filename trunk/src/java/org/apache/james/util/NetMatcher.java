@@ -77,6 +77,7 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
+            log("Cannot resolve address: " + uhe.getMessage());
         }
         networks.trimToSize();
     }
@@ -91,6 +92,7 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
+            log("Cannot resolve address: " + uhe.getMessage());
         }
         networks.trimToSize();
     }
@@ -105,6 +107,7 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
+            log("Cannot resolve address: " + uhe.getMessage());
         }
 
         boolean sameNet = false;
@@ -146,6 +149,8 @@ public class NetMatcher
     public String toString() {
         return networks.toString();
     }
+
+    protected void log(String s) { }
 }
 
 class InetNetwork
