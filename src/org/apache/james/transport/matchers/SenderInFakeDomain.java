@@ -25,6 +25,7 @@ public class SenderInFakeDomain extends GenericMatcher {
         Collection servers = getMailetContext().getMailServers(domain);
         if (servers.size() == 0) {
             //No records...could not deliver to this domain, so matches criteria.
+	    log("No MX record found for domain: " + domain);
             return mail.getRecipients();
         } else {
             //Some servers were found... the domain is not fake.

@@ -12,12 +12,20 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
+
 import org.apache.james.*;
 import org.apache.james.transport.*;
-import org.apache.james.userrepository.*;
+import org.apache.james.services.UsersStore;
+import org.apache.james.services.UsersRepository;
 import org.apache.mailet.*;
 
 /**
+ * MailingListServer capability
+ *
+ * Requires a configuration element in the .conf.xml file of the form:
+ *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *              type="USERS"
+ *              model="SYNCHRONOUS"/>
  * <membersPath>
  * <membersonly>
  * <attachmentsallowed>
@@ -47,16 +55,25 @@ public class AvalonListserv extends GenericListserv {
         }
         subjectPrefix = getInitParameter("subjectprefix");
 
-        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        org.apache.avalon.blocks.Store store = (org.apache.avalon.blocks.Store) comp.getComponent(org.apache.avalon.blocks.Interfaces.STORE);
-        String membersPath = getInitParameter("membersPath");
-        members = (UsersRepository) store.getPrivateRepository(membersPath, UsersRepository.USER, org.apache.avalon.blocks.Store.ASYNCHRONOUS);
+        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+	try {
+	     UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+	    String repName = getInitParameter("repositoryName");
+	   
+	    members = (UsersRepository) usersStore.getRepository(repName);
+	} catch (ComponentNotFoundException cnfe) {
+	    log("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    log("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    log("Failed to retrieve Store component:" + e.getMessage());
+	}
     }
 
     public Collection getMembers() throws ParseException {
         Collection reply = new Vector();
-        for (Enumeration e = members.list(); e.hasMoreElements(); ) {
-            reply.add(new MailAddress(e.nextElement().toString()));
+        for (Iterator it = members.list(); it.hasNext(); ) {
+            reply.add(new MailAddress(it.next().toString()));
         }
         return reply;
     }

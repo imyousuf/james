@@ -12,8 +12,11 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
+
 import org.apache.james.*;
-import org.apache.james.userrepository.*;
+import org.apache.james.services.UsersStore;
+import org.apache.james.services.UsersRepository;
 import org.apache.mailet.*;
 import org.apache.james.transport.*;
 
@@ -33,10 +36,19 @@ public class AvalonListservManager extends GenericListservManager {
     private UsersRepository members;
 
     public void init() {
-        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        org.apache.avalon.blocks.Store store = (org.apache.avalon.blocks.Store) comp.getComponent(org.apache.avalon.blocks.Interfaces.STORE);
-        String membersPath = getInitParameter("membersPath");
-        members = (UsersRepository) store.getPrivateRepository(membersPath, UsersRepository.USER, org.apache.avalon.blocks.Store.ASYNCHRONOUS);
+        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+	try {
+	    UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+	    String repName = getInitParameter("repositoryName");
+	   
+	    members = (UsersRepository) usersStore.getRepository(repName);
+     	} catch (ComponentNotFoundException cnfe) {
+	    log("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    log("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    log("Failed to retrieve Store component:" + e.getMessage());
+	}
     }
 
     public boolean addAddress(MailAddress address) {
@@ -52,7 +64,7 @@ public class AvalonListservManager extends GenericListservManager {
     public boolean existsAddress(MailAddress address) {
         return members.contains(address.toString());
     }
-
+ 
     public String getMailetInfo() {
         return "AvalonListservManager Mailet";
     }

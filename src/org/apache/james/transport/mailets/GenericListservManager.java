@@ -31,6 +31,7 @@ public abstract class GenericListservManager extends GenericMailet {
      * was successful.
      */
     public abstract boolean removeAddress(MailAddress address);
+
     
     /**
      * Indicates whether an address already exists on the listserv. Returns
@@ -53,10 +54,10 @@ public abstract class GenericListservManager extends GenericMailet {
                 if (removeAddress(mail.getSender())) {
                     getMailetContext().bounce(mail, "Successfully removed from listserv.");
                 } else {
-                    getMailetContext().bounce(mail, "Unable to remove you from listserv for some reason");
+                getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
                 }
             } else {
-                getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
+                getMailetContext().bounce(mail, "Unable to remove you from listserv for some reason");
             }
         } else if (address.getUser().endsWith("-on")) {
             if (existsAddress(mail.getSender())) {

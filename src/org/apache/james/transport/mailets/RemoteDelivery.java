@@ -13,12 +13,15 @@ import java.util.*;
 import java.net.*;
 
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
+
 import org.apache.james.*;
 import org.apache.james.core.*;
-import org.apache.james.mailrepository.*;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
 import org.apache.james.transport.*;
 import org.apache.mailet.*;
-import org.apache.avalon.blocks.*;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -55,15 +58,30 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
         } catch (Exception e) {
         }
-        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
-        // Instantiate the a MailRepository for outgoing mails
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        String outgoingPath = getInitParameter("outgoing");
+        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+	String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
             outgoingPath = "file:///../var/mail/outgoing";
         }
-        outgoing = (SpoolRepository) store.getPrivateRepository(outgoingPath, SpoolRepository.SPOOL, Store.ASYNCHRONOUS);
+
+	try {
+	    // Instantiate the a MailRepository for outgoing mails
+	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+	    
+	    DefaultConfiguration spoolConf
+		= new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
+	    spoolConf.addAttribute("destinationURL", outgoingPath);
+	    spoolConf.addAttribute("type", "SPOOL");
+	    spoolConf.addAttribute("model", "SYNCHRONOUS");
+	    
+	    outgoing = (SpoolRepository) mailstore.select(spoolConf);
+    	} catch (ComponentNotFoundException cnfe) {
+	    log("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    log("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    log("Failed to retrieve Store component:" + e.getMessage());
+	}
 
         //Start up a number of threads
         try {
@@ -103,7 +121,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             if (addr.length > 0) {
                 //Lookup the possible targets
-                for (Iterator i = getMailetContext().getMailServers(host).iterator(); i.hasNext();) {
+		Iterator i = getMailetContext().getMailServers(host).iterator();
+		if (! i.hasNext()) {
+		    log("No mail servers found for: " + host);
+		}
+                while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
                         log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
@@ -122,6 +144,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
                         //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
+
 
                         Transport transport = session.getTransport(urlname);
                         transport.connect();
@@ -145,7 +168,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                     */
                     }
-                }
+                }// end while
                 //If we encountered an exception while looping through, send the last exception we got
                 if (e != null) {
                     throw e;
@@ -257,6 +280,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             t.interrupt();
         }
     }
+
+
 
     /**
      * Handles checking the outgoing spool for new mail and delivering them if
