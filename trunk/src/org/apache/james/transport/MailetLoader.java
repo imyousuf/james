@@ -26,7 +26,11 @@ public class MailetLoader implements Component, Configurable {
         mailetPackages.addElement("");
         for (Enumeration e = conf.getConfigurations("mailetpackage"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
-            mailetPackages.addElement(c.getValue());
+            String packageName = c.getValue();
+            if (!packageName.endsWith(".")) {
+                packageName += ".";
+            }
+            mailetPackages.addElement(packageName);
         }
     }
 
@@ -53,7 +57,7 @@ public class MailetLoader implements Component, Configurable {
             throw me;
         } catch (Throwable t) {
             t.printStackTrace();
-            throw new MailetException("Could not load mailet " + mailetName, t);
+            throw new MailetException("Could not load mailet (" + mailetName + ")", t);
         }
     }
 }

@@ -135,6 +135,9 @@
                 <mailetpackages>
                     <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
                 </mailetpackages>
+                <matcherpackages>
+                    <mailetpackage>org.apache.james.transport.matchers.</mailetpackage>
+                </matcherpackages>
 <!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
                 <processor name="root">
                     <mailet match="RecipientIs=badboy@badhost" class="Null">
