@@ -66,6 +66,7 @@ import org.apache.james.core.MailImpl;
 
 import javax.mail.search.SearchTerm;
 import javax.mail.internet.MimeMessage;
+import javax.mail.Flags;
 import java.util.List;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -82,11 +83,11 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         _mailbox = mailbox;
         _readonly = readonly;
         // TODO make this a weak reference (or make sure deselect() is *always* called).
-        _mailbox.addExpungeListener(this);
+        _mailbox.addListener(this);
     }
 
     public void deselect() {
-        _mailbox.removeExpungeListener(this);
+        _mailbox.removeListener(this);
         _mailbox = null;
     }
 
@@ -137,11 +138,11 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _mailbox.getFullName();
     }
 
-    public MessageFlags getAllowedFlags() {
+    public Flags getAllowedFlags() {
         return _mailbox.getAllowedFlags();
     }
 
-    public MessageFlags getPermanentFlags() {
+    public Flags getPermanentFlags() {
         return _mailbox.getPermanentFlags();
     }
 
@@ -173,7 +174,7 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _mailbox.getUnseenCount();
     }
 
-    public SimpleImapMessage createMessage( MimeMessage message, MessageFlags flags, Date internalDate ) {
+    public SimpleImapMessage createMessage( MimeMessage message, Flags flags, Date internalDate ) {
         return _mailbox.createMessage(message, flags, internalDate);
     }
 
@@ -209,12 +210,12 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         _mailbox.copyMessage(uid, toMailbox);
     }
 
-    public void addExpungeListener(MailboxListener listener) {
-        _mailbox.addExpungeListener(listener);
+    public void addListener(MailboxListener listener) {
+        _mailbox.addListener(listener);
     }
 
-    public void removeExpungeListener(MailboxListener listener) {
-        _mailbox.removeExpungeListener(listener);
+    public void removeListener(MailboxListener listener) {
+        _mailbox.removeListener(listener);
     }
 
 }

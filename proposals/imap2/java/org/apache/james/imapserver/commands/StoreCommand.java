@@ -67,12 +67,14 @@ import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.SimpleImapMessage;
 import org.apache.james.imapserver.store.MailboxException;
 
+import javax.mail.Flags;
+
 /**
  * Handles processeing for the STORE imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -98,7 +100,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
     {
         IdSet idSet = parser.set( request );
         StoreDirective directive = parser.storeDirective( request );
-        MessageFlags flags = parser.flagList( request );
+        Flags flags = parser.flagList( request );
         parser.endLine( request );
 
         ImapMailbox mailbox = session.getSelected();
@@ -116,7 +118,7 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 
                 if ( ! directive.isSilent() ) {
                     StringBuffer out = new StringBuffer( "FLAGS " );
-                    out.append( imapMessage.getFlags().format() );
+                    out.append( MessageFlags.format(imapMessage.getFlags()) );
                     response.fetchResponse( msn, out.toString() );
                 }
             }
@@ -126,17 +128,18 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
         response.commandComplete( this );
     }
 
-    private void storeFlags( SimpleImapMessage imapMessage, StoreDirective directive, MessageFlags newFlags )
+    private void storeFlags( SimpleImapMessage imapMessage, StoreDirective directive, Flags newFlags )
     {
-        MessageFlags messageFlags = imapMessage.getFlags();
+        Flags messageFlags = imapMessage.getFlags();
         if ( directive.getSign() == 0 ) {
-            messageFlags.setAll( newFlags );
+            messageFlags.remove(MessageFlags.ALL_FLAGS);
+            messageFlags.add(newFlags);
         }
         else if ( directive.getSign() < 0 ) {
-            messageFlags.removeAll( newFlags );
+            messageFlags.remove(newFlags);
         }
         else if ( directive.getSign() > 0 ) {
-            messageFlags.addAll( newFlags );
+            messageFlags.add(newFlags);
         }
     }
 

@@ -62,6 +62,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.MessagingException;
+import javax.mail.Flags;
 import java.util.Date;
 
 /**
@@ -70,18 +71,18 @@ import java.util.Date;
  * way of handling *all* messages needs to be available for James (maybe MailImpl?)
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class SimpleImapMessage
         extends AbstractLogEnabled implements ImapMessage
 {
     private MimeMessage mimeMessage;
-    private MessageFlags flags;
+    private Flags flags;
     private Date internalDate;
     private long uid;
     private SimpleMessageAttributes attributes;
 
-    SimpleImapMessage( MimeMessage mimeMessage, MessageFlags flags,
+    SimpleImapMessage( MimeMessage mimeMessage, Flags flags,
                  Date internalDate, long uid )
     {
         this.mimeMessage = mimeMessage;
@@ -94,7 +95,7 @@ public class SimpleImapMessage
         return mimeMessage;
     }
 
-    public MessageFlags getFlags() {
+    public Flags getFlags() {
         return flags;
     }
 

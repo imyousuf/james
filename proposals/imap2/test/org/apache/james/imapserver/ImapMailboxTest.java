@@ -58,31 +58,27 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.store.ImapStore;
-import org.apache.james.imapserver.store.InMemoryStore;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.MessageFlags;
-import org.apache.james.imapserver.store.SimpleImapMessage;
+import junit.framework.TestCase;
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.core.MailImpl;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.ImapStore;
+import org.apache.james.imapserver.store.InMemoryStore;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.SimpleImapMessage;
 
-import junit.framework.TestCase;
-
+import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
-import javax.mail.Address;
-import java.util.Date;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
-import java.net.InetAddress;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class ImapMailboxTest extends TestCase
         implements ImapConstants
@@ -96,8 +92,8 @@ public class ImapMailboxTest extends TestCase
     {
         ImapMailbox mailbox = getMailbox();
 
-        MessageFlags flags = new MessageFlags();
-        flags.setFlagged( true );
+        Flags flags = new Flags();
+        flags.add(Flags.Flag.FLAGGED);
 
         Date datetime = new Date();
         String message =
@@ -116,8 +112,8 @@ public class ImapMailboxTest extends TestCase
         SimpleImapMessage imapMessage = mailbox.getMessage( uid );
 
         assertEquals( 1, mailbox.getMessageCount() );
-        assertTrue( imapMessage.getFlags().isFlagged() );
-        assertTrue( ! imapMessage.getFlags().isAnswered() );
+        assertTrue( imapMessage.getFlags().contains(Flags.Flag.FLAGGED) );
+        assertTrue( ! imapMessage.getFlags().contains(Flags.Flag.ANSWERED) );
 
         MimeMessage mime = imapMessage.getMimeMessage();
         assertEquals( "TEXT/PLAIN; CHARSET=US-ASCII", mime.getContentType() );
@@ -127,7 +123,7 @@ public class ImapMailboxTest extends TestCase
 
     }
 
-    private long appendMessage( String messageContent, MessageFlags flags,
+    private long appendMessage( String messageContent, Flags flags,
                                 Date datetime, ImapMailbox mailbox )
     {
         MimeMessageSource source =

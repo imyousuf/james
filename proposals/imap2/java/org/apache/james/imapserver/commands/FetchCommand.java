@@ -69,6 +69,7 @@ import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleImapMessage;
 
 import javax.mail.MessagingException;
+import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,7 +84,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -123,8 +124,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 SimpleImapMessage imapMessage = mailbox.getMessage( uid );
                 String msgData = outputMessage( fetch, imapMessage );
                 response.fetchResponse( msn, msgData );
-                if (imapMessage.getFlags().isRecent()) {
-                    imapMessage.getFlags().setRecent(false);
+                if (imapMessage.getFlags().contains(Flags.Flag.RECENT)) {
+                    imapMessage.getFlags().remove(Flags.Flag.RECENT);
                     mailbox.updateMessage(imapMessage);
                 }
             }
@@ -150,8 +151,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             response.append( SP );
 
             if ( fetchElement == FetchElement.FLAGS ) {
-                MessageFlags flags = message.getFlags();
-                response.append( flags.format() );
+                Flags flags = message.getFlags();
+                response.append( MessageFlags.format(flags) );
             }
             else if ( fetchElement == FetchElement.INTERNALDATE ) {
                 // TODO format properly
@@ -191,7 +192,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 }
 
                 if ( ! peek ) {
-                    message.getFlags().setSeen( true );
+                    message.getFlags().add(Flags.Flag.SEEN);
                     // TODO need to store this change.
                 }
             }

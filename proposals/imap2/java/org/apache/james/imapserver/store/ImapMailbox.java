@@ -58,13 +58,12 @@
 
 package org.apache.james.imapserver.store;
 
-import org.apache.mailet.MailRepository;
 import org.apache.james.core.MailImpl;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
+import javax.mail.Flags;
 import java.util.Date;
-import java.util.Collection;
 
 /**
  * Represents a mailbox within an {@link org.apache.james.imapserver.store.ImapStore}.
@@ -75,7 +74,7 @@ import java.util.Collection;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface ImapMailbox
 {
@@ -83,9 +82,9 @@ public interface ImapMailbox
 
     String getFullName();
 
-    MessageFlags getAllowedFlags();
+    Flags getAllowedFlags();
     
-    MessageFlags getPermanentFlags();
+    Flags getPermanentFlags();
 
     int getMessageCount();
 
@@ -103,7 +102,7 @@ public interface ImapMailbox
 
     int getUnseenCount();
 
-    SimpleImapMessage createMessage( MimeMessage message, MessageFlags flags, Date internalDate );
+    SimpleImapMessage createMessage( MimeMessage message, Flags flags, Date internalDate );
 
     void updateMessage( SimpleImapMessage message ) throws MailboxException;
 
@@ -117,9 +116,9 @@ public interface ImapMailbox
     
     void expunge() throws MailboxException;
 
-    void addExpungeListener(MailboxListener listener);
+    void addListener(MailboxListener listener);
 
-    void removeExpungeListener(MailboxListener listener);
+    void removeListener(MailboxListener listener);
 
     long[] search(SearchTerm searchTerm);
 

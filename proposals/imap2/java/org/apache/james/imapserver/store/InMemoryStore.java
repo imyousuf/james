@@ -65,6 +65,7 @@ import org.apache.james.imapserver.ImapConstants;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 import javax.mail.MessagingException;
+import javax.mail.Flags;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -82,20 +83,20 @@ import java.util.LinkedList;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled
         implements ImapStore, ImapConstants
 {
     private RootMailbox rootMailbox = new RootMailbox();
-    private static MessageFlags mailboxFlags = new MessageFlags();
+    private static final Flags PERMANENT_FLAGS = new Flags();
     static {
-        mailboxFlags.setAnswered( true );
-        mailboxFlags.setDeleted( true );
-        mailboxFlags.setDraft( true );
-        mailboxFlags.setFlagged( true );
-        mailboxFlags.setSeen( true );
+        PERMANENT_FLAGS.add(Flags.Flag.ANSWERED);
+        PERMANENT_FLAGS.add(Flags.Flag.DELETED);
+        PERMANENT_FLAGS.add(Flags.Flag.DRAFT);
+        PERMANENT_FLAGS.add(Flags.Flag.FLAGGED);
+        PERMANENT_FLAGS.add(Flags.Flag.SEEN);
     }
 
     public ImapMailbox getMailbox( String absoluteMailboxName )
@@ -301,12 +302,12 @@ public class InMemoryStore
             return parent.getFullName() + HIERARCHY_DELIMITER_CHAR + name;
         }
 
-        public MessageFlags getAllowedFlags()
+        public Flags getAllowedFlags()
         {
-            return mailboxFlags;
+            return PERMANENT_FLAGS;
         }
 
-        public MessageFlags getPermanentFlags() {
+        public Flags getPermanentFlags() {
             return getAllowedFlags();
         }
 
@@ -331,7 +332,7 @@ public class InMemoryStore
             Iterator iter = mailMessages.values().iterator();
             while (iter.hasNext()) {
                 SimpleImapMessage message = (SimpleImapMessage) iter.next();
-                if (! message.getFlags().isSeen()) {
+                if (! message.getFlags().contains(Flags.Flag.SEEN)) {
                     count++;
                 }
             }
@@ -343,7 +344,7 @@ public class InMemoryStore
             Iterator iter = mailMessages.values().iterator();
             while (iter.hasNext()) {
                 SimpleImapMessage message = (SimpleImapMessage) iter.next();
-                if (! message.getFlags().isSeen()) {
+                if (! message.getFlags().contains(Flags.Flag.SEEN)) {
                     return message.getUid();
                 }
             }
@@ -379,7 +380,7 @@ public class InMemoryStore
         }
 
         public SimpleImapMessage createMessage( MimeMessage message,
-                                          MessageFlags flags,
+                                          Flags flags,
                                           Date internalDate )
         {
             long uid = nextUid;
@@ -419,7 +420,7 @@ public class InMemoryStore
         {
             MimeMessage message = mail.getMessage();
             Date internalDate = new Date();
-            MessageFlags flags = new MessageFlags();
+            Flags flags = new Flags();
             createMessage( message, flags, internalDate );
         }
 
@@ -478,8 +479,8 @@ public class InMemoryStore
                 // TODO chain.
                 throw new MailboxException( "Messaging exception: " + e.getMessage() );
             }
-            MessageFlags newFlags = new MessageFlags();
-            newFlags.setAll( originalMessage.getFlags() );
+            Flags newFlags = new Flags();
+            newFlags.add( originalMessage.getFlags() );
             Date newDate = originalMessage.getInternalDate();
 
             toMailbox.createMessage( newMime, newFlags, newDate);
@@ -491,7 +492,7 @@ public class InMemoryStore
             for (int i = 0; i < allUids.length; i++) {
                 long uid = allUids[i];
                 SimpleImapMessage message = getMessage(uid);
-                if (message.getFlags().isDeleted()) {
+                if (message.getFlags().contains(Flags.Flag.DELETED)) {
                     expungeMessage(uid);
 
                 }
@@ -510,13 +511,13 @@ public class InMemoryStore
             deleteMessage(uid);
         }
 
-        public void addExpungeListener(MailboxListener listener) {
+        public void addListener(MailboxListener listener) {
             synchronized(_mailboxListeners) {
                 _mailboxListeners.add(listener);
             }
         }
 
-        public void removeExpungeListener(MailboxListener listener) {
+        public void removeListener(MailboxListener listener) {
             synchronized (_mailboxListeners) {
                 _mailboxListeners.remove(listener);
             }
