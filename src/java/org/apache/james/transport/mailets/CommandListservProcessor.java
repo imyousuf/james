@@ -27,7 +27,6 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
-import org.apache.oro.text.regex.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -60,7 +59,7 @@ import java.util.*;
  *
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.5 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.6 $ $Date: 2004/04/16 20:59:14 $
  * @since 2.2.0
  */
 public class CommandListservProcessor extends GenericMailet {
@@ -139,11 +138,6 @@ public class CommandListservProcessor extends GenericMailet {
     protected String listName;
 
     /**
-     * For matching
-     */
-    protected Pattern pattern;
-
-    /**
      * The list serv manager
      */
     protected ICommandListservManager commandListservManager;
@@ -174,8 +168,6 @@ public class CommandListservProcessor extends GenericMailet {
             initializeResources();
             //init user repos
             initUsersRepository();
-            //init regexp
-            initRegExp();
         } catch (Exception e) {
             throw new MessagingException(e.getMessage(), e);
         }
@@ -252,7 +244,7 @@ public class CommandListservProcessor extends GenericMailet {
                 subj = "";
             }
             subj = normalizeSubject(subj, prefix);
-            message.setSubject(subj);
+            AbstractRedirect.changeSubject(message, subj);
         }
     }
 
@@ -413,44 +405,76 @@ public class CommandListservProcessor extends GenericMailet {
     }
 
     /**
-     * init the regexp
+     * <p>This takes the subject string and reduces (normailzes) it.
+     * Multiple "Re:" entries are reduced to one, and capitalized.  The
+     * prefix is always moved/placed at the beginning of the line, and
+     * extra blanks are reduced, so that the output is always of the
+     * form:</p>
+     * <code>
+     * &lt;prefix&gt; + &lt;one-optional-"Re:"*gt; + &lt;remaining subject&gt;
+     * </code>
+     * <p>I have done extensive testing of this routine with a standalone
+     * driver, and am leaving the commented out debug messages so that
+     * when someone decides to enhance this method, it can be yanked it
+     * from this file, embedded it with a test driver, and the comments
+     * enabled.</p>
      */
-    protected void initRegExp() throws Exception {
-        StringBuffer regExp = new StringBuffer();
-        if (autoBracket) {
-            regExp.append("\\[");
-        }
-        if (subjectPrefix != null) {
-            regExp.append(subjectPrefix);
-        }
-        if (autoBracket) {
-            regExp.append("\\]");
-        }
-        if (subjectPrefix != null) {
-            regExp.append("|");
-        }
-        regExp.append("re:");
+    static private String normalizeSubject(final String subj, final String prefix) {
+        // JDK IMPLEMENTATION NOTE!  When we require JDK 1.4+, all
+        // occurrences of subject.toString.().indexOf(...) can be
+        // replaced by subject.indexOf(...).
 
-        pattern = new Perl5Compiler().compile(regExp.toString(), Perl5Compiler.CASE_INSENSITIVE_MASK);
-    }
+        StringBuffer subject = new StringBuffer(subj);
+        int prefixLength = prefix.length();
 
-    protected String normalizeSubject(String subject, String prefix) {
-        if (subject == null) {
-            subject = "";
+        // System.err.println("In:  " + subject);
+
+        // If the "prefix" is not at the beginning the subject line, remove it
+        int index = subject.toString().indexOf(prefix);
+        if (index != 0) {
+            // System.err.println("(p) index: " + index + ", subject: " + subject);
+            if (index > 0) {
+                subject.delete(index, index + prefixLength);
+            }
+            subject.insert(0, prefix); // insert prefix at the front
         }
 
-        boolean hasMatch = (subject.indexOf(subjectPrefix) != -1);
-        String result = Util.substitute(new Perl5Matcher(),
-                pattern,
-                new StringSubstitution(""),
-                subject,
-                Util.SUBSTITUTE_ALL).trim();
+        // Replace Re: with RE:
+        String match = "Re:";
+        index = subject.toString().indexOf(match, prefixLength);
 
-        if (hasMatch) {
-            return prefix + " RE: " + result;
-        } else {
-            return prefix + " " + result;
+        while(index > -1) {
+            // System.err.println("(a) index: " + index + ", subject: " + subject);
+            subject.replace(index, index + match.length(), "RE:");
+            index = subject.toString().indexOf(match, prefixLength);
+            // System.err.println("(b) index: " + index + ", subject: " + subject);
         }
+
+        // Reduce them to one at the beginning
+        match ="RE:";
+        int indexRE = subject.toString().indexOf(match, prefixLength) + match.length();
+        index = subject.toString().indexOf(match, indexRE);
+        while(index > 0) {
+            // System.err.println("(c) index: " + index + ", subject: " + subject);
+            subject.delete(index, index + match.length());
+            index = subject.toString().indexOf(match, indexRE);
+            // System.err.println("(d) index: " + index + ", subject: " + subject);
+        }
+
+        // Reduce blanks
+        match = "  ";
+        index = subject.toString().indexOf(match, prefixLength);
+        while(index > -1) {
+            // System.err.println("(e) index: " + index + ", subject: " + subject);
+            subject.replace(index, index + match.length(), " ");
+            index = subject.toString().indexOf(match, prefixLength);
+            // System.err.println("(f) index: " + index + ", subject: " + subject);
+        }
+
+
+        // System.err.println("Out: " + subject);
+
+        return subject.toString();
     }
 
     /**
