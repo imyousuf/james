@@ -126,17 +126,17 @@
           <tr>
             <td>
               <table cellspace="0">
-	        <tr>
-	          <td align="center" valign="top"> |
-                    <br>LocalUsers</br>
-                    <br>member=Arthur</br>
-                  </td>
-	          <td align="center" valign="top"> |
+            <tr>
+              <td align="center" valign="top"> |
+                <br>LocalUsers</br>
+                <br>member=Arthur</br>
+              </td>
+              <td align="center" valign="top"> |
                     <br>list-james</br>
                     <br>member=Arthur</br>
                   </td>
-	        </tr>
-	      </table>
+            </tr>
+          </table>
             </td>
             <td> </td>
             <td> </td>
@@ -152,7 +152,7 @@
 <section name="Installation">
 
   <p>
-    Six  entries in JAMES.conf.xml must be set for this to work: 
+    Six entries in JAMES.conf.xml must be set for this to work: 
     <ul>
       <li>change usersManager - type to ldap.</li>
       <li>Set the ldapServer element to point to the correct host and port</li>

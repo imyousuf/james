@@ -41,15 +41,15 @@
             <td> Is the source of error replies and the email users will mail to for any problem.  You
             should change this to an address that can receive incoming messages.</td>
         </tr>
-	<tr>
+    <tr>
             <td> helloName</td>
             <td> attribute autodetect=TRUE and value of 'myMailServer'  </td>
             <td> The name by which James will identify itself in SMTP and POP3
-	     greetings. If autodetect is TRUE James will attempt to detect
+            greetings. If autodetect is TRUE James will attempt to detect
             automatically the name, failing which it will use 'localhost'. If
-	    autodetect is not TRUE, James will use the specified name or
-	    'localhost' if none is specified. Look in jamesinfo.log for
-	     lines like "[...] Local host is: [servername] and [...] Hello Name is: [machine name]"</td>
+            autodetect is not TRUE, James will use the specified name or
+            'localhost' if none is specified. Look in jamesinfo.log for
+            lines like "[...] Local host is: [servername] and [...] Hello Name is: [machine name]"</td>
         </tr>
         <tr>
             <td> servernames/servername</td>
@@ -310,12 +310,12 @@
             (see &lt;servername&gt;). </td>
             <td> match="HostIsLocal" </td>
         </tr>
-       	<tr>
-       		<td> InSpammerBlacklist </td>
-       		<td> DNS zone with blacklist </td>
-       		<td> match all recipients if mail received from an IP address on the blacklist. </td>
-       		<td> match="InSpammerBlacklist=blackholes.mail-abuse.org" </td>
-       	</tr>
+        <tr>
+            <td> InSpammerBlacklist </td>
+            <td> DNS zone with blacklist </td>
+            <td> match all recipients if mail received from an IP address on the blacklist. </td>
+            <td> match="InSpammerBlacklist=blackholes.mail-abuse.org" </td>
+        </tr>
         <tr>
             <td> IsSingleRecipient </td>
             <td> none </td>
@@ -442,7 +442,7 @@
     </blockquote>
     <b>debug.Identity</b>
     <blockquote>
-         Leave any incoming mail untoched. A debug mailet
+         Leave any incoming mail untouched. A debug mailet
          (not really useful).
          No configuration needed.
             <br>
@@ -451,7 +451,7 @@
     </blockquote>
     <b>Forward</b>
     <blockquote>
-    		<br>
+            <br>
             Replace the recipient list with recipient specified in
             configurations.</br>
             <br>
@@ -522,7 +522,7 @@
 
     <b>RemoteDelivery</b>
     
- Relay mails to remote hosts. "delayTime" is the time in mills the 
+ Relays mails to remote hosts. "delayTime" is the time in mills the 
   mailet will wait before retrying sending a mail which fail at first time. "maxRetries" 
   is the number of retries before sending back to sender the mail. <br>
           &lt;mailet match="!RecipientIsLocal" class="RemoteDelivery"&gt;
