@@ -62,9 +62,6 @@ import java.io.*;
  *        The default is <I>30000</I> (30 seconds).</LI>
  *    <LI><CODE>&lt;streamBufferSize&gt;</CODE>: the BufferedOutputStream buffer size to use 
  *        writing to the <I>stream connection</I>. The default is <I>8192</I>.</LI>
- *    <LI><CODE>&lt;connectionTimeoutMilli&gt;</CODE>: the connection timeout (in milliseconds)
- *        when making the main connections (<I>not</I> for the initialization pings).
- *        The default is <I>20000</I> (20 seconds).</LI>
  * </UL>
  * 
  * <P>The actions performed are as follows:</P>
@@ -226,11 +223,6 @@ public class ClamAVScan extends GenericMailet {
     private int nextAddressIndex;
 
     /**
-     * Holds value of property connectionTimeoutMilli.
-     */
-    private int connectionTimeoutMilli;
-
-    /**
      * Return a string describing this mailet.
      *
      * @return a string describing this mailet
@@ -248,8 +240,7 @@ public class ClamAVScan extends GenericMailet {
                     "port",
                     "maxPings",
                     "pingIntervalMilli",
-                    "streamBufferSize",
-                    "connectionTimeoutMilli"
+                    "streamBufferSize"
         };
         return allowedArray;
     }
@@ -432,35 +423,6 @@ public class ClamAVScan extends GenericMailet {
     }
     
     /**
-     * Initializer for property connectionTimeoutMilli.
-     */
-    protected void initConnectionTimeoutMilli() {
-        String connectionTimeoutMilliParam = getInitParameter("connectionTimeoutMilli");
-        setConnectionTimeoutMilli((connectionTimeoutMilliParam == null) ? DEFAULT_CONNECTION_TIMEOUT : Integer.parseInt(connectionTimeoutMilliParam));
-        if (isDebug()) {
-            log("connectionTimeoutMilli: " + getConnectionTimeoutMilli());
-        }
-    }
-
-    /**
-     * Getter for property connectionTimeoutMilli.
-     * @return Value of property connectionTimeoutMilli.
-     */
-    public int getConnectionTimeoutMilli() {
-
-        return this.connectionTimeoutMilli;
-    }
-
-    /**
-     * Setter for property connectionTimeoutMilli.
-     * @param connectionTimeoutMilli New value of property connectionTimeoutMilli.
-     */
-    public void setConnectionTimeoutMilli(int connectionTimeoutMilli) {
-
-        this.connectionTimeoutMilli = connectionTimeoutMilli;
-    }
-
-    /**
      * Indexed getter for property addresses.
      * @param index Index of the property.
      * @return Value of the property at <CODE>index</CODE>.
@@ -527,8 +489,6 @@ public class ClamAVScan extends GenericMailet {
         
         InetAddress address = null;
         
-        Socket socket = new Socket();
-        
         Set usedAddresses = new HashSet(getAddressesCount());
         for (;;) {
             // this do-while loop is needed because other threads could in the meantime
@@ -544,10 +504,7 @@ public class ClamAVScan extends GenericMailet {
             } while (!usedAddresses.add(address));
             try {
                 // get the socket
-//                return new Socket(address, getPort());
-                SocketAddress socketAddress = new InetSocketAddress(address, getPort());
-                socket.connect(socketAddress, getConnectionTimeoutMilli());
-                return socket;
+                return new Socket(address, getPort());
             } catch (IOException ioe) {
                 log("Exception caught acquiring main socket to CLAMD on "
                         + address + " on port " + getPort() + ": " + ioe.getMessage());
@@ -577,7 +534,6 @@ public class ClamAVScan extends GenericMailet {
             initMaxPings();
             initPingIntervalMilli();
             initStreamBufferSize();
-            initConnectionTimeoutMilli();
             
             // If "maxPings is > ping the CLAMD server to check if it is up
             if (getMaxPings() > 0) {
