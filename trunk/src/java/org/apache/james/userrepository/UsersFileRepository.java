@@ -74,9 +74,9 @@ public class UsersFileRepository
                 = new DefaultConfiguration( "repository",
                                             "generated:UsersFileRepository.compose()" );
 
-            objectConfiguration.addAttribute( "destinationURL", destination );
-            objectConfiguration.addAttribute( "type", "OBJECT" );
-            objectConfiguration.addAttribute( "model", "SYNCHRONOUS" );
+            objectConfiguration.setAttribute( "destinationURL", destination );
+            objectConfiguration.setAttribute( "type", "OBJECT" );
+            objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
             or = (ObjectRepository)store.select( objectConfiguration );
 

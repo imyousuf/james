@@ -370,9 +370,9 @@ public class James
             String destination = inboxRootURL + userName + File.separator;;
             DefaultConfiguration mboxConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-            mboxConf.addAttribute("destinationURL", destination);
-            mboxConf.addAttribute("type", "MAIL");
-            mboxConf.addAttribute("model", "SYNCHRONOUS");
+            mboxConf.setAttribute("destinationURL", destination);
+            mboxConf.setAttribute("type", "MAIL");
+            mboxConf.setAttribute("model", "SYNCHRONOUS");
             try {
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);

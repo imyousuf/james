@@ -16,13 +16,12 @@ import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
 import org.apache.james.core.EnhancedMimeMessage;
 import org.apache.james.services.UsersRepository;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
 import org.apache.mailet.Mail;
 
 /**
@@ -87,6 +86,7 @@ import org.apache.mailet.Mail;
  * @version 0.1 on 14 Dec 2000
  */
 public class FileMailbox
+    extends AbstractLoggable
     implements ACLMailbox, Serializable {
 
     public static final String MAILBOX_FILE_NAME = "mailbox.mbr";
@@ -121,7 +121,6 @@ public class FileMailbox
     private transient Context context;
     private transient Configuration conf;
     private transient ComponentManager compMgr;
-    private transient Logger logger = LogKit.getLoggerFor("james.MailRepository");
     private transient UsersRepository localUsers;
     private transient HashSet listeners;
 
@@ -199,7 +198,7 @@ public class FileMailbox
         sequence = new ArrayList();
         recentMessages = new HashSet();
         messagesForDeletion = new HashSet();
-        logger.info("FileMailbox init for " + absoluteName);
+        getLogger().info("FileMailbox init for " + absoluteName);
         localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
         String rootPath
             = conf.getChild("mailboxRepository").getValue();
@@ -237,7 +236,7 @@ public class FileMailbox
                 name = "";
             }
         } else {
-            logger.error("FileMailbox init error: unknown namespace - "
+            getLogger().error("FileMailbox init error: unknown namespace - "
                          + absoluteName);
             throw new RuntimeException("Unknown namespace for absoluteName"
                                        +" argument for a FileMailbox"
@@ -253,7 +252,7 @@ public class FileMailbox
             throw new RuntimeException("Error: Cannot write to directory at " + path);
         }
         writeMailbox();
-        logger.info("FileMailbox init complete: " + absoluteName);
+        getLogger().info("FileMailbox init complete: " + absoluteName);
     }
 
     /**
@@ -263,8 +262,7 @@ public class FileMailbox
      */
     public void reinitialize() throws Exception {
         listeners = new HashSet();
-        logger = LogKit.getLoggerFor("james.MailRepository");
-        logger.info("FileMailbox reInit for " + absoluteName);
+        getLogger().info("FileMailbox reInit for " + absoluteName);
         localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
         String rootPath
             = conf.getChild("mailboxRepository").getValue();
@@ -280,7 +278,7 @@ public class FileMailbox
      */
     public void dispose() {
         writeMailbox();
-        logger.info("FileMailbox object destroyed: " + absoluteName);
+        getLogger().info("FileMailbox object destroyed: " + absoluteName);
     }
 
     /**
@@ -294,7 +292,7 @@ public class FileMailbox
      */
     public synchronized  boolean checkpoint() {
         writeMailbox();
-        logger.info("FileMailbox: " + absoluteName + " checkpointed.");
+        getLogger().info("FileMailbox: " + absoluteName + " checkpointed.");
         return true;
     }
 
@@ -979,7 +977,7 @@ public class FileMailbox
                IllegalArgumentException {
 
         if (message == null || username == null) {
-            logger.error("Null argument received in store.");
+            getLogger().error("Null argument received in store.");
             throw new IllegalArgumentException("Null argument received in store.");
         }
         if (!hasInsertRights(username)) { //throws AccessControlException
@@ -988,6 +986,7 @@ public class FileMailbox
 
         SimpleMessageAttributes attrs = new SimpleMessageAttributes();
         try {
+            setupLogger(attrs);
             attrs.setAttributesFor(message);
         } catch (javax.mail.MessagingException me) {
             throw new RuntimeException("Exception creating SimpleMessageAttributes: " + me);
@@ -1018,11 +1017,11 @@ public class FileMailbox
                IllegalArgumentException {
 
         if (msgAttrs == null || message == null || username == null) {
-            logger.error("Null argument received in store.");
+            getLogger().error("Null argument received in store.");
             throw new IllegalArgumentException("Null argument received in store.");
         }
         if (! (msgAttrs instanceof SimpleMessageAttributes)) {
-            logger.error("Wrong class for Attributes");
+            getLogger().error("Wrong class for Attributes");
             throw new IllegalArgumentException("Wrong class for Attributes");
         }
         SimpleMessageAttributes attrs = (SimpleMessageAttributes)msgAttrs;
@@ -1043,7 +1042,7 @@ public class FileMailbox
             outAttrs.writeObject(attrs);
             outAttrs.close();
         } catch(Exception e) {
-            logger.error("Error writing message to disc: " + e);
+            getLogger().error("Error writing message to disc: " + e);
             e.printStackTrace();
             throw new
                 RuntimeException("Exception caught while storing Mail: "
@@ -1053,7 +1052,7 @@ public class FileMailbox
                 outMsg.close();
                 outAttrs.close();
             } catch (IOException ie) {
-                logger.error("Error closing streams: " + ie);
+                getLogger().error("Error closing streams: " + ie);
             }
         }
         marked = true;
@@ -1074,7 +1073,7 @@ public class FileMailbox
         }
         //}
         writeFlags(newUID, flags);
-        logger.info("Mail " + newUID + " written in " + absoluteName);
+        getLogger().info("Mail " + newUID + " written in " + absoluteName);
 
         return true;
     }
@@ -1131,7 +1130,7 @@ public class FileMailbox
                 response = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null),inMsg);
                 inMsg.close();
             } catch(Exception e) {
-                logger.error("Error reading message from disc: " + e);
+                getLogger().error("Error reading message from disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while retrieving Mail: "
@@ -1140,10 +1139,10 @@ public class FileMailbox
                 try {
                     inMsg.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("EnhancedMimeMessage " + uid + " read from " + absoluteName);
+            getLogger().info("EnhancedMimeMessage " + uid + " read from " + absoluteName);
             return response;
         } else {
             return null;
@@ -1243,9 +1242,9 @@ public class FileMailbox
             try {
                 inAttrs = new ObjectInputStream( new FileInputStream(path + File.separator + uid + ATTRIBUTES_EXTENSION));
                 response = (SimpleMessageAttributes)inAttrs.readObject();
-                response.reinitialize();
+                setupLogger(response);
             } catch(Exception e) {
-                logger.error("Error reading attributes from disc: " + e);
+                getLogger().error("Error reading attributes from disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while retrieving Message attributes: "
@@ -1254,10 +1253,10 @@ public class FileMailbox
                 try {
                     inAttrs.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("MessageAttributes for " + uid + " read from " + absoluteName);
+            getLogger().info("MessageAttributes for " + uid + " read from " + absoluteName);
             return response;
         } else {
             return null;
@@ -1288,7 +1287,7 @@ public class FileMailbox
                 outAttrs.writeObject(attrs);
                 outAttrs.close();
             } catch(Exception e) {
-                logger.error("Error writing message to disc: " + e);
+                getLogger().error("Error writing message to disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while storing Attributes: "
@@ -1297,10 +1296,10 @@ public class FileMailbox
                 try {
                     outAttrs.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("MessageAttributes for " + uid + " written in " + absoluteName);
+            getLogger().info("MessageAttributes for " + uid + " written in " + absoluteName);
 
             return true;
         } else {
@@ -1430,7 +1429,7 @@ public class FileMailbox
                 }
 
                 writeFlags(uid, flags);
-                logger.debug("Flags for message uid " + uid + " in " + absoluteName + " updated.");
+                getLogger().debug("Flags for message uid " + uid + " in " + absoluteName + " updated.");
                 return true;
             } else {
                 return false;
@@ -1465,7 +1464,7 @@ public class FileMailbox
                 inFlags = new ObjectInputStream( new FileInputStream(path + File.separator + uid + FLAGS_EXTENSION));
                 response = (Flags)inFlags.readObject();
             } catch(Exception e) {
-                logger.error("Error reading flags from disc: " + e);
+                getLogger().error("Error reading flags from disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while retrieving Message flags: "
@@ -1474,10 +1473,10 @@ public class FileMailbox
                 try {
                     inFlags.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("Flags for " + uid + " read from " + absoluteName);
+            getLogger().info("Flags for " + uid + " read from " + absoluteName);
         }
         return response;
     }
@@ -1490,7 +1489,7 @@ public class FileMailbox
                 outFlags.writeObject(flags);
                 outFlags.close();
             } catch(Exception e) {
-                logger.error("Error writing message to disc: " + e);
+                getLogger().error("Error writing message to disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while storing Flags: "
@@ -1499,10 +1498,10 @@ public class FileMailbox
                 try {
                     outFlags.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("Flags for " + uid + " written in " + absoluteName);
+            getLogger().info("Flags for " + uid + " written in " + absoluteName);
             return true;
         } else {
             return false;
@@ -1535,7 +1534,7 @@ public class FileMailbox
                     final File attrFile = new File(path + File.separator + uid + ATTRIBUTES_EXTENSION );
                     attrFile.delete();
                     sequence.remove(uidObj);
-                    logger.debug( "Removed message uid " + uid );
+                    getLogger().debug( "Removed message uid " + uid );
                 } catch ( final Exception e )  {
                     throw new RuntimeException( "Exception caught while removing" +
                                                 " a message: " + e );
@@ -1566,7 +1565,7 @@ public class FileMailbox
             throw new
                 RuntimeException("Exception caught while storing Mailbox: " + e);
         }
-        logger.info("FileMailbox written: " + absoluteName);
+        getLogger().info("FileMailbox written: " + absoluteName);
     }
 
 
@@ -1658,7 +1657,7 @@ public class FileMailbox
                 response = new InternetHeaders(inMsg);
                 inMsg.close();
             } catch(Exception e) {
-                logger.error("Error reading headers of message from disc: " + e);
+                getLogger().error("Error reading headers of message from disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caughtt while retrieving InternetHeaders: "    + e);
@@ -1666,10 +1665,10 @@ public class FileMailbox
                 try {
                     inMsg.close();
                 } catch (IOException ie) {
-                    logger.error("Error closing streams: " + ie);
+                    getLogger().error("Error closing streams: " + ie);
                 }
             }
-            logger.info("InternetHeaders for message " + uid + " read from "
+            getLogger().info("InternetHeaders for message " + uid + " read from "
                         + absoluteName);
             return response;
         } else {
