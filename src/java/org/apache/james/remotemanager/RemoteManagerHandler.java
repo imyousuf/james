@@ -39,7 +39,7 @@ import org.apache.mailet.UsersRepository;
  *       -add remove user
  *       -much more...
  *
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  *
  */
 public class RemoteManagerHandler
@@ -875,6 +875,7 @@ public class RemoteManagerHandler
     private boolean doSHUTDOWN(String argument) {
         writeLoggedFlushedResponse("Shutting down, bye bye");
         System.exit(0);
+//        ((org.apache.james.James) theConfigData.getMailServer()).getBlockContext().requestShutdown();
         return false;
     }
 
@@ -943,6 +944,5 @@ public class RemoteManagerHandler
         }
 
     }
-
 }
 

@@ -4,8 +4,10 @@ echo
 echo "James Build System"
 echo "-------------------"
 
-export ANT_HOME=$ANT_HOME
+export OLD_ANT_HOME=$ANT_HOME
+
 ANT_HOME=./tools
+export ANT_HOME
 
 export OLD_CLASSPATH=$CLASSPATH
 CLASSPATH=phoenix-bin/lib/xercesImpl-2.0.2.jar:phoenix-bin/lib/xml-apis.jar

@@ -1068,6 +1068,4 @@ public class POP3Handler
         }
 
     }
-
 }
-
