@@ -48,7 +48,7 @@ public interface MailetContext {
      * @param message - a descriptive message as to why the message bounced
      * @param bouncer - the address to give as the sender of the bounced message
      */
-    public void bounce(Mail mail, String message, String bouncer) throws MessagingException;
+    public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException;
 
     /**
      * Returns a Collection of Strings of hostnames or ip addresses that
