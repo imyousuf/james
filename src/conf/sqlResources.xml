@@ -168,20 +168,20 @@
         TABLESPACE system
     </sql>
     <sql name="createTable" db="sapdb">
-		CREATE TABLE ${table} (
-			message_name varchar (200) NOT NULL,
-			repository_name varchar (200) NOT NULL,
-			message_state varchar (30) NOT NULL ,
-			error_message varchar (200) NULL ,
-			sender varchar (200) NULL ,
-			recipients long NOT NULL ,
-			remote_host varchar (100) NOT NULL ,
-			remote_addr varchar (20) NOT NULL ,
-			message_body long byte NOT NULL ,
-			last_updated date NOT NULL,
-			PRIMARY KEY (message_name, repository_name)
-		)
-	</sql>
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (200) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (200) NULL ,
+            recipients long NOT NULL ,
+            remote_host varchar (100) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body long byte NOT NULL ,
+            last_updated date NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
 </sqlDefs>
 
 <sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
