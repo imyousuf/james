@@ -124,7 +124,7 @@ import java.util.Iterator;
  *
  */
 public class NotifySender extends AbstractNotify {
-    
+
     /**
      * Return a string describing this mailet.
      *
@@ -133,22 +133,22 @@ public class NotifySender extends AbstractNotify {
     public String getMailetInfo() {
         return "NotifySender Mailet";
     }
-    
+
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
-     * @return SENDER, indicating the sender of the current mail
+     * @return <CODE>SpecialAddress.SENDER</CODE>, indicating the sender of the current mail
      */
     protected Collection getRecipients() {
         Collection newRecipients = new HashSet();
         newRecipients.add(SpecialAddress.SENDER);
         return newRecipients;
     }
-    
+
     /**
-     * @return UNALTERED if specified or SENDER if missing
+     * @return <CODE>SpecialAddress.UNALTERED</CODE> if specified or <CODE>SpecialAddress.SENDER</CODE> if missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
         String addressList = getInitParameter("to");
@@ -165,7 +165,7 @@ public class NotifySender extends AbstractNotify {
         }
         return iaarray;
     }
-    
+
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */

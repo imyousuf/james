@@ -86,9 +86,9 @@ import java.util.Iterator;
  * If one is not specified, the postmaster's address will be used.<BR>
  * The "To:" header of the notification message can be set to "unaltered";
  * if missing will be set to the postmaster.<BR>
- * A notice text can be specified, and in such case will be inserted into the 
+ * A notice text can be specified, and in such case will be inserted into the
  * notification inline text.<BR>
- * If the notified message has an "error message" set, it will be inserted into the 
+ * If the notified message has an "error message" set, it will be inserted into the
  * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
  * is set to true, such error message will be attached to the notification message.<BR>
  * The notified messages are attached in their entirety (headers and
@@ -124,7 +124,7 @@ import java.util.Iterator;
  *
  */
 public class NotifyPostmaster extends AbstractNotify {
-    
+
     /**
      * Return a string describing this mailet.
      *
@@ -136,7 +136,7 @@ public class NotifyPostmaster extends AbstractNotify {
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
      * @return the postmaster address
      */
@@ -145,9 +145,9 @@ public class NotifyPostmaster extends AbstractNotify {
         newRecipients.add(getMailetContext().getPostmaster());
         return newRecipients;
     }
-    
+
     /**
-     * @return UNALTERED if specified or postmaster if missing
+     * @return <CODE>SpecialAddress.UNALTERED</CODE> if specified or postmaster if missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
         String addressList = getInitParameter("to");
@@ -164,14 +164,14 @@ public class NotifyPostmaster extends AbstractNotify {
         }
         return iaarray;
     }
-    
+
     /**
      * @return "Re:"
      */
     protected String getSubjectPrefix() {
         return "Re:";
     }
-    
+
     /**
      * Builds the subject of <I>newMail</I> appending the subject
      * of <I>originalMail</I> to <I>subjectPrefix</I>, but avoiding a duplicate.
@@ -187,10 +187,10 @@ public class NotifyPostmaster extends AbstractNotify {
             newMail.getMessage().setSubject(subjectPrefix + subject);
         }
     }
-    
+
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
-    
+
 }
 
