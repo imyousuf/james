@@ -22,7 +22,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;

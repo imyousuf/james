@@ -11,14 +11,14 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 /**
  * Handles processeing for the LOGIN imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class LoginCommand extends NonAuthenticatedStateCommand
 {

@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
@@ -27,7 +27,7 @@ import java.util.Collection;
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Darrell DeBoer <darrell@apache.org>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface ImapHost
 {
