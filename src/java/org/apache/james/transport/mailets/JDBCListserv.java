@@ -207,6 +207,7 @@ public class JDBCListserv extends GenericListserv {
                     log("error parsing address '" + address + "' in listserv '" + listservID + "'");
                 }
             }
+            members = tmpMembers;
             rs.close();
             stmt.close();
 
