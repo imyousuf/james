@@ -63,12 +63,15 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
 /**
- * Replaces incoming recipients with those specified, and resends the message unaltered.
+ * <P>Replaces incoming recipients with those specified, and resends the message unaltered.</P>
+ * <P>Can be totally replaced by an equivalent usage of {@link Resend} (see below),
+ * simply replacing <I>&lt;forwardto&gt;</I> with <I>&lt;recipients&gt</I>.
  *
  * <P>Sample configuration:</P>
  * <PRE><CODE>
@@ -76,21 +79,22 @@ import java.util.StringTokenizer;
  *   &lt;forwardto&gt;<I>comma delimited list of email addresses</I>&lt;/forwardto&gt;
  *   &lt;passThrough&gt;<I>true or false, default=false</I>&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>The behaviour of this mailet is equivalent to using Redirect with the following
+ * <P>The behaviour of this mailet is equivalent to using Resend with the following
  * configuration:</P>
  * <PRE><CODE>
- * &lt;mailet match="All" class="Redirect">
+ * &lt;mailet match="All" class="Resend">
+ *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
  *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
- *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
- *   &lt;inline&gt;unaltered&lt;/inline&gt;
+ *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.6.4.7 $ $Date: 2003/06/25 22:02:32 $
+ * @version CVS $Revision: 1.6.4.8 $ $Date: 2003/06/27 14:34:37 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -103,9 +107,42 @@ public class Forward extends AbstractRedirect {
         return "Forward Mailet";
     }
 
+    /** Gets the expected init parameters. */
+    protected  String[] getAllowedInitParameters() {
+        String[] allowedArray = {
+//            "static",
+            "debug",
+            "passThrough",
+            "fakeDomainCheck",
+            "forwardto",
+        };
+        return allowedArray;
+    }
+
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
+
+    /**
+     * @return UNALTERED
+     */
+    protected int getInLineType() throws MessagingException {
+        return UNALTERED;
+    }
+
+    /**
+     * @return NONE
+     */
+    protected int getAttachmentType() throws MessagingException {
+        return NONE;
+    }
+
+    /**
+     * @return ""
+     */
+    protected String getMessage() throws MessagingException {
+        return "";
+    }
 
     /**
      * @return the <CODE>recipients</CODE> init parameter or null if missing
@@ -126,6 +163,62 @@ public class Forward extends AbstractRedirect {
             }
         }
         return newRecipients;
+    }
+
+    /**
+     * @return null
+     */
+    protected InternetAddress[] getTo() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return null
+     */
+    protected MailAddress getReplyTo() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return null
+     */
+    protected MailAddress getReturnPath() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return null
+     */
+    protected MailAddress getSender() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return null
+     */
+    protected String getSubject() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return ""
+     */
+    protected String getSubjectPrefix() throws MessagingException {
+        return "";
+    }
+
+    /**
+     * @return false
+     */
+    protected boolean attachError() throws MessagingException {
+        return false;
+    }
+
+    /**
+     * @return false
+     */
+    protected boolean isReply() throws MessagingException {
+        return false;
     }
 
     /* ******************************************************************** */
