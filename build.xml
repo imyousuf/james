@@ -92,7 +92,7 @@ All these package are in current distribution.
   <property name="conf.dir" value="conf"/>
   <property name="lib.dir" value="lib"/>
   <property name="tools.dir" value="tools"/>
-  <property name="xdocs.dir" value="xdocs"/>
+  <property name="xdocs.dir" value="${src.dir}/xdocs"/>
 
   <property name="dist.name" value="${name}-${version}"/>
 
@@ -103,7 +103,7 @@ All these package are in current distribution.
   <property name="site.dir" value="../xml-site/sources/james"/>
   <property name="site.docs" value="../xml-site/targets/james"/>
 
-  <property name="docs.src" value="./xdocs"/>
+  <property name="docs.src" value="${xdocs.dir}"/>
   <property name="docs.dest" value="./docs"/>
 
   <!--
@@ -450,7 +450,7 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <!-- Generates the documentation for James                               -->
   <!-- =================================================================== -->
-  <target name="docs" depends="prepare-error" if="AnakiaTask.present">
+  <target name="xdocs" depends="prepare-error" if="AnakiaTask.present">
     <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
     <anakia basedir="${docs.src}" destdir="${docs.dest}/"
          extension=".html" style="./site.vsl"
