@@ -43,6 +43,7 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.BaseConnectionHandler;
 import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.SchedulerNotifyOutputStream;
 import org.apache.mailet.Mail;
 
 /**
@@ -73,12 +74,21 @@ public class POP3Handler
     private Vector backupUserMailbox;
     private static final Mail DELETED = new MailImpl();
 
+    private int lengthReset = 20000;
+
     private static int AUTHENTICATION_READY = 0;
     private static int AUTHENTICATION_USERSET = 1;
     private static int TRANSACTION = 2;
 
     private final static String OK_RESPONSE = "+OK";
     private final static String ERR_RESPONSE = "-ERR";
+
+    public void configure(Configuration configuration)
+            throws ConfigurationException {
+        super.configure(configuration);
+
+        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
+    }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -391,7 +401,10 @@ public class POP3Handler
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                 if (mc != DELETED) {
                     out.println(OK_RESPONSE + " Message follows");
-                    mc.writeMessageTo(outs);
+                    SchedulerNotifyOutputStream nouts =
+                            new SchedulerNotifyOutputStream(outs, scheduler,
+                            this.toString(), lengthReset);
+                    mc.writeMessageTo(nouts);
                     out.println();
                     out.println(".");
                 } else {
