@@ -206,6 +206,28 @@ public class SMTPServer extends AbstractJamesService implements Component {
 
             String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
             if (authorizedAddresses != null) {
+                getLogger().info("Authorized addresses: " + authorizedAddresses);
+            }
+
+            if (!authRequired && authorizedAddresses == null) {
+                /* if SMTP AUTH is not requred then we will use
+                 * authorizedAddresses to determine whether or not to
+                 * relay e-mail.  Therefore if SMTP AUTH is not
+                 * required, we will not relay e-mail unless the
+                 * sending IP address is authorized.
+                 *
+                 * Since this is a change in behavior for James v2,
+                 * create a default authorizedAddresses network of
+                 * 0.0.0.0/0, which matches all possible addresses, thus
+                 * preserving the current behavior.
+                 *
+                 * James v3 should require the <authorizedAddresses>
+                 * element.
+                 */
+                authorizedAddresses = "0.0.0.0/0.0.0.0";
+            }
+
+            if (authorizedAddresses != null) {
                 java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
                 java.util.Collection networks = new java.util.ArrayList();
                 while (st.hasMoreTokens()) {
@@ -367,7 +389,18 @@ public class SMTPServer extends AbstractJamesService implements Component {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
+         */
+        public boolean isRelayingAllowed(String remoteIP) {
+            boolean relayingAllowed = false;
+            if (authorizedNetworks != null) {
+                relayingAllowed = SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+            }
+            return relayingAllowed;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
          */
         public boolean isAuthRequired(String remoteIP) {
             boolean authRequired = SMTPServer.this.authRequired;
