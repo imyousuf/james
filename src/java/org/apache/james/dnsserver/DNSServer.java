@@ -21,9 +21,22 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.james.transport.Resources;
 import org.apache.avalon.phoenix.Block;
-import org.xbill.DNS.*;
+import org.apache.james.transport.Resources;
+import org.xbill.DNS.Cache;
+import org.xbill.DNS.Credibility;
+import org.xbill.DNS.DClass;
+import org.xbill.DNS.ExtendedResolver;
+import org.xbill.DNS.Header;
+import org.xbill.DNS.MXRecord;
+import org.xbill.DNS.Message;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.RRset;
+import org.xbill.DNS.Rcode;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.Resolver;
+import org.xbill.DNS.SetResponse;
+import org.xbill.DNS.Type;
 
 /**
  * @version 1.0.0, 18/06/2000
@@ -78,13 +91,13 @@ public class DNSServer
         final String serversArray[] = (String[])servers.toArray(new String[0]);
         resolver = new ExtendedResolver( serversArray );
 
-        cache = new Cache ();
+        cache = new Cache (DClass.IN);
 
         getLogger().info("DNSServer ...init end");
     }
 
     public Collection findMXRecords(String hostname) {
-        Record answers[] = rawDNSLookup(hostname, false, Type.MX);
+        Record answers[] = lookup(hostname, Type.MX);
 
         Collection servers = new Vector ();
         try {
@@ -124,6 +137,10 @@ public class DNSServer
         }
     }
 
+    public Record[] lookup(String name, short type) {
+        return rawDNSLookup(name,false,type);
+    }
+
     private Record[] rawDNSLookup(String namestr, boolean querysent, short type) {
         Name name = new Name(namestr);
         short dclass = DClass.IN;
@@ -132,7 +149,7 @@ public class DNSServer
         int answerCount = 0, n = 0;
         Enumeration e;
 
-        SetResponse cached = cache.lookupRecords(name, type, dclass, dnsCredibility);
+        SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
         if (cached.isSuccessful()) {
             RRset [] rrsets = cached.answers();
             answerCount = 0;
@@ -150,7 +167,7 @@ public class DNSServer
                 }
             }
         }
-        else if (cached.isNegative()) {
+        else if (cached.isNXDOMAIN()) {
             return null;
         }
         else if (querysent) {
