@@ -86,7 +86,8 @@ Legal:
   <property name="docs.dir" value="docs"/>
   <property name="www.dir" value="www"/>
   <property name="javadocs.dir" value="${docs.dir}/api"/>
-
+  <property name="mailetdocs.dir" value="${docs.dir}/mailet"/>
+  <property name="rfcs.dir" value="${docs.dir}/rfclist"/>
   <property name="dist.name" value="${name}-${version}"/>
 
   <property name="constants.file" value="org/apache/james/Constants.java"/>
@@ -541,7 +542,19 @@ Legal:
 
   </target>
 
-  <target name="local-docs" depends="local-javadocs,local-xdocs"/>
+  <!--
+       ===================================================================
+       Create the Local documentation
+       ===================================================================
+  -->
+  <target name="local-docs" depends="local-javadocs,local-xdocs,javadocmailet">
+
+   <copy todir="${mailetdocs.dir}">
+      <fileset dir="${build.mailetdocs}" />
+    </copy>
+
+  </target>
+
 
   <!--
        ===================================================================
@@ -552,10 +565,11 @@ Legal:
 
     <!-- delete old documents but keep CVS directories, rfclist and mailet
          api -->
-    <!-- note that by doing an include the defaultexcludes (CVS dirs) will be kept -->
     <delete>
       <fileset dir="${www.dir}">
-        <include name="*"/>
+        <exclude name="CVS/**"/>
+        <exclude name="rfclist/**"/>
+        <exclude name="mailet/**"/>
       </fileset>
     </delete>
 
@@ -567,6 +581,7 @@ Legal:
         <exclude name="api/**"/>
         <exclude name="rfclist/**"/>
         <exclude name="CVS/**"/>
+        <exclude name="mailet/**"/>
       </fileset>
     </copy>
 
