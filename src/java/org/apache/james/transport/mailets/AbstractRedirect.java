@@ -777,7 +777,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     public void service(Mail originalMail) throws MessagingException {
 
-//        boolean keepMessageId = false;
+        boolean keepMessageId = false;
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
         Mail newMail = ((MailImpl) originalMail).duplicate(newName((MailImpl) originalMail));
@@ -832,7 +832,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             if (isDebug) {
                 log("Message resent unaltered.");
             }
-//            keepMessageId = true;
+            keepMessageId = true;
         }
 
         //Set additional headers
@@ -855,9 +855,9 @@ public abstract class AbstractRedirect extends GenericMailet {
 
         newMail.getMessage().saveChanges();
 
-//        if (keepMessageId) {
-//            setMessageId(newMail, originalMail);
-//        }
+        if (keepMessageId) {
+            setMessageId(newMail, originalMail);
+        }
 
         if (senderDomainIsValid(newMail)) {
             //Send it off...
