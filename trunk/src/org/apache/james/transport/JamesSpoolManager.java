@@ -17,6 +17,7 @@ import org.apache.james.*;
 import org.apache.mail.*;
 import org.apache.james.transport.servlet.*;
 import org.apache.james.transport.match.*;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -28,7 +29,8 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Configuration conf;
     private Context context;
     private MailRepository spool;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
     private Vector servlets;
     private Vector servletMatchs;
     private Vector servletPackages;
@@ -57,8 +59,9 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
     public void init() throws Exception {
 
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger.log("JamesSpoolManager init...", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
         StringBuffer servers = new StringBuffer ();
@@ -97,7 +100,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 servlets.addElement(servlet);
                 servletMatchs.addElement(match);
             } catch (Exception ex) {
-                logger.log("Unable to init mail servlet " + className + ": " + ex, "JAMES", logger.INFO);
+                logger.log("Unable to init mail servlet " + className + ": " + ex, logger.INFO);
                 ex.printStackTrace();
             }
         }
@@ -127,7 +130,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
      */
     public void run() {
 
-        logger.log("run JamesSpoolManager", "JAMES", logger.INFO);
+        logger.log("run JamesSpoolManager", logger.INFO);
 
         Vector unprocessed = new Vector(servlets.size() + 1, 2);
         unprocessed.setSize(servlets.size() + 1);
@@ -138,16 +141,16 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             try {
                 String key = spool.accept();
                 Mail mc = spool.retrieve(key);
-                logger.log("==== Begin processing mail " + key + " ====", "JAMES", logger.INFO);
+                logger.log("==== Begin processing mail " + key + " ====", logger.INFO);
                 unprocessed.insertElementAt(mc, 0);
 // ---- Reactor begin ----
 /*DEBUG*/       printPipe(unprocessed);
                 for (int i = 0; true ; i++) {
-                    logger.log("===== i = " + i + " =====", "JAMES", logger.DEBUG);
+                    logger.log("===== i = " + i + " =====", logger.DEBUG);
                     Mail next = (Mail) unprocessed.elementAt(i);
                     if (!isEmpty(next)) {
                         split(unprocessed, i, (String) servletMatchs.elementAt(i));
-                        logger.log("--- after split (" + i + ")---", "JAMES", logger.DEBUG);
+                        logger.log("--- after split (" + i + ")---", logger.DEBUG);
 /*DEBUG*/               printPipe(unprocessed);
                     } else {
                         try {
@@ -166,7 +169,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                             response = next;
                             response.setState(Mail.ERROR);
                             response.setErrorMessage("Exception during mail servlet service: " + ex.getMessage());
-                            logger.log("Exception during mail servlet service: " + ex.getMessage(), "JAMES", logger.ERROR);
+                            logger.log("Exception during mail servlet service: " + ex.getMessage(), logger.ERROR);
                         }
                         if (response == null) {
                             unprocessed.setElementAt(null, i + 1);
@@ -174,7 +177,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                             try {
                                 errorServlet.service(response);
                             } catch (Exception ex) {
-                                logger.log("Exception trying to store Mail " + response + " in error repository... deleting it", "JAMES", logger.ERROR);
+                                logger.log("Exception trying to store Mail " + response + " in error repository... deleting it", logger.ERROR);
                             }
                             unprocessed.setElementAt(null, i + 1);
                         } else if (isEmpty(response)) {
@@ -183,15 +186,15 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                             unprocessed.setElementAt(response, i + 1);
                         }
                         unprocessed.setElementAt(null, i);
-                        logger.log("--- after service (" + i + ")---", "JAMES", logger.DEBUG);
+                        logger.log("--- after service (" + i + ")---", logger.DEBUG);
 /*DEBUG*/               printPipe(unprocessed);
                     }
                 }
 // ---- Reactor end ----
                 spool.remove(key);
-                logger.log("==== Removed from spool mail " + mc.getName() + " ====", "JAMES", logger.INFO);
+                logger.log("==== Removed from spool mail " + mc.getName() + " ====", logger.INFO);
             } catch (Exception e) {
-                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "JAMES", logger.ERROR);
+                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), logger.ERROR);
                 e.printStackTrace();
             }
         }
@@ -258,7 +261,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 match.setComponentManager(comp);
                 comp.put(matchClass, match);
             } catch (Exception ex) {
-                logger.log("Exception instantiationg match " + matchClass + " : " + ex, "JAMES", logger.ERROR);
+                logger.log("Exception instantiationg match " + matchClass + " : " + ex, logger.ERROR);
                 return (Vector) null;
             }
         }
@@ -297,9 +300,9 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         for (int j = 0; j < unprocessed.size(); j++) {
             Mail m = (Mail) unprocessed.elementAt(j);
             if (m == null) {
-                logger.log("unprocessed " + j + " -> Null ", "JAMES", logger.DEBUG);
+                logger.log("unprocessed " + j + " -> Null ", logger.DEBUG);
             } else {
-                logger.log("unprocessed " + j + " -> " + printRecipients(m), "JAMES", logger.DEBUG);
+                logger.log("unprocessed " + j + " -> " + printRecipients(m), logger.DEBUG);
             }
         }
     }

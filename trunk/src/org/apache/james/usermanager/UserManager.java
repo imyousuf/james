@@ -13,6 +13,7 @@ import org.apache.avalon.blocks.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
 import java.util.*;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -23,7 +24,8 @@ public class UserManager implements Component, Configurable, Composer, Service, 
     private Context context;
     private Configuration conf;
     private ComponentManager comp;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
     private Store store;
     private UsersRepository rootRepository;
 
@@ -43,7 +45,8 @@ public class UserManager implements Component, Configurable, Composer, Service, 
     }
 
 	public void init() throws Exception {
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
         String rootPath = conf.getConfiguration("rootPath", "file://../users/").getValue();
         store = (Store) comp.getComponent(Interfaces.STORE);
         rootRepository = (UsersRepository) store.getPrivateRepository(rootPath, UsersRepository.USER, Store.ASYNCHRONOUS);
@@ -51,7 +54,7 @@ public class UserManager implements Component, Configurable, Composer, Service, 
     
     public UsersRepository getUserRepository(String name) {
         String path = rootRepository.getChildDestination(name);
-        logger.log("Opening user repositoy " + name + " in " + path, "JAMES", logger.INFO);
+        logger.log("Opening user repositoy " + name + " in " + path, logger.INFO);
         return (UsersRepository) store.getPrivateRepository(path, UsersRepository.USER, Store.ASYNCHRONOUS);
     }
 

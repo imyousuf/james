@@ -13,6 +13,7 @@ import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -30,7 +31,8 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
 
     private ComponentManager comp;
     private Configuration conf;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
     private UsersRepository userManager;
     private TimeServer timeServer;
 
@@ -53,8 +55,9 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
 
 	public void init() throws Exception {
 
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("RemoteManager init...", "RemoteManager", logger.INFO);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger.log("RemoteManager init...", logger.INFO);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, conf.getConfiguration("port", "4554").getValueAsInt(), this);
@@ -64,11 +67,11 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             admaccount.put(c.getAttribute("login"), c.getAttribute("password"));
         }
         if (admaccount.isEmpty()) {
-            logger.log("No Administrative account defined", "RemoteManager", logger.WARNING);
+            logger.log("No Administrative account defined", logger.WARNING);
         }
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         userManager = (UsersRepository) manager.getUserRepository("LocalUsers");
-        logger.log("RemoteManager ...init end", "RemoteManager", logger.INFO);
+        logger.log("RemoteManager ...init end", logger.INFO);
     }
 
     public void parseRequest(Socket s) {
@@ -82,35 +85,35 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             in = new BufferedReader(new InputStreamReader(socketIn));
             r_out = s.getOutputStream();
             out = new PrintWriter(r_out, true);
-            logger.log("Access from " + remoteHost + "(" + remoteIP + ")", "RemoteManager", logger.INFO);
+            logger.log("Access from " + remoteHost + "(" + remoteIP + ")", logger.INFO);
             out.println("JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION);
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
             while (!password.equals(admaccount.get(login))) {
                 out.println("Login failed for " + login);
-                logger.log("Login for " + login + " failed", "RemoteManager", logger.INFO);
+                logger.log("Login for " + login + " failed", logger.INFO);
                 login = in.readLine();
                 password = in.readLine();
             }
             timeServer.resetAlarm("RemoteManager");
             out.println("Welcome " + login + ". HELP for a list of commands");
-            logger.log("Login for " + login + " succesful", "RemoteManager", logger.INFO);
+            logger.log("Login for " + login + " succesful", logger.INFO);
             while (parseCommand(in.readLine())) {
                 timeServer.resetAlarm("RemoteManager");
             }
-            logger.log("Logout for " + login + ".", "RemoteManager", logger.INFO);
+            logger.log("Logout for " + login + ".", logger.INFO);
             s.close();
         } catch (IOException e) {
             out.println("Error. Closing connection");
             out.flush();
-            logger.log("Exception during connection from " + remoteHost + " (" + remoteIP + ")", "RemoteManager", logger.ERROR);
+            logger.log("Exception during connection from " + remoteHost + " (" + remoteIP + ")", logger.ERROR);
         }
         timeServer.removeAlarm("RemoteManager");
     }
     
     public void wake(String name, String memo) {
-        logger.log("Connection timeout on socket", "RemoteManager", logger.ERROR);
+        logger.log("Connection timeout on socket", logger.ERROR);
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -150,7 +153,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             userManager.addUser(user, passwd);
             out.println("User " + user + " added");
             out.flush();
-            logger.log("User " + user + " added", "RemoteManager", logger.INFO);
+            logger.log("User " + user + " added", logger.INFO);
         } else if (command.equalsIgnoreCase("DELUSER")) {
             String user = argument;
             if (user.equals("")) {
@@ -164,7 +167,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
                 return true;
             }
             out.println("User " + user + " deleted");
-            logger.log("User " + user + " deleted", "RemoteManager", logger.INFO);
+            logger.log("User " + user + " deleted", logger.INFO);
         } else if (command.equalsIgnoreCase("LISTUSERS")) {
             out.println("Existing accounts:");
             for (Enumeration e = userManager.list(); e.hasMoreElements();) {

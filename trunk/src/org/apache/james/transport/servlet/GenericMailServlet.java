@@ -13,6 +13,7 @@ import org.apache.arch.*;
 import org.apache.mail.*;
 import org.apache.mail.servlet.*;
 import org.apache.avalon.blocks.*;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -26,7 +27,8 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
     private Configuration conf;
     private ComponentManager comp;
     private Context context;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -46,7 +48,8 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
     
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
     }
     
     public ComponentManager getComponentManager() {
@@ -70,7 +73,7 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
     }
     
     public void log(String msg) {
-        logger.log(msg, "Mail Servlet", Logger.INFO);
+        logger.log(msg, Logger.INFO);
     }
     
     public abstract String getServletInfo();
