@@ -6,12 +6,11 @@
  * the LICENSE file.
  */
 package org.apache.james.core;
-
 import org.apache.james.util.RFC2822Headers;
-
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -22,7 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-
+import java.util.Vector;
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple
  * API enhancements.
@@ -37,59 +36,48 @@ public class MailImpl implements Mail {
      * MailImpl will be deserializable (so your mail doesn't get lost)
      */
     public static final long serialVersionUID = -4289663364703986260L;
-
     /**
      * The error message, if any, associated with this mail.
      */
     private String errorMessage;
-
     /**
      * The state of this mail, which determines how it is processed.
      */
     private String state;
-
     /**
      * The MimeMessage that holds the mail data.
      */
     private MimeMessage message;
-
     /**
      * The sender of this mail.
      */
     private MailAddress sender;
-
     /**
      * The collection of recipients to whom this mail was sent.
      */
     private Collection recipients;
-
     /**
      * The identifier for this mail message
      */
     private String name;
-
     /**
      * The remote host from which this mail was sent.
      */
     private String remoteHost = "localhost";
-
     /**
      * The remote address from which this mail was sent.
      */
     private String remoteAddr = "127.0.0.1";
-
     /**
      * The last time this message was updated.
      */
     private Date lastUpdated = new Date();
-
     /**
      * A constructor that creates a new, uninitialized MailImpl
      */
     public MailImpl() {
         setState(Mail.DEFAULT);
     }
-
     /**
      * A constructor that creates a MailImpl with the specified name,
      * sender, and recipients.
@@ -104,7 +92,6 @@ public class MailImpl implements Mail {
         this.sender = sender;
         this.recipients = recipients;
     }
-
     /**
      * A constructor that creates a MailImpl with the specified name,
      * sender, recipients, and message data.
@@ -115,13 +102,12 @@ public class MailImpl implements Mail {
      * @param messageIn a stream containing the message source
      */
     public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
-            throws MessagingException {
+        throws MessagingException {
         this(name, sender, recipients);
         MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
         MimeMessageWrapper wrapper = new MimeMessageWrapper(source);
         this.setMessage(wrapper);
     }
-
     /**
      * A constructor that creates a MailImpl with the specified name,
      * sender, recipients, and MimeMessage.
@@ -135,7 +121,26 @@ public class MailImpl implements Mail {
         this(name, sender, recipients);
         this.setMessage(message);
     }
-
+    /**
+     * A constructor which will attempt to obtain sender and recipients from the headers of the MimeMessage supplied.
+     * @param message - a MimeMessage from which to construct a Mail
+     */
+    public MailImpl(MimeMessage message) throws MessagingException {
+       this();
+        String name = "new";
+        Address[] addresses;
+        addresses = message.getFrom();
+        MailAddress sender = new MailAddress(new InternetAddress(addresses[0].toString()));
+        Collection recipients = new Vector();
+        addresses = message.getRecipients(MimeMessage.RecipientType.TO);
+        for (int i = 0; i < addresses.length; i++) {
+            recipients.add(new MailAddress(new InternetAddress(addresses[i].toString())));
+        }
+        this.name = name;
+        this.sender = sender;
+        this.recipients = recipients;
+        this.setMessage(message);
+    }
     /**
      * Duplicate the MailImpl.
      *
@@ -144,7 +149,6 @@ public class MailImpl implements Mail {
     public Mail duplicate() {
         return duplicate(name);
     }
-
     /**
      * Duplicate the MailImpl, replacing the mail name with the one
      * passed in as an argument.
@@ -165,7 +169,6 @@ public class MailImpl implements Mail {
         }
         return (Mail) null;
     }
-
     /**
      * Get the error message associated with this MailImpl.
      *
@@ -174,7 +177,6 @@ public class MailImpl implements Mail {
     public String getErrorMessage() {
         return errorMessage;
     }
-
     /**
      * Get the MimeMessage associated with this MailImpl.
      *
@@ -183,7 +185,6 @@ public class MailImpl implements Mail {
     public MimeMessage getMessage() throws MessagingException {
         return message;
     }
-
     /**
      * Set the name of this MailImpl.
      *
@@ -192,7 +193,6 @@ public class MailImpl implements Mail {
     public void setName(String name) {
         this.name = name;
     }
-
     /**
      * Get the name of this MailImpl.
      *
@@ -201,7 +201,6 @@ public class MailImpl implements Mail {
     public String getName() {
         return name;
     }
-
     /**
      * Get the recipients of this MailImpl.
      *
@@ -210,7 +209,6 @@ public class MailImpl implements Mail {
     public Collection getRecipients() {
         return recipients;
     }
-
     /**
      * Get the sender of this MailImpl.
      *
@@ -219,7 +217,6 @@ public class MailImpl implements Mail {
     public MailAddress getSender() {
         return sender;
     }
-
     /**
      * Get the state of this MailImpl.
      *
@@ -228,7 +225,6 @@ public class MailImpl implements Mail {
     public String getState() {
         return state;
     }
-
     /**
      * Get the remote host associated with this MailImpl.
      *
@@ -237,7 +233,6 @@ public class MailImpl implements Mail {
     public String getRemoteHost() {
         return remoteHost;
     }
-
     /**
      * Get the remote address associated with this MailImpl.
      *
@@ -246,7 +241,6 @@ public class MailImpl implements Mail {
     public String getRemoteAddr() {
         return remoteAddr;
     }
-
     /**
      * Get the last updated time for this MailImpl.
      *
@@ -255,7 +249,6 @@ public class MailImpl implements Mail {
     public Date getLastUpdated() {
         return lastUpdated;
     }
-
     /**
      * <p>Return the size of the message including its headers.
      * MimeMessage.getSize() method only returns the size of the
@@ -272,21 +265,19 @@ public class MailImpl implements Mail {
         //If we have a MimeMessageWrapper, then we can ask it for just the
         //  message size and skip calculating it
         if (message instanceof MimeMessageWrapper) {
-            MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
+            MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
             return wrapper.getMessageSize();
         }
-
         //SK: Should probably eventually store this as a locally
         //  maintained value (so we don't have to load and reparse
         //  messages each time).
         long size = message.getSize();
         Enumeration e = message.getAllHeaderLines();
         while (e.hasMoreElements()) {
-            size += ((String)e.nextElement()).length();
+            size += ((String) e.nextElement()).length();
         }
         return size;
     }
-
     /**
      * Set the error message associated with this MailImpl.
      *
@@ -295,7 +286,6 @@ public class MailImpl implements Mail {
     public void setErrorMessage(String msg) {
         this.errorMessage = msg;
     }
-
     /**
      * Set the MimeMessage associated with this MailImpl.
      *
@@ -304,7 +294,6 @@ public class MailImpl implements Mail {
     public void setMessage(MimeMessage message) {
         this.message = message;
     }
-
     /**
      * Set the recipients for this MailImpl.
      *
@@ -313,7 +302,6 @@ public class MailImpl implements Mail {
     public void setRecipients(Collection recipients) {
         this.recipients = recipients;
     }
-
     /**
      * Set the sender of this MailImpl.
      *
@@ -322,7 +310,6 @@ public class MailImpl implements Mail {
     public void setSender(MailAddress sender) {
         this.sender = sender;
     }
-
     /**
      * Set the state of this MailImpl.
      *
@@ -331,7 +318,6 @@ public class MailImpl implements Mail {
     public void setState(String state) {
         this.state = state;
     }
-
     /**
      * Set the remote address associated with this MailImpl.
      *
@@ -340,7 +326,6 @@ public class MailImpl implements Mail {
     public void setRemoteHost(String remoteHost) {
         this.remoteHost = remoteHost;
     }
-
     /**
      * Set the remote address associated with this MailImpl.
      *
@@ -349,7 +334,6 @@ public class MailImpl implements Mail {
     public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
     }
-
     /**
      * Set the date this mail was last updated.
      *
@@ -363,7 +347,6 @@ public class MailImpl implements Mail {
         }
         this.lastUpdated = lastUpdated;
     }
-
     /**
      * Writes the message out to an OutputStream.
      *
@@ -379,7 +362,6 @@ public class MailImpl implements Mail {
             throw new MessagingException("No message set for this MailImpl.");
         }
     }
-
     /**
      * Generates a bounce mail that is a bounce of the original message.
      *
@@ -390,22 +372,23 @@ public class MailImpl implements Mail {
      * @throws MessagingException if the bounce mail could not be created
      */
     public Mail bounce(String bounceText) throws MessagingException {
-
         //This sends a message to the james component that is a bounce of the sent message
         MimeMessage original = getMessage();
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
         Collection recipients = new HashSet();
         recipients.add(getSender());
-        InternetAddress addr[] = {new InternetAddress(getSender().toString())};
+        InternetAddress addr[] = { new InternetAddress(getSender().toString())};
         reply.setRecipients(Message.RecipientType.TO, addr);
         reply.setFrom(new InternetAddress(getRecipients().iterator().next().toString()));
         reply.setText(bounceText);
         reply.setHeader(RFC2822Headers.MESSAGE_ID, "replyTo-" + getName());
-
-        return new MailImpl("replyTo-" + getName(), new MailAddress(getRecipients().iterator().next().toString()), recipients, reply);
+        return new MailImpl(
+            "replyTo-" + getName(),
+            new MailAddress(getRecipients().iterator().next().toString()),
+            recipients,
+            reply);
     }
-
     /**
      * Writes the content of the message, up to a total number of lines, out to 
      * an OutputStream.
@@ -417,13 +400,13 @@ public class MailImpl implements Mail {
      * @throws IOException if an error occurs while reading or writing from the stream
      */
     public void writeContentTo(OutputStream out, int lines)
-           throws IOException, MessagingException {
+        throws IOException, MessagingException {
         String line;
         BufferedReader br;
-        if(message != null) {
+        if (message != null) {
             br = new BufferedReader(new InputStreamReader(message.getInputStream()));
-            while(lines-- > 0) {
-                if((line = br.readLine()) == null) {
+            while (lines-- > 0) {
+                if ((line = br.readLine()) == null) {
                     break;
                 }
                 line += "\r\n";
@@ -433,12 +416,9 @@ public class MailImpl implements Mail {
             throw new MessagingException("No message set for this MailImpl.");
         }
     }
-
     // Serializable Methods
-
     // TODO: These need some work.  Currently very tightly coupled to
     //       the internal representation.
-
     /**
      * Read the MailImpl from an <code>ObjectInputStream</code>.
      *
@@ -448,15 +428,16 @@ public class MailImpl implements Mail {
      * @throws ClassNotFoundException ?
      * @throws ClassCastException if the serialized objects are not of the appropriate type
      */
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in)
+        throws IOException, ClassNotFoundException {
         try {
             Object obj = in.readObject();
             if (obj == null) {
                 sender = null;
             } else if (obj instanceof String) {
-                sender = new MailAddress((String)obj);
+                sender = new MailAddress((String) obj);
             } else if (obj instanceof MailAddress) {
-                sender = (MailAddress)obj;
+                sender = (MailAddress) obj;
             }
         } catch (ParseException pe) {
             throw new IOException("Error parsing sender address: " + pe.getMessage());
@@ -469,7 +450,6 @@ public class MailImpl implements Mail {
         remoteAddr = (String) in.readObject();
         setLastUpdated((Date) in.readObject());
     }
-
     /**
      * Write the MailImpl to an <code>ObjectOutputStream</code>.
      *
@@ -488,5 +468,4 @@ public class MailImpl implements Mail {
         out.writeObject(remoteAddr);
         out.writeObject(lastUpdated);
     }
-
 }
