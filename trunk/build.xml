@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.90 $  Committed on $Date: 2002/02/05 12:36:08 $ by: $Author: danny $
+ James build file $Revision: 1.91 $  Committed on $Date: 2002/04/18 19:13:09 $ by: $Author: serge $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -92,6 +92,7 @@ Legal:
   <property name="dist.name" value="${name}-${version}"/>
 
   <property name="constants.file" value="org/apache/james/Constants.java"/>
+  <property name="poolconn.file" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
   <property name="conf.file" value="james.conf.xml"/>
   <property name="server.file" value="james.server.xml"/>
 
@@ -199,6 +200,9 @@ Legal:
     <property name="src.dist.lib" value="${src.dist.dir}/lib"/>
     <property name="src.dist.tools" value="${src.dist.dir}/tools"/>
     <property name="src.dist.proposals" value="${src.dist.dir}/proposals"/>
+
+    <available property="jdbc3.present" classname="java.sql.Savepoint"/>
+
   </target>
 
 
@@ -208,9 +212,11 @@ Legal:
   <target name="prepare" depends="setup-properties">
 
     <mkdir dir="${build.src}"/>
+
     <copy todir="${build.src}">
       <fileset dir="${java.dir}">
         <include name="${constants.file}"/>
+        <include name="${poolconn.file}"/>
       </fileset>
     </copy>
 
@@ -220,10 +226,18 @@ Legal:
     <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
     <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
     <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
-
   </target>
 
-  <target name="prepare-error" depends="prepare" unless="AnakiaTask.present">
+  <target name="prepare-jdbc3" depends="prepare" if="jdbc3.present">
+    <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY" value="" />
+    <replace file="${build.src}/${poolconn.file}" token="JDBC_3_ANT_KEY */" value="" />
+  <!--
+     <replace dir="${build.src}" token="/* JDBC_3_ANT_KEY" value=""/>
+     <replace dir="${build.src}" token="JDBC_3_ANT_KEY */" value=""/>
+     -->
+  </target>
+
+  <target name="prepare-error" depends="prepare,prepare-jdbc3" unless="AnakiaTask.present">
     <echo>
         AnakiaTask is not present! Please check to make sure that
         velocity.jar is in your classpath.
@@ -234,7 +248,7 @@ Legal:
   <!-- =================================================================== -->
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare,prepare-jdbc3">
   <!--  <mkdir dir="${build.dir}"/> -->
     <available property="jndi.present" classname="javax.naming.InitialContext" />
 
@@ -248,6 +262,7 @@ Legal:
       <src path="${build.src}"/>
       <src path="${java.dir}"/>
       <exclude name="${constants.file}" />
+      <exclude name="${poolconn.file}" />
       <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java"
                unless="jndi.present" />
     </javac>
