@@ -89,6 +89,10 @@ public class AvalonMailStore
         }
     }
 
+    public void release(Component component)
+    {
+    }
+
     public Component select(Object hint) throws ComponentNotFoundException,
         ComponentNotAccessibleException {
         
