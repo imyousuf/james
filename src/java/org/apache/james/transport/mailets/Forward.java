@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 
 /**
- * Replace incoming recipient with specified ones.
+ * Replaces incoming recipients with those specified.
  *
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -35,7 +35,25 @@ public class Forward extends GenericMailet {
     }
 
     public void service(Mail mail) throws MessagingException {
-        getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
+       if (mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0) {
+           // If we do not do this check, and somone uses Forward in a
+           // processor initiated by SenderInFakeDomain, then a fake
+           // sender domain will cause an infinite loop (the forwarded
+           // e-mail still appears to come from a fake domain).
+           // Although this can be viewed as a configuration error, the
+           // consequences of such a mis-configuration are severe enough
+           // to warrant protecting against the infinite loop.
+           getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
+       }
+       else {
+           StringBuffer logBuffer = new StringBuffer(256)
+                                   .append("Forward mailet cannot forward ")
+                                   .append(mail)
+                                   .append(". Invalid sender domain for ")
+                                   .append(mail.getSender())
+                                   .append(". Consider using the Redirect mailet.");
+           log(logBuffer.toString());
+       }
        if(! (new Boolean(getInitParameter("passThrough"))).booleanValue()) {
             mail.setState(Mail.GHOST);
        }
