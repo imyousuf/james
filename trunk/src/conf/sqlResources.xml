@@ -37,6 +37,7 @@
     <sql name="select">SELECT username, pwdHash, pwdAlgorithm, useForwarding,
                         forwardDestination, useAlias, alias
                  FROM ${table}
+                 ORDER BY username
     </sql>
     <sql name="selectByLowercaseName">
                 SELECT username, pwdHash, pwdAlgorithm, useForwarding,
@@ -166,7 +167,6 @@
 			PRIMARY KEY (message_name, repository_name)
 		)
 	</sql>
-
 </sqlDefs>
 
 <sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
