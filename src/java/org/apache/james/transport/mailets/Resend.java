@@ -291,7 +291,7 @@ import org.apache.mailet.MailAddress;
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/27 14:15:13 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/27 14:34:38 $
  * @since 2.2.0
  */
 

@@ -87,14 +87,19 @@ import org.apache.mailet.MailAddress;
 
 
 /**
- * <P>A mailet providing configurable redirection services.<BR>
- * This mailet can produce listserver, forward and notify behaviour, with the original
- * message intact, attached, appended or left out altogether.<BR>
- * This built in functionality is controlled by the configuration as laid out below.
+ * <P>A mailet providing configurable redirection services.</P>
+ * <P>Can produce listserver, forward and notify behaviour, with the original
+ * message intact, attached, appended or left out altogether.</P>
+ * <P>It is kept only for compatibility, use instead {@link Resend}.
+ * It differs from <CODE>Resend</CODE> because (i) some defaults are different,
+ * notably for the following parameters: <I>&lt;recipients&gt;</I>, <I>&lt;to&gt;</I> and <I>&lt;inline&gt;</I>;
+ * (ii) because it allows the use of the <I>&lt;static&gt;</I> parameter;
+ * (iii) because it lacks the <I>&lt;subject&gt;</I> parameter.</P>
+ * <P>This built in functionality is controlled by the configuration as laid out below.
  * In the table please note that the parameters controlling message headers
  * accept the <B>&quot;unaltered&quot;</B> value, whose meaning is to keep the associated
  * header unchanged and, unless stated differently, corresponds to the assumed default
- * if the parameter is missing. 
+ * if the parameter is missing.</P>
  * <P>The configuration parameters are:</P>
  * <TABLE width="75%" border="1" cellspacing="2" cellpadding="2">
  * <TR valign=top>
@@ -105,7 +110,7 @@ import org.apache.mailet.MailAddress;
  * if none of the lists is specified.<BR>
  * These addresses will only appear in the To: header if no &quot;to&quot; list is
  * supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -116,7 +121,7 @@ import org.apache.mailet.MailAddress;
  * list.<BR>
  * The recipients list will be used if this list is not supplied;
  * if none of the lists is specified it will be &quot;unaltered&quot;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -132,7 +137,8 @@ import org.apache.mailet.MailAddress;
  * <TR valign=top>
  * <TD width="20%">&lt;message&gt;</TD>
  * <TD width="80%">
- * A text message to be the body of the email. Can be omitted.
+ * A text message to insert into the body of the email.<BR>
+ * Default: no message is inserted.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -202,9 +208,10 @@ import org.apache.mailet.MailAddress;
  * <TD width="20%">&lt;replyto&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Reply-To: header.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;unaltered&quot;;
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
  * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
- * original From: header (see {@link AbstractRedirect#setReplyTo} and {@link AbstractRedirect#getReplyTo(Mail)}).<BR>
+ * original From: header (see {@link AbstractRedirect#setReplyTo} and {@link AbstractRedirect#getReplyTo(Mail)});
+ * if &quot;null&quot; is specified it will remove this header.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
  * </TR>
@@ -234,6 +241,14 @@ import org.apache.mailet.MailAddress;
  * </TD>
  * </TR>
  * <TR valign=top>
+ * <TD width="20%">&lt;debug&gt;</TD>
+ * <TD width="80%">
+ * true or false.  If this is true it tells the mailet to write some debugging
+ * information to the mailet log.<BR>
+ * Default: false.
+ * </TD>
+ * </TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;static&gt;</TD>
  * <TD width="80%">
  * true or false.  If this is true it tells the mailet that it can
@@ -247,35 +262,39 @@ import org.apache.mailet.MailAddress;
  * </TABLE>
  *
  * <P>Example:</P>
- * <P> &lt;mailet match=&quot;RecipientIs=test@localhost&quot; class=&quot;Redirect&quot;&gt;<BR>
- * &lt;recipients&gt;x@localhost, y@localhost, z@localhost&lt;/recipients&gt;<BR>
- * &lt;to&gt;list@localhost&lt;/to&gt;<BR>
- * &lt;sender&gt;owner@localhost&lt;/sender&gt;<BR>
- * &lt;message&gt;sent on from James&lt;/message&gt;<BR>
- * &lt;inline&gt;unaltered&lt;/inline&gt;<BR>
- * &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
- * &lt;replyto&gt;postmaster&lt;/replyto&gt;<BR>
- * &lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;<BR>
- * &lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;<BR>
- * &lt;static&gt;TRUE&lt;/static&gt;<BR>
- * &lt;/mailet&gt;<BR>
- * </P>
+ * <PRE><CODE>
+ *  &lt;mailet match=&quot;RecipientIs=test@localhost&quot; class=&quot;Redirect&quot;&gt;
+ *    &lt;recipients&gt;x@localhost, y@localhost, z@localhost&lt;/recipients&gt;
+ *    &lt;to&gt;list@localhost&lt;/to&gt;
+ *    &lt;sender&gt;owner@localhost&lt;/sender&gt;
+ *    &lt;message&gt;sent on from James&lt;/message&gt;
+ *    &lt;inline&gt;unaltered&lt;/inline&gt;
+ *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
+ *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;
+ *    &lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;
+ *    &lt;static&gt;TRUE&lt;/static&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
+ * 
  * <P>and:</P>
- * <P> &lt;mailet match=&quot;All&quot; class=&quot;Redirect&quot;&gt;<BR>
- * &lt;recipients&gt;x@localhost&lt;/recipients&gt;<BR>
- * &lt;sender&gt;postmaster&lt;/sender&gt;<BR>
- * &lt;message xml:space="preserve"&gt;Message marked as spam:<BR>
- * &lt;/message&gt;<BR>
- * &lt;inline&gt;heads&lt;/inline&gt;<BR>
- * &lt;attachment&gt;message&lt;/attachment&gt;<BR>
- * &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
- * &lt;attachError&gt;TRUE&lt;/attachError&gt;<BR>
- * &lt;replyto&gt;postmaster&lt;/replyto&gt;<BR>
- * &lt;prefix&gt;[spam notification]&lt;/prefix&gt;<BR>
- * &lt;static&gt;TRUE&lt;/static&gt;<BR>
- * &lt;/mailet&gt;</P>
  *
- * @version CVS $Revision: 1.18.4.12 $ $Date: 2003/06/25 22:02:32 $
+ * <PRE><CODE>
+ *  &lt;mailet match=&quot;All&quot; class=&quot;Redirect&quot;&gt;
+ *    &lt;recipients&gt;x@localhost&lt;/recipients&gt;
+ *    &lt;sender&gt;postmaster&lt;/sender&gt;
+ *    &lt;message xml:space="preserve"&gt;Message marked as spam:&lt;/message&gt;
+ *    &lt;inline&gt;heads&lt;/inline&gt;
+ *    &lt;attachment&gt;message&lt;/attachment&gt;
+ *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
+ *    &lt;attachError&gt;TRUE&lt;/attachError&gt;
+ *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;prefix&gt;[spam notification]&lt;/prefix&gt;
+ *    &lt;static&gt;TRUE&lt;/static&gt;
+ *  &lt;/mailet&gt;
+ * </CODE></PRE>
+ *
+ * @version CVS $Revision: 1.18.4.13 $ $Date: 2003/06/27 14:34:37 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -287,6 +306,29 @@ public class Redirect extends AbstractRedirect {
      */
     public String getMailetInfo() {
         return "Redirect Mailet";
+    }
+
+    /** Gets the expected init parameters. */
+    protected  String[] getAllowedInitParameters() {
+        String[] allowedArray = {
+            "static",
+            "debug",
+            "passThrough",
+            "fakeDomainCheck",
+            "inline",
+            "attachment",
+            "message",
+            "recipients",
+            "to",
+            "replyto",
+            "returnPath",
+            "sender",
+//            "subject",
+            "prefix",
+            "attachError",
+            "isReply"
+        };
+        return allowedArray;
     }
 
     /* ******************************************************************** */
@@ -312,34 +354,13 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>attachment</CODE> init parameter
-     */
-    protected int getAttachmentType() throws MessagingException {
-        if(getInitParameter("attachment") == null) {
-            return NONE;
-        } else {
-            return getTypeCode(getInitParameter("attachment"));
-        }
-    }
-
-    /**
-     * @return the <CODE>message</CODE> init parameter or an empty string if missing
-     */
-    protected String getMessage() throws MessagingException {
-        if(getInitParameter("message") == null) {
-            return "";
-        } else {
-            return getInitParameter("message");
-        }
-    }
-
-    /**
      * @return the <CODE>recipients</CODE> init parameter
      * or the postmaster address
      * or <CODE>SpecialAddress.SENDER</CODE>
      * or <CODE>SpecialAddress.RETURN_PATH</CODE>
      * or <CODE>SpecialAddress.UNALTERED</CODE>
-     * or <CODE>null</CODE> if missing
+     * or the <CODE>to</CODE> init parameter if missing
+     * or <CODE>null</CODE> if also the latter is missing
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
@@ -375,7 +396,8 @@ public class Redirect extends AbstractRedirect {
      * or <CODE>SpecialAddress.SENDER</CODE>
      * or <CODE>SpecialAddress.RETURN_PATH</CODE>
      * or <CODE>SpecialAddress.UNALTERED</CODE>
-     * or <CODE>null</CODE> if missing
+     * or the <CODE>recipients</CODE> init parameter if missing
+     * or <CODE>null</CODE> if also the latter is missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
         String addressList = (getInitParameter("to") == null)
@@ -410,114 +432,10 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>replyto</CODE> init parameter
-     * or the postmaster address
-     * or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.UNALTERED</CODE>
-     * or <CODE>null</CODE> if missing
+     * @return null
      */
-    protected MailAddress getReplyTo() throws MessagingException {
-        String addressString = getInitParameter("replyto");
-        if(addressString != null) {
-            MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender", "unaltered"});
-            if (specialAddress != null) {
-                return specialAddress;
-            }
-
-            try {
-                return new MailAddress(addressString);
-            } catch(Exception e) {
-                log("Parse error in getReplyTo: " + addressString);
-            }
-        }
-
+    protected String getSubject() {
         return null;
-    }
-
-    /**
-     * @return the <CODE>returnPath</CODE> init parameter 
-     * or the postmaster address
-     * or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.NULL</CODE>
-     * or <CODE>SpecialAddress.UNALTERED</CODE>
-     * or <CODE>null</CODE> if missing
-     */
-    protected MailAddress getReturnPath() throws MessagingException {
-        String addressString = getInitParameter("returnPath");
-        if(addressString != null) {
-            MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender", "null", "unaltered"});
-            if (specialAddress != null) {
-                return specialAddress;
-            }
-
-            try {
-                return new MailAddress(addressString);
-            } catch(Exception e) {
-                log("Parse error in getReturnPath: " + addressString);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return the <CODE>sender</CODE> init parameter
-     * or the postmaster address
-     * or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.UNALTERED</CODE>
-     * or <CODE>null</CODE> if missing
-     */
-    protected MailAddress getSender() throws MessagingException {
-        String addressString = getInitParameter("sender");
-        if(addressString != null) {
-            MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender", "unaltered"});
-            if (specialAddress != null) {
-                return specialAddress;
-            }
-
-            try {
-                return new MailAddress(addressString);
-            } catch(Exception e) {
-                log("Parse error in getSender: " + addressString);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return the <CODE>prefix</CODE> init parameter or an empty string if missing
-     */
-    protected String getSubjectPrefix() throws MessagingException {
-        if(getInitParameter("prefix") == null) {
-            return "";
-        } else {
-            return getInitParameter("prefix");
-        }
-    }
-
-    /**
-     * @return the <CODE>attachError</CODE> init parameter; false if missing
-     */
-    protected boolean attachError() throws MessagingException {
-        if(getInitParameter("attachError") == null) {
-            return false;
-        } else {
-            return new Boolean(getInitParameter("attachError")).booleanValue();
-        }
-    }
-
-    /**
-     * @return the <CODE>isReply</CODE> init parameter; false if missing
-     */
-    protected boolean isReply() throws MessagingException {
-        if(getInitParameter("isReply") == null) {
-            return false;
-        }
-        return new Boolean(getInitParameter("isReply")).booleanValue();
     }
 
     /* ******************************************************************** */
