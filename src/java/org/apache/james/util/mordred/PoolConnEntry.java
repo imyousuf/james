@@ -21,7 +21,6 @@ import java.util.Map;
 /**
  * An entry in a connection pool.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class PoolConnEntry implements java.sql.Connection{
     private static final boolean DEEP_DEBUG = false;

@@ -20,8 +20,6 @@ import org.apache.mailet.MailAddress;
 /**
  * Replaces incoming recipients with those specified.
  *
- * @author Federico Barbieri <scoobie@pop.systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class Forward extends GenericMailet {
 

@@ -13,7 +13,6 @@ package org.apache.james.nntpserver;
  * Protocol handler catches the exception and returns error info to client.
  * Error Information is obtained by calling 'getMessage'
  *
- * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPException extends RuntimeException {
 

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author  Federico Barbieri <fede@apache.org>
  */
 public class ResettableFileInputStream
     extends InputStream

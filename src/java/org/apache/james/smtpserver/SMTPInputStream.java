@@ -14,7 +14,6 @@ import java.io.InputStream;
 /**
  * Removes the dot-stuffing happening during the SMTP DATA transport
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class SMTPInputStream extends FilterInputStream {
     /**

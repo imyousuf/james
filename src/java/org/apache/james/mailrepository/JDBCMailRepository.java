@@ -70,8 +70,6 @@ import org.apache.mailet.MailRepository;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Darrell DeBoer <dd@bigdaz.com>
  * @version 1.0.0, 24/04/1999
  */
 public class JDBCMailRepository

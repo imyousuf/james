@@ -28,7 +28,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * @phoenix:block
  * @phoenix:service name="org.apache.avalon.cornerstone.services.store.Store"
  *
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
 public class RepositoryManager
     extends AbstractLogEnabled

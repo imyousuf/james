@@ -23,10 +23,6 @@ import javax.mail.internet.MimeMessage;
  * mailets and matchers when they are initialized.
  *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri   <scoobie@pop.systemy.it>
- * @author  Stefano Mazzocchi   <stefano@apache.org>
- * @author  Pierpaolo Fumagalli <pier@apache.org>
- * @author  Serge Knystautas    <sergek@lokitech.com>
  */
 public interface MailetContext {
     /**

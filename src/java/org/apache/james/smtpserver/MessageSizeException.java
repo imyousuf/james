@@ -13,7 +13,6 @@ import java.io.IOException;
   * This exception is used to indicate when a new MimeMessage has exceeded
   * the maximum message size for the server, as configured in the conf file.
   *
-  * @author Matthew Pangaro <mattp@lokitech.com>
   * @version 0.5.1
   */
 public class MessageSizeException extends IOException {

@@ -14,7 +14,6 @@ import java.util.Collection;
 
 /**
  * @version 1.0.0, 04/12/2000
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class IsSingleRecipient extends GenericMatcher {
 

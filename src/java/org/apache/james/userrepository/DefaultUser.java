@@ -17,9 +17,8 @@ import java.security.NoSuchAlgorithmException;
  * Implementation of User Interface. Instances of this class do not allow
  * the the user name to be reset.
  *
- * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version CVS $Revision: 1.8 $
+ * @version CVS $Revision: 1.9 $
  */
 
 public class DefaultUser implements User, Serializable {

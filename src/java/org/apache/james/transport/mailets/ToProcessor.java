@@ -22,8 +22,6 @@ import javax.mail.MessagingException;
  *   <notice>Notice attached to the message (optional)</notice>
  * </mailet>
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class ToProcessor extends GenericMailet {
 

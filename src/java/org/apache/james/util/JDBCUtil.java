@@ -21,8 +21,6 @@ import java.util.Locale;
  * take advantage of different logging capabilities/interfaces in
  * different parts of the code.</p>
  *
- * @author Noel Bergman <noel@devtech.com>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
  */
 abstract public class JDBCUtil

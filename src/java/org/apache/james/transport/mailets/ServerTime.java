@@ -23,7 +23,6 @@ import org.apache.mailet.MailAddress;
  * <mailet match="RecipientIs=time@cadenza.lokitech.com" class="ServerTime">
  * </mailet>
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class ServerTime extends GenericMailet {
     /**

@@ -18,7 +18,6 @@ import java.sql.SQLException;
  * A Jdbc-backed UserRepository which handles User instances
  * of the <CODE>DefaultJamesUser</CODE> class, or any superclass.
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
 {

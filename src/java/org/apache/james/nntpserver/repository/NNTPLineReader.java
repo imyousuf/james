@@ -12,7 +12,6 @@ package org.apache.james.nntpserver.repository;
 /**
  * Read and translates client data.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPLineReader {
 

@@ -37,9 +37,6 @@ import java.net.UnknownHostException;
 /**
  * NNTP Server
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
- * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class NNTPServer extends AbstractJamesService implements Component {
 

@@ -72,7 +72,6 @@ import java.util.LinkedList;
  *
  *
  * @version 1.0.0, 24/04/1999
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepository {
 

@@ -21,8 +21,6 @@ import java.util.List;
  * <p>This implements common functionality found in different UsersRespository
  * implementations, and makes it easier to create new User repositories.</p>
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
- * @author Charles Benett <charles@benett1.demon.co.uk>
  */
 public abstract class AbstractUsersRepository
     extends AbstractLogEnabled

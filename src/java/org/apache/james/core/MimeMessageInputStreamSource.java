@@ -29,7 +29,6 @@ import org.apache.avalon.framework.activity.Disposable;
  * @see MimeMessageWrapper
  *
  *
- * @author <a href="mailto:sergek@lokitech.com>">Serge Knystautas</a>
  */
 public class MimeMessageInputStreamSource
     extends MimeMessageSource

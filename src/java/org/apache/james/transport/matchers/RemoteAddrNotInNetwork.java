@@ -28,7 +28,6 @@ import java.util.Vector;
  * wildcard.
  * <p>Multiple addresses can be indicated, e.g: '127.0.0.1,192.168.*,domain.tld'
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class RemoteAddrNotInNetwork extends GenericMatcher {
     private Collection networks = null;

@@ -38,13 +38,8 @@ import org.apache.mailet.UsersRepository;
  * TODO: -improve protocol
  *       -add remove user
  *       -much more...
- * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  *
  */
 public class RemoteManagerHandler

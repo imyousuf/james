@@ -13,9 +13,8 @@ import org.apache.mailet.User;
 /**
  * Interface for objects representing users of an email/ messaging system.
  *
- * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 public interface JamesUser extends User {

@@ -14,7 +14,6 @@ import org.apache.mailet.Mail;
  * A simple in memory counter.  Designed to count messages sent to this recipient
  * for debugging purposes.
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class Counter extends GenericMailet {
 

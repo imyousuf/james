@@ -17,7 +17,6 @@ import java.util.HashMap;
  * Provides a number of server-wide constant values to the
  * RemoteManagerHandlers
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface RemoteManagerHandlerConfigurationData {
 

@@ -12,8 +12,6 @@ package org.apache.james.util.watchdog;
  * monitor a situation and triggers an action under an implementation-specific
  * trigger condition.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface Watchdog {
 

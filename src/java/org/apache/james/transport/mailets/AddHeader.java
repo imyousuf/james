@@ -23,7 +23,6 @@ import org.apache.mailet.Mail;
  * </mailet>
  *
  * @version 1.0.0, 2002-09-11
- * @author  Chris Means <cmeans@intfar.com>
  */
 public class AddHeader
        extends GenericMailet {

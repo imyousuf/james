@@ -35,11 +35,6 @@ import org.apache.mailet.SpoolRepository;
  * Implements a processor for mails, directing the mail down
  * the chain of matchers/mailets.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Steve Short <sshort@postx.com>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- *
  *  SAMPLE CONFIGURATION
  *  <processor name="try" onerror="return,log">
  *      <mailet match="RecipientIsLocal" class="LocalDelivery">

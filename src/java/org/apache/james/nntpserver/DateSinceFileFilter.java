@@ -13,7 +13,6 @@ import java.io.FilenameFilter;
 /**
  * Filters files according to their last modified date
  *
- * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class DateSinceFileFilter implements FilenameFilter {
 

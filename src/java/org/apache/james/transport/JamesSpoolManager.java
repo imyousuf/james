@@ -39,10 +39,8 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.24 $
+ * @version This is $Revision: 1.25 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

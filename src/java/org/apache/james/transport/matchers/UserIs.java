@@ -15,8 +15,6 @@ import java.util.Vector;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author Federico Barbieri <scoobie@pop.systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class UserIs extends GenericRecipientMatcher {
     Vector users = null;

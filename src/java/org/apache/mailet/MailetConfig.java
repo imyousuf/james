@@ -18,7 +18,6 @@ import java.util.Iterator;
  * about the server.
  *
  * @version 1.0.0, 24/04/1999
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public interface MailetConfig {
 

@@ -15,7 +15,6 @@ import org.apache.mailet.UsersRepository;
  * Provides a number of server-wide constant values to the
  * NNTPHandlers
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface NNTPHandlerConfigurationData {
 

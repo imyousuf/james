@@ -83,7 +83,6 @@ import org.apache.mailet.MailetException;
  *   &lt;sqlquery&gt;sqlquery&lt;/sqlquery&gt;
  * &lt;/mailet&gt;
  *
- * @author  Noel J. Begman <noel@devtech.com>
  */
 public class JDBCVirtualUserTable extends GenericMailet
 {

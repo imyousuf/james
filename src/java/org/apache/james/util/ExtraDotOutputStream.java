@@ -15,7 +15,6 @@ import java.io.OutputStream;
  * Adds extra dot if dot occurs in message body at beginning of line (according to RFC1939)
  * Compare also org.apache.james.smtpserver.SMTPInputStream
  *
- * @author Stephan Schiessling <s@rapi.com>
  */
 public class ExtraDotOutputStream extends FilterOutputStream {
 

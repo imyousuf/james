@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
  * database products, by detecting product information from the
  * jdbc DatabaseMetaData object.
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class SqlResources
 {

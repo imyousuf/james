@@ -21,8 +21,6 @@ import org.apache.mailet.Matcher;
 /**
  * Loads Matchers for use inside James.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MatchLoader extends Loader implements Component, Configurable {
         /**

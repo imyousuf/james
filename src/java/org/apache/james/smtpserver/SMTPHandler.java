@@ -53,14 +53,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Jason Borden <jborden@javasense.com>
- * @author Matthew Pangaro <mattp@lokitech.com>
- * @author Danny Angus <danny@thought.co.uk>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- *
- * @version This is $Revision: 1.41 $
+ * @version This is $Revision: 1.42 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled

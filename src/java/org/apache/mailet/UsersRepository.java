@@ -15,10 +15,8 @@ import java.util.Iterator;
  * grouping of users, typically by common purpose. E.g. the users served by an
  * email server or the members of a mailing list.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface UsersRepository {
 

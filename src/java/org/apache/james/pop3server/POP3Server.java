@@ -39,9 +39,6 @@ import java.net.UnknownHostException;
  * <p>Also responsible for loading and parsing POP3 specific configuration.</p>
  *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class POP3Server extends AbstractJamesService implements Component {
 

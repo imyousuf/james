@@ -19,8 +19,6 @@ import org.apache.mailet.MailetException;
 /**
  * Loads Mailets for use inside James.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MailetLoader extends Loader implements Component, Configurable {
            /**

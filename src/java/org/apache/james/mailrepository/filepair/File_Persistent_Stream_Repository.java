@@ -21,7 +21,6 @@ import org.apache.avalon.excalibur.io.IOUtil;
  * TODO: -retieve(String key) should return a FilterInputStream to allow
  * mark and reset methods. (working not like BufferedInputStream!!!)
  *
- * @author  Federico Barbieri <fede@apache.org>
  */
 public class File_Persistent_Stream_Repository
     extends AbstractFileRepository

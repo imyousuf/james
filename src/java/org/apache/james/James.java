@@ -70,11 +70,8 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 2) Handles interactions between components
  * <br> 3) Provides container services for Mailets
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author Serge
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.41 $
+ * @version This is $Revision: 1.42 $
 
  */
 public class James

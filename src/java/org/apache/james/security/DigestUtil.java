@@ -23,9 +23,8 @@ import javax.mail.internet.MimeUtility;
 /**
  * Computes and verifies digests of files and strings
  *
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class DigestUtil {
 

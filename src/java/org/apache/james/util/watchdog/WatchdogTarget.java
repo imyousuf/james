@@ -12,8 +12,6 @@ import org.apache.avalon.cornerstone.services.scheduler.Target;
 /**
  * This interface represents an action to be triggered by a watchdog process.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface WatchdogTarget {
 

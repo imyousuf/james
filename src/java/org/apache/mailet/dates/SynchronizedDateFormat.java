@@ -22,7 +22,6 @@ import java.util.TimeZone;
  * classes are not thread safe, so we need to synchronize on the
  * internal DateFormat for all delegated calls.
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class SynchronizedDateFormat implements SimplifiedDateFormat {
     private final DateFormat internalDateFormat;

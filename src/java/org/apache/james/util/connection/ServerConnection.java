@@ -35,8 +35,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
  * The connection manager will spawn a single ServerConnection for each
  * server socket that the connection manager is managing.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class ServerConnection extends AbstractLogEnabled
     implements Component, Initializable, Runnable {
@@ -332,8 +330,6 @@ public class ServerConnection extends AbstractLogEnabled
      * An inner class to provide the actual body of the thread of execution
      * that occurs upon a client connection.
      *
-     * @author Andrei Ivanov
-     * @author Peter M. Goldstein <farsight@alum.mit.edu>
      */
     class ClientConnectionRunner extends AbstractLogEnabled
         implements Component, Poolable, Runnable  {

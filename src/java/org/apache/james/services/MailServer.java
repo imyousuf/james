@@ -20,10 +20,8 @@ import org.apache.mailet.MailRepository;
 /**
  * The interface for Phoenix blocks to the James MailServer
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.14 $
+ * @version This is $Revision: 1.15 $
  */
 public interface MailServer
 {

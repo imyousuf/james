@@ -18,9 +18,6 @@ import org.apache.avalon.excalibur.io.ClassLoaderObjectInputStream;
  * This is a simple implementation of persistent object store using
  * object serialization on the file system.
  *
- * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
- * @author <a href="mailto:paul_hammant@yahoo.com">Paul Hammant</a>
  */
 public class File_Persistent_Object_Repository
     extends AbstractFileRepository

@@ -49,8 +49,7 @@ import org.apache.mailet.UsersRepository;
  * <p>autobracket - if true the subject prefix will be rendered as
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
- * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.10 $
+ * @version This is $Revision: 1.11 $
  */
 public class AvalonListserv extends GenericListserv {
 

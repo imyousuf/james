@@ -20,8 +20,6 @@ import java.util.Vector;
  * Receives a Mail from JamesSpoolManager and takes care of delivery
  * of the message to local inboxes.
  *
- * @author Federico Barbieri <scoobie@pop.systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class LocalDelivery extends GenericMailet {
 

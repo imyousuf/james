@@ -28,7 +28,6 @@ import java.util.Properties;
  * This may be inefficient. It may be better to use an alternate, more
  * efficient process for synchronization and this class for sanity check.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class ArticleIDRepository {
 

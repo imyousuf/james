@@ -26,8 +26,7 @@ import java.util.Iterator;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.5 2003/01/12 22:38:30 serge Exp $
- *  @author <A href="mailto:danny@apache.org">Danny Angus</a>
+ * <br>$Id: FetchScheduler.java,v 1.6 2003/01/14 13:41:48 serge Exp $
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *
  */

@@ -34,10 +34,8 @@ import java.util.Iterator;
  *              model="SYNCHRONOUS"/>
  * Requires a logger called UsersRepository.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version CVS $Revision: 1.12 $
+ * @version CVS $Revision: 1.13 $
  *
  */
 public class UsersFileRepository

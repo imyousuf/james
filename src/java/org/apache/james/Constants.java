@@ -14,9 +14,8 @@ import org.apache.mailet.MailetContextConstants;
  * The Software Version, Software Name and Build Date are set by ant during
  * the build process.
  *
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.8 $
+ * @version This is $Revision: 1.9 $
  */
 public interface Constants extends MailetContextConstants{
 

@@ -14,7 +14,6 @@ import java.util.Collection;
  * It may be a good idea to make the interface more generic or expose
  * commonly needed DNS methods.
  *
- * @author  Harmeet <harmeet@kodemuse.com>
  */
 public interface DNSServer {
 

@@ -10,8 +10,6 @@ package org.apache.james.util.watchdog;
 /**
  * This interface represents a factory for producing Watchdogs.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface WatchdogFactory {
 

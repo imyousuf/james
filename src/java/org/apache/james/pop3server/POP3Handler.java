@@ -41,8 +41,6 @@ import org.apache.mailet.MailRepository;
 /**
  * The handler class for POP3 connections.
  *
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class POP3Handler
     extends AbstractLogEnabled

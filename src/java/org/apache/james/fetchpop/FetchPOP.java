@@ -30,8 +30,7 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.6 2003/01/12 22:38:30 serge Exp $
- * @author <A href="mailto:danny@apache.org">Danny Angus</a>
+ * <br>$Id: FetchPOP.java,v 1.7 2003/01/14 13:41:48 serge Exp $
  *
  */
 public class FetchPOP extends AbstractLogEnabled implements Configurable, Target {

@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class SenderIs extends GenericMatcher {
 

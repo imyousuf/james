@@ -14,9 +14,8 @@ import org.apache.mailet.MailAddress;
 /**
  * Implementation of User Interface.
  *
- * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 public class DefaultJamesUser

@@ -40,7 +40,6 @@ import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
  *        return theWatchdogFactory;
  *     }
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class SchedulerWatchdogFactory implements WatchdogFactory {
 

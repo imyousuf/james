@@ -17,7 +17,6 @@ import java.util.Collection;
 /**
  * Checks whether this message has an attachment
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class HasAttachment extends GenericMatcher {
 

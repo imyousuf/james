@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * NNTP Repository implementation.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPRepositoryImpl extends AbstractLogEnabled
     implements NNTPRepository, Contextualizable, Configurable, Initializable

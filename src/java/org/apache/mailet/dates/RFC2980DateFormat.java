@@ -13,7 +13,6 @@ import java.util.Locale;
  * A thread-safe date formatting class to produce dates formatted in accord with the
  * specifications of section 3.2 of RFC 2980.
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RFC2980DateFormat extends SynchronizedDateFormat {
 

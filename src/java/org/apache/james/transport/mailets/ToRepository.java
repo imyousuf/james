@@ -18,9 +18,8 @@ import org.apache.mailet.MailRepository;
  * If the "passThrough" in confs is true the mail will be returned untouched in
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.12 $
+ * @version This is $Revision: 1.13 $
  */
 public class ToRepository extends GenericMailet {
 

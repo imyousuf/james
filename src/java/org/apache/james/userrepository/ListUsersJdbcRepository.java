@@ -18,7 +18,6 @@ import java.sql.SQLException;
  * of user names in a database. Password information is not
  * persisted.
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {

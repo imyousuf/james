@@ -23,7 +23,6 @@ import org.apache.mailet.RFC2822Headers;
  * This interface defines a container for mail headers. Each header must use
  * MIME format: <pre>name: value</pre>.
  *
- * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
 
