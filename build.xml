@@ -50,6 +50,7 @@ All these package are in current distribution.
 
 <!-- There should be no need to override default compiler but need to change javac task to run without this -->
   <property name="build.compiler" value="classic"/> 
+
   <property name="debug" value="on"/>
   <property name="optimize" value="on"/>
   <property name="deprecation" value="on"/>
