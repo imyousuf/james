@@ -67,7 +67,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.StringTokenizer;
 import java.util.ArrayList;
 
 
@@ -165,7 +164,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.17 $ $Date: 2003/07/04 16:46:12 $
+ * @version CVS $Revision: 1.18 $ $Date: 2003/07/07 06:16:21 $
  * @since 2.2.0
  */
 
@@ -193,6 +192,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     private static class AddressMarker {
         public static MailAddress SENDER;
         public static MailAddress REVERSE_PATH;
+        public static MailAddress FROM;
         public static MailAddress TO;
         public static MailAddress RECIPIENTS;
         public static MailAddress DELETE;
@@ -203,6 +203,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             try {
                 SENDER          = new MailAddress("sender","address.marker");
                 REVERSE_PATH    = new MailAddress("reverse.path","address.marker");
+                FROM            = new MailAddress("from","address.marker");
                 TO              = new MailAddress("to","address.marker");
                 RECIPIENTS      = new MailAddress("recipients","address.marker");
                 DELETE          = new MailAddress("delete","address.marker");
@@ -221,6 +222,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     protected static class SpecialAddress {
         public static final MailAddress SENDER          = AddressMarker.SENDER;
         public static final MailAddress REVERSE_PATH    = AddressMarker.REVERSE_PATH;
+        public static final MailAddress FROM            = AddressMarker.FROM;
         public static final MailAddress TO              = AddressMarker.TO;
         public static final MailAddress RECIPIENTS      = AddressMarker.RECIPIENTS;
         public static final MailAddress DELETE          = AddressMarker.DELETE;
@@ -442,7 +444,6 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
-        boolean error = false;
         String addressList = getInitParameter("recipients");
         
         // if nothing was specified, return <CODE>null</CODE> meaning no change
@@ -450,25 +451,20 @@ public abstract class AbstractRedirect extends GenericMailet {
             return null;
         }
 
-        StringTokenizer st = new StringTokenizer(addressList, ",", false);
-        while(st.hasMoreTokens()) {
-            String token = null;
-            try {
-                token = st.nextToken();
-                MailAddress specialAddress = getSpecialAddress(token,
-                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+        try {
+            InternetAddress[] iaarray = InternetAddress.parse(addressList, false);
+            for (int i = 0; i < iaarray.length; i++) {
+                String addressString = iaarray[i].getAddress();
+                MailAddress specialAddress = getSpecialAddress(addressString,
+                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
-                    newRecipients.add(new MailAddress(token));
+                    newRecipients.add(new MailAddress(iaarray[i]));
                 }
-            } catch(Exception e) {
-                error = true;
-                log("Exception thrown in getRecipients() parsing: " + token, e);
             }
-        }
-        if (error) {
-            throw new MessagingException("Failed to initialize \"recipients\" list; see mailet log.");
+        } catch (Exception e) {
+            throw new MessagingException("Exception thrown in getRecipients() parsing: " + addressList, e);
         }
         if (newRecipients.size() == 0) {
             throw new MessagingException("Failed to initialize \"recipients\" list; empty <recipients> init parameter found.");
@@ -520,12 +516,13 @@ public abstract class AbstractRedirect extends GenericMailet {
      * or the postmaster address
      * or <CODE>SpecialAddress.SENDER</CODE>
      * or <CODE>SpecialAddress.REVERSE_PATH</CODE>
+     * or <CODE>SpecialAddress.FROM</CODE>
      * or <CODE>SpecialAddress.UNALTERED</CODE>
      * or <CODE>SpecialAddress.TO</CODE>
      * or <CODE>null</CODE> if missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
-        boolean error = false;
+        InternetAddress[] iaarray = null;
         String addressList = getInitParameter("to");
         
         // if nothing was specified, return null meaning no change
@@ -533,29 +530,20 @@ public abstract class AbstractRedirect extends GenericMailet {
             return null;
         }
 
-        StringTokenizer rec = new StringTokenizer(addressList, ",");
-        int tokenCount = rec.countTokens();
-        InternetAddress[] iaarray = new InternetAddress[tokenCount];
-        String token = "";
-        for(int i = 0; i < tokenCount; ++i) {
-            try {
-                token = rec.nextToken();
-                MailAddress specialAddress = getSpecialAddress(token,
-                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "to", "null"});
+        try {
+            iaarray = InternetAddress.parse(addressList, false);
+            for(int i = 0; i < iaarray.length; ++i) {
+                String addressString = iaarray[i].getAddress();
+                MailAddress specialAddress = getSpecialAddress(addressString,
+                                                new String[] {"postmaster", "sender", "from", "reversePath", "unaltered", "to", "null"});
                 if (specialAddress != null) {
                     iaarray[i] = specialAddress.toInternetAddress();
-                } else {
-                    iaarray[i] = new InternetAddress(token);
                 }
-            } catch(Exception e) {
-                error = true;
-                log("Exception thrown in getTo() parsing: " + token, e);
             }
+        } catch (Exception e) {
+            throw new MessagingException("Exception thrown in getTo() parsing: " + addressList, e);
         }
-        if (error) {
-            throw new MessagingException("Failed to initialize \"to\" list; see mailet log.");
-        }
-        if (tokenCount == 0) {
+        if (iaarray.length == 0) {
             throw new MessagingException("Failed to initialize \"to\" list; empty <to> init parameter found.");
         }
 
@@ -1524,6 +1512,9 @@ public abstract class AbstractRedirect extends GenericMailet {
         if(addressString.compareTo("reversepath") == 0) {
             specialAddress = SpecialAddress.REVERSE_PATH;
         }
+        if(addressString.compareTo("from") == 0) {
+            specialAddress = SpecialAddress.FROM;
+        }
         if(addressString.compareTo("to") == 0) {
             specialAddress = SpecialAddress.TO;
         }
@@ -1742,7 +1733,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Returns a new Collection built over <I>list</I> replacing special addresses
      * with real ones.
      * Manages <CODE>SpecialAddress.SENDER</CODE>, <CODE>SpecialAddress.REVERSE_PATH</CODE>,
-     * <CODE>SpecialAddress.TO</CODE>, 
+     * <CODE>SpecialAddress.FROM</CODE>, <CODE>SpecialAddress.TO</CODE>, 
      * <CODE>SpecialAddress.NULL</CODE> and <CODE>SpecialAddress.UNALTERED</CODE>.
      * Any other address is not replaced.
      */
@@ -1763,6 +1754,17 @@ public abstract class AbstractRedirect extends GenericMailet {
                 MailAddress reversePath = mail.getSender();
                 if (reversePath != null) {
                     newList.add(reversePath.toInternetAddress());
+                }
+            } else if (internetAddress.equals(SpecialAddress.FROM.toInternetAddress())) {
+                try {
+                    InternetAddress[] fromArray = (InternetAddress[]) mail.getMessage().getFrom();
+                    if (fromArray != null) {
+                        for (int i = 0; i < fromArray.length; i++) {
+                            newList.add(fromArray[i]);
+                        }
+                    }
+                } catch (AddressException ae) {
+                    log("Unable to parse the \"FROM\" header in the original message; ignoring.");
                 }
             } else if (internetAddress.equals(SpecialAddress.TO.toInternetAddress())) {
                 String[] toHeaders = mail.getMessage().getHeader(RFC2822Headers.TO);

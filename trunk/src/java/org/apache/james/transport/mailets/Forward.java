@@ -66,7 +66,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.StringTokenizer;
 
 /**
  * <P>Replaces incoming recipients with those specified, and resends the message unaltered.</P>
@@ -96,7 +95,7 @@ import java.util.StringTokenizer;
  * <P><I>forwardto</I> can be used instead of
  * <I>forwardTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.18 $ $Date: 2003/07/04 16:46:12 $
+ * @version CVS $Revision: 1.19 $ $Date: 2003/07/07 06:16:21 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -163,28 +162,23 @@ public class Forward extends AbstractRedirect {
             throw new MessagingException("Failed to initialize \"recipients\" list: no <forwardTo> or <forwardto> init parameter found");
         }
 
-        StringTokenizer st = new StringTokenizer(addressList, ",", false);
-        while(st.hasMoreTokens()) {
-            String token = null;
-            try {
-                token = st.nextToken();
-                MailAddress specialAddress = getSpecialAddress(token,
-                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+        try {
+            InternetAddress[] iaarray = InternetAddress.parse(addressList, false);
+            for (int i = 0; i < iaarray.length; i++) {
+                String addressString = iaarray[i].getAddress();
+                MailAddress specialAddress = getSpecialAddress(addressString,
+                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
-                    newRecipients.add(new MailAddress(token));
+                    newRecipients.add(new MailAddress(iaarray[i]));
                 }
-            } catch(Exception e) {
-                error = true;
-                log("Exception thrown in getRecipients() parsing: " + token, e);
             }
-        }
-        if (error) {
-            throw new MessagingException("Failed to initialize \"recipients\" list; see mailet log.");
+        } catch (Exception e) {
+            throw new MessagingException("Exception thrown in getRecipients() parsing: " + addressList, e);
         }
         if (newRecipients.size() == 0) {
-            throw new MessagingException("Failed to initialize \"recipients\" list; empty <forwardTo> or <forwardto> init parameter found.");
+            throw new MessagingException("Failed to initialize \"recipients\" list; empty <recipients> init parameter found.");
         }
 
         return newRecipients;
