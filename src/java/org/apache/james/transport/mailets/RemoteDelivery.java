@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.8 $
- * Committed on $Date: 2001/10/04 18:22:17 $ by: $Author: danny $
+ * This is $Revision: 1.9 $
+ * Committed on $Date: 2001/10/08 22:25:42 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -163,6 +163,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             props.put("mail.smtp.from", mail.getSender().toString());
                         }
                         props.put("mail.debug", "false");
+                        //Prevents problems encountered with 250 OK Messages
+                        props.put("mail.smtp.ehlo", "false");
 
                         //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
@@ -269,10 +271,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         PrintWriter pout = new PrintWriter(sout, true);
         String machine ="[unknown]";
         try{
-        	InetAddress me = InetAddress.getLocalHost();
-        	machine = me.getHostName();
+            InetAddress me = InetAddress.getLocalHost();
+            machine = me.getHostName();
         }catch(Exception e){
-        	machine = "[address unknown]";
+            machine = "[address unknown]";
         }
         pout.println("Hi. This is the James mail server at " + machine + ".");
         pout.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
