@@ -145,42 +145,42 @@
       <tr><td>
         <blockquote>
                                     <p>
-				<ul>
-					<li>
-						<a href="#1">Would you please teach me how to set up a mailing list</a>
-					</li>
-					<li>
-						<a href="#2">Is James an Open Relay for Spam?</a>
-					</li>
-					<li>
-						<a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a>
-					</li>
-					<li>
-						<a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a>
-					</li>
-					<li>
-						<a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a>
-					</li>
-					<li>
-						<a href="#6">What about IMAP support?</a>
-					</li>
-					<li>
-						<a href="#7">What about support virtual hosting?</a>
-					</li>
-					<li>
-						<a href="#8">Where do I stick classes and jars?</a>
-					</li>
-					<li>
-						<a href="#9">How do I upgrade to a newer version of James?</a>
-					</li>
-					<li>
-						<a href="#10">How do I run James as an NT/2k/XP service?</a>
-					</li>
-					<li>
-						<a href="#11">Why isn't my mailet making changes to a MimeMessage?</a>
-					</li>
-				</ul>
-			</p>
+            <ul>
+               <li>
+                  <a href="#1">Would you please teach me how to set up a mailing list</a>
+               </li>
+               <li>
+                  <a href="#2">Is James an Open Relay for Spam?</a>
+               </li>
+               <li>
+                  <a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a>
+               </li>
+               <li>
+                  <a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a>
+               </li>
+               <li>
+                  <a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a>
+               </li>
+               <li>
+                  <a href="#6">What about IMAP support?</a>
+               </li>
+               <li>
+                  <a href="#7">What about support virtual hosting?</a>
+               </li>
+               <li>
+                  <a href="#8">Where do I stick classes and jars?</a>
+               </li>
+               <li>
+                  <a href="#9">How do I upgrade to a newer version of James?</a>
+               </li>
+               <li>
+                  <a href="#10">How do I run James as an NT/2k/XP service?</a>
+               </li>
+               <li>
+                  <a href="#11">Why isn't my mailet making changes to a MimeMessage?</a>
+               </li>
+            </ul>
+         </p>
                             </blockquote>
         </p>
       </td></tr>
@@ -231,10 +231,10 @@
     </div>
                                                 <p>that will intercept the command emails sent to
 <ul>
-						<li>james-on@localhost to subscribe the sender</li>
-						<li>james-off@localhost to unsubscribe the sender</li>
-					</ul>
-				</p>
+                  <li>james-on@localhost to subscribe the sender</li>
+                  <li>james-off@localhost to unsubscribe the sender</li>
+               </ul>
+            </p>
                                                 <p>and-</p>
                                                     <div align="left">
     <table cellspacing="4" cellpadding="0" border="0">
@@ -365,9 +365,9 @@
         <blockquote>
                                     <p>You need to do one of two things:
   <ol>
-						<li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
-						<li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
-					</ol>
+                  <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
+                  <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
+               </ol>
   Serge Knystautas</p>
                             </blockquote>
       </td></tr>
@@ -431,9 +431,9 @@
         <blockquote>
                                     <p>We are largely reliant on what Avalon is doing in terms of classloading, but here are a few tips and suggestions:
   <ul>
-						<li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
-						<li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
-					</ul>
+                  <li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
+                  <li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
+               </ul>
   Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.
   <br />Serge Knystautas</p>
                             </blockquote>
@@ -450,13 +450,13 @@
       <tr><td>
         <blockquote>
                                     <p>
-					<ol>
-						<li>Rename the previous james directory into a james.old</li>
-						<li>Run phoenix to let the new james.sar be deployed.</li>
-						<li>Copy config.xml from james.old to the new deployed james/conf directory</li>
-						<li>Replace the var directory by the previous var directory.  This will copy over user accounts, inboxes, spools, and whatever else.</li>
-						<li>Restart James.</li>
-					</ol>
+               <ol>
+                  <li>Rename the previous james directory into a james.old</li>
+                  <li>Run phoenix to let the new james.sar be deployed.</li>
+                  <li>Copy config.xml from james.old to the new deployed james/conf directory</li>
+                  <li>Replace the var directory by the previous var directory.  This will copy over user accounts, inboxes, spools, and whatever else.</li>
+                  <li>Restart James.</li>
+               </ol>
   Daniel Herlemont
   </p>
                             </blockquote>
