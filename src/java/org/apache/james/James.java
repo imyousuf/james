@@ -119,7 +119,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.56 $
+ * @version This is $Revision: 1.57 $
 
  */
 public class James
@@ -641,7 +641,7 @@ public class James
         //If there is a Return-Path header,
         String[] returnPathHeaders = orig.getHeader(RFC2822Headers.RETURN_PATH);
         String returnPathHeader = null;
-        if (returnPathHeader != null) {
+        if (returnPathHeaders != null) {
             // TODO: Take a look at the JavaMail spec to see if the originating header
             //       is guaranteed to be at position 0
             returnPathHeader = returnPathHeaders[0];
