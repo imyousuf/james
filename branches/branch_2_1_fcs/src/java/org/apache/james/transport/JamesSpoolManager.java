@@ -88,7 +88,7 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.20.4.10 $ $Date: 2003/10/20 06:04:26 $
+ * @version CVS $Revision: 1.20.4.11 $ $Date: 2003/10/20 08:18:29 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -348,8 +348,9 @@ public class JamesSpoolManager
         }
 
         while(true) {
+            String key = null;
             try {
-                String key = spool.accept();
+                key = spool.accept();
                 MailImpl mail = spool.retrieve(key);
                 // Retrieve can return null if the mail is no longer on the spool
                 // (i.e. another thread has gotten to it first).
@@ -392,24 +393,24 @@ public class JamesSpoolManager
                 if (getLogger().isErrorEnabled()) {
                     getLogger().error("Exception processing " + key + " in JamesSpoolManager.run "
                                       + e.getMessage(), e);
-				}
-				/* Move the mail to ERROR state?  If we do, it could be
-				 * deleted if an error occurs in the ERROR processor.
-				 * Perhaps the answer is to resolve that issue by
-				 * having a special state for messages that are not to
-				 * be processed, but aren't to be deleted?  The message
-				 * would already be in the spool, but would not be
-				 * touched again.
-				if (mail != null) {
-					try {
-						mail.setState(Mail.ERROR);
-						spool.store(mail);
-					}
-				}
-				*/
+                }
+                /* Move the mail to ERROR state?  If we do, it could be
+                 * deleted if an error occurs in the ERROR processor.
+                 * Perhaps the answer is to resolve that issue by
+                 * having a special state for messages that are not to
+                 * be processed, but aren't to be deleted?  The message
+                 * would already be in the spool, but would not be
+                 * touched again.
+                if (mail != null) {
+                    try {
+                        mail.setState(Mail.ERROR);
+                        spool.store(mail);
+                    }
+                }
+                */
             }
-		}
-		
+        }
+        
     }
 
     /**
