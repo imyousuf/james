@@ -23,8 +23,9 @@ public class JamesSpoolManager implements Stoppable, Contextualizable {
     private Configuration conf;
     private MessageSpool spool;
     private Logger logger;
-    private org.apache.avalon.blocks.Store store;
     private Vector dnsServers;
+    private org.apache.avalon.blocks.Store.ObjectRepository repository;
+    private org.apache.avalon.blocks.Store store;
 
     private MailServletContext servletcontext;
     private Vector preprocessors, processors, postprocessors, failureprocessors;
@@ -41,10 +42,13 @@ public class JamesSpoolManager implements Stoppable, Contextualizable {
         this.conf = context.getConfiguration();
         this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);
 
-        logger.log("init JamesSpoolManager", "SMTPServer", logger.INFO);
+        logger.log("JamesSpoolManager init...", "SMTPServer", logger.INFO);
   
         this.store = (org.apache.avalon.blocks.Store) context.getImplementation(Interfaces.STORE);
         this.spool = (MessageSpool) context.getImplementation("spool");
+        this.repository = (org.apache.avalon.blocks.Store.ObjectRepository) store.getPublicRepository(org.apache.avalon.blocks.Store.OBJECT, org.apache.avalon.blocks.Store.SYNCHRONOUS, "LocalInbox");
+        this.repository.setDestination(conf.getChild("repository").getValueAsString());
+        logger.log("LocalInbox opened in " + conf.getChild("repository").getValueAsString(), "SMTPServer", logger.INFO);
         this.servletcontext = new JamesMailContext(context);
 
         this.dnsServers = null;
@@ -143,6 +147,7 @@ public class JamesSpoolManager implements Stoppable, Contextualizable {
 
                 OutputStream stream = spool.store(key, mc);
 
+                
                 // Write our modified mail message to the output stream
                 try {
                     message.writeTo(stream);

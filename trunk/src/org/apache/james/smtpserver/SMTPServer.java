@@ -74,13 +74,18 @@ public class SMTPServer implements SocketHandler, Block {
     public void init(Context context) throws Exception {
 
         this.conf = context.getConfiguration();
-        this.threadManager = (ThreadManager) context.getImplementation(Interfaces.THREADMANAGER);
         this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);
+        logger.log("SMTPServer init...", "SMTPServer", logger.INFO);
+
+        this.threadManager = (ThreadManager) context.getImplementation(Interfaces.THREADMANAGER);
         this.store = (Store) context.getImplementation(Interfaces.STORE);
 
+        SimpleContext spoolContext = new SimpleContext(conf.getChild("spool"));
+        spoolContext.put(Interfaces.LOGGER, logger);
+        spoolContext.put(Interfaces.STORE, store);
         try {
-            spool = new MessageSpool(logger);
-            spool.init(conf.getChild("spool"));
+            spool = new MessageSpool();
+            spool.init(spoolContext);
         } catch (Exception e) {
             logger.log("Exception in Message spool init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
@@ -126,7 +131,8 @@ public class SMTPServer implements SocketHandler, Block {
         int capacity = conf.getChild("smtphandlerpool").getChild("capacity").getValueAsInt();
         RecycleBin container = new ControlledContainer(new Container(), ControllerFactory.create(levelController));
         smtpHandlerPool.init(container, capacity, new SMTPHandler().getClass(), smtpHandlerContext);
-                
+
+        logger.log("SMTPServer ...init end", "SMTPServer", logger.INFO);
     }
 
     public void parseRequest(Socket s) {
