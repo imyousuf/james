@@ -73,7 +73,7 @@ import java.util.StringTokenizer;
  * &lt;mailet match=&quot;SMTPAuthUserIs=&lt;list-of-user-names&gt;&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/07/17 14:00:16 $
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/22 22:24:06 $
  * @since 2.2.0
  */
 public class SMTPAuthUserIs extends GenericMatcher {
@@ -89,7 +89,7 @@ public class SMTPAuthUserIs extends GenericMatcher {
         StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
         users = new java.util.HashSet();
         while (st.hasMoreTokens()) {
-            users.add(new MailAddress(st.nextToken()));
+            users.add(st.nextToken());
         }
     }
 
