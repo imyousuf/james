@@ -67,7 +67,7 @@ public class DNSServer
     /**
      * Whether the DNS response is required to be authoritative
      */
-    private byte dnsCredibility;
+    private int dnsCredibility;
 
     /**
      * The DNS servers to be used by this service
