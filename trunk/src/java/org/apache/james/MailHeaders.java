@@ -22,13 +22,11 @@ import javax.mail.MessagingException;
  */
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
 
-    public MailHeaders()
-    throws MessagingException {
+    public MailHeaders() throws MessagingException {
         super();
     }
 
-    public MailHeaders(InputStream in)
-    throws MessagingException {
+    public MailHeaders(InputStream in) throws MessagingException {
         super(in);
     }
 
@@ -53,8 +51,9 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
         String[] value = super.getHeader(name);
         return (value != null && value.length != 0);
     }
-    
+
     public boolean isValid() {
             // Check if MimeMessage contains REQUIRED headers fields as specified in RFC 822.
-        return (isSet("Date") && isSet("To") && isSet("From"));    }
+        return (isSet("Date") && isSet("To") && isSet("From"));
+    }
 }
