@@ -85,7 +85,7 @@ public class SMTPHandler
     }
 
     public void compose( final ComponentManager componentManager ) 
-    throws ComponentManagerException {
+        throws ComponentManagerException {
         mailServer = (MailServer)componentManager.lookup("org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.
             lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
@@ -164,6 +164,15 @@ public class SMTPHandler
         }
     }
 
+    private void resetState() {
+        state.clear();
+        state.put(SERVER_NAME, this.servername );
+        state.put(SERVER_TYPE, this.softwaretype );
+        state.put(REMOTE_NAME, remoteHost);
+        state.put(REMOTE_IP, remoteIP);
+        state.put(SMTP_ID, smtpID);
+    }
+
     private boolean parseCommand(String command)
         throws Exception {
 
@@ -184,183 +193,178 @@ public class SMTPHandler
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
         }
-        // HELO Command
-        if (command.equalsIgnoreCase("HELO")) {
-            if (state.containsKey(CURRENT_HELO_MODE)) {
-                out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
-                return true;
-            } else if (argument == null) {
-                out.println("501 domain address required: " + commandLine);
-                return true;
-            } else {
-                state.put(CURRENT_HELO_MODE, command);
-                state.put(NAME_GIVEN, argument);
-                out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + " (" + state.get(REMOTE_NAME) + " [" + state.get(REMOTE_IP) + "])");
-                return true;
-            }
-            // EHLO Command
-        } else if (command.equalsIgnoreCase("EHLO")) {
-            if (state.containsKey(CURRENT_HELO_MODE)) {
-                out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
-                return true;
-            } else if (argument == null) {
-                out.println("501 domain address required: " + commandLine);
-                return true;
-            } else {
-                state.put(CURRENT_HELO_MODE, command);
-                state.put(NAME_GIVEN, argument);
-                out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + " (" + state.get(REMOTE_NAME) + " [" + state.get(REMOTE_IP) + "])");
-                return true;
-            }
-            // MAIL Command
-        } else if (command.equalsIgnoreCase("MAIL")) {
-            if (state.containsKey(SENDER)) {
-                out.println("503 Sender already specified");
-                return true;
-            } else if (argument == null || !argument.equalsIgnoreCase("FROM") || argument1 == null) {
-                out.println("501 Usage: MAIL FROM:<sender>");
-                return true;
-            } else {
-                String sender = argument1.trim();
-                if (!sender.startsWith("<") || !sender.endsWith(">")) {
-                    out.println("501 Syntax error in parameters or arguments");
-                    getLogger().error("Error parsing sender address: " + sender
-                                      + ": did not start and end with < >");
-                    return true;
-                }
-                MailAddress senderAddress = null;
-                //Remove < and >
-                sender = sender.substring(1, sender.length() - 1);
-                try {
-                    senderAddress = new MailAddress(sender);
-                } catch (Exception pe) {
-                    out.println("501 Syntax error in parameters or arguments");
-                    getLogger().error("Error parsing sender address: " + sender
-                                      + ": " + pe.getMessage());
-                    return true;
-                }
-                state.put(SENDER, senderAddress);
-                out.println("250 Sender <" + sender + "> OK");
-                return true;
-            }
-            // RCPT Command
-        } else if (command.equalsIgnoreCase("RCPT")) {
-            if (!state.containsKey(SENDER)) {
-                out.println("503 Need MAIL before RCPT");
-                return true;
-            } else if (argument == null || !argument.equalsIgnoreCase("TO") || argument1 == null) {
-                out.println("501 Usage: RCPT TO:<recipient>");
-                return true;
-            } else {
-                Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
-                if (rcptColl == null) {
-                    rcptColl = new Vector();
-                }
-                String recipient = argument1.trim();
-                if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
-                    out.println("Syntax error in parameters or arguments");
-                    getLogger().error("Error parsing recipient address: "
-                                      + recipient
-                                      + ": did not start and end with < >");
-                    return true;
-                }
-                MailAddress recipientAddress = null;
-                //Remove < and >
-                recipient = recipient.substring(1, recipient.length() - 1);
-                try {
-                    recipientAddress = new MailAddress(recipient);
-                } catch (Exception pe) {
-                    out.println("501 Syntax error in parameters or arguments");
-                    getLogger().error("Error parsing recipient address: "
-                                      + recipient + ": " + pe.getMessage());
-                    return true;
-                }
-                rcptColl.add(recipientAddress);
-                state.put(RCPT_VECTOR, rcptColl);
-                out.println("250 Recipient <" + recipient + "> OK");
-                return true;
-            }
-            // NOOP Command
-        } else if (command.equalsIgnoreCase("NOOP")) {
-            out.println("250 OK");
-            return true;
-            // DATA Command
-        } else if (command.equalsIgnoreCase("RSET")) {
-            resetState();
-            out.println("250 OK");
-            return true;
-            // DATA Command
-        } else if (command.equalsIgnoreCase("DATA")) {
-            if (!state.containsKey(SENDER)) {
-                out.println("503 No sender specified");
-                return true;
-            } else if (!state.containsKey(RCPT_VECTOR)) {
-                out.println("503 No recipients specified");
-                return true;
-            } else {
-                out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
-                try {
-                    // parse headers
-                    InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
-                    MailHeaders headers = new MailHeaders(msgIn);
-                    // if headers do not contains minimum REQUIRED headers fields add them
-                    if (!headers.isSet("Date")) {
-                        headers.setHeader("Date", RFC822DateFormat.toString (new Date ()));
-                    }
-                    /*
-                      We no longer add To as this in practice is not set (from what I've seen)
-                      if (!headers.isSet("To")) {
-                      headers.setHeader("To", );
-                      }
-                    */
-                    if (!headers.isSet("From")) {
-                        headers.setHeader("From", state.get(SENDER).toString());
-                    }
 
-                    String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
-                        + "])\r\n          by " + this.servername + " ("
-                        + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
-                    if (((Collection)state.get(RCPT_VECTOR)).size () == 1) {
-                        //Only indicate a recipient if they're the only recipient
-                        //(prevents email address harvesting and large headers in bulk email)
-                        received += "\r\n          for <"
-                            + ((Vector)state.get(RCPT_VECTOR)).elementAt(0).toString() + ">";
-                    }
-                    received += ";\r\n          " + RFC822DateFormat.toString (new Date ());
-                    headers.addHeader ("Received", received);
+        if (command.equalsIgnoreCase("HELO"))
+            doHELO(command,argument,argument1);
+        else if (command.equalsIgnoreCase("EHLO"))
+            doEHLO(command,argument,argument1);
+        else if (command.equalsIgnoreCase("MAIL"))
+            doMAIL(command,argument,argument1);
+        else if (command.equalsIgnoreCase("RCPT"))
+            doRCPT(command,argument,argument1);
+        else if (command.equalsIgnoreCase("NOOP"))
+            doNOOP(command,argument,argument1);
+        else if (command.equalsIgnoreCase("RSET"))
+            doRSET(command,argument,argument1);
+        else if (command.equalsIgnoreCase("DATA"))
+            doDATA(command,argument,argument1);
+        else if (command.equalsIgnoreCase("QUIT"))
+            doQUIT(command,argument,argument1);
+        else
+            doUnknownCmd(command,argument,argument1);
+        return (command.equalsIgnoreCase("QUIT") == false);
+    }
 
-                    // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
-                    ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
-                    MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
-                    mail.setRemoteHost((String)state.get(REMOTE_NAME));
-                    mail.setRemoteAddr((String)state.get(REMOTE_IP));
-                    mailServer.sendMail(mail);
-                } catch (MessagingException me) {
-                    out.println("451 Error processing message: " + me.getMessage());
-                    getLogger().error("Error processing message: "
-                                      + me.getMessage());
-                    return true;
-                }
-                getLogger().info("Mail sent to Mail Server");
-                resetState();
-                out.println("250 Message received");
-                return true;
-            }
-        } else if (command.equalsIgnoreCase("QUIT")) {
-            out.println("221 " + state.get(SERVER_NAME) + " Service closing transmission channel");
-            return false;
+    private void doHELO(String command,String argument,String argument1) {
+        if (state.containsKey(CURRENT_HELO_MODE)) {
+            out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
+        } else if (argument == null) {
+            out.println("501 domain address required: " + command);
         } else {
-            out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + command);
-            return true;
+            state.put(CURRENT_HELO_MODE, command);
+            state.put(NAME_GIVEN, argument);
+            out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + 
+                        " (" + state.get(REMOTE_NAME) + 
+                        " [" + state.get(REMOTE_IP) + "])");
+        }
+    }
+    private void doEHLO(String command,String argument,String argument1) {
+        doHELO(command,argument,argument1);
+    }
+    private void doMAIL(String command,String argument,String argument1) {
+        if (state.containsKey(SENDER)) {
+            out.println("503 Sender already specified");
+        } else if (argument == null || !argument.equalsIgnoreCase("FROM") 
+                   || argument1 == null) {
+            out.println("501 Usage: MAIL FROM:<sender>");
+        } else {
+            String sender = argument1.trim();
+            if (!sender.startsWith("<") || !sender.endsWith(">")) {
+                out.println("501 Syntax error in parameters or arguments");
+                getLogger().error("Error parsing sender address: " + sender
+                                  + ": did not start and end with < >");
+                return;
+            }
+            MailAddress senderAddress = null;
+            //Remove < and >
+            sender = sender.substring(1, sender.length() - 1);
+            try {
+                senderAddress = new MailAddress(sender);
+            } catch (Exception pe) {
+                out.println("501 Syntax error in parameters or arguments");
+                getLogger().error("Error parsing sender address: " + sender
+                                  + ": " + pe.getMessage());
+                return;
+            }
+            state.put(SENDER, senderAddress);
+            out.println("250 Sender <" + sender + "> OK");
         }
     }
 
-    private void resetState() {
-        state.clear();
-        state.put(SERVER_NAME, this.servername );
-        state.put(SERVER_TYPE, this.softwaretype );
-        state.put(REMOTE_NAME, remoteHost);
-        state.put(REMOTE_IP, remoteIP);
-        state.put(SMTP_ID, smtpID);
+    private void doRCPT(String command,String argument,String argument1) {
+        if (!state.containsKey(SENDER)) {
+            out.println("503 Need MAIL before RCPT");
+        } else if (argument == null || !argument.equalsIgnoreCase("TO") || argument1 == null) {
+            out.println("501 Usage: RCPT TO:<recipient>");
+        } else {
+            Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
+            if (rcptColl == null) {
+                rcptColl = new Vector();
+            }
+            String recipient = argument1.trim();
+            if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
+                out.println("Syntax error in parameters or arguments");
+                getLogger().error("Error parsing recipient address: "
+                                  + recipient
+                                  + ": did not start and end with < >");
+                return;
+            }
+            MailAddress recipientAddress = null;
+            //Remove < and >
+            recipient = recipient.substring(1, recipient.length() - 1);
+            try {
+                recipientAddress = new MailAddress(recipient);
+            } catch (Exception pe) {
+                out.println("501 Syntax error in parameters or arguments");
+                getLogger().error("Error parsing recipient address: "
+                                  + recipient + ": " + pe.getMessage());
+                return;
+            }
+            rcptColl.add(recipientAddress);
+            state.put(RCPT_VECTOR, rcptColl);
+            out.println("250 Recipient <" + recipient + "> OK");
+        }
+    }
+    private void doNOOP(String command,String argument,String argument1) {
+        out.println("250 OK");
+    }
+    private void doRSET(String command,String argument,String argument1) {
+        resetState();
+        out.println("250 OK");
+    }
+
+    private void doDATA(String command,String argument,String argument1) {
+        if (!state.containsKey(SENDER)) {
+            out.println("503 No sender specified");
+        } else if (!state.containsKey(RCPT_VECTOR)) {
+            out.println("503 No recipients specified");
+        } else {
+            out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
+            try {
+                // parse headers
+                InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
+                MailHeaders headers = new MailHeaders(msgIn);
+                // if headers do not contains minimum REQUIRED headers fields add them
+                if (!headers.isSet("Date")) {
+                    headers.setHeader("Date", RFC822DateFormat.toString (new Date ()));
+                }
+                /*
+                  We no longer add To as this in practice is not set (from what I've seen)
+                  if (!headers.isSet("To")) {
+                  headers.setHeader("To", );
+                  }
+                */
+                if (!headers.isSet("From")) {
+                    headers.setHeader("From", state.get(SENDER).toString());
+                }
+                
+                String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
+                    + "])\r\n          by " + this.servername + " ("
+                    + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
+                if (((Collection)state.get(RCPT_VECTOR)).size () == 1) {
+                    //Only indicate a recipient if they're the only recipient
+                    //(prevents email address harvesting and large headers in bulk email)
+                    received += "\r\n          for <"
+                        + ((Vector)state.get(RCPT_VECTOR)).elementAt(0).toString() + ">";
+                }
+                received += ";\r\n          " + RFC822DateFormat.toString (new Date ());
+                headers.addHeader ("Received", received);
+                
+                // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
+                ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
+                MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER),
+                                             (Vector)state.get(RCPT_VECTOR), 
+                                             new SequenceInputStream(headersIn, msgIn));
+                mail.setRemoteHost((String)state.get(REMOTE_NAME));
+                mail.setRemoteAddr((String)state.get(REMOTE_IP));
+                mailServer.sendMail(mail);
+            } catch (MessagingException me) {
+                out.println("451 Error processing message: " + me.getMessage());
+                getLogger().error("Error processing message: "
+                                  + me.getMessage());
+                return;
+            }
+            getLogger().info("Mail sent to Mail Server");
+            resetState();
+            out.println("250 Message received");
+        }
+    }
+    private void doQUIT(String command,String argument,String argument1) {
+        out.println("221 " + state.get(SERVER_NAME) + " Service closing transmission channel");
+    }
+
+    private void doUnknownCmd(String command,String argument,String argument1) {
+        out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + 
+                    command);
     }
 }
