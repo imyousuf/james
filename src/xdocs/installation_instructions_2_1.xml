@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.1 - Installation</title>
+ </properties>
+<body> 
+<section name="Requirements">
+<p>James requires a Java Runtime Environment of Java version 1.3 or higher installed to run the 
+James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
+installed before James can run.  In addition, the environment variable JAVA_HOME must be set to
+the JRE home directory before running James.</p>
+<p>
+<strong>Warning!</strong> - Issues have been observed when using Sun's Java 1.3.0 on older Linux 
+distributions.  It is recommended that users of these platforms run James using a more recent 
+Sun JRE or a JRE produced by an alternate vendor.
+</p>
+<p>
+On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
+below 1024 is generally restricted to the root user.  As SMTP, POP3, and NNTP all need to open 
+server sockets on such ports in standard configurations, James requires root access.
+</p>
+<p>
+Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
+other than what's been discussed here, it has no additional special requirements.</p>
+</section>
+<section name="Installing the Binary">
+<subsection name="Installing a Stand-alone James Server">
+<p>Obtain the full James binary distribution from the <a href="http://jakarta.apache.org/builds/jakarta-james/">James 
+download directory</a>.  It can be found in the bin subdirectory of the distribution directory for the particular 
+build you are downloading.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
+installation directory and run the "run" script (either run.sh or run.bat, depending on your platform).  The configuration
+file is now unpacked and available for editing.</p>
+</subsection>
+<subsection name="Deploying a James Server in a Pre-Existing Phoenix Container">
+<p><strong>Warning!</strong> - James requires Phoenix version 4.0.x to run.  There is a known issue with logging in Phoenix 4.0, so version 
+4.0.1 or higher is strongly recommended.  Before attempting to deploy James in a Phoenix container, please make sure
+it meets these version criteria.</p>
+<p>Deploying James in Phoenix is fairly easy.  Obtain the james.sar file from the 
+<a href="http://jakarta.apache.org/builds/jakarta-james/">James download directory</a>.  It can be found in the bin 
+subdirectory of the distribution directory for the particular build you are downloading.  After downloading the james.sar,
+simply place it in the apps subdirectory of your Phoenix installation.  Restart Phoenix, and the james.sar should unpack and you
+will be ready to configure your James installation.</p>
+</subsection>
+</section>
+
+<section name="Initial Configuration">
+<p>
+After installing the binary, the next step is to adjust the initial configuration.  The most essential 
+configuration is set in the config.xml file.  This file can be found in the apps/james/SAR-INF subdirectory 
+of the installation directory.</p>
+<p>The out of the box configuration makes certain assumptions and has some default values that are unlikely to 
+be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:
+</p>
+<ul>
+<li>RemoteManager Administrator Account - .  More information can be found <a href="remotemanager_configuration_2_1.html">here</a>.</li>
+<li>DNS Servers - James needs to have access to a DNS server for domain resolution.  The out of the box 
+configuration assumes that there is a DNS server on localhost.  In general administrators will have to change 
+the configuration to point to a valid DNS server.  This can be done by adjusting the dnsserver configuration 
+block in the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+<li>Managed Domain Names/IP - Out of the box, James only handles mail that is sent to recipients at 
+localhost.  It will attempt to deliver all other email to remote SMTP servers.  To allow James to handle email 
+for your domain or IP address, you simply need to add the appropriate domain name or IP address to the servernames 
+section of the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+</ul>
+  <p>
+    <b>Summary</b> (for impatient people)
+  </p>
+  
+<p> M$ users should just run /bin/run.bat. Unix users will find run.sh under the 
+  same directory. A JVM must be present and its location specified in the JAVA_HOME 
+  environment variable. Set this on windows at the command prompt with something 
+  similar to &quot;set JAVA_HOME=\jdk1.3\bin&quot; on *nix with JAVA_HOME=/jdk1.3/</p>
+<p> Running [run* --help] will provide a simple command line help. </p>
+  <p>
+    Most UNIX systems require superuser privileges to open sockets below 1024,
+    which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
+    These default ports can be changed in the config.xml file. (Obviously, you
+    would then need to reconfigure your clients. This may not be an option if
+    you want to receive mail from external mailservers.)
+  </p>
+  
+<p> The Avalon framework will unpack the necessary configuration files you will 
+  need to start the server.  Wait until it is running stop it again (ctrl-c) and 
+  edit the configuration (thereafter *nix users can run the server in the background 
+  using ./run.sh &amp;). For basic use, you only need to set two items in the 
+  config.xml file: a root password for the remote administration facility 
+  and the IP address of a DNS server. Once you have edited the configuration files, 
+  press 'Enter' on the terminal where Avalon is waiting. </p>
+</section>
+
+<section name="Step 4: Kickstart.">
+  <p>
+    Once started you'll see a message saying Avalon is running. This means that
+    Avalon has loaded JAMES and every other needed Block (see /logs/avalon.log)
+    and is now waiting for a socket request.
+    Since at the beginning James is empty, it will not have any local users
+    registered.
+    To register a local user open a telnet session with localhost on port 4555,
+    log in as root ("root[enter]  &lt;password-you-set-in-config.xml&gt;[enter]") and
+    type "help" for a list of available commands in the "JAMES remote
+    administrator tool". It is really a basic set but should allow you to test
+    installation.
+  </p>
+  <p>
+    Once you have some local users registered, try sending mail to one of them
+    @localhost with SMTP (port 25) (assuming you have not changed the default
+    server names in the config.xml file). You'll see the mail appear under
+    ../var/mail/localinbox/[user].
+    Try now to retrieve that mail using POP3 (port 110).
+    Trace out JAMES actions in /logs/*info.log.
+    Actions that will be taken by JAMES on incoming mail are configured in
+    the mailet pipe line (/SAR-INF/config.xml). Look at it if you want to
+    understand what's happening.
+  </p>
+  <p>
+  Good luck :)
+  </p>
+</section>
+
+</body>
+</document>

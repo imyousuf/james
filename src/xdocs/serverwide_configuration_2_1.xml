@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.1 - Global Server Configuration</title>
+ </properties>
+
+<body>
+<section name="Global Server Configuration">
+<p>There are a number of global configuration values that do not fall into any one component.  </p>
+</section>
+</body>
+</document>
