@@ -117,7 +117,7 @@ public class File_Persistent_Stream_Repository
                 final ArrayList list = new ArrayList();
                 list.add( o );
                 list.add( stream );
-                m_inputs.put( key, stream );
+                m_inputs.put( key, list );
             }
 
             return stream;
@@ -154,7 +154,7 @@ public class File_Persistent_Stream_Repository
                 final ArrayList list = new ArrayList();
                 list.add( o );
                 list.add( stream );
-                m_outputs.put( key, stream );
+                m_outputs.put( key, list );
             }
 
             return stream;
