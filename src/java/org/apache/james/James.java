@@ -53,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.28 $
- * Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.29 $
+ * Committed on $Date: 2002/09/11 07:46:28 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -268,6 +268,15 @@ public class James
         }
         this.postmaster = new MailAddress( postMasterAddress );
         context.put( Constants.POSTMASTER, postmaster );
+
+        if (!isLocalServer(postmaster.getHost())) {
+            StringBuffer warnBuffer
+                = new StringBuffer(320)
+                        .append("The specified postmaster address ( ")
+                        .append(postmaster)
+                        .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
+            getLogger().warn(warnBuffer.toString());
+        }
 
         Configuration userNamesConf = conf.getChild("usernames");
         ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
