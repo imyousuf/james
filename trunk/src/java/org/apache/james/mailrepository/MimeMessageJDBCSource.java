@@ -58,10 +58,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.james.core.MimeMessageSource;
-import org.apache.james.util.JDBCUtil;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,7 +66,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+
+import org.apache.avalon.cornerstone.services.store.StreamRepository;
+import org.apache.james.core.MimeMessageSource;
+import org.apache.james.util.JDBCUtil;
 
 /**
  * This class points to a specific message in a repository.  This will return an
