@@ -188,7 +188,7 @@ public class LocalDelivery extends GenericMailet {
                         recipients = new HashSet();
                         recipients.add(forwardTo);
                         try {
-                            getMailetContext().sendMail(mail.getSender(), recipients, localMessage);
+                            getMailetContext().sendMail(mail.getSender(), recipients, message);
                             StringBuffer logBuffer =
                                 new StringBuffer(128).append("Mail for ").append(username).append(
                                     " forwarded to ").append(
