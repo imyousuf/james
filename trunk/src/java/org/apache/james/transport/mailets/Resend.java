@@ -107,7 +107,9 @@ import org.apache.mailet.MailAddress;
  * A comma delimited list of addresses for recipients of this message.<BR>
  * Such addresses can contain &quot;full names&quot;, like
  * <I>Mr. John D. Smith &lt;john.smith@xyz.com&gt;</I>.<BR>
- * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;replyTo&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * &quot;replyTo&quot; uses the ReplyTo header if available, otherwise the
+ * From header if available, otherwise the Sender header if available, otherwise the return-path;
  * &quot;from&quot; is made equivalent to &quot;sender&quot;, and &quot;to&quot; is made equivalent to &quot;recipients&quot;;
  * &quot;null&quot; is ignored.
  * Default: &quot;unaltered&quot;.
@@ -119,7 +121,11 @@ import org.apache.mailet.MailAddress;
  * A comma delimited list of addresses to appear in the To: header.<BR>
  * Such addresses can contain &quot;full names&quot;, like
  * <I>Mr. John D. Smith &lt;john.smith@xyz.com&gt;</I>.<BR>
- * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;replyTo&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * &quot;from&quot; uses the From header if available, otherwise the Sender header if available,
+ * otherwise the return-path;
+ * &quot;replyTo&quot; uses the ReplyTo header if available, otherwise the
+ * From header if available, otherwise the Sender header if available, otherwise the return-path;
  * &quot;recipients&quot; is made equivalent to &quot;to&quot;;
  * if &quot;null&quot; is specified alone it will remove this header.
  * Default: &quot;unaltered&quot;.
@@ -299,7 +305,7 @@ import org.apache.mailet.MailAddress;
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.5 $ $Date: 2003/07/07 10:04:38 $
+ * @version CVS $Revision: 1.6 $ $Date: 2003/09/03 11:10:10 $
  * @since 2.2.0
  */
 
