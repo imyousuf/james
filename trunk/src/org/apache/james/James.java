@@ -77,8 +77,6 @@ public class James
     // thread safe. Changed to int. 'int' should be ok, because id generation
     // is based on System time and count
     private static int count;
-    private String helloName;
-    private String hostName;
     private MailAddress postmaster;
     private Map mailboxes; //Not to be shared!
     private Hashtable attributes = new Hashtable();
@@ -129,25 +127,13 @@ public class James
         getLogger().debug("Using UsersStore: " + usersStore.toString());
         context = new DefaultContext();
 
+        String hostName = null;
         try {
             hostName = InetAddress.getLocalHost().getHostName();
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }
         getLogger().info("Local host is: " + hostName);
-
-
-        helloName = null;
-        Configuration helloConf = conf.getChild("helloName");
-        if (helloConf.getAttribute("autodetect").equals("TRUE")) {
-            helloName = hostName;
-        } else {
-            helloName = helloConf.getValue();
-            if (helloName == null || helloName.trim().equals("") )
-                helloName = "localhost";
-        }
-        getLogger().info("Hello Name is: " + helloName);
-        context.put(Constants.HELO_NAME, helloName);
 
         // Get the domains and hosts served by this instance
         serverNames = new Vector();
