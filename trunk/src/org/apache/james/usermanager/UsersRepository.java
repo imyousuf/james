@@ -95,6 +95,14 @@ public class UsersRepository implements Store.Repository {
             return false;
         }
     }
+    
+    public int countUsers() {
+        int count = 0;
+        for (Enumeration e = list(); e.hasMoreElements(); e.nextElement()) {
+            count++;
+        }
+        return count;
+    }
 }
 
     

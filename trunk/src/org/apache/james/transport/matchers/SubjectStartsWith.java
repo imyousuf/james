@@ -12,6 +12,7 @@ import org.apache.mail.Mail;
 import javax.mail.internet.*;
 import javax.mail.*;
 import java.util.*;
+import org.apache.james.transport.*;
 
 /**
  *
@@ -19,14 +20,14 @@ import java.util.*;
  * @version 1.0.0, 1/5/2000
  */
 
-public class SubjectStartsWith extends AbstractMatch {
+public class SubjectStartsWith extends AbstractMatcher {
     String condition;
 
     public void init(String condition) {
         this.condition = condition;
     }
 
-    public Collection match(Mail mail, String condition) {
+    public Collection match(Mail mail) {
         try {
             MimeMessage mm = mail.getMessage();
             String subject = mm.getSubject();
