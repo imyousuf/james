@@ -58,8 +58,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
