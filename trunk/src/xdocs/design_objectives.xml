@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>Design Objectives</title>
+  <author email="james-dev@jakarta.apache.org">James Project</author>
+ </properties>
+
+<body>
+
+<section name="Design Objectives">
+<p>These are some of the currently implemented features:</p>
+<p><i><b>Complete portability</b></i>  Apache James is be a 100% pure Java application
+       based on the Java 2 platform and the JavaMail 1.3 API.
+  </p>
+  <p><i><b>Protocol abstraction</b></i>  Unlike other mail engines, protocols are seen only
+       like "communication languages" ruling comunications between clients and
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (like JavaMail did on the
+       client side)</p>
+    <p><i><b>Complete solution</b></i>  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need for any other server or solution.</p>
+    <p><i><b>Mailet support</b></i>  Apache James supports the Apache Mailet API. A Mailet
+       is a discrete piece of mail-processing logic which is incorporated into
+       a Mailet-compliant mail-server's processing. This easy-to-write,
+       easy-to-use pattern allows developers to build powerful customized mail
+       systems. Examples of the services a Mailet might provide include: a
+       mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailing
+       list manager, etc. Several Mailets are included in the JAMES
+       distribution (see <a href="documentation_2_1.html">documentation</a>).</p>
+    <p><i><b>Resource abstraction</b></i>  Like protocols, resources are abstracted and,
+       accessed through defined interfaces (JavaMail for transport, JDBC for
+       spool storage or user accounts in RDBMS's, Apache Mailet API). The server is
+       highly modular and reuse solutions from other projects.</p>
+    <p><i><b>Secure and multi-threaded design</b></i>  Based on the technology developed
+       for the Apache JServ servlet engine, Apache James has a careful,
+       security-oriented, full multi-threaded design, to allow performance,
+       scalability and mission-critical use.</p>
+    <p>Anything else you may want if you help us write it :-)</p>
+</section>
+
+</body>
+</document>
