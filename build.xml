@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.115 $  Committed on $Date: 2002/12/14 20:41:36 $ by: $Author: pgoldstein $
+ James build file $Revision: 1.116 $  Committed on $Date: 2002/12/15 00:48:54 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -116,9 +116,6 @@ Legal:
        ===================================================================
   -->
     <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
-    <!--
-    <property name="activation.jar" value="${lib.dir}/activation.jar"/>
-  -->
     <path id="project.class.path">
         <pathelement location="${xerces.jar}"/>
         <pathelement path="${java.class.path}"/>
@@ -134,6 +131,7 @@ Legal:
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="project.class.path"/>
     </taskdef>
+
     <!--
        ===================================================================
                                   Main target
@@ -142,26 +140,19 @@ Legal:
     <target name="main" depends="dist-lite"/>
     <!--
        ===================================================================
-                                  Prepare
+        Prepare-common target - common tasks executed in preparation for
+        all targets
        ===================================================================
   -->
-    <target name="prepare">
-    <echo message="preparing code"/>
+    <target name="prepare-common">
+    <echo message="Preparing code"/>
 
         <tstamp/>
-        <property name="dist.bin" value="${dist.dir}/bin"/>
-        <property name="dist.apps" value="${dist.dir}/apps"/>
-        <property name="dist.lib" value="${dist.dir}/lib"/>
-        <property name="dist.docs" value="${dist.dir}/docs"/>
-        <property name="dist.javadocs" value="${dist.dir}/docs/api"/>
         <available property="jdbc3.present" classname="java.sql.Savepoint"/>
+        <available file="${phoenix.dir}/bin" type="dir" property="phoenix.bin.present"/>
         <mkdir dir="${dist.dir}"/>
         <copy todir="${dist.dir}">
-            <fileset dir="${phoenix.dir}">
-                <exclude name="CVS/**"/>
-            </fileset>
             <fileset dir=".">
-                <include name="release-notes.txt"/>
                 <include name="LICENSE.txt"/>
                 <include name="README"/>
             </fileset>
@@ -172,17 +163,9 @@ Legal:
         <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
-        <fixcrlf srcdir="${dist.dir}/bin" includes="run.sh" eol="lf"/>
-        <fixcrlf srcdir="${dist.dir}/bin" includes="run.bat" eol="crlf"/>
-        <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
-        <chmod perm="+x">
-            <fileset dir="${dist.dir}/bin">
-                <include name="run.sh"/>
-                <include name="phoenix.sh"/>
-            </fileset>
-        </chmod>
         <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
         <fixcrlf srcdir="." includes="build.bat" eol="crlf"/>
+        <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
         <chmod perm="+x">
             <fileset dir=".">
                 <include name="build.sh"/>
@@ -200,25 +183,56 @@ Legal:
         <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
         <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
     </target>
+
+    <!--
+       ===================================================================
+         Copy files, set permissions and line feeds for the packaged Phoenix distribution
+       ===================================================================
+  -->
+    <target name="prepare-phoenix" depends="prepare-common" if="phoenix.bin.present">
+        <echo message="Phoenix distribution present - adjusting linefeeds and permissions, copying files"/>
+        <property name="dist.bin" value="${dist.dir}/bin"/>
+        <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
+        <copy todir="${dist.dir}">
+            <fileset dir="${phoenix.dir}">
+                <exclude name="CVS/**"/>
+            </fileset>
+        </copy>
+        <fixcrlf srcdir="${dist.bin}" includes="run.sh" eol="lf"/>
+        <fixcrlf srcdir="${dist.bin}" includes="run.bat" eol="crlf"/>
+        <chmod perm="+x">
+            <fileset dir="${dist.bin}">
+                <include name="run.sh"/>
+                <include name="phoenix.sh"/>
+            </fileset>
+        </chmod>
+    </target>
+
     <!--
        ===================================================================
                                    jdbc3 
        ===================================================================
   -->
-    <target name="prepare-jdbc3" depends="prepare" if="jdbc3.present">
-    <echo message="preparing for JDBC3"/>
+    <target name="prepare-jdbc3" depends="prepare-common" if="jdbc3.present">
+        <echo message="JDBC v3 in classpath - making code JDBC 3.0 compliant"/>
         <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY" value=""/>
         <replace file="${build.src}/${poolconn.file}" token="JDBC_3_ANT_KEY */" value=""/>
     </target>
 
+    <!--
+       ===================================================================
+                                  Prepare target
+       ===================================================================
+    -->
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3"/>
 
     <!--
        ===================================================================
                                   compile
        ===================================================================
   -->
-    <target name="compile" depends="prepare,prepare-jdbc3">
-    <echo message="compiling James"/>
+    <target name="compile" depends="prepare">
+    <echo message="Compiling James Java sources"/>
         <available property="jndi.present" classname="javax.naming.InitialContext"/>
         <mkdir dir="${build.classes}"/>
         <javac destdir="${build.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}">
@@ -243,7 +257,7 @@ Legal:
        ===================================================================
   -->
     <target name="javadocs">
-    <echo message="Making James javadocs"/>
+    <echo message="Making James Javadocs"/>
 
         <delete dir="${build.javadocs}"/>
         <mkdir dir="${build.javadocs}"/>
@@ -265,7 +279,7 @@ Legal:
                 <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
             </doclet>
         </javadoc>
-        <echo message="Making Mailet javadocs"/>
+        <echo message="Making Mailet Javadocs"/>
         <javadoc packagenames="org.apache.mailet.*" sourcepath="${java.dir}" destdir="${build.dir}/mailet">
             <classpath refid="project.class.path"/>
             <doclet name="com.sun.tools.doclets.standard.Standard">
@@ -290,7 +304,7 @@ Legal:
                                   build xdocs
        ===================================================================
   -->
-    <target name="xdocs" depends="prepare,prepare-jdbc3">
+    <target name="xdocs" depends="prepare">
         <style style="${docs.src}/stylesheets/site.xsl"
                 basedir="${docs.src}/"
                 destdir="${build.docs}/" 
@@ -358,8 +372,8 @@ Legal:
                                   Make james.sar
        ===================================================================
   -->
-    <target name="sar" depends="prepare,compile">
-    <echo message="Making James.sar"/>
+    <target name="sar" depends="compile">
+    <echo message="Making James Sarfile (james.sar)"/>
 
         <!-- builds james-sar-->
         <mkdir dir="${build.lib}"/>
@@ -410,11 +424,14 @@ Legal:
                                   binary distributions
        ===================================================================
   -->
-    <target name="dist-bin" depends="dist-lite,xdocs,javadocs">
-    <echo message ="building binary distributions"/>
-        <mkdir dir="${dist.dir}/downloads/bin"/>
-        <!-- binary with phoenix -->
-        <zip zipfile="${dist.dir}/downloads/bin/${name}-binary-${version}.zip">
+
+    <target name="dist-bin-phoenix-warn" depends="dist-bin-common" unless="phoenix.bin.present">
+        <echo message ="The Phoenix distribution is not present - the James w/Phoenix binary distribution will not be built."/>
+    </target>
+
+    <target name="dist-bin-phoenix" depends="dist-bin-common" if="phoenix.bin.present">
+        <echo message ="Building binary w/Phoenix distributions"/>
+        <zip zipfile="${dist.binary.dir}/${name}-binary-${version}.zip">
             <fileset dir="dist">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
@@ -422,7 +439,7 @@ Legal:
                 <include name="LICENSE.txt"/>
             </fileset>
         </zip>
-        <tar longfile="gnu" tarfile="${dist.dir}/downloads/bin/${name}-binary-${version}.tar">
+        <tar longfile="gnu" tarfile="${dist.binary.dir}/${name}-binary-${version}.tar">
             <tarfileset dir="dist" username="${name}" group="${name}">
                 <include name="${name}-${version}/**"/>
                 <exclude name="${name}-${version}/downloads/**"/>
@@ -430,54 +447,33 @@ Legal:
                 <include name="LICENSE.txt"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.dir}/downloads/bin/${name}-binary-${version}.tar.gz" src="${dist.dir}/downloads/bin/${name}-binary-${version}.tar"/>
-        <delete file="${dist.dir}/downloads/bin/${name}-binary-${version}.tar"/>
-        <!-- Sar only-->
-        <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.dir}/downloads/bin"/>
+        <gzip zipfile="${dist.binary.dir}/${name}-binary-${version}.tar.gz" src="${dist.binary.dir}/${name}-binary-${version}.tar"/>
+        <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
     </target>
+
+    <target name="dist-bin-common" depends="dist-lite,xdocs,javadocs">
+        <echo message ="Building binary distributions"/>
+        <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
+        <mkdir dir="${dist.binary.dir}"/>
+        <!-- Sar only-->
+        <copy file="${dist.dir}/apps/${name}.sar" todir="${dist.binary.dir}"/>
+    </target>
+
+    <target name="dist-bin" depends="dist-bin-common,dist-bin-phoenix-warn,dist-bin-phoenix"/>
+
     <!--
        ===================================================================
                                   source distributions
        ===================================================================
   -->
-    <target name="dist-src" depends="dist-lite,xdocs,javadocs">
-        <echo message ="building source distributions"/>
+    <target name="dist-src-phoenix-warn" depends="dist-src-common" unless="phoenix.bin.present">
+        <echo message ="The Phoenix distribution is not present - the James source distribution with Phoenix binaries will not be built."/>
+    </target>
 
-        <mkdir dir="${dist.dir}/downloads/src"/>
-        <zip zipfile="${dist.dir}/downloads/src/${dist.name}-src.zip">
-            <fileset dir=".">
-                <include name="src/**"/>
-                <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
-                <include name="tools/**"/>
-                <include name="*.xml"/>
-                <include name="*.txt"/>
-                <include name="README"/>
-                <include name="KEYS"/>
-                <include name="build.*"/>
-            </fileset>
-        </zip>
-        <tar longfile="gnu" tarfile="${dist.dir}/downloads/src/${dist.name}-src.tar">
-            <tarfileset dir="." username="${name}" group="${name}">
-                <include name="src/**"/>
-                <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
-                <include name="proposals/**"/>
-                <include name="www/**"/>
-                <include name="tools/**"/>
-                <include name="*.xml"/>
-                <include name="*.txt"/>
-                <include name="README"/>
-                <include name="KEYS"/>
-                <include name="build.*"/>
-            </tarfileset>
-        </tar>
-        <gzip zipfile="${dist.dir}/downloads/src/${dist.name}-src.tar.gz" src="${dist.dir}/downloads/src/${dist.name}-src.tar"/>
-        <delete file="${dist.dir}/downloads/src/${dist.name}-src.tar"/>
-        <!--Source  With Phoenix -->
-        <zip zipfile="${dist.dir}/downloads/src/${name}-with-phoenix-${version}-src.zip">
+    <target name="dist-src-phoenix" depends="dist-src-common" if="phoenix.bin.present">
+        <!--Source With Phoenix -->
+        <echo message ="Building source distributions with Phoenix binaries"/>
+        <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
             <fileset dir=".">
                 <include name="${dist.dir}/**"/>
                 <exclude name="${dist.dir}/downloads/**"/>
@@ -496,7 +492,7 @@ Legal:
                 <include name="www/**"/>
             </fileset>
         </zip>
-        <tar longfile="gnu" tarfile="${dist.dir}/downloads/src/${name}-with-phoenix-${version}-src.tar">
+        <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="${dist.dir}/**"/>
                 <exclude name="${dist.dir}/downloads/**"/>
@@ -514,9 +510,51 @@ Legal:
                 <include name="www/**"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.dir}/downloads/src/${name}-with-phoenix-${version}-src.tar.gz" src="${dist.dir}/downloads/src/${name}-with-phoenix-${version}-src.tar"/>
-        <delete file="${dist.dir}/downloads/src/${name}-with-phoenix-${version}-src.tar"/>
+        <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz" src="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
+        <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
+
+    <target name="dist-src-common" depends="dist-lite,xdocs,javadocs">
+        <echo message ="Building source distributions"/>
+
+        <property name="dist.source.dir" value="${dist.dir}/downloads/src"/>
+        <mkdir dir="${dist.source.dir}"/>
+        <zip zipfile="${dist.source.dir}/${dist.name}-src.zip">
+            <fileset dir=".">
+                <include name="src/**"/>
+                <include name="lib/**"/>
+                <include name="${phoenix.lib.dir}/**"/>
+                <include name="proposals/**"/>
+                <include name="www/**"/>
+                <include name="tools/**"/>
+                <include name="*.xml"/>
+                <include name="*.txt"/>
+                <include name="README"/>
+                <include name="KEYS"/>
+                <include name="build.*"/>
+            </fileset>
+        </zip>
+        <tar longfile="gnu" tarfile="${dist.source.dir}/${dist.name}-src.tar">
+            <tarfileset dir="." username="${name}" group="${name}">
+                <include name="src/**"/>
+                <include name="lib/**"/>
+                <include name="${phoenix.lib.dir}/**"/>
+                <include name="proposals/**"/>
+                <include name="www/**"/>
+                <include name="tools/**"/>
+                <include name="*.xml"/>
+                <include name="*.txt"/>
+                <include name="README"/>
+                <include name="KEYS"/>
+                <include name="build.*"/>
+            </tarfileset>
+        </tar>
+        <gzip zipfile="${dist.source.dir}/${dist.name}-src.tar.gz" src="${dist.source.dir}/${dist.name}-src.tar"/>
+        <delete file="${dist.source.dir}/${dist.name}-src.tar"/>
+    </target>
+
+    <target name="dist-src" depends="dist-src-common,dist-src-phoenix-warn,dist-src-phoenix"/>
+
     <!--
        ===================================================================
                                   Mailet SDK distribution
@@ -570,7 +608,7 @@ Legal:
     <target name="usage">
         <echo message=""/>
         <echo message=""/>
-        <echo message="JAMES Build file"/>
+        <echo message="James Build file"/>
         <echo message="-------------------------------------------------------------"/>
         <echo message=""/>
         <echo message=" available targets are:"/>
@@ -578,7 +616,7 @@ Legal:
         <echo message="   dist-lite --> generates unpacked distribution (default)"/>
         <echo message="   website   --> makes all the docs and javadocs"/>
         <echo message="   compile   --> compiles the source code"/>
-        <echo message="   dist      --> generates all the JAMES distributions, packed"/>
+        <echo message="   dist      --> generates all the James distributions, packed"/>
         <echo message="   clean     --> cleans up the directory"/>
         <echo message="   xdocs     --> creates the documentaion for James"/>
         <echo message="   javadocs  --> creates the Javadoc"/>
