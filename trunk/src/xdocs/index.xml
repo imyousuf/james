@@ -15,7 +15,7 @@
   The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure
   Java server, designed to be a complete and portable enterprise mail engine solution
   based on currently available open protocols (SMTP, POP3, NTTP).  It requires
-  Java 2 (minimum requirement is the JRE 1.2).
+  Java 2 (minimum requirement is the JRE 1.3).
   </p>
   <p>Version 2.0a2 is available.  Significant changes have gone into this new release, and we appreciate everyone's contribution! Please let us know what you think.
   </p>
