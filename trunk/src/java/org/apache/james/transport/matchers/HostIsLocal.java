@@ -19,6 +19,6 @@ import java.util.Locale;
 public class HostIsLocal extends GenericRecipientMatcher {
 
     public boolean matchRecipient(MailAddress recipient) {
-        return getMailetContext().isLocalServer(recipient.getHost().toLowerCase(Locale.US));
+        return getMailetContext().isLocalServer(recipient.getHost());
     }
 }
