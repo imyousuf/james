@@ -55,60 +55,29 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
 package org.apache.james.transport.mailets;
-
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
-
 import javax.mail.MessagingException;
-
+import org.apache.james.services.JamesUser;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
-
+import org.apache.mailet.UsersRepository;
 /**
- * Receives a Mail from JamesSpoolManager and takes care of delivery
- * of the message to local inboxes.
- *
+ * Receives a Mail from JamesSpoolManager and takes care of delivery of the
+ * message to local inboxes.
  */
 public class LocalDelivery extends GenericMailet {
+    private boolean enableAliases;
+    private boolean enableForwarding;
+    private boolean ignoreCase;
     private String inboxURI;
-    /**
-     * Delivers a mail to a local mailbox.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while storing the mail
-     */
-    public void service(Mail mail) throws MessagingException {
-        Collection recipients = mail.getRecipients();
-        Collection errors = new Vector();
-        for (Iterator i = recipients.iterator(); i.hasNext(); ) {
-            MailAddress recipient = (MailAddress) i.next();
-            try {
-                getMailetContext().getMailRepository(inboxURI + "/"+recipient.getUser()).store(mail);
-            } catch (Exception ex) {
-                getMailetContext().log("Error while storing mail.", ex);
-                errors.add(recipient);
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            // If there were errors, we redirect the email to the ERROR processor.
-            // In order for this server to meet the requirements of the SMTP specification,
-            // mails on the ERROR processor must be returned to the sender.  Note that this
-            // email doesn't include any details regarding the details of the failure(s).
-            // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(),
-                                        errors, mail.getMessage(), Mail.ERROR);
-        }
-        //We always consume this message
-        mail.setState(Mail.GHOST);
-    }
-
+    private UsersRepository localusers;
+    private String users;
     /**
      * Return a string describing this mailet.
      *
@@ -122,13 +91,116 @@ public class LocalDelivery extends GenericMailet {
      */
     public void init(MailetConfig newConfig) throws MessagingException {
         super.init(newConfig);
-        if(newConfig.getInitParameter("inboxURI") != null){
+        if (newConfig.getInitParameter("inboxURI") != null) {
             inboxURI = newConfig.getInitParameter("inboxURI");
-        }else{
-            throw new MessagingException("No inboxURI defined");
+        } else {
+            log("No inboxURI defined for LocalDelivery");
         }
-        
+        if (newConfig.getInitParameter("users") != null) {
+            users = newConfig.getInitParameter("users");
+            localusers = getMailetContext().getUserRepository(users);
+        } else {
+            log("No users repository defined for LocalDelivery");
+        }
+        if (newConfig.getInitParameter("ignoreCase") != null) {
+            ignoreCase = Boolean.valueOf(newConfig.getInitParameter("ignoreCase")).booleanValue();
+        } else {
+            ignoreCase = false;
+        }
+        if (newConfig.getInitParameter("enableAliases") != null) {
+            enableAliases = Boolean.valueOf(newConfig.getInitParameter("enableAliases")).booleanValue();
+        } else {
+            enableAliases = false;
+        }
+        if (newConfig.getInitParameter("enableForwarding") != null) {
+            enableForwarding = Boolean.valueOf(newConfig.getInitParameter("enableForwarding")).booleanValue();
+        } else {
+            enableForwarding = false;
+        }
     }
-
+    /**
+     * Delivers a mail to a local mailbox.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error occurs while storing the mail
+     */
+    public void service(Mail mail) throws MessagingException {
+        Collection recipients = mail.getRecipients();
+        Collection errors = new Vector();
+        for (Iterator i = recipients.iterator(); i.hasNext();) {
+            MailAddress recipient = (MailAddress)i.next();
+            String username = null;
+            if (recipient == null) {
+                throw new IllegalArgumentException("Recipient for mail to be stored cannot be null.");
+            }
+            if (mail == null) {
+                throw new IllegalArgumentException("Mail message to be stored cannot be null.");
+            }
+            if (ignoreCase) {
+                username = localusers.getRealName(recipient.getUser());
+            } else if (localusers.contains(recipient.getUser())) {
+                username = recipient.getUser();
+            }
+            if (username == null) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(128).append("The inbox for user ").append(recipient.getUser()).append(
+                        " was not found on this server.");
+                throw new MessagingException(errorBuffer.toString());
+            }
+            if ((JamesUser)localusers.getUserByName(username) instanceof JamesUser) {
+                JamesUser user = (JamesUser)localusers.getUserByName(username);
+                if (enableAliases || enableForwarding) {
+                    if (enableAliases && user.getAliasing()) {
+                        username = user.getAlias();
+                    }
+                    // Forwarding takes precedence over local aliases
+                    if (enableForwarding && user.getForwarding()) {
+                        MailAddress forwardTo = user.getForwardingDestination();
+                        if (forwardTo == null) {
+                            StringBuffer errorBuffer =
+                                new StringBuffer(128).append("Forwarding was enabled for ").append(
+                                    username).append(
+                                    " but no forwarding address was set for this account.");
+                            throw new MessagingException(errorBuffer.toString());
+                        }
+                        recipients = new HashSet();
+                        recipients.add(forwardTo);
+                        try {
+                            getMailetContext().sendMail(mail.getSender(), recipients, mail.getMessage());
+                            StringBuffer logBuffer =
+                                new StringBuffer(128).append("Mail for ").append(username).append(
+                                    " forwarded to ").append(
+                                    forwardTo.toString());
+                            log(logBuffer.toString());
+                            return;
+                        } catch (MessagingException me) {
+                            StringBuffer logBuffer =
+                                new StringBuffer(128).append("Error forwarding mail to ").append(
+                                    forwardTo.toString()).append(
+                                    "attempting local delivery");
+                            log(logBuffer.toString());
+                            throw me;
+                        }
+                    }
+                }
+            }
+            try {
+                getMailetContext().getMailRepository(inboxURI + recipient.getUser() + "/").store(mail);
+            } catch (Exception ex) {
+                getMailetContext().log("Error while storing mail.", ex);
+                errors.add(recipient);
+            }
+        }
+        if (!errors.isEmpty()) {
+            // If there were errors, we redirect the email to the ERROR processor.
+            // In order for this server to meet the requirements of the SMTP specification,
+            // mails on the ERROR processor must be returned to the sender.  Note that this
+            // email doesn't include any details regarding the details of the failure(s).
+            // In the future we may wish to address this.
+            getMailetContext().sendMail(mail.getSender(), errors, mail.getMessage(), Mail.ERROR);
+        }
+        //We always consume this message
+        mail.setState(Mail.GHOST);
+    }
 }
-
