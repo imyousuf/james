@@ -43,8 +43,8 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  *
 
- * This is $Revision: 1.16 $
- * Committed on $Date: 2002/02/04 15:34:11 $ by: $Author: danny $
+ * This is $Revision: 1.17 $
+ * Committed on $Date: 2002/04/17 03:19:32 $ by: $Author: serge $
 
  */
 public class SMTPHandler
@@ -262,11 +262,21 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
+            if (authRequired) {
+                //This is necessary because we're going to do a multiline response
+                out.print("250-");
+            } else {
+                out.print("250 ");
+            }
+            out.println(state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
+            if (authRequired) {
+                out.println("250 AUTH LOGIN PLAIN");
+            }
         }
     }
+
     private void doEHLO(String command,String argument,String argument1) {
         if (state.containsKey(CURRENT_HELO_MODE)) {
             out.println("250 " + state.get(SERVER_NAME)
@@ -276,15 +286,21 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-        if (authRequired) {
-            out.println("250-AUTH LOGIN PLAIN");
+            if (maxmessagesize > 0) {
+                out.println("250-SIZE " + maxmessagesize);
             }
-        if (maxmessagesize > 0) {
-            out.println("250-SIZE " + maxmessagesize);
+            if (authRequired) {
+                //This is necessary because we're going to do a multiline response
+                out.print("250-");
+            } else {
+                out.print("250 ");
             }
-            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
+            out.println(state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
+            if (authRequired) {
+                out.println("250 AUTH LOGIN PLAIN");
+            }
 
 
         }
