@@ -42,10 +42,6 @@
         <servername>localhost</servername>
       </servernames>
 
-      <!-- Set the facilities offered by this instance of JAMES -->
-      <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
-      <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"  NNTP="FALSE"/>
-
       <!-- Set the type of permanent mailfolders to be used.
       If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
       service is being provided then use must be 'basic' (default) . At some
@@ -106,122 +102,36 @@
         </repository>
       </inboxRepository>
       -->
+  </James>
 
-      <smtpServer>
-        <port>25</port>
-        <!--<bind></bind> uncomment this if you want to bind to a specific
-        inetaddress -->
-        <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <smtphandler>
-          <connectiontimeout>360000</connectiontimeout>
-          <!-- This sets the maximum allowed message size for the smtphandler
-          in KBytes.
-          The value defaults to 0, which means no limit.
-          <maxmessagesize>0</maxmessagesize>
-           -->
-        </smtphandler>
-      </smtpServer>
+  <!-- The James Spool Manager block  -->
+  <spoolmanager>
+      <!-- The spool repository is a singular location where incoming mails
+      are temporarily stored before being processed.
+     (ex. file://c:/james/spool/) 
+	The Spoool Manager and James Block must point to the same repository
+	to add and process same messages. -->
+      <spoolRepository>
+        <repository destinationURL="file://../../../store/mail/spool/"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+        </repository>
+      </spoolRepository>
 
-      <pop3Server>
-        <port>110</port>
-        <!-- <port>995</port> -->
-        <!-- port 995 is the well-known/IANA registered port for POP3S
-        ie over SSL/TLS -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
-        inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <pop3handler>
-          <connectiontimeout>120000</connectiontimeout>
-        </pop3handler>
-      </pop3Server>
+      <!-- Alternative spool repository definition for Town use
+      <spoolRepository>
+        <repository destinationURL="town://mainspool"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+          <conn>file:///dev/james/dist/../../store/maildatabase</conn>
+          <table>Message</table>
+        </repository>
+      </spoolRepository>
+      -->
 
-      <imapServer>
-        <port>143</port>
-        <!-- <port>995</port> -->
-        <!-- need to check what if any IMAP over SSL uses -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
-        inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <imaphandler>
-          <connectiontimeout>1800000</connectiontimeout>
-        </imaphandler>
-      </imapServer>
+      <!-- number of spool threads -->
+      <threads> 1 </threads>
 
-      <nntpServer>
-        <port>119</port>
-        <!-- <port>563</port> -->
-        <!-- port 563 is the well-known/IANA registered port for NNTPS
-        ie over SSL/TLS -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
-        inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <nntphandler>
-          <connectiontimeout>120000</connectiontimeout>
-	  <!-- make this true, if you want only authenticated users to access NNTP-->
-          <authRequired>false</authRequired>
-        </nntphandler>
-	<!-- NNTP Repository -->
-        <repository>
-            <configuration>
-	        <!-- make this true to disallow posting to all newsgroups-->
-		<readOnly>false</readOnly>
-	        <rootPath>file:///var/nntp/groups</rootPath>
-	        <tempPath>file:///var/nntp/temp</tempPath>
-	        <articleIDPath>file:///var/nntp/articleid</articleIDPath>
-	        <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
-		<!-- these additional news groups would be created and exposed-->
-		<newsgroups>
-		  <newsgroup>org.apache.james.dev</newsgroup>
-		  <newsgroup>org.apache.james.user</newsgroup>
-		  <newsgroup>org.apache.avalon.dev</newsgroup>
-		  <newsgroup>org.apache.avalon.user</newsgroup>
-		</newsgroups>
-	        <spool>
-            	  <configuration>
-		    <spoolPath>file:///var/nntp/spool</spoolPath>
-		    <!-- number of threads that process spooler related tasks -->
-		    <threadCount>1</threadCount>
-		    <!-- the spool thread(s) should idle for some time, 
-	               if it has nothing to do  -->
-		    <threadIdleTime>1000</threadIdleTime>
-            	  </configuration>
-	        </spool>
-            </configuration>
-	</repository>
-      </nntpServer>
-
-<!-- CHECKME! Change the default password! -->
-      <remoteManager>
-        <port>4555</port>
-        <!-- <bind>  </bind> uncomment this if you want to bind to a specific
-        inetaddress -->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <administrator_accounts>
-
-          <!-- FILL ME!!!!!!  You must provide a password for your
-          administrator accounts (cannot be blank) -->
-          <account login="root" password="root"/>
-
-        </administrator_accounts>
-        <connectiontimeout> 60000 </connectiontimeout>
-      </remoteManager>
-
-<!-- CONFIRM? Enter ip address of your DNS server, one per element -->
-      <dnsServer>
-        <servers>
-          <server>127.0.0.1</server>
-          <!--<server> put extra dns server address here </server>-->
-        </servers>
-        <authoritative>false</authoritative>
-      </dnsServer>
-
-      <!-- <spoolmanagerthreads> 1 </spoolmanagerthreads> -->
-      <spoolmanager>
         <!-- Set the packages from which to load mailets and matches -->
         <mailetpackages>
           <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
@@ -379,8 +289,120 @@
             <!-- <repositoryPath> town://spam </repositoryPath> -->
           </mailet>
         </processor>
-      </spoolmanager>   
-  </James>
+  </spoolmanager>
+
+
+<!-- CONFIRM? Enter ip address of your DNS server, one per element -->
+  <dnsserver>
+        <servers>
+          <server>127.0.0.1</server>
+          <!--<server> put extra dns server address here </server>-->
+        </servers>
+        <authoritative>false</authoritative>
+  </dnsserver>
+
+<!-- CHECKME! Change the default password! -->
+  <remotemanager>
+        <port>4555</port>
+        <!-- <bind>  </bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <administrator_accounts>
+
+          <!-- FILL ME!!!!!!  You must provide a password for your
+          administrator accounts (cannot be blank) -->
+          <account login="root" password="root"/>
+
+        </administrator_accounts>
+        <connectiontimeout> 60000 </connectiontimeout>
+  </remotemanager>
+
+  <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
+  <imapserver>
+        <port>143</port>
+        <!-- <port>995</port> -->
+        <!-- need to check what if any IMAP over SSL uses -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <imaphandler>
+          <connectiontimeout>1800000</connectiontimeout>
+	</imaphandler>
+  </imapserver>
+
+  <pop3server>
+        <port>110</port>
+        <!-- <port>995</port> -->
+        <!-- port 995 is the well-known/IANA registered port for POP3S
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <pop3handler>
+          <connectiontimeout>120000</connectiontimeout>
+        </pop3handler>
+  </pop3server>
+
+  <smtpserver>
+        <port>25</port>
+        <!--<bind></bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <smtphandler>
+          <connectiontimeout>360000</connectiontimeout>
+          <!-- This sets the maximum allowed message size for the smtphandler
+          in KBytes.
+          The value defaults to 0, which means no limit.
+          <maxmessagesize>0</maxmessagesize>
+           -->
+        </smtphandler>
+  </smtpserver>
+
+  <nntpserver>
+        <port>119</port>
+        <!-- <port>563</port> -->
+        <!-- port 563 is the well-known/IANA registered port for NNTPS
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <nntphandler>
+          <connectiontimeout>120000</connectiontimeout>
+	  <!-- make this true, if you want only authenticated users to access NNTP-->
+          <authRequired>false</authRequired>
+        </nntphandler>
+  </nntpserver>
+
+  <nntp-repository>
+        <!-- make this true to disallow posting to all newsgroups-->
+	<readOnly>false</readOnly>
+	<rootPath>file:///var/nntp/groups</rootPath>
+	<tempPath>file:///var/nntp/temp</tempPath>
+	<articleIDPath>file:///var/nntp/articleid</articleIDPath>
+	<articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
+	<!-- these additional news groups would be created and exposed-->
+	<newsgroups>
+	  <newsgroup>org.apache.james.dev</newsgroup>
+	  <newsgroup>org.apache.james.user</newsgroup>
+	  <newsgroup>org.apache.avalon.dev</newsgroup>
+	  <newsgroup>org.apache.avalon.user</newsgroup>
+	</newsgroups>
+	<spool>
+          <configuration>
+	    <spoolPath>file:///var/nntp/spool</spoolPath>
+	    <!-- number of threads that process spooler related tasks -->
+	    <threadCount>1</threadCount>
+	    <!-- the spool thread(s) should idle for some time, 
+	        if it has nothing to do  -->
+	    <threadIdleTime>1000</threadIdleTime>
+          </configuration>
+	</spool>
+  </nntp-repository>
 
   <!-- The High Level Storage block -->
   <mailstore>
