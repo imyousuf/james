@@ -34,7 +34,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.avalon.cornerstone.services.store.Repository;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
+import org.apache.avalon.cornerstone.blocks.masterstore.ExtensionFileFilter;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -77,7 +77,14 @@ public abstract class AbstractFileRepository
 
     public void contextualize( final Context context ) throws ContextException
     {
-        m_baseDirectory = (File) context.get( "app.home" );
+        try
+        {
+            m_baseDirectory = (File) context.get( "urn:avalon:home" );
+        }
+        catch( ContextException ce )
+        {
+            m_baseDirectory = (File) context.get( "app.home" );
+        }
     }
 
     public void service( final ServiceManager serviceManager )
