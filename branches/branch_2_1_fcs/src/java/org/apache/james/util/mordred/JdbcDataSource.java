@@ -56,7 +56,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.18.4.6 $
+ * @version CVS $Revision: 1.18.4.7 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -388,8 +388,8 @@ public class JdbcDataSource extends AbstractLogEnabled
      */
     public void run() {
         try {
-            while(reaperActive) synchronized (pool) {
-                for(int i = 0; i < pool.size(); i++) try {
+            while(reaperActive) {
+                synchronized(pool) { for(int i = 0; i < pool.size(); i++) try {
                     PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
                     long age            = System.currentTimeMillis() - entry.getLastActivity();
                     synchronized(entry) {
@@ -442,6 +442,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                     if (getLogger().isErrorEnabled()) {
                         getLogger().error(sout.toString());
                     }
+                }
                 }
                 try {
                     // Check for activity every 5 seconds
