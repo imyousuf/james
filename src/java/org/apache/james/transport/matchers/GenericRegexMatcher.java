@@ -85,16 +85,14 @@ import java.util.Collection;
  */
 
 abstract public class GenericRegexMatcher extends GenericMatcher {
-    protected Perl5Matcher matcher;
     protected Object[][] patterns;
 
     public void compile(Object[][] patterns) throws MalformedPatternException {
         // compile a bunch of regular expressions
         this.patterns = patterns;
-        matcher = new Perl5Matcher();
         for (int i = 0; i < patterns.length; i++) {
             String pattern = (String)patterns[i][1];
-            patterns[i][1] = new Perl5Compiler().compile(pattern);
+            patterns[i][1] = new Perl5Compiler().compile(pattern, Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
         }
     }
 
@@ -102,6 +100,7 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
 
     public Collection match(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
+        Perl5Matcher matcher = new Perl5Matcher();
 
         //Loop through all the patterns
         if (patterns != null) for (int i = 0; i < patterns.length; i++) {
@@ -114,8 +113,10 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
             //Loop through the header values
             if (headers != null) for (int j = 0; j < headers.length; j++) {
                 if (matcher.matches(headers[j], pattern)) {
+                    // log("Match: " + headerName + "[" + j + "]: " + headers[j]);
                     return mail.getRecipients();
                 }
+                //log("       " + headerName + "[" + j + "]: " + headers[j]);
             }
         }
         return null;

@@ -87,14 +87,10 @@ import javax.mail.MessagingException;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/23 18:51:14 $
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/08/28 16:12:37 $
  * @since 2.2.0
  */
 public class SenderIsRegex extends GenericMatcher {
-
-   // Create Perl5Compiler and Perl5Matcher instances.
-    Perl5Compiler compiler = new Perl5Compiler();
-    Perl5Matcher matcher  = new Perl5Matcher();
     Pattern pattern   = null;
 
     public void init() throws MessagingException {
@@ -104,8 +100,9 @@ public class SenderIsRegex extends GenericMatcher {
         }
         
         patternString = patternString.trim();
+        Perl5Compiler compiler = new Perl5Compiler();
         try {
-            pattern = compiler.compile(patternString);
+            pattern = compiler.compile(patternString, Perl5Compiler.READ_ONLY_MASK);
         } catch(MalformedPatternException mpe) {
             throw new MessagingException("Malformed pattern: " + patternString, mpe);
         }
@@ -117,6 +114,7 @@ public class SenderIsRegex extends GenericMatcher {
             return null;
         }
         String senderString = mailAddress.toString();
+        Perl5Matcher matcher  = new Perl5Matcher();
         if (matcher.matches(senderString, pattern)) {
             return mail.getRecipients();
         }
