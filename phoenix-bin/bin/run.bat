@@ -82,7 +82,10 @@ rem like placing jaxp/jaas/xml-parser jars in ext dir
 rem thus breaking Phoenix
 rem
 
+rem uncomment to get enable remote debugging
+rem set DEBUG=-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y
+
 rem Kicking the tires and lighting the fires!!!
-"%PHOENIX_JAVACMD%" "-Djava.ext.dirs=%PHOENIX_HOME%\lib" "-Dphoenix.home=%PHOENIX_HOME%" "-Djava.security.policy=jar:file:%PHOENIX_HOME%/bin/phoenix-loader.jar!/META-INF/java.policy" %PHOENIX_JVM_OPTS% %PHOENIX_SM% -jar "%PHOENIX_HOME%\bin\phoenix-loader.jar" %1 %2 %3 %4 %5 %6 %7 %8 %9
+"%PHOENIX_JAVACMD%" %DEBUG% "-Djava.ext.dirs=%PHOENIX_HOME%\lib" "-Dphoenix.home=%PHOENIX_HOME%" "-Djava.security.policy=jar:file:%PHOENIX_HOME%/bin/phoenix-loader.jar!/META-INF/java.policy" %PHOENIX_JVM_OPTS% %PHOENIX_SECURE% -jar "%PHOENIX_HOME%\bin\phoenix-loader.jar" %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 :end
