@@ -33,7 +33,6 @@ import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
 import org.apache.james.services.*;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
 /**
@@ -96,7 +95,7 @@ public class SingleThreadedConnectionHandler
     private static final String NO_NOTLOCAL_MSG
         = "NO Mailbox does not exist on this server";
 
-    private Logger securityLogger = LogKit.getLoggerFor("james.Security");
+    private Logger securityLogger;
     private MailServer mailServer;
     private UsersRepository users;
     private TimeScheduler scheduler;
@@ -148,6 +147,7 @@ public class SingleThreadedConnectionHandler
     public void initialize() throws Exception {
         getLogger().info("SingleThreadedConnectionHandler starting ...");
         namespaceToken = imapSystem.getNamespaceToken();
+	securityLogger = getLogger().getChildLogger("security");
         getLogger().info("SingleThreadedConnectionHandler initialized");
     }
 
