@@ -43,11 +43,11 @@ public class James implements MailServer, Block {
     private MailRepository localInbox;
     private Vector serverNames;
     private static long count;
-    
+
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = new SimpleComponentManager(comp);
     }
@@ -60,7 +60,7 @@ public class James implements MailServer, Block {
         store = (Store) comp.getComponent(Interfaces.STORE);
 
         context = new SimpleContext();
-            // Get this server names 
+            // Get this server names
         serverNames = new Vector();
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
             serverNames.addElement(((Configuration) e.nextElement()).getValue());
@@ -91,7 +91,7 @@ public class James implements MailServer, Block {
         logger.log("Private Repository LocalInbox opened", "JamesSystem", logger.INFO);
             // Add this to comp
         comp.put(Interfaces.MAIL_SERVER, this);
-        
+
         String spoolRepository = conf.getConfiguration("spoolRepository", "file://../mail/spool/").getValue();
         try {
             this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
@@ -114,7 +114,7 @@ public class James implements MailServer, Block {
         }
         comp.put(Constants.USERS_MANAGER, userManager);
         logger.log("Users Manager Opened", "JamesSystem", logger.INFO);
-        
+
         POP3Server pop3Server = new POP3Server();
         try {
             pop3Server.setConfiguration(conf.getConfiguration("pop3Server"));
@@ -124,7 +124,7 @@ public class James implements MailServer, Block {
             logger.log("Exception in POP3Server init: " + e.getMessage(), "JamesSystem", logger.ERROR);
             throw e;
         }
-        
+
         SMTPServer smtpServer = new SMTPServer();
         try {
             smtpServer.setConfiguration(conf.getConfiguration("smtpServer"));
@@ -134,7 +134,7 @@ public class James implements MailServer, Block {
             logger.log("Exception in SMTPServer init: " + e.getMessage(), "JamesSystem", logger.ERROR);
             throw e;
         }
-        
+
         RemoteManager remoteAdmin = new RemoteManager();
         try {
             remoteAdmin.setConfiguration(conf.getConfiguration("remoteManager"));
@@ -143,7 +143,7 @@ public class James implements MailServer, Block {
             logger.log("Exception in RemoteAdmin init: " + e.getMessage(), "JamesSystem", logger.ERROR);
             throw e;
         }
-        
+
         int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
         while (threads-- > 0) {
             try {
@@ -214,13 +214,13 @@ public class James implements MailServer, Block {
         }
         return userInbox;
     }
-    
-    private String getId() {
+
+    public String getId() {
         return "Mail" + System.currentTimeMillis() + "-" + count++;
     }
 
 	public static void main(String[] args) {
-	    
+
 	    System.out.println("ERROR!");
 	    System.out.println("Cannot exceute James as a stand alone application.");
 	    System.out.println("To run James you need to have the Avalon framework installed.");
