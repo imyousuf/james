@@ -138,10 +138,11 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         }
     }
 
-    private boolean parseCommand(String command) {
-        if (command == null) return false;
-        logger.log("Command recieved: " + command, "POP3", logger.INFO);
-        StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
+    private boolean parseCommand(String commandRaw) {
+        if (commandRaw == null) return false;
+        logger.log("Command recieved: " + commandRaw, "POP3", logger.INFO);
+        String command = commandRaw.trim();
+        StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
             return true;
@@ -167,7 +168,8 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             return true;
         } else if (command.equalsIgnoreCase("PASS")) {
             if (state == AUTHENTICATION_USERSET && argument != null) {
-                if (userManager.test(user, argument)) {
+                String passArg = commandRaw.substring(5);
+                if (userManager.test(user, passArg)) {
                     state = TRANSACTION;
                     out.println(OK_RESPONSE + " Welcome " + user);
                     userInbox = mailServer.getUserInbox(user);
