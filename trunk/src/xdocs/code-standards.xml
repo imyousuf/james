@@ -64,8 +64,8 @@ files (e.g. .bat files for Windows) should contain non-Unix linefeeds.
 </p>
 
 <p>
-4. Javadoc <strong>MUST</strong> exist on all methods. Contributing
-a missing javadoc for any method, class, variable, etc., will be greatly
+4. Javadoc <strong>must</strong> exist on all methods. Contributing
+a missing javadoc for any method, class, variable, etc., will be GREATLY
 appreciated as this will help to improve the James project.
 </p>
 
