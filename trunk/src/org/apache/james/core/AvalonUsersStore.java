@@ -11,7 +11,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.avalon.*;
+import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Component;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.Initializable;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.phoenix.Block;
@@ -49,10 +57,11 @@ public class AvalonUsersStore
             Configuration repConf = (Configuration) repConfs.next();
             String repName = repConf.getAttribute("name");
             String repClass = repConf.getAttribute("class");
+
             UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
-            if (rep instanceof Loggable) {
-                setupLogger((Component)rep);
-            }
+
+            setupLogger((Component)rep);
+
             if (rep instanceof Configurable) {
                 ((Configurable) rep).configure(repConf);
             }
