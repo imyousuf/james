@@ -155,11 +155,10 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             mc.setState(message.getAsString("message_state"));
             mc.setErrorMessage(message.getAsString("error_message"));
             mc.setSender(new MailAddress(message.getAsString("sender")));
-            BufferedReader recipientList = new BufferedReader(new StringReader(message.getAsString("recipients")));
+            StringTokenizer st = new StringTokenizer(message.getAsString("recipients"), "\r\n", false);
             Vector recipients = new Vector();
-            String recipient = null;
-            while ((recipient = recipientList.readLine()) != null) {
-                recipients.add(new MailAddress(recipient));
+            while (st.hasMoreTokens()) {
+                recipients.add(new MailAddress(st.nextToken()));
             }
             mc.setRecipients(recipients);
             mc.setRemoteHost(message.getAsString("remote_host"));
