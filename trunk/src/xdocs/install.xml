@@ -57,7 +57,7 @@
   <p>
     M$ users should just run /bin/run.bat. Unix users will find run.sh
     under the same folder. A JVM must be in the path.
-    Running [run* -help] will provide a simple command line help.
+    Running [run* --help] will provide a simple command line help.
   </p>
   <p>
     Most UNIX systems require superuser privileges to open sockets below 1024,
