@@ -197,5 +197,26 @@ public class Mail implements Serializable, Cloneable {
         return new Mail("replyTo-" + getName(), getRecipients().iterator().next().toString(), recipients, reply);
     }
 
-
+    public void writeContentTo(OutputStream out, int lines)
+    throws IOException, MessagingException {
+        String line;
+        BufferedReader br;
+        if(message != null) {
+            br = new BufferedReader(new InputStreamReader(message.getInputStream()));
+            while(lines-- >= 0) {
+                if((line = br.readLine()) == null)  break;
+                line += "\r\n";
+                out.write(line.getBytes());
+            }
+        } else {
+            messageIn.mark(Integer.MAX_VALUE);
+            br  = new BufferedReader(new InputStreamReader(messageIn));
+            while(lines-- >= 0)  {
+                if((line = br.readLine()) == null) break;
+                line += "\r\n";
+                out.write(line.getBytes());
+            }
+            messageIn.reset();
+        }
+    }
 }

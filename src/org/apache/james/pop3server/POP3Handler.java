@@ -360,14 +360,13 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                             out.println(e.nextElement());
                         }
                         out.println("");
-// FIXME!!!: need to print first "lines" of the message
-                        while (lines-- > 0) {
-                            out.println("!!! PARTYALLY SUPPORTED COMMAND !!!");
-                        }
+                        mc.writeContentTo(outs, lines);
                         out.println(".");
                     } else {
                         out.println("-ERR. Message (" + num + ") already deleted.");
                     }
+                } catch (IOException ioe) {
+                    out.println("-ERR. Error while retrieving message.");
                 } catch (MessagingException me) {
                     out.println("-ERR. Error while retrieving message.");
                 } catch (ArrayIndexOutOfBoundsException iob) {
