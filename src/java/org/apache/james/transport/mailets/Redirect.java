@@ -93,7 +93,7 @@ import org.apache.mailet.MailAddress;
  * <P>It differs from {@link Resend} because
  * (i) some defaults are different,
  * notably for the following parameters: <I>&lt;recipients&gt;</I>, <I>&lt;to&gt;</I>,
- * <I>&lt;returnPath&gt;</I> and <I>&lt;inline&gt;</I>;
+ * <I>&lt;reversePath&gt;</I> and <I>&lt;inline&gt;</I>;
  * (ii) because it allows the use of the <I>&lt;static&gt;</I> parameter;.<BR>
  * Use <CODE>Resend</CODE> if you need full control, <CODE>Redirect</CODE> if
  * the more automatic behaviour of some parameters is appropriate.</P>
@@ -112,7 +112,7 @@ import org.apache.mailet.MailAddress;
  * if none of the lists is specified.<BR>
  * These addresses will only appear in the To: header if no &quot;to&quot; list is
  * supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot; and &quot;unaltered&quot;.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -123,7 +123,8 @@ import org.apache.mailet.MailAddress;
  * list.<BR>
  * The recipients list will be used if this list is not supplied;
  * if none of the lists is specified it will be &quot;unaltered&quot;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * if &quot;null&quot; is specified alone it will remove this header.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -206,7 +207,7 @@ import org.apache.mailet.MailAddress;
  * </TD>
  * </TR>
  * <TR valign=top>
- * <TD width="20%">&lt;replyto&gt;</TD>
+ * <TD width="20%">&lt;replyTo&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Reply-To: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
@@ -216,7 +217,7 @@ import org.apache.mailet.MailAddress;
  * </TR>
  * </TR>
  * <TR valign=top>
- * <TD width="20%">&lt;returnPath&gt;</TD>
+ * <TD width="20%">&lt;reversePath&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Return-Path: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;null&quot;;
@@ -279,7 +280,7 @@ import org.apache.mailet.MailAddress;
  *    &lt;message&gt;sent on from James&lt;/message&gt;
  *    &lt;inline&gt;unaltered&lt;/inline&gt;
  *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
- *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;replyTo&gt;postmaster&lt;/replyTo&gt;
  *    &lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;
  *    &lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;
  *    &lt;static&gt;TRUE&lt;/static&gt;
@@ -297,13 +298,15 @@ import org.apache.mailet.MailAddress;
  *    &lt;attachment&gt;message&lt;/attachment&gt;
  *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
  *    &lt;attachError&gt;TRUE&lt;/attachError&gt;
- *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;replyTo&gt;postmaster&lt;/replyTo&gt;
  *    &lt;prefix&gt;[spam notification]&lt;/prefix&gt;
  *    &lt;static&gt;TRUE&lt;/static&gt;
  *  &lt;/mailet&gt;
  * </CODE></PRE>
+ * <P><I>replyto</I> can be used instead of
+ * <I>replyTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.32 $ $Date: 2003/06/30 09:41:03 $
+ * @version CVS $Revision: 1.33 $ $Date: 2003/07/04 16:46:12 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -329,8 +332,9 @@ public class Redirect extends AbstractRedirect {
             "message",
             "recipients",
             "to",
+            "replyTo",
             "replyto",
-            "returnPath",
+            "reversePath",
             "sender",
             "subject",
             "prefix",
@@ -366,36 +370,47 @@ public class Redirect extends AbstractRedirect {
      * @return the <CODE>recipients</CODE> init parameter
      * or the postmaster address
      * or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * or <CODE>SpecialAddress.REVERSE_PATH</CODE>
      * or <CODE>SpecialAddress.UNALTERED</CODE>
      * or the <CODE>to</CODE> init parameter if missing
      * or <CODE>null</CODE> if also the latter is missing
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
+        boolean error = false;
         String addressList = (getInitParameter("recipients") == null)
                                  ? getInitParameter("to")
                                  : getInitParameter("recipients");
+                                 
         // if nothing was specified, return <CODE>null</CODE> meaning no change
         if (addressList == null) {
             return null;
         }
 
-        MailAddress specialAddress = getSpecialAddress(addressList,
-                                        new String[] {"postmaster", "sender", "returnPath", "unaltered"});
-        if (specialAddress != null) {
-            newRecipients.add(specialAddress);
-            return newRecipients;
-        }
-
         StringTokenizer st = new StringTokenizer(addressList, ",", false);
         while(st.hasMoreTokens()) {
+            String token = null;
             try {
-                newRecipients.add(new MailAddress(st.nextToken()));
+                token = st.nextToken();
+                MailAddress specialAddress = getSpecialAddress(token,
+                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+                if (specialAddress != null) {
+                    newRecipients.add(specialAddress);
+                } else {
+                    newRecipients.add(new MailAddress(token));
+                }
             } catch(Exception e) {
-                log("add recipient failed in getRecipients");
+                error = true;
+                log("Exception thrown in getRecipients() parsing: " + token, e);
             }
         }
+        if (error) {
+            throw new MessagingException("Failed to initialize \"recipients\" list; see mailet log.");
+        }
+        if (newRecipients.size() == 0) {
+            throw new MessagingException("Failed to initialize \"recipients\" list; empty <recipients> init parameter found.");
+        }
+        
         return newRecipients;
     }
 
@@ -403,52 +418,60 @@ public class Redirect extends AbstractRedirect {
      * @return the <CODE>to</CODE> init parameter
      * or the postmaster address
      * or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * or <CODE>SpecialAddress.REVERSE_PATH</CODE>
      * or <CODE>SpecialAddress.UNALTERED</CODE>
      * or the <CODE>recipients</CODE> init parameter if missing
      * or <CODE>null</CODE> if also the latter is missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
+        boolean error = false;
         String addressList = (getInitParameter("to") == null)
                                  ? getInitParameter("recipients")
                                  : getInitParameter("to");
+
         // if nothing was specified, return null meaning no change
         if (addressList == null) {
             return null;
         }
 
-        MailAddress specialAddress = getSpecialAddress(addressList,
-                                        new String[] {"postmaster", "sender", "returnPath", "unaltered"});
-        if (specialAddress != null) {
-            InternetAddress[] iaarray = new InternetAddress[1];
-            iaarray[0] = specialAddress.toInternetAddress();
-            return iaarray;
-        }
-
-        StringTokenizer rec       = new StringTokenizer(addressList, ",");
-        int tokensn               = rec.countTokens();
-        InternetAddress[] iaarray = new InternetAddress[tokensn];
-        String tokenx             = "";
-        for(int i = 0; i < tokensn; ++i) {
+        StringTokenizer rec = new StringTokenizer(addressList, ",");
+        int tokenCount = rec.countTokens();
+        InternetAddress[] iaarray = new InternetAddress[tokenCount];
+        String token = "";
+        for(int i = 0; i < tokenCount; ++i) {
             try {
-                tokenx     = rec.nextToken();
-                iaarray[i] = new InternetAddress(tokenx);
+                token = rec.nextToken();
+                MailAddress specialAddress = getSpecialAddress(token,
+                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "to", "null"});
+                if (specialAddress != null) {
+                    iaarray[i] = specialAddress.toInternetAddress();
+                } else {
+                    iaarray[i] = new InternetAddress(token);
+                }
             } catch(Exception e) {
-                log("Internet address exception in getTo()");
+                error = true;
+                log("Exception thrown in getTo() parsing: " + token, e);
             }
         }
+        if (error) {
+            throw new MessagingException("Failed to initialize \"to\" list; see mailet log.");
+        }
+        if (tokenCount == 0) {
+            throw new MessagingException("Failed to initialize \"to\" list; empty <to> init parameter found.");
+        }
+
         return iaarray;
     }
 
     /**
-     * @return the <CODE>returnPath</CODE> init parameter 
+     * @return the <CODE>reversePath</CODE> init parameter 
      * or the postmaster address
      * or <CODE>SpecialAddress.SENDER</CODE>
      * or <CODE>SpecialAddress.NULL</CODE>
      * or <CODE>null</CODE> if missing
      */
-    protected MailAddress getReturnPath() throws MessagingException {
-        String addressString = getInitParameter("returnPath");
+    protected MailAddress getReversePath() throws MessagingException {
+        String addressString = getInitParameter("reversePath");
         if(addressString != null) {
             MailAddress specialAddress = getSpecialAddress(addressString,
                                             new String[] {"postmaster", "sender", "null"});
@@ -459,7 +482,7 @@ public class Redirect extends AbstractRedirect {
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
-                throw new MessagingException("Exception thrown in getReturnPath() parsing: " + addressString, e);
+                throw new MessagingException("Exception thrown in getReversePath() parsing: " + addressString, e);
             }
         }
 
@@ -467,16 +490,16 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return {@link AbstractRedirect#getReturnPath()};
+     * @return {@link AbstractRedirect#getReversePath()};
      * if null return {@link AbstractRedirect#getSender(Mail)},
      * meaning the new requested sender if any
      */
-    protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
-        MailAddress returnPath = super.getReturnPath(originalMail);
-        if (returnPath == null) {
-            returnPath = getSender(originalMail);
+    protected MailAddress getReversePath(Mail originalMail) throws MessagingException {
+        MailAddress reversePath = super.getReversePath(originalMail);
+        if (reversePath == null) {
+            reversePath = getSender(originalMail);
         }
-        return returnPath;
+        return reversePath;
     }
 
     /* ******************************************************************** */

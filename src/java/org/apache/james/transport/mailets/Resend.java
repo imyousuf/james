@@ -106,7 +106,7 @@ import org.apache.mailet.MailAddress;
  * <TD width="80%">
  * A comma delimited list of email addresses for recipients of
  * this message;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.<BR>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot; and &quot;unaltered&quot;.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
  * </TR>
@@ -114,7 +114,8 @@ import org.apache.mailet.MailAddress;
  * <TD width="20%">&lt;to&gt;</TD>
  * <TD width="80%">
  * A comma delimited list of addresses to appear in the To: header;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;.
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * if &quot;null&quot; is specified alone it will remove this header.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
  * </TR>
@@ -198,7 +199,7 @@ import org.apache.mailet.MailAddress;
  * </TD>
  * </TR>
  * <TR valign=top>
- * <TD width="20%">&lt;replyto&gt;</TD>
+ * <TD width="20%">&lt;replyTo&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Reply-To: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
@@ -207,7 +208,7 @@ import org.apache.mailet.MailAddress;
  * </TD>
  * </TR>
  * <TR valign=top>
- * <TD width="20%">&lt;returnPath&gt;</TD>
+ * <TD width="20%">&lt;reversePath&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Return-Path: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
@@ -258,7 +259,7 @@ import org.apache.mailet.MailAddress;
  *    &lt;message&gt;sent on from James&lt;/message&gt;
  *    &lt;inline&gt;unaltered&lt;/inline&gt;
  *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
- *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;replyTo&gt;postmaster&lt;/replyTo&gt;
  *    &lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;
  *    &lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;
  *    &lt;static&gt;TRUE&lt;/static&gt;
@@ -276,7 +277,7 @@ import org.apache.mailet.MailAddress;
  *    &lt;attachment&gt;message&lt;/attachment&gt;
  *    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;
  *    &lt;attachError&gt;TRUE&lt;/attachError&gt;
- *    &lt;replyto&gt;postmaster&lt;/replyto&gt;
+ *    &lt;replyTo&gt;postmaster&lt;/replyTo&gt;
  *    &lt;prefix&gt;[spam notification]&lt;/prefix&gt;
  *  &lt;/mailet&gt;
  * </CODE></PRE>
@@ -285,12 +286,14 @@ import org.apache.mailet.MailAddress;
  * <PRE><CODE>
  *  &lt;mailet match=&quot;All&quot; class=&quot;Resend&quot/;&gt;
  * </CODE></PRE>
+ * <P><I>replyto</I> can be used instead of
+ * <I>replyTo</I>; such name is kept for backward compatibility.</P>
  * <P><B>WARNING: as the message (or a copy of it) is reinjected in the spool without any modification,
  * the preceding example is very likely to cause a "configuration loop" in your system,
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.2 $ $Date: 2003/06/30 09:41:04 $
+ * @version CVS $Revision: 1.3 $ $Date: 2003/07/04 16:46:12 $
  * @since 2.2.0
  */
 
@@ -317,8 +320,9 @@ public class Resend extends AbstractRedirect {
             "message",
             "recipients",
             "to",
+            "replyTo",
             "replyto",
-            "returnPath",
+            "reversePath",
             "sender",
             "subject",
             "prefix",
