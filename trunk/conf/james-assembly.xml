@@ -8,6 +8,7 @@
     <!-- Specify which components will provide the services required by this
     block. The roles are specified in the code and the .xinfo file. The names
     here must match the names specified for  a Block in this xml file.   -->
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
