@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.29 $  Committed on $Date: 2004/05/08 02:24:14 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.30 $  Committed on $Date: 2004/05/22 04:10:07 $ by: $Author: noel $
 
 Authors:
  James Project <server-dev@james.apache.org>
@@ -33,7 +33,7 @@ Legal:
     <property file="${user.home}/.ant.properties"/>
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
-    <property name="version" value="2.2.0RC3"/>
+    <property name="version" value="2.2.0RC4"/>
     <property name="mailet_name" value="mailet_1_0"/>
     <property name="mailet_version" value="1.0"/>
     <property name="year" value="1999-2003"/>
