@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 
 <document>
- <header>
+
+ <properties>
   <title>Apache Software License</title>
-  <authors>
-   <person name="Velocity Documentation Team" email="jvanzyl@locus.apache.org"/>
-  </authors>
- </header>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
 
 <body>
 <section name="Apache Software License">
@@ -15,7 +14,6 @@
     listed below:
 </p>
 
-<p>
 <source><![CDATA[
 
  The Apache Software License, Version 1.1
@@ -70,7 +68,7 @@
  information on the Apache Software Foundation, please see
  <http://www.apache.org/>.
 ]]></source>
-</p>
+
 </section>
 
 </body>

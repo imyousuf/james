@@ -2,13 +2,10 @@
 
 <document>
 
- <header>
+ <properties>
   <title>Coding Standards</title>
-  <subtitle>Coding Standards</subtitle>
-  <authors>
-   <person name="Serge Knystautas" email="sergek@lokitech.com"/>
-  </authors>
- </header>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
 
 <body>
 
