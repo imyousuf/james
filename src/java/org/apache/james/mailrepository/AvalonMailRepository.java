@@ -108,6 +108,7 @@ public class AvalonMailRepository
     private ObjectRepository or;
     private String destination;
     private Set keys;
+    private boolean fifo;
 
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
@@ -135,6 +136,7 @@ public class AvalonMailRepository
             }
             throw new ConfigurationException(exceptionString);
         }
+        fifo = conf.getAttributeAsBoolean("FIFO", false);
         // ignore model
     }
 
@@ -446,10 +448,11 @@ public class AvalonMailRepository
     public Iterator list() {
         // Fix ConcurrentModificationException by cloning 
         // the keyset before getting an iterator
-        final Collection clone;
+        final ArrayList clone;
         synchronized(keys) {
             clone = new ArrayList(keys);
         }
+        if (fifo) Collections.sort(clone); // Keys is a HashSet; impose FIFO for apps that need it
         return clone.iterator();
     }
 }
