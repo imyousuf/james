@@ -18,7 +18,7 @@ import java.util.EventListener;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public interface MailboxEventListener 
+public interface MailboxEventListener
     extends EventListener, Serializable {
 
     void receiveEvent( MailboxEvent me );

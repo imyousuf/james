@@ -9,19 +9,19 @@ package org.apache.james.userrepository;
 
 import java.io.File;
 import java.util.Iterator;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
-import org.apache.avalon.util.Lock;
-import org.apache.cornerstone.services.store.Store;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.store.ObjectRepository;
+import org.apache.cornerstone.services.store.Store;
+import org.apache.excalibur.concurrent.Lock;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -32,14 +32,14 @@ import org.apache.james.services.UsersRepository;
  *              type="USERS"
  *              model="SYNCHRONOUS"/>
  * Requires a logger called UsersRepository.
- * 
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class UsersFileRepository 
+public class UsersFileRepository
     extends AbstractLoggable
-    implements UsersRepository, Component, Configurable, Composer, 
+    implements UsersRepository, Component, Configurable, Composable,
                Initializable {
 
     private static final String TYPE = "USERS";
@@ -49,7 +49,7 @@ public class UsersFileRepository
     private String destination;
     private Lock lock  = new Lock();
 
-    public void configure( final Configuration configuration ) 
+    public void configure( final Configuration configuration )
         throws ConfigurationException {
 
         destination = configuration.getChild( "destination" ).getAttribute( "URL" );
@@ -59,26 +59,26 @@ public class UsersFileRepository
         }
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
 
         store = (Store)componentManager.
             lookup( "org.apache.cornerstone.services.store.Store" );
     }
-    
+
     public void init()
         throws Exception {
 
         try {
             //prepare Configurations for object and stream repositories
             final DefaultConfiguration objectConfiguration
-                = new DefaultConfiguration( "repository", 
+                = new DefaultConfiguration( "repository",
                                             "generated:UsersFileRepository.compose()" );
 
             objectConfiguration.addAttribute( "destinationURL", destination );
             objectConfiguration.addAttribute( "type", "OBJECT" );
             objectConfiguration.addAttribute( "model", "SYNCHRONOUS" );
-        
+
             or = (ObjectRepository)store.select( objectConfiguration );
 
         } catch (Exception e) {
@@ -90,7 +90,7 @@ public class UsersFileRepository
     public Iterator list() {
         return or.list();
     }
- 
+
     public synchronized void addUser(String name, Object attributes) {
         try {
             or.put(name, attributes);

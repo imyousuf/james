@@ -12,16 +12,16 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
@@ -39,9 +39,9 @@ import org.apache.mailet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler 
+public class SMTPHandler
     extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target  {
+    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target  {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -84,8 +84,8 @@ public class SMTPHandler
         servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
         mailServer = (MailServer)componentManager.lookup("org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.
             lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
@@ -99,11 +99,11 @@ public class SMTPHandler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( Socket connection ) 
+    public void handleConnection( Socket connection )
         throws IOException {
         try {
             this.socket = connection;
-            final InputStream bufferedInput = 
+            final InputStream bufferedInput =
                 new BufferedInputStream( socket.getInputStream(), 1024 );
             in = new DataInputStream( bufferedInput );
             out = new InternetPrintWriter(socket.getOutputStream(), true);
@@ -223,8 +223,8 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-            out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + 
-                        " (" + state.get(REMOTE_NAME) + 
+            out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument +
+                        " (" + state.get(REMOTE_NAME) +
                         " [" + state.get(REMOTE_IP) + "])");
         }
     }
@@ -234,7 +234,7 @@ public class SMTPHandler
     private void doMAIL(String command,String argument,String argument1) {
         if (state.containsKey(SENDER)) {
             out.println("503 Sender already specified");
-        } else if (argument == null || !argument.equalsIgnoreCase("FROM") 
+        } else if (argument == null || !argument.equalsIgnoreCase("FROM")
                    || argument1 == null) {
             out.println("501 Usage: MAIL FROM:<sender>");
         } else {
@@ -327,7 +327,7 @@ public class SMTPHandler
                 if (!headers.isSet("From")) {
                     headers.setHeader("From", state.get(SENDER).toString());
                 }
-                
+
                 String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
                     + "])\r\n          by " + this.servername + " ("
                     + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
@@ -339,11 +339,11 @@ public class SMTPHandler
                 }
                 received += ";\r\n          " + RFC822DateFormat.toString (new Date ());
                 headers.addHeader ("Received", received);
-                
+
                 // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
                 ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
                 MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER),
-                                             (Vector)state.get(RCPT_VECTOR), 
+                                             (Vector)state.get(RCPT_VECTOR),
                                              new SequenceInputStream(headersIn, msgIn));
                 mail.setRemoteHost((String)state.get(REMOTE_NAME));
                 mail.setRemoteAddr((String)state.get(REMOTE_IP));
@@ -364,7 +364,7 @@ public class SMTPHandler
     }
 
     private void doUnknownCmd(String command,String argument,String argument1) {
-        out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + 
+        out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " +
                     command);
     }
 }

@@ -12,16 +12,16 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 import javax.mail.internet.*;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Initializable;
 import org.apache.avalon.Stoppable;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
@@ -46,10 +46,10 @@ import org.apache.log.Logger;
  */
 public class SingleThreadedConnectionHandler
     extends BaseCommand
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, 
-    Initializable, Stoppable, Target, MailboxEventListener {
+    implements ConnectionHandler, Contextualizable, Composable, Configurable,
+               Initializable, Stoppable, Target, MailboxEventListener {
 
-    //mainly to switch on stack traces and catch responses;  
+    //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
 
     // Connection states
@@ -121,7 +121,7 @@ public class SingleThreadedConnectionHandler
 
     //currentFolder holds the client-dependent absolute address of the current
     //folder, that is current Namespace and full mailbox hierarchy.
-    private String currentFolder = null;       
+    private String currentFolder = null;
     private ACLMailbox currentMailbox = null;
     private boolean currentIsReadOnly = false;
     private boolean connectionClosed = false;
@@ -131,8 +131,8 @@ public class SingleThreadedConnectionHandler
     private int recent;
     private List sequence;
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
 
         mailServer = (MailServer)componentManager.
             lookup("org.apache.james.services.MailServer");
@@ -145,12 +145,12 @@ public class SingleThreadedConnectionHandler
         imapHost = (Host)componentManager.
             lookup("org.apache.james.imapserver.Host");
     }
- 
+
     public void contextualize( final Context context ) {
         servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void configure( final Configuration configuration ) 
+    public void configure( final Configuration configuration )
         throws ConfigurationException {
         timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 1800000 );
     }
@@ -169,27 +169,27 @@ public class SingleThreadedConnectionHandler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( final Socket connection ) 
+    public void handleConnection( final Socket connection )
         throws IOException {
 
         try {
             this.socket = connection;
             in = new BufferedReader(new
-                                    InputStreamReader(socket.getInputStream()));
+                InputStreamReader(socket.getInputStream()));
             outs = socket.getOutputStream();
             out = new InternetPrintWriter(outs, true);
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
             getLogger().error("Cannot open connection from " + remoteHost + " ("
-                         + remoteIP + "): " + e.getMessage());
+                              + remoteIP + "): " + e.getMessage());
         }
         getLogger().info("Connection from " + remoteHost + " (" + remoteIP + ")");
 
         try {
             final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
             scheduler.addTrigger( this.toString(), trigger, this );
-           
+
             if (false) { // arbitrary rejection of connection
                 // could screen connections by IP or host or implement
                 // connection pool management
@@ -221,15 +221,15 @@ public class SingleThreadedConnectionHandler
             }
 
             if (!connectionClosed) {
-                connectionClosed 
+                connectionClosed
                     = closeConnection(UNTAGGED_BYE,
-                                      "Server error, closing connection", ""); 
+                                      "Server error, closing connection", "");
             }
-           
+
         } catch (Exception e) {
             // This should never happen once code is debugged
             getLogger().error("Exception during connection from " + remoteHost
-                         + " (" + remoteIP + ") : " + e.getMessage());
+                              + " (" + remoteIP + ") : " + e.getMessage());
             e.printStackTrace();
             connectionClosed = closeConnection(UNTAGGED_BYE,
                                                "Error processing command.", "");
@@ -244,7 +244,7 @@ public class SingleThreadedConnectionHandler
                                            "Autologout. Idle too long.", "");
     }
 
-    private boolean closeConnection( int exitStatus, 
+    private boolean closeConnection( int exitStatus,
                                      String message1,
                                      String message2 ) {
         scheduler.removeTrigger(this.toString());
@@ -277,10 +277,10 @@ public class SingleThreadedConnectionHandler
             out.flush();
             socket.close();
             getLogger().info("Connection closed" + SP + exitStatus + SP + message1
-                        +  SP + message2);
+                             +  SP + message2);
         } catch (IOException ioe) {
             getLogger().error("Exception while closing connection from " + remoteHost
-                         + " (" + remoteIP + ") : " + ioe.getMessage());
+                              + " (" + remoteIP + ") : " + ioe.getMessage());
             try {
                 socket.close();
             } catch (IOException ioe2) {
@@ -329,7 +329,7 @@ public class SingleThreadedConnectionHandler
             out.println(UNTAGGED + SP + BAD + SP + "no command sent");
             return true;
         }
-        
+
         // At this stage we have a tag and a string which may be a command
         // Start with commands that are valid in any state
         // CAPABILITY, NOOP, LOGOUT
@@ -342,9 +342,9 @@ public class SingleThreadedConnectionHandler
             }
             out.println(tag + SP + OK + SP + "CAPABILITY completed");
             getLogger().debug("Capability command completed for " + remoteHost
-                         + "(" + remoteIP  + ")");
+                              + "(" + remoteIP  + ")");
             return true;
-            
+
         } else if (command.equalsIgnoreCase("NOOP")) {
             if (state == SELECTED ) {
                 checkSize();
@@ -353,23 +353,23 @@ public class SingleThreadedConnectionHandler
             // we could send optional untagged status responses as well
             out.println(tag + SP + OK + SP + "NOOP completed");
             getLogger().debug("Noop command completed for " + remoteHost
-                         + "(" + remoteIP  + ")");
+                              + "(" + remoteIP  + ")");
             return true;
-            
+
         } else if (command.equalsIgnoreCase("LOGOUT")) {
             connectionClosed = closeConnection(NORMAL_CLOSE, "", "");
             return false;
-            
+
         }
-        
+
         // Commands only valid in NON_AUTHENTICATED state
         // AUTHENTICATE, LOGIN
-        
+
         if (state == NON_AUTHENTICATED) {
             if (command.equalsIgnoreCase("AUTHENTICATE")) {
                 out.println(tag + SP + NO + SP + "Auth type not supported.");
                 getLogger().info("Attempt to use Authenticate command by "
-                            + remoteHost  + "(" + remoteIP  + ")");
+                                 + remoteHost  + "(" + remoteIP  + ")");
                 securityLogger.info("Attempt to use Authenticate command by "
                                     + remoteHost  + "(" + remoteIP  + ")");
                 return true;
@@ -378,7 +378,7 @@ public class SingleThreadedConnectionHandler
                     out.println(tag + SP + BAD + SP
                                 + "Command should be <tag> <LOGIN> <username> <password>");
                     getLogger().info("Wrong number of arguments for LOGIN command from "
-                                + remoteHost  + "(" + remoteIP  + ")");
+                                     + remoteHost  + "(" + remoteIP  + ")");
                     return true;
                 }
                 user = decodeAstring(commandLine.nextToken());
@@ -389,11 +389,11 @@ public class SingleThreadedConnectionHandler
                     // four possibilites handled:
                     // private mail: isLocal, is Remote
                     // other mail (shared, news, etc.) is Local, is Remote
-                    
+
                     if (imapHost.isHomeServer(user)) {
                         out.println(tag + SP + OK + SP + "LOGIN completed");
                         state = AUTHENTICATED;
-                        
+
                     } else  {
                         String remoteServer = null;
                         try {
@@ -406,16 +406,16 @@ public class SingleThreadedConnectionHandler
                                                   "");
                             return false;
                         }
-                        
+
                         if (imapHost.hasLocalAccess(user)) {
                             out.println(tag + SP + OK + SP + "[REFERRAL "
-                                        + remoteServer +"]" + SP 
+                                        + remoteServer +"]" + SP
                                         + "Your home server is remote, other mailboxes available here");
                             state = AUTHENTICATED;
-                           
+
                         } else {
                             closeConnection(TAGGED_NO, " [REFERRAL" + SP
-                                            + remoteServer +"]" + SP 
+                                            + remoteServer +"]" + SP
                                             + "No mailboxes available here, try remote server", "");
                             return false;
                         }
@@ -427,8 +427,8 @@ public class SingleThreadedConnectionHandler
                     // which is not actually a folder
                     currentFolder = currentNamespace + currentSeperator + "";
                     getLogger().debug("Current folder for user "  + user + " from "
-                                 + remoteHost  + "(" + remoteIP  + ") is "
-                                 + currentFolder);
+                                      + remoteHost  + "(" + remoteIP  + ") is "
+                                      + currentFolder);
                     return true;
 
 
@@ -439,16 +439,16 @@ public class SingleThreadedConnectionHandler
                                      + user + " from "  + remoteHost  + "(" + remoteIP
                                      + ")");
                 return true;
-            } 
+            }
             // bad client
             out.println(tag + SP + NO + SP + "Must authenticate first");
             return true;
-        } // end of if (state == NON_AUTHENTICATED) 
-        
+        } // end of if (state == NON_AUTHENTICATED)
+
         // Commands not yet processed should be valid in either
         // Authenticated or Selected states.
         getLogger().debug("Command recieved: " + commandRaw + " from " + remoteHost
-                     + "(" + remoteIP  + ")");
+                          + "(" + remoteIP  + ")");
 
         // Create ImapRequest object here - is this the right stage?
         ImapRequest request = new ImapRequest(this);
@@ -462,7 +462,7 @@ public class SingleThreadedConnectionHandler
         // Commands valid in both Authenticated and Selected states
         // NAMESPACE, GETACL, SETACL, DELETEACL, LISTRIGHTS, MYRIGHTS, SELECT
         if (state == AUTHENTICATED || state == SELECTED) {
-            
+
             // NAMESPACE capability ------------------------------
             if (command.equalsIgnoreCase("NAMESPACE")) {
                 String namespaces = imapSystem.getNamespaces(user);
@@ -475,9 +475,9 @@ public class SingleThreadedConnectionHandler
                 out.println(tag + SP + OK + SP
                             + "NAMESPACE command completed");
                 return true;
-                
+
                 // ACL Capability  ---------------------------------------
-            } else if (command.equalsIgnoreCase("GETACL")) { 
+            } else if (command.equalsIgnoreCase("GETACL")) {
                 ACLMailbox target = null;
                 if (arguments != 3) {
                     out.println(tag + SP + BAD + SP +
@@ -495,7 +495,7 @@ public class SingleThreadedConnectionHandler
                     out.println(UNTAGGED + SP + "ACL " + target.getName() + SP
                                 + target.getAllRights(user ));
                     getLogger().debug(UNTAGGED + SP + "ACL " + target.getName() + SP
-                                 + target.getAllRights(user ));
+                                      + target.getAllRights(user ));
                 } catch (AccessControlException ace) {
                     out.println(tag + SP + NO + SP + "Unknown mailbox");
                     logACE(ace);
@@ -509,11 +509,11 @@ public class SingleThreadedConnectionHandler
                     checkSize();
                     checkExpunge();
                 }
-                out.println(tag + SP + OK + SP 
+                out.println(tag + SP + OK + SP
                             + "GetACL command completed");
-                return true;    
-            
-            } else if (command.equalsIgnoreCase("SETACL")) {  
+                return true;
+
+            } else if (command.equalsIgnoreCase("SETACL")) {
                 ACLMailbox target = null;
                 if (arguments != 5) {
                     out.println(tag + SP + BAD + SP +
@@ -523,23 +523,23 @@ public class SingleThreadedConnectionHandler
                 folder =  getFullName(commandLine.nextToken());
                 String identity = commandLine.nextToken();
                 String changes = commandLine.nextToken();
-                
+
                 if ( (state == SELECTED && currentFolder.equals(folder))) {
                     target = currentMailbox;
                 } else {
                     target = getBox(user, folder);
                     if (target == null) return true;
                 }
-                
+
                 try {
                     if (target.setRights(user, identity, changes)) {
-                        out.println(tag + SP + OK + SP 
+                        out.println(tag + SP + OK + SP
                                     + "SetACL command completed");
                         securityLogger.info("ACL rights for "  + identity + " in "
                                             + folder  + " changed by " + user + " : "
                                             +  changes);
                     } else {
-                        out.println(tag + SP + NO + SP 
+                        out.println(tag + SP + NO + SP
                                     + "SetACL command failed");
                         securityLogger.info("Failed attempt to change ACL rights for "
                                             + identity + " in " + folder  + " by "
@@ -560,8 +560,8 @@ public class SingleThreadedConnectionHandler
                 }
                 return true;
 
-                
-            } else if (command.equalsIgnoreCase("DELETEACL")) {  
+
+            } else if (command.equalsIgnoreCase("DELETEACL")) {
                 ACLMailbox target = null;
                 if (arguments != 4) {
                     out.println(tag + SP + BAD + SP +
@@ -571,14 +571,14 @@ public class SingleThreadedConnectionHandler
                 folder =  getFullName(commandLine.nextToken());
                 String identity = commandLine.nextToken();
                 String changes = "";
-                
+
                 if ( (state == SELECTED && currentFolder.equals(folder))) {
                     target = currentMailbox;
                 } else {
                     target = getBox(user, folder);
                     if (target == null) return true;
                 }
-                
+
                 try {
                     if (target.setRights(user, identity, changes)) {
                         out.println(tag + SP + OK + SP
@@ -586,7 +586,7 @@ public class SingleThreadedConnectionHandler
                         securityLogger.info("ACL rights for "  + identity + " in "
                                             + folder + " deleted by " + user);
                     } else {
-                        out.println(tag + SP + NO + SP 
+                        out.println(tag + SP + NO + SP
                                     + "SetACL command failed");
                         securityLogger.info("Failed attempt to change ACL rights for "
                                             + identity + " in " + folder  + " by "
@@ -606,8 +606,8 @@ public class SingleThreadedConnectionHandler
                     checkExpunge();
                 }
                 return true;
-        
-            } else if (command.equalsIgnoreCase("LISTRIGHTS")) { 
+
+            } else if (command.equalsIgnoreCase("LISTRIGHTS")) {
                 ACLMailbox target = null;
                 if (arguments != 4) {
                     out.println(tag + SP + BAD_LISTRIGHTS_MSG);
@@ -626,9 +626,9 @@ public class SingleThreadedConnectionHandler
                     out.println(UNTAGGED + SP + "LISTRIGHTS "
                                 + target.getName() + SP + identity + SP
                                 + target.getRequiredRights(user, identity)
-                                + SP 
+                                + SP
                                 + target.getOptionalRights(user, identity));
-                    out.println(tag + SP + OK + SP 
+                    out.println(tag + SP + OK + SP
                                 + "ListRights command completed");
                 } catch (AccessControlException ace) {
                     out.println(tag + SP + NO + SP + "Unknown mailbox");
@@ -644,7 +644,7 @@ public class SingleThreadedConnectionHandler
                     checkExpunge();
                 }
                 return true;
-        
+
             } else if (command.equalsIgnoreCase("MYRIGHTS")) {
                 ACLMailbox target = null;
                 if (arguments != 3) {
@@ -678,11 +678,11 @@ public class SingleThreadedConnectionHandler
                     checkSize();
                     checkExpunge();
                 }
-                return true;   
-            
-                
+                return true;
+
+
                 // Standard IMAP commands --------------------------
-                
+
             } else if (command.equalsIgnoreCase("SELECT")
                        || command.equalsIgnoreCase("EXAMINE")) {
                 // selecting a mailbox deselects current mailbox,
@@ -694,10 +694,10 @@ public class SingleThreadedConnectionHandler
                     currentMailbox = null;
                     currentIsReadOnly = false;
                 }
-                
+
                 if (arguments != 3) {
                     if (command.equalsIgnoreCase("SELECT") ){
-                        out.println(tag + SP + BAD + SP 
+                        out.println(tag + SP + BAD + SP
                                     + "Command should be <tag> <SELECT> <mailbox>");
                     } else {
                         out.println(tag + SP + BAD + SP
@@ -705,7 +705,7 @@ public class SingleThreadedConnectionHandler
                     }
                     return true;
                 }
-                
+
                 folder =  getFullName(commandLine.nextToken());
                 currentMailbox = getBox(user,  folder);
                 if (currentMailbox == null) {
@@ -713,7 +713,7 @@ public class SingleThreadedConnectionHandler
                 }
                 try { // long tries clause against an AccessControlException
                     if (!currentMailbox.hasReadRights(user)) {
-                        out.println(tag + SP + NO + SP 
+                        out.println(tag + SP + NO + SP
                                     + "Read access not granted." );
                         return true;
                     }
@@ -724,7 +724,7 @@ public class SingleThreadedConnectionHandler
                             return true;
                         }
                     }
-                
+
                     // Have mailbox with at least read rights. Server setup.
                     currentMailbox.addMailboxEventListener(this);
                     currentFolder = folder;
@@ -732,11 +732,11 @@ public class SingleThreadedConnectionHandler
                     exists = -1;
                     recent = -1;
                     getLogger().debug("Current folder for user "  + user + " from "
-                                 + remoteHost  + "(" + remoteIP  + ") is "
-                                 + currentFolder);
+                                      + remoteHost  + "(" + remoteIP  + ") is "
+                                      + currentFolder);
 
                     // Inform client
-                    out.println(UNTAGGED + SP + "FLAGS (" 
+                    out.println(UNTAGGED + SP + "FLAGS ("
                                 + currentMailbox.getSupportedFlags() + ")" );
                     if (!currentMailbox.allFlags(user)) {
                         out.println(UNTAGGED + SP + OK + " [PERMANENTFLAGS ("
@@ -757,11 +757,11 @@ public class SingleThreadedConnectionHandler
 
                     if (command.equalsIgnoreCase("EXAMINE")) {
                         currentIsReadOnly = true;
-                        
+
                         out.println(tag + SP + OK + SP
                                     + "[READ-ONLY] Examine completed");
                         return true;
-                        
+
                     } else if (currentMailbox.isReadOnly(user)) {
                         currentIsReadOnly = true;
                         out.println(tag + SP + OK + SP
@@ -801,7 +801,7 @@ public class SingleThreadedConnectionHandler
                 } catch (MailboxException mbe) {
                     if (mbe.isRemote()) {
                         out.println(tag + SP + NO + SP + "[REFERRAL "
-                                    + mbe.getRemoteServer() +"]" 
+                                    + mbe.getRemoteServer() +"]"
                                     + SP + "Wrong server. Try remote." );
                     } else  {
                         out.println(tag + SP + NO + SP + mbe.getStatus() );
@@ -839,7 +839,7 @@ public class SingleThreadedConnectionHandler
                         out.println(tag + SP + NO + SP
                                     + "Delete failed, unknown error");
                         getLogger().info("Attempt to delete mailbox " + folder
-                                    + " by user " + user + " failed.");
+                                         + " by user " + user + " failed.");
                     }
                 } catch (MailboxException mbe) {
                     if (mbe.getStatus().equals(MailboxException.NOT_LOCAL)) {
@@ -881,8 +881,8 @@ public class SingleThreadedConnectionHandler
                         out.println(tag + SP + NO + SP
                                     + "Rename failed, unknown error");
                         getLogger().info("Attempt to rename mailbox " + folder
-                                    + " to " + newName
-                                    + " by user " + user + " failed.");
+                                         + " to " + newName
+                                         + " by user " + user + " failed.");
                     }
                 } catch (MailboxException mbe) {
                     if (mbe.getStatus().equals(MailboxException.NOT_LOCAL)) {
@@ -892,7 +892,7 @@ public class SingleThreadedConnectionHandler
                     }
                     return true;
                 } catch (AuthorizationException aze) {
-                    out.println(tag + SP + NO + SP 
+                    out.println(tag + SP + NO + SP
                                 + "You do not have the rights to delete mailbox: " + folder);
                     return true;
                 }
@@ -910,18 +910,18 @@ public class SingleThreadedConnectionHandler
                     return true;
                 }
                 folder =  getFullName(commandLine.nextToken());
-        
+
                 try {
                     if( imapHost.subscribe(user, folder) ) {
-                        out.println(tag + SP + OK + SP 
+                        out.println(tag + SP + OK + SP
                                     + "Subscribe completed");
                     } else {
                         out.println(tag + SP + NO + SP + "Unknown error." );
                     }
                 } catch (MailboxException mbe) {
                     if (mbe.isRemote()) {
-                        out.println(tag + SP + NO + SP + "[REFERRAL " 
-                                    + mbe.getRemoteServer() +"]" 
+                        out.println(tag + SP + NO + SP + "[REFERRAL "
+                                    + mbe.getRemoteServer() +"]"
                                     + SP + "Wrong server. Try remote." );
                     } else  {
                         out.println(tag + SP + NO + SP + "No such mailbox" );
@@ -945,18 +945,18 @@ public class SingleThreadedConnectionHandler
                     return true;
                 }
                 folder =  getFullName(commandLine.nextToken());
-        
+
                 try {
                     if( imapHost.unsubscribe(user, folder) ) {
-                        out.println(tag + SP + OK + SP 
+                        out.println(tag + SP + OK + SP
                                     + "Unsubscribe completed");
                     } else {
                         out.println(tag + SP + NO + SP + "Unknown error." );
                     }
                 } catch (MailboxException mbe) {
                     if (mbe.isRemote()) {
-                        out.println(tag + SP + NO + SP + "[REFERRAL " 
-                                    + mbe.getRemoteServer() +"]" 
+                        out.println(tag + SP + NO + SP + "[REFERRAL "
+                                    + mbe.getRemoteServer() +"]"
                                     + SP + "Wrong server. Try remote." );
                     } else  {
                         out.println(tag + SP + NO + SP + "No such mailbox" );
@@ -1002,7 +1002,7 @@ public class SingleThreadedConnectionHandler
                                                   subscribeOnly);
                     if (list == null) {
                         getLogger().debug(tag + SP + NO + SP + command
-                                     + " unable to interpret mailbox");
+                                          + " unable to interpret mailbox");
                         out.println(tag + SP + NO + SP + command
                                     + " unable to interpret mailbox");
                     } else if (list.size() == 0) {
@@ -1016,7 +1016,7 @@ public class SingleThreadedConnectionHandler
                             out.println(UNTAGGED + SP + command.toUpperCase()
                                         + SP + listResponse);
                             getLogger().debug(UNTAGGED + SP + command.toUpperCase()
-                                         + SP + listResponse);
+                                              + SP + listResponse);
                         }
                         out.println(tag + SP + OK + SP + command
                                     + " completed");
@@ -1024,7 +1024,7 @@ public class SingleThreadedConnectionHandler
                 } catch (MailboxException mbe) {
                     if (mbe.isRemote()) {
                         out.println(tag + SP + NO + SP + "[REFERRAL "
-                                    + mbe.getRemoteServer() +"]" 
+                                    + mbe.getRemoteServer() +"]"
                                     + SP + "Wrong server. Try remote." );
                     } else  {
                         out.println(tag + SP + NO + SP
@@ -1036,7 +1036,7 @@ public class SingleThreadedConnectionHandler
                     logACE(ace);
                     return true;
                 }
-            
+
                 if (state == SELECTED ) {
                     checkSize();
                     checkExpunge();
@@ -1078,7 +1078,7 @@ public class SingleThreadedConnectionHandler
                 } catch (MailboxException mbe) {
                     if (mbe.isRemote()) {
                         out.println(tag + SP + NO + SP + "[REFERRAL "
-                                    + mbe.getRemoteServer() +"]" 
+                                    + mbe.getRemoteServer() +"]"
                                     + SP + "Wrong server. Try remote." );
                     } else  {
                         out.println(tag + SP + NO + SP
@@ -1104,9 +1104,9 @@ public class SingleThreadedConnectionHandler
                 }
 
             }
-                
+
         } // end of Auth & Selected
-         
+
         // Commands valid only in Authenticated State
         // None
         if (state == AUTHENTICATED) {
@@ -1114,9 +1114,9 @@ public class SingleThreadedConnectionHandler
                         + "Command not valid in this state");
             return true;
         }
-        
+
         // Commands valid only in Selected state
-        // CHECK       
+        // CHECK
         if (state == SELECTED) {
             if (command.equalsIgnoreCase("CHECK")) {
                 if (currentMailbox.checkpoint()) {
@@ -1161,7 +1161,7 @@ public class SingleThreadedConnectionHandler
                 }
                 try { // long tries clause against an AccessControlException
                     if (!currentMailbox.hasInsertRights(user)) {
-                        out.println(tag + SP + NO + SP 
+                        out.println(tag + SP + NO + SP
                                     + "Insert access not granted." );
                         return true;
                     }
@@ -1260,15 +1260,15 @@ public class SingleThreadedConnectionHandler
                 // Other commands for selected state .....
                 out.println(tag + SP + BAD + SP + "Protocol error");
                 return true;
-                
+
             } // end state SELECTED
         }
         // Shouldn't happen
         out.println(tag + SP + BAD + SP + "Protocol error");
         return true;
-        
+
     } // end of parseCommand
-    
+
     public void stop() {
         // todo
         getLogger().error("Stop IMAPHandler");
@@ -1279,7 +1279,7 @@ public class SingleThreadedConnectionHandler
             checkMailboxFlag = true;
         }
     }
-    
+
     private ACLMailbox getBox(String user, String mailboxName) {
         ACLMailbox tempMailbox = null;
         try {
@@ -1290,16 +1290,16 @@ public class SingleThreadedConnectionHandler
             } else {
                 out.println(tag + SP + NO + SP + "Unknown mailbox" );
                 getLogger().info("MailboxException in method getBox for user: "
-                            + user + " mailboxName: " + mailboxName + " was "
-                            + me.getMessage());
+                                 + user + " mailboxName: " + mailboxName + " was "
+                                 + me.getMessage());
             }
-            
+
         } catch (AccessControlException e) {
             out.println(tag + SP + NO + SP + "Unknown mailbox" );
-        } 
+        }
         return tempMailbox;
     }
-    
+
     private String getFullName(String name) {
         getLogger().debug("Method getFullName called for " + name);
         name = decodeAstring(name);

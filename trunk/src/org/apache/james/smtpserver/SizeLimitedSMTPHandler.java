@@ -12,15 +12,15 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
@@ -39,9 +39,9 @@ import org.apache.mailet.*;
   * @author Matthew Pangaro <mattp@lokitech.com>
  * @version 0.9.1
  */
-public class SizeLimitedSMTPHandler 
+public class SizeLimitedSMTPHandler
     extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target {
+    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -83,8 +83,8 @@ public class SizeLimitedSMTPHandler
         servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
         mailServer = (MailServer)componentManager.
             lookup("org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.
@@ -94,9 +94,9 @@ public class SizeLimitedSMTPHandler
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
         timeout = conf.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
-        // get the message size limit from the conf file and multiply 
+        // get the message size limit from the conf file and multiply
         //by 1024, to put it in bytes
-        maxmessagesize = 
+        maxmessagesize =
             conf.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
     }
 
@@ -108,12 +108,12 @@ public class SizeLimitedSMTPHandler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( Socket connection ) 
+    public void handleConnection( Socket connection )
         throws IOException {
 
         try {
             this.socket = socket;
-            final InputStream bufferedInput = 
+            final InputStream bufferedInput =
                 new BufferedInputStream( socket.getInputStream(), 1024 );
             in = new DataInputStream( bufferedInput );
             out = new InternetPrintWriter(socket.getOutputStream(), true);
@@ -128,8 +128,8 @@ public class SizeLimitedSMTPHandler
             state.put(REMOTE_IP, remoteIP);
             state.put(SMTP_ID, smtpID);
         } catch (Exception e) {
-            final String message = 
-                "Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + 
+            final String message =
+                "Cannot open connection from " + remoteHost + " (" + remoteIP + "): " +
                 e.getMessage();
             getLogger().error( message, e );
             throw new RuntimeException( message );
@@ -241,7 +241,7 @@ public class SizeLimitedSMTPHandler
                 if (!sender.startsWith("<") || !sender.endsWith(">")) {
                     out.println("501 Syntax error in parameters or arguments");
                     getLogger().error("Error parsing sender address: " + sender
-                                 + ": did not start and end with < >");
+                                      + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress senderAddress = null;
@@ -252,7 +252,7 @@ public class SizeLimitedSMTPHandler
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
                     getLogger().error("Error parsing sender address: " + sender
-                                 + ": " + pe.getMessage());
+                                      + ": " + pe.getMessage());
                     return true;
                 }
                 state.put(SENDER, senderAddress);
@@ -276,8 +276,8 @@ public class SizeLimitedSMTPHandler
                 if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                     out.println("Syntax error in parameters or arguments");
                     getLogger().error("Error parsing recipient address: "
-                                 + recipient
-                                 + ": did not start and end with < >");
+                                      + recipient
+                                      + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress recipientAddress = null;
@@ -288,7 +288,7 @@ public class SizeLimitedSMTPHandler
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
                     getLogger().error("Error parsing recipient address: "
-                                 + recipient + ": " + pe.getMessage());
+                                      + recipient + ": " + pe.getMessage());
                     return true;
                 }
                 rcptColl.add(recipientAddress);
@@ -318,7 +318,7 @@ public class SizeLimitedSMTPHandler
                 try {
                     // parse headers
                     InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
-                    // if the message size limit has been set, we'll 
+                    // if the message size limit has been set, we'll
                     //wrap msgIn with a SizeLimitedInputStream
                     if (maxmessagesize > 0) {
                         msgIn =
@@ -354,7 +354,7 @@ public class SizeLimitedSMTPHandler
                     // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
                     ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
                     MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
-                    //call mail.getSize() to force the message to be 
+                    //call mail.getSize() to force the message to be
                     //loaded. Need to do this to limit the size
                     mail.getSize();
                     mail.setRemoteHost((String)state.get(REMOTE_NAME));
@@ -364,26 +364,26 @@ public class SizeLimitedSMTPHandler
                     //Grab any exception attached to this one.
                     Exception e = me.getNextException();
 
-                    //If there was an attached exception, and it's a 
+                    //If there was an attached exception, and it's a
                     //MessageSizeException
                     if (e != null && e instanceof MessageSizeException) {
                         getLogger().error("552 Error processing message: "
-                                     + e.getMessage());
-                        //Add an item to the state to suppress 
+                                          + e.getMessage());
+                        //Add an item to the state to suppress
                         //logging of extra lines of data
-                        //  that are sent after the size limit has 
+                        //  that are sent after the size limit has
                         //been hit.
                         state.put(MESG_FAILED, Boolean.TRUE);
 
-                        //then let the client know that the size 
+                        //then let the client know that the size
                         //limit has been hit.
                         out.println("552 Error processing message: "
                                     + e.getMessage());
                     } else {
                         out.println("451 Error processing message: "
                                     + me.getMessage());
-                        getLogger().error("Error processing message: " + 
-                                     me.getMessage());
+                        getLogger().error("Error processing message: " +
+                                          me.getMessage());
                     }
                     return true;
                 }

@@ -19,7 +19,7 @@ import org.apache.james.nntpserver.repository.NNTPArticle;
 // STAT - does not write anything
 interface ArticleWriter {
     void write(NNTPArticle article);
-    static class Factory {
+    class Factory {
         static ArticleWriter ARTICLE(final PrintWriter prt) {
             return new ArticleWriter() {
                     public void write(NNTPArticle article) {

@@ -1,23 +1,24 @@
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport.mailets;
 
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
 import java.io.*;
-import java.util.*;
 import java.net.*;
-
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentNotFoundException;
-import org.apache.avalon.ComponentNotAccessibleException;
+import java.util.*;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
+import javax.mail.internet.*;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.configuration.DefaultConfiguration;
-//import org.apache.avalon.services.Store;
-
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.MailServer;
@@ -25,13 +26,6 @@ import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.transport.*;
 import org.apache.mailet.*;
-
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.internet.*;
-
 
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
@@ -62,29 +56,27 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
         }
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-	String outgoingPath = getInitParameter("outgoing");
+        String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
             outgoingPath = "file:///../var/mail/outgoing";
         }
 
-	try {
-	    // Instantiate the a MailRepository for outgoing mails
-	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-	    
-	    DefaultConfiguration spoolConf
-		= new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
-	    spoolConf.addAttribute("destinationURL", outgoingPath);
-	    spoolConf.addAttribute("type", "SPOOL");
-	    spoolConf.addAttribute("model", "SYNCHRONOUS");
-	    
-	    outgoing = (SpoolRepository) mailstore.select(spoolConf);
-    	} catch (ComponentNotFoundException cnfe) {
-	    log("Failed to retrieve Store component:" + cnfe.getMessage());
-	} catch (ComponentNotAccessibleException cnae) {
-	    log("Failed to retrieve Store component:" + cnae.getMessage());
-	} catch (Exception e) {
-	    log("Failed to retrieve Store component:" + e.getMessage());
-	}
+        try {
+            // Instantiate the a MailRepository for outgoing mails
+            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+
+            DefaultConfiguration spoolConf
+                = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
+            spoolConf.addAttribute("destinationURL", outgoingPath);
+            spoolConf.addAttribute("type", "SPOOL");
+            spoolConf.addAttribute("model", "SYNCHRONOUS");
+
+            outgoing = (SpoolRepository) mailstore.select(spoolConf);
+        } catch (ComponentException cnfe) {
+            log("Failed to retrieve Store component:" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve Store component:" + e.getMessage());
+        }
 
         //Start up a number of threads
         try {
@@ -124,10 +116,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             if (addr.length > 0) {
                 //Lookup the possible targets
-		Iterator i = getMailetContext().getMailServers(host).iterator();
-		if (! i.hasNext()) {
-		    log("No mail servers found for: " + host);
-		}
+                Iterator i = getMailetContext().getMailServers(host).iterator();
+                if (! i.hasNext()) {
+                    log("No mail servers found for: " + host);
+                }
                 while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
@@ -156,20 +148,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
                     } catch (MessagingException me) {
-			log("Exception caught in RemoteDelivery.deliver() : " + me);
+                        log("Exception caught in RemoteDelivery.deliver() : " + me);
                         e = me;
-                    /*
-                    } catch (java.net.SocketException se) {
-                        //Only remember this exception if we received no other exception
-                        if (e == null) {
-                            e = se;
-                        }
-                    } catch (java.net.UnknownHostException uhe) {
-                        //Only remember this exception if we received no other exception
-                        if (e == null) {
-                            e = uhe;
-                        }
-                    */
+                        /*
+                          } catch (java.net.SocketException se) {
+                          //Only remember this exception if we received no other exception
+                          if (e == null) {
+                          e = se;
+                          }
+                          } catch (java.net.UnknownHostException uhe) {
+                          //Only remember this exception if we received no other exception
+                          if (e == null) {
+                          e = uhe;
+                          }
+                        */
                     }
                 }// end while
                 //If we encountered an exception while looping through, send the last exception we got
@@ -303,7 +295,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 outgoing.remove(key);
                 mail = null;
             } catch (Exception e) {
-		log("Exception caught in RemoteDelivery.run(): " + e);
+                log("Exception caught in RemoteDelivery.run(): " + e);
             }
         }
     }

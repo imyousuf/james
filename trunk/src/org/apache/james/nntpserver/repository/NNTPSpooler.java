@@ -8,16 +8,16 @@
 package org.apache.james.nntpserver.repository;
 
 import java.io.*;
-import org.apache.avalon.AbstractLoggable;
+import java.util.*;
+import javax.mail.internet.MimeMessage;
 import org.apache.avalon.Initializable;
-import org.apache.avalon.Loggable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.james.util.Lock;
+import org.apache.avalon.logger.AbstractLoggable;
+import org.apache.avalon.logger.Loggable;
 import org.apache.excalibur.io.IOUtil;
-import javax.mail.internet.MimeMessage;
-import java.util.*;
+import org.apache.james.util.Lock;
 
 // processes entries and sends to appropriate groups.
 // eats up inappropriate entries.
@@ -72,8 +72,8 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
         void setRepository(NNTPRepository repo) {
             this.repo = repo;
         }
-        // the threads race to grab a lock. if a thread wins it processes the article, 
-        // if it loses it tries to lock and process the next article 
+        // the threads race to grab a lock. if a thread wins it processes the article,
+        // if it loses it tries to lock and process the next article
         public void run() {
             getLogger().debug("in spool thread");
             while ( Thread.currentThread().isInterrupted() == false ) {
@@ -94,7 +94,7 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
                     }
                 getLogger().debug(" Sleeping...");
                 // this is good for other non idle threads
-                try {  Thread.currentThread().sleep(threadIdleTime);   
+                try {  Thread.currentThread().sleep(threadIdleTime);
                 } catch(InterruptedException ex) {  }
             }
         }
@@ -106,7 +106,7 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
                 FileInputStream fin = new FileInputStream(f);
                 msg = new MimeMessage(null,fin);
                 fin.close();
-                
+
                 // ensure no duplicates exist.
                 String[] idheader = msg.getHeader("Message-Id");
                 articleID = (idheader!=null && idheader.length>0?idheader[0]:null);
@@ -132,11 +132,11 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
                 if ( group == null ) {
                     getLogger().debug("group not found: "+headers[i]);
                     continue;
-                } 
+                }
                 int artNum = group.getLastArticleNumber();
                 File root = (File)group.getPath();
                 File articleFile = null;
-                // this ensures that different threads do not create articles with 
+                // this ensures that different threads do not create articles with
                 // same number
                 while( true ) {
                     articleFile = new File(root,(artNum+1)+"");

@@ -8,12 +8,12 @@
 package org.apache.james.imapserver;
 
 import java.util.*;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.Context;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
 import org.apache.james.AuthenticationException;
 
 /**
@@ -23,7 +23,7 @@ import org.apache.james.AuthenticationException;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public class SimpleSystem 
+public class SimpleSystem
     implements IMAPSystem, Component, Initializable {
 
     private static final String namespaceToken = "#";
@@ -101,7 +101,7 @@ public class SimpleSystem
      * <code>IMAPHosts</code>
      *
      * @param username String identifying a user of this System
-     * @returns String whose contents should be a space seperated triple 
+     * @returns String whose contents should be a space seperated triple
      * <personal namespaces(s)> space <other users' namespace(s)> space
      * <shared namespace(s)>, per RFC2342
      */

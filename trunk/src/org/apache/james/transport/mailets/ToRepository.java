@@ -1,28 +1,22 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport.mailets;
 
 import java.util.*;
-
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentNotFoundException;
-import org.apache.avalon.ComponentNotAccessibleException;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.configuration.DefaultConfiguration;
-//import org.apache.avalon.services.Store;
-
 import org.apache.james.*;
 import org.apache.james.core.*;
-import org.apache.james.services.MailStore;
 import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailStore;
 import org.apache.james.transport.*;
-
 import org.apache.mailet.*;
 
 /**
@@ -46,23 +40,21 @@ public class ToRepository extends GenericMailet {
         }
 
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-	try {
-	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-	    DefaultConfiguration mailConf
-		= new DefaultConfiguration("repository", "generated:ToRepository");
-	    mailConf.addAttribute("destinationURL", repositoryPath);
-	    mailConf.addAttribute("type", "MAIL");
-	    mailConf.addAttribute("model", "SYNCHRONOUS");
-	    
-	    repository = (MailRepository) mailstore.select(mailConf);
-	} catch (ComponentNotFoundException cnfe) {
-	    log("Failed to retrieve Store component:" + cnfe.getMessage());
-	} catch (ComponentNotAccessibleException cnae) {
-	    log("Failed to retrieve Store component:" + cnae.getMessage());
-	} catch (Exception e) {
-	    log("Failed to retrieve Store component:" + e.getMessage());
-	}
-      
+        try {
+            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+            DefaultConfiguration mailConf
+                = new DefaultConfiguration("repository", "generated:ToRepository");
+            mailConf.addAttribute("destinationURL", repositoryPath);
+            mailConf.addAttribute("type", "MAIL");
+            mailConf.addAttribute("model", "SYNCHRONOUS");
+
+            repository = (MailRepository) mailstore.select(mailConf);
+        } catch (ComponentException cnfe) {
+            log("Failed to retrieve Store component:" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve Store component:" + e.getMessage());
+        }
+
     }
 
     public void service(Mail genericmail) {

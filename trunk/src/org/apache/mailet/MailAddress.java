@@ -1,16 +1,14 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.mailet;
 
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.ParseException;
-
 
 /**
  * A representation of an email address.
@@ -56,7 +54,7 @@ public class MailAddress implements java.io.Serializable {
     public static final long serialVersionUID = 2779163542539434916L;
 
     private final static char[] SPECIAL =
-            {'<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
+    {'<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
 
     private String user = null;
     private String host = null;
@@ -79,7 +77,7 @@ public class MailAddress implements java.io.Serializable {
 
         try {
             //parse local-part
-                //<local-part> ::= <dot-string> | <quoted-string>
+            //<local-part> ::= <dot-string> | <quoted-string>
             if (address.charAt(pos) == '\"') {
                 userSB.append(parseQuotedLocalPart(address));
             } else {
@@ -401,7 +399,7 @@ public class MailAddress implements java.io.Serializable {
             }
             char ch = address.charAt(pos);
             if (ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'
-                    || ch == '-') {
+                || ch == '-') {
                 resultSB.append(ch + "");
                 pos++;
                 continue;

@@ -24,10 +24,10 @@ import org.apache.james.core.EnhancedMimeMessage;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 17 Jan 2001
  */
-public class CommandFetch 
+public class CommandFetch
     extends BaseCommand {
 
-    //mainly to switch on stack traces and catch responses;  
+    //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
 
     private static final String OK = "OK";
@@ -65,7 +65,7 @@ public class CommandFetch
     }
 
     /**
-     * Implements IMAP fetch commands given an ImapRequest. 
+     * Implements IMAP fetch commands given an ImapRequest.
      * This implementation attempts to satisfy the fetch command with the
      * smallest objects deserialized from storage.
      * <p>Warning - maybecome service(ImapRequest request)
@@ -115,13 +115,13 @@ public class CommandFetch
                     attrWithFields.append(" " + field);
                     if (field.indexOf(")") != -1) {
                         endOfFields = true;
-                    } 
+                    }
                 }
                 fetchAttrs.add(attrWithFields.toString());
             }
         }
 
-    
+
         // convert macro fetch commands to basic commands
         for(int k = 0; k < fetchAttrs.size(); k++) {
             String arg = (String)fetchAttrs.get(k);
@@ -177,7 +177,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message flags.");
                             getLogger().error("Retrieved null flags for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "FLAGS " + flags ;
                         } else {
@@ -198,7 +198,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                             getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "INTERNALDATE \""
                                 + attrs.getInternalDateAsString() + "\")" ;
@@ -219,7 +219,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                             getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "RFC822.SIZE " + attrs.getSize();
                         } else {
@@ -238,7 +238,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                             getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "ENVELOPE " + attrs.getEnvelope();
                         } else {
@@ -257,7 +257,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                             getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "BODY " + attrs.getBodyStructure();
                         } else {
@@ -276,7 +276,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                             getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (responseAdded) {
                             response += SP + "BODYSTRUCTURE "+ attrs.getBodyStructure();
                         } else {
@@ -293,8 +293,8 @@ public class CommandFetch
                                 out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
                                 getLogger().error("Retrieved null attributes for msn:" + msn);
                                 return;
-                            } 
-                        
+                            }
+
                             if (responseAdded) {
                                 response += SP + "UID "+ uid;
                             } else {
@@ -303,7 +303,7 @@ public class CommandFetch
                             }
                         } // don't duplicate on UID FETCH requests
                     }
-                    // commands that can be satisifed with just top-level headers of message and flags 
+                    // commands that can be satisifed with just top-level headers of message and flags
                     else if (arg.equalsIgnoreCase("BODY[HEADER]")
                              || arg.equalsIgnoreCase("BODY.PEEK[HEADER]")) {
                         if (responseAdded) { // unlikely
@@ -325,7 +325,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
                             getLogger().error("Retrieved null headers for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (flags == null) {
                             if (useUIDs) {
                                 flags = currentMailbox.getFlagsUID(uid, user);
@@ -388,12 +388,12 @@ public class CommandFetch
                             } catch (Exception e) {
                                 getLogger().error("Unanticipated exception storing flags for message: " + e);
                             }
-                        }        
+                        }
                         response = UNTAGGED + SP + msn + SP + "FETCH (";
                         responseAdded = false;
                     } else if (arg.toUpperCase().startsWith("BODY[HEADER.FIELDS")
                                || arg.toUpperCase().startsWith("BODY.PEEK[HEADER.FIELDS")) {
-                        if (responseAdded) { 
+                        if (responseAdded) {
                             if (useUIDs) {
                                 response += " UID " + uid + ")";
                             } else {
@@ -412,7 +412,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
                             getLogger().error("Retrieved null headers for msn:" + msn);
                             return;
-                        } 
+                        }
                         if (flags == null) {
                             if (useUIDs) {
                                 flags = currentMailbox.getFlagsUID(uid, user);
@@ -534,7 +534,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + BAD + "Error retrieving message.");
                             getLogger().error("Retrieved null message");
                             return;
-                        } 
+                        }
                         try {
                             int size = msg.getMessageSize();
                             if (arg.equalsIgnoreCase("RFC822")) {
@@ -605,7 +605,7 @@ public class CommandFetch
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
                             getLogger().error("Retrieved null message");
                             return;
-                        } 
+                        }
                         try {
                             int size = msg.getSize();
                             if (arg.equalsIgnoreCase("RFC822.TEXT")) {
@@ -671,7 +671,7 @@ public class CommandFetch
                     out.println(response);
                 }
             } // end for loop
-        
+
             out.println(tag + SP + OK + SP + "FETCH completed");
             caller.checkSize();
             return;

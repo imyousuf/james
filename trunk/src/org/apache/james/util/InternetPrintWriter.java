@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-public class InternetPrintWriter 
+public class InternetPrintWriter
     extends PrintWriter {
 
     private static String lineSeparator = "\r\n";

@@ -14,28 +14,28 @@ import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.DefaultComponentManager;
-import org.apache.avalon.DefaultContext;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
+import org.apache.avalon.component.DefaultComponentManager;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.context.DefaultContext;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.dnsserver.*;
 import org.apache.james.imapserver.*;
+import org.apache.james.nntpserver.NNTPServer;
 import org.apache.james.pop3server.*;
 import org.apache.james.remotemanager.*;
-import org.apache.james.nntpserver.NNTPServer;
 import org.apache.james.services.*;
 import org.apache.james.smtpserver.*;
 import org.apache.james.transport.*;
@@ -52,15 +52,15 @@ import org.apache.phoenix.BlockContext;
  * <br> 2) Handles interactions between components
  * <br> 3) Provides container services for Mailets
  *
- * @version 
+ * @version
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class James 
-    extends AbstractLoggable 
-    implements Block, Contextualizable, Composer, Configurable, Initializable, MailServer, MailetContext {
-    
+public class James
+    extends AbstractLoggable
+    implements Block, Contextualizable, Composable, Configurable, Initializable, MailServer, MailetContext {
+
     public final static String VERSION = "James 1.2.2 Alpha";
 
     private DefaultComponentManager compMgr; //Components shared
@@ -104,7 +104,7 @@ public class James
         this.conf = conf;
     }
 
-    /** 
+    /**
      * Override compose method of AbstractBlock to create new ComponentManager object
      */
     public void compose(ComponentManager comp) {
@@ -133,14 +133,14 @@ public class James
         }
         getLogger().debug("Using UsersStore: " + usersStore.toString());
         context = new DefaultContext();
-        
+
         try {
             hostName = InetAddress.getLocalHost().getHostName();
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }
         getLogger().info("Local host is: " + hostName);
-        
+
 
         helloName = null;
         Configuration helloConf = conf.getChild("helloName");
@@ -161,7 +161,7 @@ public class James
             serverNames.add(hostName);
         }
 
-        final Configuration[] serverNameConfs = 
+        final Configuration[] serverNameConfs =
             conf.getChild( "servernames" ).getChildren( "servername" );
         for ( int i = 0; i < serverNameConfs.length; i++ )
         {
@@ -170,7 +170,7 @@ public class James
         if (serverNames.isEmpty()) {
             throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
         }
-        
+
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
             getLogger().info("Handling mail for: " + i.next());
         }
@@ -180,7 +180,7 @@ public class James
         // Get postmaster
         String postmaster = conf.getChild("postmaster").getValue("root@localhost");
         context.put(Constants.POSTMASTER, new MailAddress(postmaster));
-        
+
         // Get services to provide
         Configuration services = conf.getChild("services");
         if (services.getAttribute("SMTP").equals("TRUE")) {
@@ -213,7 +213,7 @@ public class James
         //}
         compMgr.put("org.apache.james.services.UsersRepository", (Component)localusers);
         getLogger().info("Local users repository opened");
-      
+
         // Get storage system
         if (conf.getChild("storage").getValue().equals("IMAP")) {
             useIMAPstorage = true;
@@ -281,7 +281,7 @@ public class James
         getLogger().info("Private SpoolRepository Spool opened");
         compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
 
-   
+
         POP3Server pop3Server = null;
         if (providePOP3) {
             pop3Server = new POP3Server();
@@ -401,7 +401,7 @@ public class James
 
         getLogger().info("JAMES ...init end");
     }
-    
+
 
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
@@ -432,7 +432,7 @@ public class James
 
     public synchronized void sendMail(MailAddress sender, Collection recipients, InputStream msg)
         throws MessagingException {
-        
+
         // parse headers
         MailHeaders headers = new MailHeaders(msg);
         // if headers do not contains minimum REQUIRED headers fields throw Exception
@@ -443,7 +443,7 @@ public class James
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
         sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
-    
+
 
     public synchronized void sendMail(Mail mail) throws MessagingException {
         MailImpl mailimpl = (MailImpl)mail;
@@ -465,9 +465,9 @@ public class James
     public synchronized MailRepository getUserInbox(String userName) {
 
         MailRepository userInbox = (MailRepository) null;
-        
+
         userInbox = (MailRepository) mailboxes.get(userName);
-       
+
         if (userInbox != null) {
             return userInbox;
         } else if (mailboxes.containsKey(userName)) {
@@ -511,7 +511,7 @@ public class James
         DNSServer dnsServer = null;
         try {
             dnsServer = (DNSServer) compMgr.lookup("DNS_SERVER");
-        } catch ( final ComponentManagerException cme ) {
+        } catch ( final ComponentException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }

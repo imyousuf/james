@@ -9,11 +9,11 @@ package org.apache.james.nntpserver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.DefaultComponentManager;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.DefaultComponentManager;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.cornerstone.services.connection.AbstractService;
@@ -33,21 +33,21 @@ public class NNTPServer extends AbstractService {
     }
 
     public void configure( final Configuration configuration )
-        throws ConfigurationException 
+        throws ConfigurationException
     {
         //System.out.println(getClass().getName()+": configure");
         m_port = configuration.getChild( "port" ).getValueAsInt( 119 );
 
-        try { 
+        try {
             String bindAddress = configuration.getChild( "bind" ).getValue( null );
-            if( null != bindAddress ) 
-                m_bindTo = InetAddress.getByName( bindAddress ); 
+            if( null != bindAddress )
+                m_bindTo = InetAddress.getByName( bindAddress );
         } catch( final UnknownHostException unhe ) {
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
         final String useTLS = configuration.getChild("useTLS").getValue( "" );
-        if( useTLS.equals( "TRUE" ) ) 
+        if( useTLS.equals( "TRUE" ) )
             m_serverSocketType = "ssl";
 
         repository = (Component)NNTPUtil.createInstance
@@ -59,7 +59,7 @@ public class NNTPServer extends AbstractService {
     }
 
     public void compose( final ComponentManager componentManager )
-        throws ComponentManagerException
+        throws ComponentException
     {
         //System.out.println(getClass().getName()+": compose");
         DefaultComponentManager mgr = new DefaultComponentManager(componentManager);

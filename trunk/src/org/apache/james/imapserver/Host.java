@@ -7,13 +7,13 @@
  */
 package org.apache.james.imapserver;
 
-import java.util.List;
 import java.util.Collection;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Contextualizable;
+import java.util.List;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Contextualizable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 
@@ -23,9 +23,9 @@ import org.apache.james.AuthorizationException;
  * An IMAP messaging system may span more than one host.
  * <p><code>String</code> parameters representing mailbox names must be the
  * full hierarchical name of the target, with namespace, as used by the
- * specified user. Examples: 
+ * specified user. Examples:
  * '#mail.Inbox' or '#shared.finance.Q2Earnings'.
- * <p>An imap Host must keep track of existing and deleted mailboxes. 
+ * <p>An imap Host must keep track of existing and deleted mailboxes.
  *
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
@@ -33,9 +33,9 @@ import org.apache.james.AuthorizationException;
  * @see FolderRecord
  * @see RecordRepository
  */
-public interface Host 
-    extends Configurable, Composer, Contextualizable, org.apache.phoenix.Service {
-   
+public interface Host
+    extends Configurable, Composable, Contextualizable, org.apache.phoenix.Service {
+
     String IMAP_HOST = "IMAP_HOST";
 
     /**
@@ -45,7 +45,7 @@ public interface Host
      *
      * @param username an email address
      * @returns true if inbox (and private mailfolders) are accessible through
-     * this host. 
+     * this host.
      */
     boolean isHomeServer (String username);
 
@@ -84,7 +84,7 @@ public interface Host
      * request to create a mailbox in a namespace not served by this host would
      * be an error.
      * It is an error to create a mailbox with the name of a mailbox that has
-     * been deleted, if that name is still in use. 
+     * been deleted, if that name is still in use.
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target
@@ -132,7 +132,7 @@ public interface Host
      * folder with the new name, but INBOX is not deleted. If INBOX has
      * inferior mailboxes these are not renamed.
      * It is an error to create a mailbox with the name of a mailbox that has
-     * been deleted, if that name is still in use. 
+     * been deleted, if that name is still in use.
      * Implementations must track deleted mailboxes
      *
      * @param user email address on whose behalf the request is made.
@@ -140,12 +140,12 @@ public interface Host
      * @param newMailboxName String target new name
      * @returns true if rename completed successfully
      * @throws MailboxException if mailbox does not exist locally, or there
-     * is an existing mailbox with the new name. 
+     * is an existing mailbox with the new name.
      * @throws AuthorizationException if user does not have rights to delete
      * the existing mailbox or create the new mailbox.
      * @see FolderRecord
      */
-    boolean renameMailbox( String user, 
+    boolean renameMailbox( String user,
                            String oldMailboxName,
                            String newMailboxName )
         throws MailboxException, AuthorizationException;
@@ -157,11 +157,11 @@ public interface Host
      * @param mbox a non-null reference to an ACL Mailbox.
      */
     void releaseMailbox( String user, ACLMailbox mbox );
- 
+
     /**
      * Returns the namespace which should be used for this user unless they
      * expicitly request another.
-     * 
+     *
      * @param username String an email address
      * @returns a String of a namespace
      */
@@ -170,7 +170,7 @@ public interface Host
 
     /**
      * Return UIDValidity for named mailbox. Implementations should track
-     * existing and deleted folders. 
+     * existing and deleted folders.
      *
      * @param mailbox String name of the existing mailbox
      * @returns  an integer containing the current UID Validity value.
@@ -191,7 +191,7 @@ public interface Host
      * implementations must not throw either exception but must return a single
      * String (described below) if the reference name specifies a local mailbox
      * accessible to the user and a one-character String containing the
-     * hierarchy delimiter of the referenced namespace, otherwise. 
+     * hierarchy delimiter of the referenced namespace, otherwise.
      * <p>Each String returned should be a space seperated triple of name
      * attributes, hierarchy delimiter and full mailbox name.   The mailbox
      * name should include the namespace and be relative to the specified user.
@@ -219,9 +219,9 @@ public interface Host
      * referenceName and mailbox name resolve to a single mailbox which does
      * not exist locally.
      */
-    Collection listMailboxes( String username, 
+    Collection listMailboxes( String username,
                               String referenceName,
-                              String mailboxName, 
+                              String mailboxName,
                               boolean subscribedOnly )
         throws MailboxException, AccessControlException;
 
@@ -240,7 +240,7 @@ public interface Host
         throws MailboxException, AccessControlException;
 
     /**
-     * Unsubscribes from a given mailbox. 
+     * Unsubscribes from a given mailbox.
      *
      * @param username String representation of an email address
      * @param mailbox String representation of a mailbox name.
@@ -267,9 +267,9 @@ public interface Host
      * dataItem-space-number.
      * @throws AccessControlException if the user does not have at least
      * lookup rights to the mailbox requested.
-     * @throws MailboxException if the mailboxName does not exist locally. 
+     * @throws MailboxException if the mailboxName does not exist locally.
      */
-    String getMailboxStatus( String username, 
+    String getMailboxStatus( String username,
                              String mailboxName,
                              List dataItems )
         throws MailboxException, AccessControlException;

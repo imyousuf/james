@@ -7,23 +7,23 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Disposable;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.context.Contextualizable;
 
 /**
  * Interface for objects representing an IMAP4rev1 mailbox (folder) with
  * embedded Access Control List.
  *
- * Reference: RFC 2060 
+ * Reference: RFC 2060
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  * @see Mailbox
  * @see ACL
  */
-public interface ACLMailbox 
+public interface ACLMailbox
     extends ACL, Mailbox, Contextualizable, Initializable, Disposable {
- 
+
     /**
      * Set the details particular to this Mailbox. Should only be called once,
      * at creation, and not when restored from storage.
@@ -39,8 +39,8 @@ public interface ACLMailbox
      * setConfiguration, setContext, setComponentManager, if they are called,
      * but before any opertional methods are called.
      */
-    void reInit() 
+    void reInit()
         throws Exception;
 }
- 
+
 

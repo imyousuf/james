@@ -14,7 +14,7 @@ import org.apache.james.nntpserver.repository.NNTPGroup;
 // LIST command paramter
 interface LISTGroup {
     void show(NNTPGroup group);
-    static class Factory {
+    class Factory {
         static LISTGroup ACTIVE(final PrintWriter prt) {
             return new LISTGroup() {
                     public void show(NNTPGroup group) {

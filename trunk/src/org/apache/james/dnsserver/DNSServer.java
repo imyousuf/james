@@ -7,19 +7,20 @@
  */
 package org.apache.james.dnsserver;
 
-import java.net.UnknownHostException;
 import java.net.InetAddress;
-import java.util.Collection;
+import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
-import org.apache.avalon.AbstractLoggable;
+import java.util.Vector;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.transport.Resources;
 import org.xbill.DNS.*;
 
@@ -27,21 +28,21 @@ import org.xbill.DNS.*;
  * @version 1.0.0, 18/06/2000
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class DNSServer 
+public class DNSServer
     extends AbstractLoggable
-    implements Configurable, Initializable {
+    implements Component, Configurable, Initializable {
 
     private Resolver resolver;
     private Cache cache;
     private byte dnsCredibility;
     private Collection servers = new Vector();
 
-    public void configure( final Configuration configuration ) 
+    public void configure( final Configuration configuration )
         throws ConfigurationException {
 
         // Get this servers that this block will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
-        final Configuration[] serverConfigurations = 
+        final Configuration[] serverConfigurations =
             serversConfiguration.getChildren( "server" );
 
         for ( int i = 0; i < serverConfigurations.length; i++ )
@@ -49,12 +50,12 @@ public class DNSServer
             servers.add( serverConfigurations[ i ].getValue() );
         }
 
-        final boolean authoritative = 
+        final boolean authoritative =
             configuration.getChild( "authoritative" ).getValueAsBoolean( false );
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
     }
 
-    public void init() 
+    public void init()
         throws Exception {
 
         getLogger().info("DNSServer init...");
@@ -95,12 +96,12 @@ public class DNSServer
             }
 
             Comparator prioritySort = new Comparator () {
-                public int compare (Object a, Object b) {
-                    MXRecord ma = (MXRecord)a;
-                    MXRecord mb = (MXRecord)b;
-                    return ma.getPriority () - mb.getPriority ();
-                }
-            };
+                    public int compare (Object a, Object b) {
+                        MXRecord ma = (MXRecord)a;
+                        MXRecord mb = (MXRecord)b;
+                        return ma.getPriority () - mb.getPriority ();
+                    }
+                };
 
             Arrays.sort(mxAnswers, prioritySort);
 

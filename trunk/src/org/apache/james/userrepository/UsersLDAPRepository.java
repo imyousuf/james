@@ -11,15 +11,15 @@ import java.io.*;
 import java.util.*;
 import javax.naming.*;
 import javax.naming.directory.*;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Initializable;
-import org.apache.avalon.Loggable;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.logger.Loggable;
 import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
 import org.apache.log.Logger;
@@ -88,15 +88,15 @@ public class UsersLDAPRepository
 
     public void compose(ComponentManager compMgr) {
         this.comp = comp;
-   }
-
-    public void contextualize(org.apache.avalon.Context context) {
-        Collection serverNames
-            = (Collection) context.get(Constants.SERVER_NAMES);
-        usersDomain = (String) serverNames.iterator().next();
     }
 
-   public void setServerRoot() {
+    public void contextualize(Context context) {
+        Collection serverNames
+            = (Collection)context.get(Constants.SERVER_NAMES);
+        usersDomain = (String)serverNames.iterator().next();
+    }
+
+    public void setServerRoot() {
         this.setBase(serverRDN +", " + rootNodeDN);
     }
 
@@ -124,7 +124,7 @@ public class UsersLDAPRepository
             e.printStackTrace();
         }
 
-     
+
         logger.info("Initial context initialised from " + baseURL);
     }
 
@@ -174,11 +174,11 @@ public class UsersLDAPRepository
         return destination;
     }
 
-   public Iterator list() {
+    public Iterator list() {
 
-       List result = new ArrayList();
-       String filter = mailAddressAttr + "=*";
-       String[] attrIDs = {membersAttr};
+        List result = new ArrayList();
+        String filter = mailAddressAttr + "=*";
+        String[] attrIDs = {membersAttr};
 
         try {
             Attribute members
@@ -191,13 +191,13 @@ public class UsersLDAPRepository
             }
         } catch (NamingException e) {
             logger.error("Problem listing mailboxes. " + e );
- 
+
         }
-       return result.iterator();
+        return result.iterator();
     }
 
 
- 
+
 
     // Methods from interface UsersRepository --------------------------
 
@@ -235,10 +235,10 @@ public class UsersLDAPRepository
                 //System.out.println(userName + " added to mailGroup " + baseNodeDN);
             }
         } catch (NamingException e) {
-             logger.error("Problem adding user " + userName + " to: " + baseNodeDN + e);
-             //System.out.println("Problem adding user " + userName + " to: " + baseNodeDN);
-             //System.out.println(e.getMessage());
-             //e.printStackTrace();
+            logger.error("Problem adding user " + userName + " to: " + baseNodeDN + e);
+            //System.out.println("Problem adding user " + userName + " to: " + baseNodeDN);
+            //System.out.println(e.getMessage());
+            //e.printStackTrace();
         }
 
         // Add attributes to user objects, if necessary
@@ -419,8 +419,8 @@ public class UsersLDAPRepository
                 }
 
             } else {
-            logger.info("User " + userName + " not in Directory.");
-            //System.out.println("User " + userName + " not in Directory.");
+                logger.info("User " + userName + " not in Directory.");
+                //System.out.println("User " + userName + " not in Directory.");
 
             }
             rootCtx.close();
@@ -509,10 +509,10 @@ public class UsersLDAPRepository
                 //System.out.println(ae.getMessage());
                 //ae.printStackTrace();
             } catch (Exception e) {
-              logger.error("Problem checking password for " + name + " : " + e );
-              //System.out.println("Problem checking password for " + name + " : " + e);
-              //System.out.println(e.getMessage());
-              //e.printStackTrace();
+                logger.error("Problem checking password for " + name + " : " + e );
+                //System.out.println("Problem checking password for " + name + " : " + e);
+                //System.out.println(e.getMessage());
+                //e.printStackTrace();
             }
         }
         return result;
@@ -521,8 +521,8 @@ public class UsersLDAPRepository
 
     public int countUsers() {
 
-       String[] attrIDs = {membersAttr};
-       int result = -1;
+        String[] attrIDs = {membersAttr};
+        int result = -1;
 
         try {
             Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
@@ -535,7 +535,7 @@ public class UsersLDAPRepository
             logger.error("Problem counting users: "  + e);
             //System.out.println("Problem counting users. ");
         }
-       return result;
+        return result;
     }
 
     public String getDomains() {

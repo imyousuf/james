@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.mailet;
 
 import java.util.*;
@@ -177,7 +176,7 @@ public interface MailetContext {
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @throws MessagingException - if the message fails to parse
      */
-    void sendMail(MimeMessage msg) 
+    void sendMail(MimeMessage msg)
         throws MessagingException;
 
     /**
@@ -189,7 +188,7 @@ public interface MailetContext {
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @throws MessagingException - if the message fails to parse
      */
-    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) 
+    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
         throws MessagingException;
 
     /**
@@ -202,7 +201,7 @@ public interface MailetContext {
      * @param state - the state of the message, indicates which processor to use
      * @throws MessagingException - if the message fails to parse
      */
-    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) 
+    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state)
         throws MessagingException;
 
     /**
@@ -226,6 +225,6 @@ public interface MailetContext {
      * @param msg - the MimeMessage to store in a local mailbox
      * @throws MessagingException - if the message fails to parse
      */
-    void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) 
+    void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg)
         throws MessagingException;
 }

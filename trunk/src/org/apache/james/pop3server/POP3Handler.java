@@ -19,21 +19,21 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.mail.MessagingException;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.excalibur.collections.ListUtils;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
 import org.apache.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.excalibur.collections.ListUtils;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
@@ -47,9 +47,9 @@ import org.apache.mailet.Mail;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler 
+public class POP3Handler
     extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target {
+    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
 
     private String softwaretype        = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
 
@@ -84,13 +84,13 @@ public class POP3Handler
         servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void configure( final Configuration configuration ) 
+    public void configure( final Configuration configuration )
         throws ConfigurationException {
         timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
         UsersStore usersStore = (UsersStore)componentManager.
@@ -108,7 +108,7 @@ public class POP3Handler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( Socket connection ) 
+    public void handleConnection( Socket connection )
         throws IOException {
 
         try {
@@ -119,7 +119,7 @@ public class POP3Handler
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
-            getLogger().error( "Cannot open connection from " + remoteHost + 
+            getLogger().error( "Cannot open connection from " + remoteHost +
                                " (" + remoteIP + "): " + e.getMessage(), e );
         }
 
@@ -130,7 +130,7 @@ public class POP3Handler
             scheduler.addTrigger( this.toString(), trigger, this );
             state = AUTHENTICATION_READY;
             user = "unknown";
-            out.println( OK_RESPONSE + " " + this.servername + 
+            out.println( OK_RESPONSE + " " + this.servername +
                          " POP3 server (" + this.softwaretype + ") ready " );
             while (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());
@@ -142,7 +142,7 @@ public class POP3Handler
         } catch (Exception e) {
             out.println(ERR_RESPONSE + " Error closing connection.");
             out.flush();
-            getLogger().error( "Exception during connection from " + remoteHost + 
+            getLogger().error( "Exception during connection from " + remoteHost +
                                " (" + remoteIP + ") : " + e.getMessage(), e );
             try {
                 socket.close();
@@ -394,7 +394,7 @@ public class POP3Handler
                 out.println(ERR_RESPONSE + " Usage: RETR [mail number]");
                 return;
             }
-            //?May be written as 
+            //?May be written as
             //return parseCommand("TOP " + num + " " + Integer.MAX_VALUE);?
             try {
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);

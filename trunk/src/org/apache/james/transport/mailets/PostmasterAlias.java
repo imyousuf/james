@@ -1,18 +1,17 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport.mailets;
 
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.mailet.*;
-import com.workingdogs.town.*;
+//import com.workingdogs.town.*;
 
 /**
  * Rewrites recipient addresses to make sure email for the postmaster is
@@ -33,7 +32,7 @@ public class PostmasterAlias extends GenericMailet {
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress addr = (MailAddress)i.next();
             if (addr.getUser().equalsIgnoreCase("postmaster") &&
-                    mailetContext.isLocalServer(addr.getHost())) {
+                mailetContext.isLocalServer(addr.getHost())) {
                 //Should remove this address... we want to replace it with
                 //  the server's postmaster address
                 if (recipientsToRemove == null) {

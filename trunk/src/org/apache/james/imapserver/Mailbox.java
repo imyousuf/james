@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
-import org.apache.avalon.Composer;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
@@ -63,7 +63,7 @@ import org.apache.mailet.Mail;
  * @version 0.1 on 14 Dec 2000
  */
 public interface Mailbox 
-    extends Configurable, Composer {
+    extends Configurable, Composable {
 
     String SYSTEM_FLAGS = "\\Seen \\Answered \\Flagged \\Deleted \\Draft";
     String RECENT_FLAG =  "\\Recent"; 
