@@ -119,7 +119,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.57 $
+ * @version This is $Revision: 1.58 $
 
  */
 public class James
@@ -417,7 +417,11 @@ public class James
         Collection recipients = new HashSet();
         Address addresses[] = message.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            // Javamail treats the "newsgroups:" header field as a
+            // recipient, so we want to filter those out.
+            if ( addresses[i] instanceof InternetAddress ) {
+                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            }
         }
         sendMail(sender, recipients, message);
     }
@@ -670,7 +674,11 @@ public class James
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            // Javamail treats the "newsgroups:" header field as a
+            // recipient, so we want to filter those out.
+            if ( addresses[i] instanceof InternetAddress ) {
+                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            }
         }
         //Change the sender...
         reply.setFrom(bouncer.toInternetAddress());
