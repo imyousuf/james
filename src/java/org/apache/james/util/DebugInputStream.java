@@ -1,4 +1,4 @@
-package org.apache.james.mailrepository;
+package org.apache.james.util;
 
 import java.io.*;
 
