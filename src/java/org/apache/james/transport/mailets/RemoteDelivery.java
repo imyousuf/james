@@ -7,17 +7,17 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+//import org.apache.avalon.framework.component.ComponentException;
+//import org.apache.avalon.framework.component.ComponentManager;
+//import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
-import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.SpoolRepository;
 
 import javax.mail.*;
 import javax.mail.internet.AddressException;
@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.33 $
+ * This is $Revision: 1.34 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -101,26 +101,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         gatewayServer = getInitParameter("gateway");
         gatewayPort = getInitParameter("gatewayPort");
-        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        String outgoingPath = getInitParameter("outgoing");
-        if (outgoingPath == null) {
-            outgoingPath = "file:///../var/mail/outgoing";
-        }
-
-        try {
-            // Instantiate the a MailRepository for outgoing mails
-            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-
-            DefaultConfiguration spoolConf
-                = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
-            spoolConf.setAttribute("destinationURL", outgoingPath);
-            spoolConf.setAttribute("type", "SPOOL");
-            outgoing = (SpoolRepository) mailstore.select(spoolConf);
-        } catch (ComponentException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+        
+        
+        outgoing = getMailetContext().getMailSpool(getInitParameter("outgoing"));
 
         //Start up a number of threads
         try {
