@@ -23,11 +23,11 @@ public class HostIs extends GenericRecipientMatcher {
         StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         hosts = new Vector();
         while (st.hasMoreTokens()) {
-            hosts.add(st.nextToken());
+            hosts.add(st.nextToken().toLowerCase());
         }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        return hosts.contains(recipient.getHost());
+        return hosts.contains(recipient.getHost().toLowerCase());
     }
 }
