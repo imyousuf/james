@@ -210,7 +210,7 @@ public class SMTPServer extends AbstractJamesService implements Component {
      * @see org.apache.james.core.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
-        return "SMTP Service - Watchdogs unpooled, buffers adjusted with sendMail disabled";
+        return "SMTP Service";
     }
 
     /**
