@@ -7,7 +7,6 @@
  */
 package org.apache.james.imapserver;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -139,7 +138,7 @@ public class CommandStore
         } catch (IllegalArgumentException iae) {
             out.println(tag + SP + BAD + SP
                         + "Arguments to store not recognised.");
-            logger.error("Unrecognised arguments for STORE by user "  + user
+            getLogger().error("Unrecognised arguments for STORE by user "  + user
                          + " with " + commandRaw);
             return;
         }

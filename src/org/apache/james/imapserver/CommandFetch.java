@@ -83,7 +83,7 @@ public class CommandFetch
             set = decodeSet(setArg, currentMailbox.getExists());
         }
         if (DEEP_DEBUG) {
-            logger.debug("Fetching message set of size: " + set.size());
+            getLogger().debug("Fetching message set of size: " + set.size());
         }
         String firstFetchArg = commandLine.nextToken();
         int pos =  commandRaw.indexOf(firstFetchArg);
@@ -96,7 +96,7 @@ public class CommandFetch
         }
 
         if (DEEP_DEBUG) {
-            logger.debug("Found fetchAttrsRaw: " + fetchAttrsRaw);
+            getLogger().debug("Found fetchAttrsRaw: " + fetchAttrsRaw);
         }
         // decode the fetch attributes
         List fetchAttrs = new ArrayList();
@@ -141,7 +141,7 @@ public class CommandFetch
                 fetchAttrs.add("ENVELOPE");
                 fetchAttrs.add("BODY");
             }
-            logger.debug("Found fetchAttrs: " + arg);
+            getLogger().debug("Found fetchAttrs: " + arg);
         }
 
         try {
@@ -175,7 +175,7 @@ public class CommandFetch
                         }
                         if (flags == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message flags.");
-                            logger.error("Retrieved null flags for msn:" + msn);
+                            getLogger().error("Retrieved null flags for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -196,7 +196,7 @@ public class CommandFetch
                         }
                         if (attrs == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                            logger.error("Retrieved null attributes for msn:" + msn);
+                            getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -217,7 +217,7 @@ public class CommandFetch
                         }
                         if (attrs == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                            logger.error("Retrieved null attributes for msn:" + msn);
+                            getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -236,7 +236,7 @@ public class CommandFetch
                         }
                         if (attrs == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                            logger.error("Retrieved null attributes for msn:" + msn);
+                            getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -255,7 +255,7 @@ public class CommandFetch
                         }
                         if (attrs == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                            logger.error("Retrieved null attributes for msn:" + msn);
+                            getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -274,7 +274,7 @@ public class CommandFetch
                         }
                         if (attrs == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                            logger.error("Retrieved null attributes for msn:" + msn);
+                            getLogger().error("Retrieved null attributes for msn:" + msn);
                             return;
                         } 
                         if (responseAdded) {
@@ -291,7 +291,7 @@ public class CommandFetch
                             }
                             if (attrs == null) { // bad
                                 out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-                                logger.error("Retrieved null attributes for msn:" + msn);
+                                getLogger().error("Retrieved null attributes for msn:" + msn);
                                 return;
                             } 
                         
@@ -313,7 +313,7 @@ public class CommandFetch
                                 response += ")";
                             }
                             out.println(response);
-                            logger.debug("Sending: " + response);
+                            getLogger().debug("Sending: " + response);
                         }
                         InternetHeaders headers = null;
                         if (useUIDs) {
@@ -323,7 +323,7 @@ public class CommandFetch
                         }
                         if (headers == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-                            logger.error("Retrieved null headers for msn:" + msn);
+                            getLogger().error("Retrieved null headers for msn:" + msn);
                             return;
                         } 
                         if (flags == null) {
@@ -349,21 +349,21 @@ public class CommandFetch
                         }
                         response += "{" + (count + 2) + "}";
                         out.println(response);
-                        logger.debug("Sending: " + response);
+                        getLogger().debug("Sending: " + response);
                         Iterator lit = lines.iterator();
                         while (lit.hasNext()) {
                             String line = (String)lit.next();
                             out.println(line);
-                            logger.debug("Sending: " + line);
+                            getLogger().debug("Sending: " + line);
                         }
                         out.println();
-                        logger.debug("Sending blank line");
+                        getLogger().debug("Sending blank line");
                         if (useUIDs) {
                             out.println(  " UID " + uid + ")");
-                            logger.debug("Sending: UID " + uid + ")");
+                            getLogger().debug("Sending: UID " + uid + ")");
                         } else {
                             out.println( ")" );
-                            logger.debug("Sending: )");
+                            getLogger().debug("Sending: )");
                         }
                         if (! arg.equalsIgnoreCase("BODY.PEEK[HEADER]")) {
                             try { // around setFlags()
@@ -382,11 +382,11 @@ public class CommandFetch
                                     }
                                 }
                             } catch (AccessControlException ace) {
-                                logger.error("Exception storing flags for message: " + ace);
+                                getLogger().error("Exception storing flags for message: " + ace);
                             } catch (AuthorizationException aze) {
-                                logger.error("Exception storing flags for message: " + aze);
+                                getLogger().error("Exception storing flags for message: " + aze);
                             } catch (Exception e) {
-                                logger.error("Unanticipated exception storing flags for message: " + e);
+                                getLogger().error("Unanticipated exception storing flags for message: " + e);
                             }
                         }        
                         response = UNTAGGED + SP + msn + SP + "FETCH (";
@@ -400,7 +400,7 @@ public class CommandFetch
                                 response += ")";
                             }
                             out.println(response);
-                            logger.debug("Sending: " + response);
+                            getLogger().debug("Sending: " + response);
                         }
                         InternetHeaders headers = null;
                         if (useUIDs) {
@@ -410,7 +410,7 @@ public class CommandFetch
                         }
                         if (headers == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-                            logger.error("Retrieved null headers for msn:" + msn);
+                            getLogger().error("Retrieved null headers for msn:" + msn);
                             return;
                         } 
                         if (flags == null) {
@@ -446,7 +446,7 @@ public class CommandFetch
                         }
                         Iterator it2 = fields.iterator();
                         while (it2.hasNext()) {
-                            logger.debug("request for field: " + (String)it2.next());
+                            getLogger().debug("request for field: " + (String)it2.next());
                         }
                         String[] names = (String[])fields.toArray(new String[fields.size()]);
                         Enumeration enum = null;
@@ -464,12 +464,12 @@ public class CommandFetch
                         }
                         response += "{" + (count + 2) + "}";
                         out.println(response);
-                        logger.debug("Sending: " + response);
+                        getLogger().debug("Sending: " + response);
                         Iterator lit = lines.iterator();
                         while (lit.hasNext()) {
                             String line = (String)lit.next();
                             out.println(line);
-                            logger.debug("Sending: " + line);
+                            getLogger().debug("Sending: " + line);
                         }
                         out.println();
                         if (useUIDs) {
@@ -493,11 +493,11 @@ public class CommandFetch
                                                     + newflags + ")");
                                     }
                                 } catch (AccessControlException ace) {
-                                    logger.error("Exception storing flags for message: " + ace);
+                                    getLogger().error("Exception storing flags for message: " + ace);
                                 } catch (AuthorizationException aze) {
-                                    logger.error("Exception storing flags for message: " + aze);
+                                    getLogger().error("Exception storing flags for message: " + aze);
                                 } catch (Exception e) {
-                                    logger.error("Unanticipated exception storing flags for message: " + e);
+                                    getLogger().error("Unanticipated exception storing flags for message: " + e);
                                 }
                             }
                         }
@@ -532,7 +532,7 @@ public class CommandFetch
                         }
                         if (msg == null) { // bad
                             out.println(tag + SP + msn + SP + BAD + "Error retrieving message.");
-                            logger.error("Retrieved null message");
+                            getLogger().error("Retrieved null message");
                             return;
                         } 
                         try {
@@ -566,13 +566,13 @@ public class CommandFetch
                             }
                         } catch (MessagingException me) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Exception retrieving message: " + me);
+                            getLogger().error("Exception retrieving message: " + me);
                         } catch (IOException ioe) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Exception sending message: " + ioe);
+                            getLogger().error("Exception sending message: " + ioe);
                         } catch (Exception e) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Unanticipated exception retrieving message: " + e);
+                            getLogger().error("Unanticipated exception retrieving message: " + e);
                         }
                         response = UNTAGGED + SP + msn + SP + "FETCH (";
                         responseAdded = false;
@@ -603,7 +603,7 @@ public class CommandFetch
                         }
                         if (msg == null) { // bad
                             out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-                            logger.error("Retrieved null message");
+                            getLogger().error("Retrieved null message");
                             return;
                         } 
                         try {
@@ -637,13 +637,13 @@ public class CommandFetch
                             }
                         } catch (MessagingException me) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Exception retrieving message: " + me);
+                            getLogger().error("Exception retrieving message: " + me);
                         } catch (IOException ioe) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Exception sending message: " + ioe);
+                            getLogger().error("Exception sending message: " + ioe);
                         } catch (Exception e) {
                             out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-                            logger.error("Unanticipated exception retrieving message: " + e);
+                            getLogger().error("Unanticipated exception retrieving message: " + e);
                         }
                         response = UNTAGGED + SP + msn + SP + "FETCH (";
                         responseAdded = false;
@@ -658,7 +658,7 @@ public class CommandFetch
                         }
                         out.println(tag + SP + NO + SP
                                     + "FETCH attribute not recognized");
-                        logger.error("Received: " + arg + " as argument to fetch");
+                        getLogger().error("Received: " + arg + " as argument to fetch");
                         return;
                     }
                 } // end while loop
@@ -687,7 +687,7 @@ public class CommandFetch
         } catch (Exception e) {
             out.println(tag + SP + NO + SP
                         + "Unknown server error.");
-            logger.error("Exception expunging mailbox " + currentFolder + " by user " + user + " was : " + e);
+            getLogger().error("Exception expunging mailbox " + currentFolder + " by user " + user + " was : " + e);
             if (DEEP_DEBUG) {e.printStackTrace();}
             return;
         }
