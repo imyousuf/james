@@ -46,12 +46,33 @@ import java.util.Set;
  * @author  Danny Angus <danny@thought.co.uk>
  */
 public class NotifyPostmaster extends GenericMailet {
+
+    /**
+     * The sender address for the reply message
+     */
     MailAddress notifier = null;
+
+    /**
+     * Whether exception stack traces should be attached to the error
+     * messages
+     */
     boolean attachStackTrace = false;
+
+    /**
+     * The text of the reply notice
+     */
     String noticeText = null;
 
+    /**
+     * The date format object used to generate RFC 822 compliant date headers
+     */
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
+    /**
+     * Initialize the mailet, loading all configuration parameters.
+     *
+     * @throws MessagingException
+     */
     public void init() throws MessagingException {
         if (getInitParameter("sendingAddress") == null) {
             notifier = getMailetContext().getPostmaster();
@@ -70,7 +91,11 @@ public class NotifyPostmaster extends GenericMailet {
     }
 
     /**
-     * Sends a message back to the sender indicating what time the server thinks it is.
+     * Sends a message to the postmaster with the original message as to why it failed.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error occurs while formulating the message to the sender
      */
     public void service(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
@@ -195,6 +220,11 @@ public class NotifyPostmaster extends GenericMailet {
         getMailetContext().sendMail(notifier, recipients, reply);
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "NotifyPostmaster Mailet";
     }

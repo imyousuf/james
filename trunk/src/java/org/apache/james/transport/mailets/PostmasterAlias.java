@@ -28,6 +28,14 @@ import java.util.Vector;
  */
 public class PostmasterAlias extends GenericMailet {
 
+    /**
+     * Make sure that a message that is addressed to a postmaster alias is always
+     * sent to the postmaster address, regardless of delivery to other recipients.
+     *
+     * @param mail the mail to process
+     *
+     * @throws MessagingException if an error is encountered while modifying the message
+     */
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection recipientsToRemove = null;
@@ -54,6 +62,11 @@ public class PostmasterAlias extends GenericMailet {
         }
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Postmaster aliasing mailet";
     }

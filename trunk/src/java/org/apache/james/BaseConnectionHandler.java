@@ -24,7 +24,15 @@ import java.net.UnknownHostException;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class BaseConnectionHandler extends AbstractLogEnabled implements Configurable {
+
+    /**
+     * The timeout for the connection
+     */
     protected int timeout;
+
+    /**
+     * The hello name for the connection
+     */
     protected String helloName;
 
     /**
@@ -55,6 +63,8 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
 
     /**
      * Release a previously created ConnectionHandler e.g. for spooling.
+     *
+     * @param connectionHandler the ConnectionHandler to be released
      */
     public void releaseConnectionHandler(ConnectionHandler connectionHandler) {
     }

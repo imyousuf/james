@@ -60,7 +60,9 @@ public class JDBCListserv extends GenericListserv {
     protected String listservQuery = null;
     protected String membersQuery = null;
 
-    // The JDBCUtil helper class
+    /**
+     * The JDBCUtil helper class
+     */
     private final JDBCUtil theJDBCUtil =
             new JDBCUtil() {
                 protected void delegatedLog(String logString) {
@@ -186,6 +188,8 @@ public class JDBCListserv extends GenericListserv {
 
     /**
      * Returns whether listserv should add reply-to header
+     *
+     * @return whether listserv should add a reply-to header
      */
     public boolean isReplyToList() throws MessagingException {
         return replyToList;
@@ -207,6 +211,12 @@ public class JDBCListserv extends GenericListserv {
         return subjectPrefix;
     }
 
+    /**
+     * Loads the configuration settings for this mailet from the database.
+     *
+     * @throws MessagingException if a problem occurs while accessing the database or
+     *                            the required parameters are not present
+     */
     protected void loadSettings() throws MessagingException {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -292,6 +302,11 @@ public class JDBCListserv extends GenericListserv {
         }
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "JDBC listserv mailet";
     }

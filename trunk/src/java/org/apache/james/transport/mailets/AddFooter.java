@@ -24,9 +24,14 @@ import java.util.StringTokenizer;
  */
 public class AddFooter extends GenericMailet {
 
-    //This is the plain text version of the footer we are going to add
+    /**
+     * This is the plain text version of the footer we are going to add
+     */
     String text = "";
 
+    /**
+     * Initialize the mailet
+     */
     public void init() throws MessagingException {
         text = getInitParameter("text");
     }
@@ -35,6 +40,10 @@ public class AddFooter extends GenericMailet {
      * Takes the message and attaches a footer message to it.  Right now, it only
      * supports simple messages.  Needs to have additions to make it support
      * messages with alternate content types or with attachments.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error arises during message processing
      */
     public void service(Mail mail) throws MessagingException {
         try {
@@ -71,6 +80,8 @@ public class AddFooter extends GenericMailet {
     /**
      * This is exposed as a method for easy subclassing to provide alternate ways
      * to get the footer text.
+     *
+     * @return the footer text
      */
     public String getFooterText() {
         return text;
@@ -80,6 +91,8 @@ public class AddFooter extends GenericMailet {
      * This is exposed as a method for easy subclassing to provide alternate ways
      * to get the footer text.  By default, this will take the footer text,
      * converting the linefeeds to &lt;br&gt; tags.
+     *
+     * @return the HTML version of the footer text
      */
     public String getFooterHTML() {
         String text = getFooterText();
@@ -99,10 +112,23 @@ public class AddFooter extends GenericMailet {
         return sb.toString();
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "AddFooter Mailet";
     }
 
+    /**
+     * Prepends the content of the MimePart as text to the existing footer
+     *
+     * @param part the MimePart to attach
+     *
+     * @throws MessagingException 
+     * @throws IOException
+     */
     protected void addToText(MimePart part) throws MessagingException, IOException {
         String content = part.getContent().toString();
         if (!content.endsWith("\n")) {
@@ -112,12 +138,28 @@ public class AddFooter extends GenericMailet {
         part.setText(content);
     }
 
+    /**
+     * Prepends the content of the MimePart as HTML to the existing footer
+     *
+     * @param part the MimePart to attach
+     *
+     * @throws MessagingException 
+     * @throws IOException
+     */
     protected void addToHTML(MimePart part) throws MessagingException, IOException {
         String content = part.getContent().toString();
         content += "<br>" + getFooterHTML();
         part.setContent(content, part.getContentType());
     }
 
+    /**
+     * Attaches a MimePart as an appropriate footer
+     *
+     * @param part the MimePart to attach
+     *
+     * @throws MessagingException 
+     * @throws IOException
+     */
     protected void attachFooter(MimePart part) throws MessagingException, IOException {
         if (part.isMimeType("text/plain")) {
             addToText(part);

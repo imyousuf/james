@@ -27,6 +27,10 @@ import java.util.Set;
 public class ServerTime extends GenericMailet {
     /**
      * Sends a message back to the sender indicating what time the server thinks it is.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error is encountered while formulating the reply message
      */
     public void service(Mail mail) throws javax.mail.MessagingException {
         log("Sending timestamp");
@@ -49,6 +53,11 @@ public class ServerTime extends GenericMailet {
         getMailetContext().sendMail(sender, recipients, response);
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "ServerTime Mailet";
     }

@@ -17,10 +17,20 @@ import org.apache.mailet.Mail;
  */
 public class Identity extends GenericMailet {
 
+    /**
+     * Do nothing.
+     *
+     * @param mail the mail to be processed
+     */
     public void service(Mail mail) {
         //Do nothing
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Identity Mailet";
     }

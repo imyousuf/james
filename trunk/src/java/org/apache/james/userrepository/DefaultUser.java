@@ -19,8 +19,8 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/07 23:24:27 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/19 18:57:08 $
+ * $Revision: 1.5 $
  */
 
 public class DefaultUser implements User, Serializable {
@@ -33,6 +33,7 @@ public class DefaultUser implements User, Serializable {
      * Standard constructor.
      *
      * @param name the String name of this user
+     * @param hashAlg the algorithm used to generate the hash of the password
      */
     public DefaultUser(String name, String hashAlg) {
         userName = name;
@@ -106,6 +107,8 @@ public class DefaultUser implements User, Serializable {
 
     /**
      * Method to access the hashing algorithm of the password.
+     *
+     * @return the name of the hashing algorithm used for this user's password
      */
     protected String getHashAlgorithm() {
         return algorithm;

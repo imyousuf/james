@@ -106,12 +106,12 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
 
 
     /**
-     * Called by the mailet container to indicate to a mailet that the
-     * mailet is being placed into service.
+     * <p>Called by the mailet container to indicate to a mailet that the
+     * mailet is being placed into service.</p>
      *
-     * This implementation stores the MailetConfig object it receives from
+     * <p>This implementation stores the MailetConfig object it receives from
      * the mailet container for alter use. When overriding this form of the
-     * method, call super.init(config).
+     * method, call super.init(config).</p>
      *
      * @param MailetConfig config - the MailetConfig object that contains
      *          configutation information for this mailet
@@ -124,8 +124,8 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
     }
 
     /**
-     * A convenience method which can be overridden so that there's no
-     * need to call super.init(config).
+     * <p>A convenience method which can be overridden so that there's no
+     * need to call super.init(config).</p>
      *
      * Instead of overriding init(MailetConfig), simply override this
      * method and it will be called by GenericMailet.init(MailetConfig config).
@@ -170,10 +170,10 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
     }
 
     /**
-     * Called by the mailet container to allow the mailet to process a
-     * message.
+     * <p>Called by the mailet container to allow the mailet to process a
+     * message.</p>
      *
-     * This method is declared abstract so subclasses must override it.
+     * <p>This method is declared abstract so subclasses must override it.</p>
      *
      * @param mail - the Mail object that contains the MimeMessage and
      *          routing information

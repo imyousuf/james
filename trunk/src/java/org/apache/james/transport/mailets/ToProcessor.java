@@ -38,6 +38,13 @@ public class ToProcessor extends GenericMailet {
         noticeText = getInitParameter("notice");
     }
 
+    /**
+     * Throw an exception if any mail is processed.
+     *
+     * @param mail the mail to process
+     *
+     * @throws MessagingException in all cases
+     */
     public void service(Mail mail) throws MessagingException {
         StringBuffer logBuffer =
             new StringBuffer(128)
@@ -61,7 +68,11 @@ public class ToProcessor extends GenericMailet {
         }
     }
 
-
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "ToProcessor Mailet";
     }

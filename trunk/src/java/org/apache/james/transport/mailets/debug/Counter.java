@@ -17,15 +17,28 @@ import org.apache.mailet.Mail;
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class Counter extends GenericMailet {
+
+    /**
+     * The number of mails processed by this mailet
+     */
     int counter = 0;
 
+    /**
+     * Count processed mails, marking each mail as completed after counting.
+     *
+     * @param mail the mail to process
+     */
     public void service(Mail mail) {
-        //Do nothing
         counter++;
         log(counter + "");
         mail.setState(Mail.GHOST);
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Counter Mailet";
     }

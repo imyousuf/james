@@ -11,13 +11,13 @@ import javax.mail.MessagingException;
 import java.util.Collection;
 
 /**
- * GenericMatcher implements the Matcher and MatcherConfig interfaces.
- * GenericMatcher makes writing matchers easier. It provides simple versions of
+ * <p>GenericMatcher implements the Matcher and MatcherConfig interfaces.</p>
+ * <p>GenericMatcher makes writing matchers easier. It provides simple versions of
  * the lifecycle methods init and destroy and of the methods in the MatcherConfig
  * interface. GenericMatcher also implements the log method, declared in the
- * MatcherContext interface.
- * <p>
- * To write a generic matcher, you need only override the abstract match method.
+ * MatcherContext interface.</p>
+ * 
+ * <p>To write a generic matcher, you need only override the abstract match method.</p>
  *
  * @version 1.0.0, 24/04/1999
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -34,11 +34,11 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
     }
 
     /**
-     * Returns a String containing the value of the named initialization
-     * parameter, or null if the parameter does not exist.
-     * <p>
-     * This method is supplied for convenience. It gets the value of the
-     * named parameter from the matcher's MatcherConfig object.
+     * <p>Returns a String containing the value of the named initialization
+     * parameter, or null if the parameter does not exist.</p>
+     * 
+     * <p>This method is supplied for convenience. It gets the value of the
+     * named parameter from the matcher's MatcherConfig object.</p>
      *
      * @return String a String containing the value of the initalization parameter
      */
@@ -87,12 +87,12 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
 
 
     /**
-     * Called by the matcher container to indicate to a matcher that the
-     * matcher is being placed into service.
+     * <p>Called by the matcher container to indicate to a matcher that the
+     * matcher is being placed into service.</p>
      *
-     * This implementation stores the MatcherConfig object it receives from
+     * <p>This implementation stores the MatcherConfig object it receives from
      * the matcher container for alter use. When overriding this form of the
-     * method, call super.init(config).
+     * method, call super.init(config).</p>
      *
      * @param MatcherConfig config - the MatcherConfig object that contains
      *          configutation information for this matcher
@@ -105,18 +105,18 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
     }
 
     /**
-     * A convenience method which can be overridden so that there's no
-     * need to call super.init(config).
+     * <p>A convenience method which can be overridden so that there's no
+     * need to call super.init(config).</p>
      *
-     * Instead of overriding init(MatcherConfig), simply override this
+     * <p>Instead of overriding init(MatcherConfig), simply override this
      * method and it will be called by GenericMatcher.init(MatcherConfig config).
-     * The MatcherConfig object can still be retrieved via getMatcherConfig().
+     * The MatcherConfig object can still be retrieved via getMatcherConfig().</p>
      *
      * @throws MatcherException
      *          if an exception occurs that interrupts the matcher's normal operation
      */
     public void init() throws MessagingException {
-        //Do nothing... can be overriden
+        //Do nothing... can be overridden
     }
 
     /**
@@ -151,10 +151,10 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
     }
 
     /**
-     * Called by the matcher container to allow the matcher to process a
-     * message.
+     * <p>Called by the matcher container to allow the matcher to process a
+     * message.</p>
      *
-     * This method is declared abstract so subclasses must override it.
+     * <p>This method is declared abstract so subclasses must override it.</p>
      *
      * @param mail - the Mail object that contains the MimeMessage and
      *          routing information

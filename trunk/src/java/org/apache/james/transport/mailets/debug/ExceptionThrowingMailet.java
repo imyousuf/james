@@ -20,10 +20,22 @@ import javax.mail.MessagingException;
  */
 public class ExceptionThrowingMailet extends GenericMailet {
 
+    /**
+     * Throw an exception if any mail is processed.
+     *
+     * @param mail the mail to process
+     *
+     * @throws MailetException in all cases
+     */
     public void service(Mail mail) throws MessagingException {
         throw new MailetException("General protection fault");
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "ExceptionThrowingMailet Mailet";
     }

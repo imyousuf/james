@@ -16,15 +16,41 @@ package org.apache.james.nntpserver;
  * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPException extends RuntimeException {
+
+    /**
+     * The encapsulated Throwable
+     */
     private final Throwable t;
+
+    /**
+     * Create an NNTPException with an error message and no
+     * encapsulated <code>Throwable</code>
+     *
+     * @param msg the error message for this exception
+     */
     public NNTPException(String msg) {
         super(msg);
         this.t = null;
     }
+
+    /**
+     * Create an NNTPException with an error message and an
+     * encapsulated <code>Throwable</code>
+     *
+     * @param msg the error message for this exception
+     * @param t the encapsulated <code>Throwable</code>
+     */
     public NNTPException(String msg,Throwable t) {
         super(msg+((t!=null)?": "+t.toString():""));
         this.t = t;
     }
+
+    /**
+     * Create an NNTPException with an
+     * encapsulated <code>Throwable</code>
+     *
+     * @param t the encapsulated <code>Throwable</code>
+     */
     public NNTPException(Throwable t) {
         super(t.toString());
         this.t = t;

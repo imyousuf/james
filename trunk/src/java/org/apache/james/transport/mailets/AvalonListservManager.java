@@ -23,8 +23,8 @@ import org.apache.mailet.MailAddress;
  * <br>&lt;/mailet&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.3 $
- * Committed on $Date: 2002/01/18 02:48:38 $ by: $Author: darrell $ 
+ * @version This is $Revision: 1.4 $
+ * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $ 
  */
 public class AvalonListservManager extends GenericListservManager {
 
@@ -44,11 +44,25 @@ public class AvalonListservManager extends GenericListservManager {
         }
     }
 
+    /**
+     * Add an address to the list.
+     *
+     * @param address the address to add
+     *
+     * @return true if successful, false otherwise
+     */
     public boolean addAddress(MailAddress address) {
         members.addUser(address.toString(), "");
         return true;
     }
 
+    /**
+     * Remove an address from the list.
+     *
+     * @param address the address to remove
+     *
+     * @return true if successful, false otherwise
+     */
     public boolean removeAddress(MailAddress address) {
         members.removeUser(address.toString());
         return true;
@@ -58,6 +72,11 @@ public class AvalonListservManager extends GenericListservManager {
         return members.contains(address.toString());
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "AvalonListservManager Mailet";
     }
