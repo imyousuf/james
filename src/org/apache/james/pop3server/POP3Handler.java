@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.mail.MessagingException;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.component.Composable;
@@ -27,6 +27,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.context.Context;
+import org.apache.avalon.context.ContextException;
 import org.apache.avalon.context.Contextualizable;
 import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
@@ -80,7 +81,8 @@ public class POP3Handler
     private final static String OK_RESPONSE = "+OK";
     private final static String ERR_RESPONSE = "-ERR";
 
-    public void  contextualize( final Context context ) {
+    public void  contextualize( final Context context ) 
+        throws ContextException {
         servername = (String)context.get( Constants.HELO_NAME );
         if ( servername == null )
             servername = "POP3Server";

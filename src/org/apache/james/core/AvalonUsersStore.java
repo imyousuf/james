@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
@@ -46,7 +46,7 @@ public class AvalonUsersStore
         this.componentManager = componentManager;
     }
 
-    public void init()
+    public void initialize()
         throws Exception {
 
         getLogger().info("AvalonUsersStore init...");
@@ -76,7 +76,7 @@ public class AvalonUsersStore
               }
             */
             if (rep instanceof Initializable) {
-                ((Initializable) rep).init();
+                ((Initializable) rep).initialize();
             }
             repositories.put(repName, rep);
             getLogger().info("UsersRepository " + repName + " started.");

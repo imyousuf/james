@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 
 /**
  * The set of flags associated with a message. The \Seen flag is maintained
@@ -42,7 +42,7 @@ public class Flags
     /**
      * Initialisation - only for object creation not on deserialisation.
      */
-    public void init() {
+    public void initialize() {
         users = new HashSet();
     }
 

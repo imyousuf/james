@@ -9,7 +9,7 @@ package org.apache.james.core;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentException;
@@ -60,7 +60,7 @@ public class AvalonMailStore
         this.configuration = configuration;
     }
 
-    public void init()
+    public void initialize()
         throws Exception {
 
         getLogger().info("JamesMailStore init...");
@@ -161,7 +161,7 @@ public class AvalonMailStore
                   ((Contextualizable) reply).contextualize(context);
                   }*/
                     if (reply instanceof Initializable) {
-                        ((Initializable) reply).init();
+                        ((Initializable) reply).initialize();
                     }
                     repositories.put(repID, reply);
                     models.put(repID, model);

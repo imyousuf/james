@@ -57,11 +57,11 @@ public class IMAPServer
         super.configure( configuration.getChild( "imaphandler" ) );
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         getLogger().info( "IMAPServer init..." );
         getLogger().info( "IMAPListener using " + m_serverSocketType + " on port " + m_port );
-        super.init();
+        super.initialize();
         getLogger().info("IMAPServer ...init end");
         System.out.println("Started IMAP Server "+m_connectionName);
     }

@@ -12,7 +12,7 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.context.Context;
@@ -108,7 +108,7 @@ public class JamesHost
         compMgr = comp;
     }
     
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         logger.info("JamesHost init...");
         imapSystem = (IMAPSystem) compMgr.lookup("org.apache.james.imapserver.IMAPSystem");
@@ -242,7 +242,7 @@ public class JamesHost
                     mailbox.configure(conf);
                     mailbox.contextualize(context);
                     mailbox.compose(compMgr);
-                    mailbox.reInit();
+                    mailbox.reinitialize();
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new
@@ -351,7 +351,7 @@ public class JamesHost
                 mailbox.contextualize(context);
                 mailbox.compose(compMgr);
                 mailbox.prepareMailbox(user, absoluteName, user);
-                mailbox.init();
+                mailbox.initialize();
             } catch (Exception e) {
                 logger.error("Exception creating mailbox: " + e);
                 throw new MailboxException("Exception creating mailbox: " + e);
@@ -361,7 +361,7 @@ public class JamesHost
                 + absoluteName.substring(absoluteName.indexOf(user) + user.length(), absoluteName.length());
             SimpleFolderRecord fr
                 = new SimpleFolderRecord(mailboxName, user, absoluteName);
-            fr.init();
+            fr.initialize();
             recordRep.store(fr);
             openMailboxes.put(absoluteName, mailbox);
             mailboxCounts.put(absoluteName, new Integer(1));
@@ -952,21 +952,21 @@ public class JamesHost
             userInbox.contextualize(context);
             userInbox.compose(compMgr);
             userInbox.prepareMailbox(user, userInboxAbsName, user);
-            userRootFolder.init();
+            userRootFolder.initialize();
             userRootFolder.setNotSelectableByAnyone(true);
-            userInbox.init();
+            userInbox.initialize();
             userInbox.setRights(user, MailServer.MDA, "lrswi");
         } catch (Exception e) {
             logger.error("Exception creating new account: " + e);
             return false;
         }
-        userInboxRecord.init();
+        userInboxRecord.initialize();
         userInboxRecord.setUidValidity(userInbox.getUIDValidity());
         userInboxRecord.setHighestUid(userInbox.getNextUID() -1);
         userInboxRecord.setLookupRights(userInbox.getUsersWithLookupRights());
         userInboxRecord.setReadRights(userInbox.getUsersWithReadRights());
         userInboxRecord.setNotSelectableByAnyone(userInbox.isNotSelectableByAnyone());
-        userRootRecord.init();
+        userRootRecord.initialize();
         userRootRecord.setLookupRights(userRootFolder.getUsersWithLookupRights());
         userRootRecord.setReadRights(userRootFolder.getUsersWithReadRights());
         userRootRecord.setNotSelectableByAnyone(userRootFolder.isNotSelectableByAnyone());

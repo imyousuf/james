@@ -7,8 +7,8 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.avalon.Disposable;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Disposable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.context.Contextualizable;
 
 /**
@@ -39,7 +39,7 @@ public interface ACLMailbox
      * setConfiguration, setContext, setComponentManager, if they are called,
      * but before any opertional methods are called.
      */
-    void reInit()
+    void reinitialize()
         throws Exception;
 }
 
