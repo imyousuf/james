@@ -17,15 +17,15 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class HostIs extends AbstractMatcher {
+public class RecipientIs extends AbstractMatcher {
     
-    private Vector hosts;
+    private Vector recipients;
     
     public void init(String condition) {
         StringTokenizer st = new StringTokenizer(condition, ", ");
-        hosts = new Vector();
+        recipients = new Vector();
         while (st.hasMoreTokens()) {
-            hosts.addElement(st.nextToken());
+            recipients.addElement(st.nextToken());
         }
     }
 
@@ -34,12 +34,11 @@ public class HostIs extends AbstractMatcher {
         Vector notMatching = new Vector();
         for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = (String) e.nextElement();
-            if (hosts.contains(Mail.getHost(rec))) {
+            if (recipients.contains(rec)) {
                 matching.addElement(rec);
             }
         }
         notMatching = VectorUtils.subtract(mail.getRecipients(), matching);
         return split(mail, matching, notMatching);
     }
-}
-    
+}    

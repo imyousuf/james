@@ -31,5 +31,28 @@ public abstract class AbstractMatcher implements Matcher {
     public void setMailetContext(MailetContext context) {
         this.context = context;
     }
+
+    public Mail[] split(Mail mail, Vector matching, Vector notMatching) {
+
+        Mail[] res = {null, null};
+        if (matching.isEmpty()) {
+            mail.setRecipients(notMatching);
+            res[0] = (Mail) null;
+            res[1] = mail;
+            return res;
+        }
+        if (notMatching.isEmpty()) {
+            mail.setRecipients(matching);
+            res[0] = mail;
+            res[1] = (Mail) null;
+            return res;
+        }
+        Mail notMail = mail.duplicate(mail.getName() + "!");
+        mail.setRecipients(matching);
+        notMail.setRecipients(notMatching);
+        res[0] = mail;
+        res[1] = notMail;
+        return res;
+    }
 }
     
