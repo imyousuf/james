@@ -429,6 +429,46 @@ public class DNSServer
         };
     }
 
+    /* java.net.InetAddress.get[All]ByName(String) allows an IP literal
+     * to be passed, and will recognize it even with a trailing '.'.
+     * However, org.xbill.DNS.Address does not recognize an IP literal
+     * with a trailing '.' character.  The problem is that when we
+     * lookup an MX record for some domains, we may find an IP address,
+     * which will have had the trailing '.' appended by the time we get
+     * it back from dnsjava.  An MX record is not allowed to have an IP
+     * address as the right-hand-side, but there are still plenty of
+     * such records on the Internet.  Since java.net.InetAddress can
+     * handle them, for the time being we've decided to support them.
+     *
+     * These methods are NOT intended for use outside of James, and are
+     * NOT declared by the org.apache.james.services.DNSServer.  This is
+     * currently a stopgap measure to be revisited for the next release.
+     */
+
+    private static String allowIPLiteral(String host) {
+        if ((host.charAt(host.length() - 1) == '.')) {
+            String possible_ip_literal = host.substring(0, host.length() - 1);
+            if (org.xbill.DNS.Address.isDottedQuad(possible_ip_literal)) {
+                host = possible_ip_literal;
+            }
+        }
+        return host;
+    }
+
+    /**
+     * @see java.net.InetAddress#getByName(String)
+     */
+    public static InetAddress getByName(String host) throws UnknownHostException {
+        return org.xbill.DNS.Address.getByName(allowIPLiteral(host));
+    }
+
+    /**
+     * @see java.net.InetAddress#getByAllName(String)
+     */
+    public static InetAddress[] getAllByName(String host) throws UnknownHostException {
+        return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));
+    }
+
     /**
      * A way to get mail hosts to try.  If any MX hosts are found for the
      * domain name with which this is constructed, then these MX hostnames
