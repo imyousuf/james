@@ -127,7 +127,6 @@ public class MailImpl implements Mail {
      */
     public MailImpl(MimeMessage message) throws MessagingException {
        this();
-        String name = "new";
         Address[] addresses;
         addresses = message.getFrom();
         MailAddress sender = new MailAddress(new InternetAddress(addresses[0].toString()));
@@ -136,7 +135,7 @@ public class MailImpl implements Mail {
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress(new InternetAddress(addresses[i].toString())));
         }
-        this.name = name;
+        this.name = message.toString();
         this.sender = sender;
         this.recipients = recipients;
         this.setMessage(message);
