@@ -128,27 +128,29 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
         }
     }
 
-    private boolean parseCommand(String commandLine)
+    private boolean parseCommand(String command)
     throws Exception {
             
-        String command;
-        String argument = (String) null;
-        int index = commandLine.indexOf(" ");
-        if (index != -1) {
-            command = commandLine.substring(0, index);
-            command = command.toUpperCase();
-            try {
-                argument = commandLine.substring(index + 1);
-                argument = argument.toUpperCase();
-            } catch (StringIndexOutOfBoundsException ignored) {
-            }
-        } else {
-            command = commandLine.toUpperCase();
+        logger.log("Command recieved: " + command, "SMTPServer", logger.INFO);
+        StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
+        int arguments = commandLine.countTokens();
+        if (arguments == 0) {
+            return true;
+        } else if(arguments > 0) {
+            command = commandLine.nextToken();
         }
-        
-        logger.log("Command=" + command + "  argument=" + argument, "SMTPServer", logger.DEBUG);
+        String argument = (String) null;
+        if(arguments > 1) {
+            argument = commandLine.nextToken();
+        }
+        String argument1 = (String) null;
+        if(arguments > 2) {
+            argument1 = commandLine.nextToken();
+        }
+
+        logger.log("Command=" + command + " argument=" + argument + " argument1=" + argument1, "SMTPServer", logger.DEBUG);
             // HELO Command
-        if (command.equals("HELO")) {
+        if (command.equalsIgnoreCase("HELO")) {
             if (state.containsKey(CURRENT_HELO_MODE)) {
                 out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
                 return true;
@@ -162,7 +164,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
                 return true;
             }
             // EHLO Command
-        } else if (command.equals("EHLO")) {
+        } else if (command.equalsIgnoreCase("EHLO")) {
             if (state.containsKey(CURRENT_HELO_MODE)) {
                 out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
                 return true;
@@ -176,42 +178,42 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
                 return true;
             }
             // MAIL Command
-        } else if (command.equals("MAIL")) {
+        } else if (command.equalsIgnoreCase("MAIL")) {
             if (state.containsKey(SENDER)) {
                 out.println("503 Sender already specified");
                 return true;
-            } else if (argument == null || !argument.startsWith("FROM:")) {
+            } else if (argument == null || !argument.equalsIgnoreCase("FROM") || argument1 == null) {
                 out.println("501 Usage: MAIL FROM:<sender>");
                 return true;
             } else {
-                String sender = argument.substring(5).replace('<', ' ').replace('>', ' ').trim();
+                String sender = argument1.replace('<', ' ').replace('>', ' ').trim();
                 state.put(SENDER, sender);
                 out.println("250 Sender <" + sender + "> OK");
                 return true;
             }
             // RCPT Command
-        } else if (command.equals("RCPT")) {
+        } else if (command.equalsIgnoreCase("RCPT")) {
             if (!state.containsKey(SENDER)) {
                 out.println("503 Need MAIL before RCPT");
                 return true;
-            } else if (argument == null || !argument.startsWith("TO:")) {
+            } else if (argument == null || !argument.equalsIgnoreCase("TO") || argument1 == null) {
                 out.println("501 Usage: RCPT TO:<recipient>");
                 return true;
             } else {
                 Vector rcptVector = (Vector) state.get(RCPT_VECTOR);
                 if (rcptVector == null) rcptVector = new Vector();
-                String recipient = argument.substring(3).replace('<', ' ').replace('>', ' ').trim();
+                String recipient = argument1.replace('<', ' ').replace('>', ' ').trim();
                 rcptVector.addElement(recipient);
                 state.put(RCPT_VECTOR, rcptVector);
                 out.println("250 Recipient <" + recipient + "> OK");
                 return true;
             }
             // NOP Command
-        } else if (command.equals("NOP")) {
+        } else if (command.equalsIgnoreCase("NOP")) {
                 out.println("250 OK");
                 return true;
             // DATA Command
-        } else if (command.equals("DATA")) {
+        } else if (command.equalsIgnoreCase("DATA")) {
             if (!state.containsKey(SENDER)) {
                 out.println("503 No sender specified");
                 return true;
@@ -230,7 +232,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
                 out.println("250 Message received: " + messageId);
                 return true;
             }
-        } else if (command.equals("QUIT")) {
+        } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("221 " + state.get(SERVER_NAME) + " Service closing transmission channel");
             return false;
         } else {

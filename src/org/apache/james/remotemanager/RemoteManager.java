@@ -32,7 +32,6 @@ public class RemoteManager implements SocketHandler, Block {
     private Store store;
     private Store.ObjectRepository userRepository;
 
-    private Socket socket;
     private BufferedReader in;
     private InputStream socketIn;
     private PrintWriter out;
@@ -73,8 +72,8 @@ public class RemoteManager implements SocketHandler, Block {
 
     public void parseRequest(Socket s) {
 
-        String remoteHost = socket.getInetAddress().getHostName();
-        String remoteIP = socket.getInetAddress().getHostAddress();
+        String remoteHost = s.getInetAddress().getHostName();
+        String remoteIP = s.getInetAddress().getHostAddress();
         try {
             socketIn = s.getInputStream();
             in = new BufferedReader(new InputStreamReader(socketIn));
@@ -82,6 +81,7 @@ public class RemoteManager implements SocketHandler, Block {
             out = new PrintWriter(r_out, true);
             logger.log("Access from " + remoteHost + "(" + remoteIP + ")", "RemoteManager", logger.INFO);
             out.println("James Remote mailbox administration tool");
+            out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
             while (!password.equals(admaccount.get(login))) {
@@ -93,6 +93,7 @@ public class RemoteManager implements SocketHandler, Block {
             out.println("Welcome " + login + ". HELP for a list of commands");
             logger.log("Login for " + login + " succesful", "RemoteManager", logger.INFO);
             while (parseCommand(in.readLine()));
+            logger.log("Logout for " + login + ".", "RemoteManager", logger.INFO);
             s.close();
         } catch (IOException e) {
             out.println("Error. Closing connection");
@@ -102,25 +103,41 @@ public class RemoteManager implements SocketHandler, Block {
     }
 
     private boolean parseCommand(String command) {
-        command = command.trim().toUpperCase();
-        if (command.startsWith("ADDUSER")) {
-            int sep = command.indexOf(",");
-            String user = command.substring(8, sep);
-            String passwd = command.substring(sep + 1);
-            if (user.equals("") || passwd.equals("")) {
-                out.println("Cannot add user with empty login or password");
-                out.flush();
+        StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
+        int arguments = commandLine.countTokens();
+        if (arguments == 0) {
+            return true;
+        } else if(arguments > 0) {
+            command = commandLine.nextToken();
+        }
+        String argument = (String) null;
+        if(arguments > 1) {
+            argument = commandLine.nextToken();
+        }
+        String argument1 = (String) null;
+        if(arguments > 2) {
+            argument1 = commandLine.nextToken();
+        }
+        if (command.equalsIgnoreCase("ADDUSER")) {
+            String user = argument;
+            String passwd = argument1;
+            try {
+                if (user.equals("") || passwd.equals("")) {
+                    out.println("usage: adduser [username] [password]");
+                    return true;
+                }
+            } catch (NullPointerException e) {
+                out.println("usage: adduser [username] [password]");
                 return true;
             }
             userRepository.store(user, passwd);
             out.println("User " + user + " added");
             out.flush();
             logger.log("User " + user + " added", "RemoteManager", logger.INFO);
-        } else if (command.startsWith("DELUSER")) {
-            String user = command.substring(8);
+        } else if (command.equalsIgnoreCase("DELUSER")) {
+            String user = argument;
             if (user.equals("")) {
                 out.println("usage: deluser [username]");
-                out.flush();
                 return true;
             }
             try {
@@ -130,28 +147,25 @@ public class RemoteManager implements SocketHandler, Block {
                 return true;
             }
             out.println("User " + user + " deleted");
-            out.flush();
             logger.log("User " + user + " deleted", "RemoteManager", logger.INFO);
-        } else if (command.startsWith("LISTUSERS")) {
+        } else if (command.equalsIgnoreCase("LISTUSERS")) {
             out.println("Existing accounts:");
             for (Enumeration e = userRepository.list(); e.hasMoreElements();) {
                 out.println("user: " + (String) e.nextElement());
             }
-            out.flush();
-        } else if (command.startsWith("HELP")) {
+        } else if (command.equalsIgnoreCase("HELP")) {
             out.println("Currently implemented commans:");
-            out.println("help                          display this help");
-            out.println("adduser [login],[password]    add a new user");
-            out.println("listusers                     display existing accounts");
-            out.println("quit                          close connection");
+            out.println("help                            display this help");
+            out.println("adduser [username] [password]   add a new user");
+            out.println("deluser [username]              delete existing user");
+            out.println("listusers                       display existing accounts");
+            out.println("quit                            close connection");
             out.flush();
-        } else if (command.startsWith("QUIT")) {
+        } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("bye");
-            out.flush();
             return false;
         } else {
             out.println("unknown command " + command);
-            out.flush();
         }
         return true;
     }

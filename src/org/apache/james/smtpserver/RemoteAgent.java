@@ -10,9 +10,11 @@ package org.apache.james.smtpserver;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 import org.apache.arch.*;
 import org.apache.james.*;
 import org.apache.avalon.blocks.*;
+import javax.mail.*;
 
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery 
@@ -27,6 +29,7 @@ public class RemoteAgent implements Configurable, Composer {
     private ComponentManager comp;
     private Configuration conf;
     private Logger logger;
+    private Vector localHost;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -35,6 +38,11 @@ public class RemoteAgent implements Configurable, Composer {
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        this.localHost = new Vector();
+        for (Enumeration e = conf.getConfigurations("localhost"); e.hasMoreElements(); ) {
+            String host = ((Configuration) e.nextElement()).getValue();
+            localHost.addElement(host);
+        }
     }
     
     public void delivery(MessageContainer mc) {
@@ -44,7 +52,7 @@ public class RemoteAgent implements Configurable, Composer {
         for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
             String recipient = (String) e.nextElement();
             if (isRemote(recipient)) {
-                logger.log("Remote delivery=" +recipient, "SMTPServer", logger.INFO);
+                logger.log("Remote delivery=" + recipient, "SMTPServer", logger.INFO);
                 recipients.removeElementAt(recipients.indexOf(recipient));
             }
         }
@@ -52,7 +60,20 @@ public class RemoteAgent implements Configurable, Composer {
     }
 
     public boolean isRemote(String recipient) {
-        return true;
+        String host = getHost(recipient);
+        return (!localHost.contains(host));
+    }
+
+    private String getUser(String recipient) {
+        int sep = recipient.indexOf('@');
+        if (sep == -1) return "";
+        return recipient.substring(0, sep);
+    }
+    
+    private String getHost(String recipient) {
+        int sep = recipient.indexOf('@');
+        if (sep == -1) return "";
+        return recipient.substring(sep + 1);
     }
 }
     

@@ -23,7 +23,7 @@ import org.apache.avalon.configuration.*;
  */
 public class MessageContainer implements Serializable {
 
-    private FilterInputStream in;
+    private InputStream in;
     private DeliveryState state;
     private String messageId;
 
@@ -38,11 +38,11 @@ public class MessageContainer implements Serializable {
         this.in = null;
     }
 
-    public void setBodyInputStream(FilterInputStream i) {
+    public void setBodyInputStream(InputStream i) {
         in = i;
     }
 
-    public FilterInputStream getBodyInputStream() {
+    public InputStream getBodyInputStream() {
         return in;
     }	
 

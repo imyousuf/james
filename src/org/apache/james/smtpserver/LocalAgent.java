@@ -28,7 +28,6 @@ public class LocalAgent implements Configurable, Composer {
     private Logger logger;
     private Store.ObjectRepository mailUsers;
     private Store store;
-    private Vector localUsers;
     private Vector localHost;
 
     public void setConfiguration(Configuration conf) {
@@ -40,31 +39,29 @@ public class LocalAgent implements Configurable, Composer {
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         this.mailUsers = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.store = (Store) comp.getComponent(Interfaces.STORE);
-        this.localUsers = new Vector();
         this.localHost = new Vector();
-        for (Enumeration e = mailUsers.list(); e.hasMoreElements(); ) {
-            String user = (String) e.nextElement(); 
-            localUsers.addElement(user.toUpperCase());
-        }
         for (Enumeration e = conf.getConfigurations("localhost"); e.hasMoreElements(); ) {
             String host = ((Configuration) e.nextElement()).getValue();
-            localHost.addElement(host.toUpperCase());
+            localHost.addElement(host);
         }
     }
     
     public boolean isLocal(String recipient) {
-        int sep = recipient.indexOf('@');
-        if (sep == -1) return false;
-        String host = recipient.substring(sep + 1);
-        String user = recipient.substring(0, sep);
-        if (localHost.contains(host) && localUsers.contains(user)) return true;
-        else return false;
+        String host = getHost(recipient);
+        String user = getUser(recipient);
+        return (localHost.contains(host) && mailUsers.containsKey(user));
     }
     
     private String getUser(String recipient) {
         int sep = recipient.indexOf('@');
         if (sep == -1) return "";
         return recipient.substring(0, sep);
+    }
+    
+    private String getHost(String recipient) {
+        int sep = recipient.indexOf('@');
+        if (sep == -1) return "";
+        return recipient.substring(sep + 1);
     }
     
     public void delivery(MessageContainer mc) {
@@ -81,14 +78,14 @@ public class LocalAgent implements Configurable, Composer {
         state.setRecipients(recipients);
     }
     
-    private Store.MessageContainerRepository getUserMailbox(String userName) {
+    private MessageContainerRepository getUserMailbox(String userName) {
 
-        Store.MessageContainerRepository userInbox = (Store.MessageContainerRepository) null;
+        MessageContainerRepository userInbox = (MessageContainerRepository) null;
         String repositoryName = "localInbox." + userName;
         try {
-            userInbox = (Store.MessageContainerRepository) comp.getComponent(repositoryName);
+            userInbox = (MessageContainerRepository) comp.getComponent(repositoryName);
         } catch (ComponentNotFoundException ex) {
-            userInbox = (Store.MessageContainerRepository) store.getPublicRepository(repositoryName);
+            userInbox = (MessageContainerRepository) store.getPublicRepository(repositoryName);
             comp.put(repositoryName, userInbox);
         }
         return userInbox;
