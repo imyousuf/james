@@ -1,13 +1,15 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Disposable;
+import org.apache.avalon.Initializable;
 
 /**
  * Interface for objects representing an IMAP4rev1 mailbox (folder) with
@@ -19,7 +21,8 @@ import org.apache.avalon.*;
  * @see Mailbox
  * @see ACL
  */
-public interface ACLMailbox extends ACL, Mailbox, Contextualizable, Initializable, Disposable {
+public interface ACLMailbox 
+    extends ACL, Mailbox, Contextualizable, Initializable, Disposable {
  
     /**
      * Set the details particular to this Mailbox. Should only be called once,

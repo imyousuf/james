@@ -1,18 +1,14 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-
-//import org.apache.avalon.utils.*;
-import java.util.*;
 import java.io.*;
-
+import java.util.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
@@ -29,89 +25,81 @@ public class DefaultRecordRepository implements RecordRepository   {
     private File repository;
     private Logger logger =  LogKit.getLoggerFor("james.mailstore");
 
-    public DefaultRecordRepository() {
-    }
-
-
     public void setPath(final String rootPath) {
-	if (path != null) {
-	    throw new RuntimeException("Error: Attempt to reset AvalonRecordRepository");
-	}
-	path = rootPath;
-	
-	repository = new File(rootPath);
+        if (path != null) {
+            throw new RuntimeException("Error: Attempt to reset AvalonRecordRepository");
+        }
+        path = rootPath;
+        
+        repository = new File(rootPath);
 
-	if (!repository.isDirectory()) {
-	    if (! repository.mkdirs()){
-		throw new RuntimeException("Error: Cannot create directory for AvalonRecordRepository at: " + rootPath);
-	    }
-	} else if (!repository.canWrite()) {
-	    throw new RuntimeException("Error: Cannot write to directory for AvalonRecordRepository at: " + rootPath);
-	}
+        if (!repository.isDirectory()) {
+            if (! repository.mkdirs()){
+                throw new RuntimeException("Error: Cannot create directory for AvalonRecordRepository at: " + rootPath);
+            }
+        } else if (!repository.canWrite()) {
+            throw new RuntimeException("Error: Cannot write to directory for AvalonRecordRepository at: " + rootPath);
+        }
 
-		
+                
     }
-
 
     public synchronized void store( final FolderRecord fr) {
-	ObjectOutputStream out = null;
+        ObjectOutputStream out = null;
         try {
             String key = path + File.separator + fr.getAbsoluteName();
-	    out = new ObjectOutputStream( new FileOutputStream(key) );
+            out = new ObjectOutputStream( new FileOutputStream(key) );
             out.writeObject(fr);
-	    out.close();
-	    logger.info("Record stored for: " + fr.getAbsoluteName());
+            out.close();
+            logger.info("Record stored for: " + fr.getAbsoluteName());
             notifyAll();
         } catch (Exception e) {
-	    if (out != null) {
-		try {
-		    out.close();
-		} catch (Exception ignored) {
-		}
-	    }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception ignored) {
+                }
+            }
             e.printStackTrace();
             throw new
-		RuntimeException("Exception caught while storing Folder Record: " + e);
+                RuntimeException("Exception caught while storing Folder Record: " + e);
         }
     }
 
     public synchronized Iterator getAbsoluteNames() {
-	String[] names = repository.list();
-	return Collections.unmodifiableList(Arrays.asList(names)).iterator();
+        String[] names = repository.list();
+        return Collections.unmodifiableList(Arrays.asList(names)).iterator();
     }
 
     public synchronized FolderRecord retrieve(final String folderAbsoluteName) {
-	FolderRecord fr = null;
-	ObjectInputStream in = null;
-	try {
-	    String key = path + File.separator + folderAbsoluteName;
-	    in	= new ObjectInputStream( new FileInputStream(key) );
-	    fr = (FolderRecord) in.readObject();
-	    in.close();
+        FolderRecord fr = null;
+        ObjectInputStream in = null;
+        try {
+            String key = path + File.separator + folderAbsoluteName;
+            in        = new ObjectInputStream( new FileInputStream(key) );
+            fr = (FolderRecord) in.readObject();
+            in.close();
   
         } catch (Exception e) {
-	    if (in != null) {
-		try {
-		    in.close();
-		} catch (Exception ignored) {
-		}
-	    }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception ignored) {
+                }
+            }
             e.printStackTrace();
             throw new
-		RuntimeException("Exception caught while reading Folder Record: " + e);
+                RuntimeException("Exception caught while reading Folder Record: " + e);
         } finally {
-          notifyAll();
-	}
-	return fr;
+            notifyAll();
+        }
+        return fr;
     }
        
-    
     public boolean containsRecord(String folderAbsoluteName) {
-	File testFile = new File(repository, folderAbsoluteName);
-	return testFile.exists();
+        File testFile = new File(repository, folderAbsoluteName);
+        return testFile.exists();
     }
-
-
 }
 
     

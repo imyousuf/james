@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.net.Socket;
@@ -31,7 +30,8 @@ public interface ConnectionHandler
     MailboxEventListener {
 
     /**
-     * Prepares Connection Handler object by in/out streams to socket. Used before object is attached to its own thread.
+     * Prepares Connection Handler object by in/out streams to 
+     * socket. Used before object is attached to its own thread.
      *
      * @param socket Socket providing connection.
      */

@@ -1,17 +1,15 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.HashSet;
-
+import java.util.Set;
 import org.apache.avalon.Initializable;
 
 /**
@@ -22,8 +20,8 @@ import org.apache.avalon.Initializable;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-
-public class Flags implements Serializable, Initializable {
+public class Flags 
+    implements Serializable, Initializable {
 
     public static final int ANSWERED  = 0;
     public static final int DELETED   = 1;
@@ -45,23 +43,23 @@ public class Flags implements Serializable, Initializable {
      * Initialisation - only for object creation not on deserialisation.
      */
     public void init() {
-	users = new HashSet();
+        users = new HashSet();
     }
 
     /**
      * Returns IMAP formatted String of Flags for named user
      */
     public String getFlags(String user) {
-	StringBuffer buf = new StringBuffer();
-	buf.append("(");
-	if (flags[ANSWERED]) { buf.append("\\ANSWERED ");}
-	if (flags[DELETED]) { buf.append("\\DELETED ");}
-	if (flags[DRAFT]) { buf.append("\\DRAFT ");}
-	if (flags[FLAGGED]) { buf.append("\\FLAGGED ");}
-	if (flags[RECENT]) { buf.append("\\RECENT ");}
-	if (users.contains(user)) { buf.append("\\SEEN ");}
-	buf.append(")");
-	return buf.toString();
+        StringBuffer buf = new StringBuffer();
+        buf.append("(");
+        if (flags[ANSWERED]) { buf.append("\\ANSWERED ");}
+        if (flags[DELETED]) { buf.append("\\DELETED ");}
+        if (flags[DRAFT]) { buf.append("\\DRAFT ");}
+        if (flags[FLAGGED]) { buf.append("\\FLAGGED ");}
+        if (flags[RECENT]) { buf.append("\\RECENT ");}
+        if (users.contains(user)) { buf.append("\\SEEN ");}
+        buf.append(")");
+        return buf.toString();
     }
 
     /**
@@ -81,100 +79,100 @@ public class Flags implements Serializable, Initializable {
      * argument)
      */
     public boolean setFlags(String flagString, String user) {
-	flagString = flagString.toUpperCase();
-	if (flagString.startsWith("FLAGS")) {
-	    boolean [] newflags = new boolean[5];
-	    newflags[ANSWERED]
-		= (flagString.indexOf("\\ANSWERED") != -1) ? true : false;
-	    newflags[DELETED]
-		= (flagString.indexOf("\\DELETED") != -1) ? true : false;
-	    newflags[DRAFT]
-		= (flagString.indexOf("\\DRAFT") != -1) ? true : false;
-	    newflags[FLAGGED]
-		= (flagString.indexOf("\\FLAGGED") != -1) ? true : false;
-	    newflags[RECENT] =  false;
-	    if (flagString.indexOf("\\SEEN") != -1) {
-		users.add(user);
-	    }
-	    System.arraycopy(newflags, 0, flags, 0, newflags.length);
-	    return true;
-	} else if (flagString.startsWith("+FLAGS") ||flagString.startsWith("-FLAGS") ) {
-	    boolean mod = (flagString.startsWith("+") ? true : false);
-	    if (flagString.indexOf("\\ANSWERED") != -1) {
-		flags[ANSWERED] = mod;
-	    }
-	    if (flagString.indexOf("\\DELETED") != -1) {
-		flags[DELETED] = mod;
-	    }
-	    if (flagString.indexOf("\\DRAFT") != -1) {
-		flags[DRAFT] = mod;
-	    }
-	    if (flagString.indexOf("\\FLAGGED") != -1) {
-		flags[FLAGGED] = mod;
-	    }
-	    if (flagString.indexOf("\\SEEN") != -1) {
-		if( mod) {
-		    users.add(user);
-		} else {
-		    users.remove(user);
-		}
-	    }
-	    return true;
-	} else {
-	    return false;
-	}
+        flagString = flagString.toUpperCase();
+        if (flagString.startsWith("FLAGS")) {
+            boolean [] newflags = new boolean[5];
+            newflags[ANSWERED]
+                = (flagString.indexOf("\\ANSWERED") != -1) ? true : false;
+            newflags[DELETED]
+                = (flagString.indexOf("\\DELETED") != -1) ? true : false;
+            newflags[DRAFT]
+                = (flagString.indexOf("\\DRAFT") != -1) ? true : false;
+            newflags[FLAGGED]
+                = (flagString.indexOf("\\FLAGGED") != -1) ? true : false;
+            newflags[RECENT] =  false;
+            if (flagString.indexOf("\\SEEN") != -1) {
+                users.add(user);
+            }
+            System.arraycopy(newflags, 0, flags, 0, newflags.length);
+            return true;
+        } else if (flagString.startsWith("+FLAGS") ||flagString.startsWith("-FLAGS") ) {
+            boolean mod = (flagString.startsWith("+") ? true : false);
+            if (flagString.indexOf("\\ANSWERED") != -1) {
+                flags[ANSWERED] = mod;
+            }
+            if (flagString.indexOf("\\DELETED") != -1) {
+                flags[DELETED] = mod;
+            }
+            if (flagString.indexOf("\\DRAFT") != -1) {
+                flags[DRAFT] = mod;
+            }
+            if (flagString.indexOf("\\FLAGGED") != -1) {
+                flags[FLAGGED] = mod;
+            }
+            if (flagString.indexOf("\\SEEN") != -1) {
+                if( mod) {
+                    users.add(user);
+                } else {
+                    users.remove(user);
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setAnswered(boolean newState) {
-	flags[ANSWERED] = newState;
+        flags[ANSWERED] = newState;
     }
 
     public boolean isAnswered() {
-	return flags[ANSWERED];
+        return flags[ANSWERED];
     }
 
     public void setDeleted(boolean newState) {
-	flags[DELETED] = newState;
+        flags[DELETED] = newState;
     }
 
     public boolean isDeleted() {
-	return flags[DELETED];
+        return flags[DELETED];
     }
 
     public void setDraft(boolean newState) {
-	flags[DRAFT] = newState;
+        flags[DRAFT] = newState;
     }
 
     public boolean isDraft() {
-	return flags[DRAFT];
+        return flags[DRAFT];
     }
 
     public void setFlagged(boolean newState) {
-	flags[FLAGGED] = newState;
+        flags[FLAGGED] = newState;
     }
 
     public boolean isFlagged() {
-	return flags[FLAGGED];
+        return flags[FLAGGED];
     }
 
     public void setRecent(boolean newState) {
-	flags[RECENT] = newState;
+        flags[RECENT] = newState;
     }
 
     public boolean isRecent() {
-	return flags[RECENT];
+        return flags[RECENT];
     }
 
     public void setSeen(boolean newState, String user) {
-	if( newState) {
-	    users.add(user);
-	} else {
-	    users.remove(user);
-	}
+        if( newState) {
+            users.add(user);
+        } else {
+            users.remove(user);
+        }
     }
 
     public boolean isSeen(String user) {
-	return users.contains(user);
+        return users.contains(user);
     }
 }
 

@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.io.*;
@@ -13,9 +12,9 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+import org.apache.avalon.*;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.*;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.services.*;
@@ -38,8 +37,8 @@ import org.apache.log.Logger;
  * @see FolderRecord
  * @see RecordRepository
  */
-
-public class JamesHost implements Host, Component, Initializable {
+public class JamesHost 
+    implements Host, Component, Initializable {
 
     private Context context;
     private Configuration conf;
@@ -149,11 +148,6 @@ public class JamesHost implements Host, Component, Initializable {
         logger.info("JamesHost ...init end");
     }
 
-    public void destroy() throws Exception {
-    }
-
-
-
     /**
      * Establishes whether this host is the Home Server for the specified user.
      * Used during login to decide whether a LOGIN_REFERRAL has to be sent to
@@ -166,7 +160,6 @@ public class JamesHost implements Host, Component, Initializable {
     public boolean isHomeServer (String username) {
         return localUsers.contains(username);
     }
-
 
     /**
      * Establishes if the specified user can access any mailboxes on this host.
@@ -269,7 +262,6 @@ public class JamesHost implements Host, Component, Initializable {
             }
         }
     }
-
 
     /**
      * Returns a reference to a newly created Mailbox. The request should
@@ -417,7 +409,6 @@ public class JamesHost implements Host, Component, Initializable {
             logger.info("Mailbox " + absName + " now has " + count + "live references");
             mailboxCounts.put(absName, (new Integer(count)));
         }
-
     }
 
     /**
@@ -455,8 +446,6 @@ public class JamesHost implements Host, Component, Initializable {
         return false;
         //return deleteAbsoluteMailbox(user, absoluteName);
     }
-
-   
 
     /**
      * Renames an existing MailBox. The specified mailbox must already
@@ -499,7 +488,6 @@ public class JamesHost implements Host, Component, Initializable {
         return privateNamespace;
     }
 
-
     /**
      * Return UIDValidity for named mailbox. Implementations should track
      * existing and deleted folders. 
@@ -508,7 +496,6 @@ public class JamesHost implements Host, Component, Initializable {
      * @returns  an integer containing the current UID Validity value.
      */
     //  public int getUIDValidity(String mailbox);
-
 
     /**
      * Returns an iterator over an unmodifiable collection of Strings
@@ -683,7 +670,6 @@ public class JamesHost implements Host, Component, Initializable {
                     }
                 }
                   
-
                 if (match)  {
                     logger.info("Processing match for : " + test);
                     FolderRecord record = recordRep.retrieve(test);
@@ -738,7 +724,6 @@ public class JamesHost implements Host, Component, Initializable {
             e.printStackTrace();
             return null;
         }
-        
     }
     
     /**
@@ -768,7 +753,6 @@ public class JamesHost implements Host, Component, Initializable {
         throws MailboxException, AccessControlException {
         return false;
     }
-
 
     /**
      * Returns a string giving the status of a mailbox on requested criteria.

@@ -1,33 +1,28 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
-
-
 
 import java.net.*;
 import java.util.Date;
-import org.apache.avalon.Loggable;
 import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.Composer;
+import org.apache.avalon.Component;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Loggable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Component;
 import org.apache.avalon.util.lang.*;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.cornerstone.services.SocketServer;
 import org.apache.james.*;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
 
 /**
  * The Server listens on a specified port and passes connections to a

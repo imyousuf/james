@@ -1,23 +1,18 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-
+import java.util.List;
+import java.util.Map;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeMessage;
 import org.apache.avalon.Composer;
 import org.apache.avalon.configuration.Configurable;
-//import org.apache.avalon.services.Service;
-
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.core.EnhancedMimeMessage;
@@ -67,8 +62,8 @@ import org.apache.mailet.Mail;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-
-public interface Mailbox extends Configurable, Composer {
+public interface Mailbox 
+    extends Configurable, Composer {
 
     String SYSTEM_FLAGS = "\\Seen \\Answered \\Flagged \\Deleted \\Draft";
     String RECENT_FLAG =  "\\Recent"; 
@@ -500,7 +495,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns true if user has at least lookup rights
      */
     boolean hasLookupRights( String user );
-	
+        
     /**
      * Establishes if specified user has create rights for this mailbox.
      *
