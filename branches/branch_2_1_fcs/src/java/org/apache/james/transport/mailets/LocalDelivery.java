@@ -63,6 +63,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -86,10 +87,16 @@ public class LocalDelivery extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
+        MimeMessage message = mail.getMessage();
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                getMailetContext().storeMail(mail.getSender(), recipient, mail.getMessage());
+                //Per RFC 1327 (?)
+                MimeMessage localMessage = new MimeMessage(message);
+                localMessage.addHeader("Delivered-To", recipient.toString());
+                localMessage.saveChanges();
+
+                getMailetContext().storeMail(mail.getSender(), recipient, localMessage);
             } catch (Exception ex) {
                 getMailetContext().log("Error while storing mail.", ex);
                 errors.add(recipient);
@@ -103,7 +110,7 @@ public class LocalDelivery extends GenericMailet {
             // email doesn't include any details regarding the details of the failure(s).
             // In the future we may wish to address this.
             getMailetContext().sendMail(mail.getSender(),
-                                        errors, mail.getMessage(), Mail.ERROR);
+                                        errors, message, Mail.ERROR);
         }
         //We always consume this message
         mail.setState(Mail.GHOST);
