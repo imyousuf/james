@@ -15,7 +15,7 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.phoenix.BlockContext;
+import org.apache.james.context.AvalonContextConstants;
 import org.apache.james.nntpserver.NNTPException;
 
 import java.io.File;
@@ -47,8 +47,22 @@ public class NNTPUtil {
         }
         fileName = fileName.substring(prefixLength);
         if (!(fileName.startsWith("/"))) {
-            fileName = ((BlockContext)context).getBaseDirectory() +
-                       File.separator + fileName;
+            String baseDirectory = "";
+            try {
+                File applicationHome =
+                    (File)context.get(AvalonContextConstants.APPLICATION_HOME);
+                baseDirectory = applicationHome.toString();
+            } catch (ContextException ce) {
+                throw new ConfigurationException("Encountered exception when resolving application home in Avalon context.", ce);
+            } catch (ClassCastException cce) {
+                throw new ConfigurationException("Application home object stored in Avalon context was not of type java.io.File.", cce);
+            }
+            StringBuffer fileNameBuffer =
+                new StringBuffer(128)
+                        .append(baseDirectory)
+                        .append(File.separator)
+                        .append(fileName);
+            fileName = fileNameBuffer.toString();
         }
         File f = new File(fileName);
         if ( f.exists() && f.isFile() )
