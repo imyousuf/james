@@ -8,9 +8,9 @@
 
 package org.apache.james.usermanager;
 
-import org.apache.java.lang.*;
-import org.apache.avalon.interfaces.*;
-import org.apache.java.util.*;
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
+import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import java.util.*;
 
@@ -41,7 +41,7 @@ public class UserManager implements Component, Configurable, Composer, Service, 
 
 	public void init() throws Exception {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        String rootPath = conf.getConfiguration("repository", "file://../var/users/").getValue();
+        String rootPath = conf.getConfiguration("repository").getValue("file://../var/users/");
         store = (Store) comp.getComponent(Interfaces.STORE);
         rootRepository = (UsersRepository) store.getPrivateRepository(rootPath, UsersRepository.USER, Store.ASYNCHRONOUS);
     }

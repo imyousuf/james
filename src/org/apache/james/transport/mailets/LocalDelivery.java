@@ -10,10 +10,10 @@ package org.apache.james.transport.mailets;
 
 import org.apache.mail.*;
 import org.apache.james.transport.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import java.util.*;
 import org.apache.james.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 
 /**
  * Receive  a Mail from JamesSpoolManager and takes care of delivery

@@ -8,8 +8,8 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.java.lang.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
@@ -55,7 +55,16 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         logger.log("RemoteManager init...", "RemoteAdmin", logger.INFO);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
-        socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, conf.getConfiguration("port", "4554").getValueAsInt(), this);
+        int port = conf.getConfiguration("port").getValueAsInt(4554);
+        InetAddress bind = null;
+        try {
+            String bindTo = conf.getConfiguration("bind").getValue();
+            if (bindTo.length() > 0) {
+                bind = InetAddress.getByName(bindTo);
+            }
+        } catch (ConfigurationException e) {
+        }
+        socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, port, bind, this);
         admaccount = new Hashtable();
         for (Enumeration e = conf.getConfigurations("administrator_accounts.account"); e.hasMoreElements();) {
             Configuration c = (Configuration) e.nextElement();
@@ -71,7 +80,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
 
     public void parseRequest(Socket s) {
 
-        timeServer.setAlarm("RemoteManager", this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
+        timeServer.setAlarm("RemoteManager", this, conf.getConfiguration("connectiontimeout").getValueAsLong(120000));
         socket = s;
         String remoteHost = s.getInetAddress().getHostName();
         String remoteIP = s.getInetAddress().getHostAddress();

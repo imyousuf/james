@@ -8,7 +8,7 @@
 package org.apache.james.transport;
 
 import java.util.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.mail.*;
 /**
  * @author Serge Knystautas <sergek@lokitech.com>

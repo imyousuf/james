@@ -10,7 +10,7 @@ package org.apache.james.transport;
 
 import org.apache.mail.*;
 import java.util.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 
 /**
  * @version 1.0.0, 24/04/1999

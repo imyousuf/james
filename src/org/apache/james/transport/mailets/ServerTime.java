@@ -8,14 +8,14 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.java.lang.*;
 import java.util.*;
-import org.apache.james.*;
-import org.apache.avalon.interfaces.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+import org.apache.mail.*;
+import org.apache.james.*;
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
+import org.apache.james.transport.*;
 
 /**
  * Returns the current time for the mail server.  Sample configuration:
