@@ -99,6 +99,7 @@ public class TestSelectedCommandsInSelectedState
         suite.addTest( new TestSelectedCommandsInSelectedState( "Search" ) );
         suite.addTest( new TestSelectedCommandsInSelectedState( "FetchSingleMessage" ) );
         suite.addTest( new TestSelectedCommandsInSelectedState( "FetchMultipleMessages" ) );
+        suite.addTest( new TestSelectedCommandsInSelectedState( "FetchPeek" ) );
         suite.addTest( new TestSelectedCommandsInSelectedState( "Store" ) );
         suite.addTest( new TestSelectedCommandsInSelectedState( "Copy" ) );
         suite.addTest( new TestSelectedCommandsInSelectedState( "Uid" ) );

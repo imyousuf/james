@@ -6,6 +6,7 @@ S: f1 OK FETCH completed
 
 # BODY[]
 # Not PEEK, so the Seen flag is implicitly set.
+# TODO - should test that this flag is persisted
 C: f1 FETCH 1 (BODY[])
 S: \* 1 FETCH \(FLAGS \(\\Seen\) BODY\[\] \{255\}
 S: Date: Mon, 7 Feb 1994 21:52:25 -0800 \(PST\)
@@ -67,18 +68,6 @@ S: f1 OK FETCH completed
 
 # todo - multipart messages.
 # todo - partial fetch BODY[]<0.100>
-
-# BODY.PEEK[]
-# BODY.PEEK[HEADER]
-# BODY.PEEK[HEADER.FIELDS]
-# BODY.PEEK[HEADER.FIELDS.NOT]
-# BODY.PEEK[MIME]
-# BODY.PEEK[TEXT]
-C: f1 FETCH 1 (BODY.PEEK[TEXT])
-S: \* 1 FETCH \(BODY\[TEXT\] \{10\}
-S: Test 01
-S: \)
-S: f1 OK FETCH completed
 
 # BODYSTRUCTURE - TODO should be returning extension data - language, md5 etc.
 C: f1 FETCH 1 (BODYSTRUCTURE)
