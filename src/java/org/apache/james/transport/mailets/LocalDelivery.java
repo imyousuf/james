@@ -132,6 +132,9 @@ public class LocalDelivery extends GenericMailet {
 
         protected void updateHeaders() throws MessagingException {
             if (getMessageID() == null) super.updateHeaders();
+            else {
+                modified = false;
+            }
         }
     }
 
@@ -185,11 +188,6 @@ public class LocalDelivery extends GenericMailet {
                         recipients = new HashSet();
                         recipients.add(forwardTo);
                         try {
-                            // Add qmail's de facto standard Delivered-To header
-                            MimeMessage localMessage = new LocalMimeMessage(message);
-                            localMessage.addHeader("Delivered-To", recipient.toString());
-                            localMessage.saveChanges();
-
                             getMailetContext().sendMail(mail.getSender(), recipients, localMessage);
                             StringBuffer logBuffer =
                                 new StringBuffer(128).append("Mail for ").append(username).append(
@@ -209,6 +207,11 @@ public class LocalDelivery extends GenericMailet {
                 }
             }
             try {
+                // Add qmail's de facto standard Delivered-To header
+                MimeMessage localMessage = new LocalMimeMessage(message);
+                localMessage.addHeader("Delivered-To", recipient.toString());
+                localMessage.saveChanges();
+
                 getMailetContext().getMailRepository(inboxURI + recipient.getUser() + "/").store(mail);
             } catch (Exception ex) {
                 getMailetContext().log("Error while storing mail.", ex);
