@@ -1397,7 +1397,7 @@ public class NNTPHandler
             }
         }
         if ( group != null ) {
-            this.group = group;
+            // this.group = group;
 
             // Set the current article pointer.  If no
             // articles are in the group, the current article
