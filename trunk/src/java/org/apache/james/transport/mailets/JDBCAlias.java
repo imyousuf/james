@@ -72,7 +72,7 @@ public class JDBCAlias extends GenericMailet implements Contextualizable {
             fileName = ((BlockContext)context).getBaseDirectory() + File.separator + fileName;
             File sqlFile = (new File(fileName)).getCanonicalFile();
 
-            String resourceName = "org.apache.james.mailrepository.JDBCMailRepository";
+            String resourceName = "org.apache.james.mailrepository.JDBCAlias";
 
             log("Reading SQL resources from file: " +
                               sqlFile.getAbsolutePath() + ", section " +
