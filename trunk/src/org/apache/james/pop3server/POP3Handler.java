@@ -78,8 +78,8 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.servername = conf.getConfiguration("servername", "localhost").getValue();
-        this.postmaster = conf.getConfiguration("postmaster", "postmaster@" + this.servername).getValue();
-        this.softwaretype = "Apache James POP3 v @@version@@";
+        this.postmaster = conf.getConfiguration("postmaster", "postmaster@" + servername).getValue();
+        this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
         this.userMailbox = new Vector();
     }
     
