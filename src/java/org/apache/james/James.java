@@ -64,7 +64,7 @@ import java.util.*;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.35.4.16 $
+ * @version This is $Revision: 1.35.4.17 $
 
  */
 public class James
@@ -638,32 +638,18 @@ public class James
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
 
-        //If there is a Return-Path header,
-        String[] returnPathHeaders = orig.getHeader(RFC2822Headers.RETURN_PATH);
-        String returnPathHeader = null;
-        if (returnPathHeaders != null) {
-            // TODO: Take a look at the JavaMail spec to see if the originating header
-            //       is guaranteed to be at position 0
-            returnPathHeader = returnPathHeaders[0];
-            if (returnPathHeader != null) {
-                returnPathHeader = returnPathHeader.trim();
-                if (returnPathHeader.equals("<>")) {
-                    if (getLogger().isInfoEnabled())
-                        getLogger().info("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
-                    return;
-                } else {
-                    if (getLogger().isInfoEnabled())
-                        getLogger().info("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnPathHeader);
-                    //Return the message to that address, not to the Reply-To address
-                    reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(returnPathHeader));
-                }
-            }
+        if (mail.getSender() == null) {
+            if (getLogger().isInfoEnabled())
+                getLogger().info("Mail to be bounced contains a null (<>) reverse path.  No bounce will be sent.");
+            return;
         } else {
-            getLogger().warn("Mail to be bounced does not contain a Return-Path header.");
+            // Bounce message goes to the reverse path, not to the Reply-To address
+            if (getLogger().isInfoEnabled())
+                getLogger().info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
+            reply.setRecipient(MimeMessage.RecipientType.TO, mail.getSender().toInternetAddress());
         }
 
         reply.setSentDate(new Date());
-        reply.setHeader(RFC2822Headers.RETURN_PATH,"<>");
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();

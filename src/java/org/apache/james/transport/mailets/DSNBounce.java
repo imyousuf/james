@@ -498,23 +498,22 @@ public class DSNBounce extends AbstractNotify {
             ((MailImpl) newMail).setRemoteAddr("127.0.0.1");
             ((MailImpl) newMail).setRemoteHost("localhost");
         }
-        MailAddress returnAddress = getExistingReturnPath(originalMail);
-        Collection newRecipients = new HashSet();
-        if (returnAddress == SpecialAddress.NULL) {
+
+        if (originalMail.getSender() == null) {
             if (isDebug)
                 log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
             if(!getPassThrough(originalMail)) {
                 originalMail.setState(Mail.GHOST);
             }
             return;
-        } else if (returnAddress == null) {
-            log("WARNING: Mail to be bounced does not contain a reverse-path.");
-        } else {
-            if (isDebug)
-                log("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnAddress);
         }
 
-        newRecipients.add(returnAddress);
+        String reversePath = originalMail.getSender().toString();
+        if (isDebug)
+            log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + reversePath);
+
+        Collection newRecipients = new HashSet();
+        newRecipients.add(reversePath);
         ((MailImpl)newMail).setRecipients(newRecipients);
 
         if (isDebug) {

@@ -124,7 +124,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.21 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.22 $ $Date: 2004/08/19 00:45:16 $
  * @since 2.2.0
  */
 
@@ -706,15 +706,10 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected void setReversePath(Mail newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
         if(reversePath != null) {
-            String reversePathString;
             if (reversePath == SpecialAddress.NULL) {
                 reversePath = null;
-                reversePathString = "";
-            } else {
-                reversePathString = reversePath.toString();
             }
             ((MailImpl) newMail).setSender(reversePath);
-            newMail.getMessage().setHeader(RFC2822Headers.RETURN_PATH, "<" + reversePathString + ">");
             if (isDebug) {
                 log("reversePath set to: " + reversePath);
             }
