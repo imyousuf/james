@@ -101,7 +101,7 @@ import java.util.*;
  *
  * as well as other places.
  *
- * This is $Revision: 1.33.4.8 $
+ * This is $Revision: 1.33.4.9 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -707,8 +707,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
 
-//        props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
-//        props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
+        props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
+        props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         //Set the hostname we'll use as this server
         if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
