@@ -60,7 +60,7 @@ Legal:
         <path location="${build.classes}"/>
         <fileset dir="${lib.dir}">
             <include name="junit-3.7.jar"/>
-            <include name="mail_1_2.jar"/>
+            <include name="mail_1_3.jar"/>
             <include name="activation.jar"/>
             <include name="avalon-framework-20011115.jar"/>
             <include name="phoenix-engine-20011230.jar"/>
