@@ -8,6 +8,7 @@
 package org.apache.james.core;
 
 import java.io.*;
+import javax.mail.MessagingException;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
@@ -19,10 +20,6 @@ import java.io.*;
  *
  *
  * @author <a href="mailto:sergek@lokitech.com>">Serge Knystautas</a>
- *
- * Modified by <a href="mailto:okidz@pindad.com">Oki DZ</a>
- * Thu Oct  4 15:15:27 WIT 2001
- *
  */
 public class MimeMessageInputStreamSource extends MimeMessageSource {
 
@@ -43,8 +40,12 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
      *
      * @param key the prefix for the name of the temp file
      * @param in the stream containing the MimeMessage
+     *
+     * @throws MessagingException if an error occurs while trying to store
+     *                            the stream
      */
-    public MimeMessageInputStreamSource(String key, InputStream in) {
+    public MimeMessageInputStreamSource(String key, InputStream in)
+            throws MessagingException {
         //We want to immediately read this into a temporary file
         //Create a temp file and channel the input stream into it
         OutputStream fout = null;
@@ -60,7 +61,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
 
             sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
-            throw new RuntimeException("Unable to retrieve the data: " + ioe.getMessage());
+            throw new MessagingException("Unable to retrieve the data: " + ioe.getMessage(), ioe);
         } finally {
             try {
                 if (fout != null) {
