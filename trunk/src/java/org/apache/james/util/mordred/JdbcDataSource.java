@@ -46,7 +46,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.11 $ $Date: 2002/07/27 08:15:48 $
+ * @version CVS $Revision: 1.12 $ $Date: 2002/08/12 07:41:36 $
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
  * @since 4.0
@@ -109,8 +109,13 @@ public class JdbcDataSource extends AbstractLogEnabled
         //If we find one, book it.
         int count                                   = total_served++;
         if(DEEP_DEBUG) {
-            System.out.println(new java.util.Date() + " trying to get a connection (" + count +
-                               ")");
+            StringBuffer deepDebugBuffer =
+                new StringBuffer(128)
+                        .append((new java.util.Date()).toString())
+                        .append(" trying to get a connection (")
+                        .append(count)
+                        .append(")");
+            System.out.println(deepDebugBuffer.toString());
         }
         for(int attempts = 1; attempts <= 100; attempts++) {
             synchronized(pool) {
@@ -121,9 +126,13 @@ public class JdbcDataSource extends AbstractLogEnabled
                     try {
                         if(entry.lock()) {
                             if(DEEP_DEBUG) {
-                                System.out.println(
-                                        new java.util.Date() + " return a connection (" + count +
-                                        ")");
+                                StringBuffer deepDebugBuffer =
+                                    new StringBuffer(128)
+                                            .append((new java.util.Date()).toString())
+                                            .append(" return a connection (")
+                                            .append(count)
+                                            .append(")");
+                                System.out.println(deepDebugBuffer.toString());
                             }
                             return entry;
                         }
@@ -146,9 +155,13 @@ public class JdbcDataSource extends AbstractLogEnabled
                     PoolConnEntry entry = createConn();
                     if(entry != null) {
                         if(DEEP_DEBUG) {
-                            System.out.println(
-                                    new java.util.Date() + " returning new connection (" + count +
-                                    ")");
+                            StringBuffer deepDebugBuffer =
+                                new StringBuffer(128)
+                                        .append((new java.util.Date()).toString())
+                                        .append(" returning new connection (")
+                                        .append(count)
+                                        .append(")");
+                            System.out.println(deepDebugBuffer.toString());
                         }
                         return entry;
                     }
@@ -162,7 +175,12 @@ public class JdbcDataSource extends AbstractLogEnabled
                         PoolConnEntry entry = createConn();
                         if(entry != null) {
                             if(DEEP_DEBUG) {
-                                System.out.println(" returning new connection (" + count + "(");
+                                StringBuffer deepDebugBuffer =
+                                    new StringBuffer(32)
+                                            .append(" returning new connection (")
+                                            .append(count)
+                                            .append(")");
+                                System.out.println(deepDebugBuffer.toString());
                             }
                             return entry;
                         } else {
@@ -176,7 +194,9 @@ public class JdbcDataSource extends AbstractLogEnabled
                 PrintWriter pout  = new PrintWriter(sout, true);
                 pout.println("Error creating connection: ");
                 sqle.printStackTrace(pout);
-                getLogger().error(sout.toString());
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error(sout.toString());
+                }
             }
             //otherwise sleep 50ms 10 times, then create a connection
             try {
@@ -211,11 +231,17 @@ public class JdbcDataSource extends AbstractLogEnabled
                 throw new ConfigurationException("You need to specify a valid driver, e.g., <driver>my.class</driver>");
             }
             try {
-                getLogger().debug("Loading new driver: " + jdbcDriver);
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Loading new driver: " + jdbcDriver);
+                }
                 Class.forName(jdbcDriver, true, Thread.currentThread().getContextClassLoader());
             } catch(ClassNotFoundException cnfe) {
-                throw new ConfigurationException("'" + jdbcDriver +
-                                                 "' could not be found in classloader.  Please specify a valid JDBC driver");
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("'")
+                            .append(jdbcDriver)
+                            .append("' could not be found in classloader.  Please specify a valid JDBC driver");
+                throw new ConfigurationException(exceptionBuffer.toString());
             }
             if(jdbcURL == null) {
                 throw new ConfigurationException("You need to specify a valid JDBC connection string, e.g., <dburl>jdbc:driver:database</dburl>");
@@ -223,12 +249,14 @@ public class JdbcDataSource extends AbstractLogEnabled
             if(maxConn < 0) {
                 throw new ConfigurationException("Maximum number of connections specified must be at least 1 (0 means no limit).");
             }
-            getLogger().debug("Starting connection pooler");
-            getLogger().debug("driver = " + jdbcDriver);
-            getLogger().debug("dburl = " + jdbcURL);
-            getLogger().debug("username = " + jdbcUsername);
-            //We don't show the password
-            getLogger().debug("max connections = " + maxConn);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Starting connection pooler");
+                getLogger().debug("driver = " + jdbcDriver);
+                getLogger().debug("dburl = " + jdbcURL);
+                getLogger().debug("username = " + jdbcUsername);
+                //We don't show the password
+                getLogger().debug("max connections = " + maxConn);
+            }
             pool         = new Vector();
             reaperActive = true;
             reaper       = new Thread(this);
@@ -286,9 +314,19 @@ public class JdbcDataSource extends AbstractLogEnabled
             if(verifyConnSQL != null) {
                 try {
                     // Test this connection
-                    java.sql.Statement stmt = entry.createStatement();
-                    stmt.execute(verifyConnSQL);
-                    stmt.close();
+                    java.sql.Statement stmt = null;
+                    try {
+                        stmt = entry.createStatement();
+                        stmt.execute(verifyConnSQL);
+                    } finally {
+                        try {
+                            if (stmt != null) {
+                                stmt.close();
+                            }
+                        } catch (SQLException sqle) {
+                            // Failure to close ignored on test connection
+                        }
+                    }
                     // Passed test... recycle the entry
                     entry.unlock();
                 } catch(SQLException e1) {
@@ -301,7 +339,9 @@ public class JdbcDataSource extends AbstractLogEnabled
             }
             return;
         } else {
-            getLogger().warn("----> Could not find connection to kill!!!");
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn("----> Could not find connection to kill!!!");
+            }
             new Throwable().printStackTrace();
             return;
         }
@@ -319,7 +359,9 @@ public class JdbcDataSource extends AbstractLogEnabled
             entry.unlock();
             return;
         } else {
-            getLogger().warn("----> Could not find the connection to free!!!");
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn("----> Could not find the connection to free!!!");
+            }
             return;
         }
     }
@@ -336,9 +378,15 @@ public class JdbcDataSource extends AbstractLogEnabled
                 synchronized(entry) {
                     if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
                        (age > ACTIVE_CONN_TIME_LIMIT)) {
-                        getLogger().info(
-                                " ***** connection " + entry.getId() + " is way too old: " + age +
-                                " > " + ACTIVE_CONN_TIME_LIMIT);
+                        StringBuffer logBuffer =
+                            new StringBuffer(128)
+                                    .append(" ***** connection ")
+                                    .append(entry.getId())
+                                    .append(" is way too old: ")
+                                    .append(age)
+                                    .append(" > ")
+                                    .append(ACTIVE_CONN_TIME_LIMIT);
+                        getLogger().info(logBuffer.toString());
                         // This connection is way too old...
                         // kill it no matter what
                         finalizeEntry(entry);
@@ -401,9 +449,17 @@ public class JdbcDataSource extends AbstractLogEnabled
                 connLastCreated = now;
             } else {
                 // We've already hit a limit... fail silently
-                getLogger().debug(
-                        "Connection limit hit... " + pool.size() + " in pool and " +
-                        connCreationsInProgress + " + on the way.");
+                if (getLogger().isDebugEnabled())
+                {
+                    StringBuffer logBuffer =
+                        new StringBuffer(128)
+                                .append("Connection limit hit... ")
+                                .append(pool.size())
+                                .append(" in pool and ")
+                                .append(connCreationsInProgress)
+                                .append(" + on the way.");
+                    getLogger().debug(logBuffer.toString());
+                }
                 return null;
             }
         }
@@ -412,7 +468,10 @@ public class JdbcDataSource extends AbstractLogEnabled
                                       java.sql.DriverManager.getConnection(jdbcURL, jdbcUsername,
                                                                            jdbcPassword),
                                       ++connectionCount);
-            getLogger().debug("Opening connection " + entry);
+            if (getLogger().isDebugEnabled())
+            {
+                getLogger().debug("Opening connection " + entry);
+            }
             entry.lock();
             pool.addElement(entry);
             return entry;
@@ -423,8 +482,10 @@ public class JdbcDataSource extends AbstractLogEnabled
             PrintWriter pout = new PrintWriter(sout, true);
             pout.println("Error creating connection: ");
             sqle.printStackTrace(pout);
-            getLogger().error(sout.toString());
-             return null;
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error(sout.toString());
+            }
+            return null;
         } finally {
             synchronized(this) {
                 connCreationsInProgress--;

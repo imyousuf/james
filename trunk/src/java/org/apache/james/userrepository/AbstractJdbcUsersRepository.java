@@ -23,6 +23,7 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.services.User;
+import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 
 import java.io.File;
@@ -77,6 +78,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     // Creates a single table with "username" the Primary Key.
     private String m_createUserTableSql;
 
+    // The JDBCUtil helper class
+    private JDBCUtil theJDBCUtil;
 
     public void contextualize(final Context context)
             throws ContextException {
@@ -89,7 +92,15 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
-        getLogger().debug(this.getClass().getName() + ".compose()");
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled())
+        {
+            logBuffer =
+                new StringBuffer(64)
+                        .append(this.getClass().getName())
+                        .append(".compose()");
+            getLogger().debug( logBuffer.toString() );
+        }
 
         m_datasources = 
             (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
@@ -112,7 +123,14 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      */
     public void configure(Configuration configuration) throws ConfigurationException 
     {
-        getLogger().debug(this.getClass().getName() +  ".configure()");
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            logBuffer =
+                new StringBuffer(64)
+                        .append(this.getClass().getName())
+                        .append(".configure()");
+            getLogger().debug( logBuffer.toString() );
+        }
 
         // Parse the DestinationURL for the name of the datasource, 
         // the table to use, and the (optional) repository Key.
@@ -147,8 +165,16 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                  "Must be of the format \"db://<data-source>[/<table>[/<key>]]\".");
         }
 
-        getLogger().debug("Parsed URL: table = '" + m_sqlParameters.get("table") + 
-                          "', key = '" + m_sqlParameters.get("key") + "'");
+        if (getLogger().isDebugEnabled()) {
+            logBuffer =
+                new StringBuffer(128)
+                        .append("Parsed URL: table = '")
+                        .append(m_sqlParameters.get("table"))
+                        .append("', key = '")
+                        .append(m_sqlParameters.get("key"))
+                        .append("'");
+            getLogger().debug(logBuffer.toString());
+        }
         
         // Get the SQL file location
         m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
@@ -179,7 +205,21 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      */
     public void initialize() throws Exception 
     {
-        getLogger().debug( this.getClass().getName() + ".initialize()");
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            logBuffer =
+                new StringBuffer(128)
+                        .append(this.getClass().getName())
+                        .append(".initialize()");
+            getLogger().debug( logBuffer.toString() );
+        }
+
+        theJDBCUtil =
+            new JDBCUtil() {
+                protected void delegatedLog(String logString) {
+                    AbstractJdbcUsersRepository.this.getLogger().warn("AbstractJdbcUsersRepository: " + logString);
+                }
+            };
 
         // Get the data-source required.
         m_datasource = (DataSourceComponent)m_datasources.select(m_datasourceName);
@@ -197,9 +237,16 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             }
             File sqlFile = (new File(fileName)).getCanonicalFile();
             
-            getLogger().debug("Reading SQL resources from file: " + 
-                              sqlFile.getAbsolutePath() + ", section " +
-                              this.getClass().getName() + ".");
+            if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(256)
+                            .append("Reading SQL resources from file: ")
+                            .append(sqlFile.getAbsolutePath())
+                            .append(", section ")
+                            .append(this.getClass().getName())
+                            .append(".");
+                getLogger().debug(logBuffer.toString());
+            }
 
             SqlResources sqlStatements = new SqlResources();
             sqlStatements.init(sqlFile, this.getClass().getName(), 
@@ -233,44 +280,44 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             /*
             String tableName = m_tableName;
             if ( dbMetaData.storesLowerCaseIdentifiers() ) {
-                tableName = tableName.toLowerCase();
+                tableName = tableName.toLowerCase(Locale.US);
             }
             else if ( dbMetaData.storesUpperCaseIdentifiers() ) {
-                tableName = tableName.toUpperCase();
+                tableName = tableName.toUpperCase(Locale.US);
             }
             */
 
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! ( tableExists(dbMetaData, tableName) ||
-                    tableExists(dbMetaData, tableName.toUpperCase()) ||
-                    tableExists(dbMetaData, tableName.toLowerCase()) )) 
+            if (! theJDBCUtil.tableExists(dbMetaData, tableName)) 
             {
                 // Users table doesn't exist - create it.
-                PreparedStatement createStatement = 
-                    conn.prepareStatement(m_createUserTableSql);
-                createStatement.execute();
-                createStatement.close();
+                PreparedStatement createStatement = null;
+                try {
+                    createStatement =
+                        conn.prepareStatement(m_createUserTableSql);
+                    createStatement.execute();
+                } finally {
+                    theJDBCUtil.closeJDBCStatement(createStatement);
+                }
 
-                getLogger().info(this.getClass().getName() + ": Created table \'" + 
-                                 tableName + "\'.");
+                logBuffer =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(": Created table \'")
+                            .append(tableName)
+                            .append("\'.");
+                getLogger().info(logBuffer.toString());
             }
             else {
-                getLogger().debug("Using table: " + tableName);
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Using table: " + tableName);
+                }
             }
         
         }
         finally {
-            closeConnection( conn );
+            theJDBCUtil.closeJDBCConnection( conn );
         }
-    }
-
-    private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
-        throws SQLException
-    {
-        ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
-        boolean found = rsTables.next();
-        rsTables.close();
-        return found;
     }
 
     //
@@ -284,27 +331,28 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         List userList = new LinkedList(); // Build the users into this list.
 
         Connection conn = openConnection();
+        PreparedStatement getUsersStatement = null;
+        ResultSet rsUsers = null;
         try {
             // Get a ResultSet containing all users.
-            PreparedStatement getUsersStatement = 
+            getUsersStatement = 
                 conn.prepareStatement(m_getUsersSql);
-            ResultSet rsUsers = getUsersStatement.executeQuery();
+            rsUsers = getUsersStatement.executeQuery();
 
             // Loop through and build a User for every row.
             while ( rsUsers.next() ) {
                 User user = readUserFromResultSet(rsUsers);
                 userList.add(user);
             }
-
-            rsUsers.close();
-            getUsersStatement.close();
         }
         catch ( SQLException sqlExc) {
             sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
-            closeConnection(conn);
+            theJDBCUtil.closeJDBCResultSet(rsUsers);
+            theJDBCUtil.closeJDBCStatement(getUsersStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
 
         return userList.iterator();
@@ -316,23 +364,24 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      */
     protected void doAddUser(User user) {
         Connection conn = openConnection();
+        PreparedStatement addUserStatement = null;
+
         // Insert into the database.
         try {
             // Get a PreparedStatement for the insert.
-            PreparedStatement addUserStatement = 
+            addUserStatement = 
                 conn.prepareStatement(m_insertUserSql);
 
             setUserForInsertStatement(user, addUserStatement);
 
             addUserStatement.execute();
-            addUserStatement.close();
         }
         catch ( SQLException sqlExc) {
             sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
-        }
-        finally {
-            closeConnection(conn);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(addUserStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -344,19 +393,20 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         String username = user.getUserName();
 
         Connection conn = openConnection();
+        PreparedStatement removeUserStatement = null;
+
         // Delete from the database.
         try {
-            PreparedStatement removeUserStatement = conn.prepareStatement(m_deleteUserSql);
+            removeUserStatement = conn.prepareStatement(m_deleteUserSql);
             removeUserStatement.setString(1, username);
             removeUserStatement.execute();
-            removeUserStatement.close();
         }
         catch ( SQLException sqlExc ) {
             sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
-        }
-        finally {
-            closeConnection(conn);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(removeUserStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -366,23 +416,20 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     protected void doUpdateUser(User user)
     {
         Connection conn = openConnection();
+        PreparedStatement updateUserStatement = null;
 
         // Update the database.
         try {
-            PreparedStatement updateUserStatement = conn.prepareStatement(m_updateUserSql);
-
+            updateUserStatement = conn.prepareStatement(m_updateUserSql);
             setUserForUpdateStatement(user, updateUserStatement);
-
             updateUserStatement.execute();
-
-            updateUserStatement.close();
         }
         catch ( SQLException sqlExc ) {
             sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
-        }
-        finally {
-            closeConnection(conn);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(updateUserStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -409,7 +456,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             PreparedStatement getUsersStatement = 
                 conn.prepareStatement(sql);
 
-            getUsersStatement.setString(1, name.toLowerCase());
+            getUsersStatement.setString(1, name.toLowerCase(Locale.US));
 
             ResultSet rsUsers = getUsersStatement.executeQuery();
 
@@ -432,7 +479,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
-            closeConnection(conn);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -496,21 +543,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                 "An exception occurred getting a database connection.", sqle);
         }
     }
-
-    /**
-     * Closes a connection, handling exceptions.
-     */
-    private void closeConnection(Connection conn)
-    {
-        try {
-            conn.close();
-        }
-        catch (SQLException sqle) {
-            throw new CascadingRuntimeException(
-                "An exception occurred closing a database connection.", sqle);
-        }
-    }
-
 }    
 
 

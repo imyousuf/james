@@ -11,6 +11,7 @@ import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.james.Constants;
+import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
@@ -18,6 +19,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 import java.sql.*;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Vector;
 
 /**
@@ -25,7 +27,7 @@ import java.util.Vector;
  * is configured by passing the URL to a conn definition.  You need to set
  * the table name to check (or view) along with the source and target columns
  * to use.  For example,
- * &lt;mailet match="All" class="JDBCAlias"&gt;
+ * &lt;mailet match="All" class="JDBCListserv"&gt;
  *   &lt;data_source&gt;maildb&lt;/datasource&gt;
  *   &lt;listserv_id&gt;mylistserv&lt;/listserv_id&gt;
  *   &lt;listserv_table&gt;source_email_address&lt;/listserv_table&gt;
@@ -58,6 +60,13 @@ public class JDBCListserv extends GenericListserv {
     protected String listservQuery = null;
     protected String membersQuery = null;
 
+    // The JDBCUtil helper class
+    private final JDBCUtil theJDBCUtil =
+            new JDBCUtil() {
+                protected void delegatedLog(String logString) {
+                    log("JDBCListserv: " + logString);
+                }
+            };
 
     public void init() throws MessagingException {
         if (getInitParameter("data_source") == null) {
@@ -90,7 +99,7 @@ public class JDBCListserv extends GenericListserv {
 
         try {
             ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector block
+            // Get the DataSourceSelector service
             DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
             datasource = (DataSourceComponent)datasources.select(datasourceName);
@@ -101,39 +110,52 @@ public class JDBCListserv extends GenericListserv {
             DatabaseMetaData dbMetaData = conn.getMetaData();
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! ( tableExists(dbMetaData, listservTable) ||
-                    tableExists(dbMetaData, listservTable.toUpperCase()) ||
-                    tableExists(dbMetaData, listservTable.toLowerCase()) ))  {
-                throw new MailetException("Could not find table '" + listservTable + "' in datasource '" + datasourceName + "'");
+            if (!(theJDBCUtil.tableExists(dbMetaData, listservTable)))  {
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Could not find table '")
+                            .append(listservTable)
+                            .append("' in datasource '")
+                            .append(datasourceName)
+                            .append("'");
+                throw new MailetException(exceptionBuffer.toString());
             }
 
             // Check if the required members table exists. If not, complain.
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! ( tableExists(dbMetaData, membersTable) ||
-                    tableExists(dbMetaData, membersTable.toUpperCase()) ||
-                    tableExists(dbMetaData, membersTable.toLowerCase()) ))  {
-                throw new MailetException("Could not find table '" + membersTable + "' in datasource '" + datasourceName + "'");
+            if (!( theJDBCUtil.tableExists(dbMetaData, membersTable)))  {
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Could not find table '")
+                            .append(membersTable)
+                            .append("' in datasource '")
+                            .append(datasourceName)
+                            .append("'");
+                throw new MailetException(exceptionBuffer.toString());
             }
 
-            listservQuery = "SELECT members_only, attachments_allowed, reply_to_list, subject_prefix, list_address FROM "
-                    + listservTable + " WHERE listserv_id = ?";
-            membersQuery = "SELECT member FROM " + membersTable + " WHERE listserv_id = ?";
+            StringBuffer queryBuffer =
+                new StringBuffer(256)
+                        .append("SELECT members_only, attachments_allowed, reply_to_list, subject_prefix, list_address FROM ")
+                        .append(listservTable)
+                        .append(" WHERE listserv_id = ?");
+            listservQuery = queryBuffer.toString();
+            queryBuffer =
+                new StringBuffer(128)
+                        .append("SELECT member FROM ")
+                        .append(membersTable)
+                        .append(" WHERE listserv_id = ?");
+            membersQuery = queryBuffer.toString();
 
             //Always load settings at least once... if we aren't caching, we will load at each getMembers() call
             loadSettings();
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
-            throw new MessagingException("Error initializing JDBCAlias", e);
+            throw new MessagingException("Error initializing JDBCListserv", e);
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException sqle) {
-                //ignore
-            }
+            closeJdbcConnection(conn);
         }
     }
 
@@ -193,29 +215,50 @@ public class JDBCListserv extends GenericListserv {
         try {
             //Load members
             conn = datasource.getConnection();
-            stmt = conn.prepareStatement(membersQuery);
-            stmt.setString(1, listservID);
-            rs = stmt.executeQuery();
-            Collection tmpMembers = new Vector();
-            while (rs.next()) {
-                String address = rs.getString(1);
-                try {
-                    MailAddress mailAddress = new MailAddress(address);
-                    tmpMembers.add(mailAddress);
-                } catch (ParseException pe) {
-                    //don't stop... just log and continue
-                    log("error parsing address '" + address + "' in listserv '" + listservID + "'");
+            try {
+                stmt = conn.prepareStatement(membersQuery);
+                stmt.setString(1, listservID);
+                rs = stmt.executeQuery();
+                Collection tmpMembers = new Vector();
+                while (rs.next()) {
+                    String address = rs.getString(1);
+                    try {
+                        MailAddress mailAddress = new MailAddress(address);
+                        tmpMembers.add(mailAddress);
+                    } catch (ParseException pe) {
+                        //don't stop... just log and continue
+                        StringBuffer exceptionBuffer =
+                            new StringBuffer(64)
+                                    .append("error parsing address '")
+                                    .append(address)
+                                    .append("' in listserv '")
+                                    .append(listservID)
+                                    .append("'");
+                        log(exceptionBuffer.toString());
+                    }
                 }
+                members = tmpMembers;
+            } finally {
+                ResultSet localRS = rs;
+                // Clear reference to result set
+                rs = null;
+                closeJdbcResultSet(localRS);
+                Statement localStmt = stmt;
+                // Clear reference to statement
+                stmt = null;
+                closeJdbcStatement(localStmt);
             }
-            members = tmpMembers;
-            rs.close();
-            stmt.close();
 
             stmt = conn.prepareStatement(listservQuery);
             stmt.setString(1, listservID);
             rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new MailetException("Could not find listserv record for '" + listservID + "'");
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(64)
+                            .append("Could not find listserv record for '")
+                            .append(listservID)
+                            .append("'");
+                throw new MailetException(exceptionBuffer.toString());
             }
             membersOnly = rs.getBoolean("members_only");
             attachmentsAllowed = rs.getBoolean("attachments_allowed");
@@ -229,22 +272,23 @@ public class JDBCListserv extends GenericListserv {
                     listservAddress = new MailAddress(address);
                 } catch (ParseException pe) {
                     //log and ignore
-                    log("invalid listserv address '" + listservAddress + "' for listserv '" + listservID + "'");
+                    StringBuffer logBuffer =
+                        new StringBuffer(128)
+                                .append("invalid listserv address '")
+                                .append(listservAddress)
+                                .append("' for listserv '")
+                                .append(listservID)
+                                .append("'");
+                    log(logBuffer.toString());
                     listservAddress = null;
                 }
             }
-            rs.close();
-            stmt.close();
         } catch (SQLException sqle) {
             throw new MailetException("Problem loading settings", sqle);
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException sqle) {
-                //ignore
-            }
+            closeJdbcResultSet(rs);
+            closeJdbcStatement(stmt);
+            closeJdbcConnection(conn);
         }
     }
 
@@ -253,13 +297,54 @@ public class JDBCListserv extends GenericListserv {
     }
 
     /**
-     * Checks database metadata to see if a table exists.
+     * Closes database connection and prints to the log if an error
+     * is encountered
+     *
+     * @conn the connection to be closed
      */
-    private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
-            throws SQLException {
-        ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
-        boolean found = rsTables.next();
-        rsTables.close();
-        return found;
+    private void closeJdbcConnection(Connection conn) {
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException sqle) {
+            // Log exception and continue
+            log("JDBCListserv : Unexpected exception while closing database connection.");
+        }
     }
+
+    /**
+     * Closes database statement and prints to the log if an error
+     * is encountered
+     *
+     * @stmt the statement to be closed
+     */
+    private void closeJdbcStatement(Statement stmt) {
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException sqle) {
+            // Log exception and continue
+            log("JDBCListserv : Unexpected exception while closing database statement.");
+        }
+    }
+
+    /**
+     * Closes database result set and prints to the log if an error
+     * is encountered
+     *
+     * @aResultSet the result set to be closed
+     */
+    private void closeJdbcResultSet(ResultSet aResultSet ) {
+        try {
+            if (aResultSet != null) {
+                aResultSet.close();
+            }
+        } catch (SQLException sqle) {
+            // Log exception and continue
+            log("JDBCListserv : Unexpected exception while closing database result set.");
+        }
+    }
+
 }

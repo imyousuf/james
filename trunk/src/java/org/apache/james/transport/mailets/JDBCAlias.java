@@ -11,6 +11,7 @@ import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.james.Constants;
+import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -21,6 +22,7 @@ import javax.mail.internet.ParseException;
 import java.sql.*;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Vector;
 
 /**
@@ -41,6 +43,14 @@ public class JDBCAlias extends GenericMailet {
     protected DataSourceComponent datasource;
     protected String query = null;
 
+    // The JDBCUtil helper class
+    private final JDBCUtil theJDBCUtil =
+            new JDBCUtil() {
+                protected void delegatedLog(String logString) {
+                    log("JDBCAlias: " + logString);
+                }
+            };
+
     public void init() throws MessagingException {
         String mappingsURL = getInitParameter("mappings");
 
@@ -58,7 +68,7 @@ public class JDBCAlias extends GenericMailet {
         }
         try {
             ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector block
+            // Get the DataSourceSelector service
             DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
             datasource = (DataSourceComponent)datasources.select(datasourceName);
@@ -69,28 +79,34 @@ public class JDBCAlias extends GenericMailet {
             DatabaseMetaData dbMetaData = conn.getMetaData();
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! ( tableExists(dbMetaData, tableName) ||
-                    tableExists(dbMetaData, tableName.toUpperCase()) ||
-                    tableExists(dbMetaData, tableName.toLowerCase()) ))  {
-                throw new MailetException("Could not find table '" + tableName + "' in datasource '" + datasourceName + "'");
+            if (!(theJDBCUtil.tableExists(dbMetaData, tableName)))  {
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Could not find table '")
+                            .append(tableName)
+                            .append("' in datasource '")
+                            .append(datasourceName)
+                            .append("'");
+                throw new MailetException(exceptionBuffer.toString());
             }
 
             //Build the query
-            query = "SELECT " + getInitParameter("target_column")
-                    + " FROM " + tableName + " WHERE "
-                    + getInitParameter("source_column") + " = ?";
+            StringBuffer queryBuffer =
+                new StringBuffer(128)
+                        .append("SELECT ")
+                        .append(getInitParameter("target_column"))
+                        .append(" FROM ")
+                        .append(tableName)
+                        .append(" WHERE ")
+                        .append(getInitParameter("source_column"))
+                        .append(" = ?");
+            query = queryBuffer.toString();
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
             throw new MessagingException("Error initializing JDBCAlias", e);
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException sqle) {
-                //ignore
-            }
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -127,26 +143,27 @@ public class JDBCAlias extends GenericMailet {
                         recipientsToAdd.add(target);
                     } catch (ParseException pe) {
                         //Don't alias this address... there's an invalid address mapping here
-                        log("There is an invalid alias from " + source + " to " + mappingRS.getString(1));
+                        StringBuffer exceptionBuffer =
+                            new StringBuffer(128)
+                                    .append("There is an invalid alias from ")
+                                    .append(source)
+                                    .append(" to ")
+                                    .append(mappingRS.getString(1));
+                        log(exceptionBuffer.toString());
                         continue;
                     }
                 } finally {
-                    mappingRS.close();
+                    ResultSet localRS = mappingRS;
+                    // Clear reference to result set
+                    mappingRS = null;
+                    theJDBCUtil.closeJDBCResultSet(localRS);
                 }
             }
         } catch (SQLException sqle) {
             throw new MessagingException("Error accessing database", sqle);
         } finally {
-            try {
-                mappingStmt.close();
-            } catch (Exception e) {
-                //ignore
-            }
-            try {
-                conn.close();
-            } catch (Exception e) {
-                //ignore
-            }
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
 
         recipients.removeAll(recipientsToRemove);
@@ -155,17 +172,6 @@ public class JDBCAlias extends GenericMailet {
 
     public String getMailetInfo() {
         return "JDBC aliasing mailet";
-    }
-
-    /**
-     * Checks database metadata to see if a table exists.
-     */
-    private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
-            throws SQLException {
-        ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
-        boolean found = rsTables.next();
-        rsTables.close();
-        return found;
     }
 
 }
