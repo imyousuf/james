@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.12 $
-    Committed on $Date: 2001/09/20 01:11:06 $ by: $Author: donaldp $
+    This is $Revision: 1.13 $
+    Committed on $Date: 2001/09/27 13:37:51 $ by: $Author: serge $
 -->
 <config>
 
@@ -72,7 +72,7 @@
         <repository destinationURL="file://var/mail/inboxes/"
                     type="MAIL">
         </repository>
-      </inboxRepository> 
+      </inboxRepository>
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!--  The format for the destinationURL is "db://<data-source>/<table>"
@@ -95,7 +95,7 @@
 
 
       <!-- number of spool threads -->
-      <threads> 1 </threads>
+      <threads> 10 </threads>
 
         <!-- Set the packages from which to load mailets and matches -->
         <mailetpackages>
@@ -487,7 +487,7 @@
                     type="SPOOL">
         </repository>
       </spoolRepository>
-     
+
       <!-- Alternative spool repository definition for JDBC use -->
 
       <!--      <spoolRepository>
@@ -518,7 +518,7 @@
 
       <!-- Default: File-based user repositories
            Use these configurations to store user info in the filesystem  -->
- 
+
       <!-- The LocalUsers repository, for storing James' User info. -->
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
@@ -529,7 +529,7 @@
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/lists/list-james/"/>
       </repository>
-    
+
 
       <!-- Database backed user repositories
            Use these configurations to store user info in a database.
@@ -667,7 +667,7 @@
         <name>default</name>
 
         <!-- normal priority == 5, max-priority = 10 -->
-        <priority>5</priority> 
+        <priority>5</priority>
 
         <!-- are threads deamon threads ? -->
         <is-daemon>false</is-daemon>
