@@ -72,33 +72,38 @@
 
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
-                <DNSservers>
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
-<!-- Place here the list of your DNS servers, one for each <Server> tag-->
-                    <server> </server>
-                    <server> </server>
-                    <server> </server>
-<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-                </DNSservers>
-                <authoritative>false</authoritative>
-                <repository> file://../var/mail/delayed/ </repository>
 
                 <servletpackages>
                     <servletpackage>org.apache.james.transport.mailets.</servletpackage>
                 </servletpackages>
 <!--        LinearProcessor CONFIGURATION SAMPLE -->
-                <processor class="org.apache.james.transport.LinearProcessor">
-                    <servlet match="All" class="Identity">
+                <processor name="root" class="org.apache.james.transport.LinearProcessor">
+                    <servlet match="RecipientIs=pippo@salcazzo" class="Null">
                     </servlet>
-                    <servlet match="HostIs=maggie,localhost,maggie.betaversion.org" class="Null">
-                    </servlet>
-                    <servlet match="All" class="Null">
+                    <servlet match="All" class="Forward">
+                        <forwardto> john@maggie </forwardto>
+                        <forwardto> scoobie@maggie </forwardto>
                     </servlet>
                 </processor>
-                <errorManager class="Null">
-                </errorManager>
+                <processor name="error" class="Null">
+                </processor>
+                <processor name="transport" class="org.apache.james.transport.LinearProcessor">
+                    <servlet match="RecipientIsLocal" class="LocalDelivery">
+                    </servlet>
+                    <servlet match="All" class="RemoteDelivery">
+                        <DNSservers>
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!! -->
+                            <server> </server>
+                            <server> </server>
+                            <server> </server>
+<!-- END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! -->
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+                        </DNSservers>
+                        <authoritative>false</authoritative>
+                        <repository> file://../var/mail/delayed/ </repository>
+                    </servlet>
+                </processor>
             </spoolmanager>
         </block>
 

@@ -24,7 +24,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
     private SimpleComponentManager comp;
     private Configuration conf;
-    private Context context;
+    private SimpleContext context;
     private MailRepository spool;
     private Logger logger;
     private Mailet rootMailet;
@@ -35,7 +35,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     }
 
     public void setContext(Context context) {
-        this.context = context;
+        this.context = new SimpleContext(context);
     }
 
     public void setComponentManager(ComponentManager comp) {
@@ -48,20 +48,6 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         logger.log("JamesSpoolManager init...", "Processor", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
-        StringBuffer servers = new StringBuffer ();
-        for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
-            Configuration c = (Configuration)e.nextElement ();
-            servers.append (c.getValue () + " ");
-        }
-        boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
-        SmartTransport transport = new SmartTransport (servers.toString(), authoritative);
-        comp.put(Resources.TRANSPORT, transport);
-
-        String delayedRepository = conf.getConfiguration("repository", "file://../tmp/").getValue();
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
-        comp.put(Resources.TMP_REPOSITORY, delayed);
-
         MailetLoader mailetLoader = new MailetLoader();
         mailetLoader.setConfiguration(conf.getConfiguration("servletpackages"));
         comp.put(Resources.MAILET_LOADER, mailetLoader);
@@ -69,30 +55,24 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         MatchLoader matchLoader = new MatchLoader();
         comp.put(Resources.MATCH_LOADER, matchLoader);
         
-        Configuration rootMailetConf = conf.getConfiguration("processor");
-        String className = rootMailetConf.getAttribute("class");
-        try {
-            JamesMailetContext rootContext = new JamesMailetContext(context);
-            rootContext.setConfiguration(rootMailetConf);
-            rootContext.setComponentManager(comp);
-            rootMailet = mailetLoader.getMailet(className, rootContext);
-            logger.log("Root mailet " + className + " instantiated", "Processor", logger.INFO);
-        } catch (Exception ex) {
-            logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
-            throw ex;
+        for (Enumeration e = conf.getConfigurations("processor"); e.hasMoreElements(); ) {
+            Configuration c = (Configuration) e.nextElement();
+            String className = c.getAttribute("class");
+            String processorName = c.getAttribute("name");
+            try {
+                JamesMailetContext cont = new JamesMailetContext(context);
+                cont.setConfiguration(c);
+                cont.setComponentManager(comp);
+                Mailet mailet = mailetLoader.getMailet(className, cont);
+                context.put(processorName, mailet);
+                logger.log("processor " + processorName + " (" + className + ") instantiated", "Processor", logger.INFO);
+            } catch (Exception ex) {
+                logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
+                throw ex;
+            }
         }
-        Configuration errorMailetConf = conf.getConfiguration("errorManager");
-        className = errorMailetConf.getAttribute("class");
-        try {
-            JamesMailetContext errorContext = new JamesMailetContext(context);
-            errorContext.setConfiguration(errorMailetConf);
-            errorContext.setComponentManager(comp);
-            errorMailet = mailetLoader.getMailet(className, errorContext);
-            logger.log("Error mailet " + className + " instantiated", "Processor", logger.INFO);
-        } catch (Exception ex) {
-            logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
-            throw ex;
-        }
+        rootMailet = (Mailet) context.get("root");
+        errorMailet = (Mailet) context.get("error");
     }
 
     /**
