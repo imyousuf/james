@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<meta NAME="Author" CONTENT="Federico Barbieri">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+
+<h1 align="center">Java Apache Mail Enterprise Server</h1>
+
+<h3 align="center">a.k.a. Apache JAMES </h3><br>
+
+<h4 align="center">JAMES documentation is under construction.<br>
+        Everything you can find outside this page <br> is to be considered obsolete.  </h4>
+
+<h3>Configuration</h3>
+<blockquote>
+  <p>All configurations are in the avalon.conf.xml file. Configurations have a tree like
+  structure. Avalon is the framework and holds configurations root. Every Block under 
+  Avalon has its own configuration inside its block tag. If a Block is made of different 
+  component organized in a hierarchy, all these component will have their own configuration
+  node and so on. 
+  Each Block provide a specific service to all other Blocks running on top of Avalon.
+  The logger provides a simple logging pattern. Its configurations are under the 
+  <block ... implementedInterface="org.apache.avalon.blocks.Logger"> tag.
+  The same is valid for all other Block including James which has its configuration under
+  <block class="org.apache.james.James" serverName="James" 
+  implementedInterface="org.apache.avalon.blocks.MailServer"> tag.
+  Some Block contains in their conf information belonging to other Blocks. As example the
+  logger define a number of channels some for James and its component. Equally the Store
+  contains a definition for the MailRepository which is a class belonging to James.
+  These info comes from the James template file in which is defined which Blocks are needed
+  and wich specific configuration inside those block should be set. So the avalon.conf.xml
+  is the result of merging different template file, one for each server. 
+  The file you will find in James distribution is already the result of this merging. 
+  We are looking for a smart pattern to write template and merging rules. Comments and 
+  suggestions are welcomed. 
+  
+</blockquote>
+
+<h3>James Server Configuration</h3>
+<blockquote>
+    <h4>James Configuration</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>SMTP Server</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>POP3 Server</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>Users Manager</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>Remote Manager</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>Transport</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+<blockquote>
+    <h4>The mailet Processor pipe line</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>Matches</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <h4>Some Mailet</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+</blockquote>    
+</blockquote>    
+
+
+<p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+</body>
+</html>
