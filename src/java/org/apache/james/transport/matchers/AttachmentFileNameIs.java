@@ -24,26 +24,44 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.Locale;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.io.InputStream;
 
 
 /**
  * <P>Checks if at least one attachment has a file name which matches any
- * element of a comma-separated list of file name masks.
- * The match is case insensitive.</P>
+ * element of a comma-separated or space-separated list of file name masks.</P>
+ * <P>Syntax: <CODE>match="AttachmentFileNameIs=[-d] [-z] <I>masks</I>"</CODE></P>
+ * <P>The match is case insensitive.</P>
  * <P>File name masks may start with a wildcard '*'.</P>
  * <P>Multiple file name masks can be specified, e.g.: '*.scr,*.bat'.</P>
+ * <P>If '<CODE>-d</CODE>' is coded, some debug info will be logged.</P>
+ * <P>If '<CODE>-z</CODE>' is coded, the check will be non-recursively applied
+ * to the contents of any attached '*.zip' file.</P>
  *
- * @version CVS $Revision: 1.1.2.4 $ $Date: 2004/03/15 03:54:21 $
+ * @version CVS $Revision: 1.1.2.5 $ $Date: 2004/07/11 20:54:44 $
  * @since 2.2.0
  */
 public class AttachmentFileNameIs extends GenericMatcher {
+    
+    /** Unzip request parameter. */
+    protected static final String UNZIP_REQUEST_PARAMETER = "-z";
+    
+    /** Debug request parameter. */
+    protected static final String DEBUG_REQUEST_PARAMETER = "-d";
+    
+    /** Match string for zip files. */
+    protected static final String ZIP_SUFFIX = ".zip";
+    
     /**
-     * represents a single parsed file name mask
+     * represents a single parsed file name mask.
      */
     private static class Mask {
         /** true if the mask starts with a wildcard asterisk */
@@ -53,18 +71,37 @@ public class AttachmentFileNameIs extends GenericMatcher {
         public String matchString;
     }
     
+    /**
+     * Controls certain log messages.
+     */
+    protected boolean isDebug = false;
+
     /** contains ParsedMask instances, setup by init */
     private Mask[] masks = null;
     
-    /** parses the condition */
+    /** True if unzip is requested. */
+    protected boolean unzipIsRequested;
+    
     public void init() throws MessagingException {
-        /** sets up fileNameMasks variable by parsing the condition */
+        /* sets up fileNameMasks variable by parsing the condition */
         
         StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         ArrayList theMasks = new ArrayList(20);
         while (st.hasMoreTokens()) {
-            Mask mask = new Mask(); 
             String fileName = st.nextToken();
+            
+            // check possible parameters at the beginning of the condition
+            if (theMasks.size() == 0 && fileName.equalsIgnoreCase(UNZIP_REQUEST_PARAMETER)) {
+                unzipIsRequested = true;
+                log("zip file analysis requested");
+                continue;
+            }
+            if (theMasks.size() == 0 && fileName.equalsIgnoreCase(DEBUG_REQUEST_PARAMETER)) {
+                isDebug = true;
+                log("debug requested");
+                continue;
+            }
+            Mask mask = new Mask(); 
             if (fileName.startsWith("*")) {
                 mask.suffixMatch = true;
                 mask.matchString = fileName.substring(1);
@@ -72,8 +109,7 @@ public class AttachmentFileNameIs extends GenericMatcher {
                 mask.suffixMatch = false;
                 mask.matchString = fileName;
             }
-            mask.matchString = mask.matchString.toLowerCase(Locale.US);
-            mask.matchString = mask.matchString.trim();
+            mask.matchString = cleanFileName(mask.matchString);
             theMasks.add(mask);
         }
         masks = (Mask[])theMasks.toArray(new Mask[0]);
@@ -91,7 +127,7 @@ public class AttachmentFileNameIs extends GenericMatcher {
             MimeMessage message = mail.getMessage();
             Object content;
             
-            /**
+            /*
              * if there is an attachment and no inline text,
              * the content type can be anything
              */
@@ -105,8 +141,7 @@ public class AttachmentFileNameIs extends GenericMatcher {
                 for (int i = 0; i < multipart.getCount(); i++) {
                     try {
                         Part part = multipart.getBodyPart(i);
-                        String fileName = part.getFileName();
-                        if (fileName != null && matchFound(fileName)) {
+                        if (matchFound(part)) {
                             return mail.getRecipients(); // matching file found
                         }
                     } catch (MessagingException e) {
@@ -114,8 +149,7 @@ public class AttachmentFileNameIs extends GenericMatcher {
                     } // ignore any messaging exception and process next bodypart
                 }
             } else {
-                String fileName = message.getFileName();
-                if (fileName != null && matchFound(fileName)) {
+                if (matchFound(message)) {
                     return mail.getRecipients(); // matching file found
                 }
             }
@@ -131,13 +165,32 @@ public class AttachmentFileNameIs extends GenericMatcher {
         return null; // no matching attachment found
     }
     
-    /*
+    /**
+     * Checks if <I>part</I> matches with at least one of the <CODE>masks</CODE>.
+     */
+    protected boolean matchFound(Part part) throws MessagingException, IOException {
+        String fileName = part.getFileName();
+        if (fileName != null) {
+            fileName = cleanFileName(fileName);
+            // check the file name
+            if (matchFound(fileName)) {
+                if (isDebug) {
+                    log("matched " + fileName);
+                }
+                return true;
+            }
+            if (unzipIsRequested && fileName.endsWith(ZIP_SUFFIX)) {
+                return matchFoundInZip(part);
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Checks if <I>fileName</I> matches with at least one of the <CODE>masks</CODE>.
      */
-    private boolean matchFound(String fileName) {
-        fileName = fileName.toLowerCase(Locale.US);
-        fileName = fileName.trim();
-            
+    protected boolean matchFound(String fileName) {
         for (int j = 0; j < masks.length; j++) {
             boolean fMatch;
             Mask mask = masks[j];
@@ -148,9 +201,41 @@ public class AttachmentFileNameIs extends GenericMatcher {
             } else {
                 fMatch = fileName.equals(mask.matchString);
             }
-            if (fMatch) return true; // matching file found
+            if (fMatch) {
+                return true; // matching file found
+            }
         }
         return false;
+    }
+    
+    /**
+     * Checks if <I>part</I> is a zip containing a file that matches with at least one of the <CODE>masks</CODE>.
+     */
+    protected boolean matchFoundInZip(Part part) throws MessagingException, IOException {
+        ZipInputStream zis = new ZipInputStream(part.getInputStream());
+        
+        try {
+            while (zis.available() > 0) {
+                ZipEntry zipEntry = zis.getNextEntry();
+                String fileName = zipEntry.getName();
+                if (matchFound(fileName)) {
+                    if (isDebug) {
+                        log("matched " + part.getFileName() + "(" + fileName + ")");
+                    }
+                    return true;
+                }
+            }
+            return false;
+        } finally {
+            zis.close();
+        }
+    }
+
+    /**
+     * Transforms <I>fileName<I> in a trimmed lowercase string usable for matching agains the masks.
+     */
+    protected String cleanFileName(String fileName) {
+        return fileName.toLowerCase(Locale.US).trim();
     }
 }
 
