@@ -382,24 +382,25 @@ public class MimeMessageWrapper extends MimeMessage {
      * to avoid memory hogging.
      */
     public int getLineCount() throws MessagingException {
-        if (message == null) {
-            loadMessage();
-        }
-        if (content == null) {
+        InputStream in = getContentStream();
+        if (in == null) {
             return -1;
         }
-        int size = content.length; // size of byte array
-        int lineCount = 0;
-        if (size < 5000) {
-            for (int i=0; i < size -1; i++) {
-                if (content[i] == '\r' && content[i+1] == '\n') {
-                    lineCount++;
-                }
+        //Wrap input stream in LineNumberReader
+        //Not sure what encoding to use really...
+        try {
+            LineNumberReader counter = new LineNumberReader(new InputStreamReader(in, "ISO-8859-1"));
+            //Read through all the data
+            char[] block = new char[1024];
+            while (counter.read(block) > -1) {
+                //Just keep reading
             }
-        } else {
-            lineCount = -1;
+            in.close();
+            return counter.getLineNumber();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return -1;
         }
-        return lineCount;
     }
 
     /**
@@ -411,15 +412,8 @@ public class MimeMessageWrapper extends MimeMessage {
         try {
             return source.getMessageSize();
         } catch (IOException ioe) {
-            //Probably will fail anyway... fall back to just calculating manually
+            throw new MessagingException("Error retrieving message size", ioe);
         }
-        int contentSize = getSize();
-        int headerSize = 0;
-        Enumeration e = getAllHeaderLines();
-        while (e.hasMoreElements()) {
-            headerSize += ((String)e.nextElement()).length();
-        }
-        return headerSize + contentSize;
     }
 
     public String getContentType() throws MessagingException {
@@ -499,7 +493,11 @@ public class MimeMessageWrapper extends MimeMessage {
 
     public InputStream getInputStream() throws IOException, MessagingException {
         if (message == null) {
-            return source.getInputStream();
+            //This is incorrect... supposed to return a decoded inputstream of
+            //  the message body
+            //return source.getInputStream();
+            loadMessage();
+            return message.getInputStream();
         } else {
             return message.getInputStream();
         }
@@ -595,17 +593,16 @@ public class MimeMessageWrapper extends MimeMessage {
      */
     public void writeContentTo(OutputStream outs)
             throws java.io.IOException, MessagingException {
-        int size = content.length; // size of byte array
-        int chunk = 1000; //arbitrary choice - ideas welcome
-        int pointer = 0;
-        while (pointer < size) {
-            if ((size - pointer) > chunk) {
-                outs.write(content, pointer, chunk);
-            } else {
-                outs.write(content, pointer, size-pointer);
-            }
-            pointer += chunk;
+        if (message == null) {
+            loadMessage();
         }
+        InputStream in = getContentStream();
+        byte block[] = new byte[1024];
+        int len = 0;
+        while ((len = in.read(block)) > -1) {
+            outs.write(block, 0, len);
+        }
+        in.close();
     }
 
 
@@ -619,9 +616,10 @@ public class MimeMessageWrapper extends MimeMessage {
 
 
 
-    /**
+    /*
      * Various writer methods
      */
+
     public void setFrom(Address address) throws MessagingException {
         if (message == null) {
             loadMessage();
@@ -844,4 +842,31 @@ public class MimeMessageWrapper extends MimeMessage {
         modified = true;
         message.saveChanges();
     }
+
+    /*
+     * Since JavaMail 1.2
+     */
+    public InputStream getRawInputStream() throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        return message.getRawInputStream();
+    }
+
+    public void addRecipients(Message.RecipientType type, String addresses) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.addRecipients(type, addresses);
+    }
+
+    public void setRecipients(Message.RecipientType type, String addresses) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.setRecipients(type, addresses);
+    }
+
 }
