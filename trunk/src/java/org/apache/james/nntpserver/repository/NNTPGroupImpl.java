@@ -28,6 +28,7 @@ class NNTPGroupImpl implements NNTPGroup {
     private int currentArticle = -1;
     private int lastArticle;
     private int firstArticle;
+    private int numOfArticles;
     // an instance may collect range info once. This involves disk I/O
     private boolean articleRangeInfoCollected = false;
     NNTPGroupImpl(File root) {
@@ -56,12 +57,14 @@ class NNTPGroupImpl implements NNTPGroup {
             if ( num > last )
                 last = num;
         }
+        numOfArticles = list.length;
         firstArticle = Math.max(first,0);
         lastArticle = Math.max(last,0);
         articleRangeInfoCollected = true;
     }
     public int getNumberOfArticles() {
-        return getLastArticleNumber() - getFirstArticleNumber();
+        collectArticleRangeInfo();
+        return numOfArticles;
     }
     public int getFirstArticleNumber() {
         collectArticleRangeInfo();
