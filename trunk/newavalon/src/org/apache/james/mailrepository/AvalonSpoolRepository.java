@@ -41,19 +41,6 @@ import org.apache.james.services.MailStore;
  */
 public class AvalonSpoolRepository extends AvalonMailRepository implements SpoolRepository {
 
-    private static final String TYPE = "MAIL";
-    private final static boolean        LOG        = true;
-    private final static boolean        DEBUG      = LOG && false;
-    private Logger logger =  LogKit.getLoggerFor("MailRepository");
-    private Store store;
-    private Store.StreamRepository sr;
-    private Store.ObjectRepository or;
-    private MailStore mailstore;
-    //  private String path;
-    //   private String name;
-    private String destination;
-    //  private String model;
-    private Lock lock;
 
     public AvalonSpoolRepository() {
 	super();
@@ -64,11 +51,16 @@ public class AvalonSpoolRepository extends AvalonMailRepository implements Spool
     public synchronized String accept() {
 
         while (true) {
-            for(Iterator it = or.list(); it.hasNext(); ) {
-                Object o = it.next();
-                if (lock.lock(o)) {
-                    return o.toString();
-                }
+            for(Iterator it = list(); it.hasNext(); ) {
+		
+		String s = it.next().toString();
+                if (lock.lock(s)) {
+		    return s;
+		}
+		//  Object o = it.next();
+                //if (lock.lock(o)) {
+		//  return o.toString();
+                //}
             }
             try {
                 wait();

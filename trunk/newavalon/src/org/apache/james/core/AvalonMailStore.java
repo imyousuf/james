@@ -24,6 +24,7 @@ import org.apache.avalon.ComponentNotFoundException;
 import org.apache.avalon.blocks.AbstractBlock;
 
 import org.apache.james.services.MailStore;
+import org.apache.james.services.MailRepository;
 
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -100,11 +101,11 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
         {
             String type = repConf.getAttribute("type");
             String repID = destination + type;
-            Store.Repository reply = (Store.Repository) repositories.get(repID);
+            MailRepository reply = (MailRepository) repositories.get(repID);
             String model = (String) repConf.getAttribute("model");
             if (reply != null) {
                 if (models.get(repID).equals(model)) {
-                    return reply;
+                    return (Component)reply;
                 } else {
                     throw new ComponentNotFoundException("There is already another repository with the same destination and type but with different model");
                 }
@@ -116,7 +117,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
                                         " to handle: " + protocol + type + model );
 
                 try {
-                    reply = (Store.Repository) Class.forName(repClass).newInstance();
+                    reply = (MailRepository) Class.forName(repClass).newInstance();
                     if (reply instanceof Configurable) {
                         ((Configurable) reply).configure(repConf);
                     }
@@ -133,7 +134,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
                     models.put(repID, model);
                     if( LOG ) LOGGER.info( "New instance of " + repClass + 
                                            " created for " + destination );
-                    return reply;
+                    return (Component)reply;
                 } catch (Exception e) {
                     if( LOG ) LOGGER.warn( "Exception while creating repository:" +
                                            e.getMessage(), e );

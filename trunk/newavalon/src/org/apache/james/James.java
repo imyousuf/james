@@ -43,7 +43,6 @@ import org.apache.mailet.*;
 public class James implements  Block, MailServer, Configurable, Composer, Initializable, MailetContext {
 
     private DefaultComponentManager compMgr; //Components shared
-    private DefaultComponentSelector mailboxes; //Not to be shared!
     private DefaultContext context;
     private Configuration conf;
     private Logger logger =  LogKit.getLoggerFor("JamesCore");
@@ -53,12 +52,13 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
     private UsersStore usersStore;
     private SpoolRepository spool;
     private MailRepository localInbox;
+    private String inboxRootURL;
     private UsersRepository localusers;
     private Collection serverNames;
     private static long count;
     private String helloName;
     private String hostName;
-
+    private Map mailboxes; //Not to be shared!
     private Hashtable attributes = new Hashtable();
 
     public void configure(Configuration conf) {
@@ -68,7 +68,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
     public void compose(ComponentManager comp) {
 	//throws ConfigurationException {
         compMgr = new DefaultComponentManager(comp);
-	mailboxes = new DefaultComponentSelector();
+	mailboxes = new HashMap(31);
     }
 
     public void init() throws Exception {
@@ -142,6 +142,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
             logger.error("Cannot open private MailRepository");
             throw e;
         }
+	inboxRootURL = inboxRepConf.getAttribute("destinationURL");
         logger.info("Private Repository LocalInbox opened");
             // Add this to comp
         compMgr.put("org.apache.james.services.MailServer", this);
@@ -155,7 +156,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
             throw e;
         }
         logger.info("Private SpoolRepository Spool opened");
-        compMgr.put("org.apache.james.services.SpoolRepository", spool);
+        compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
 
       
 
@@ -300,13 +301,33 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
     public synchronized MailRepository getUserInbox(String userName) {
 
         MailRepository userInbox = (MailRepository) null;
-        try {
-            userInbox = (MailRepository) mailboxes.select(userName);
-        } catch (CascadingException ex) {
-            userInbox = (MailRepository) localInbox.getChildRepository(userName);
-            mailboxes.put(userName, userInbox);
-        }
-        return userInbox;
+        
+	userInbox = (MailRepository) mailboxes.get(userName);
+       
+	if (userInbox != null) {
+	    return userInbox;
+	} else if (mailboxes.containsKey(userName)) {
+	    // we have a problem
+	    logger.error("Null mailbox for non-null key");
+	    throw new RuntimeException("Error in getUserInbox.");
+	} else {
+	    // need mailbox object
+	    logger.info("Need inbox for " + userName );
+	    String destination = inboxRootURL + userName + File.separator;;
+	    DefaultConfiguration mboxConf
+		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
+	    mboxConf.addAttribute("destinationURL", destination);
+	    mboxConf.addAttribute("type", "MAIL");
+	    mboxConf.addAttribute("model", "SYNCHRONOUS");
+	    try {
+		userInbox = (MailRepository) mailstore.select(mboxConf);
+		mailboxes.put(userName, userInbox);
+	    } catch (Exception e) {
+		logger.error("Cannot open user Mailbox" + e);
+		throw new RuntimeException("Error in getUserInbox." + e);
+	    }
+	    return userInbox;
+	}
     }
 
 

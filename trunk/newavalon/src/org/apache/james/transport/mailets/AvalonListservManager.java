@@ -15,7 +15,7 @@ import org.apache.avalon.*;
 //import org.apache.avalon.services.Store;
 
 import org.apache.james.*;
-import org.apache.james.services.MailStore;
+import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;
 import org.apache.mailet.*;
 import org.apache.james.transport.*;
@@ -38,15 +38,10 @@ public class AvalonListservManager extends GenericListservManager {
     public void init() {
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 	try {
-	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-	    String membersPath = getInitParameter("membersPath");
-	    DefaultConfiguration usersConf
-		= new DefaultConfiguration("repository", "generated:AvalonListServManager");
-	    usersConf.addAttribute("destinationURL", membersPath);
-	    usersConf.addAttribute("type", "USERS");
-	    usersConf.addAttribute("model", "SYNCHRONOUS");
-	    
-	    members = (UsersRepository) mailstore.select(usersConf);
+	    UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+	    String repName = getInitParameter("repositoryName");
+	   
+	    members = (UsersRepository) usersStore.getRepository(repName);
      	} catch (ComponentNotFoundException cnfe) {
 	    log("Failed to retrieve Store component:" + cnfe.getMessage());
 	} catch (ComponentNotAccessibleException cnae) {
