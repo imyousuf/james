@@ -134,6 +134,11 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private HashMap groupNameMap = null;
 
     /**
+     * Restrict use to newsgroups specified in config only
+     */
+    private boolean definedGroupsOnly = false;
+
+    /**
      * The root path as a String.
      */
     private String rootPathString = null;
@@ -212,6 +217,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             getLogger().debug("NNTP repository article ID path URL is " + articleIdPathString);
         }
         Configuration newsgroupConfiguration = configuration.getChild("newsgroups");
+        definedGroupsOnly = newsgroupConfiguration.getAttributeAsBoolean("only", false);
         groupNameMap = new HashMap();
         if ( newsgroupConfiguration != null ) {
             Configuration[] children = newsgroupConfiguration.getChildren("newsgroup");
@@ -310,7 +316,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroup(String)
      */
     public NNTPGroup getGroup(String groupName) {
-        if (groupNameMap.get(groupName) == null) {
+        if (definedGroupsOnly && groupNameMap.get(groupName) == null) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug(groupName + " is not a newsgroup hosted on this server.");
             }
@@ -386,13 +392,22 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         }
     }
 
+    class GroupFilter implements java.io.FilenameFilter {
+        public boolean accept(java.io.File dir, String name) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug(((definedGroupsOnly ? groupNameMap.containsKey(name) : true) ? "Accepting ": "Rejecting") + name);
+            }
+
+            return definedGroupsOnly ? groupNameMap.containsKey(name) : true;
+        }
+    }
+
     /**
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getMatchedGroups(String)
      */
     public Iterator getMatchedGroups(String wildmat) {
-        // TODO: Add filter for valid group names
-        File[] f = rootPath.listFiles(new AndFileFilter
-            (new DirectoryFileFilter(),new GlobFilenameFilter(wildmat)));
+        File[] f = rootPath.listFiles(new AndFileFilter(new GroupFilter(), new AndFileFilter
+            (new DirectoryFileFilter(),new GlobFilenameFilter(wildmat))));
         return getGroups(f);
     }
 
@@ -418,9 +433,8 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroupsSince(Date)
      */
     public Iterator getGroupsSince(Date dt) {
-        // TODO: Add filter for valid group names
-        File[] f = rootPath.listFiles(new AndFileFilter
-            (new DirectoryFileFilter(),new DateSinceFileFilter(dt.getTime())));
+        File[] f = rootPath.listFiles(new AndFileFilter(new GroupFilter(), new AndFileFilter
+            (new DirectoryFileFilter(),new DateSinceFileFilter(dt.getTime()))));
         return getGroups(f);
     }
 
