@@ -12,17 +12,18 @@
 
 <section name="TODO">
 <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
-Last Updated 17 May 2001.</p>
+Last Updated  22 June 2001.</p>
 </section>
+
 <section name="High Priority">
-<p>Port existing documentation to xdocs format</p>
-<p>Bundle docs in dist</p>
-<p>Allow RemoteManager to change passwords of users (change attribute)<b> In proposals dir </b> </p>
-<p>Revive RDBMS support for messages and users. Possibly move from town to straight jdbc, or jakarta-turbine.</p>
+
+<p>Revive RDBMS support for messages and users. Possibly move from town to straight jdbc, or jakarta-turbine.<b>Users done</b> </p>
 
 </section>
 
 <section name="Medium Priority">
+<p>Fix NNTP authentication</p>
+<p>Fix NNTP ssl</p>
 <p>Enable multiple domains/ virtual hosting</p>
 <p>Rewrite SMTP and POP3 handlers to use streams not MimeMessage objects</p>
 <p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway, relay or 'smart' host) <b>Done in CVS</b></p>
@@ -39,7 +40,6 @@ Last Updated 17 May 2001.</p>
 <p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
 <p>Add support for deployable message processing apps using Camelot pattern</p>
 <p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
-<p>Simplify email aliasing</p>
 <p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
 </section>
 
