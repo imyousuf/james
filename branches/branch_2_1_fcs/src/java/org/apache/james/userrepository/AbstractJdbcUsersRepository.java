@@ -204,7 +204,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             destUrl += "/";
         }
         // Split on "/", starting after "db://"
-        List urlParams = new LinkedList();
+        List urlParams = new ArrayList();
         int start = 5;
         int end = destUrl.indexOf('/', start);
         while ( end > -1 ) {
@@ -385,6 +385,21 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
     }
 
+    /**
+     * Produces the complete list of User names, with correct case.
+     * @return a <code>List</code> of <code>String</code>s representing
+     *         user names.
+     */
+    protected List listUserNames() {
+        Collection users = getAllUsers();
+        List userNames = new ArrayList(users.size());
+        for (Iterator it = users.iterator(); it.hasNext(); ) {
+            userNames.add(((User)it.next()).getUserName());
+        }
+        users.clear();
+        return userNames;
+    }
+
     //
     // Superclass methods - overridden from AbstractUsersRepository
     //
@@ -393,7 +408,15 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * @return an <code>Iterator</code> of <code>JamesUser</code>s.
      */
     protected Iterator listAllUsers() {
-        List userList = new LinkedList(); // Build the users into this list.
+        return getAllUsers().iterator();
+    }
+
+    /**
+     * Returns a list populated with all of the Users in the repository.
+     * @return a <code>Collection</code> of <code>JamesUser</code>s.
+     */
+    private Collection getAllUsers() {
+        List userList = new ArrayList(); // Build the users into this list.
 
         Connection conn = openConnection();
         PreparedStatement getUsersStatement = null;
@@ -420,7 +443,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             theJDBCUtil.closeJDBCConnection(conn);
         }
 
-        return userList.iterator();
+        return userList;
     }
 
     /**
