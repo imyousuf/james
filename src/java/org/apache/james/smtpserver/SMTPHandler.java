@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.8 $
- * Committed on $Date: 2001/08/11 21:25:15 $ by: $Author: serge $
+ * This is $Revision: 1.9 $
+ * Committed on $Date: 2001/11/26 03:27:55 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -83,10 +83,12 @@ public class SMTPHandler
 
     private String softwaretype = "JAMES SMTP Server "
                                    + Constants.SOFTWARE_VERSION;
-    private static long count;
+    private static long count = 0;
+    private long connNumber = count++;
     private HashMap state       = new HashMap();
     private Random random       = new Random();
     private long maxmessagesize = 0;
+    private int lengthReset = 20000;
 
     public void configure ( Configuration configuration )
            throws ConfigurationException {
@@ -102,6 +104,8 @@ public class SMTPHandler
         if (DEEP_DEBUG) {
             getLogger().debug("Max message size is: " + maxmessagesize);
         }
+        //how many bytes to read before updating the timer that data is being transfered
+        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
     }
 
     public void compose( final ComponentManager componentManager )
@@ -271,11 +275,11 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-	    if (authRequired) {
-	        out.println("250-AUTH LOGIN PLAIN");
+        if (authRequired) {
+            out.println("250-AUTH LOGIN PLAIN");
             }
-	    if (maxmessagesize > 0) {
-	        out.println("250-SIZE " + maxmessagesize);
+        if (maxmessagesize > 0) {
+            out.println("250-SIZE " + maxmessagesize);
             }
             out.println( "250 " + state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
@@ -474,9 +478,10 @@ public class SMTPHandler
         } else {
             out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
             try {
+                //Setup the input stream to notify the scheduler periodically
+                InputStream msgIn = new SchedulerNotifyInputStream(in, scheduler, this.toString(), 20000);
                 // parse headers
-                InputStream msgIn
-                    = new CharTerminatedInputStream(in, SMTPTerminator);
+                msgIn = new CharTerminatedInputStream(msgIn, SMTPTerminator);
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
                 if (maxmessagesize > 0) {
@@ -494,7 +499,7 @@ public class SMTPHandler
                 MailHeaders headers = new MailHeaders(msgIn);
 
                 // if headers do not contains minimum REQUIRED headers fields,
-		        // add them
+                // add them
                 if (!headers.isSet("Date")) {
                     headers.setHeader("Date",
                             RFC822DateFormat.toString(new Date()));
@@ -586,7 +591,7 @@ public class SMTPHandler
                                 + me.getMessage());
                     getLogger().error("Error processing message: "
                                 + me.getMessage());
-		            me.printStackTrace();
+                    me.printStackTrace();
                 }
                 return;
             }
