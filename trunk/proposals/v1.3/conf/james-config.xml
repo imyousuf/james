@@ -501,7 +501,17 @@
         <table>Users</table>
       </repository>
       -->
-      
+      <!-- Uncomment this to store users in an RDBMS
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersJDBCRepository">
+        <driver class="org.gjt.mm.mysql.Driver"/>
+        <database URL="jdbc:mysql://localhost/james">
+        <dbUser name="james"/>
+        <dbPassword value="james"/>
+        <table>Users</table>
+      </repository>
+      -->
+
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/lists/list-james/"/>

@@ -38,8 +38,8 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/21 15:57:06 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/06 10:50:18 $
+ * $Revision: 1.3 $
  */
 public class UsersFileRepository
     extends AbstractLoggable
@@ -47,6 +47,7 @@ public class UsersFileRepository
  
     protected static boolean DEEP_DEBUG = true;
 
+    /** @deprecated what was this for? */
     private static final String TYPE = "USERS";
 
     private Store store;
