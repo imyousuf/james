@@ -23,21 +23,14 @@ Resource Summary.
 -----------------
 
 
-  /james-server/
-
-    build.properties ...................... project specific properties
-
-
-
   /james-server/project
 
      build.xml ..............................main ant build file
 
+     build.properties ...................... project specific properties
  
      index.xml ............................. central catalog of artifact names and versions 
                                              used in the build of the james server
-
-     avalon-runtime-3.3.0.xml .............. latest avalon release artifacts
 
      standard.xml .......................... main build target template containing src preparation, 
                                              compilation, jar creation, test, and repository 
