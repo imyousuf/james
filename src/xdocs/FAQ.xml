@@ -217,7 +217,8 @@ match as follows (in precedence order):
                <ol>
                   <li>Rename the previous james directory into a james.old</li>
                   <li>Run phoenix to let the new james.sar be deployed.</li>
-                  <li>Copy config.xml from james.old to the new deployed james/conf directory</li>
+                  <li>Edit the newly deployed config.xml to reflect your customizations from the previous config.xml.</li>
+                  <li>If using JDBC, see <a href="http://wiki.apache.org/james/UpgradingToAttributes">necessary table changes.</a></li>
                   <li>Replace the var directory by the previous var directory.  This will copy over user accounts, inboxes, spools, and whatever else.</li>
                   <li>Restart James.</li>
                </ol>
