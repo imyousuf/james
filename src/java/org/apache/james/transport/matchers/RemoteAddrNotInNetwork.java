@@ -46,10 +46,18 @@ public class RemoteAddrNotInNetwork extends GenericMatcher {
                 } catch (UnknownHostException uhe) {
                 }
             }
-            if (addr.endsWith("*")) {
-                addr = addr.substring(0, addr.length() - 1);
+
+            try {
+                if (addr.endsWith("*")) {
+                    addr = addr.substring(0, addr.length() - 1);
+                }
+                else {
+                    addr = InetAddress.getByName(addr).getHostAddress();
+                }
+                networks.add(addr);
+            } catch (UnknownHostException uhe) {
+                log("Cannot match against invalid domain: " + uhe.getMessage());
             }
-            networks.add(addr);
         }
     }
 
