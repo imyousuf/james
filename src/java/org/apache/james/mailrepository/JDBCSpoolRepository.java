@@ -43,7 +43,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * How long a thread should sleep when there are no messages to process.
      */
-    private static int WAIT_LIMIT = 60000;
+    private static int WAIT_LIMIT = 1000;
     /**
      * How long we have to wait before reloading the list of pending messages
      */

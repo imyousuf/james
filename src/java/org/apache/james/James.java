@@ -54,8 +54,10 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.17 $
- * Committed on $Date: 2002/01/18 02:48:35 $ by: $Author: darrell $
+
+ * This is $Revision: 1.18 $
+ * Committed on $Date: 2002/02/04 15:34:11 $ by: $Author: danny $
+
  */
 public class James
     extends AbstractLogEnabled
@@ -143,7 +145,7 @@ public class James
         serverNames = new Vector();
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
-            serverNames.add(hostName);
+            serverNames.add(hostName.toLowerCase());
         }
 
         final Configuration[] serverNameConfs =
@@ -446,11 +448,11 @@ public class James
     }
 
     public boolean isLocalServer( final String serverName ) {
-        return serverNames.contains( serverName );
+        return serverNames.contains(serverName.toLowerCase());
     }
 
     public String getServerInfo() {
-        return "JAMES/1.3-dev";
+        return "Apache Jakarta JAMES";
     }
 
     private Logger getMailetLogger() {
