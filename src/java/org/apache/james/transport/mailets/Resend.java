@@ -90,8 +90,10 @@ import org.apache.mailet.MailAddress;
  * <P>A mailet providing configurable redirection services.</P>
  * <P>Can produce listserver, forward and notify behaviour, with the original
  * message intact, attached, appended or left out altogether.
- * Should be used as a replacement to {@link Redirect}, as defaults are more consistent,
- * and has new options available.</P>
+ * Can be used as a replacement to {@link Redirect}, having more consistent defaults,
+ * and new options available.<BR>
+ * Use <CODE>Resend</CODE> if you need full control, <CODE>Redirect</CODE> if
+ * the more automatic behaviour of some parameters is appropriate.</P>
  * <P>This built in functionality is controlled by the configuration as laid out below.
  * In the table please note that the parameters controlling message headers
  * accept the <B>&quot;unaltered&quot;</B> value, whose meaning is to keep the associated
@@ -121,8 +123,7 @@ import org.apache.mailet.MailAddress;
  * <TD width="80%">
  * A single email address to appear in the From: header and become the sender.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;unaltered&quot;;
- * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
- * original From: header (see {@link AbstractRedirect#setSender} and {@link AbstractRedirect#getSender(Mail)}).<BR>
+ * &quot;sender&quot; is equivalent to &quot;unaltered&quot;.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
  * </TR>
@@ -201,8 +202,6 @@ import org.apache.mailet.MailAddress;
  * <TD width="80%">
  * A single email address to appear in the Reply-To: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
- * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
- * original From: header (see {@link AbstractRedirect#setReplyTo} and {@link AbstractRedirect#getReplyTo(Mail)});
  * if &quot;null&quot; is specified it will remove this header.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
@@ -211,7 +210,7 @@ import org.apache.mailet.MailAddress;
  * <TD width="20%">&lt;returnPath&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Return-Path: header.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot;and &quot;unaltered&quot;;
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
  * if &quot;null&quot; is specified then it will set it to <>, meaning &quot;null return path&quot;.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
@@ -291,7 +290,7 @@ import org.apache.mailet.MailAddress;
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/27 14:15:13 $
+ * @version CVS $Revision: 1.2 $ $Date: 2003/06/30 09:41:04 $
  * @since 2.2.0
  */
 

@@ -90,11 +90,13 @@ import org.apache.mailet.MailAddress;
  * <P>A mailet providing configurable redirection services.</P>
  * <P>Can produce listserver, forward and notify behaviour, with the original
  * message intact, attached, appended or left out altogether.</P>
- * <P>It is kept only for compatibility, use instead {@link Resend}.
- * It differs from <CODE>Resend</CODE> because (i) some defaults are different,
- * notably for the following parameters: <I>&lt;recipients&gt;</I>, <I>&lt;to&gt;</I> and <I>&lt;inline&gt;</I>;
- * (ii) because it allows the use of the <I>&lt;static&gt;</I> parameter;
- * (iii) because it lacks the <I>&lt;subject&gt;</I> parameter.</P>
+ * <P>It differs from {@link Resend} because
+ * (i) some defaults are different,
+ * notably for the following parameters: <I>&lt;recipients&gt;</I>, <I>&lt;to&gt;</I>,
+ * <I>&lt;returnPath&gt;</I> and <I>&lt;inline&gt;</I>;
+ * (ii) because it allows the use of the <I>&lt;static&gt;</I> parameter;.<BR>
+ * Use <CODE>Resend</CODE> if you need full control, <CODE>Redirect</CODE> if
+ * the more automatic behaviour of some parameters is appropriate.</P>
  * <P>This built in functionality is controlled by the configuration as laid out below.
  * In the table please note that the parameters controlling message headers
  * accept the <B>&quot;unaltered&quot;</B> value, whose meaning is to keep the associated
@@ -127,10 +129,9 @@ import org.apache.mailet.MailAddress;
  * <TR valign=top>
  * <TD width="20%">&lt;sender&gt;</TD>
  * <TD width="80%">
- * A single email address to appear in the From: header and become the sender.<BR>
+ * A single email address to appear in the From: and Return-Path: headers and become the sender.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;unaltered&quot;;
- * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
- * original From: header (see {@link AbstractRedirect#setSender} and {@link AbstractRedirect#getSender(Mail)}).<BR>
+ * &quot;sender&quot; is equivalent to &quot;unaltered&quot;.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
  * </TR>
@@ -209,26 +210,34 @@ import org.apache.mailet.MailAddress;
  * <TD width="80%">
  * A single email address to appear in the Reply-To: header.<BR>
  * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot; and &quot;unaltered&quot;;
- * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
- * original From: header (see {@link AbstractRedirect#setReplyTo} and {@link AbstractRedirect#getReplyTo(Mail)});
  * if &quot;null&quot; is specified it will remove this header.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
+ * </TR>
  * </TR>
  * <TR valign=top>
  * <TD width="20%">&lt;returnPath&gt;</TD>
  * <TD width="80%">
  * A single email address to appear in the Return-Path: header.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot;and &quot;unaltered&quot;;
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;null&quot;;
  * if &quot;null&quot; is specified then it will set it to <>, meaning &quot;null return path&quot;.<BR>
- * Default: &quot;unaltered&quot;.
+ * Notice: the &quot;unaltered&quot; value is <I>not allowed</I>.<BR>
+ * Default: the value of the <I>&lt;sender&gt;</I> parameter, if set, otherwise remains unaltered.
+ * </TD>
+ * </TR>
+ * <TR valign=top>
+ * <TD width="20%">&lt;subject&gt;</TD>
+ * <TD width="80%">
+ * An optional string to use as the subject.<BR>
+ * Default: keep the original message subject.
  * </TD>
  * </TR>
  * <TR valign=top>
  * <TD width="20%">&lt;prefix&gt;</TD>
  * <TD width="80%">
  * An optional subject prefix prepended to the original message
- * subject, for example: <I>[Undeliverable mail]</I>.<BR>
+ * subject, or to a new subject specified with the <I>&lt;subject&gt;</I> parameter.<BR>
+ * For example: <I>[Undeliverable mail]</I>.<BR>
  * Default: &quot;&quot;.
  * </TD>
  * </TR>
@@ -294,7 +303,7 @@ import org.apache.mailet.MailAddress;
  *  &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.31 $ $Date: 2003/06/27 14:25:47 $
+ * @version CVS $Revision: 1.32 $ $Date: 2003/06/30 09:41:03 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -323,7 +332,7 @@ public class Redirect extends AbstractRedirect {
             "replyto",
             "returnPath",
             "sender",
-//            "subject",
+            "subject",
             "prefix",
             "attachError",
             "isReply"
@@ -432,10 +441,42 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return null
+     * @return the <CODE>returnPath</CODE> init parameter 
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.NULL</CODE>
+     * or <CODE>null</CODE> if missing
      */
-    protected String getSubject() {
+    protected MailAddress getReturnPath() throws MessagingException {
+        String addressString = getInitParameter("returnPath");
+        if(addressString != null) {
+            MailAddress specialAddress = getSpecialAddress(addressString,
+                                            new String[] {"postmaster", "sender", "null"});
+            if (specialAddress != null) {
+                return specialAddress;
+            }
+
+            try {
+                return new MailAddress(addressString);
+            } catch(Exception e) {
+                throw new MessagingException("Exception thrown in getReturnPath() parsing: " + addressString, e);
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * @return {@link AbstractRedirect#getReturnPath()};
+     * if null return {@link AbstractRedirect#getSender(Mail)},
+     * meaning the new requested sender if any
+     */
+    protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
+        MailAddress returnPath = super.getReturnPath(originalMail);
+        if (returnPath == null) {
+            returnPath = getSender(originalMail);
+        }
+        return returnPath;
     }
 
     /* ******************************************************************** */

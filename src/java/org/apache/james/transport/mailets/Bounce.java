@@ -58,7 +58,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -133,10 +132,10 @@ import java.util.ArrayList;
  *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
- * <P><I>notice</I>, <I>senderAddress</I> and <I>attachStackTrace</I> can be used instead of
+ * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
  * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.7 $ $Date: 2003/06/27 14:25:47 $
+ * @version CVS $Revision: 1.8 $ $Date: 2003/06/30 09:41:03 $
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
@@ -161,6 +160,7 @@ public class Bounce extends AbstractNotify {
             "attachment",
             "message",
             "notice",
+            "sender",
             "sendingAddress",
             "prefix",
             "attachError",
@@ -194,7 +194,7 @@ public class Bounce extends AbstractNotify {
     /**
      * @return <CODE>SpecialAddress.NULL</CODE> (the meaning of bounce)
      */
-    protected MailAddress getReturnPath() {
+    protected MailAddress getReturnPath(Mail originalMail) {
         return SpecialAddress.NULL;
     }
 
@@ -215,8 +215,11 @@ public class Bounce extends AbstractNotify {
         if (returnAddress == SpecialAddress.NULL) {
             if (isDebug)
                 log("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
+            if(!getPassThrough(originalMail)) {
+                originalMail.setState(Mail.GHOST);
+            }
             return;
-        } else if (returnAddress == SpecialAddress.SENDER) {
+        } else if (returnAddress == null) {
             log("WARNING: Mail to be bounced does not contain a Return-Path header.");
         } else {
             if (isDebug)
