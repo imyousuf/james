@@ -8,10 +8,10 @@ import org.apache.james.imapserver.ImapSessionImpl;
 import org.apache.james.imapserver.ImapTest;
 import org.apache.james.imapserver.JamesImapHost;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.userrepository.AbstractUsersRepository;
 import org.apache.james.userrepository.DefaultUser;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import junit.framework.TestCase;
 
