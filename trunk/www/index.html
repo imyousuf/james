@@ -62,13 +62,13 @@
 <a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
+<a href="./design_objectives.html">Design objectives</a>
+</li>
+<li>
 <a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
-<a href="./mailet/index.html">Mailet API</a>
-</li>
-<li>
-<a href="./james_and_sendmail.html">James and sendmail</a>
+<a href="./mailet/index.html">Mailet Javadocs</a>
 </li>
 <li>
 <a href="./rfclist.html">Useful RFCs</a>
@@ -111,7 +111,7 @@
 </p>
 <ul>
 <li>
-<a href="http://www.terra-intl.com/jakarta/james/">Japanese (web)</a>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
 </li>
 </ul>
 <p>
@@ -122,10 +122,10 @@
 <a href="http://jakarta.apache.org/index.html">Jakarta</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/ant/index.html">Ant</a>
+<a href="http://ant.apache.org/index.html">Ant</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/avalon/index.html">Avalon</a>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
 </li>
 </ul>
 <p>
@@ -152,17 +152,21 @@
 <td>
 <blockquote>
 
-<p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP and POP3 Mail server and NNTP News server designed to be a complete and portable enterprise mail engine solution based on currently available open protocols. </p>
+<p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure <b>Java SMTP and POP3 Mail server and NNTP News server</b>.  We designed James to be a complete and portable enterprise mail engine solution based on currently available open protocols. </p>
 
-<p>James is also a mail application platform. <br>The James project hosts the Apache Mailet API, and James provides an implementation of this mail application platform API.  </p>
+<p>James is also a <i>mail application platform</i>.  We have developed a Java API to let you write Java code to process emails that we call the mailet API.  A <b>mailet</b> can generate an automatic reply, update a database, prevent spam, build a message archive, or whatever you can imagine.  A <b>matcher</b> determines whether your mailet should process an email in the server.  The James project hosts the Mailet API, and James provides an implementation of this mail application platform API.</p>
 
 <p>James is based upon the Apache Avalon application framework. (For more information about Avalon, please go to <a href="http://avalon.apache.org/">http://avalon.apache.org/</a>)</p>
 
-<p>James requires Java 2 (either JRE 1.3 or 1.4 as of 2.0a3). </p>
+<p>James requires Java 2 (either JRE 1.3 or 1.4 as of 2.0a3).</p>
 
+</blockquote>
+</td>
+</tr>
+</table>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
 <tr>
-<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="news"><strong>news</strong></a></font></td>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="news"><strong>news</strong></a></font></td>
 </tr>
 <tr>
 <td>
@@ -187,10 +191,9 @@
 </td>
 </tr>
 </table>
-
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
 <tr>
-<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="releases"><strong>releases</strong></a></font></td>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="releases"><strong>releases</strong></a></font></td>
 </tr>
 <tr>
 <td>
@@ -226,66 +229,6 @@ Announcement</A>.</p>
 <br>We put significant milestones, and potential release candidates in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a>
 <br>Whilst the quality of these versions cannot be guaranteed they may contain important bug fixes and cool new features.<br>
 </p>
-
-</blockquote>
-</td>
-</tr>
-</table>
-
-</blockquote>
-</td>
-</tr>
-</table>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-<tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Design%20Objectives"><strong>Design Objectives</strong></a></font></td>
-</tr>
-<tr>
-<td>
-<blockquote>
-
-<p>These are some of the currently implemented features:</p>
-
-<p>
-<i><b>Complete portability</b></i>  Apache James is be a 100% pure Java application
-       based on the Java 2 platform and the JavaMail 1.3 API.
-  </p>
-  
-<p>
-<i><b>Protocol abstraction</b></i>  Unlike other mail engines, protocols are seen only
-       like "communication languages" ruling comunications between clients and
-       the server. Apache James is not be tied to any particular protocol but
-       follow an abstracted server design (like JavaMail did on the
-       client side)</p>
-    
-<p>
-<i><b>Complete solution</b></i>  the mail system is able to handle both mail
-       transport and storage in a single server application. Apache James
-       works alone without the need for any other server or solution.</p>
-    
-<p>
-<i><b>Mailet support</b></i>  Apache James supports the Apache Mailet API. A Mailet
-       is a discrete piece of mail-processing logic which is incorporated into
-       a Mailet-compliant mail-server's processing. This easy-to-write,
-       easy-to-use pattern allows developers to build powerful customized mail
-       systems. Examples of the services a Mailet might provide include: a
-       mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailing
-       list manager, etc. Several Mailets are included in the JAMES
-       distribution (see <a href="documentation_2_1.html">documentation</a>).</p>
-    
-<p>
-<i><b>Resource abstraction</b></i>  Like protocols, resources are abstracted and,
-       accessed through defined interfaces (JavaMail for transport, JDBC for
-       spool storage or user accounts in RDBMS's, Apache Mailet API). The server is
-       highly modular and reuse solutions from other projects.</p>
-    
-<p>
-<i><b>Secure and multi-threaded design</b></i>  Based on the technology developed
-       for the Apache JServ servlet engine, Apache James has a careful,
-       security-oriented, full multi-threaded design, to allow performance,
-       scalability and mission-critical use.</p>
-    
-<p>Anything else you may want if you help us write it :-)</p>
 
 </blockquote>
 </td>
