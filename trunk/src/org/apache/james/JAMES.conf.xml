@@ -54,21 +54,31 @@
 <!-- The number of threads that spool and process messages from spoolRepository. -->
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
-                <servlets rootpath="org.apache.james.james.servlet.">
 <!-- ++++++++++++ MAIL SERVLET PIPE LINE +++++++++++++ -->
 <!-- Configure your mail Servlet processing pipe here. -->
-<!-- Thise servlet acts as system servlet and provides local delivery -->
-                    <servlet match="RecipientIs=root@localhost" class="Forward">
-                        <forwardto> scoobie@localhost </forwardto>
-                        <forwardto> stefano@localhost </forwardto>
-                    </servlet>
+                <servlets rootpath="org.apache.james.james.servlet.">
 
 <!-- Thise servlet acts as system servlet and provides local delivery -->
                     <servlet match="RecipientIsLocal" class="LocalDelivery">
                     </servlet>
 
 <!-- These servlet act as system servlet and provides remote deliver -->
-                    <servlet match="!HostIsLocal" class="Null">
+                    <servlet match="!HostIsLocal" class="RemoteDelivery">
+                        <repository> file://../mail/delayed/ </repository>
+                        <delayTime>21600000</delayTime>
+                        <maxRetyes>5</maxRetyes>
+                        <DNSservers>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
+<!-- Place here the list of your DNS servers, one for each <Server> tag-->
+                            <server> </server>
+                            <server> </server>
+                            <server> </server>
+<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+                        </DNSservers>
+                        <authoritative>false</authoritative>
+                        <postmaster>scoobie@betaversion.org</postmaster>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
