@@ -164,7 +164,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.15 $ $Date: 2003/07/03 05:24:17 $
+ * @version CVS $Revision: 1.1.2.16 $ $Date: 2003/07/03 08:32:30 $
  * @since 2.2.0
  */
 
@@ -1741,11 +1741,13 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Here is an example raw text: 
      * Subject: =?iso-8859-2?Q?leg=FAjabb_pr=F3ba_l=F5elemmel?=
      *
-     * @param rawText the raw (not decoded) value of the header
+     * @param rawText the raw (not decoded) value of the header. Null means
+     *   that the header was not present (in this case it always return null).
      * @return the MIME charset name or null if no encoding applied
      */
     static private String determineMailHeaderEncodingCharset(String rawText)
     {
+        if (rawText == null) return null;
         int iEncodingPrefix = rawText.indexOf("=?");
         if (iEncodingPrefix == -1) return null;
         int iCharsetBegin = iEncodingPrefix + 2; 
