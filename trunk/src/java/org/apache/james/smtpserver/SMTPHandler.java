@@ -41,8 +41,8 @@ import java.util.*;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
 
- * This is $Revision: 1.19 $
- * Committed on $Date: 2002/08/07 23:55:00 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.20 $
+ * Committed on $Date: 2002/08/10 17:24:02 $ by: $Author: pgoldstein $
 
  */
 public class SMTPHandler
@@ -728,9 +728,7 @@ public class SMTPHandler
                 }
                 return;
             }
-            // If this is a delivery failure notification (MAIL FROM: <>)
-            //   we don't enforce authentication
-            if (authRequired && state.get(SENDER) != null) {
+            if (authRequired) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
                 if (!state.containsKey(AUTH)) {
