@@ -66,7 +66,7 @@ public class MimeMessageWrapper extends MimeMessage {
             in.close();
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage());
+            throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
         }
     }
 
@@ -90,7 +90,7 @@ public class MimeMessageWrapper extends MimeMessage {
             in.close();
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            throw new MessagingException("Unable to parse stream: " + ioe.getMessage());
+            throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
         }
     }
 
