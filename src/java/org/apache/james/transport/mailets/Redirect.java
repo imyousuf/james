@@ -184,7 +184,6 @@ import org.apache.mailet.MailAddress;
 *&lt;replyto&gt;postmaster&lt;/replyto&gt;<BR>
 *&lt;prefix&gt;[spam notification]&lt;/prefix&gt;<BR>
 *&lt;static&gt;TRUE&lt;/static&gt;<BR>
-*&lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
 *&lt;/mailet&gt;</P>
  *
  * @author  Danny Angus   <danny@thought.co.uk>
