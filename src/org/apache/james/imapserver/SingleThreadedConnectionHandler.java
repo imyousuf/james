@@ -42,8 +42,9 @@ import org.apache.mailet.Mail;
  * @version 0.1 on 14 Dec 2000
  */
 public class SingleThreadedConnectionHandler implements ConnectionHandler {
-  
-    private static final boolean DEBUG = true; //mainly to switch on stack traces;
+
+    //mainly to switch on stack traces and catch responses;  
+    private static final boolean DEEP_DEBUG = true;
 
     // Connection states
     private static final int NON_AUTHENTICATED = 0;
@@ -67,8 +68,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
     private static final String SP = " ";
     private static final String VERSION = "IMAP4rev1";
     private static final String CAPABILITY_RESPONSE = "CAPABILITY " + VERSION
-	+ " LOGIN-REFERRALS" + " NAMESPACE" + " MAILBOX-REFERRALS"
-	+ " ACL"; //add as implemented
+        + " NAMESPACE" + " ACL"; //add as implemented
 
     private static final String LIST_WILD = "*";
     private static final String LIST_WILD_FLAT = "%";
@@ -1211,7 +1211,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 		    out.println(tag + SP + NO + SP
 				+ "Unknown server error.");
 		    logger.error("Exception expunging mailbox " + folder + " by user " + user + " was : " + e);
-		    if (DEBUG) {e.printStackTrace();}
+		    if (DEEP_DEBUG) {e.printStackTrace();}
 		    return true;
 		}
 	   } else if (command.equalsIgnoreCase("FETCH")) {
@@ -1610,7 +1610,8 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
     }
 
     /**
-     * Implements IMAP fetch commands against Mailbox. This implementation attempts to satisfy the fetch
+     * Implements IMAP fetch commands against Mailbox. This implementation
+     * attempts to satisfy the fetch
      * command with the smallest objects deserialized from storage.
      *
      * Not yet complete - no partial (octet-counted or sub-parts) fetches.
@@ -1626,7 +1627,9 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	} else {
 	    set = decodeSet(setArg);
 	}
-	logger.debug("Fetching message set of size: " + set.size());
+	if (DEEP_DEBUG) {
+            logger.debug("Fetching message set of size: " + set.size());
+	}
 	String firstFetchArg = commandLine.nextToken();
 	int pos =  commandRaw.indexOf(firstFetchArg);
 	//int pos = commandRaw.indexOf(setArg) + setArg.length() + 1;
@@ -1636,12 +1639,10 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	} else {
 	    fetchAttrsRaw = commandRaw.substring(pos);
 	}
-//if (commandRaw.startsWith("(", pos)) { //paranthesised fetch attrs
-//    fetchAttrsRaw = commandRaw.substring(commandRaw.indexOf("(", pos) + 1, commandRaw.lastIndexOf(")"));
-//} else {
-//    fetchAttrsRaw = commandRaw.substring(pos);
-//}
-	logger.debug("Found fetchAttrsRaw: " + fetchAttrsRaw);
+
+	if (DEEP_DEBUG) {
+            logger.debug("Found fetchAttrsRaw: " + fetchAttrsRaw);
+	}
 	// decode the fetch attributes
 	List fetchAttrs = new ArrayList();
 	StringTokenizer fetchTokens = new StringTokenizer(fetchAttrsRaw);
@@ -1856,6 +1857,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				response += ")";
 			    }
 			    out.println(response);
+			    logger.debug("Sending: " + response);
 			}
 			InternetHeaders headers = null;
 			if (useUIDs) {
@@ -1876,11 +1878,11 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 			    }
 			}
 			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			if (arg.equalsIgnoreCase("BODY[Header]")) {
+			//if (arg.equalsIgnoreCase("BODY[Header]")) {
 			    response += "BODY[HEADER] ";
-			} else {
-			    response += "BODY.PEEK[HEADER] ";
-			}
+			    //} else {
+			    //    response += "BODY.PEEK[HEADER] ";
+			    //}
 			Enumeration enum = headers.getAllHeaderLines();
 			List lines = new ArrayList();
 			int count = 0;
@@ -1891,15 +1893,21 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 			}
 			response += "{" + (count + 2) + "}";
 			out.println(response);
+			logger.debug("Sending: " + response);
 			Iterator lit = lines.iterator();
 			while (lit.hasNext()) {
-			    out.println((String)lit.next());
+			    String line = (String)lit.next();
+			    out.println(line);
+			    logger.debug("Sending: " + line);
 			}
 			out.println();
+                        logger.debug("Sending blank line");
 			if (useUIDs) {
 			    out.println(  " UID " + uid + ")");
+			    logger.debug("Sending: UID " + uid + ")");
 			} else {
 			    out.println( ")" );
+                            logger.debug("Sending: )");
 			}
 			if (! arg.equalsIgnoreCase("BODY.PEEK[HEADER]")) {
 			    try { // around setFlags()
@@ -1936,6 +1944,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				response += ")";
 			    }
 			    out.println(response);
+                            logger.debug("Sending: " + response);
 			}
 			InternetHeaders headers = null;
 			if (useUIDs) {
@@ -1958,7 +1967,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 			boolean not = (commandRaw.toUpperCase().indexOf("HEADER.FIELDS.NOT") != -1);
 			boolean peek = (commandRaw.toUpperCase().indexOf("PEEK") != -1);
 			response = UNTAGGED + SP + msn + SP + "FETCH (BODY" ;
-			if (peek) {response += ".PEEK";}
+			//if (peek) {response += ".PEEK";}
 			if (not) {
 			    response += "[HEADER.FIELDS.NOT (";
 			} else {
@@ -1999,9 +2008,12 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 			}
 			response += "{" + (count + 2) + "}";
 			out.println(response);
+                        logger.debug("Sending: " + response);
 			Iterator lit = lines.iterator();
 			while (lit.hasNext()) {
-			    out.println((String)lit.next());
+			    String line = (String)lit.next();
+			    out.println(line);
+                            logger.debug("Sending: " + line);
 			}
 			out.println();
 			if (useUIDs) {
@@ -2220,7 +2232,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	    out.println(tag + SP + NO + SP
 			+ "Unknown server error.");
 	    logger.error("Exception expunging mailbox " + currentFolder + " by user " + user + " was : " + e);
-	    if (DEBUG) {e.printStackTrace();}
+	    if (DEEP_DEBUG) {e.printStackTrace();}
 	    return;
 	}
 
