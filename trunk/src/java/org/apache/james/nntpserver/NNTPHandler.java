@@ -36,6 +36,7 @@ import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
+import org.apache.log.Logger;
 
 /**
  * The NNTP protocol is defined by RFC 977.
@@ -65,6 +66,9 @@ public class NNTPHandler extends BaseConnectionHandler
     private NNTPGroup group;
     private NNTPRepository repo;
 
+    private static final boolean DEBUG_PROTOCOL = 
+        Boolean.getBoolean("apache.nntpserver.debug");
+
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
@@ -78,19 +82,32 @@ public class NNTPHandler extends BaseConnectionHandler
     }
 
     public void handleConnection( Socket connection ) throws IOException {
+        final Logger logger = getLogger();
         try {
             this.socket = connection;
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream())) {
+                    public String readLine() throws IOException {
+                        String s = super.readLine();
+                        if ( DEBUG_PROTOCOL ) 
+                            logger.debug("C: "+s);
+                        return s;
+                    }
+                };
             writer = new PrintWriter(socket.getOutputStream()) {
                     public void println() {
                         // lines must end with CRLF, irrespective of the OS
                         print("\r\n");
                         flush();
                     }
+                    public void println(String s) {
+                        super.println(s);
+                        if ( DEBUG_PROTOCOL )
+                            logger.debug("S: "+s);
+                    }
                 };
-            getLogger().info( "Connection from " + socket.getInetAddress());
+            logger.info( "Connection from " + socket.getInetAddress());
         } catch (Exception e) {
-            getLogger().error( "Cannot open connection from: " + e.getMessage(), e );
+            logger.error( "Cannot open connection from: " + e.getMessage(), e );
         }
 
         try {
@@ -110,12 +127,12 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.close();
             socket.close();
             scheduler.removeTrigger(this.toString());
-            getLogger().info("Connection closed");
+            logger.info("Connection closed");
         } catch (Exception e) {
             doQUIT();
             //writer.println("502 Error closing connection.");
             //writer.flush();
-            getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            logger.error( "Exception during connection:" + e.getMessage(), e );
             try { socket.close();   } catch (IOException ioe) {  }
         }
     }
