@@ -235,14 +235,9 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
-            [last_updated] [datetime] NOT NULL
+            [last_updated] [datetime] NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
         )
-        ALTER TABLE [${table}] WITH NOCHECK ADD
-            CONSTRAINT [PK_${table}] PRIMARY KEY
-            (
-                [repository_name],
-                [message_name]
-            )
     </sql>
     <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
@@ -371,14 +366,9 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
-            [last_updated] [datetime] NOT NULL
+            [last_updated] [datetime] NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
         )
-        ALTER TABLE [${table}] WITH NOCHECK ADD
-            CONSTRAINT [PK_${table}] PRIMARY KEY
-            (
-                [message_name],
-                [repository_name]
-            )
     </sql>
     <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
