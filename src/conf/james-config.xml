@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/documentation_2_1.htm -->
 
-<!-- $Revision: 1.43 $ Committed on $Date: 2003/01/18 20:58:26 $ by: $Author: hbedi $ -->
+<!-- $Revision: 1.44 $ Committed on $Date: 2003/01/18 23:22:34 $ by: $Author: hbedi $ -->
 
 <config>
    <James>
@@ -294,16 +294,23 @@
    <!-- Specifies DNS Server information for use by various components inside -->
    <!-- James. -->
    <!-- -->
+   <!-- James will attempt to autodetect the DNS servers configured on your underlying system.-->
+   <!-- Currently, this works if the OS has a unix-like /etc/resolv.conf,-->
+   <!-- or the system is Windows based with ipconfig or winipcfg.-->
+   <!-- -->
+   <!-- If no DNS servers are found and you have not specified any below, 127.0.0.1 will be used-->
+   <!-- -->
    <!-- Information includes a list of DNS Servers to be used by James.  These are -->
    <!-- specified by the server elements, each of which is a child element of the -->
    <!-- servers element.  Each server element is the IP address of a single DNS server. -->
    <!-- The servers element can have multiple server children. -->
    <dnsserver>
       <servers>
-<!-- CONFIRM? -->
-        <!--Enter ip address of your DNS server, one IP address per server -->
-        <!-- element.  The default configuration assumes a DNS server on the localhost. -->
-         <server>127.0.0.1</server>
+         <!--Enter ip address of your DNS server, one IP address per server -->
+         <!-- element. -->
+         <!--
+          <server>127.0.0.1</server>
+         -->
       </servers>
       <authoritative>false</authoritative>
    </dnsserver>
