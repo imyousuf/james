@@ -53,8 +53,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.24 $
- * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.25 $
+ * Committed on $Date: 2002/09/14 07:25:00 $ by: $Author: pgoldstein $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -497,6 +497,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * there are any
      */
     public void run() {
+
+        /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
+         * finish initializing.  We expect the HELLO_NAME to be put into
+         * the MailetContext, but in the current configuration we get
+         * started before the SMTP Server, which establishes the value.
+         * Since there is no contractual guarantee that there will be a
+         * HELLO_NAME value, we can't just wait for it.  As a temporary
+         * measure, I'm inserting this philosophically unsatisfactory
+         * fix.
+         */
+        try {
+            Thread.sleep(5000);
+        } catch (Exception ignored) {} // wait for James to finish initializing
+
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
         //Not needed for production environment
