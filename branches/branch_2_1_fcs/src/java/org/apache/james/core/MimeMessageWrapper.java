@@ -336,7 +336,9 @@ public class MimeMessageWrapper
 
             InputStream bis = null;
             OutputStream bos = null;
-            // Write the raw body to the output stream
+            // Write the body to the output stream
+
+            /*
             try {
                 bis = message.getRawInputStream();
                 bos = bodyOs;
@@ -351,6 +353,44 @@ public class MimeMessageWrapper
 
                 bos = MimeUtility.encode(bodyOs, message.getEncoding());
                 bis = message.getInputStream();
+            }
+            */
+
+            try {
+                // Get the message as a stream.  This will encode
+                // objects as necessary, and we have some input from
+                // decoding an re-encoding the stream.  I'd prefer the
+                // raw stream, but see 
+                bos = MimeUtility.encode(bodyOs, message.getEncoding());
+                bis = message.getInputStream();
+            } catch(javax.activation.UnsupportedDataTypeException udte) {
+
+                /* If we get an UnsupportedDataTypeException try using
+                 * the raw input stream as a "best attempt" at rendering
+                 * a message.
+                 *
+                 * WARNING: JavaMail v1.3 getRawInputStream() returns
+                 * INVALID (unchanged) content for a changed message.
+                 * getInputStream() works properly, but in this case
+                 * has failed due to a missing DataHandler.
+                 *
+                 * MimeMessage.getRawInputStream() may throw a "no
+                 * content" MessagingException.  In JavaMail v1.3, when
+                 * you initially create a message using MimeMessage
+                 * APIs, there is no raw content available.
+                 * getInputStream() works, but getRawInputStream()
+                 * throws an exception.  If we catch that exception,
+                 * throw the UDTE.  It should mean that someone has
+                 * locally constructed a message part for which JavaMail
+                 * doesn't have a DataHandler.
+                */
+
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException me) {
+                    throw udte;
+                }
             }
 
             try {
