@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <header>
+  <title>TODO</title>
+  <subtitle>TODO</subtitle>
+  <authors>
+   <person name="Serge Knystautas" email="sergek@lokitech.com"/>
+  </authors>
+ </header>
+
+<body>
+
+<section name="TODO">
+<p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated 15 January 2001 (as of release 1.2.1).</p>
+</section>
+<section name="High Priority">
+<p>Write more documentation. </p>
+<p>Allow RemoteManager to change passwords of users (change attribute) </p>
+<p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway or a relay host) </p>
+<p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
+<p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
+</section>
+
+<section name="Medium Priority">
+<p>Make James stoppable (elegantly)</p>
+<p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
+<p>Add #news namespace to IMAP system</p>
+<p>Revisit UserRepository - after doing IMAP List & Subscribe</p>
+<p>Make James reconfigurable/contextualizable/composable.</p>
+<p>Reinject error/spam mails incorrecty handled.</p>
+<p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
+<p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
+<p>Add support for deployable message processing apps using Camelot pattern</p>
+</section>
+
+<section name="Low Priority">
+<p>Write an NNTP server</p>
+<p>Add support for DRAC login/relay allowing</p>
+<p>Review threadpooling - is it dynamic?</p>
+</section>
+
+</body>
+</document>
+
