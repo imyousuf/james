@@ -574,6 +574,10 @@ public class JDBCMailRepository
         }
     }
 
+    protected Connection getConnection() throws SQLException {
+        return datasource.getConnection();
+    }
+
     public boolean equals(Object obj) {
         if (!(obj instanceof JDBCMailRepository)) {
             return false;
