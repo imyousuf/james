@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.mail.MessagingException;
@@ -72,11 +73,13 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MailetConfigImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.SpoolRepository;
@@ -97,7 +100,7 @@ import org.apache.mailet.SpoolRepository;
  *
  * Note that the 'onerror' attribute is not yet supported.
  *
- * <P>CVS $Id: LinearProcessor.java,v 1.20 2003/06/17 16:03:15 noel Exp $</P>
+ * <P>CVS $Id: LinearProcessor.java,v 1.21 2003/06/17 23:28:30 noel Exp $</P>
  * @version 2.2.0
  */
 public class LinearProcessor
