@@ -1,10 +1,17 @@
-#! /bin/sh
+#!/bin/sh
 
 echo
 echo "James Build System"
 echo "-------------------"
 
-export CLASSPATH=lib/xerces.jar:lib/velocity-0.72.jar:lib/jdom-b5.jar
+CLASSPATH=lib/xerces.jar
+
+for i in ../jakarta-site2/lib/*.jar
+do
+    CLASSPATH=${CLASSPATH}:$i
+done
+
+export CLASSPATH
 
 chmod u+x ./tools/bin/antRun
 chmod u+x ./tools/bin/ant

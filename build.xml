@@ -217,6 +217,7 @@ All these package are in current distribution.
 
     <jar jarfile="${build.lib}/${name}.sar">
 
+<!--
       <zipfileset dir="${lib.dir}/" prefix="blocks/">
         <include name="*.bar"/>
       </zipfileset>
@@ -243,7 +244,7 @@ All these package are in current distribution.
       <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
         <include name="james.server.xml"/>
       </zipfileset>
-
+-->
     </jar>
 
   </target>
