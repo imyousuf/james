@@ -1,0 +1,51 @@
+#Regular fetch
+C: a FETCH 1:10 (UID)
+S: \* 1 FETCH \(UID 10\)
+S: \* 2 FETCH \(UID 20\)
+S: \* 3 FETCH \(UID 30\)
+S: \* 4 FETCH \(UID 40\)
+S: a OK FETCH completed
+
+#UID fetch
+C: a UID FETCH 1:20 (UID)
+S: \* 1 FETCH \(UID 10\)
+S: \* 2 FETCH \(UID 20\)
+S: a OK FETCH completed
+
+#UID store
+C: a UID STORE 15:35 +FLAGS (\Deleted)
+S: \* 2 FETCH \(FLAGS \(\\Deleted\)\)
+S: \* 3 FETCH \(FLAGS \(\\Deleted\)\)
+S: a OK STORE completed
+
+# Regular fetch
+C: a FETCH 1:100 (FLAGS UID)
+S: \* 1 FETCH \(FLAGS \(\) UID 10\)
+S: \* 2 FETCH \(FLAGS \(\\Deleted\) UID 20\)
+S: \* 3 FETCH \(FLAGS \(\\Deleted\) UID 30\)
+S: \* 4 FETCH \(FLAGS \(\) UID 40\)
+S: a OK FETCH completed
+
+# CREATE and do a UID COPY
+C: a CREATE copied
+S: a OK CREATE completed
+
+C: a UID COPY 20 copied
+S: a OK COPY completed
+
+C: a STATUS copied (MESSAGES)
+S: \* STATUS copied \(MESSAGES 1\)
+S: a OK STATUS completed
+
+
+# Do a UID SEARCH
+C: a UID SEARCH FLAGGED
+S: \* SEARCH 10 20 30 40
+S: a OK SEARCH completed
+
+# Cleanup
+C: a1 DELETE copied
+S: a1 OK DELETE completed
+
+
+
