@@ -35,14 +35,14 @@ import org.apache.avalon.framework.service.Serviceable;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.8.2.3 2004/02/11 17:17:07 sbrewin Exp $
+ * $Id: FetchScheduler.java,v 1.8.2.4 2004/02/18 21:47:26 hilmer Exp $
  *
  *  @see org.apache.james.fetchmail.FetchMailOriginal#configure(Configuration) FetchMailOriginal
  *  
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Disposable {
+    implements Serviceable, Configurable, Initializable, Disposable, FetchSchedulerMBean {
 
     /**
      * Configuration object for this service
@@ -138,4 +138,14 @@ public class FetchScheduler
             getLogger().info("FetchMail ...dispose end");
         }
     }
+    
+    /**
+     * Describes whether this service is enabled by configuration.
+     *
+     * @return is the service enabled.
+     */
+    public final boolean isEnabled() {
+        return enabled;
+    }
+    
 }

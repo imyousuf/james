@@ -77,14 +77,14 @@ import java.util.Iterator;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.4.4.2 2003/03/08 21:54:03 noel Exp $
+ * <br>$Id: FetchScheduler.java,v 1.4.4.3 2004/02/18 21:47:27 hilmer Exp $
  *  @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *  
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Component, Composable, Configurable, Initializable, Disposable {
+    implements Component, Composable, Configurable, Initializable, Disposable, FetchSchedulerMBean {
 
     /**
      * Configuration object for this service
@@ -163,6 +163,15 @@ public class FetchScheduler
 
             getLogger().info( "Fetch POP ...dispose end" );
         }
+    }
+
+    /**
+     * Describes whether this service is enabled by configuration.
+     *
+     * @return is the service enabled.
+     */
+    public final boolean isEnabled() {
+        return enabled;
     }
 
 }

@@ -92,7 +92,7 @@ import java.net.UnknownHostException;
  * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
-public class NNTPServer extends AbstractJamesService implements Component {
+public class NNTPServer extends AbstractJamesService implements Component, NNTPServerMBean {
 
     /**
      * Whether authentication is required to access this NNTP server

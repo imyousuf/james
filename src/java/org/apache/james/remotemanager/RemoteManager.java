@@ -96,7 +96,7 @@ import java.util.HashMap;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RemoteManager
-    extends AbstractJamesService implements Component {
+    extends AbstractJamesService implements Component, RemoteManagerMBean {
 
     /**
      * A HashMap of (user id, passwords) for James administrators

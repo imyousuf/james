@@ -55,25 +55,47 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
-package org.apache.james;
+package org.apache.james.smtpserver;
 
 /**
- * An interface to expose James management functionality through JMX.  At
- * the time of this writing, this interface is just an example.
+ * An interface to expose James management functionality through JMX.
  * 
- * @phoenix:mx-topic name="MainJAMESServerManagement"
+ * @phoenix:mx-topic name="SMTPServer"
  */
-public interface JamesMBean {
+public interface SMTPServerMBean {
+    /**
+    * @phoenix:mx-attribute
+    * @phoenix:mx-description Returns flag indicating it this service is enabled 
+    * @phoenix:mx-isWriteable no
+    * 
+    * @return boolean The enabled flag     
+    */  
+    public boolean isEnabled();
 
     /**
-     * Adds a user to this mail server.
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add a new user
-     *
-     * @param userName The name of the user being added
-     * @param password The password of the user being added
-     */
-    boolean addUser(String userName, String password);
+    * @phoenix:mx-attribute
+    * @phoenix:mx-description Returns the port that the service is bound to 
+    * @phoenix:mx-isWriteable no
+    * 
+    * @return int The port number     
+    */  
+    public int  getPort();
+    
+    /**
+    * @phoenix:mx-attribute
+    * @phoenix:mx-description Returns the address if the network interface the socket is bound to 
+    * @phoenix:mx-isWriteable no
+    * 
+    * @return String The network interface name     
+    */  
+    public String  getNetworkInterface();
+    
+    /**
+    * @phoenix:mx-attribute
+    * @phoenix:mx-description Returns the server socket type, plain or SSL 
+    * @phoenix:mx-isWriteable no
+    * 
+    * @return String The scoekt type, plain or SSL     
+    */  
+    public String  getSocketType();
 }

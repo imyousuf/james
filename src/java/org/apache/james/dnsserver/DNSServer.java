@@ -91,7 +91,7 @@ import java.util.*;
 public class DNSServer
     extends AbstractLogEnabled
     implements Configurable, Initializable,
-    org.apache.james.services.DNSServer {
+    org.apache.james.services.DNSServer, DNSServerMBean {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -199,6 +199,15 @@ public class DNSServer
         getLogger().debug("DNSServer ...init end");
     }
 
+    /**
+     * <p>Return the list of DNS servers in use by this service</p>
+     *
+     * @return an array of DNS server names
+     */
+    public String[] getDNSServers() {
+        return (String[])dnsServers.toArray(new String[0]);
+    }
+    
     /**
      * <p>Return a prioritized unmodifiable list of MX records
      * obtained from the server.</p>
