@@ -27,9 +27,9 @@ to a user named &lt;prefix&gt;-on or &lt;prefix&gt;-off on any host.  Only those
 </subsection>
 <subsection name="FetchedFrom">
 <p>Description: A matcher intended for use with the FetchPOP server.  It matches a custom header (X-fetched-from) that is 
-set by the FetchPOP server.  FetchPOP sets this header to the email address for the POP3 account from which 
-the mail was originally fetched.  All recipients are returned.</p>
-<p>Configuration string: The POP3 account from which the mail was originally fetched.</p>
+set by the FetchPOP server.  FetchPOP sets this header to the name of the FetchPOP task which originally fetched
+the message.  All recipients are returned.</p>
+<p>Configuration string: The name of the FetchPOP task which originally fetched the message.</p>
 </subsection>
 <subsection name="HasAttachment">
 <p>Description: Matches those messages with a MIME type of "multipart/mixed".  All recipients are returned.</p>
