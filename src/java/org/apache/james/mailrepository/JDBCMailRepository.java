@@ -575,6 +575,7 @@ public class JDBCMailRepository
         try {
             return datasource.getConnection();
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
             throw new CascadingRuntimeException(
                 "An exception occurred getting a database connection.", sqle);
         }
