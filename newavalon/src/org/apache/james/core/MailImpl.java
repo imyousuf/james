@@ -26,7 +26,6 @@ public class MailImpl implements Mail {
     private String errorMessage;
     private String state;
     private MimeMessage message;
-    private InputStream messageIn;
     private MailAddress sender;
     private Collection recipients;
     private String name;
@@ -58,7 +57,6 @@ public class MailImpl implements Mail {
 
     public void clean() {
         message = null;
-        messageIn = null;
     }
 
     public Mail duplicate() {
@@ -82,7 +80,6 @@ public class MailImpl implements Mail {
     }
 
     public MimeMessage getMessage() throws MessagingException {
-        parse();
         return message;
     }
 
@@ -118,11 +115,12 @@ public class MailImpl implements Mail {
         return lastUpdated;
     }
 
-    public void parse() throws MessagingException {
+    private void parse(InputStream messageIn) throws MessagingException {
         if (messageIn != null) {
             message = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
-            messageIn = null;
-        }
+        } else {
+	    throw new MessagingException("Attempt to parse null input stream.");
+	}
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -145,13 +143,11 @@ public class MailImpl implements Mail {
     }
 
     public void setMessage(InputStream in) throws MessagingException {
-        this.messageIn = new BufferedInputStream(in);
-        this.message = null;
+	parse(in);
     }
 
     public void setMessage(MimeMessage message) {
         this.message = message;
-        this.messageIn = null;
     }
 
     public void setRecipients(Collection recipients) {
@@ -182,11 +178,8 @@ public class MailImpl implements Mail {
         if (message != null) {
             message.writeTo(out);
         } else {
-// FIXME!!! need a smarter way to read many times the same stream!!!
-            messageIn.mark(Integer.MAX_VALUE);
-            for (int next; (next = messageIn.read()) != -1; out.write(next));
-            messageIn.reset();
-        }
+	    throw new MessagingException("No message set for this MailImpl.");
+	}
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -231,14 +224,7 @@ public class MailImpl implements Mail {
                 out.write(line.getBytes());
             }
         } else {
-            messageIn.mark(Integer.MAX_VALUE);
-            br  = new BufferedReader(new InputStreamReader(messageIn));
-            while(lines-- > 0)  {
-                if((line = br.readLine()) == null) break;
-                line += "\r\n";
-                out.write(line.getBytes());
-            }
-            messageIn.reset();
-        }
+	    throw new MessagingException("No message set for this MailImpl.");
+	}
     }
 }

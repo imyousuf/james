@@ -110,7 +110,9 @@ public class AvalonMailRepository implements SpoolRepository {
     public synchronized MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
-            mc.setMessage(sr.retrieve(key));
+	    BufferedInputStream in = new BufferedInputStream(sr.retrieve(key));
+            mc.setMessage(in);
+	    in.close();
         } catch (Exception me) {
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
