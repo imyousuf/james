@@ -49,9 +49,13 @@ public class MimeMessageWrapper extends MimeMessage {
         this.source = source;
     }
 
-    public MimeMessageWrapper(Session session, MimeMessageSource source) {
-        super(session);
-        this.source = source;
+    /**
+     * Returns the source ID of the MimeMessageSource that is supplying this
+     * with data.
+     * @see MimeMessageSource
+     */
+    public String getSourceId() {
+        return source.getSourceId();
     }
 
     /**

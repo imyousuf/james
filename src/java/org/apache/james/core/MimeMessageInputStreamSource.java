@@ -10,13 +10,15 @@ package org.apache.james.core;
 import java.io.*;
 
 /**
- * MimeMessageInputStreamSource.java
+ * Takes an input stream and creates a repeatable input stream source
+ * for a MimeMessageWrapper.  It does this by completely reading the
+ * input stream and saving that to a temporary file that should delete on exit,
+ * or when this object is GC'd.
+ *
+ * @see MimeMessageWrapper
  *
  *
- * Created:
- *
- * @author
- * @version
+ * @author <a href="mailto:sergek@lokitech.com>">Serge Knystautas</a>
  *
  * Modified by <a href="mailto:okidz@pindad.com">Oki DZ</a>
  * Thu Oct  4 15:15:27 WIT 2001
@@ -24,35 +26,13 @@ import java.io.*;
  */
 public class MimeMessageInputStreamSource extends MimeMessageSource {
 
-    String key = null;
-    InputStream in = null;
     File file = null;
-
-    //If you try to access this size first, it will load it into a temp file
-    //  and work from there.
+    String sourceId = null;
 
     public MimeMessageInputStreamSource(String key, InputStream in) {
-        this.key = key;
-        this.in = in;
-    }
-
-    /**
-     * Return an input stream to the data
-     */
-    public synchronized InputStream getInputStream() throws IOException {
-        if (file == null) {
-            return in;
-        } else {
-            return new BufferedInputStream(new FileInputStream(file));
-        }
-    }
-
-    /**
-     * If not already, read the stream into a temp file
-     */
-    public synchronized long getMessageSize() throws IOException {
-        if (file == null) {
-            //Create a temp file and channel the input stream into it
+        //We want to immediately read this into a temporary file
+        //Create a temp file and channel the input stream into it
+        try {
             file = File.createTempFile(key, ".m64");
             OutputStream fout = new BufferedOutputStream(new FileOutputStream(file));
             int b = -1;
@@ -62,7 +42,31 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
             fout.close();
             in.close();
             file.deleteOnExit();
+
+            sourceId = file.getCanonicalPath();
+        } catch (IOException ioe) {
+            throw new RuntimeException("Unable to retrieve the data: " + ioe.getMessage());
         }
+    }
+
+    /**
+     * Returns the unique identifier of this input stream source
+     */
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    /**
+     * Return an input stream to the data
+     */
+    public synchronized InputStream getInputStream() throws IOException {
+        return new BufferedInputStream(new FileInputStream(file));
+    }
+
+    /**
+     * Return the size of the temp file
+     */
+    public long getMessageSize() throws IOException {
         return file.length();
     }
 
