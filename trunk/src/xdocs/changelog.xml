@@ -19,7 +19,7 @@
 </section>
 
 <section name="Version 2.1.1">
-<p>Expected release February 2003</p>
+<p>Released 11 February 2003</p>
 <li> [KL] (code) SMTP AUTH compatibility change</li>
 <li> [NjB] (code) Changed MimeMessageWrapper to use the raw stream when possible</li>
 <li> [NjB] (code) Fixed synchronization bug in AvalonMailRepository</li>
