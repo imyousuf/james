@@ -113,8 +113,7 @@ import org.apache.mailet.SpoolRepository;
  *
  * as well as other places.
  *
- *
- * This is $Revision: 1.50 $
+ * @version CVS $Revision: 1.51 $ $Date: 2003/06/18 15:59:44 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -785,7 +784,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         throw e;
                     }
                 } catch (Throwable e) {
-                    if (!destroyed) log("Exception caught in RemoteDelivery.run(): " + e);
+                    if (!destroyed) log("Exception caught in RemoteDelivery.run()", e);
                 }
             }
         } finally {
