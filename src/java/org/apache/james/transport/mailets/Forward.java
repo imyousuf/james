@@ -94,7 +94,7 @@ import java.util.StringTokenizer;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.6.4.9 $ $Date: 2003/06/30 09:42:07 $
+ * @version CVS $Revision: 1.6.4.10 $ $Date: 2003/07/03 05:25:30 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -148,20 +148,26 @@ public class Forward extends AbstractRedirect {
      * @return the <CODE>recipients</CODE> init parameter or null if missing
      */
     protected Collection getRecipients() throws MessagingException {
-        Collection newRecipients = new HashSet();
+        Collection newRecipients = null;
+        boolean error = false;
         String addressList = getInitParameter("forwardto");
-        // if nothing was specified, return null meaning no change
-        if (addressList == null) {
-            return null;
-        }
-        StringTokenizer st = new StringTokenizer(addressList, ",", false);
-        while(st.hasMoreTokens()) {
-            try {
-                newRecipients.add(new MailAddress(st.nextToken()));
-            } catch(Exception e) {
-                log("add recipient failed in getRecipients");
+        if (addressList != null) {
+            newRecipients = new HashSet();
+            StringTokenizer st = new StringTokenizer(addressList, ",", false);
+            while(st.hasMoreTokens()) {
+                String recipient = st.nextToken();
+                try {
+                    newRecipients.add(new MailAddress(recipient));
+                } catch(Exception e) {
+                    log("Add \"" + recipient + "\" failed", e);
+                    error = true;
+                }
             }
         }
+        if (error || newRecipients == null || newRecipients.size() == 0) {
+            throw new MessagingException("Failed to initialize recipient list; see mailet log.");
+        }
+
         return newRecipients;
     }
 
