@@ -15,7 +15,7 @@
 <tr>
 <td colspan="2">
 <!--ASF LOGO--><a href="http://www.apache.org/"><img border="0" alt="The ASF" align="left" src="http://www.apache.org/images/asf_logo_wide.gif"></a>
-<!--PROJECT LOGO--><a href="http://james.apache.org/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://james.apache.org"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://james.apache.org/images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -754,79 +754,7 @@ match as follows (in precedence order):
 <td>
 <blockquote>
             
-<p>You can use Alexandria will setup/run JAMES on NT/2k/XP</p>
-            
-<p>I created a .bat file called InstallJamesNTService.bat containing the
-following (I used the Alexandria tomcat.bat file as my template, as you can
-see):</p>
-            
-<div align="left">
-<table border="0" cellpadding="0" cellspacing="4">
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
-<pre>
-
-  @echo off
-  echo --------
-  echo Usage:   %0 jdk_home james_home (classic/hotspot/server)
-  echo NOTE:    You MAY NOT use spaces in the path names.
-  echo          JDK 1.3 does not come with hotspot server by default, you must
-  echo          install this separately if you wish to use it.
-  echo Example: %0 c:\progra~1\jdk c:\progra~1\james classic
-  echo --------
-
-  if "%1" == "" goto eof
-  if "%2" == "" goto eof
-  if "%3" == "" goto eof
-
-  copy JavaService.exe %2\bin\James.exe &gt; nul
-  %2\bin\James.exe -install JamesMailServer
-  rem put the following command all on one line
-  %1\jre\bin\%3\jvm.dll -Djava.ext.dirs=%2\lib 
-      -Djava.class.path=%CLASSPATH%;%2\bin\phoenix-loader.jar;
-      %2\bin\phoenix-engine.jar 
-      -start org.apache.avalon.phoenix.launcher.Main 
-      -out %2\logs\stdout.log -err %2\logs\stderr.log
-
-  goto eof
-
-  :eof
-  </pre>
-</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-</table>
-</div>
-            
-<p>
-  Create another .bat file called UnistallJamesNTService containing the following 1 line:
-  </p>
-            
-<div align="left">
-<table border="0" cellpadding="0" cellspacing="4">
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
-<pre>
-  James -uninstall JamesMailServer
-  </pre>
-</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-<tr>
-<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
-</tr>
-</table>
-</div>
-            
-<p>By copying the 2 above .bat files and the JavaService.exe (follow the download link  at http://www.alexandriasc.com/software/JavaService/index.html) to the [james]\bin folder, you should be able to install and uninstall the JamesMailServer NT service!
-  <br>Copied from <a href="http://www.mail-archive.com/james-user@jakarta.apache.org/msg01389.html">a message</a> from the james-user mailing list.</p>
+<p>The version of Avalon Phoenix distributed with James v2.1 and later includes a <a href="http://avalon.apache.org/phoenix/guide-administrator.html">wrapper</a> that lets you run James as a service.  An alternative strategy is to install the <a href="http://www.alexandriasc.com/software/JavaService/index.html">JavaService</a> from Alexandia Software.</p>
          
 </blockquote>
 </td>
