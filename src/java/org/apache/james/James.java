@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.3 $
+ * @version This is $Revision: 1.35.4.4 $
 
  */
 public class James
@@ -575,7 +575,7 @@ public class James
                     .append("Mail")
                     .append(System.currentTimeMillis())
                     .append("-")
-                    .append(count++);
+                    .append(localcount);
         return idBuffer.toString();
     }
 
