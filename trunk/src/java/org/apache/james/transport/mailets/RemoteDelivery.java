@@ -44,14 +44,15 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.9 $
- * Committed on $Date: 2001/10/08 22:25:42 $ by: $Author: serge $
+ * This is $Revision: 1.10 $
+ * Committed on $Date: 2001/10/20 12:56:48 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private SpoolRepository outgoing;
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
     private int maxRetries = 5; // default number of retries
+    private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
     private int deliveryThreadCount = 1; // default number of delivery threads
     private String gatewayServer = null; // the server to send all email to
     private Collection deliveryThreads = new Vector();
@@ -59,12 +60,25 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     public void init() throws MessagingException {
         try {
-            delayTime = Long.parseLong(getInitParameter("delayTime"));
+            if (getInitParameter("delayTime") != null) {
+                delayTime = Long.parseLong(getInitParameter("delayTime"));
+            }
         } catch (Exception e) {
+            log("Invalid delayTime setting: " + getInitParameter("delayTime"));
         }
         try {
-            maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
+            if (getInitParameter("maxRetries") != null) {
+                maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
+            }
         } catch (Exception e) {
+            log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
+        }
+        try {
+            if (getInitParameter("timeout") != null) {
+                smtpTimeout = Integer.parseInt(getInitParameter("timeout"));
+            }
+        } catch (Exception e) {
+            log("Invalid timeout setting: " + getInitParameter("timeout"));
         }
         gatewayServer = getInitParameter("gateway");
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
@@ -162,9 +176,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             props.put("mail.smtp.user", mail.getSender().toString());
                             props.put("mail.smtp.from", mail.getSender().toString());
                         }
-                        props.put("mail.debug", "false");
-                        //Prevents problems encountered with 250 OK Messages
-                        props.put("mail.smtp.ehlo", "false");
 
                         //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
@@ -361,6 +372,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     public void run() {
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
+        //Not needed for production environment
+        props.put("mail.debug", "false");
+        //Prevents problems encountered with 250 OK Messages
+        props.put("mail.smtp.ehlo", "false");
+        //Sets timeout on going connections
+        props.put("mail.smtp.timeout", smtpTimeout + "");
         Session session = Session.getInstance(props, null);
         while (!Thread.currentThread().interrupted()) {
             try {
