@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.14 $
- * Committed on $Date: 2002/03/01 15:58:40 $ by: $Author: danny $
+ * This is $Revision: 1.15 $
+ * Committed on $Date: 2002/04/17 04:21:03 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -179,13 +179,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             props.put("mail.smtp.user", mail.getSender().toString());
                             props.put("mail.smtp.from", mail.getSender().toString());
                         }
+                        Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
+                        if (servernames.size() > 0) {
+                            props.put("mail.smtp.localhost", (String) servernames.iterator().next());
+                        }
 
                         //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
                         //"mail.smtp.auth"  //default false
                         //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
-                        //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
 
                         Transport transport = session.getTransport(urlname);
                         transport.connect();
@@ -196,13 +199,29 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     } catch (SendFailedException sfe) {
                         throw sfe;
                     } catch (MessagingException me) {
+                        //MessagingException are horribly difficult to figure out what actually happened.
                         log("Exception delivering message (" + mail.getName() + ") - " + me.getMessage());
+                        //Assume it is a permanent exception, or prove ourselves otherwise
+                        boolean permanent = true;
                         if (me.getNextException() != null && me.getNextException() instanceof java.io.IOException) {
                             //This is more than likely a temporary failure
+
+                            //If it's an IO exception with no nested exception, it's probably
+                            //  some socket or weird IO related problem.
+                            permanent = false;
+                        } else if (me.getMessage().startsWith("Could not connect to SMTP host")) {
+                            //This is not a permanent exception because
+                            permanent = false;
+                        }
+                        //Now take action based on whether this was a permanent or temporary action
+                        if (permanent) {
+                            //If it's permanent, fail immediately.
+                            return failMessage(mail, me, true);
+                        } else {
+                            //Record what the last error is and continue the loop in case
+                            //  there are other servers we could try.
                             lastError = me;
                             continue;
-                        } else {
-                            return failMessage(mail, me, true);
                         }
                     }
                 } // end while
@@ -229,6 +248,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 }
             }
+            //The rest of the recipients failed for one reason or another.
+            //let the fail message handle it like a permanent exception.
             return failMessage(mail, sfe, true);
         } catch (MessagingException ex) {
             //We should do a better job checking this... if the failure is a general
@@ -283,11 +304,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private void bounce(MailImpl mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
         PrintWriter pout = new PrintWriter(sout, true);
-        String machine ="[unknown]";
-        try{
+        String machine = "[unknown]";
+        try {
             InetAddress me = InetAddress.getLocalHost();
             machine = me.getHostName();
-        }catch(Exception e){
+        } catch(Exception e){
             machine = "[address unknown]";
         }
         pout.println("Hi. This is the James mail server at " + machine + ".");
@@ -351,8 +372,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         String name = mail.getName();
         for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
             String host = (String) i.next();
-            Collection rec = (Collection)targets.get(host);
-            log("sending mail to " + rec + " on " + host);
+            Collection rec = (Collection) targets.get(host);
+            log("sending mail to " + rec + " on host " + host);
             mail.setRecipients(rec);
             mail.setName(name + "-to-" + host);
             outgoing.store(mail);
@@ -393,7 +414,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         while (!Thread.currentThread().interrupted()) {
             try {
                 String key = outgoing.accept(delayTime);
-		try {
+                try {
                    log(Thread.currentThread().getName() + " will process mail " + key);
                    MailImpl mail = outgoing.retrieve(key);
                    if (deliver(mail, session)) {
@@ -408,9 +429,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 } catch (Exception e) {
                     // Prevent unexpected exceptions from causing looping by removing
                     // message from outgoing.
-		    outgoing.remove(key);
-		    throw e;
-		}
+                    outgoing.remove(key);
+                    throw e;
+                }
             } catch (Exception e) {
                 log("Exception caught in RemoteDelivery.run(): " + e);
             }
