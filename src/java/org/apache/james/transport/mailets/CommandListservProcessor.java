@@ -99,6 +99,9 @@ import java.util.*;
  * &lt;/mailet&gt;
  *
  * </pre>
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:55 $
+ * @since 2.2.0
  */
 public class CommandListservProcessor extends GenericMailet {
 

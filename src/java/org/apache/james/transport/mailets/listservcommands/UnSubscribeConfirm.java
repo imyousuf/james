@@ -89,6 +89,8 @@ import java.util.Properties;
  * <br />
  * This command basically sends a goodbye message and removes the user from the mailing list.
  *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see UnSubscribe
  */
 public class UnSubscribeConfirm extends BaseCommand {

@@ -124,6 +124,9 @@ import java.util.*;
  * <pre>
  * &lt;listName&gt;-&lt;commandName&gt;-&lt;optCommandParam&gt;@domain
  * </pre>
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:55 $
+ * @since 2.2.0
  */
 public class CommandListservManager extends GenericMailet implements ICommandListservManager {
 

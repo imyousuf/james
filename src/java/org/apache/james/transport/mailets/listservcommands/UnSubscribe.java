@@ -89,6 +89,8 @@ import java.util.Properties;
  * are currently subscribed to this list.  If so, they will be sent a confirmation mail to
  * be processed by {@link UnSubscribeConfirm}
  *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see UnSubscribeConfirm
  */
 public class UnSubscribe extends BaseCommand {

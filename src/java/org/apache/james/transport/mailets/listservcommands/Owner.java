@@ -70,6 +70,9 @@ import java.util.ArrayList;
 
 /**
  * This command will send email to the current owner(s) of this mailing list
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  */
 public class Owner extends BaseCommand {
 

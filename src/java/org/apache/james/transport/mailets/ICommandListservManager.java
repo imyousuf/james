@@ -77,6 +77,9 @@ import java.util.Properties;
  * <pre>
  * ICommandListservManager mgr = (ICommandListservManager)mailetContext.getAttribute(ICommandListservManager.ID + listName);
  * </pre>
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:55 $
+ * @since 2.2.0
  */
 public interface ICommandListservManager extends Mailet {
 

@@ -89,7 +89,8 @@ import java.util.Properties;
  * are already subscribed to this list.  If not, they will be sent a confirmation mail to
  * be processed by {@link SubscribeConfirm}
  *
- * @author <a href="mailto:mimel@imelshire.com">Mark Imel</a>
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see SubscribeConfirm
  */
 public class Subscribe extends BaseCommand {

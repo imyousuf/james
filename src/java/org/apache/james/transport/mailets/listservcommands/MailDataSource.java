@@ -66,6 +66,9 @@ import java.io.*;
  *  an InputStream, a byte array, and a string
  *
  * This is used from {@link BaseCommand#generateMail}
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  */
 public class MailDataSource implements DataSource {
 

@@ -88,6 +88,9 @@ import java.util.Properties;
  * After formatting the text, the message is delivered with {@link #sendStandardReply}
  *
  * Todo: make displaying the current member list optional
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  */
 public class Info extends BaseCommand {
 
