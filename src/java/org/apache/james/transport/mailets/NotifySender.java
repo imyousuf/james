@@ -98,7 +98,7 @@ import java.util.Iterator;
  * <P>Sample configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="NotifySender">
- *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;sendingAddress&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
  *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
@@ -114,12 +114,12 @@ import java.util.Iterator;
  * configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="Redirect">
- *   &lt;sender&gt;<I>an address or postmaster</I>&lt;/sender&gt;
- *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
+ *   &lt;sender&gt;<I>an address or postmaster or sender or unaltered</I>&lt;/sender&gt;
+ *   &lt;attachError&gt;<I>true or false</I>&lt;/attachError&gt;
  *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
  *   &lt;prefix&gt;<I>a string</I>&lt;/prefix&gt;
  *   &lt;passThrough&gt;true&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
  *   &lt;to&gt;<I>unaltered or sender&lt</I>;/to&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
  *   &lt;inline&gt;none&lt;/inline&gt;
@@ -129,8 +129,7 @@ import java.util.Iterator;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: NotifySender.java,v 1.10.4.8 2003/06/15 18:40:20 noel Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.10.4.9 $ $Date: 2003/06/25 22:02:32 $
  */
 public class NotifySender extends AbstractNotify {
 
