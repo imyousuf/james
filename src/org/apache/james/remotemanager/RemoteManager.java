@@ -24,19 +24,21 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteManager implements SocketHandler, Block {
+public class RemoteManager implements SocketHandler, Block, TimeServer.Bell {
 
     private ComponentManager comp;
     private Configuration conf;
     private Logger logger;
     private Store store;
     private Store.ObjectRepository userRepository;
+    private TimeServer timeServer;
 
     private BufferedReader in;
     private InputStream socketIn;
     private PrintWriter out;
     private OutputStream r_out;
     private Hashtable admaccount;
+    private Socket socket;
 
     public RemoteManager() {}
 
@@ -53,6 +55,7 @@ public class RemoteManager implements SocketHandler, Block {
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("RemoteManager init...", "RemoteManager", logger.INFO);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
+        this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         admaccount = new Hashtable();
         for (Enumeration e = conf.getConfigurations("AdministratorAccounts.Account"); e.hasMoreElements();) {
             Configuration c = (Configuration) e.nextElement();
@@ -72,6 +75,8 @@ public class RemoteManager implements SocketHandler, Block {
 
     public void parseRequest(Socket s) {
 
+        timeServer.setAlarm("RemoteManager", this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
+        socket = s;
         String remoteHost = s.getInetAddress().getHostName();
         String remoteIP = s.getInetAddress().getHostAddress();
         try {
@@ -90,9 +95,12 @@ public class RemoteManager implements SocketHandler, Block {
                 login = in.readLine();
                 password = in.readLine();
             }
+            timeServer.resetAlarm("RemoteManager");
             out.println("Welcome " + login + ". HELP for a list of commands");
             logger.log("Login for " + login + " succesful", "RemoteManager", logger.INFO);
-            while (parseCommand(in.readLine()));
+            while (parseCommand(in.readLine())) {
+                timeServer.resetAlarm("RemoteManager");
+            }
             logger.log("Logout for " + login + ".", "RemoteManager", logger.INFO);
             s.close();
         } catch (IOException e) {
@@ -100,9 +108,20 @@ public class RemoteManager implements SocketHandler, Block {
             out.flush();
             logger.log("Exception during connection from " + remoteHost + " (" + remoteIP + ")", "RemoteManager", logger.ERROR);
         }
+        timeServer.removeAlarm("RemoteManager");
+    }
+    
+    public void wake(String name, String memo) {
+        logger.log("Connection timeout on socket", "RemoteManager", logger.ERROR);
+        try {
+            out.println("Connection timeout. Closing connection");
+            socket.close();
+        } catch (IOException e) {
+        }
     }
 
     private boolean parseCommand(String command) {
+        if (command == null) return false;
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {

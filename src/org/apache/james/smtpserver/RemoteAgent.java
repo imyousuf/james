@@ -51,7 +51,6 @@ public class RemoteAgent implements Configurable, Composer {
     public void delivery(MessageContainer mc) {
         
 // FIXME: need implementation of DNS.
-        logger.log("Remote delivery of " + mc.getMessageId(), "SMTPServer", logger.INFO);
         Vector recipients = mc.getState().getRecipients();
         Vector rRecipients = new Vector();
         for (int i = 0  ; i < recipients.size(); i++) {
@@ -62,6 +61,7 @@ public class RemoteAgent implements Configurable, Composer {
             }
         }
         if (!rRecipients.isEmpty()) {
+            logger.log("Remote delivery of " + mc.getMessageId(), "SMTPServer", logger.INFO);
             try {
                 InternetAddress addr[] = new InternetAddress[rRecipients.size()];
                 int i = 0;
