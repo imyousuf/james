@@ -155,7 +155,7 @@
          </subsection>
          <a name="7"/>
          <subsection name="What about support virtual hosting?">
-	    <p>James v2.1 includes a new mailet for database users, <a href="javadocs/org/apache/james/transport/mailets/JDBCVirtualUserTable.html">JDBCVirtualUserTable</a>, that mimics some of the sendmail capabilities of the same name.</p>
+            <p>James v2.1 includes a new mailet for database users, <a href="javadocs/org/apache/james/transport/mailets/JDBCVirtualUserTable.html">JDBCVirtualUserTable</a>, that mimics some of the sendmail capabilities of the same name.</p>
 
 <p>JDBCVirtualUserTable does not provide any administation tools.
 You'll have to create and maintain the database table yourself.  The
