@@ -106,12 +106,16 @@ import org.apache.mailet.MailAddress;
  * <TR valign=top>
  * <TD width="20%">&lt;recipients&gt;</TD>
  * <TD width="80%">
- * A comma delimited list of email addresses for recipients of
+ * A comma delimited list of addresses for recipients of
  * this message; it will use the &quot;to&quot; list if not specified, and &quot;unaltered&quot;
  * if none of the lists is specified.<BR>
  * These addresses will only appear in the To: header if no &quot;to&quot; list is
  * supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot; and &quot;unaltered&quot;.
+ * Such addresses can contain &quot;full names&quot;, like
+ * <I>Mr. John D. Smith &lt;john.smith@xyz.com&gt;</I>.<BR>
+ * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * &quot;from&quot; is made equivalent to &quot;sender&quot;, and &quot;to&quot; is made equivalent to &quot;recipients&quot;;
+ * &quot;null&quot; is ignored.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -122,7 +126,10 @@ import org.apache.mailet.MailAddress;
  * list.<BR>
  * The recipients list will be used if this list is not supplied;
  * if none of the lists is specified it will be &quot;unaltered&quot;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * Such addresses can contain &quot;full names&quot;, like
+ * <I>Mr. John D. Smith &lt;john.smith@xyz.com&gt;</I>.<BR>
+ * The list can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * &quot;recipients&quot; is made equivalent to &quot;to&quot;;
  * if &quot;null&quot; is specified alone it will remove this header.
  * </TD>
  * </TR>
@@ -305,7 +312,7 @@ import org.apache.mailet.MailAddress;
  * <P><I>replyto</I> can be used instead of
  * <I>replyTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.18.4.16 $ $Date: 2003/07/07 06:17:42 $
+ * @version CVS $Revision: 1.18.4.17 $ $Date: 2003/07/07 10:05:47 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -390,7 +397,7 @@ public class Redirect extends AbstractRedirect {
             for (int i = 0; i < iaarray.length; i++) {
                 String addressString = iaarray[i].getAddress();
                 MailAddress specialAddress = getSpecialAddress(addressString,
-                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+                new String[] {"postmaster", "sender", "from", "reversePath", "unaltered", "recipients", "to", "null"});
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
@@ -432,7 +439,7 @@ public class Redirect extends AbstractRedirect {
             for(int i = 0; i < iaarray.length; ++i) {
                 String addressString = iaarray[i].getAddress();
                 MailAddress specialAddress = getSpecialAddress(addressString,
-                                                new String[] {"postmaster", "sender", "from", "reversePath", "unaltered", "to", "null"});
+                                                new String[] {"postmaster", "sender", "from", "reversePath", "unaltered", "recipients", "to", "null"});
                 if (specialAddress != null) {
                     iaarray[i] = specialAddress.toInternetAddress();
                 }
