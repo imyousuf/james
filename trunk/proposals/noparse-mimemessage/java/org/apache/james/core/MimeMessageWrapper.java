@@ -1,10 +1,12 @@
 package org.apache.james.core;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+import org.apache.james.MailHeaders;
 
 public class MimeMessageWrapper extends MimeMessage {
 
@@ -13,6 +15,10 @@ public class MimeMessageWrapper extends MimeMessage {
      */
     MimeMessageSource source = null;
     /**
+     * The Internet headers in memory
+     */
+    MailHeaders headers = null;
+    /**
      * The mime message in memory
      */
     MimeMessage message = null;
@@ -20,6 +26,10 @@ public class MimeMessageWrapper extends MimeMessage {
      * Record whether a change was made to this message
      */
     boolean modified = false;
+    /**
+     * How to format a mail date
+     */
+    MailDateFormat mailDateFormat = new MailDateFormat();
 
     public MimeMessageWrapper(MimeMessageSource source) {
         super(javax.mail.Session.getDefaultInstance(System.getProperties(), null));
@@ -32,6 +42,26 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     /**
+     * Instantiate the headers
+     */
+    private synchronized void loadHeaders() throws MessagingException {
+        if (headers != null) {
+            //Another thread has already loaded these headers
+            return;
+        }
+        System.err.println("parsing headers of " + this);
+        //new Throwable().printStackTrace();
+        try {
+            InputStream in = source.getInputStream();
+            headers = new MailHeaders(in);
+            in.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage());
+        }
+    }
+
+    /**
      * Internal implementations
      */
     private synchronized void loadMessage() throws MessagingException {
@@ -39,10 +69,16 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded this message
             return;
         }
-        System.err.println("parsing " + this);
-        new Throwable().printStackTrace();
+        System.err.println("parsing headers and message of " + this);
+        //new Throwable().printStackTrace();
         try {
             InputStream in = source.getInputStream();
+            headers = new MailHeaders(in);
+
+            ByteArrayInputStream headersIn
+                    = new ByteArrayInputStream(headers.toByteArray());
+            in = new SequenceInputStream(headersIn, in);
+
             message = new MimeMessage(session, in);
             in.close();
         } catch (IOException ioe) {
@@ -50,6 +86,39 @@ public class MimeMessageWrapper extends MimeMessage {
             throw new MessagingException("Unable to parse stream: " + ioe.getMessage());
         }
     }
+
+    /**
+     * Internal implementation to get InternetAddress headers
+     */
+    private Address[] getAddressHeader(String name) throws MessagingException {
+        String addr = getHeader(name, ",");
+        if (addr == null) {
+            return null;
+        } else {
+            return InternetAddress.parse(addr);
+        }
+    }
+
+
+    /**
+     * Internal implementation to find headers
+     */
+    private String getHeaderName(Message.RecipientType recipienttype) throws MessagingException {
+        String s;
+        if (recipienttype == javax.mail.Message.RecipientType.TO) {
+            s = "To";
+        } else if (recipienttype == javax.mail.Message.RecipientType.CC) {
+            s = "Cc";
+        } else if (recipienttype == javax.mail.Message.RecipientType.BCC) {
+            s = "Bcc";
+        } else if (recipienttype == RecipientType.NEWSGROUPS) {
+            s = "Newsgroups";
+        } else {
+            throw new MessagingException("Invalid Recipient Type");
+        }
+        return s;
+    }
+
 
     /**
      * Special methods you can call
@@ -116,52 +185,118 @@ public class MimeMessageWrapper extends MimeMessage {
      */
 
     public Address[] getFrom() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getFrom();
+        Address from[] = getAddressHeader("From");
+        if(from == null) {
+            from = getAddressHeader("Sender");
+        }
+        return from;
     }
 
     public Address[] getRecipients(Message.RecipientType type) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getRecipients(type);
+        if (type == RecipientType.NEWSGROUPS) {
+            String s = headers.getHeader("Newsgroups", ",");
+            if(s == null) {
+                return null;
+            } else {
+                return NewsAddress.parse(s);
+            }
+        } else {
+            return getAddressHeader(getHeaderName(type));
+        }
     }
 
     public Address[] getAllRecipients() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getAllRecipients();
+        Address toAddresses[] = getRecipients(RecipientType.TO);
+        Address ccAddresses[] = getRecipients(RecipientType.CC);
+        Address bccAddresses[] = getRecipients(RecipientType.BCC);
+        Address newsAddresses[] = getRecipients(RecipientType.NEWSGROUPS);
+        if(ccAddresses == null && bccAddresses == null && newsAddresses == null) {
+            return toAddresses;
+        }
+        int i = (toAddresses == null ? 0 : toAddresses.length)
+                + (ccAddresses == null ? 0 : ccAddresses.length)
+                + (bccAddresses == null ? 0 : bccAddresses.length)
+                + (newsAddresses == null ? 0 : newsAddresses.length);
+        Address allAddresses[] = new Address[i];
+        int j = 0;
+        if (toAddresses != null) {
+            System.arraycopy(toAddresses, 0, allAddresses, j, toAddresses.length);
+            j += toAddresses.length;
+        }
+        if(ccAddresses != null) {
+            System.arraycopy(ccAddresses, 0, allAddresses, j, ccAddresses.length);
+            j += ccAddresses.length;
+        }
+        if(bccAddresses != null) {
+            System.arraycopy(bccAddresses, 0, allAddresses, j, bccAddresses.length);
+            j += bccAddresses.length;
+        }
+        if(newsAddresses != null) {
+            System.arraycopy(newsAddresses, 0, allAddresses, j, newsAddresses.length);
+            j += newsAddresses.length;
+        }
+        return allAddresses;
     }
 
     public Address[] getReplyTo() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getReplyTo();
+        Address replyTo[] = getAddressHeader("Reply-To");
+        if(replyTo == null) {
+            replyTo = getFrom();
+        }
+        return replyTo;
     }
 
     public String getSubject() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getSubject();
+        String subject = getHeader("Subject", null);
+        if (subject == null) {
+            return null;
+        }
+        try {
+            return MimeUtility.decodeText(subject);
+        } catch(UnsupportedEncodingException _ex) {
+            return subject;
+        }
     }
 
     public Date getSentDate() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getSentDate();
+        String header = getHeader("Date", null);
+        if(header != null) {
+            try {
+                synchronized(mailDateFormat) {
+                    Date date = mailDateFormat.parse(header);
+                    return date;
+                }
+            } catch(ParseException _ex) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     public Date getReceivedDate() throws MessagingException {
-        if (message == null) {
-            loadMessage();
-        }
-        return message.getReceivedDate();
+        //if (headers == null) {
+        //    loadHeaders();
+        //}
+        return null;
     }
 
     public int getSize() throws MessagingException {
@@ -219,10 +354,15 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     public String getContentType() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getContentType();
+        String value = getHeader("Content-Type", null);
+        if (value == null) {
+            return "text/plain";
+        } else {
+            return value;
+        }
     }
 
     public boolean isMimeType(String mimeType) throws MessagingException {
@@ -247,17 +387,17 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     public String getContentID() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getContentID();
+        return getHeader("Content-Id", null);
     }
 
     public String getContentMD5() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getContentMD5();
+        return getHeader("Content-MD5", null);
     }
 
     public String getDescription() throws MessagingException {
@@ -275,10 +415,10 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     public String getMessageID() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getMessageID();
+        return getHeader("Message-ID", null);
     }
 
     public String getFileName() throws MessagingException {
@@ -311,59 +451,59 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     public String[] getHeader(String name) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getHeader(name);
+        return headers.getHeader(name);
     }
 
     public String getHeader(String name, String delimiter) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getHeader(name, delimiter);
+        return headers.getHeader(name, delimiter);
     }
 
     public Enumeration getAllHeaders() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getAllHeaders();
+        return headers.getAllHeaders();
     }
 
     public Enumeration getMatchingHeaders(String[] names) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getMatchingHeaders(names);
+        return headers.getMatchingHeaders(names);
     }
 
     public Enumeration getNonMatchingHeaders(String[] names) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getNonMatchingHeaders(names);
+        return headers.getNonMatchingHeaders(names);
     }
 
     public Enumeration getAllHeaderLines() throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getAllHeaderLines();
+        return headers.getAllHeaderLines();
     }
 
     public Enumeration getMatchingHeaderLines(String[] names) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getMatchingHeaderLines(names);
+        return headers.getMatchingHeaderLines(names);
     }
 
     public Enumeration getNonMatchingHeaderLines(String[] names) throws MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (headers == null) {
+            loadHeaders();
         }
-        return message.getNonMatchingHeaderLines(names);
+        return headers.getNonMatchingHeaderLines(names);
     }
 
     public Flags getFlags() throws MessagingException {
@@ -379,7 +519,6 @@ public class MimeMessageWrapper extends MimeMessage {
         }
         return message.isSet(flag);
     }
-
 
 
     /**
