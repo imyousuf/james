@@ -7,11 +7,17 @@
  */
 package org.apache.james.core;
 
-import org.apache.avalon.framework.activity.Disposable;
-
-import org.apache.james.util.RFC2822Headers;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -19,13 +25,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
+
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.james.util.RFC2822Headers;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple

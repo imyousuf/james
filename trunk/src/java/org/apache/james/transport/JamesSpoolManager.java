@@ -7,26 +7,32 @@
  */
 package org.apache.james.transport;
 
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.mail.MessagingException;
+
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.component.DefaultComponentManager;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
-import org.apache.mailet.*;
-
-import javax.mail.MessagingException;
-import java.util.HashMap;
-import java.util.Iterator;
+import org.apache.mailet.Mail;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -37,7 +43,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.21 $
+ * @version This is $Revision: 1.22 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

@@ -7,7 +7,15 @@
  */
 package org.apache.james.core;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.activity.Disposable;

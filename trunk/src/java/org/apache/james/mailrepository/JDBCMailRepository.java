@@ -7,6 +7,28 @@
  */
 package org.apache.james.mailrepository;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.mail.internet.MimeMessage;
+
 import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
@@ -32,15 +54,6 @@ import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
-
-import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.sql.*;
-import java.util.*;
 
 /**
  * Implementation of a MailRepository on a database.

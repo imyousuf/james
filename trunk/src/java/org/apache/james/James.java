@@ -7,8 +7,36 @@
  */
 package org.apache.james;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.*;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.component.DefaultComponentManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -20,28 +48,20 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.*;
+import org.apache.james.services.DNSServer;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
-import org.apache.mailet.*;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
-
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.*;
+import org.apache.mailet.SpoolRepository;
+import org.apache.mailet.UsersRepository;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -54,7 +74,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.37 $
+ * @version This is $Revision: 1.38 $
 
  */
 public class James
