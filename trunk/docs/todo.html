@@ -13,6 +13,8 @@
 
                                                     <meta name="author" value="Serge Knystautas">
             <meta name="email" value="sergek@lokitech.com">
+                                        <meta name="author" value="Charles Benett">
+            <meta name="email" value="charles@benett1.co.uk">
             
             <title>The Jakarta Site - TODO</title>
         </head>
@@ -70,7 +72,7 @@
       <tr><td>
         <blockquote>
                                     <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
-Last Updated 15 January 2001 (as of release 1.2.1).</p>
+Last Updated 26 April 2001.</p>
                             </blockquote>
       </td></tr>
     </table>
@@ -82,11 +84,11 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
       </td></tr>
       <tr><td>
         <blockquote>
-                                    <p>Write more documentation. </p>
+                                    <p>Port existing documentation to xdocs format</p>
+                                                <p>Bundle docs in dist</p>
                                                 <p>Allow RemoteManager to change passwords of users (change attribute) </p>
-                                                <p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway or a relay host) </p>
-                                                <p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
-                                                <p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
+                                                <p>Revive RDBMS support for messages and users. Possibly move from town to straight jdbc, or jakarta-turbine.</p>
+                                                <p>Enable multiple domains</p>
                             </blockquote>
       </td></tr>
     </table>
@@ -98,7 +100,11 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
       </td></tr>
       <tr><td>
         <blockquote>
-                                    <p>Make James stoppable (elegantly)</p>
+                                    <p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway or a relay host) </p>
+                                                <p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
+                                                <p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
+                                                <p>Write more documentation. </p>
+                                                <p>Make James stoppable (elegantly)</p>
                                                 <p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
                                                 <p>Add #news namespace to IMAP system</p>
                                                 <p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
@@ -107,6 +113,8 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
                                                 <p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
                                                 <p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
                                                 <p>Add support for deployable message processing apps using Camelot pattern</p>
+                                                <p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
+                                                <p>Simplify email aliasing</p>
                             </blockquote>
       </td></tr>
     </table>
@@ -118,7 +126,7 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
       </td></tr>
       <tr><td>
         <blockquote>
-                                    <p>Write an NNTP server</p>
+                                    <p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
                                                 <p>Add support for DRAC login/relay allowing</p>
                                                 <p>Review threadpooling - is it dynamic?</p>
                             </blockquote>
