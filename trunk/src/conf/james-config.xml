@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.11 $
-    Committed on $Date: 2001/09/13 20:30:08 $ by: $Author: charlesb $
+    This is $Revision: 1.12 $
+    Committed on $Date: 2001/09/20 01:11:06 $ by: $Author: donaldp $
 -->
 <config>
 
@@ -661,5 +661,22 @@
                  class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory" />
       </client-sockets>
   </sockets>
+
+  <thread-manager>
+      <thread-group>
+        <name>default</name>
+
+        <!-- normal priority == 5, max-priority = 10 -->
+        <priority>5</priority> 
+
+        <!-- are threads deamon threads ? -->
+        <is-daemon>false</is-daemon>
+
+        <max-threads>40</max-threads>
+        <!-- these are ignored at the moment but will be fixed in later revisions -->
+        <min-threads>20</min-threads>
+        <min-spare-threads>20</min-spare-threads>
+      </thread-group>
+  </thread-manager>
 
 </config>

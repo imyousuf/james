@@ -14,5 +14,9 @@
       <role>org.apache.james.services.MailStore</role>
       <service name="org.apache.james.services.MailStore" version="1.0"/>
     </dependency>
+    <dependency>
+      <role>org.apache.avalon.cornerstone.services.threads.ThreadManager</role>
+      <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
+    </dependency>
   </dependencies>  
 </blockinfo>
