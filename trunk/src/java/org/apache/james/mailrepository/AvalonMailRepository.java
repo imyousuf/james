@@ -46,7 +46,7 @@ public class AvalonMailRepository
     implements MailRepository, Component, Configurable, Composable {
 
     protected Lock lock;
-    protected static boolean DEEP_DEBUG = true;
+    protected static boolean DEEP_DEBUG = false;
     private static final String TYPE = "MAIL";
     private Store store;
     private StreamRepository sr;
