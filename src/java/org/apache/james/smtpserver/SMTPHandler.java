@@ -59,7 +59,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.38 $
+ * @version This is $Revision: 1.39 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -74,7 +74,7 @@ public class SMTPHandler
     // Keys used to store/lookup data in the internal state hash map
 
     private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
-    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address 
+    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
     private final static String MESG_SIZE = "MESG_SIZE";       // The size of the message
     private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
@@ -170,12 +170,12 @@ public class SMTPHandler
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
     /**
-     * The TCP/IP socket over which the SMTP 
+     * The TCP/IP socket over which the SMTP
      * dialogue is occurring.
      */
     private Socket socket;
@@ -189,11 +189,6 @@ public class SMTPHandler
      * The writer to which outgoing messages are written.
      */
     private PrintWriter out;
-
-    /**
-     * A Reader wrapper for the incoming stream of bytes coming from the socket.
-     */
-    private BufferedReader inReader;
 
     /**
      * The remote host name obtained by lookup on the socket.
@@ -306,16 +301,12 @@ public class SMTPHandler
                 handlerThread = Thread.currentThread();
             }
             in = new BufferedInputStream(socket.getInputStream(), 1024);
-            // An ASCII encoding can be used because all transmissions other
-            // that those in the DATA command are guaranteed
-            // to be ASCII
-            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
             resetState();
         } catch (Exception e) {
-            StringBuffer exceptionBuffer = 
+            StringBuffer exceptionBuffer =
                 new StringBuffer(256)
                     .append("Cannot open connection from ")
                     .append(remoteHost)
@@ -329,7 +320,7 @@ public class SMTPHandler
         }
 
         if (getLogger().isInfoEnabled()) {
-            StringBuffer infoBuffer = 
+            StringBuffer infoBuffer =
                 new StringBuffer(128)
                         .append("Connection from ")
                         .append(remoteHost)
@@ -363,7 +354,7 @@ public class SMTPHandler
             getLogger().debug("Closing socket.");
         } catch (SocketException se) {
             if (getLogger().isDebugEnabled()) {
-                StringBuffer errorBuffer = 
+                StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
                         .append(remoteHost)
@@ -374,7 +365,7 @@ public class SMTPHandler
             }
         } catch ( InterruptedIOException iioe ) {
             if (getLogger().isDebugEnabled()) {
-                StringBuffer errorBuffer = 
+                StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
                         .append(remoteHost)
@@ -385,7 +376,7 @@ public class SMTPHandler
             }
         } catch ( IOException ioe ) {
             if (getLogger().isDebugEnabled()) {
-                StringBuffer errorBuffer = 
+                StringBuffer errorBuffer =
                     new StringBuffer(256)
                             .append("Exception handling socket to ")
                             .append(remoteHost)
@@ -413,7 +404,6 @@ public class SMTPHandler
 
         clearResponseBuffer();
         in = null;
-        inReader = null;
         out = null;
         remoteHost = null;
         remoteIP = null;
@@ -458,7 +448,7 @@ public class SMTPHandler
     }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the SMTP client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -485,7 +475,7 @@ public class SMTPHandler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client
@@ -502,7 +492,31 @@ public class SMTPHandler
      * @throws IOException if an exception is generated reading in the input characters
      */
     final String readCommandLine() throws IOException {
-        return inReader.readLine().trim();
+        //Read through for \r or \n
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        byte b = -1;
+        while (true) {
+            in.mark(1);
+            b = (byte) in.read();
+            if (b == 13) {
+                //We're done, but we want to see if \n is next
+                b = (byte) in.read();
+                if (b != 10) {
+                    in.reset();
+                }
+                break;
+            } else if (b == 10) {
+                //We're done
+                break;
+            } else if (b == -1) {
+                break;
+            }
+            bout.write(b);
+        }
+        // An ASCII encoding can be used because all transmissions other
+        // that those in the DATA command are guaranteed
+        // to be ASCII
+        return bout.toString("ASCII").trim();
     }
 
     /**
@@ -890,7 +904,7 @@ public class SMTPHandler
                     } else {
                         // Unexpected option attached to the Mail command
                         if (getLogger().isDebugEnabled()) {
-                            StringBuffer debugBuffer = 
+                            StringBuffer debugBuffer =
                                 new StringBuffer(128)
                                     .append("MAIL command had unrecognized/unexpected option ")
                                     .append(mailOptionName)
@@ -929,7 +943,7 @@ public class SMTPHandler
                     responseString = "501 Syntax error in sender address";
                     writeLoggedFlushedResponse(responseString);
                     if (getLogger().isErrorEnabled()) {
-                        StringBuffer errorBuffer = 
+                        StringBuffer errorBuffer =
                             new StringBuffer(256)
                                     .append("Error parsing sender address: ")
                                     .append(sender)
@@ -967,7 +981,7 @@ public class SMTPHandler
             return false;
         }
         if (getLogger().isDebugEnabled()) {
-            StringBuffer debugBuffer = 
+            StringBuffer debugBuffer =
                 new StringBuffer(128)
                     .append("MAIL command option SIZE received with value ")
                     .append(size)
@@ -1051,7 +1065,7 @@ public class SMTPHandler
                     }
                     // Unexpected option attached to the RCPT command
                     if (getLogger().isDebugEnabled()) {
-                        StringBuffer debugBuffer = 
+                        StringBuffer debugBuffer =
                             new StringBuffer(128)
                                 .append("RCPT command had unrecognized/unexpected option ")
                                 .append(rcptOptionName)
@@ -1066,7 +1080,7 @@ public class SMTPHandler
                 responseString = "501 Syntax error in parameters or arguments";
                 writeLoggedFlushedResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer = 
+                    StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
                                 .append(recipient)
@@ -1088,7 +1102,7 @@ public class SMTPHandler
                 writeLoggedFlushedResponse(responseString);
 
                 if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer = 
+                    StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
                                 .append(recipient)
@@ -1205,7 +1219,7 @@ public class SMTPHandler
                 long maxMessageSize = theConfigData.getMaxMessageSize();
                 if (maxMessageSize > 0) {
                     if (getLogger().isDebugEnabled()) {
-                        StringBuffer logBuffer = 
+                        StringBuffer logBuffer =
                             new StringBuffer(128)
                                     .append("Using SizeLimitedInputStream ")
                                     .append(" with max message size: ")
