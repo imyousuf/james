@@ -59,10 +59,9 @@
 package org.apache.james;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -84,10 +83,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -97,6 +92,11 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.DNSServer;
@@ -105,7 +105,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
-import org.apache.james.context.AvalonContextUtilities;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
@@ -123,7 +122,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.53 $
+ * @version This is $Revision: 1.54 $
 
  */
 public class James
@@ -620,7 +619,7 @@ public class James
                     .append("Mail")
                     .append(System.currentTimeMillis())
                     .append("-")
-                    .append(localcount);
+                    .append(localCount);
         return idBuffer.toString();
     }
 
