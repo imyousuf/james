@@ -138,7 +138,7 @@ ListUsersJdbcRepository can store multiple lists of names in a single table.
 I've made a simple modification to "RemoteManagerHandler", to allow testing. The
 "use [userRepositoryName]" command will switch the Remote manager to manage the
 named repository. This isn't really intended for production, makes for easier testing.
-The "james-config.xml" included in the proposal sets up 4 jdbc repositories: 
+The "james-config.xml" included in the proposal sets up 4 JDBC repositories: 
     <ul>
         <li> "localUsers" - a JamesUsersJdbcRepository.</li>
         <li> "list-james" - a ListUsersJdbcRepository, used by the ListServ mailet.</li>

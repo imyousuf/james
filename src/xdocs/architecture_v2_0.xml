@@ -12,7 +12,7 @@
 <section name="Architecture">
 
   <p>
-    JAMES is a multi-protocol message processing and storage engine. JAMES
+    James is a multi-protocol message processing and storage engine. James
     currently consists of:
     <ul>
       <li> two mail prototcol servers (SMTP and POP3),</li>
@@ -27,7 +27,7 @@
   </p>
 
   <p>
-    JAMES is built on top of Avalon, the Java Apache Server Framework.
+    James is built on top of Avalon, the Java Apache Server Framework.
     Versions 2.0 of James use a date-snapshot of Avalon code as of November 2001.
     The <code>lib</code> directory includes date-stamped jars of the various Avalon libraries.
     We intend to stay current with new versions of Avalon as they are released.</p>

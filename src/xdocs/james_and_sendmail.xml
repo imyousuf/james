@@ -49,15 +49,15 @@ The developers of sendmail have, wisely, built sendmail in such a way as to prev
 But we *want* to relay mail to localhost, and because sendmail isn't receiving our mail, James is, we won't be creating a loop. (make sure you've followed step one though).<br/>
 So open <b>/etc/sendmail.cf</b> again and go to the bottom of the file, start scrolling upwards until you see the declaration of the esmtp mailer it'll look something like this
 <source>
-Mesmtp,		P=[IPC], F=mDFMuXa, S=EnvFromSMTP/HdrFromSMTP, R=EnvToSMTP, E=\r\n, L=990,
-		T=DNS/RFC822/SMTP,
-		A=TCP $h
+Mesmtp,     P=[IPC], F=mDFMuXa, S=EnvFromSMTP/HdrFromSMTP, R=EnvToSMTP, E=\r\n, L=990,
+        T=DNS/RFC822/SMTP,
+        A=TCP $h
 </source>
 You need to change it so its more like this:  :-D
 <source>
-Mesmtp,		P=[IPC], F=kmDFMuXa, S=EnvFromSMTP/HdrFromSMTP, R=EnvToSMTP, E=\r\n, L=990,
-		T=DNS/RFC822/SMTP,
-		A=TCP $h
+Mesmtp,     P=[IPC], F=kmDFMuXa, S=EnvFromSMTP/HdrFromSMTP, R=EnvToSMTP, E=\r\n, L=990,
+        T=DNS/RFC822/SMTP,
+        A=TCP $h
 </source>
 But seriously, we've added a <b>k</b> to the "F=" list <b>F=mDFMuXa</b> becomes <b>F=kmDFMuXa</b><br/>
 And again, thats it, sendmail will now skip the loopback test on mail leaving through the esmtp mailer.

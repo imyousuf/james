@@ -70,7 +70,7 @@
  </p>
   <p>
    (Negative Test) telnet to port 4555 (ie without SSL). This should hang the
-   telnet client. It should also lock port 4555 until the connection timesout,
+   telnet client. It should also lock port 4555 until the connection times out,
    I think.
   </p>
 </section>
