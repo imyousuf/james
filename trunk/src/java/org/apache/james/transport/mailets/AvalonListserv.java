@@ -19,17 +19,18 @@ import org.apache.james.transport.*;
 import org.apache.mailet.*;
 
 /**
- * MailingListServer capability
+ * MailingListServer capability.
+ * 
+ * <p>Requires a configuration element in the .conf.xml file of the form:
+ * <br>&lt;repositoryName&gt;name of user repository configured in UsersStore block &lt;/repositoryName&gt;
+ * <br>&lt;membersonly&gt;
+ * <br>&lt;attachmentsallowed&gt;
+ * <br>&lt;replytolist&gt;
+ * <br>&lt;subjectprefix&gt;
  *
- * Requires a configuration element in the .conf.xml file of the form:
- *  <repository destinationURL="file://path-to-root-dir-for-repository"
- *              type="USERS"
- *              model="SYNCHRONOUS"/>
- * <membersPath>
- * <membersonly>
- * <attachmentsallowed>
- * <replytolist>
- * <subjectprefix>
+ * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
+ * @version This is $Revision: 1.2 $
+ * Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
  */
 public class AvalonListserv extends GenericListserv {
 

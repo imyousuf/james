@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.6 $
-    Committed on $Date: 2001/06/21 17:20:16 $ by: $Author: charlesb $ 
+    This is $Revision: 1.7 $
+    Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
 -->
 <config>
 
@@ -139,14 +139,15 @@
           <!-- Sample listserv wrapping a local avalon list of users. -->
           <mailet match="CommandForListserv=james@localhost"
                   class="AvalonListservManager">
-            <membersPath> file://var/users/list-james </membersPath>
+            <repositoryName>list-james</repositoryName>
           </mailet>
 
           <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
             <membersonly> false </membersonly>
             <attachmentsallowed> true </attachmentsallowed>
             <replytolist> true </replytolist>
-            <membersPath>file://var/users/list-james</membersPath>
+            <repositoryName>list-james</repositoryName>
+            <subjectprefix>JamesList</subjectprefix>
           </mailet>
 
           <!-- Sends remaining mails to the transport processor for either
@@ -464,6 +465,12 @@
        
   <!-- The User Storage block -->
   <users-store>
+
+    <!-- Note: Two user repositories are required for default configuration:
+         LocalUsers - the users for whom you are providing POP3, IMAP or NNTP
+                      AUTH service
+         list-james - the users of the james@localhost mailiinglist
+    -->
       <!-- File-based user repository  -->
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
