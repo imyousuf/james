@@ -5,7 +5,6 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
-
 package org.apache.james.imapserver;
 
 import org.apache.avalon.*;
@@ -20,7 +19,6 @@ import org.apache.avalon.*;
  * @see Mailbox
  * @see ACL
  */
-
 public interface ACLMailbox extends ACL, Mailbox, Contextualizable, Initializable, Disposable {
  
     /**
@@ -31,15 +29,15 @@ public interface ACLMailbox extends ACL, Mailbox, Contextualizable, Initializabl
      * @param abName String absolute, ie user-independent, name of mailbox.
      * @param initialAdminUser String email local-part of a user who will be assigned admin rights on this mailbox
      */
-    public void prepareMailbox(String user, String absName, String initialAdminUser);
+    void prepareMailbox( String user, String absName, String initialAdminUser );
 
     /**
      * Re-initialises mailbox when restored from storage. Must be called after
      * setConfiguration, setContext, setComponentManager, if they are called,
      * but before any opertional methods are called.
      */
-    public void reInit() throws Exception ;
-
+    void reInit() 
+        throws Exception;
 }
  
 

@@ -27,7 +27,7 @@ public interface MatcherConfig {
      *
      * @return a String containing the value of the initialization parameter
      */
-    public String getCondition();
+    String getCondition();
 
     /**
      * Returns a reference to the MailetContext in which the matcher is executing
@@ -35,7 +35,7 @@ public interface MatcherConfig {
      * @return a MailetContext object, used by the matcher to interact with its
      *      mailet container
      */
-    public MailetContext getMailetContext();
+    MailetContext getMailetContext();
 
     /**
      * Returns the name of this matcher instance. The name may be provided via server
@@ -45,5 +45,5 @@ public interface MatcherConfig {
      *
      * @return the name of the matcher instance
      */
-    public String getMatcherName();
+    String getMatcherName();
 }

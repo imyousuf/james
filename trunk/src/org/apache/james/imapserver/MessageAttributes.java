@@ -23,7 +23,6 @@ import java.util.Date;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-
 public interface MessageAttributes  {
 
     /**
@@ -32,7 +31,7 @@ public interface MessageAttributes  {
      *
      * @returns int a positive non-zero integer
      */
-    public int getMessageSequenceNumber();
+    int getMessageSequenceNumber();
 
     /**
      * Provides the unique identity value for this message. UIDs combined with
@@ -43,8 +42,7 @@ public interface MessageAttributes  {
      *
      * @returns int a 32-bit value
      */
-    public int getUID();
-
+    int getUID();
 
     /**
      * Provides the date and time at which the message was received. In the
@@ -57,37 +55,33 @@ public interface MessageAttributes  {
      *
      * @returns Date imap internal date
      */
-    public Date getInternalDate();
+    Date getInternalDate();
 
     /**
      * Returns IMAP formatted String representation of Date
      */
-    public String getInternalDateAsString();
-
+    String getInternalDateAsString();
 
     /**
      * Provides the sizeof the message in octets.
      *
      * @returns int number of octets in message.
      */
-    public int getSize();
+    int getSize();
 
     /**
      * Provides the Envelope structure information for this message. This is a parsed representation of the rfc-822 envelope information. This is not to be confused with the SMTP envelope!
      *
      * @returns String satisfying envelope syntax in rfc 2060.
      */
-    public String getEnvelope();
+    String getEnvelope();
 
     /**
      * Provides the Body Structure information for this message. This is a parsed representtion of the MIME structure of the message.
      *
      * @returns String satisfying body syntax in rfc 2060.
      */
-    public String getBodyStructure();
-
-
-
+    String getBodyStructure();
 }
 
 

@@ -21,13 +21,13 @@ public interface SpoolRepository extends MailRepository {
      * Define a STREAM repository. Streams are stored in the specified
      * destination.
      */
-    public final static String SPOOL = "SPOOL";
+    String SPOOL = "SPOOL";
 
     /**
      * Returns the key for an arbitrarily selected mail deposited in this Repository.
      * Useage: SpoolManager calls accept() to see if there are any unprocessed mails in the spool repository.
      */
-    public String accept();
+    String accept();
 
     /**
      * Returns the key for an arbitrarily select mail depository in this Repositry that
@@ -36,5 +36,5 @@ public interface SpoolRepository extends MailRepository {
      * Useage: RemoteDeliverySpool calls accept() with some delay and should block until an
      * unprocessed mail is available.
      */
-    public String accept(long delay);
+    String accept(long delay);
 }

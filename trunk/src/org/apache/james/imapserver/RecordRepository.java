@@ -22,23 +22,21 @@ import java.util.Iterator;
  */
 public interface RecordRepository {
 
-  
-    public static final String RECORD = "RECORD";
+    String RECORD = "RECORD";
 
     /**
      * Sets the location of this repository.
      *
      * @param rootPath String location of this repository
      */
-    public void setPath(String rootPath);
-
+    void setPath( String rootPath );
 
     /**
      * Stores a folder record in this repository.
      *
      * @param fr FolderRecord to be stored
      */
-    public void store(FolderRecord fr) ;
+    void store( FolderRecord fr );
       
     /**
      * Returns Iterator over names of folders in repository
@@ -46,7 +44,7 @@ public interface RecordRepository {
      * @returns Iterator over Strings of AbsoluteNames of Folders. Calling
      * objects cannot change contents of Iterator.
      */
-    public Iterator getAbsoluteNames();
+    Iterator getAbsoluteNames();
 
     /**
      * Retrieves a folder record given the folder's full name. 
@@ -54,7 +52,7 @@ public interface RecordRepository {
      * @param folderAbsoluteName String name of a folder
      * @returns FolderRecord for specified folder, null if no such FolderRecord
      */
-    public FolderRecord retrieve(String folderAbsoluteName);
+    FolderRecord retrieve( String folderAbsoluteName );
     
     /**
      * Tests if there is a folder record for the given folder name.
@@ -62,8 +60,7 @@ public interface RecordRepository {
      * @param folderAbsoluteName String name of a folder
      * @returns boolean True if there is a record for the specified folder.
      */
-    public boolean containsRecord(String folderAbsoluteName);
-
+    boolean containsRecord( String folderAbsoluteName );
 }
 
     

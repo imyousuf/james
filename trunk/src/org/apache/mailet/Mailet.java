@@ -52,7 +52,7 @@ public interface Mailet {
      * are being held (for example, memory, file handles, threads) and make sure
      * that any persistent state is synchronized with the mailet's current state in memory.
      */
-    public void destroy();
+    void destroy();
 
     /**
      * Returns information about the mailet, such as author, version, and
@@ -63,7 +63,7 @@ public interface Mailet {
      *
      * @return a String containing servlet information
      */
-    public String getMailetInfo();
+    String getMailetInfo();
 
     /**
      * Returns a MailetConfig object, which contains initialization and
@@ -75,7 +75,7 @@ public interface Mailet {
      *
      * @return the MailletConfig object that initializes this mailet
      */
-    public MailetConfig getMailetConfig();
+    MailetConfig getMailetConfig();
 
     /**
      * Called by the mailet container to indicate to a mailet that the
@@ -90,7 +90,7 @@ public interface Mailet {
      * @throws MessagingException - if an exception has occurred that interferes with
      *          the mailet's normal operation
      */
-    public void init(MailetConfig config) throws javax.mail.MessagingException;
+    void init(MailetConfig config) throws javax.mail.MessagingException;
 
     /**
      * Called by the mailet container to allow the mailet to process to
@@ -110,6 +110,5 @@ public interface Mailet {
      * @throws javax.mail.MessagingException - if an message or address parsing exception occurs or
      *      an exception that interferes with the mailet's normal operation
      */
-    public void service(Mail mail) throws javax.mail.MessagingException;
-
+    void service(Mail mail) throws javax.mail.MessagingException;
 }

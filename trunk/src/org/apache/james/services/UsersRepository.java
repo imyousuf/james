@@ -21,46 +21,46 @@ import java.util.Iterator;
  */
 public interface UsersRepository {
 
-    public final static String USER = "USER";
+    String USER = "USER";
 
     /**
      * Adds a user to the repository with the specified attributes.  In current
      * implementations, the Object attributes is generally a String password.
      */
-    public void addUser(String name, Object attributes);
+    void addUser(String name, Object attributes);
 
     /**
      * Gets the attribute for a user.  Not clear on behavior.
      */
-    public Object getAttributes(String name);
+    Object getAttributes(String name);
 
     /**
      * Removes a user from the repository
      */
-    public void removeUser(String name);
+    void removeUser(String name);
 
     /**
      * Returns whether or not this user is in the repository
      */
-    public boolean contains(String name);
+    boolean contains(String name);
 
     /**
      * Tests a user with the appropriate attributes.  In current implementations,
      * this typically means "check the password" where a String password is passed
      * as the Object attributes.
      */
-    public boolean test(String name, Object attributes);
+    boolean test(String name, Object attributes);
 
     /**
      * Returns a count of the users in the repository.
      */
-    public int countUsers();
+    int countUsers();
 
     /**
      * List users in repository.
      *
      * @returns Iterator over a collection of Strings, each being one user in the repository.
      */
-    public Iterator list();
+    Iterator list();
 
 }

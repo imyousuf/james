@@ -30,7 +30,7 @@ public interface MailetConfig {
      * @param name - a String specifying the name of the initialization parameter
      * @return a String containing the value of the initialization parameter
      */
-    public String getInitParameter(String name);
+    String getInitParameter(String name);
 
     /**
      * Returns the names of the mailet's initialization parameters as an
@@ -40,7 +40,7 @@ public interface MailetConfig {
      * @return an Iterator of String objects containing the names of the mailet's
      *      initialization parameters
      */
-    public Iterator getInitParameterNames();
+    Iterator getInitParameterNames();
 
     /**
      * Returns a reference to the MailetContext in which the mailet is
@@ -49,7 +49,7 @@ public interface MailetConfig {
      * @return a MailetContext object, used by the mailet to interact with its
      *      mailet container
      */
-    public MailetContext getMailetContext();
+    MailetContext getMailetContext();
 
     /**
      * Returns the name of this mailet instance. The name may be provided via
@@ -59,5 +59,5 @@ public interface MailetConfig {
      *
      * @return the name of the mailet instance
      */
-    public String getMailetName();
+    String getMailetName();
 }
