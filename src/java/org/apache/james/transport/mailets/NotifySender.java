@@ -86,15 +86,12 @@ import java.util.Set;
  * message.  If you do not specify one, it will use the postmaster's address
  *
  * Sample configuration:
- * <mailet match="All" class="NotifySender">
- *   <sendingAddress>nobounce@localhost</sendingAddress>
- *   <attachStackTrace>true</attachStackTrace>
- *   <notice>Notice attached to the message (optional)</notice>
- * </mailet>
+ * &lt;mailet match="All" class="NotifySender">
+ *   &lt;sendingAddress&gt;nobounce@localhost&lt;/sendingAddress&gt;
+ *   &lt;attachStackTrace&gt;true&lt;/attachStackTrace&gt;
+ *   &lt;notice&gt;Notice attached to the message (optional)&lt;/notice&gt;
+ * &lt;/mailet&gt;
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
- * @author  Ivan Seskar <iseskar@upsideweb.com>
- * @author  Danny Angus <danny@thought.co.uk>
  */
 public class NotifySender extends GenericMailet {
 
@@ -156,7 +153,7 @@ public class NotifySender extends GenericMailet {
 
         //Create the list of recipients in the Address[] format
         InternetAddress[] rcptAddr = new InternetAddress[1];
-        rcptAddr[0] = getMailetContext().getPostmaster().toInternetAddress();
+        rcptAddr[0] = mail.getSender().toInternetAddress();
         reply.setRecipients(Message.RecipientType.TO, rcptAddr);
 
         //Set the sender...
@@ -206,20 +203,30 @@ public class NotifySender extends GenericMailet {
             out.println("  Number of lines: " + message.getLineCount());
         }
 
-
         try {
             //Create the message body
-            MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
+            MimeMultipart multipart = new MimeMultipart("mixed");
+
+            // Create the message
+            MimeMultipart mpContent = new MimeMultipart("alternative");
+            MimeBodyPart contentPartRoot = new MimeBodyPart();
+            contentPartRoot.setContent(mpContent);
+
+            multipart.addBodyPart(contentPartRoot);
+
             MimeBodyPart part = new MimeBodyPart();
-            part.setContent(sout.toString(), "text/plain");
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-            multipart.addBodyPart(part);
+            part.setText(sout.toString());
+            mpContent.addBodyPart(part);
 
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
-            part.setContent(message.getContent(), message.getContentType());
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, message.getContentType());
+            part.setContent(message, "message/rfc822");
+            if ((message.getSubject() != null) && (message.getSubject().trim().length() > 0)) {
+                part.setFileName(message.getSubject().trim());
+            } else {
+                part.setFileName("No Subject");
+            }
+            part.setDisposition(javax.mail.Part.ATTACHMENT);
             multipart.addBodyPart(part);
 
             //if set, attach the full stack trace
@@ -227,13 +234,14 @@ public class NotifySender extends GenericMailet {
                 part = new MimeBodyPart();
                 part.setContent(mail.getErrorMessage(), "text/plain");
                 part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
+                part.setFileName("Reasons");
+                part.setDisposition(javax.mail.Part.ATTACHMENT);
                 multipart.addBodyPart(part);
             }
 
             reply.setContent(multipart);
-            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-        } catch (IOException ioe) {
-            throw new MailetException("Unable to create multipart body");
+        } catch (Exception ioe) {
+            throw new MessagingException("Unable to create multipart body", ioe);
         }
 
         //Create the list of recipients in our MailAddress format
@@ -248,12 +256,13 @@ public class NotifySender extends GenericMailet {
         if (subject == null) {
             subject = "";
         }
-        if (subject.indexOf("Re:") == 0){
-            reply.setSubject(subject);
-        } else {
-            reply.setSubject("Re:" + subject);
+        reply.setSubject(subject);
+
+        if (message.getMessageID() != null) {
+            reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
         }
-        reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
+
+        reply.saveChanges();
 
         //Send it off...
         getMailetContext().sendMail(notifier, recipients, reply);
