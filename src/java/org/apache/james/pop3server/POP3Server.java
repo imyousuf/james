@@ -24,7 +24,12 @@ import java.net.UnknownHostException;
  * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
  */
 public class POP3Server extends AbstractService implements Component {
-    private boolean enabled = true;
+
+    /**
+     * Whether this service is enabled
+     */
+    private volatile boolean enabled = true;
+
     /**
      * Creates a subclass specific handler factory for use by the superclass.
      *
@@ -40,9 +45,8 @@ public class POP3Server extends AbstractService implements Component {
      * @throws ConfigurationException if an error occurs
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
-        if (configuration.getAttribute("enabled").equalsIgnoreCase("false")) {
-            enabled = false;
-        } else {
+        enabled = configuration.getAttributeAsBoolean("enabled", true);
+        if (enabled) {
             m_port = configuration.getChild("port").getValueAsInteger(25);
             try {
                 final String bindAddress = configuration.getChild("bind").getValue(null);
@@ -59,6 +63,7 @@ public class POP3Server extends AbstractService implements Component {
             super.configure(configuration.getChild("handler"));
         }
     }
+
     /**
      * Initialize the component. Initialization includes
      * allocating any resources required throughout the
@@ -86,6 +91,7 @@ public class POP3Server extends AbstractService implements Component {
             System.out.println("POP3 Server Disabled");
         }
     }
+
     /**
      * The dispose operation is called at the end of a components lifecycle.
      * Instances of this class use this method to release and destroy any
