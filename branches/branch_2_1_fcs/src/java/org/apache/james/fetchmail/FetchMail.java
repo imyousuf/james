@@ -59,8 +59,10 @@ package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 
@@ -106,6 +108,104 @@ import org.apache.james.services.UsersRepository;
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target
 {
+    /**
+     * Enter description here
+     * 
+     * Creation Date: 29-Aug-03
+     * @author sbrewin
+     * 
+     * Copyright 2003, Synergy Systems Limited
+     */
+    private class DynamicAccountKey
+    {
+        /**
+         * The base user name without prfix or suffix
+         */
+        private String fieldUserName;
+        
+        /**
+         * The sequence number of the parameters used to construct the Account
+         */
+        private int fieldSequenceNumber;                
+
+        /**
+         * Constructor for DynamicAccountKey.
+         */
+        private DynamicAccountKey()
+        {
+            super();
+        }
+        
+        /**
+         * Constructor for DynamicAccountKey.
+         */
+        public DynamicAccountKey(String userName, int sequenceNumber)
+        {
+            this();
+            setUserName(userName);
+            setSequenceNumber(sequenceNumber);
+        }        
+
+        /**
+         * @see java.lang.Object#equals(Object)
+         */
+        public boolean equals(Object obj)
+        {
+            if (null == obj)
+                return false;
+            if (!(obj.getClass() == getClass()))
+                return false;
+            return (
+                getUserName().equals(((DynamicAccountKey) obj).getUserName())
+                    && getSequenceNumber()
+                        == ((DynamicAccountKey) obj).getSequenceNumber());
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        public int hashCode()
+        {
+            return getUserName().hashCode() ^ getSequenceNumber();
+        }
+
+        /**
+         * Returns the sequenceNumber.
+         * @return int
+         */
+        public int getSequenceNumber()
+        {
+            return fieldSequenceNumber;
+        }
+
+        /**
+         * Returns the userName.
+         * @return String
+         */
+        public String getUserName()
+        {
+            return fieldUserName;
+        }
+
+        /**
+         * Sets the sequenceNumber.
+         * @param sequenceNumber The sequenceNumber to set
+         */
+        protected void setSequenceNumber(int sequenceNumber)
+        {
+            fieldSequenceNumber = sequenceNumber;
+        }
+
+        /**
+         * Sets the userName.
+         * @param userName The userName to set
+         */
+        protected void setUserName(String userName)
+        {
+            fieldUserName = userName;
+        }
+
+    }
     /**
      * Creation Date: 06-Jun-03
      */
@@ -300,9 +400,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     
     /**
      * The Dynamic Accounts for this task.
-     * These are setup each time the is run.
+     * These are setup each time the fetchtask is run.
      */
-    private List fieldDynamicAccounts;        
+    private Map fieldDynamicAccounts;        
     
    /**
      * The MailServer service
@@ -333,6 +433,13 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
+        ParsedConfiguration parsedConfiguration =
+            new ParsedConfiguration(
+                configuration,
+                getLogger(),
+                getServer(),
+                getLocalUsers());
+        setConfiguration(parsedConfiguration);
 
         Configuration[] allAccounts = configuration.getChildren("accounts");
         if (allAccounts.length < 1)
@@ -366,6 +473,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 getStaticAccounts().add(
                     new Account(
                         i,
+                        parsedConfiguration,
                         accountsChild.getAttribute("user"),
                         accountsChild.getAttribute("password"),
                         accountsChild.getAttribute("recipient"),
@@ -379,13 +487,6 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                     + accountsChild.getName()
                     + "> in <accounts>");
         }
-
-        setConfiguration(
-            new ParsedConfiguration(
-                configuration,
-                getLogger(),
-                getServer(),
-                getLocalUsers()));
     }
 
     /**
@@ -403,55 +504,49 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         try
         {
             setFetching(true);
-            getLogger().info(
-                getConfiguration().getFetchTaskName()
-                    + " fetcher starting fetches");
+            getLogger().info("Fetcher starting fetches");
 
-            // Reset and get the dynamic accounts,
+            // Update the dynamic accounts,
             // merge with the static accounts and
             // sort the accounts so they are in the order
             // they were entered in config.xml
-            resetDynamicAccounts();
+            updateDynamicAccounts();
             ArrayList mergedAccounts =
                 new ArrayList(
                     getDynamicAccounts().size() + getStaticAccounts().size());
-            mergedAccounts.addAll(getDynamicAccounts());
+            mergedAccounts.addAll(getDynamicAccounts().values());
             mergedAccounts.addAll(getStaticAccounts());
             Collections.sort(mergedAccounts);
-
+            
+            StringBuffer logMessage = new StringBuffer(64);
+            logMessage.append("Processing ");
+            logMessage.append(getStaticAccounts().size());
+            logMessage.append(" static accounts and ");
+            logMessage.append(getDynamicAccounts().size());
+            logMessage.append(" dynamic accounts.");
+            getLogger().info(logMessage.toString());            
+            
             // Fetch each account
             Iterator accounts = mergedAccounts.iterator();
             while (accounts.hasNext())
             {
-                Account account = (Account) accounts.next();
-                ParsedConfiguration configuration = getConfiguration();
-                configuration.setUser(account.getUser());
-                configuration.setPassword(account.getPassword());
-                configuration.setRecipient(account.getRecipient());
-                configuration.setIgnoreRecipientHeader(
-                    account.isIgnoreRecipientHeader());
                 try
                 {
-                    new StoreProcessor(configuration).process();
+                    new StoreProcessor((Account) accounts.next()).process();
                 }
                 catch (MessagingException ex)
                 {
-                    getLogger().debug(ex.toString());
+                    getLogger().error(ex.toString());
                 }
             }
         }
-        catch (ConfigurationException ex)
+        catch (Exception ex)
         {
             getLogger().error(ex.toString());
         }
         finally
         {
-            // Ensure the dynamic accounts are thrown away
-            resetDynamicAccounts();
-
-            getLogger().info(
-                getConfiguration().getFetchTaskName()
-                    + " fetcher completed fetches");
+            getLogger().info("Fetcher completed fetches");
 
             // Exit Fetching State
             setFetching(false);
@@ -604,11 +699,11 @@ protected void setLocalUsers(UsersRepository localUsers)
     }
     
     /**
-     * Updates the allLocalParameters.
+     * Updates the ParsedDynamicAccountParameters.
      */
-    protected void updateAllLocalParameters()
+    protected void updateParsedDynamicAccountParameters()
     {
-        setParsedDynamicAccountParameters(computeAllLocalParameters());
+        setParsedDynamicAccountParameters(computeParsedDynamicAccountParameters());
     }   
     
     /**
@@ -628,9 +723,9 @@ protected void setLocalUsers(UsersRepository localUsers)
     }
     
     /**
-     * Computes the allLocalParameters.
+     * Computes the ParsedDynamicAccountParameters.
      */
-    protected List computeAllLocalParameters()
+    protected List computeParsedDynamicAccountParameters()
     {
         return new ArrayList();
     }   
@@ -638,52 +733,48 @@ protected void setLocalUsers(UsersRepository localUsers)
     /**
      * Computes the dynamicAccounts.
      */
-    protected List computeDynamicAccounts() throws ConfigurationException
+    protected Map computeDynamicAccounts() throws ConfigurationException
     {
-        List accounts = new ArrayList(32);
-        Iterator parameterIterator = getParsedDynamicAccountParameters().iterator();
-        
+        Map newAccounts =
+            new HashMap(
+                getLocalUsers().countUsers()
+                    * getParsedDynamicAccountParameters().size());
+        Map oldAccounts = getDynamicAccountsBasic();
+        if (null == oldAccounts)
+            oldAccounts = new HashMap(0);
+
+        Iterator parameterIterator =
+            getParsedDynamicAccountParameters().iterator();
+
         // Process each ParsedDynamicParameters
         while (parameterIterator.hasNext())
         {
-            ParsedDynamicAccountParameters parameters =
-                (ParsedDynamicAccountParameters) parameterIterator.next();
-            // Create an Account for each local user
-            Iterator usersIterator = getLocalUsers().list();
-            while (usersIterator.hasNext())
+            Map accounts =
+                computeDynamicAccounts(
+                    oldAccounts,
+                    (ParsedDynamicAccountParameters) parameterIterator.next());
+            // Remove accounts from oldAccounts.
+            // This avoids an average 2*N increase in heapspace used as the 
+            // newAccounts are created. 
+            Iterator oldAccountsIterator = oldAccounts.keySet().iterator();
+            while (oldAccountsIterator.hasNext())
             {
-                String userName = (String) usersIterator.next();
-                StringBuffer userBuffer =
-                    new StringBuffer(parameters.getUserPrefix());
-                userBuffer.append(userName);
-                userBuffer.append(parameters.getUserSuffix());
-                String user = userBuffer.toString();
-
-                StringBuffer recipientBuffer =
-                    new StringBuffer(parameters.getRecipientPrefix());
-                recipientBuffer.append(userName);
-                recipientBuffer.append(parameters.getRecipientSuffix());
-                String recipient = recipientBuffer.toString();
-
-                accounts.add(
-                    new Account(
-                        parameters.getSequenceNumber(),
-                        user,
-                        parameters.getPassword(),
-                        recipient,
-                        parameters.isIgnoreRecipientHeader()));
+                if (accounts.containsKey(oldAccountsIterator.next()))
+                    oldAccountsIterator.remove();
             }
+            // Add this parameter's accounts to newAccounts
+            newAccounts.putAll(accounts);
         }
-        return accounts;
-    }   
+        return newAccounts;
+    }
     
     /**
      * Returns the dynamicAccounts. Initializes if required.
-     * @return List
+     * @return Map
      */
-    protected List getDynamicAccounts() throws ConfigurationException
+    protected Map getDynamicAccounts() throws ConfigurationException
     {
-        List accounts = null;
+        Map accounts = null;
         if (null == (accounts = getDynamicAccountsBasic()))
         {
             updateDynamicAccounts();
@@ -694,9 +785,9 @@ protected void setLocalUsers(UsersRepository localUsers)
     
     /**
      * Returns the dynamicAccounts.
-     * @return List
+     * @return Map
      */
-    private List getDynamicAccountsBasic()
+    private Map getDynamicAccountsBasic()
     {
         return fieldDynamicAccounts;
     }   
@@ -705,11 +796,52 @@ protected void setLocalUsers(UsersRepository localUsers)
      * Sets the dynamicAccounts.
      * @param dynamicAccounts The dynamicAccounts to set
      */
-    protected void setDynamicAccounts(List dynamicAccounts)
+    protected void setDynamicAccounts(Map dynamicAccounts)
     {
         fieldDynamicAccounts = dynamicAccounts;
     }
     
+    /**
+     * Compute the dynamicAccounts for the passed parameters.
+     * Accounts for existing users are copied and accounts for new users are 
+     * created.
+     * @param oldAccounts
+     * @param parameters
+     * @return Map - The current Accounts
+     * @throws ConfigurationException
+     */
+    protected Map computeDynamicAccounts(
+        Map oldAccounts,
+        ParsedDynamicAccountParameters parameters)
+        throws ConfigurationException
+    {
+        Map accounts = new HashMap(getLocalUsers().countUsers());
+        Iterator usersIterator = getLocalUsers().list();
+        while (usersIterator.hasNext())
+        {
+            String userName = (String) usersIterator.next();
+            DynamicAccountKey key =
+                new DynamicAccountKey(userName, parameters.getSequenceNumber());
+            Account account = (Account) oldAccounts.get(key);
+            if (null == account)
+            {
+                // Create a new DynamicAccount
+                account =
+                    new DynamicAccount(
+                        parameters.getSequenceNumber(),
+                        getConfiguration(),
+                        userName,
+                        parameters.getUserPrefix(),
+                        parameters.getUserSuffix(),
+                        parameters.getPassword(),
+                        parameters.getRecipientPrefix(),
+                        parameters.getRecipientSuffix(),
+                        parameters.isIgnoreRecipientHeader());
+            }
+            accounts.put(key, account);
+        }
+        return accounts;
+    }
     /**
      * Resets the dynamicAccounts.
      */
@@ -719,36 +851,36 @@ protected void setLocalUsers(UsersRepository localUsers)
     }   
 
     /**
-     * Returns the allLocalParameters.
+     * Returns the ParsedDynamicAccountParameters.
      * @return List
      */
     protected List getParsedDynamicAccountParameters()
     {
         List accounts = null;
-        if (null == (accounts = getAllLocalParametersBasic()))
+        if (null == (accounts = getParsedDynamicAccountParametersBasic()))
         {
-            updateAllLocalParameters();
+            updateParsedDynamicAccountParameters();
             return getParsedDynamicAccountParameters();
         }   
         return fieldParsedDynamicAccountParameters;
     }
     
     /**
-     * Returns the allLocalParameters.
+     * Returns the ParsedDynamicAccountParameters.
      * @return List
      */
-    private List getAllLocalParametersBasic()
+    private List getParsedDynamicAccountParametersBasic()
     {
         return fieldParsedDynamicAccountParameters;
     }   
 
     /**
-     * Sets the allLocalParameters.
-     * @param allLocalParameters The allLocalParameters to set
+     * Sets the ParsedDynamicAccountParameters.
+     * @param ParsedDynamicAccountParameters The ParsedDynamicAccountParametersto set
      */
-    protected void setParsedDynamicAccountParameters(List allLocalParameters)
+    protected void setParsedDynamicAccountParameters(List parsedDynamicAccountParameters)
     {
-        fieldParsedDynamicAccountParameters = allLocalParameters;
+        fieldParsedDynamicAccountParameters = parsedDynamicAccountParameters;
     }
 
 }

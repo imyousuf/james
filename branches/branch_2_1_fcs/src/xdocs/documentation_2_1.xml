@@ -52,7 +52,8 @@ IV. Configuring James
 <li><a href="pop3_configuration_2_1.html">POP3 Server Configuration</a></li>
 <li><a href="smtp_configuration_2_1.html">SMTP Server Configuration</a></li>
 <li><a href="nntp_configuration_2_1.html">NNTP Server Configuration</a></li>
-<li><a href="fetchpop_configuration_2_1.html">FetchPOP Configuration</a></li>
+<li><a href="fetchpop_configuration_2_1.html">FetchPOP Configuration <i>(deprecated)</i></a></li>
+<li><a href="fetchmail_configuration_2_2.html">fetchMail Configuration</a></li>
 <li><a href="remotemanager_configuration_2_1.html">RemoteManager Configuration</a></li>
 <li><a href="repositories_2_1.html">Repository Configuration</a></li>
 <li><a href="spoolmanager_configuration_2_1.html">SpoolManager Configuration</a></li>

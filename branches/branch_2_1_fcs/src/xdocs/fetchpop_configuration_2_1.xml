@@ -7,6 +7,12 @@
  </properties>
 
 <body>
+<section name="FetchPOP Is Being Deprecated">
+<p>FetchPOP is being deprecated.
+<a href="fetchmail_configuration_2_2.html">fetchMail</a> provides a superset of
+FetchPOP's functionality and is the preferred solution.</p>
+</section>
+
 <section name="FetchPOP Configuration">
 <p>FetchPOP is controlled by a configuration block in the config.xml.
 The fetchpop tag defines the boundaries of the configuration block.  It encloses 

@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.17 $ Committed on $Date: 2003/08/30 18:52:18 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.18 $ Committed on $Date: 2003/09/21 20:03:36 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -153,7 +153,7 @@
          <!-- Useful for detecting and eliminating spam. -->
          <!-- For this block to function, the spam processor must be configured. -->
          <!--
-         <mailet match="SenderInFakeDomain" class="ToProcessor">
+         <mailet match="SenderInFakeDomain=64.55.105.9,64.94.110.11,194.205.62.122,194.205.62.62,195.7.77.20,206.253.214.102,212.181.91.6,219.88.106.80,194.205.62.42,216.35.187.246,203.119.4.6" class="ToProcessor">
             <processor> spam </processor>
          </mailet>
          -->

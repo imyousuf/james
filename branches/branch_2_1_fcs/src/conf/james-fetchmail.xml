@@ -1,13 +1,22 @@
-   <!-- FetchMail block.  Uses JavaMail service providers to fetch messages from   -->
-   <!-- message sources and inserts them into the spool.                           -->
-   <!-- Warning:  It is important to prevent mail from looping by adding the       -->
-   <!-- acceptable domains in the <servernames> section of the <James> block in    -->
-   <!-- the James config.xml file.  FetchMail is disabled by default.              -->
+   <!-- Fetch mail block, fetches mail from message servers and inserts it into the incoming spool -->
+   <!-- Warning: It is important to prevent mail from looping by setting the  -->
+   <!-- fetched domains in the <servernames> section of the <James> block      -->
+   <!-- above. This block is disabled by default.                              -->
+      
+   <!-- See http://james.apache.org/fetchmail_configuration_2_2.html for detailed -->
+   <!-- configuration instructions and examples.                                  -->   
+
+   <!-- I M P O R T A N T -->
+   <!-- Setting markseen="true" will have no effect on many POP3 servers as the POP3 -->
+   <!-- protocol does not require the markSeen flag to be supported. When this is the -->
+   <!-- case, the only way to ensure that messages are fetched just once is to delete -->
+   <!-- fetched messages from the server with leaveonserver="false". -->
    
    <!-- If you want to perform mailet processing on messages fetched by fetchmail, -->
    <!-- use the HasMailAttribute matcher to detect messages with the MailAttribute -->
-   <!-- org.apache.james.fetchmail.fetchtask. The attribute's value is that of the -->
+   <!-- org.apache.james.fetchmail.taskName. The attribute's value is that of the -->
    <!-- fetch task's name parameter described below. -->
+   
     <fetchmail enabled="false">
         <!-- You can have as many fetch tasks as you want, but each must have a -->
         <!-- unique name by which it is identified. -->
@@ -25,33 +34,29 @@
             <!-- insufficient information in the headers to do so. When the correct recipient cannot be deduced, -->
             <!-- fetchmail can be configured to leave the mail on the server or deliver it to a default recipient. -->          
             
-            <!-- When a pop3 server delivers mail for a single user to a specific INBOX you can define -->
+            <!-- When a message server delivers mail for a single user to a specific INBOX you can define -->
             <!-- each user to James (via the console) and use <alllocal> with ignorercpt-header="true" to deliver mail -->
             <!-- directly from each users INBOX onto James' spool. There is no need to update 'config.xml' -->
             <!-- each time you add or remove users, fetchmail checks the list of users at the start of each fetch. -->
             
-            <!-- When a pop3 server provides an account that gives access to all mail for a domain through a single -->
+            <!-- When a message server provides an account that gives access to all mail for a domain through a single -->
             <!-- INBOX, you can use an <account> to fetch all the mail for that domain, using the filter facilities -->
             <!-- described below to reject unwanted messages. -->
             
-            <!-- When a pop3 server supports BOTH delivery for a single user to a specific INBOX and access to all mail -->
+            <!-- When a message server supports BOTH delivery for a single user to a specific INBOX and access to all mail -->
             <!-- for a domain through a single INBOX, you can use <alllocal> and <account> together to guarantee that all -->
-            <!-- wanted mail gets delivered to the correct user and all unwanted mail is deleted from the pop3 -->
-            <!-- server... --> 
-            <!-- 1) <alllocal> with ignorercpt-header="true" fetches all of mail for whom the recipient is known by -->     
-            <!-- virtue of the INBOX it is stored in and delivers it to that user. -->
-            <!-- 2) <account> fetches all remaining mail for the domain and any new mail that may have arrived -->
-            <!-- during <alllocal> processing. It deletes unwanted mail, delivers mail for whom the intended recipient can be -->
-            <!-- deduced and leaves the rest on the server for the next run of <alllocal> (Fully worked example to follow). -->
+            <!-- local mail gets delivered to the correct user and all unwanted mail is deleted from the message -->
+            <!-- server. See http://james.apache.org/fetchmail_configuration_2_2.html for details. -->
             
             <!-- Limitations and Future Directions -->
-            <!-- 1) <alllocal> requires the password for all accounts for a domain on the pop3 server be the same. True in many -->
-            <!-- cases, but not all. A future version might work out a way of associating James users with pop3 account -->
-            <!-- properties. -->
-            <!-- 2) <alllocal> will try to access an INBOX on the pop3 server for all local users. The instance of James used -->
+            <!-- 1) <alllocal> requires the password for all accounts for a domain on the message server be the same. True -->
+            <!-- in many cases, but not all. A future version might work out a way of associating James users with a set -->
+            <!-- of account properties. -->
+            <!-- 2) <alllocal> will try to access an INBOX on the message server for all local users. The instance of James used -->
             <!-- for this purpose should not have extraneous users defined. This is inefficient, but not fatal. -->
-            <!-- Again, a future version might work out a way of associating James users with pop3 account properties. -->
-            <!-- This would allow all local users with an account on a particular pop3 server to be fetched. -->
+            <!-- Again, a future version might work out a way of associating James users with message account properties. -->
+            <!-- This would allow all local users with an account on a particular message server to be fetched. -->
+            
             <accounts>
                 <alllocal userprefix="" usersuffix="@myaccount" password="password" recipientprefix="" recipientsuffix="@mydomain.com" ignorercpt-header="true"/>
                 <account user="myglobalaccount" password="password" recipient="postmaster@localhost" ignorercpt-header="false"/>                                            
@@ -112,23 +117,12 @@
             <!--     if false, messages left on the server will not be marked as seen -->            
             <undeliverable leaveonserver="true" markseen="false"/>
             
-            <!-- Fetchmail will leave the fetched message unchanged and will add a new envelope     -->
-            <!-- recipient before spooling the message in James.  -->
-            <!-- Fetchmail will try and determine the original recipient of the message             -->
-            <!-- in the following ways:  -->
-            <!-- First it tries to parse the Received: headers and look for the "for" parameter    -->
-            <!-- If the "for" parameter is not found it will check the To: header and if it only   -->
-            <!-- contains one address it will be used as the new envelope recipient.   -->
-            <!-- If no recipient can be determined AND the <recipientnotfound reject="false"> is set -->
-            <!-- the value defined in the <recipient> parameter will be used. -->
-            <!-- Setting ignorercpt-header to true will force the defined recipient  -->
-            <!-- to ALWAYS be used, the parsing of headers will be ignored and the recipient will  -->
-            <!-- always be considered found. -->
-            <!-- Moved to <account>
-            <recipient ignorercpt-header="false"/>
-            -->
-            
             <!-- Specify what happens to messages for which a recipient cannot be determined. -->
+            <!-- defer -->
+            <!--     if true, processing of messages for which a recipient cannot be determined will deferred -->
+            <!--     until the next fetch of the Account. This gives an opportunity for other Accounts in the -->
+            <!--     fetch task to determine the recipient and process the mail. -->
+            <!--     if false, messages for which a recipient cannot be determined are processed immediately. -->
             <!-- reject -->
             <!--     if true, messages for which a recipient cannot be determined will be rejected -->
             <!--     if false, messages for which a recipient cannot be determined will be accepted, -->
@@ -141,7 +135,7 @@
             <!--     markseen -->
             <!--         if true, messages left on the server will be marked as seen -->
             <!--         if false, messages left on the server will not be marked as seen -->            
-            <recipientnotfound reject="true" leaveonserver="true" markseen="false"/>                                         
+            <recipientnotfound defer="true" reject="true" leaveonserver="true" markseen="false"/>                                         
 
             <!-- Specify a list of recipients for whom messages will be rejected -->
             <!-- and what happens to rejected messages. -->
@@ -190,6 +184,6 @@
             <!--     markseen -->
             <!--         if true, messages left on the server will be marked as seen -->
             <!--         if false, messages left on the server will not be marked as seen -->       
-            <remoterecipient reject="true" leaveonserver="true" markseen="false" /> 
+            <remoterecipient reject="true" leaveonserver="true" markseen="false" />
         </fetch>
     </fetchmail>        

@@ -58,6 +58,8 @@
  
 package org.apache.james.fetchmail;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -87,6 +89,17 @@ class Account implements Comparable
      * The user name for this account
      */
     private String fieldUser;
+
+    /**
+     * The ParsedConfiguration
+     */    
+    private ParsedConfiguration fieldParsedConfiguration;
+    
+    /**
+     * List of MessageIDs for which processing has been deferred
+     * because the intended recipient could not be found.
+     */
+    private List fieldDeferredRecipientNotFoundMessageIDs;    
     
     /**
      * The sequence number for this account
@@ -110,6 +123,7 @@ class Account implements Comparable
      * Constructor for Account.
      * 
      * @param sequenceNumber
+     * @param parsedConfiguration
      * @param user
      * @param password
      * @param recipient
@@ -119,6 +133,7 @@ class Account implements Comparable
     
     public Account(
         int sequenceNumber,
+        ParsedConfiguration parsedConfiguration,
         String user,
         String password,
         String recipient,
@@ -127,6 +142,7 @@ class Account implements Comparable
     {
         this();
         setSequenceNumber(sequenceNumber);
+        setParsedConfiguration(parsedConfiguration);
         setUser(user);
         setPassword(password);
         setRecipient(recipient);
@@ -184,6 +200,12 @@ class Account implements Comparable
      */
     protected void setRecipient(String recipient) throws ConfigurationException
     {
+        if (null == recipient)
+        {
+            fieldRecipient = null;
+            return;
+        }
+            
         try
         {
             setRecipient(new MailAddress(recipient));
@@ -253,6 +275,76 @@ class Account implements Comparable
     public int compareTo(Object o)
     {
         return getSequenceNumber() - ((Account) o).getSequenceNumber();
+    }
+
+    /**
+     * Returns the deferredRecipientNotFoundMessageIDs. lazily initialised.
+     * @return List
+     */
+    public List getDeferredRecipientNotFoundMessageIDs()
+    {
+        List messageIDs = null;
+        if (null
+            == (messageIDs = getDeferredRecipientNotFoundMessageIDsBasic()))
+        {
+            updateDeferredRecipientNotFoundMessageIDs();
+            return getDeferredRecipientNotFoundMessageIDs();
+        }
+        return messageIDs;
+    }
+
+    /**
+     * Returns the deferredRecipientNotFoundMessageIDs.
+     * @return List
+     */
+    private List getDeferredRecipientNotFoundMessageIDsBasic()
+    {
+        return fieldDeferredRecipientNotFoundMessageIDs;
+    }
+    
+    /**
+     * Returns a new List of deferredRecipientNotFoundMessageIDs.
+     * @return List
+     */
+    protected List computeDeferredRecipientNotFoundMessageIDs()
+    {
+        return new ArrayList(16);
+    }    
+    
+    /**
+     * Updates the deferredRecipientNotFoundMessageIDs.
+     */
+    protected void updateDeferredRecipientNotFoundMessageIDs()
+    {
+        setDeferredRecipientNotFoundMessageIDs(computeDeferredRecipientNotFoundMessageIDs());
+    }    
+
+    /**
+     * Sets the defferedRecipientNotFoundMessageIDs.
+     * @param defferedRecipientNotFoundMessageIDs The defferedRecipientNotFoundMessageIDs to set
+     */
+    protected void setDeferredRecipientNotFoundMessageIDs(List defferedRecipientNotFoundMessageIDs)
+    {
+        fieldDeferredRecipientNotFoundMessageIDs =
+            defferedRecipientNotFoundMessageIDs;
+    }
+
+    /**
+     * Returns the parsedConfiguration.
+     * @return ParsedConfiguration
+     */
+    public ParsedConfiguration getParsedConfiguration()
+    {
+        return fieldParsedConfiguration;
+    }
+
+    /**
+     * Sets the parsedConfiguration.
+     * @param parsedConfiguration The parsedConfiguration to set
+     */
+    protected void setParsedConfiguration(ParsedConfiguration parsedConfiguration)
+    {
+        fieldParsedConfiguration = parsedConfiguration;
     }
 
 }

@@ -162,12 +162,6 @@ class ParsedConfiguration
     private String fieldHost;
 
     /**
-     * Don't parse header looking for recipient
-     */
-    private boolean fieldIgnoreRecipientHeader;             
-
-
-    /**
      * Keep retrieved messages on the remote mailserver.  Normally, messages
      * are deleted from the folder on the mailserver after they have been retrieved
      */
@@ -229,19 +223,13 @@ class ParsedConfiguration
      * Mark undeliverable messages on the remote mail server as seen.
      * Normally, messages are not marked as seen if they are undeliverable.
      */
-    private boolean fieldMarkUndeliverableSeen = false;                
-
-
-    /**
-     * The user password for this fetch task
-     */
-    private String fieldPassword; 
+    private boolean fieldMarkUndeliverableSeen = false; 
     
-
     /**
-     * The user to send the fetched mail to
+     * Defer processing of messages for which the intended recipient cannot
+     * be determined to the next pass.
      */
-    private MailAddress fieldRecipient;
+    private boolean fieldDeferRecipientNotFound = false;                 
 
 
     /**
@@ -256,11 +244,6 @@ class ParsedConfiguration
     private MailServer fieldServer;    
     
 
-    /**
-     * The user name for this fetch task
-     */
-    private String fieldUser;
-    
     /**
      * The domain part to use to complete partial addresses
      */
@@ -290,8 +273,7 @@ class ParsedConfiguration
     private boolean fieldMarkRecipientNotFoundSeen;       
     
     /**
-     * Only accept mail for local recipients.
-     * All other mail is rejected.
+     * Reject mail for blacklisted users
      */
     private boolean fieldRejectBlacklisted;
 
@@ -304,8 +286,8 @@ class ParsedConfiguration
     /**
      * The Set of MailAddresses for whom mail should be rejected
      */    
-    private Set fieldBlacklist;
-    
+    private Set fieldBlacklist;   
+
    /**
      * The Local Users repository
      */
@@ -359,6 +341,8 @@ class ParsedConfiguration
 //          recipient.getAttributeAsBoolean("ignorercpt-header"));
             
         Configuration recipientNotFound = conf.getChild("recipientnotfound");
+        setDeferRecipientNotFound(
+            recipientNotFound.getAttributeAsBoolean("defer"));         
         setRejectRecipientNotFound(
             recipientNotFound.getAttributeAsBoolean("reject"));     
         setLeaveRecipientNotFound(recipientNotFound.getAttributeAsBoolean("leaveonserver"));
@@ -396,11 +380,11 @@ class ParsedConfiguration
         setMarkUserUndefinedSeen(
             userundefined.getAttributeAsBoolean("markseen"));
             
-        Configuration undeliverable = conf.getChild("undeliverable");
+        Configuration undeliverable = conf.getChild("undeliverable");      
         setLeaveUndeliverable(
             undeliverable.getAttributeAsBoolean("leaveonserver"));
         setMarkUndeliverableSeen(
-            undeliverable.getAttributeAsBoolean("markseen"));           
+            undeliverable.getAttributeAsBoolean("markseen"));                       
 
         if (getLogger().isDebugEnabled())
         {
@@ -437,15 +421,6 @@ class ParsedConfiguration
     public String getHost()
     {
         return fieldHost;
-    }
-
-    /**
-     * Returns the ignoreOriginalRecipient.
-     * @return boolean
-     */
-    public boolean isIgnoreRecipientHeader()
-    {
-        return fieldIgnoreRecipientHeader;
     }
 
     /**
@@ -489,24 +464,6 @@ class ParsedConfiguration
     }   
 
     /**
-     * Returns the password.
-     * @return String
-     */
-    public String getPassword()
-    {
-        return fieldPassword;
-    }
-
-    /**
-     * Returns the recipient.
-     * @return MailAddress
-     */
-    public MailAddress getRecipient()
-    {
-        return fieldRecipient;
-    }
-
-    /**
      * Returns the recurse.
      * @return boolean
      */
@@ -522,15 +479,6 @@ class ParsedConfiguration
     public MailServer getServer()
     {
         return fieldServer;
-    }
-
-    /**
-     * Returns the user.
-     * @return String
-     */
-    public String getUser()
-    {
-        return fieldUser;
     }
 
     /**
@@ -561,15 +509,6 @@ class ParsedConfiguration
     }
 
     /**
-     * Sets the ignoreOriginalRecipient.
-     * @param ignoreOriginalRecipient The ignoreOriginalRecipient to set
-     */
-    protected void setIgnoreRecipientHeader(boolean ignoreOriginalRecipient)
-    {
-        fieldIgnoreRecipientHeader = ignoreOriginalRecipient;
-    }
-
-    /**
      * Sets the keep.
      * @param keep The keep to set
      */
@@ -588,41 +527,6 @@ class ParsedConfiguration
     }
 
     /**
-     * Sets the password.
-     * @param password The password to set
-     */
-    protected void setPassword(String password)
-    {
-        fieldPassword = password;
-    }
-
-    /**
-     * Sets the recipient.
-     * @param recipient The recipient to set
-     */
-    protected void setRecipient(MailAddress recipient)
-    {
-        fieldRecipient = recipient;
-    }
-    
-    /**
-     * Sets the recipient.
-     * @param recipient The recipient to set
-     */
-    protected void setRecipient(String recipient) throws ConfigurationException
-    {
-        try
-        {
-            setRecipient(new MailAddress(recipient));
-        }
-        catch (ParseException pe)
-        {
-            throw new ConfigurationException(
-                "Invalid recipient address specified: " + recipient);
-        }
-    }   
-
-    /**
      * Sets the recurse.
      * @param recurse The recurse to set
      */
@@ -638,15 +542,6 @@ class ParsedConfiguration
     protected void setServer(MailServer server)
     {
         fieldServer = server;
-    }
-
-    /**
-     * Sets the user.
-     * @param user The user to set
-     */
-    protected void setUser(String user)
-    {
-        fieldUser = user;
     }
 
     /**
@@ -1066,6 +961,24 @@ protected void setLocalUsers(UsersRepository localUsers)
     protected void setRejectRecipientNotFound(boolean rejectRecipientNotFound)
     {
         fieldRejectRecipientNotFound = rejectRecipientNotFound;
+    }
+
+    /**
+     * Returns the deferRecipientNotFound.
+     * @return boolean
+     */
+    public boolean isDeferRecipientNotFound()
+    {
+        return fieldDeferRecipientNotFound;
+    }
+
+    /**
+     * Sets the deferRecipientNotFound.
+     * @param deferRecipientNotFound The deferRecepientNotFound to set
+     */
+    protected void setDeferRecipientNotFound(boolean deferRecipientNotFound)
+    {
+        fieldDeferRecipientNotFound = deferRecipientNotFound;
     }
 
 }
