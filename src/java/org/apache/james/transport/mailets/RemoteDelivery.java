@@ -53,14 +53,14 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.29 $
+ * This is $Revision: 1.30 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
     /**
      * Controls certain log messages
      */
-    private final boolean DEBUG = false;
+    private boolean isDebug = false;
 
     private SpoolRepository outgoing; // The spool of outgoing mail
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
@@ -77,6 +77,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Initialize the mailet
      */
     public void init() throws MessagingException {
+        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
         try {
             if (getInitParameter("delayTime") != null) {
                 delayTime = Long.parseLong(getInitParameter("delayTime"));
@@ -151,8 +152,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     private boolean deliver(MailImpl mail, Session session) {
         try {
-            if (DEBUG) {
-                log("attempting to deliver " + mail.getName());
+            if (isDebug) {
+                log("Attempting to deliver " + mail.getName());
             }
             MimeMessage message = mail.getMessage();
 
@@ -442,51 +443,67 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     public void service(Mail genericmail) throws AddressException {
         MailImpl mail = (MailImpl)genericmail;
 
-        //Do I want to give the internal key, or the message's Message ID
-        if (DEBUG) {
+        // Do I want to give the internal key, or the message's Message ID
+        if (isDebug) {
             log("Remotely delivering mail " + mail.getName());
         }
         Collection recipients = mail.getRecipients();
 
-        //Must first organize the recipients into distinct servers (name made case insensitive)
-        Hashtable targets = new Hashtable();
-        for (Iterator i = recipients.iterator(); i.hasNext();) {
-            MailAddress target = (MailAddress)i.next();
-            String targetServer = target.getHost().toLowerCase(Locale.US);
-            Collection temp = (Collection)targets.get(targetServer);
-            if (temp == null) {
-                temp = new Vector();
-                targets.put(targetServer, temp);
+        if (gatewayServer == null) {
+            // Must first organize the recipients into distinct servers (name made case insensitive)
+            Hashtable targets = new Hashtable();
+            for (Iterator i = recipients.iterator(); i.hasNext();) {
+                MailAddress target = (MailAddress)i.next();
+                String targetServer = target.getHost().toLowerCase(Locale.US);
+                Collection temp = (Collection)targets.get(targetServer);
+                if (temp == null) {
+                    temp = new Vector();
+                    targets.put(targetServer, temp);
+                }
+                temp.add(target);
             }
-            temp.add(target);
-        }
 
-        //We have the recipients organized into distinct servers... put them into the
-        //delivery store organized like this... this is ultra inefficient I think...
+            //We have the recipients organized into distinct servers... put them into the
+            //delivery store organized like this... this is ultra inefficient I think...
 
-        //store the new message containers, organized by server, in the outgoing mail repository
-        String name = mail.getName();
-        for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
-            String host = (String) i.next();
-            Collection rec = (Collection) targets.get(host);
-            if (DEBUG) {
+            // Store the new message containers, organized by server, in the outgoing mail repository
+            String name = mail.getName();
+            for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
+                String host = (String) i.next();
+                Collection rec = (Collection) targets.get(host);
+                if (isDebug) {
+                    StringBuffer logMessageBuffer =
+                        new StringBuffer(128)
+                                .append("Sending mail to ")
+                                .append(rec)
+                                .append(" on host ")
+                                .append(host);
+                    log(logMessageBuffer.toString());
+                }
+                mail.setRecipients(rec);
+                StringBuffer nameBuffer =
+                    new StringBuffer(128)
+                            .append(name)
+                            .append("-to-")
+                            .append(host);
+                mail.setName(nameBuffer.toString());
+                outgoing.store(mail);
+                //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
+            }
+        } else {
+            // Store the mail unaltered for processing by the gateway server
+            if (isDebug) {
                 StringBuffer logMessageBuffer =
                     new StringBuffer(128)
-                            .append("Sending mail to ")
-                            .append(rec)
-                            .append(" on host ")
-                            .append(host);
+                        .append("Sending mail to ")
+                        .append(mail.getRecipients())
+                        .append(" via ")
+                        .append(gatewayServer);
                 log(logMessageBuffer.toString());
             }
-            mail.setRecipients(rec);
-            StringBuffer nameBuffer =
-                new StringBuffer(128)
-                        .append(name)
-                        .append("-to-")
-                        .append(host);
-            mail.setName(nameBuffer.toString());
+
+             //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
             outgoing.store(mail);
-            //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
         }
         mail.setState(Mail.GHOST);
     }
@@ -550,7 +567,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             try {
                 String key = outgoing.accept(delayTime);
                 try {
-                    if (DEBUG) {
+                    if (isDebug) {
                         StringBuffer logMessageBuffer = 
                             new StringBuffer(128)
                                     .append(Thread.currentThread().getName())
