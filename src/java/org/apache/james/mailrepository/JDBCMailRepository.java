@@ -452,7 +452,7 @@ public class JDBCMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-            notifyAll();
+//            notifyAll();
             return true;
         } else {
             return false;
@@ -653,7 +653,8 @@ public class JDBCMailRepository
             conn.setAutoCommit(true);
 
             synchronized (this) {
-                notifyAll();
+//                notifyAll();
+                notify();
             }
         } catch (Exception e) {
             e.printStackTrace();
