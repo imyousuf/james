@@ -12,12 +12,18 @@ package org.apache.james;
  * This is a fake class to display an error message if you try to execute James
  * without having Avalon installed.
  *
- * @version 1.0.0 (CVS $Revision: 1.1 $ $Date: 2001/05/11 10:36:17 $)
+ * @version 1.0.0 (CVS $Revision: 1.2 $ $Date: 2002/08/18 07:32:38 $)
  * @author <a href="mailto:scoobie@pop.systemy.it">Federico Barbieri</a>
  */
 
 public class Main {
 
+    /**
+     * Displays an error message indicating that James requires an Avalon framework
+     * compatible container.
+     *
+     * @param args the command line arguments, ignored
+     */
     public static void main(String[] args) {
 
         System.out.println("ERROR!");
