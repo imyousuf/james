@@ -20,6 +20,16 @@
 <li>[SS4] (code) Added some more logging to DNS service</li>
 </section>
 
+<section name="Version 2.1.3">
+<p>Expected release March 2003</p>
+<li>[NjB] (code) Fixed stream handling in MimeMessageWrapper to address a JavaMail issue introduced in v2.1.2</li>
+<li>[NjB] (code) Fixes to AddFooter for text/html parts</li>
+<li>[MI,PG,NjB] (code) Fixes to AddFooter for MimeMultipart messages</li>
+<li>[NjB] (code) Changed ExtraDotOutputStream to enforce RFC 2821 #2.3.7</li>
+<li>[NjB] (code) Corrected allowable characters for localpart of address</li>
+<li>[NjB] (update) Removed generated files from source distributions</li>
+</section>
+
 <section name="Version 2.1.2">
 <p>Released 21 February 2003</p>
 <li>[NjB] (code) Fixed handling of permanent/temporary errors in RemoteDelivery</li>
