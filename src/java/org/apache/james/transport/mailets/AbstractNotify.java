@@ -58,7 +58,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.RFC2822Headers;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -115,7 +115,7 @@ import java.util.Iterator;
  * <I>message</I> and <I>attachError</I> can be used instead of
  * <I>notice and </I> and <I>attachStackTrace</I>.
  *
- * <P>CVS $Id: AbstractNotify.java,v 1.4 2003/06/15 18:44:03 noel Exp $</P>
+ * <P>CVS $Id: AbstractNotify.java,v 1.5 2003/06/16 03:35:07 noel Exp $</P>
  * @version 2.2.0
  * @since 2.2.0
  */

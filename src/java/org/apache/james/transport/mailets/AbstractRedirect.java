@@ -79,8 +79,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
 
 import org.apache.mailet.GenericMailet;
@@ -162,7 +162,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * <P>CVS $Id: AbstractRedirect.java,v 1.7 2003/06/15 18:44:03 noel Exp $</P>
+ * <P>CVS $Id: AbstractRedirect.java,v 1.8 2003/06/16 03:35:07 noel Exp $</P>
  * @version 2.2.0
  * @since 2.2.0
  */
