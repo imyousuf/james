@@ -53,8 +53,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.10 $
- * Committed on $Date: 2001/09/25 12:27:43 $ by: $Author: charlesb $
+ * This is $Revision: 1.11 $
+ * Committed on $Date: 2001/09/25 16:27:07 $ by: $Author: charlesb $
  */
 public class James
     extends AbstractLoggable
@@ -139,6 +139,7 @@ public class James
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }
+        context.put("HostName", hostName);
         getLogger().info("Local host is: " + hostName);
 
         // Get the domains and hosts served by this instance
@@ -216,8 +217,8 @@ public class James
 
             try {
                 // We will need to use a no-args constructor for flexibility
-                //imapSystem = new Class.forName(imapSystemClass).newInstance();
-                imapSystem = new SimpleSystem();
+                imapSystem = (IMAPSystem) Class.forName(imapSystemClass).newInstance();
+                //imapSystem = new SimpleSystem();
                 imapSystem.configure(conf.getChild("imapHost"));
                 imapSystem.contextualize(context);
                 imapSystem.compose(compMgr);
@@ -226,8 +227,10 @@ public class James
                 }
                 compMgr.put( IMAPSystem.ROLE, (Component)imapSystem);
                 getLogger().info("Using SimpleSystem.");
+
                 imapHost = (Host) Class.forName(imapHostClass).newInstance();
                 //imapHost = new JamesHost();
+                setupLogger(imapHost, "IMAPhost");
                 imapHost.configure(conf.getChild("imapHost"));
                 imapHost.contextualize(context);
                 imapHost.compose(compMgr);
