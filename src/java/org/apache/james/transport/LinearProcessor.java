@@ -18,6 +18,7 @@ import org.apache.mailet.*;
 import javax.mail.MessagingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +28,8 @@ import java.util.Iterator;
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
+ * @author Steve Short <sshort@postx.com>
+ * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
  *  SAMPLE CONFIGURATION
  *  <processor name="try" onerror="return,log">
@@ -44,65 +47,183 @@ public class LinearProcessor
     extends AbstractLogEnabled
     implements Initializable, Disposable {
 
-    private List mailets;
-    private List matchers;
-    private List[] unprocessed;
-    private Collection tempUnprocessed;
-    private Random random;
-    private Logger logger;
-    private SpoolRepository spool;
+    private static final Random random = new Random();  // Used to generate new mail names
 
+    /**
+     *  The name of the matcher used to terminate the matcher chain.  The
+     *  end of the matcher/mailet chain must be a matcher that matches
+     *  all mails and a mailet that sets every mail to GHOST status.
+     *  This is necessary to ensure that mails are removed from the spool
+     *  in an orderly fashion.
+     */
+    private static final String TERMINATING_MATCHER_NAME = "Terminating%Matcher%Name";
+
+    /**
+     *  The name of the mailet used to terminate the mailet chain.  The
+     *  end of the matcher/mailet chain must be a matcher that matches
+     *  all mails and a mailet that sets every mail to GHOST status.
+     *  This is necessary to ensure that mails are removed from the spool
+     *  in an orderly fashion.
+     */
+    private static final String TERMINATING_MAILET_NAME = "Terminating%Mailet%Name";
+
+    private List mailets;  // The list of mailets for this processor
+    private List matchers; // The list of matchers for this processor
+    private volatile boolean listsClosed;  // Whether the matcher/mailet lists have been closed.
+    private SpoolRepository spool;  // The spool on which this processor is acting
+
+    /**
+     * Set the spool to be used by this LinearProcessor.
+     *
+     * @param spool the spool to be used by this processor
+     *
+     * @exception IllegalArgumentException thrown when the spool passed in is null
+     */
     public void setSpool(SpoolRepository spool) {
+        if (spool == null) {
+            throw new IllegalArgumentException("The spool cannot be null");
+        }
         this.spool = spool;
     }
 
-
     public void initialize() {
-        this.matchers = new Vector();
-        this.mailets = new Vector();
-        tempUnprocessed = new Vector();
-        tempUnprocessed.add(new Vector(2, 2));
-        random = new Random();
+        matchers = new ArrayList();
+        mailets = new ArrayList();
     }
 
     // Shutdown mailets
     public void dispose() {
         Iterator it = mailets.iterator();
+        boolean debugEnabled = getLogger().isDebugEnabled();
         while (it.hasNext()) {
             Mailet mailet = (Mailet)it.next();
-            getLogger().debug("Shutdown mailet " + mailet.getMailetInfo());
+            if (debugEnabled) {
+                getLogger().debug("Shutdown mailet " + mailet.getMailetInfo());
+            }
             mailet.destroy();
         }
     }
 
-    public void add(Matcher matcher, Mailet mailet) {
+    /**
+     * Adds a new <code>Matcher</code> / <code>Mailet</code> pair
+     * to the processor.  Checks to ensure that the matcher and
+     * mailet passed in are not null.  Synchronized to ensure that
+     * the matchers and mailets are kept in sync.
+     *
+     * It is an essential part of the contract of the LinearProcessor
+     * that a particular matcher/mailet combination be used to
+     * terminate the processor chain.  This is done by calling the  
+     * closeProcessorList method.
+     *
+     * Once the closeProcessorList has been called any subsequent
+     * call to the add method will result in an IllegalStateException.
+     *
+     * @param matcher the new matcher being added
+     * @param mailet the new mailet being added
+     *
+     * @exception IllegalArgumentException thrown when the matcher or mailet passed in is null
+     * @exception IllegalStateException thrown when this method is called after the processor lists have been closed
+     */
+    public synchronized void add(Matcher matcher, Mailet mailet) {
+        if (matcher == null) {
+            throw new IllegalArgumentException("Null valued matcher passed to LinearProcessor.");
+        }
+        if (mailet == null) {
+            throw new IllegalArgumentException("Null valued mailet passed to LinearProcessor.");
+        }
+        if (listsClosed) {
+            throw new IllegalStateException("Attempt to add matcher/mailet after lists have been closed");
+        }
         matchers.add(matcher);
         mailets.add(mailet);
-        //Make the collections array one larger
-        tempUnprocessed.add(new Vector(2, 2));
     }
 
+    /**
+     * Closes the processor matcher/mailet list.
+     *
+     * @exception IllegalStateException thrown when this method is called after the processor lists have been closed
+     */
+    public synchronized void closeProcessorLists() {
+        if (listsClosed) {
+            throw new IllegalStateException("Processor's matcher/mailet lists have already been closed.");
+        }
+        Matcher terminatingMatcher =
+            new GenericMatcher() {
+                public Collection match(Mail mail) {
+                    return mail.getRecipients();
+                }
+            
+                public String getMatcherInfo() {
+                    return TERMINATING_MATCHER_NAME;
+                }
+            };
+        Mailet terminatingMailet = 
+            new GenericMailet() {
+                public void service(Mail mail) {
+                    mail.setState(Mail.GHOST);
+                }
+            
+                public String getMailetInfo() {
+                    return getMailetName();
+                }
+            
+                public String getMailetName() {
+                    return TERMINATING_MAILET_NAME;
+                }
+            };
+        add(terminatingMatcher, terminatingMailet);
+        listsClosed = true;
+    }
 
-    public synchronized void service(MailImpl mail) throws MessagingException {
-        getLogger().debug("Servicing mail: " + mail.getName());
-        //unprocessed is an array of Lists of Mail objects
+    /**
+     * Processes a single mail message through the chain of matchers and mailets.
+     *
+     * Calls to this method before setSpool has been called with a non-null argument
+     * will result in an <code>IllegalStateException<\code>.
+     *
+     * If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
+     * method then a call to this method will result in an <code>IllegalStateException<\code>.
+     * The end of the matcher/mailet chain must be a matcher that matches all mails and 
+     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
+     * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
+     * ensures this.
+     * 
+     * @param mail the new mail to be processed
+     *
+     * @exception IllegalStateException thrown when this method is called before the processor lists have been closed
+     *                                  or the spool has been initialized
+     */
+    public void service(MailImpl mail) throws MessagingException {
+        if (spool == null) {
+            throw new IllegalStateException("Attempt to service mail before the spool has been set to a non-null value");
+        }
+
+        if (!listsClosed) {
+            throw new IllegalStateException("Attempt to service mail before matcher/mailet lists have been closed");
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Servicing mail: " + mail.getName());
+        }
+        //  unprocessed is an array of Lists of Mail objects
         //  the array indicates which matcher/mailet (stage in the linear
         //  processor) that this Mail needs to be processed.
         //  e.g., a Mail in unprocessed[0] needs to be
         //  processed by the first matcher/mailet.
         //
-        //It is a List of Mail objects at each array spot as multiple Mail
+        //  It is a List of Mail objects at each array spot as multiple Mail
         //  objects could be at the same stage.
+        //
+        //  Note that every Mail object in this array will either be the 
+        //  original Mail object passed in, or a result of this method's
+        //  (and hence this thread's) processing.
 
-        //make sure we have the array built
-        if (unprocessed == null) {
-            //Need to construct that object
-            unprocessed = (List[])tempUnprocessed.toArray(new List[0]);
-            tempUnprocessed = null;
-        }
-        //Wipe all the data (just to be sure)
+        List[] unprocessed = new List[matchers.size() + 1];
+
         for (int i = 0; i < unprocessed.length; i++) {
-            unprocessed[i].clear();
+            // No need to use synchronization, as this is totally
+            // local to the method
+            unprocessed[i] = new ArrayList();
         }
 
         //Add the object to the bottom of the list
@@ -115,9 +236,18 @@ public class LinearProcessor
         mail = null;  // the message we're currently processing
         int i = 0;    // where in the stage we're looking
         while (true) {
-            //The last element in the unprocessed array has mail messages
+            //  The last element in the unprocessed array has mail messages
             //  that have completed all stages.  We want them to just die,
-            //  so we clear that spot.
+            //  so we clear that spot to allow garbage collection of the
+            //  objects.
+            //
+            //  Please note that the presence of the Null Mailet at the end
+            //  of the chain is critical to the proper operation
+            //  of the LinearProcessor code.  If this mailet is not placed
+            //  at the end of the chain with an "All" matcher, there is a 
+            //  potential for configuration or implementation errors to 
+            //  lead to mails trapped in the spool.  This matcher/mailet
+            //  combination is added in JamesSpoolManager
             unprocessed[unprocessed.length - 1].clear();
 
             //initialize the mail reference we will be searching on
@@ -127,8 +257,7 @@ public class LinearProcessor
             for (i = 0; i < unprocessed.length; i++) {
                 if (unprocessed[i].size() > 0) {
                     //Get the first element from the queue, and remove it from there
-                    mail = (MailImpl)unprocessed[i].get(0);
-                    unprocessed[i].remove(mail);
+                    mail = (MailImpl)unprocessed[i].remove(0);
                     break;
                 }
             }
@@ -143,7 +272,16 @@ public class LinearProcessor
             //Call the matcher and find what recipients match
             Collection recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
-            getLogger().debug("Checking " + mail.getName() + " with " + matcher);
+            StringBuffer logMessageBuffer = null;
+            if (getLogger().isDebugEnabled()) {
+                logMessageBuffer =
+                    new StringBuffer(128)
+                            .append("Checking ")
+                            .append(mail.getName())
+                            .append(" with ")
+                            .append(matcher);
+                getLogger().debug(logMessageBuffer.toString());
+            }
             try {
                 recipients = matcher.match(mail);
                 if (recipients == null) {
@@ -155,8 +293,8 @@ public class LinearProcessor
             } catch (MessagingException me) {
                 handleException(me, mail, matcher.getMatcherConfig().getMatcherName());
             }
-            //Split the recipients into two pools.  notRecipients will contain the
-            //  recipients on the message that the matcher did not return.
+            // Split the recipients into two pools.  notRecipients will contain the
+            // recipients on the message that the matcher did not return.
             Collection notRecipients = new Vector();
             notRecipients.addAll(mail.getRecipients());
             notRecipients.removeAll(recipients);
@@ -167,40 +305,45 @@ public class LinearProcessor
                 continue;
             }
             if (notRecipients.size() != 0) {
-                //There are a mix of recipients and not recipients.
-                //We need to clone this message, put the notRecipients on the clone
-                //  and store it in the next spot
+                // There are a mix of recipients and not recipients.
+                // We need to clone this message, put the notRecipients on the clone
+                // and store it in the next spot
                 MailImpl notMail = (MailImpl)mail.duplicate(newName(mail));
                 notMail.setRecipients(notRecipients);
                 unprocessed[i + 1].add(notMail);
                 //We have to set the reduce possible recipients on the old message
                 mail.setRecipients(recipients);
             }
-            //We have messages that need to process... time to run the mailet.
+            // We have messages that need to process... time to run the mailet.
             Mailet mailet = (Mailet) mailets.get(i);
-            getLogger().debug("Servicing " + mail.getName() + " by " + mailet.getMailetInfo());
+            if (getLogger().isDebugEnabled()) {
+                logMessageBuffer =
+                    new StringBuffer(128)
+                            .append("Servicing ")
+                            .append(mail.getName())
+                            .append(" by ")
+                            .append(mailet.getMailetInfo());
+                getLogger().debug(logMessageBuffer.toString());
+            }
             try {
                 mailet.service(mail);
-                //Make sure all the recipients are still MailAddress objects
+                // Make sure all the recipients are still MailAddress objects
                 verifyMailAddresses(mail.getRecipients());
             } catch (MessagingException me) {
                 handleException(me, mail, mailet.getMailetConfig().getMailetName());
             }
 
-            //See if the state was changed by the mailet
+            // See if the state was changed by the mailet
             if (!mail.getState().equals(originalState)) {
                 //If this message was ghosted, we just want to let it die
-                if (mail.getState().equals(mail.GHOST)) {
-                    //let this instance die...
+                if (mail.getState().equals(Mail.GHOST)) {
+                    // let this instance die...
                     mail = null;
                     continue;
                 }
-                //This was just set to another state... store this back in the spool
-                //  and it will get picked up and run in that processor
-
-                //Note we need to store this with a new mail name, otherwise it
-                //  will get deleted upon leaving this processor
-                mail.setName(newName(mail));
+                // This was just set to another state requiring further processing... 
+                // Store this back in the spool and it will get picked up and 
+                // run in that processor
                 spool.store(mail);
                 mail = null;
                 continue;
@@ -217,14 +360,20 @@ public class LinearProcessor
      * Create a unique new primary key name
      */
     private String newName(MailImpl mail) {
-        String name = mail.getName();
-        return name + "-!" + Math.abs(random.nextInt());
+        StringBuffer nameBuffer =
+            new StringBuffer(64)
+                    .append(mail.getName())
+                    .append("-!")
+                    .append(Math.abs(random.nextInt()));
+        return nameBuffer.toString();
     }
 
 
 
     /**
      * Checks that all objects in this class are of the form MailAddress
+     *
+     * @exception MessagingException thrown when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
     private void verifyMailAddresses(Collection col) throws MessagingException {
         MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
@@ -233,12 +382,24 @@ public class LinearProcessor
         }
     }
 
+    /**
+     * This is a helper method that updates the state of the mail object to
+     * Mail.ERROR as well as recording the exception to the log
+     *
+     * @exception MessagingException thrown always, rethrowing the passed in exception
+     */
     private void handleException(MessagingException me, Mail mail, String offendersName) throws MessagingException {
         System.err.println("exception! " + me);
         mail.setState(Mail.ERROR);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        out.println("Exception calling " + offendersName + ": " + me.getMessage());
+        StringBuffer exceptionBuffer =
+            new StringBuffer(128)
+                    .append("Exception calling ")
+                    .append(offendersName)
+                    .append(": ")
+                    .append(me.getMessage());
+        out.println(exceptionBuffer.toString());
         Exception e = me;
         while (e != null) {
             e.printStackTrace(out);
@@ -248,8 +409,9 @@ public class LinearProcessor
                 e = null;
             }
         }
-        mail.setErrorMessage(sout.toString());
-        getLogger().error(sout.toString());
+        String errorString = sout.toString();
+        mail.setErrorMessage(errorString);
+        getLogger().error(errorString);
         throw me;
     }
 }
