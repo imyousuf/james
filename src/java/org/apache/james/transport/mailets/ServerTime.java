@@ -42,14 +42,21 @@ public class ServerTime extends GenericMailet {
                     .append(".");
         response.setText(textBuffer.toString());
 
-        Set recipients = new HashSet();
-        Address addresses[] = response.getAllRecipients();
-        for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress((InternetAddress)addresses[0]));
+        // Someone manually checking the server time by hand may send
+        // an formatted message, lacking From and To headers.  If the
+        // response fields are null, try setting them from the SMTP
+        // MAIL FROM/RCPT TO commands used to send the inquiry.
+
+        if (response.getFrom() == null) {
+            response.setFrom(((MailAddress)mail.getRecipients().iterator().next()).toInternetAddress());
         }
 
-        MailAddress sender = new MailAddress((InternetAddress)response.getFrom()[0]);
-        getMailetContext().sendMail(sender, recipients, response);
+        if (response.getAllRecipients() == null) {
+            response.setRecipients(MimeMessage.RecipientType.TO, mail.getSender().toString());
+        }
+
+        response.saveChanges();
+        getMailetContext().sendMail(response);
     }
 
     /**
