@@ -141,7 +141,7 @@
                     <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
                 </mailetpackages>
                 <matcherpackages>
-                    <mailetpackage>org.apache.james.transport.matchers.</mailetpackage>
+                    <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
                 </matcherpackages>
 
 <!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
@@ -186,7 +186,7 @@
                         <passThrough> true </passThrough>
                     </mailet>
                 <!-- Send a notification to the sender that the message created an error condition -->
-                    <mailet match="All" class="ErrorBounce">
+                    <mailet match="All" class="Null">
                     </mailet>
                 </processor>
 
