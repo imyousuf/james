@@ -48,7 +48,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.17 $
+ * @version CVS $Revision: 1.18 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -379,40 +379,44 @@ public class JdbcDataSource extends AbstractLogEnabled
      * and checks whether connections have been checked out for too long, killing them.
      */
     public void run() {
-        while(reaperActive) {
-            for(int i = 0; i < pool.size(); i++) {
-                PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
-                long age            = System.currentTimeMillis() - entry.getLastActivity();
-                synchronized(entry) {
-                    if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
-                       (age > ACTIVE_CONN_TIME_LIMIT)) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append(" ***** connection ")
-                                    .append(entry.getId())
-                                    .append(" is way too old: ")
-                                    .append(age)
-                                    .append(" > ")
-                                    .append(ACTIVE_CONN_TIME_LIMIT);
-                        getLogger().info(logBuffer.toString());
-                        // This connection is way too old...
-                        // kill it no matter what
-                        finalizeEntry(entry);
-                        continue;
-                    }
-                    if((entry.getStatus() == PoolConnEntry.AVAILABLE) &&
-                       (age > CONN_IDLE_LIMIT)) {
-                        //We've got a connection that's too old... kill it
-                        finalizeEntry(entry);
-                        continue;
+        try {
+            while(reaperActive) {
+                for(int i = 0; i < pool.size(); i++) {
+                    PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
+                    long age            = System.currentTimeMillis() - entry.getLastActivity();
+                    synchronized(entry) {
+                        if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
+                           (age > ACTIVE_CONN_TIME_LIMIT)) {
+                            StringBuffer logBuffer =
+                                new StringBuffer(128)
+                                        .append(" ***** connection ")
+                                        .append(entry.getId())
+                                        .append(" is way too old: ")
+                                        .append(age)
+                                        .append(" > ")
+                                        .append(ACTIVE_CONN_TIME_LIMIT);
+                            getLogger().info(logBuffer.toString());
+                            // This connection is way too old...
+                            // kill it no matter what
+                            finalizeEntry(entry);
+                            continue;
+                        }
+                        if((entry.getStatus() == PoolConnEntry.AVAILABLE) &&
+                           (age > CONN_IDLE_LIMIT)) {
+                            //We've got a connection that's too old... kill it
+                            finalizeEntry(entry);
+                            continue;
+                        }
                     }
                 }
+                try {
+                    // Check for activity every 5 seconds
+                    Thread.sleep(5000L);
+                } catch(InterruptedException ex) {
+                }
             }
-            try {
-                // Check for activity every 5 seconds
-                Thread.sleep(5000L);
-            } catch(InterruptedException ex) {
-            }
+        } finally {
+            Thread.currentThread().interrupted();
         }
     }
 
