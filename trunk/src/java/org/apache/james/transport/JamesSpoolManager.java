@@ -40,7 +40,7 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.25 $
+ * @version This is $Revision: 1.26 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -335,7 +335,7 @@ public class JamesSpoolManager
                 processor.service(mail);
                 if (getLogger().isDebugEnabled()) {
                     logMessageBuffer =
-                        new StringBuffer(128).append("Processed").append(mail.getName()).append(
+                        new StringBuffer(128).append("Processed ").append(mail.getName()).append(
                             " through ").append(
                             processorName);
                     getLogger().debug(logMessageBuffer.toString());
