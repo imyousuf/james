@@ -22,7 +22,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.oro.text.perl.Perl5Util;
-import org.apache.james.util.CRLFPrintWriter;
+import org.apache.james.util.InternetPrintWriter;
 
 /**
  * <pre>
@@ -131,7 +131,7 @@ public class ProtocolSimulator {
             InputStream inp  = sock.getInputStream();
             OutputStream out = sock.getOutputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inp));
-            PrintWriter writer = new CRLFPrintWriter(new BufferedOutputStream(out),true);
+            PrintWriter writer = new InternetPrintWriter(new BufferedOutputStream(out),true);
             simulation.execute(reader,writer);
         } finally {
             if ( sock != null )
