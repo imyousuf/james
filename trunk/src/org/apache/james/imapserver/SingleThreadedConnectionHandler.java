@@ -1220,7 +1220,17 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				"Command should be <tag> <FETCH> <message set> <message data item names>");
 		    return true;
 		}
-		fetchCommand(commandLine, false);
+		//fetchCommand(commandLine, false);
+		ImapRequest request = new ImapRequest(this);
+		request.setCommandLine(commandLine);
+		request.setUseUIDs(false);
+		request.setCurrentMailbox(currentMailbox);
+		request.setCommandRaw(commandRaw);
+		request.setTag(tag);
+		request.setCurrentFolder(currentFolder);
+		CommandFetch fetcher = new CommandFetch();
+		fetcher.setRequest(request);
+		fetcher.service();
 		return true;
 		// end of FETCH
 	    } else if (command.equalsIgnoreCase("STORE")) {
@@ -1242,7 +1252,17 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 		    storeCommand(commandLine, true);
 		    return true;
 		} else if (uidCommand.equalsIgnoreCase("FETCH")) {
-		    fetchCommand(commandLine, true);
+		    //fetchCommand(commandLine, true);
+		ImapRequest request = new ImapRequest(this);
+		request.setCommandLine(commandLine);
+		request.setUseUIDs(true);
+		request.setCurrentMailbox(currentMailbox);
+		request.setCommandRaw(commandRaw);
+		request.setTag(tag);
+		request.setCurrentFolder(currentFolder);
+		CommandFetch fetcher = new CommandFetch();
+		fetcher.setRequest(request);
+		fetcher.service();
 		    return true;
 		}
 	    } else {
@@ -1327,18 +1347,35 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 
     }
 
-    private void logACE(AccessControlException ace) {
+    public void logACE(AccessControlException ace) {
 	securityLogger.error("AccessControlException by user "  + user
 			       + " from "  + remoteHost  + "(" + remoteIP
 			       + ") with " + commandRaw + " was "
 			       + ace.getMessage());
     }
 
-    private void logAZE(AuthorizationException aze) {
+    public void logAZE(AuthorizationException aze) {
 	securityLogger.error("AuthorizationException by user "  + user
 			       + " from "  + remoteHost  + "(" + remoteIP
 			       + ") with " + commandRaw + " was "
 			       + aze.getMessage());
+    }
+
+
+    public PrintWriter getPrintWriter() {
+	return out;
+    }
+
+    public OutputStream getOutputStream() {
+	return outs;
+    }
+
+    public String getUser() {
+	return user;
+    }
+
+    public Logger getLogger() {
+	return logger;
     }
 
     /**
@@ -1507,7 +1544,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	}
     }
 
-    private void checkSize() {
+    public void checkSize() {
 	int newExists = currentMailbox.getExists();
 	if (newExists != exists) {
 	    out.println(UNTAGGED + SP + newExists + " EXISTS");
@@ -1609,634 +1646,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	return;
     }
 
-    /**
-     * Implements IMAP fetch commands against Mailbox. This implementation
-     * attempts to satisfy the fetch
-     * command with the smallest objects deserialized from storage.
-     *
-     * Not yet complete - no partial (octet-counted or sub-parts) fetches.
-     */
-    private void fetchCommand(StringTokenizer commandLine, boolean useUIDs) {
-	// decode the message set
-	List set;
-	List uidsList = null;
-	String setArg = commandLine.nextToken();
-	if (useUIDs) {
-	    uidsList = currentMailbox.listUIDs(user);
-	    set = decodeUIDSet(setArg, uidsList);
-	} else {
-	    set = decodeSet(setArg);
-	}
-	if (DEEP_DEBUG) {
-            logger.debug("Fetching message set of size: " + set.size());
-	}
-	String firstFetchArg = commandLine.nextToken();
-	int pos =  commandRaw.indexOf(firstFetchArg);
-	//int pos = commandRaw.indexOf(setArg) + setArg.length() + 1;
-	String fetchAttrsRaw = null;
-	if (firstFetchArg.startsWith("(")) { //paranthesised fetch attrs
-	    fetchAttrsRaw = commandRaw.substring(pos + 1, commandRaw.lastIndexOf(")"));
-	} else {
-	    fetchAttrsRaw = commandRaw.substring(pos);
-	}
 
-	if (DEEP_DEBUG) {
-            logger.debug("Found fetchAttrsRaw: " + fetchAttrsRaw);
-	}
-	// decode the fetch attributes
-	List fetchAttrs = new ArrayList();
-	StringTokenizer fetchTokens = new StringTokenizer(fetchAttrsRaw);
-	while (fetchTokens.hasMoreTokens()) {
-	    String  attr = fetchTokens.nextToken();
-	    if (attr.indexOf("(") == -1 ) { //not the start of a fields list
-		fetchAttrs.add(attr);
-	    } else {
-		StringBuffer attrWithFields = new StringBuffer();
-		attrWithFields.append(fetchAttrs.remove(fetchAttrs.size() -1));
-		attrWithFields.append(" " + attr);
-		boolean endOfFields = false;
-		while (! endOfFields) {
-		    String field = fetchTokens.nextToken();
-		    attrWithFields.append(" " + field);
-		    if (field.indexOf(")") != -1) {
-			endOfFields = true;
-		    } 
-		}
-		fetchAttrs.add(attrWithFields.toString());
-	    }
-	}
-
-	// convert macro fetch commands to basic commands
-	for(int k = 0; k < fetchAttrs.size(); k++) {
-	    String arg = (String)fetchAttrs.get(k);
-	    if (arg.equalsIgnoreCase("FAST")) {
-		fetchAttrs.add("FLAGS");
-		fetchAttrs.add("INTERNALDATE");
-		fetchAttrs.add("RFC822.SIZE");
-	    } else if (arg.equalsIgnoreCase("ALL")) {
-		fetchAttrs.add("FLAGS");
-		fetchAttrs.add("INTERNALDATE");
-		fetchAttrs.add("RFC822.SIZE");
-		fetchAttrs.add("ENVELOPE");
-	    } else if (arg.equalsIgnoreCase("FULL")) {
-		fetchAttrs.add("FLAGS");
-		fetchAttrs.add("INTERNALDATE");
-		fetchAttrs.add("RFC822.SIZE");
-		fetchAttrs.add("ENVELOPE");
-		fetchAttrs.add("BODY");
-	    }
-	    logger.debug("Found fetchAttrs: " + arg);
-	}
-
-	try {
-	    for (int i = 0; i < set.size(); i++) {
-		Integer uidObject = null;
-		int uid = 0;
-		int msn = 0;
-		if (useUIDs) {
-		    uidObject = (Integer)set.get(i);
-		    uid = uidObject.intValue();
-		    msn = uidsList.indexOf(uidObject) + 1;
-		} else {
-		    msn = ((Integer)set.get(i)).intValue();
-		}
-		MessageAttributes  attrs = null;
-		String flags = null;
-		EnhancedMimeMessage msg = null;
-		String response = UNTAGGED + SP + msn + SP + "FETCH (";
-		boolean responseAdded = false;
-		Iterator it = fetchAttrs.iterator();
-		while(it.hasNext()) {
-		    String  arg = (String) it.next();
-		    // commands that only need flags object
-		    if (arg.equalsIgnoreCase("FLAGS")) {
-			if (flags == null) {
-			    if (useUIDs) {
-				flags = currentMailbox.getFlagsUID(uid, user);
-			    } else {
-				flags = currentMailbox.getFlags(msn, user);
-			    }
-			}
-			if (flags == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message flags.");
-			    logger.error("Retrieved null flags for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "FLAGS " + flags ;
-			} else {
-			    response +=  "FLAGS " + flags ;
-			    responseAdded = true;
-			}
-		    }
-		    // command that only need MessageAttributes object
-		    else if (arg.equalsIgnoreCase("INTERNALDATE")) {
-			if (attrs == null) {
-			    if (useUIDs) {
-				attrs = currentMailbox.getMessageAttributesUID(uid, user);
-			    } else {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-			    }
-			}
-			if (attrs == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-			    logger.error("Retrieved null attributes for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "INTERNALDATE \""
-				+ attrs.getInternalDateAsString() + "\")" ;
-			} else {
-			    response += "INTERNALDATE \""
-				+ attrs.getInternalDateAsString() + "\")" ;
-			    responseAdded = true;
-			}
-		    } else if (arg.equalsIgnoreCase("RFC822.SIZE")) {
-			if (attrs == null) {
-			    if (useUIDs) {
-				attrs = currentMailbox.getMessageAttributesUID(uid, user);
-			    } else {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-			    }
-			}
-			if (attrs == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-			    logger.error("Retrieved null attributes for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "RFC822.SIZE " + attrs.getSize();
-			} else {
-			    response +=  "RFC822.SIZE " + attrs.getSize();
-			    responseAdded = true;
-			}
-		    } else   if (arg.equalsIgnoreCase("ENVELOPE")) {
-			if (attrs == null) {
-			    if (useUIDs) {
-				attrs = currentMailbox.getMessageAttributesUID(uid, user);
-			    } else {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-			    }
-			}
-			if (attrs == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-			    logger.error("Retrieved null attributes for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "ENVELOPE " + attrs.getEnvelope();
-			} else {
-			    response +=  "ENVELOPE " + attrs.getEnvelope();
-			    responseAdded = true;
-			}
-		    } else if (arg.equalsIgnoreCase("BODY")) {
-			if (attrs == null) {
-			    if (useUIDs) {
-				attrs = currentMailbox.getMessageAttributesUID(uid, user);
-			    } else {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-			    }
-			}
-			if (attrs == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-			    logger.error("Retrieved null attributes for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "BODY " + attrs.getBodyStructure();
-			} else {
-			    response +=  "BODY " + attrs.getBodyStructure();
-			    responseAdded = true;
-			}
-		    } else if (arg.equalsIgnoreCase("BODYSTRUCTURE")) {
-			if (attrs == null) {
-			    if (useUIDs) {
-				attrs = currentMailbox.getMessageAttributesUID(uid, user);
-			    } else {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-			    }
-			}
-			if (attrs == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-			    logger.error("Retrieved null attributes for msn:" + msn);
-			    return;
-			} 
-			if (responseAdded) {
-			    response += SP + "BODYSTRUCTURE "+ attrs.getBodyStructure();
-			} else {
-			    response +=  "BODYSTRUCTURE "+ attrs.getBodyStructure();
-			    responseAdded = true;
-			}
-		    }  else if (arg.equalsIgnoreCase("UID")) {
-			if (!useUIDs){
-			    if (attrs == null) {
-				attrs = currentMailbox.getMessageAttributes(msn, user);
-				uid = attrs.getUID();
-			    }
-			    if (attrs == null) { // bad
-				out.println(tag + SP + msn + SP + NO + "Error retrieving message attributes.");
-				logger.error("Retrieved null attributes for msn:" + msn);
-				return;
-			    } 
-			
-			    if (responseAdded) {
-				response += SP + "UID "+ uid;
-			    } else {
-				response +=  "UID "+ uid;
-				responseAdded = true;
-			    }
-			} // don't duplicate on UID FETCH requests
-		    }
-		    // commands that can be satisifed with just top-level headers of message and flags 
-		    else if (arg.equalsIgnoreCase("BODY[HEADER]")
-				|| arg.equalsIgnoreCase("BODY.PEEK[HEADER]")) {
-			if (responseAdded) { // unlikely
-			    if (useUIDs) {
-				response += " UID " + uid + ")";
-			    } else {
-				response += ")";
-			    }
-			    out.println(response);
-			    logger.debug("Sending: " + response);
-			}
-			InternetHeaders headers = null;
-			if (useUIDs) {
-			    headers = currentMailbox.getInternetHeadersUID(uid, user);
-			} else {
-			    headers = currentMailbox.getInternetHeaders(msn, user);
-			}
-			if (headers == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-			    logger.error("Retrieved null headers for msn:" + msn);
-			    return;
-			} 
-			if (flags == null) {
-			    if (useUIDs) {
-				flags = currentMailbox.getFlagsUID(uid, user);
-			    } else {
-				flags = currentMailbox.getFlags(msn, user);
-			    }
-			}
-			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			//if (arg.equalsIgnoreCase("BODY[Header]")) {
-			    response += "BODY[HEADER] ";
-			    //} else {
-			    //    response += "BODY.PEEK[HEADER] ";
-			    //}
-			Enumeration enum = headers.getAllHeaderLines();
-			List lines = new ArrayList();
-			int count = 0;
-			while (enum.hasMoreElements()) {
-			    String line = (String)enum.nextElement();
-			    count += line.length() + 2;
-			    lines.add(line);
-			}
-			response += "{" + (count + 2) + "}";
-			out.println(response);
-			logger.debug("Sending: " + response);
-			Iterator lit = lines.iterator();
-			while (lit.hasNext()) {
-			    String line = (String)lit.next();
-			    out.println(line);
-			    logger.debug("Sending: " + line);
-			}
-			out.println();
-                        logger.debug("Sending blank line");
-			if (useUIDs) {
-			    out.println(  " UID " + uid + ")");
-			    logger.debug("Sending: UID " + uid + ")");
-			} else {
-			    out.println( ")" );
-                            logger.debug("Sending: )");
-			}
-			if (! arg.equalsIgnoreCase("BODY.PEEK[HEADER]")) {
-			    try { // around setFlags()
-				if (flags.indexOf("Seen") == -1 ) {
-				    String newflags;
-				    if (useUIDs) {
-					currentMailbox.setFlagsUID(uid, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlagsUID(uid, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + " UID " + uid +")");
-				    } else {
-					currentMailbox.setFlags(msn, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlags(msn, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + ")");
-				    }
-				}
-			    } catch (AccessControlException ace) {
-				logger.error("Exception storing flags for message: " + ace);
-			    } catch (AuthorizationException aze) {
-				logger.error("Exception storing flags for message: " + aze);
-			    } catch (Exception e) {
-				logger.error("Unanticipated exception storing flags for message: " + e);
-			    }
-			}	
-			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			responseAdded = false;
-		    } else if (arg.toUpperCase().startsWith("BODY[HEADER.FIELDS")
-			       || arg.toUpperCase().startsWith("BODY.PEEK[HEADER.FIELDS")) {
-			if (responseAdded) { 
-			    if (useUIDs) {
-				response += " UID " + uid + ")";
-			    } else {
-				response += ")";
-			    }
-			    out.println(response);
-                            logger.debug("Sending: " + response);
-			}
-			InternetHeaders headers = null;
-			if (useUIDs) {
-			    headers = currentMailbox.getInternetHeadersUID(uid, user);
-			} else {
-			    headers = currentMailbox.getInternetHeaders(msn, user);
-			}
-			if (headers == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-			    logger.error("Retrieved null headers for msn:" + msn);
-			    return;
-			} 
-			if (flags == null) {
-			    if (useUIDs) {
-				flags = currentMailbox.getFlagsUID(uid, user);
-			    } else {
-				flags = currentMailbox.getFlags(msn, user);
-			    }
-			}
-			boolean not = (commandRaw.toUpperCase().indexOf("HEADER.FIELDS.NOT") != -1);
-			boolean peek = (commandRaw.toUpperCase().indexOf("PEEK") != -1);
-			response = UNTAGGED + SP + msn + SP + "FETCH (BODY" ;
-			//if (peek) {response += ".PEEK";}
-			if (not) {
-			    response += "[HEADER.FIELDS.NOT (";
-			} else {
-			    response += "[HEADER.FIELDS (";
-			}
-			responseAdded = false;
-			//int h = commandRaw.indexOf("[");
-			int left = arg.indexOf("(");
-			int right = arg.indexOf(")");
-			String fieldsRequested = arg.substring(left + 1, right);
-			response += fieldsRequested + ")] ";
-			ArrayList fields = new ArrayList();
-			if (fieldsRequested.indexOf(" ") == -1) { //only one field
-			    fields.add(fieldsRequested);
-			} else {
-			    StringTokenizer tok = new StringTokenizer(fieldsRequested);
-			    while (tok.hasMoreTokens()) {
-				fields.add((String)tok.nextToken());
-			    }
-			}
-			Iterator it2 = fields.iterator();
-			while (it2.hasNext()) {
-			    logger.debug("request for field: " + (String)it2.next());
-			}
-			String[] names = (String[])fields.toArray(new String[fields.size()]);
-			Enumeration enum = null;
-			if (not) {
-			    enum = headers.getNonMatchingHeaderLines(names);
-			} else {
-			    enum = headers.getMatchingHeaderLines(names);
-			}
-			List lines = new ArrayList();
-			int count = 0;
-			while (enum.hasMoreElements()) {
-			    String line = (String)enum.nextElement();
-			    count += line.length() + 2;
-			    lines.add(line);
-			}
-			response += "{" + (count + 2) + "}";
-			out.println(response);
-                        logger.debug("Sending: " + response);
-			Iterator lit = lines.iterator();
-			while (lit.hasNext()) {
-			    String line = (String)lit.next();
-			    out.println(line);
-                            logger.debug("Sending: " + line);
-			}
-			out.println();
-			if (useUIDs) {
-			    out.println(  " UID " + uid + ")");
-			} else {
-			    out.println(")");
-			}
-			if (! peek) {
-			    if (flags.indexOf("Seen") == -1 ) {
-				try {
-				    String newflags;
-				    if (useUIDs) {
-					currentMailbox.setFlagsUID(uid, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlagsUID(uid, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + " UID " + uid +")");
-				    } else {
-					currentMailbox.setFlags(msn, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlags(msn, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + ")");
-				    }
-				} catch (AccessControlException ace) {
-				    logger.error("Exception storing flags for message: " + ace);
-				} catch (AuthorizationException aze) {
-				    logger.error("Exception storing flags for message: " + aze);
-				} catch (Exception e) {
-				    logger.error("Unanticipated exception storing flags for message: " + e);
-				}
-			    }
-			}
-			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			responseAdded = false;
-		    }
-		    // Calls to underlying MimeMessage
-		    else if (arg.equalsIgnoreCase("RFC822")
-			     || arg.equalsIgnoreCase("BODY[]")
-			     || arg.equalsIgnoreCase("BODY.PEEK[]")) {
-			if (responseAdded) { // unlikely
-			    if (useUIDs) {
-				response += " UID " + uid + ")";
-			    } else {
-				response += ")";
-			    }
-			    out.println(response);
-			}
-			if (msg == null) { // probably
-			    if (useUIDs) {
-				msg = currentMailbox.retrieveUID(uid, user);
-			    } else {
-				msg = currentMailbox.retrieve(msn, user);
-			    }
-			}
-			if (flags == null) {
-			    if (useUIDs) {
-				flags = currentMailbox.getFlagsUID(uid, user);
-			    } else {
-				flags = currentMailbox.getFlags(msn, user);
-			    }
-			}
-			if (msg == null) { // bad
-			    out.println(tag + SP + msn + SP + BAD + "Error retrieving message.");
-			    logger.error("Retrieved null message");
-			    return;
-			} 
-			try {
-			    int size = msg.getMessageSize();
-			    if (arg.equalsIgnoreCase("RFC822")) {
-				out.println(UNTAGGED + SP + msn + SP + "FETCH ( RFC822 {" + size + "}");
-			    } else {
-				out.println(UNTAGGED + SP + msn + SP + "FETCH ( BODY[] {" + size + "}");
-				}
-			    msg.writeTo(outs);
-			    if (useUIDs) {
-				out.println(" UID " + uid + ")");
-			    } else {
-				out.println(")");
-			    }
-			    if (! arg.equalsIgnoreCase("BODY.PEEK[]")) {
-				if (flags.indexOf("Seen") == -1 ) {
-				    String newflags;
-				    if (useUIDs) {
-					currentMailbox.setFlagsUID(uid, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlagsUID(uid, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + " UID " + uid +")");
-				    } else {
-					currentMailbox.setFlags(msn, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlags(msn, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + ")");
-				    }
-				}
-			    }
-			} catch (MessagingException me) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Exception retrieving message: " + me);
-			} catch (IOException ioe) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Exception sending message: " + ioe);
-			} catch (Exception e) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Unanticipated exception retrieving message: " + e);
-			}
-			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			responseAdded = false;
-		    } else if (arg.equalsIgnoreCase("RFC822.TEXT")
-			       || arg.equalsIgnoreCase("BODY[TEXT]")
-			       || arg.equalsIgnoreCase("BODY.PEEK[TEXT]")) {
-			if (responseAdded) { // unlikely
-			    if (useUIDs) {
-				response += " UID " + uid + ")";
-			    } else {
-				response += ")";
-			    }
-			    out.println(response);
-			}
-			if (msg == null) { // probably
-			    if (useUIDs) {
-				msg = currentMailbox.retrieveUID(uid, user);
-			    } else {
-				msg = currentMailbox.retrieve(msn, user);
-			    }
-			}
-			if (flags == null) {
-			    if (useUIDs) {
-				flags = currentMailbox.getFlagsUID(uid, user);
-			    } else {
-				flags = currentMailbox.getFlags(msn, user);
-			    }
-			}
-			if (msg == null) { // bad
-			    out.println(tag + SP + msn + SP + NO + "Error retrieving message.");
-			    logger.error("Retrieved null message");
-			    return;
-			} 
-			try {
-			    int size = msg.getSize();
-			    if (arg.equalsIgnoreCase("RFC822.TEXT")) {
-				out.println(UNTAGGED + SP + msn + SP + "FETCH ( RFC822.TEXT {" + size + "}");
-			    } else {
-				out.println(UNTAGGED + SP + msn + SP + "FETCH ( BODY[TEXT] {" + size + "}");
-			    }
-			    msg.writeContentTo(outs);
-			    if (useUIDs) {
-				out.println(  " UID " + uid + ")");
-			    } else {
-				out.println(")");
-			    }
-			    if (! arg.equalsIgnoreCase("BODY.PEEK[TEXT]")) {
-				if (flags.indexOf("Seen") == -1 ) {
-				    String newflags;
-				    if (useUIDs) {
-					currentMailbox.setFlagsUID(uid, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlagsUID(uid, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + " UID " + uid +")");
-				    } else {
-					currentMailbox.setFlags(msn, user, "+flags (\\Seen)");
-					newflags = currentMailbox.getFlags(msn, user);
-					out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS "
-						    + newflags + ")");
-				    }
-				}
-			    }
-			} catch (MessagingException me) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Exception retrieving message: " + me);
-			} catch (IOException ioe) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Exception sending message: " + ioe);
-			} catch (Exception e) {
-			    out.println(UNTAGGED + SP + NO + SP + "Error retrieving message");
-			    logger.error("Unanticipated exception retrieving message: " + e);
-			}
-			response = UNTAGGED + SP + msn + SP + "FETCH (";
-			responseAdded = false;
-		    }   else { //unrecognised or not yet implemented
-			if (responseAdded) {
-			    if (useUIDs) {
-				response += " UID " + uid + ")";
-			    } else {
-				response += ")";
-			    }
-			    out.println(response);
-			}
-			out.println(tag + SP + NO + SP
-				    + "FETCH attribute not recognized");
-			logger.error("Received: " + arg + " as argument to fetch");
-			return;
-		    }
-		} // end while loop
-		if (responseAdded) {
-		    if (useUIDs) {
-			response += " UID " + uid + ")";
-		    } else {
-			response += ")";
-		    }
-		    out.println(response);
-		}
-	    } // end for loop
-	
-	    out.println(tag + SP + OK + SP + "FETCH completed");
-	    checkSize();
-	    return;
-	} catch (AccessControlException ace) {
-	    out.println(tag + SP + NO + SP + "No such mailbox");
-	    logACE(ace);
-	    return;
-	} catch (AuthorizationException aze) {
-	    out.println(tag + SP + NO + SP
-			+ "You do not have the rights to read from mailbox: " + currentFolder);
-	    logAZE(aze);
-	    return ;
-	} catch (Exception e) {
-	    out.println(tag + SP + NO + SP
-			+ "Unknown server error.");
-	    logger.error("Exception expunging mailbox " + currentFolder + " by user " + user + " was : " + e);
-	    if (DEEP_DEBUG) {e.printStackTrace();}
-	    return;
-	}
-
-    }
 }
 
 
