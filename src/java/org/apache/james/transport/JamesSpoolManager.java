@@ -89,7 +89,7 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * <P>CVS $Id: JamesSpoolManager.java,v 1.33 2003/06/17 16:03:14 noel Exp $</P>
+ * <P>CVS $Id: JamesSpoolManager.java,v 1.34 2003/06/17 22:07:28 noel Exp $</P>
  * @version 2.2.0
  */
 public class JamesSpoolManager
@@ -419,6 +419,10 @@ public class JamesSpoolManager
                     mail.setErrorMessage(e.getMessage());
                 } else {
                     //We got an error... send it to the requested processor
+                    if (!(e instanceof MessagingException)) {
+                        //We got an error... send it to the error processor
+                        mail.setState(Mail.ERROR);
+                    }
                     mail.setErrorMessage(e.getMessage());
                 }
             }
