@@ -17,7 +17,7 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.avalon.cornerstone.blocks.masterstore.IOUtil;
+import org.apache.james.util.io.IOUtil;
 import org.apache.james.util.Base64;
 
 import java.io.File;
