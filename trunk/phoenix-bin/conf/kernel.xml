@@ -34,8 +34,17 @@
             class="org.apache.avalon.phoenix.components.manager.MX4JSystemManager"
             logger="manager" >
           <manager-adaptor-port>8082</manager-adaptor-port>
-          <enable-rmi-adaptor>false</enable-rmi-adaptor>
+          <!--
+          <enable-rmi-adaptor>true</enable-rmi-adaptor>
+          <rmi-naming-factory>com.sun.jndi.rmi.registry.RegistryContextFactory</rmi-naming-factory>
           <stylesheets-dir>conf/xsl</stylesheets-dir>
+          -->
+          <!--
+          <user>
+            <name>user</name>
+            <password>password</password>
+          </user>
+          -->
         </component>
 
         <!-- There are two kernels
