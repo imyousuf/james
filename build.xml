@@ -106,7 +106,7 @@ All theese package are in current distribution.
     <mkdir dir="${build.dest}"/>
 
     <!-- copy src files -->
-    <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**,*.xml"/> -->
+    <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**,*.xml"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -117,7 +117,7 @@ All theese package are in current distribution.
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src">
     <javac srcdir="${build.src}" destdir="${build.dest}" classpath="${classpath}" debug="${debug}"/>
-    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml" dest="${build.dest}/conf/${name}.conf.xml"/> -->
+    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml" dest="${build.dest}/conf/${name}.conf.xml"/>
   </target>
 
   <!-- =================================================================== -->
