@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.3 $
-    Committed on $Date: 2001/06/27 16:03:23 $ by: $Author: charlesb $
+    This is $Revision: 1.4 $
+    Committed on $Date: 2001/07/01 12:54:53 $ by: $Author: serge $
 -->
 <config>
 
@@ -82,16 +82,6 @@
       </inboxRepository>
       -->
 
-      <!-- Alternative inbox repository definition for Town use
-      <inboxRepository>
-        <repository destinationURL="town://inbox"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
-          <conn>file:///dev/james/dist/var/maildatabase</conn>
-          <table>Message</table>
-        </repository>
-      </inboxRepository>
-      -->
   </James>
 
   <!-- The James Spool Manager block  -->
@@ -172,7 +162,6 @@
           <mailet match="All" class="ToRepository">
             <repositoryPath> file://var/mail/error/</repositoryPath>
             <!-- <repositoryPath> db://EML_Spool/error</repositoryPath>-->
-            <!-- <repositoryPath> town://mail-error </repositoryPath>-->
             <passThrough> true </passThrough>
           </mailet>
 
@@ -227,7 +216,6 @@
           <mailet match="All" class="RemoteDelivery">
             <outgoing> file://var/mail/outgoing/ </outgoing>
             <!-- <outgoing> db://EML_Spool/outgoing </outgoing>-->
-            <!-- <outgoing> town://mail-outgoing </outgoing>-->
             <delayTime> 21600000 </delayTime>
             <maxRetries> 5 </maxRetries>
           </mailet>
@@ -259,7 +247,6 @@
           <mailet match="All" class="ToRepository">
             <repositoryPath>file://var/mail/spam/</repositoryPath>
             <!-- <repositoryPath>db://EML_Spool/spam</repositoryPath> -->
-            <!-- <repositoryPath> town://spam </repositoryPath> -->
           </mailet>
         </processor>
   </spoolmanager>
@@ -500,16 +487,6 @@
       </spoolRepository>
       -->
 
-      <!-- Alternative spool repository definition for Town use
-      <spoolRepository>
-        <repository destinationURL="town://mainspool"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
-          <conn>file:///dev/james/dist/var/maildatabase</conn>
-          <table>Message</table>
-        </repository>
-      </spoolRepository>
-      -->
   </mailstore>
 
   <!-- The User Storage block -->
@@ -520,14 +497,6 @@
         <destination URL="file://var/users/"/>
       </repository>
 
-      <!-- Uncomment this to store users in an RDBMS
-      <repository name="LocalUsers"
-                  class="org.apache.james.userrepository.UsersTownRepository">
-        <destination URL="town://users/">
-        <conn>file:///var/maildatabase</conn>
-        <table>Users</table>
-      </repository>
-      -->
       <!-- The following are examples of database connections which have been
            tested.
            These should provided a guide to setting up other databases as well.
