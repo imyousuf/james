@@ -28,7 +28,7 @@
 
   <p>
     JAMES is built on top of Avalon, the Java Apache Server Framework.
-    Versions 2.0 of James use a date-snapshot of Avalon code as of late September 2001.
+    Versions 2.0 of James use a date-snapshot of Avalon code as of November 2001.
     The <code>lib</code> directory includes date-stamped jars of the various Avalon libraries.
     We intend to stay current with new versions of Avalon as they are released.</p>
 
