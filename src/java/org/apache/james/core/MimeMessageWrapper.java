@@ -6,7 +6,6 @@ import java.util.*;
 import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.james.MailHeaders;
 
 public class MimeMessageWrapper extends MimeMessage {
 
@@ -374,6 +373,9 @@ public class MimeMessageWrapper extends MimeMessage {
     public int getLineCount() throws MessagingException {
         if (message == null) {
             loadMessage();
+        }
+        if (content == null) {
+            return -1;
         }
         int size = content.length; // size of byte array
         int lineCount = 0;
