@@ -21,8 +21,9 @@ import org.apache.avalon.services.*;
  * @version 0.1 on 14 Dec 2000
  */
 public interface ConnectionHandler
-    extends Service, Configurable, Composer, Contextualizable, Initializable,
-	    Runnable, Stoppable, Scheduler.Target, MailboxEventListener {
+    extends Service, Loggable, Configurable, Composer, Contextualizable,
+	    Initializable, Runnable, Stoppable, Scheduler.Target,
+	    MailboxEventListener {
 
     /**
      * Prepares Connection Handler object by in/out streams to socket. Used before object is attached to its own thread.
