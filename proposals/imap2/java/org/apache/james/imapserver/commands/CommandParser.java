@@ -15,6 +15,8 @@ import org.apache.james.util.Assert;
 
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.List;
+import java.util.ArrayList;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -23,7 +25,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class CommandParser
 {
@@ -404,15 +406,37 @@ public class CommandParser
         CharacterValidator validator = new MessageSetCharValidator();
         String nextWord = consumeWord( request, validator );
 
-        int pos = nextWord.indexOf( ':' );
+        int commaPos = nextWord.indexOf( ',' );
+        if ( commaPos == -1 ) {
+            return singleRangeSet( nextWord );
+        }
+
+        CompoundIdSet compoundSet = new CompoundIdSet();
+        int pos = 0;
+        while ( commaPos != -1 ) {
+            String range = nextWord.substring( pos, commaPos );
+            IdSet set = singleRangeSet( range );
+            compoundSet.addIdSet( set );
+
+            pos = commaPos + 1;
+            commaPos = nextWord.indexOf( ',', pos );
+        }
+        String range = nextWord.substring( pos );
+        compoundSet.addIdSet( singleRangeSet( range ) );
+        return compoundSet;
+    }
+
+    private IdSet singleRangeSet( String range ) throws ProtocolException
+    {
+        int pos = range.indexOf( ':' );
         try {
             if ( pos == -1 ) {
-                long value = Long.parseLong( nextWord );
+                long value = parseLong( range );
                 return new HighLowIdSet( value, value );
             }
             else {
-                long lowVal = Long.parseLong( nextWord.substring(0, pos ) );
-                long highVal = Long.parseLong( nextWord.substring( pos + 1 ) );
+                long lowVal = parseLong( range.substring(0, pos ) );
+                long highVal = parseLong( range.substring( pos + 1 ) );
                 return new HighLowIdSet( lowVal, highVal );
             }
         }
@@ -421,6 +445,12 @@ public class CommandParser
         }
     }
 
+    private long parseLong( String value ) {
+        if ( value.length() == 1 && value.charAt(0) == '*' ) {
+            return Long.MAX_VALUE;
+        }
+        return Long.parseLong( value );
+    }
     /**
      * Provides the ability to ensure characters are part of a permitted set.
      */
@@ -464,7 +494,8 @@ public class CommandParser
     {
         public boolean isValid( char chr )
         {
-            return ( chr >= '0' && chr <= '9' );
+            return ( ( chr >= '0' && chr <= '9' ) ||
+                     chr == '*' );
         }
     }
 
@@ -481,9 +512,10 @@ public class CommandParser
     {
         public boolean isValid( char chr )
         {
-            return isDigit( chr ) ||
+            return ( isDigit( chr ) ||
                     chr == ':' ||
-                    chr == ',';
+                    chr == '*' ||
+                    chr == ',' );
         }
 
         private boolean isDigit( char chr )
@@ -505,6 +537,26 @@ public class CommandParser
 
         public boolean includes( long value ) {
             return ( lowVal <= value ) && ( value <= highVal );
+        }
+    }
+
+    private class CompoundIdSet implements IdSet
+    {
+        private List idSets = new ArrayList();
+
+        void addIdSet( IdSet set ) {
+            idSets.add( set );
+        }
+
+        public boolean includes( long value )
+        {
+            for ( int i = 0; i < idSets.size(); i++ ) {
+                IdSet idSet = ( IdSet ) idSets.get( i );
+                if ( idSet.includes( value ) ) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

@@ -13,19 +13,20 @@ import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleImapMessage;
+import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 
-import examples.messages;
-
 import javax.mail.search.SearchTerm;
 import javax.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
 
 /**
  * An initial implementation of an ImapHost. By default, uses,
@@ -34,7 +35,7 @@ import java.util.HashMap;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
@@ -313,13 +314,24 @@ public class JamesImapHost
         return matchedUids;
     }
 
+    /** @see {@link ImapHost#copyMessage } */
     public void copyMessage( long uid, ImapMailbox currentMailbox, ImapMailbox toMailbox )
             throws MailboxException
     {
-        SimpleImapMessage message = currentMailbox.getMessage( uid );
-        toMailbox.createMessage( message.getMimeMessage(),
-                                 message.getFlags(),
-                                 message.getInternalDate() );
+        SimpleImapMessage originalMessage = currentMailbox.getMessage( uid );
+        MimeMessage newMime = null;
+        try {
+            newMime = new MimeMessage( originalMessage.getMimeMessage() );
+        }
+        catch ( MessagingException e ) {
+            // TODO chain.
+            throw new MailboxException( "Messaging exception: " + e.getMessage() );
+        }
+        MessageFlags newFlags = new MessageFlags();
+        newFlags.setAll( originalMessage.getFlags() );
+        Date newDate = originalMessage.getInternalDate();
+
+        toMailbox.createMessage( newMime, newFlags, newDate);
     }
 
     /**

@@ -8,6 +8,7 @@
 package org.apache.james.imapserver;
 
 import org.apache.james.imapserver.commands.CommandParser;
+import org.apache.james.imapserver.commands.IdSet;
 
 import junit.framework.TestCase;
 
@@ -30,7 +31,7 @@ import java.text.DateFormat;
  * TODO: atom, literal, other (not yet implemented) arguments
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class CommandParserTest
         extends TestCase
@@ -167,6 +168,45 @@ public class CommandParserTest
         formatter.setTimeZone( TimeZone.getTimeZone( "UTC" ));
         String actual = formatter.format( parser.dateTime( request ) );
         assertEquals( "19710320 00:23:02", actual );
+    }
+
+    /**
+     * Tests parsing of "set" arguments.
+     */ 
+    public void testIdSet() throws Exception
+    {
+        String testRequest = "8 25 1:4 33:* 2,3,4 1,4:6,8:* ";
+        ImapRequestLineReader request = getRequest( testRequest );
+
+        IdSet idSet;
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{8}, new long[]{0, 2, 7, 9, 20, Long.MAX_VALUE } );
+
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{ 25 }, new long[]{ 0, 5, 20, 30, Long.MAX_VALUE } );
+
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{ 1, 2, 3, 4 }, new long[]{0, 5, 10 } );
+
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{ 33, 35, 100, 1000, Long.MAX_VALUE}, new long[]{0, 1, 32});
+
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{ 2,3,4}, new long[]{0, 1, 5,8 });
+
+        idSet = parser.set( request );
+        checkSet( idSet, new long[]{ 1,4,5,6,8,100,1000,Long.MAX_VALUE}, new long[]{0,2,3,7});
+
+    }
+
+    private void checkSet( IdSet idSet, long[] includes, long[] excludes )
+    {
+        for ( int i = 0; i < includes.length; i++ ) {
+            assertTrue( idSet.includes( includes[i] ));
+        }
+        for ( int i = 0; i < excludes.length; i++ ) {
+            assertTrue( ! idSet.includes( excludes[i] ));
+        }
     }
 
     /**

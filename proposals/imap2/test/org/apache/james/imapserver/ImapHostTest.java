@@ -25,10 +25,12 @@ import junit.framework.TestCase;
  *   - Rename
  *   - Rename Inbox
  *   - ListMailboxes
+ *   - Copying messages - need to make sure that the copied message
+ *                        is independent of the original
  *  
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ImapHostTest extends TestCase
         implements ImapConstants
