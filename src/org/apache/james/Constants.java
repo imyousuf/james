@@ -20,9 +20,9 @@ public class Constants {
 
     public static final String SERVER_NAMES = "SERVER_NAMES";
 
-    public static final String USERS_MANAGER = "USERS_MANAGER";
-
     public static final String SPOOL_REPOSITORY = "SPOOL_REPOSITORY";
+
+    public static final String LOCAL_USERS = "LOCAL_USERS";
 
     public static final String POSTMASTER = "POSTMASTER";
 

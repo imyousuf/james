@@ -19,8 +19,9 @@ import org.apache.avalon.blocks.*;
 import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.mailrepository.*;
 import org.apache.james.transport.*;
-import org.apache.james.usermanager.*;
+import org.apache.james.userrepository.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
@@ -37,7 +38,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private Logger logger;
     private MailServer mailServer;
     private MailRepository userInbox;
-    private UsersRepository userManager;
+    private UsersRepository users;
     private TimeServer timeServer;
 
     private Socket socket;
@@ -81,8 +82,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
-        userManager = (UsersRepository) manager.getUserRepository("LocalUsers");
+        users = (UsersRepository) comp.getComponent(Constants.LOCAL_USERS);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
         this.servername = (String) context.get(Constants.HELO_NAME);
@@ -170,7 +170,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         } else if (command.equalsIgnoreCase("PASS")) {
             if (state == AUTHENTICATION_USERSET && argument != null) {
                 String passArg = commandRaw.substring(5);
-                if (userManager.test(user, passArg)) {
+                if (users.test(user, passArg)) {
                     state = TRANSACTION;
                     out.println(OK_RESPONSE + " Welcome " + user);
                     userInbox = mailServer.getUserInbox(user);
