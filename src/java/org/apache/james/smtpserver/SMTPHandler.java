@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.35.4.12 $
+ * @version CVS $Revision: 1.35.4.13 $ $Date: 2003/07/17 14:00:10 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -191,6 +191,11 @@ public class SMTPHandler
      */
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
+    /**
+     * The mail attribute holding the SMTP AUTH user name, if any.
+     */
+    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
+    
     /**
      * The thread executing this handler
      */
@@ -1428,6 +1433,9 @@ public class SMTPHandler
             }
             mail.setRemoteHost(remoteHost);
             mail.setRemoteAddr(remoteIP);
+            if (getUser() != null) {
+                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, getUser());
+            }
             theConfigData.getMailServer().sendMail(mail);
             Collection theRecipients = mail.getRecipients();
             String recipientString = "";
