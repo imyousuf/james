@@ -85,7 +85,8 @@
   <subsection name="James seems to be an open relay for Spam, is it?">
   <p>In some simple tests of mail relays James appears to be an open relay, properly configured it is not. </p>
   <p>Because James is an email application platform it currently accepts all mail delivered to it via SMTP for processing. Only after the mail has been recieved does this processing begin.</p>
-  <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.<br/>Danny Angus</p>
+  <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.</p>
+  <p>This also means that James will not verify addresses, but of course this means that valid addresses can't be harvested from James by spammers either.<br/>Danny Angus</p>
 
   </subsection>
 
