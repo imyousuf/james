@@ -11,12 +11,10 @@
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 
-                                                    <meta name="author" value="Serge Knystautas">
-            <meta name="email" value="sergek@lokitech.com">
-                                        <meta name="author" value="Charles Benett">
-            <meta name="email" value="charles@benett1.co.uk">
+                                                    <meta name="author" value="Charles Benett">
+            <meta name="email" value="charles@benett1.demon.co.uk">
             
-            <title>The Jakarta James Site - TODO</title>
+            <title>The Jakarta James Site - James 1.2 - Notes for developers</title>
         </head>
 
         <body bgcolor="#ffffff" text="#000000" link="#525D76">        
@@ -118,81 +116,31 @@
                                                                     <table border="0" cellspacing="0" cellpadding="2" width="100%">
       <tr><td bgcolor="#525D76">
         <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="TODO"><strong>TODO</strong></a>
+          <a name="Architecture"><strong>Architecture</strong></a>
         </font>
       </td></tr>
       <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
-                                    <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
-Last Updated 17 May 2001.</p>
-                            </blockquote>
-        </p>
-      </td></tr>
-      <tr><td><br/></td></tr>
-    </table>
-                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
-      <tr><td bgcolor="#525D76">
-        <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="High Priority"><strong>High Priority</strong></a>
-        </font>
-      </td></tr>
-      <tr><td><br/></td></tr>
-      <tr><td>
-        <blockquote>
-                                    <p>Port existing documentation to xdocs format</p>
-                                                <p>Bundle docs in dist</p>
-                                                <p>Allow RemoteManager to change passwords of users (change attribute)<b> In proposals dir </b> </p>
-                                                <p>Revive RDBMS support for messages and users. Possibly move from town to straight jdbc, or jakarta-turbine.</p>
-                            </blockquote>
-        </p>
-      </td></tr>
-      <tr><td><br/></td></tr>
-    </table>
-                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
-      <tr><td bgcolor="#525D76">
-        <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Medium Priority"><strong>Medium Priority</strong></a>
-        </font>
-      </td></tr>
-      <tr><td><br/></td></tr>
-      <tr><td>
-        <blockquote>
-                                    <p>Enable multiple domains/ virtual hosting</p>
-                                                <p>Rewrite SMTP and POP3 handlers to use streams not MimeMessage objects</p>
-                                                <p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway, relay or 'smart' host) </p>
-                                                <p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
-                                                <p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
-                                                <p>Write more documentation. </p>
-                                                <p>Make James stoppable (elegantly)</p>
-                                                <p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
-                                                <p>Add #news namespace to IMAP system</p>
-                                                <p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
-                                                <p>Make James reconfigurable/contextualizable/composable.</p>
-                                                <p>Reinject error/spam mails incorrecty handled.</p>
-                                                <p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
-                                                <p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
-                                                <p>Add support for deployable message processing apps using Camelot pattern</p>
-                                                <p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
-                                                <p>Simplify email aliasing</p>
-                                                <p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
-                            </blockquote>
-        </p>
-      </td></tr>
-      <tr><td><br/></td></tr>
-    </table>
-                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
-      <tr><td bgcolor="#525D76">
-        <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Low Priority"><strong>Low Priority</strong></a>
-        </font>
-      </td></tr>
-      <tr><td><br/></td></tr>
-      <tr><td>
-        <blockquote>
-                                    <p>Add support for DRAC login/relay allowing</p>
-                                                <p>Review threadpooling - is it dynamic?</p>
-                                                <p>Enable read receipts to be handled properly</p>
+                                    <p>
+    JAMES is a multi-protocol message processing and storage engine. JAMES
+    currently consists of:
+    <ul>
+      <li> two mail prototcol servers (SMTP and POP3),</li>
+      <li> a remote administration server,</li>
+      <li> a mail processing engine that supports the Mailet API</li>
+      <li> file-system message storage and a message storage interface
+        to RDBMS's</li>
+      <li> file-system user record storage and an experimental interface
+        to LDAP directories</li>
+      <li> beta support for TLS (SSL) for POP3 and remote administration</li>
+    </ul> 
+  </p>
+                                                <p>
+    JAMES is built on top of Avalon, the Java Apache Server Framework.
+    Versions 1.1 and 1.2 of James use a slightly older version of Avalon,
+    specifically the <code>avalon-james-1-1b1</code> branch. We intend to
+    migrate to the new Avalon in the near future.</p>
                             </blockquote>
         </p>
       </td></tr>
