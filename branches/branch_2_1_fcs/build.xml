@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.22 $  Committed on $Date: 2004/03/15 03:54:08 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.23 $  Committed on $Date: 2004/03/21 04:46:40 $ by: $Author: serge $
 
 Authors:
  James Project <server-dev@james.apache.org>
@@ -142,7 +142,7 @@ Legal:
         </fileset>
         <pathelement path="${build.classes}"/>
     </path>
-    
+
     <path id="tools.class.path">
         <fileset dir="${tools.lib.dir}">
             <include name="*.jar"/>
@@ -151,13 +151,13 @@ Legal:
             <include name="*.jar"/>
         </fileset>
     </path>
-    
+
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="project.class.path"/>
     </taskdef>
 
-	<taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
-        <classpath refid="tools.class.path"/>        
+    <taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
+        <classpath refid="tools.class.path"/>
     </taskdef>
 
     <!--
@@ -236,14 +236,14 @@ Legal:
         </chmod>
     </target>
 
-	<target name="prepare-mxinfo">
-		<phoenix-mxinfo destdir="${build.classes}">
-			<fileset dir="${java.dir}">
-				<include name="**" />
-			</fileset>
-			<mxinfo/>
-		</phoenix-mxinfo>
-	</target>
+    <target name="prepare-mxinfo">
+        <phoenix-mxinfo destdir="${build.classes}">
+            <fileset dir="${java.dir}">
+                <include name="**" />
+            </fileset>
+            <mxinfo/>
+        </phoenix-mxinfo>
+    </target>
     <!--
        ===================================================================
                                    jdbc3
@@ -455,7 +455,7 @@ Legal:
             </zipfileset>
             <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
                 <include name="*.xml"/>
-            </zipfileset>             
+            </zipfileset>
         </sar>
     </target>
     <!--
@@ -534,6 +534,8 @@ Legal:
                 <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -549,6 +551,8 @@ Legal:
                 <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -578,6 +582,8 @@ Legal:
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
             </fileset>
         </zip>
@@ -592,6 +598,8 @@ Legal:
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
             </tarfileset>
         </tar>
