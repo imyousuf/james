@@ -36,7 +36,9 @@ public class Forward extends GenericMailet {
 
     public void service(Mail mail) throws MessagingException {
         getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
-        mail.setState(Mail.GHOST);
+       if(! (new Boolean(getInitParameter("passThrough"))).booleanValue()) {
+            mail.setState(Mail.GHOST);
+       }
     }
 
     public String getMailetInfo() {
