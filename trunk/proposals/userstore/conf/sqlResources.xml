@@ -80,26 +80,68 @@
         (allowing multiple lists in one table) -->
 <sqlDefs name="org.apache.james.userrepository.ListUsersJdbcRepository">
     <!-- An example of defining "default" parameters within the definition file.
-         This is used if no listName is specified in config. -->
-    <parameters listName="unknownList"/>
+         This is used if no key parameter is specified in config. -->
+    <parameters key="unknownList"/>
     
     <sql name="tableName">${table}</sql>
     <sql name="select">SELECT listSubscriber
                  FROM ${table}
-                 WHERE listName = '${listName}'
+                 WHERE listName = '${key}'
     </sql>
     <sql name="insert">INSERT INTO ${table} 
                     (listSubscriber, listName) 
-                VALUES (?, '${listName}')
+                VALUES (?, '${key}')
     </sql>
     <sql name="update">UPDATE ${table} SET 
                     listSubscriber = ?
-                WHERE listSubscriber = ? AND listName = '${listName}'
+                WHERE listSubscriber = ? AND listName = '${key}'
     </sql>
     <sql name="delete">DELETE FROM ${table} 
-                WHERE listSubscriber = ? AND listName = '${listName}'
+                WHERE listSubscriber = ? AND listName = '${key}'
     </sql>
     <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(50) NOT NULL, listSubscriber VARCHAR(50) NOT NULL)</sql>
+</sqlDefs>
+
+<!-- SQL statements for the JdbcMailRepository  -->
+<sqlDefs name="org.apache.james.mailrepository.JdbcMailRepository">
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="m-ysql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+        	message_name varchar (200) NOT NULL PRIMARY KEY,
+        	repository_name varchar (200) NOT NULL ,
+        	message_state varchar (30) NOT NULL ,
+        	error_message varchar (200) NULL ,
+        	sender varchar (100) NULL ,
+        	recipients text NOT NULL ,
+        	remote_host varchar (100) NOT NULL ,
+        	remote_addr varchar (20) NOT NULL ,
+        	message_body longblob NOT NULL ,
+        	last_updated datetime NOT NULL 
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [dbo].[${table}] (
+        	[message_name] [varchar] (200) NOT NULL PRIMARY KEY,
+        	[repository_name] [varchar] (200) NOT NULL ,
+        	[message_state] [varchar] (30) NOT NULL ,
+        	[error_message] [varchar] (200) NULL ,
+        	[sender] [varchar] (100) NULL ,
+        	[recipients] [text] NOT NULL ,
+        	[remote_host] [varchar] (100) NOT NULL ,
+        	[remote_addr] [varchar] (20) NOT NULL ,
+        	[message_body] [image] NOT NULL ,
+        	[last_updated] [datetime] NOT NULL 
+        ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+    </sql>
 </sqlDefs>
 
 </sqlResources>

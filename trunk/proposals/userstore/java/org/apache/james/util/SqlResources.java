@@ -225,7 +225,7 @@ public class SqlResources
             output.replace(index + outputOffset, index + outputOffset + find_length, replace);
             outputOffset = outputOffset - find_length + replace_length;
 
-            index = input.indexOf(input, index + replace_length);
+            index = input.indexOf(find, index + replace_length);
         }
 
         String result = output.toString();
@@ -255,7 +255,6 @@ public class SqlResources
      *                   if a required resource cannot be found.
      */
     public String getSqlString(String name, boolean required)
-        throws ConfigurationException
     {
         String sql = getSqlString(name);
 

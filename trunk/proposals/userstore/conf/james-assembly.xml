@@ -103,6 +103,8 @@
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
     <provide name="objectstorage"
              role="org.apache.avalon.cornerstone.services.store.Store"/> 
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
   </block>
        
   <!-- The User Storage block -->
