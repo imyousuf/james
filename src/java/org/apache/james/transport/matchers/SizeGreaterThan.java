@@ -45,7 +45,6 @@ public class SizeGreaterThan extends GenericMatcher {
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
         }
-        System.out.println(size + "/" + cutoff);
         if (size > cutoff) {
             return mail.getRecipients();
         } else {
