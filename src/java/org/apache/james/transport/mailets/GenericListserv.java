@@ -127,7 +127,7 @@ public abstract class GenericListserv extends GenericMailet {
                 index = subj.indexOf(re,1);
             }
                 //If the "prefix" is in the subject line, remove it and everything before it
-                int index = subj.indexOf(prefix);
+                index = subj.indexOf(prefix);
                 if (index > -1) {
                     if (index == 0) {
                         subj = prefix + ' ' + subj.substring(index + prefix.length() + 1);
