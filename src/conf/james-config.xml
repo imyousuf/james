@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.21 $ Committed on $Date: 2004/03/21 06:42:48 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.22 $ Committed on $Date: 2004/04/18 23:11:41 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -823,8 +823,8 @@
          <!--
               James has previously used an in-house connection pool, Mordred.
               Mordred is being deprecated in favor of Jakarta Commons DBCP.
-              To use DBCP:    org.apache.james.util.mordred.JdbcDataSource
-              To use Mordred: org.apache.james.util.dbcp.JdbcDataSource
+              To use DBCP:    org.apache.james.util.dbcp.JdbcDataSource
+              To use Mordred: org.apache.james.util.mordred.JdbcDataSource
 
               Change it back, of course, to use Mordred.
 
