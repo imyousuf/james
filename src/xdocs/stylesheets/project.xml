@@ -9,7 +9,7 @@
     <menu name="James">
         <item name="Overview"          href="/index.html"/>
         <item name="James FAQ"      href="/FAQ.html"/>
-        <item name="Mailing Lists"         href="http://jakarta.apache.org/site/mail.html"/>
+        <!--<item name="Mailing Lists"         href="http://jakarta.apache.org/site/mail.html"/>-->
         <item name="Wiki"              href="http://nagoya.apache.org/wiki/apachewiki.cgi?James"/>
     </menu>
 
@@ -29,7 +29,7 @@
 
     <menu name="Project">
         <item name="Bug Database "     href="http://jakarta.apache.org/site/bugs.html"/>
-        <item name="CVS Repositories"      href="http://jakarta.apache.org/site/cvsindex.html"/>
+        <!--<item name="CVS Repositories"      href="http://jakarta.apache.org/site/cvsindex.html"/>-->
         <item name="Who We Are"        href="/weare.html"/>
         <item name="How Can I Contribute?" href="/contribute.html"/>
         <item name="Coding Standards"  href="/code-standards.html"/>
