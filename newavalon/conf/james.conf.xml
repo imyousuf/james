@@ -49,34 +49,67 @@
    
     - Quickly mention where to look to configure for database storage
 -->
-<james>
+<avalon>
 
-    <!-- The James block (Currently James is one block) -->
+    <logs>
+     <!--  Specify the target for each category of logger listed below.
+           The name is the name in the code and should not be changed by assemblers, deployers or administrators.
+           The name is the name of a block in this xml file.
+           The priority is the lowest priority of logging mesage recorded.
+           In theory (but not tested) assemblers etc can point multiple categories at the same target.
+      -->
+
+      <category name="" target="default" priority="DEBUG" />
+      <category name="objectstorage" target="objectstorage-target" priority="DEBUG" />
+      <category name="mailstore" target="mailstore-target" priority="DEBUG" />
+      <category name="users-store" target="userstore-target" priority="DEBUG" />
+      <category name="JAMES" target="james-core-target" priority="DEBUG" />
+      <category name="JamesCore" target="james-core-target" priority="DEBUG" />
+      <category name="Mailets" target="mailets-target" priority="DEBUG" />
+      <category name="SMTPServer" target="smtpserver-target" priority="DEBUG" />
+      <category name="POP3Server" target="pop3server-target" priority="DEBUG" />
+      <category name="DnsServer" target="dnsserver-target" priority="DEBUG" />
+      <category name="RemoteManager" target="remotemanager-target" priority="DEBUG" />
+      <category name="SpoolManager" target="spoolmanager-target" priority="DEBUG" />
+      <category name="MailRepository" target="mailrepository-target" priority="DEBUG" />
+      <category name="IMAPServer" target="imapserver-target" priority="DEBUG" />
+      <category name="Security" target="security-target" priority="DEBUG" />
+      <category name="JamesHost" target="jameshost-target" priority="DEBUG" />
+
+ 
+      <!--  Specify where to write each log target listed below. 
+       The location is relative to the directory of the sar ?
+      -->
+
+      <log-target name="default" location="/logs/james-default.log" />
+      <log-target name="objectstorage-target" location="/logs/objectstorage.log" />
+      <log-target name="mailstore-target" location="/logs/mailstore.log" />
+      <log-target name="userstore-target" location="/logs/userstore.log" />
+      <log-target name="james-core-target" location="/logs/james-core.log" />
+      <log-target name="mailets-target" location="/logs/mailets.log" />
+      <log-target name="smtpserver-target" location="/logs/smtpserver.log" />
+      <log-target name="pop3server-target" location="/logs/pop3server.log" />
+      <log-target name="dnsserver-target" location="/logs/dnsserver.log" />
+      <log-target name="remotemanager-target" location="/logs/remotemanager.log" />
+      <log-target name="spoolmanager-target" location="/logs/spoolmanager.log" />
+      <log-target name="mailrepository-target" location="/logs/mailrepository.log" />
+      <log-target name="imapserver-target" location="/logs/imapserver.log" />
+      <log-target name="security-target" location="/logs/security.log" />
+      <log-target name="jameshost-target" location="/logs/jameshost.log" />
+ 
+    </logs>
+
+
+    <!-- The James block  -->
     <block class="org.apache.james.James"
            name="JAMES" >
 
-         <!--  Specify where to write each logger listed below. The name is the name in the code and
-	  should not be changed by the admin. destinationURL may be changed as required. -->
-
-        <logger name="JamesCore" destinationURL="../logs/james-core.log" priority="DEBUG"/>
-	<logger name="Mailets" destinationURL="../logs/mailets.log" priority="DEBUG"/>
-	<logger name="SMTPServer" destinationURL="../logs/smtpserver.log" priority="DEBUG"/>
-	<logger name="POP3Server" destinationURL="../logs/pop3server.log" priority="DEBUG"/>
-	<logger name="DnsServer" destinationURL="../logs/dnsserver.log" priority="DEBUG"/>
-	<logger name="RemoteManager" destinationURL="../logs/remotemanager.log" priority="DEBUG"/>
-	<logger name="SpoolManager" destinationURL="../logs/spoolmanager.log" priority="DEBUG"/>
-	<logger name="MailRepository" destinationURL="../logs/mailrepository.log" priority="DEBUG"/>
-	<logger name="IMAPServer" destinationURL="../logs/imapserver.log" priority="DEBUG"/>
-	<logger name="Security" destinationURL="../logs/security.log" priority="DEBUG"/>
-	<logger name="JamesHost" destinationURL="../logs/jameshost.log" priority="DEBUG"/>
-
 	<!-- Specify which components will provide the services required by this block. The roles are
 	 specified in the code and the .xinfo file. The names here must match the names specified for
-	  a Block in some conf.xml file.   -->
+	  a Block in this xml file.   -->
 	<provide name="mailstore" role="org.apache.james.services.MailStore"/>
 	<provide name="users-store" role="org.apache.james.services.UsersStore"/>
         <provide name="sockets" role="org.apache.avalon.services.SocketServer"/>
-        <!--    <provide name="james-storage" role="org.apache.avalon.services.Store"/> -->
 	<provide name="scheduler" role="org.apache.avalon.services.Scheduler"/>
 
 	<!-- Configuration section begins here -->
@@ -330,9 +363,7 @@
     <block class="org.apache.james.core.AvalonMailStore" 
            name="mailstore" >
 
-        <logger name="MailStore" destinationURL="../logs/mailstore.log" priority="DEBUG"/>
-
-        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
+        <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
 
         <configuration>
 	  <repositories>
@@ -371,9 +402,8 @@
     <block class="org.apache.james.core.AvalonUsersStore" 
            name="users-store" >
 
-        <logger name="UsersStore" destinationURL="../logs/userstore.log" priority="DEBUG"/>
 
-        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
+        <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
 
         <configuration>
 	    <repository name="LocalUsers"
@@ -387,9 +417,10 @@
         </configuration>
  
     </block>
-       
+      
 
-           <!-- The Low-Level Storage block -->
+ <!-- The Low-Level Storage block
+
     <block class="org.apache.james.filestorage.RepositoryManager" 
            name="james-storage" >
 
@@ -429,5 +460,79 @@
         </configuration>
 
     </block>
-</james>
+
+-->
+
+    <!-- The Storage block -->
+    <block class="org.apache.avalon.blocks.masterstore.RepositoryManager" 
+           name="objectstorage" >
+
+        <configuration>
+          <repositories>
+              <repository class="org.apache.avalon.blocks.masterstore.File_Persistent_Object_Repository">
+                <protocols>
+                    <protocol> file </protocol>
+                </protocols>
+                <types>
+                    <type> OBJECT </type>
+                </types>
+                <models>
+                    <model> SYNCHRONOUS </model>
+                    <model> ASYNCHRONOUS </model>
+                    <model> CACHE </model>
+                </models>
+              </repository>
+              <repository class="org.apache.avalon.blocks.masterstore.File_Persistent_Stream_Repository">
+                <protocols>
+                    <protocol> file </protocol>
+                </protocols>
+                <types>
+                    <type> STREAM </type>
+                </types>
+                <models>
+                    <model> SYNCHRONOUS </model>
+                    <model> ASYNCHRONOUS </model>
+                    <model> CACHE </model>
+                </models>
+              </repository>
+          </repositories>
+        </configuration>
+
+    </block>
+
+
+    <!-- The Socket Manager block -->
+    <block class="org.apache.avalon.blocks.serversocket.SocketManager" name="sockets" >
+
+        <configuration>
+          <listenerDefinition help="These are default socket listener. An
+                application can implement an use its own lstener to perform
+                specific task (ex. MD5Listener etc.)" >
+            <listener type="DEFAULT" class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor">
+            </listener>
+            <listener type="IPFILTERING" class="org.apache.avalon.blocks.serversocket.AuthenticatedServerSocketAcceptor">
+                <denied></denied>
+            </listener>
+            <!-- Uncomment this listener, if you want TLS support -->
+            <!--
+                <listener type="TLS"
+                          class="org.apache.avalon.blocks.serversocket.TLSServerSocketAcceptor">
+                    <serverKeysFile>avalonTestKeys</serverKeysFile>
+                </listener>
+            -->
+            <!-- End TLS section -->
+          </listenerDefinition>
+        </configuration>
+
+    </block>
+
+
+    <!-- The Time Manager block -->
+    <block class="org.apache.avalon.blocks.eventserver.EventServer" name="scheduler" >
+        <configuration>
+        </configuration>
+    </block>
+
+
+</avalon>
 

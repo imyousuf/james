@@ -19,6 +19,7 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.Block;
+import org.apache.avalon.blocks.AbstractBlock;
 import org.apache.avalon.util.lang.*;
 
 import org.apache.james.core.*;
@@ -47,12 +48,13 @@ import org.apache.mailet.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class James implements  Block, MailServer, Configurable, Composer, Initializable, MailetContext {
+public class James extends AbstractBlock implements  Block, Configurable, Composer, Initializable,
+			       MailServer, MailetContext {
 
     private DefaultComponentManager compMgr; //Components shared
     private DefaultContext context;
     private Configuration conf;
-    private Logger logger =  LogKit.getLoggerFor("JamesCore");
+
     private Logger mailetLogger = LogKit.getLoggerFor("Mailets");
     private WorkerPool workerPool;
     private MailStore mailstore;
@@ -80,6 +82,9 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
         this.conf = conf;
     }
 
+    /** 
+     * Override compose method of AbstractBlock to create new ComponentManager object
+     */
     public void compose(ComponentManager comp) {
 	//throws ConfigurationException {
         compMgr = new DefaultComponentManager(comp);
@@ -88,21 +93,21 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 
     public void init() throws Exception {
 
-        logger.info("JAMES init...");
+        m_logger.info("JAMES init...");
         //threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
 	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
 	try {
 	    mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	} catch (Exception e) {
-	    logger.warn("Can't get Store: " + e);
+	    m_logger.warn("Can't get Store: " + e);
 	}
-	logger.debug("Using MailStore: " + mailstore.toString());
+	m_logger.debug("Using MailStore: " + mailstore.toString());
 	try {
 	    usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
 	} catch (Exception e) {
-	    logger.warn("Can't get Store: " + e);
+	    m_logger.warn("Can't get Store: " + e);
 	}
-	logger.debug("Using UsersStore: " + usersStore.toString());
+	m_logger.debug("Using UsersStore: " + usersStore.toString());
         context = new DefaultContext();
 	
 	try {
@@ -110,7 +115,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	} catch  (UnknownHostException ue) {
 	    hostName = "localhost";
 	}
-	logger.info("Local host is: " + hostName);
+	m_logger.info("Local host is: " + hostName);
 	
 
 	helloName = null;
@@ -122,7 +127,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    if (helloName == null || helloName.trim().equals("") )
 		helloName = "localhost";
 	}
-	logger.info("Hello Name is: " + helloName);
+	m_logger.info("Hello Name is: " + helloName);
         context.put(Constants.HELO_NAME, helloName);
 
 	// Get the domains and hosts served by this instance
@@ -139,7 +144,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
         }
 	
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-            logger.info("Handling mail for: " + i.next());
+            m_logger.info("Handling mail for: " + i.next());
         }
         context.put(Constants.SERVER_NAMES, serverNames);
 
@@ -152,15 +157,15 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	Configuration services = conf.getChild("services");
 	if (services.getAttribute("SMTP").equals("TRUE")) {
 	    provideSMTP = true;
-            logger.info("Providing SMTP services");
+            m_logger.info("Providing SMTP services");
 	}
 	if (services.getAttribute("POP3").equals("TRUE")) {
 	    providePOP3 = true;
-            logger.info("Providing POP3 services");
+            m_logger.info("Providing POP3 services");
 	}
 	if (services.getAttribute("IMAP").equals("TRUE")) {
 	    provideIMAP = true;
-            logger.info("Providing IMAP services");
+            m_logger.info("Providing IMAP services");
 	}
 	if (! (provideSMTP | providePOP3 | provideIMAP)) {
 	    throw new ConfigurationException ("Fatal configuration error: no services specified!");
@@ -170,12 +175,12 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	try {
 	    localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
 	} catch (Exception e) {
-		logger.error("Cannot open private UserRepository");
+		m_logger.error("Cannot open private UserRepository");
 		throw e;
 	}
 	//}
         compMgr.put("org.apache.james.services.UsersRepository", (Component)localusers);
-        logger.info("Local users repository opened");
+        m_logger.info("Local users repository opened");
       
 	// Get storage system
 	if (conf.getChild("storage").getValue().equals("IMAP")) {
@@ -202,7 +207,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		  ((Initializable)imapSystem).init();
 		}
 		compMgr.put("org.apache.james.imapserver.IMAPSystem", (Component)imapSystem);
-		logger.info("Using SimpleSystem.");
+		m_logger.info("Using SimpleSystem.");
 		imapHost = (Host) Class.forName(imapHostClass).newInstance();
 		//imapHost = new JamesHost();
 		imapHost.configure(conf.getChild("imapHost"));
@@ -212,9 +217,9 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		    ((Initializable)imapHost).init();
 		}
 		compMgr.put("org.apache.james.imapserver.Host", (Component)imapHost);
-		logger.info("Using: " + imapHostClass);
+		m_logger.info("Using: " + imapHostClass);
 	    } catch (Exception e) {
-		logger.error("Exception in IMAP Storage init: " + e.getMessage());
+		m_logger.error("Exception in IMAP Storage init: " + e.getMessage());
 		throw e;
 	    }
 	} else {
@@ -223,12 +228,12 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    try {
 		localInbox = (MailRepository) mailstore.select(inboxRepConf);
 	    } catch (Exception e) {
-		logger.error("Cannot open private MailRepository");
+		m_logger.error("Cannot open private MailRepository");
 		throw e;
 	    }
 	    inboxRootURL = inboxRepConf.getAttribute("destinationURL");
 	}
-        logger.info("Private Repository LocalInbox opened");
+        m_logger.info("Private Repository LocalInbox opened");
 
 	// Add this to comp
         compMgr.put("org.apache.james.services.MailServer", this);
@@ -238,10 +243,10 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
         try {
             this.spool = (SpoolRepository) mailstore.select(spoolRepConf);
         } catch (Exception e) {
-            logger.error("Cannot open private SpoolRepository");
+            m_logger.error("Cannot open private SpoolRepository");
             throw e;
         }
-        logger.info("Private SpoolRepository Spool opened");
+        m_logger.info("Private SpoolRepository Spool opened");
         compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
 
    
@@ -253,21 +258,21 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		pop3Server.contextualize(context);
 		pop3Server.compose(compMgr);
 	    } catch (Exception e) {
-		logger.error("Exception in POP3Server init: " + e.getMessage());
+		m_logger.error("Exception in POP3Server init: " + e.getMessage());
 		throw e;
 	    }
 	}
 
 	IMAPServer imapServer = null;
 	if (provideIMAP) {
-	    logger.info("Attempting IMAPServer init... ");
+	    m_logger.info("Attempting IMAPServer init... ");
 	    imapServer = new IMAPServer();
 	    try {
 	    	imapServer.configure(conf.getChild("imapServer"));
 	    	imapServer.contextualize(context);
 	    	imapServer.compose(compMgr);
 	        } catch (Exception e) {
-	    	logger.error("Exception in IMAPServer init: " + e.getMessage());
+	    	m_logger.error("Exception in IMAPServer init: " + e.getMessage());
 	    throw e;
 	       }
 	}
@@ -281,7 +286,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		smtpServer.contextualize(context);
 		smtpServer.compose(compMgr);
 	    } catch (Exception e) {
-		logger.error("Exception in SMTPServer init: " + e.getMessage());
+		m_logger.error("Exception in SMTPServer init: " + e.getMessage());
 		throw e;
 	    }
 
@@ -290,7 +295,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		dnsServer.configure(conf.getChild("dnsServer"));
 		dnsServer.compose(compMgr);
 	    } catch (Exception e) {
-		logger.error("Exception in DNSServer init: " + e.getMessage());
+		m_logger.error("Exception in DNSServer init: " + e.getMessage());
 		throw e;
 	    }
 	    compMgr.put("DNS_SERVER", dnsServer);
@@ -301,7 +306,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
             remoteAdmin.configure(conf.getChild("remoteManager"));
             remoteAdmin.compose(compMgr);
         } catch (Exception e) {
-            logger.error("Exception in RemoteAdmin init: " + e.getMessage());
+            m_logger.error("Exception in RemoteAdmin init: " + e.getMessage());
             throw e;
         }
 
@@ -321,10 +326,10 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    spoolMgr.init();
 	    workerPool.execute(spoolMgr);
 	} catch (Exception e) {
-	    logger.error("Exception in SpoolManager init: " + e.getMessage());
+	    m_logger.error("Exception in SpoolManager init: " + e.getMessage());
 	    throw e;
 	}
-	logger.info("SpoolManager started");
+	m_logger.info("SpoolManager started");
 	//}
 
 	if (providePOP3) pop3Server.init();
@@ -335,7 +340,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	}
         remoteAdmin.init();
 
-        logger.info("JAMES ...init end");
+        m_logger.info("JAMES ...init end");
     }
     
 
@@ -392,7 +397,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage());
         }
-        logger.info("Mail " + mailimpl.getName() + " pushed in spool");
+        m_logger.info("Mail " + mailimpl.getName() + " pushed in spool");
     }
 
     /**
@@ -408,11 +413,11 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    return userInbox;
 	} else if (mailboxes.containsKey(userName)) {
 	    // we have a problem
-	    logger.error("Null mailbox for non-null key");
+	    m_logger.error("Null mailbox for non-null key");
 	    throw new RuntimeException("Error in getUserInbox.");
 	} else {
 	    // need mailbox object
-	    logger.info("Need inbox for " + userName );
+	    m_logger.info("Need inbox for " + userName );
 	    String destination = inboxRootURL + userName + File.separator;;
 	    DefaultConfiguration mboxConf
 		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
@@ -423,7 +428,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 		userInbox = (MailRepository) mailstore.select(mboxConf);
 		mailboxes.put(userName, userInbox);
 	    } catch (Exception e) {
-		logger.error("Cannot open user Mailbox" + e);
+		m_logger.error("Cannot open user Mailbox" + e);
 		throw new RuntimeException("Error in getUserInbox." + e);
 	    }
 	    return userInbox;
@@ -456,7 +461,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	try {
 	    dnsServer = (DNSServer) compMgr.lookup("DNS_SERVER");
 	} catch (CascadingException ex) {
-	    logger.error("Fatal configuration error - DNS Servers lost!");
+	    m_logger.error("Fatal configuration error - DNS Servers lost!");
 	    throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
 	}
         return dnsServer.findMXRecords(host);
@@ -540,17 +545,17 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    ACLMailbox mbox = null;
 	    try {
 		String folderName = "#users." + recipient.getUser() + ".INBOX";
-		logger.debug("Want to store to: " + folderName);
+		m_logger.debug("Want to store to: " + folderName);
 		mbox = imapHost.getMailbox(MailServer.MDA, folderName);
 		if(mbox.store(message,MailServer.MDA)) {
-		    logger.info("Message " + message.getMessageID() +" stored in " + folderName);
+		    m_logger.info("Message " + message.getMessageID() +" stored in " + folderName);
 		} else {
 		    throw new RuntimeException("Failed to store mail: ");
 		}
 		imapHost.releaseMailbox(MailServer.MDA, mbox);
 		mbox = null;
 	    } catch (Exception e) {
-		logger.error("Exception storing mail: " + e);
+		m_logger.error("Exception storing mail: " + e);
 		e.printStackTrace();
 		if (mbox != null) {
 		    imapHost.releaseMailbox(MailServer.MDA, mbox);
@@ -610,7 +615,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	if (useIMAPstorage) {
 	    JamesHost jh = (JamesHost) imapHost;
 	    if (jh.createPrivateMailAccount(userName)) {
-		logger.info("New MailAccount created for" + userName);
+		m_logger.info("New MailAccount created for" + userName);
 	    }
 	}
         return true;

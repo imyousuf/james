@@ -13,7 +13,7 @@ import java.util.*;
 import javax.mail.*;
 import org.apache.avalon.*;
 
-import org.apache.avalon.utils.*;
+//import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.mailrepository.*;

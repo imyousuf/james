@@ -9,7 +9,7 @@
 package org.apache.james.imapserver;
 
 
-import org.apache.avalon.utils.*;
+//import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
 
