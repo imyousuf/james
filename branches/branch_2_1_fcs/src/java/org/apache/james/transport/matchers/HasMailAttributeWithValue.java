@@ -98,7 +98,7 @@ import org.apache.mailet.MatcherConfig;
  * &lt;mailet match="HasMailAttributeWithValue=name, value" class=&quot;&lt;any-class&gt;&quot;&gt;
  * </code></pre>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/09/19 14:52:22 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/09/19 14:53:58 $
  * @since 2.2.0
  **/
 public class HasMailAttributeWithValue extends GenericMatcher
