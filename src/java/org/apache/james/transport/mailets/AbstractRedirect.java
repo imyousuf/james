@@ -164,7 +164,7 @@ import org.apache.mailet.MailAddress;
  */
 
 public abstract class AbstractRedirect extends GenericMailet {
-            
+
     /**
      * Controls certain log messages.
      */
@@ -174,7 +174,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Holds the value of the <CODE>static</CODE> init parameter.
      */
     protected boolean isStatic = false;
-    
+
     private static class AddressMarker {
         public static MailAddress SENDER;
         public static MailAddress RETURN_PATH;
@@ -183,7 +183,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         public static MailAddress DELETE;
         public static MailAddress UNALTERED;
         public static MailAddress NULL;
-        
+
         static {
             try {
                 SENDER      = new MailAddress("sender","address.marker");
@@ -246,7 +246,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
      * <P>Gets the <CODE>static</CODE> property.</P>
      * <P>Return true to reduce calls to getTo, getSender, getRecipients, getReplyTo, getReturnPath amd getMessage
@@ -257,7 +257,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * is to use "getX()" methods statically, and use instead "getX(Mail)" methods for dynamic situations.
      * A false value is now meaningful only for subclasses of {@link Redirect} older than version 2.2
      * that were relying on this.</P>
-     * 
+     *
      * <P>Is a "getX()" method.</P>
      *
      * @return true, as normally "getX()" methods shouls be static
@@ -378,7 +378,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         String messageText = (isStatic()) ? this.messageText : getMessage();
         return messageText;
     }
-    
+
     /**
      * Gets the <CODE>recipients</CODE> property.
      * Returns the collection of recipients of the new message,
@@ -420,7 +420,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         }
         return recipients;
     }
-    
+
     /**
      * Sets the recipients of <I>newMail</I> to <I>recipients</I>.
      */
@@ -432,7 +432,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Gets the <CODE>to</CODE> property.
      * Returns the "To:" recipients of the new message.
@@ -475,7 +475,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         }
         return apparentlyTo;
     }
-    
+
     /**
      * Sets the "To:" header of <I>newMail</I> to <I>to</I>.
      */
@@ -487,14 +487,14 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Gets the <CODE>replyto</CODE> property.
      * Returns the Reply-To address of the new message,
      * or null if no change is requested.
      * Is a "getX()" method.
      *
-     * @return 
+     * @return
      */
     protected MailAddress getReplyTo() throws MessagingException {
         return null;
@@ -511,7 +511,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         MailAddress replyTo = (isStatic()) ? this.replyTo : getReplyTo();
         return replyTo;
     }
-    
+
     /**
      * Sets the "Reply-To:" header of <I>newMail</I> to <I>replyTo</I>.
      */
@@ -525,7 +525,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Gets the <CODE>returnPath</CODE> property.
      * Returns the Return-Path of the new message,
@@ -554,7 +554,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         }
         return returnPath;
     }
-    
+
     /**
      * Sets the "Return-Path:" header of <I>newMail</I> to <I>returnPath</I>.
      */
@@ -572,7 +572,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Gets the <CODE>sender</CODE> property.
      * Returns the new sender as a MailAddress,
@@ -596,7 +596,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         MailAddress sender = (isStatic()) ? this.sender : getSender();
         return sender;
     }
-    
+
     /**
      * Sets the sender and the "From:" header of <I>newMail</I> to <I>sender</I>.
      * If sender is null will set such values to the ones in <I>originalMail</I>.
@@ -614,7 +614,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Gets the <CODE>prefix</CODE> property.
      * Returns a prefix for the new message subject.
@@ -637,7 +637,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         String subjectPrefix = (isStatic()) ? this.subjectPrefix : getSubjectPrefix();
         return subjectPrefix;
     }
-    
+
     /**
      * Builds the subject of <I>newMail</I> appending the subject
      * of <I>originalMail</I> to <I>subjectPrefix</I>.
@@ -652,7 +652,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             log("subjectPrefix set to: " + subjectPrefix);
         }
     }
-    
+
     /**
      * Gets the <CODE>attachError</CODE> property.
      * Returns a boolean indicating whether to append a description of any error to the main body part
@@ -701,7 +701,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         boolean isReply = (isStatic()) ? this.isReply : isReply();
         return isReply;
     }
-    
+
     /**
      * Sets the "In-Reply-To:" header of <I>newMail</I> to the "Message-Id:" of
      * <I>originalMail</I>, if <I>isReply</I> is true.
@@ -717,11 +717,11 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
-    
+
     /**
      * Mailet initialization routine.
      * Will setup static values for each "x" initialization parameter in config.xml,
@@ -733,7 +733,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             log("Redirect init");
         }
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
-        
+
         isStatic = (getInitParameter("static") == null) ? false : new Boolean(getInitParameter("static")).booleanValue();
 
         if(isStatic()) {
@@ -778,12 +778,12 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @throws MessagingException if a problem arises formulating the redirected mail
      */
     public void service(Mail originalMail) throws MessagingException {
-        
+
         boolean keepMessageId = false;
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
         Mail newMail = ((MailImpl) originalMail).duplicate(newName((MailImpl)originalMail));
-        
+
         if (isDebug) {
             MailImpl newMailImpl = (MailImpl) newMail;
             log("New mail - sender: " + newMailImpl.getSender()
@@ -795,7 +795,7 @@ public abstract class AbstractRedirect extends GenericMailet {
                        + ", lastUpdated: " + newMailImpl.getLastUpdated()
                        + ", errorMessage: " + newMailImpl.getErrorMessage());
         }
-        
+
         //Create the message
         if(getInLineType(originalMail) != UNALTERED) {
             if (isDebug) {
@@ -803,12 +803,12 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
             newMail.setMessage(new MimeMessage(Session.getDefaultInstance(System.getProperties(),
                                                                null)));
-            
+
             // handle the new message if altered
             buildAlteredMessage(newMail, originalMail);
-            
+
             setTo(newMail, getTo(originalMail), originalMail);
-        
+
         } else {
             // if we need the original, create a copy of this message to redirect
             if (getPassThrough(originalMail)) {
@@ -819,46 +819,46 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
             keepMessageId = true;
         }
-        
+
         //Set additional headers
-        
+
         setRecipients(newMail, getRecipients(originalMail), originalMail);
-        
+
         setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
-        
+
         if(newMail.getMessage().getHeader(RFC2822Headers.DATE) == null) {
             newMail.getMessage().setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
-        
+
         setReplyTo(newMail, getReplyTo(originalMail), originalMail);
 
         setReturnPath(newMail, getReturnPath(originalMail), originalMail);
 
         setSender(newMail, getSender(originalMail), originalMail);
-        
+
         setIsReply(newMail, isReply(originalMail), originalMail);
 
         newMail.getMessage().saveChanges();
-        
+
         if (keepMessageId) {
             setMessageId(newMail, originalMail);
         }
 
         //Send it off...
         getMailetContext().sendMail(newMail);
-        
+
         if(!getPassThrough(originalMail)) {
             originalMail.setState(Mail.GHOST);
         }
     }
 
     private static final java.util.Random random = new java.util.Random();  // Used to generate new mail names
-    
+
     /**
      * Create a unique new primary key name.
      *
      * @param mail the mail to use as the basis for the new mail name
-     * 
+     *
      * @return a new name
      */
     private String newName(MailImpl mail) {
@@ -922,7 +922,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         }
         return mailAddress;
     }
-    
+
     /**
      * Utility method for obtaining a string representation of an array of Objects.
      */
@@ -930,6 +930,9 @@ public abstract class AbstractRedirect extends GenericMailet {
         StringBuffer sb = new StringBuffer(1024);
         sb.append("[");
         for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
             sb.append(array[i]);
         }
         sb.append("]");
@@ -1022,7 +1025,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             return bodyOs.toString();
         }
         finally {
-            bis.close();             
+            bis.close();
         }
     }
 
@@ -1035,17 +1038,17 @@ public abstract class AbstractRedirect extends GenericMailet {
     protected void buildAlteredMessage(Mail newMail, Mail originalMail) throws MessagingException {
 
         MimeMessage message = originalMail.getMessage();
-        
+
         StringWriter sout = new StringWriter();
         PrintWriter out   = new PrintWriter(sout, true);
         String head = getMessageHeaders(message);
         boolean all = false;
-        
+
         String messageText = getMessage(originalMail);
         if(messageText != null) {
             out.println(messageText);
         }
-        
+
         switch(getInLineType(originalMail)) {
             case ALL: //ALL:
                 all = true;
@@ -1100,7 +1103,7 @@ public abstract class AbstractRedirect extends GenericMailet {
                         StringBuffer textBuffer =
                             new StringBuffer(1024)
                                 .append(head)
-                                .append("r\n\r\n")
+                                .append("\r\nMessage:\r\n")
                                 .append(getMessageBody(message));
                         part.setText(textBuffer.toString());
                         break;
@@ -1127,12 +1130,12 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
             newMail.getMessage().setContent(multipart);
             newMail.getMessage().setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-            
+
         } catch (Exception ioe) {
             throw new MessagingException("Unable to create multipart body", ioe);
         }
     }
-    
+
     /**
      * Sets the message id of originalMail into newMail.
      */
@@ -1145,7 +1148,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             }
         }
     }
-    
+
     /**
      * Returns the {@link SpecialAddress} that corresponds to an init parameter value.
      * The init parameter value is checked against a String[] of allowed values.
@@ -1160,12 +1163,12 @@ public abstract class AbstractRedirect extends GenericMailet {
         if (addressString == null) {
             return null;
         }
-        
+
         addressString = addressString.toLowerCase(Locale.US);
         addressString = addressString.trim();
-        
+
         MailAddress specialAddress = null;
-        
+
         if(addressString.compareTo("postmaster") == 0) {
             specialAddress = getMailetContext().getPostmaster();
         }
@@ -1190,12 +1193,12 @@ public abstract class AbstractRedirect extends GenericMailet {
         if(addressString.compareTo("null") == 0) {
             specialAddress = SpecialAddress.NULL;
         }
-        
+
         // if is a special address, must be in the allowedSpecials array
         if (specialAddress != null) {
             // check if is an allowed special
             boolean allowed = false;
-            for (int i = 0; i <= allowedSpecials.length; i++) {
+            for (int i = 0; i < allowedSpecials.length; i++) {
                 String allowedSpecial = allowedSpecials[i];
                 allowedSpecial = allowedSpecial.toLowerCase(Locale.US);
                 allowedSpecial = allowedSpecial.trim();
@@ -1209,7 +1212,7 @@ public abstract class AbstractRedirect extends GenericMailet {
                                              ", allowed values are \"" + arrayToString(allowedSpecials) + "\"");
             }
         }
-        
+
         return specialAddress;
     }
 }
