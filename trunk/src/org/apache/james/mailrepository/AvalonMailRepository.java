@@ -105,11 +105,10 @@ public class AvalonMailRepository implements SpoolRepository {
         }
     }
 
-    public synchronized MailImpl retrieve(String key) {
+    public MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
             InputStream in = new AvalonMimeMessageInputStream(sr, key);
-            //BufferedInputStream in = new BufferedInputStream(sr.retrieve(key));
             mc.setMessage(in);
             in.close();
         } catch (Exception me) {
@@ -118,11 +117,11 @@ public class AvalonMailRepository implements SpoolRepository {
         return mc;
     }
 
-    public synchronized void remove(MailImpl mail) {
+    public void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
-    public synchronized void remove(String key) {
+    public void remove(String key) {
         lock(key);
         sr.remove(key);
         or.remove(key);
