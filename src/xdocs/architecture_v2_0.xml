@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.0 - Notes for developers</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
+
+<body>
+
+<section name="Architecture">
+
+  <p>
+    JAMES is a multi-protocol message processing and storage engine. JAMES
+    currently consists of:
+    <ul>
+      <li> two mail prototcol servers (SMTP and POP3),</li>
+      <li> a remote administration server,</li>
+      <li> an NNTP server,</li>
+      <li> a mail processing engine that supports the Mailet API</li>
+      <li> file-system message storage and a message storage interface to RDBMS's</li>
+      <li> file-system user record storage and an experimental interface to LDAP directories</li>
+      <li> support for TLS (SSL) for POP3 and remote administration</li>
+      <li> support for SMTP auth</li>
+    </ul>
+  </p>
+
+  <p>
+    JAMES is built on top of Avalon, the Java Apache Server Framework.
+    Versions 2.0 of James use a date-snapshot of Avalon code as of late September 2001.
+    The <code>lib</code> directory includes date-stamped jars of the various Avalon libraries.
+    We intend to stay current with new versions of Avalon as they are released.</p>
+
+</section>
+
+</body>
+</document>

@@ -3,7 +3,7 @@
 <document>
 
  <properties>
-  <title>Configuration for James 1.2.1</title>
+  <title>Configuration for James 2.0</title>
   <author email="sergek@lokitech.com">Serge Knystautas</author>
  </properties>
 
@@ -13,9 +13,9 @@
 
 <p>
 <blockquote>
-        <p>This document explains the JAMES.conf.xml file for James 1.2.1
-          <br>JAMES 1.2.1 is currently based on an older version of Avalon,
-          specifically the <code>avalon-james-1-1b1</code> branch in CVS.
+        <p>This document explains the JAMES.conf.xml file for James 2.0
+          <br>JAMES 2.0 uses a date-stamped version of Avalon from late September 2001.
+          The lib directory includes jars with date-stamped names for the Avalon libraries.
           </br>
         </p>
 </blockquote>
@@ -47,7 +47,7 @@
             <td> The name by which James will identify itself in SMTP and POP3
 	     greetings. If autodetect is TRUE James will attempt to detect
             automatically the name, failing which it will use 'localhost'. If
-	    autodetect is not TRUE, James will use the specified name or 
+	    autodetect is not TRUE, James will use the specified name or
 	    'localhost' if none is specified. Look in jamesinfo.log for
 	     lines like "[...] Local host is: [servername] and [...] Hello Name is: [machine name]"</td>
         </tr>
@@ -60,18 +60,18 @@
         </tr>
         <tr>
             <td> spoolRepository </td>
-            <td> file://../var/mail/spool/ </td>
+            <td> file://var/mail/spool/ </td>
             <td> This is the path where incoming messages are stored before beeing processed. </td>
         </tr>
         <tr>
             <td> inboxRepository </td>
-            <td> file://../var/mail/localinbox/ </td>
+            <td> file://var/mail/localinbox/ </td>
             <td> This is the root for local users inbox. Each user will have a personal folder
             [inboxRepository]/[user] </td>
         </tr>
         <tr>
             <td> spoolmanagerthreads </td>
-            <td> 1 </td>
+            <td> 5 </td>
             <td> This is the number of thread that work polling mails from the spool and take care
             of processing them. </td>
         </tr>
@@ -80,7 +80,7 @@
 
   <subsection name="SMTP Server Configuration">
    <p>
-      These tag elements affect the SMTP listener (for incoming messages). 
+      These tag elements affect the SMTP listener (for incoming messages).
    </p>
 
     <table border="1">
@@ -164,7 +164,7 @@
         </tr>
         <tr>
             <td> repository </td>
-            <td> file://../var/users/ </td>
+            <td> file://var/users/ </td>
             <td> The path where local mail account informations are stored. </td>
         </tr>
     </table>
@@ -238,7 +238,7 @@
         </tr>
         <tr>
             <td> repository </td>
-            <td> file://../var/mail/delayed/ </td>
+            <td> file://var/mail/delayed/ </td>
             <td> This is a temp repository path shared with the name of "TMP_REPOSITORY".
             It is used by the RemoteDelivery Mailet to store mail for futher delivery.
             (Note: this is not very elegant and will probally change soon) </td>
@@ -260,25 +260,23 @@
      pipe. Each step is described by a &lt;servet&gt; tag with some attributes:
          &lt;mailet match="[matchClass]=[matchParameters]"
                     class="[mailetClass]"&gt;.
-     The Match class split the mail into two: one with all recipients matching
-     conditions and the other with all recipient not matching. All information
-     in the mail except recipients cloned so bot matching and not matching are
-     identical (again except recipients). The matching mail will be passed to
+     The Matcher class split the mail into two Collections: one with all recipients
+     matching conditions and the other with all recipient not matching. All information
+     in the mail except recipients cloned so the message that both matching and not matching
+     are identical (again except recipients). The matching recipients and mail will be passed to
      the specified mailet for processing. After processing both mails, the
-     untoched not matching and the processed matching, goes to next step in
-     pipe. Some mailet will not return anything after process. The Null mailet
-     for example will simply destroy any incoming mail or the RemoteDelivery
+     untouched not-matching mail and the processed matching mail, each go to next step in
+     the processor. Some mailets will indicate the mail should be consumed and no continue processing.
+     The Null mailet for example will simply consume any incoming mail as will the RemoteDelivery
      since after delivery the mail needs no more processing.
   </p>
 
-  <subsection name="Matches">
+  <subsection name="Matchers">
     <p>
-       The Match interface defines how match class should work. Their work is
+       The Matcher interface defines how match class should work. Their work is
        to split a Vector of recipients into two: the ones matching a specified
-       condition and all others. Condition may or may not be present. You can
-       make one simple boolean operation merging two matches into one or you
-       can write your own class implementing the Match interface.
-       Currently implemented match:
+       condition and all others.
+       Currently implemented matchers:
     </p>
     <table border="1">
         <tr>
@@ -294,22 +292,16 @@
             <td> match="All" </td>
         </tr>
         <tr>
+            <td> HasAttachment </td>
+            <td> none </td>
+            <td> match all recipients if the message has an attachment (if content type is multipart/mixed). </td>
+            <td> match="All" </td>
+        </tr>
+        <tr>
             <td> HostIs </td>
             <td> comma separated list of hosts names </td>
-            <td> match all recipient belonging to one of the specified hosts </td>
+            <td> match all recipients belonging to one of the specified hosts </td>
             <td> match="HostIs=myHost.mydom.org,yourHost" </td>
-        </tr>
-        <tr>
-            <td> RecipientIs </td>
-            <td> comma separated list of recipients </td>
-            <td> match all recipients defined in condition. </td>
-            <td> match="RecipientIs=root@localhost,admin@localhost" </td>
-        </tr>
-        <tr>
-            <td> UserIs </td>
-            <td> comma separated list of accounts </td>
-            <td> match all recipients defined in condition regardless of host. </td>
-            <td> match="UserIs=root,admin" </td>
         </tr>
         <tr>
             <td> HostIsLocal </td>
@@ -317,6 +309,30 @@
             <td> check recipients's hosts against the list of host names set in configuration for localhost
             (see &lt;servername&gt;). </td>
             <td> match="HostIsLocal" </td>
+        </tr>
+       	<tr>
+       		<td> InSpammerBlacklist </td>
+       		<td> DNS zone with blacklist </td>
+       		<td> match all recipients if mail received from an IP address on the blacklist. </td>
+       		<td> match="InSpammerBlacklist=blackholes.mail-abuse.org" </td>
+       	</tr>
+        <tr>
+            <td> IsSingleRecipient </td>
+            <td> none </td>
+            <td> match mail if only has 1 recipient. </td>
+            <td> match="IsSingleRecipient" </td>
+        </tr>
+        <tr>
+            <td> NESSpamCheck </td>
+            <td> none </td>
+            <td> match all recipients if mail matches various spam detection rules. </td>
+            <td> match="NESSpamCheck" </td>
+        </tr>
+        <tr>
+            <td> RecipientIs </td>
+            <td> comma separated list of recipients </td>
+            <td> match all recipients defined in condition. </td>
+            <td> match="RecipientIs=root@localhost,admin@localhost" </td>
         </tr>
         <tr>
             <td> RecipientIsLocal </td>
@@ -326,18 +342,47 @@
             <td> match="RecipientIsLocal" </td>
         </tr>
         <tr>
-            <td> SenderIs </td>
-            <td> comma separated list of address. </td>
-            <td> match all recipients if sender is in the condition string, else match none. </td>
-            <td> match="SenderIs=badBay@badhost" </td>
-        </tr>
-        <tr>
             <td> RelayLimit </td>
             <td> Maximum number of hops. </td>
             <td> match all recipients if the message has more than the specified number of SMTP hops.
             Important to prevent race conditions in SMTP delivery.
             </td>
             <td> match="RelayLimit=30" </td>
+        </tr>
+        <tr>
+            <td> RemoteAddrInNetwork </td>
+            <td> comma separated list of network addresses </td>
+            <td> match all recipients if the message was received from an IP address that matches the
+            comma separated list.  Wildcards are supposed, e.g., 192.168.0.* is a valid option.
+            </td>
+            <td> match="RemoteAddrInNetwork=127.0.0.1,192.168.*" </td>
+        </tr>
+        <tr>
+            <td> RemoteAddrNotInNetwork </td>
+            <td> comma separated list of network addresses </td>
+            <td> match all recipients if the message was not received from an IP address that matches
+            the comma separated list.  Wildcards are supposed, e.g., 192.168.0.* is a valid option.
+            </td>
+            <td> match="RemoteAddrNotInNetwork=127.0.0.1,192.168.*" </td>
+        </tr>
+        <tr>
+            <td> SenderInFakeDomain </td>
+            <td> none </td>
+            <td> match recipients who's domain name portion of their email address is invalid.  Queries
+            for A, CNAME, and MX record entries. </td>
+            <td> match="SenderInFakeDomain" </td>
+        </tr>
+        <tr>
+            <td> SenderIs </td>
+            <td> comma separated list of address. </td>
+            <td> match all recipients if sender is in the condition string, else match none. </td>
+            <td> match="SenderIs=badBay@badhost" </td>
+        </tr>
+        <tr>
+            <td> SizeGreaterThan </td>
+            <td> number of bytes.  supports 'k' and 'm' suffixes. </td>
+            <td> match all recipients if message is larger than the given number of bytes, kilobytes, or megabytes. </td>
+            <td> match="SizeGreaterThan=1m" </td>
         </tr>
         <tr>
             <td> SubjectIs </td>
@@ -351,6 +396,12 @@
             <td> match all recipients if the subject starts with the condition string, else match none. </td>
             <td> match="SubjectStartsWith: [ADV]" </td>
         </tr>
+        <tr>
+            <td> UserIs </td>
+            <td> comma separated list of accounts </td>
+            <td> match all recipients defined in condition regardless of host. </td>
+            <td> match="UserIs=root,admin" </td>
+        </tr>
     </table>
     <p>
        Some examples:
@@ -359,7 +410,7 @@
                      class="LocalDelivery"&gt;
        </br>
        <br>
-        - &lt;mailet match="UserIs=root &amp; HostIsLocal"
+        - &lt;mailet match="UserIs=root"
                      class="Forward"&gt;
        </br>
        <br>
@@ -371,29 +422,27 @@
 
   <subsection name="Mailet">
     <p>
-       Mailet are the ones performing a process on a message. They are
-       provided with a Mail object on which thy can perform any kind of task
-       and they reply with another Mail object  containing the response.  Wise
-       use of mailet allow to write any mail based application as http
-       application using mailet. Simple mailet provides basic mail
-       functionality like mail forwarding, mailing list, "I'm on vacation"
-       message, mail logging etc. As simply as these mailet, you can write
-       and deploy your own mailet to perform any kind of task.
+       Mailet are classes that process a message. They are
+       passed a Mail object on which they can perform any kind of task.
+       Clever use of mailets allow you to write an email-based application.
+       Simple mailets provide basic mail functionality like mail forwarding,
+       mailing list, "I'm on vacation" message, mail logging etc. As simply as
+       these mailet, you can write and deploy your own mailet to perform any kind of task.
       <br>
-         Here you are some mailet samples with their configuration:
+         Here you are some of the mailets bundled with James along with their configuration:
        </br>
     </p>
     <b>Null</b>
     <blockquote>
-        Destroy any incoming mail. No configuration needed.
+        Consume any incoming mail. No configuration needed.
         <br>
         &lt;mailet match="SenderIs=badBoy@badhost" class="Null"&gt;
         &lt;/mailet&gt;
         </br>
     </blockquote>
-    <b>Identity</b>
+    <b>debug.Identity</b>
     <blockquote>
-         Leave any incoming mail untoched.Sort of debug mailet
+         Leave any incoming mail untoched. A debug mailet
          (not really useful).
          No configuration needed.
             <br>
@@ -402,10 +451,14 @@
     </blockquote>
     <b>Forward</b>
     <blockquote>
+    		<br>
             Replace the recipient list with recipient specified in
-            configurations.<br>
+            configurations.</br>
+            <br>
             &lt;mailet match="RecipientIs=root@localhost"
             class="Forward"&gt;</br>
+      <strong>Note!</strong> - There is a new mailet named Redirect that will replace
+      this and other mailets.  No documentation is available yet.
       <blockquote>
        <br>
               &lt;forwardto&gt; green@blue.org &lt;/forwardto&gt;
@@ -444,7 +497,7 @@
     <b>ToRepository</b>
     <blockquote>
       Stores mails in the specified MailRepository. Useful for mail logging
-      etc.  If the passThrough is false the mail will be destroyed, if true
+      etc.  If the passThrough parameter is false the mail will be consumed, if true
       it will be returned untouched to the pipe.
       <br>
         &lt;mailet match="RecipientIs=root@localhost"
@@ -452,7 +505,7 @@
       </br>
       <blockquote>
         <br>
-          &lt;repositoryPath&gt; file://../var/mail/logAdmin
+          &lt;repositoryPath&gt; file://var/mail/logAdmin
                 &lt;/repositoryPath&gt;
         </br>
         <br>
@@ -486,7 +539,7 @@
             &lt;delayTime&gt; 21600000 &lt;/delayTime&gt;
         </br>
         <br>
-            &lt;maxRetries&gt; 5 &lt;/maxRetries&gt; 
+            &lt;maxRetries&gt; 5 &lt;/maxRetries&gt;
         </br>
       </blockquote>
             &lt;/mailet&gt;

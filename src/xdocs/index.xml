@@ -17,6 +17,10 @@
   based on currently available open protocols (SMTP, POP3, IMAP, HTTP).  It requires
   Java 2 (minimum requirement is the JRE 1.2).
   </p>
+  <p>Version 2.0a2 is available.  Significant changes have gone into this new release, and we appreciate everyone's contribution! Please let us know what you think.
+  </p>
+  <p><a href="/site/builds/jakarta-james/release/">Binary release of 2.0a2</a>
+  </p>
 </section>
 
 <section name="Design Objectives">
@@ -55,7 +59,7 @@
     <table>
       <tr>
         <th>Item</th>
-        <th>Status (v1.2.1)</th>
+        <th>Status (v2.0a2)</th>
         <th>Since</th>
         <th>First released</th>
       </tr>
