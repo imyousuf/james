@@ -382,14 +382,18 @@ public class MimeMessageWrapper extends MimeMessage {
      * to avoid memory hogging.
      */
     public int getLineCount() throws MessagingException {
-        InputStream in = getContentStream();
+        try{
+            InputStream in = getContentStream();
+        }catch(Exception e){
+            return -1;
+        }
         if (in == null) {
             return -1;
         }
         //Wrap input stream in LineNumberReader
         //Not sure what encoding to use really...
         try {
-            LineNumberReader counter = new LineNumberReader(new InputStreamReader(in, "ISO-8859-1"));
+            LineNumberReader counter = new LineNumberReader(new InputStreamReader(in, getEncoding()));
             //Read through all the data
             char[] block = new char[1024];
             while (counter.read(block) > -1) {
