@@ -51,13 +51,13 @@ import javax.mail.internet.ParseException;
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailAddress implements java.io.Serializable {
-    private final static char[] SPECIAL = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-            11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 127,
-            '<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
+    private final static char[] SPECIAL =
+            {'<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
 
     private String user = null;
     private String host = null;
+    //Used for parsing
+    private int pos = 0;
 
     /**
      * Construct a MailAddress parsing the provided <code>String</code> object.
@@ -67,13 +67,61 @@ public class MailAddress implements java.io.Serializable {
      * @throws  ParseException    if the parse failed
      */
     public MailAddress(String address) throws ParseException {
-        /* NEEDS TO BE COMPLETELY REWORKED */
-        int pos = address.indexOf("@");
-        if (pos == -1) {
-            throw new ParseException("invalid address");
+        address = address.trim();
+        StringBuffer userSB = new StringBuffer();
+        StringBuffer hostSB = new StringBuffer();
+        //Begin parsing
+        //<mailbox> ::= <local-part> "@" <domain>
+
+        try {
+            //parse local-part
+                //<local-part> ::= <dot-string> | <quoted-string>
+            if (address.charAt(pos) == '\"') {
+                userSB.append(parseQuotedLocalPart(address));
+            } else {
+                userSB.append(parseUnquotedLocalPart(address));
+            }
+            if (userSB.toString().length() == 0) {
+                throw new ParseException("No local-part (user account) found at position " + (pos + 1));
+            }
+
+            //find @
+            if (address.charAt(pos) != '@') {
+                throw new ParseException("Did not find @ between local-part and domain at position " + (pos + 1));
+            }
+            pos++;
+
+            //parse domain
+            //<domain> ::=  <element> | <element> "." <domain>
+            //<element> ::= <name> | "#" <number> | "[" <dotnum> "]"
+            while (true) {
+                if (address.charAt(pos) == '#') {
+                    hostSB.append(parseNumber(address));
+                } else if (address.charAt(pos) == '[') {
+                    hostSB.append(parseDotNum(address));
+                } else {
+                    hostSB.append(parseDomainName(address));
+                }
+                if (pos >= address.length()) {
+                    break;
+                }
+                if (address.charAt(pos) == '.') {
+                    hostSB.append('.');
+                    pos++;
+                    continue;
+                }
+                break;
+            }
+
+            if (hostSB.toString().length() == 0) {
+                throw new ParseException("No domain found at position " + (pos + 1));
+            }
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            throw new ParseException("Out of data at position " + (pos + 1));
         }
-        user = address.substring(0, pos);
-        host = address.substring(pos + 1);
+
+        user = userSB.toString();
+        host = hostSB.toString();
     }
 
     /**
@@ -84,10 +132,18 @@ public class MailAddress implements java.io.Serializable {
      * @param   host        the server that should accept messages for this user
      * @throws  ParseException    if the parse failed
      */
-    public MailAddress(String newUser, String newHost) {
+    public MailAddress(String newUser, String newHost) throws ParseException {
         /* NEEDS TO BE REWORKED TO VALIDATE EACH CHAR */
         user = newUser;
         host = newHost;
+    }
+
+    /**
+     * Constructs a MailAddress from a JavaMail InternetAddress, using only the
+     * email address portion, discarding the personal name.
+     */
+    public MailAddress(InternetAddress address) throws ParseException {
+        this(address.getAddress());
     }
 
     /**
@@ -131,5 +187,212 @@ public class MailAddress implements java.io.Serializable {
             //impossible really
             return null;
         }
+    }
+
+    private String parseQuotedLocalPart(String address) throws ParseException {
+        StringBuffer resultSB = new StringBuffer();
+        resultSB.append('\"');
+        pos++;
+        //<quoted-string> ::=  """ <qtext> """
+        //<qtext> ::=  "\" <x> | "\" <x> <qtext> | <q> | <q> <qtext>
+        while (true) {
+            if (address.charAt(pos) == '\"') {
+                resultSB.append('\"');
+                //end of quoted string... move forward
+                pos++;
+                break;
+            }
+            if (address.charAt(pos) == '\\') {
+                resultSB.append('\\');
+                pos++;
+                //<x> ::= any one of the 128 ASCII characters (no exceptions)
+                char x = address.charAt(pos);
+                if (x < 0 || x > 128) {
+                    throw new ParseException("Invalid \\ syntaxed character at position " + (pos + 1));
+                }
+                resultSB.append(x);
+                pos++;
+            } else {
+                //<q> ::= any one of the 128 ASCII characters except <CR>,
+                //<LF>, quote ("), or backslash (\)
+                char q = address.charAt(pos);
+                if (q <= 0 || q == '\n' || q == '\r' || q == '\"' || q == '\\') {
+                    throw new ParseException("Unquoted local-part (user account) must be one of the 128 ASCI characters exception <CR>, <LF>, quote (\"), or backslash (\\) at position " + (pos + 1));
+                }
+                resultSB.append(q);
+                pos++;
+            }
+        }
+        return resultSB.toString();
+    }
+
+    private String parseUnquotedLocalPart(String address) throws ParseException {
+        StringBuffer resultSB = new StringBuffer();
+        //<dot-string> ::= <string> | <string> "." <dot-string>
+        boolean lastCharDot = false;
+        while (true) {
+            //<string> ::= <char> | <char> <string>
+            //<char> ::= <c> | "\" <x>
+            if (address.charAt(pos) == '\\') {
+                resultSB.append('\\');
+                pos++;
+                //<x> ::= any one of the 128 ASCII characters (no exceptions)
+                char x = address.charAt(pos);
+                if (x < 0 || x > 128) {
+                    throw new ParseException("Invalid \\ syntaxed character at position " + (pos + 1));
+                }
+                resultSB.append(x);
+                pos++;
+                lastCharDot = false;
+            } else if (address.charAt(pos) == '.') {
+                resultSB.append('.');
+                pos++;
+                lastCharDot = true;
+            } else if (address.charAt(pos) == '@') {
+                //End of local-part
+                break;
+            } else {
+                //<c> ::= any one of the 128 ASCII characters, but not any
+                //    <special> or <SP>
+                //<special> ::= "<" | ">" | "(" | ")" | "[" | "]" | "\" | "."
+                //    | "," | ";" | ":" | "@"  """ | the control
+                //    characters (ASCII codes 0 through 31 inclusive and
+                //    127)
+                //<SP> ::= the space character (ASCII code 32)
+                char c = address.charAt(pos);
+                if (c <= 31 || c == 127 || c == ' ') {
+                    throw new ParseException("Invalid character in local-part (user account) at position " + (pos + 1));
+                }
+                for (int i = 0; i < SPECIAL.length; i++) {
+                    if (c == SPECIAL[i]) {
+                        throw new ParseException("Invalid character in local-part (user account) at position " + (pos + 1));
+                    }
+                }
+                resultSB.append(c);
+                pos++;
+                lastCharDot = false;
+            }
+        }
+        if (lastCharDot) {
+            throw new ParseException("local-part (user account) ended with a \".\", which is invalid.");
+        }
+        return resultSB.toString();
+    }
+
+    private String parseNumber(String address) throws ParseException {
+        //<number> ::= <d> | <d> <number>
+
+        StringBuffer resultSB = new StringBuffer();
+        //We keep the position from the class level pos field
+        while (true) {
+            if (pos >= address.length()) {
+                break;
+            }
+            //<d> ::= any one of the ten digits 0 through 9
+            char d = address.charAt(pos);
+            if (d == '.') {
+                break;
+            }
+            if (d < '0' || d > '9') {
+                throw new ParseException("In domain, did not find a number in # address at position " + (pos + 1));
+            }
+            resultSB.append(d);
+            pos++;
+        }
+        return resultSB.toString();
+    }
+
+    private String parseDotNum(String address) throws ParseException {
+        StringBuffer resultSB = new StringBuffer();
+        //<dotnum> ::= <snum> "." <snum> "." <snum> "." <snum>
+        for (int octet = 0; octet < 4; octet++) {
+            //<snum> ::= one, two, or three digits representing a decimal
+            //                      integer value in the range 0 through 255
+            //<d> ::= any one of the ten digits 0 through 9
+            StringBuffer snumSB = new StringBuffer();
+            for (int digits = 0; digits < 3; digits++) {
+                char d = address.charAt(pos);
+                if (d == '.') {
+                    break;
+                }
+                if (d == ']') {
+                    break;
+                }
+                if (d < '0' || d > '9') {
+                    throw new ParseException("Invalid number at position " + (pos + 1));
+                }
+                snumSB.append(d);
+                pos++;
+            }
+            if (snumSB.toString().length() == 0) {
+                throw new ParseException("Number not found at position " + (pos + 1));
+            }
+            try {
+                int snum = Integer.parseInt(snumSB.toString());
+                if (snum > 255) {
+                    throw new ParseException("Invalid number at position " + (pos + 1));
+                }
+            } catch (NumberFormatException nfe) {
+                throw new ParseException("Invalid number at position " + (pos + 1));
+            }
+            resultSB.append(snumSB.toString());
+            if (address.charAt(pos) == ']') {
+                if (octet < 3) {
+                    throw new ParseException("End of number reached too quickly at " + (pos + 1));
+                } else {
+                    break;
+                }
+            }
+            if (address.charAt(pos) == '.') {
+                resultSB.append('.');
+                pos++;
+            }
+        }
+        if (address.charAt(pos) != ']') {
+            throw new ParseException("Did not find closing bracket \"]\" in domain at position " + (pos + 1));
+        }
+        resultSB.append(']');
+        pos++;
+        return resultSB.toString();
+    }
+
+    private String parseDomainName(String address) throws ParseException {
+        StringBuffer resultSB = new StringBuffer();
+        //<name> ::= <a> <ldh-str> <let-dig>
+        //<ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
+        //<let-dig> ::= <a> | <d>
+        //<let-dig-hyp> ::= <a> | <d> | "-"
+        //<a> ::= any one of the 52 alphabetic characters A through Z
+        //  in upper case and a through z in lower case
+        //<d> ::= any one of the ten digits 0 through 9
+
+        //basically, this is a series of letters, digits, and hyphens,
+        // but it can't start with a digit or hypthen
+        // and can't end with a hyphen
+
+        //by practice though, we should relax this as domain names can start
+        // with digits as well as letters.  So only check that doesn't start
+        // or end with hyphen.
+        while (true) {
+            if (pos >= address.length()) {
+                break;
+            }
+            char ch = address.charAt(pos);
+            if (ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'
+                    || ch == '-') {
+                resultSB.append(ch + "");
+                pos++;
+                continue;
+            }
+            if (ch == '.') {
+                break;
+            }
+            throw new ParseException("Invalid character at " + pos);
+        }
+        String result = resultSB.toString();
+        if (result.startsWith("-") || result.endsWith("-")) {
+            throw new ParseException("Domain name cannot begin or end with a hyphen \"-\" at position " + (pos + 1));
+        }
+        return result;
     }
 }
