@@ -7,6 +7,7 @@
  */
 package org.apache.james;
 
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -44,5 +45,11 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
         else
             helloName = helloConf.getValue("localhost");
         getLogger().info("Hello Name is: " + helloName);
+    }
+
+    /**
+     * Release a previously created ConnectionHandler e.g. for spooling.
+     */
+    public void releaseConnectionHandler(ConnectionHandler connectionHandler) {
     }
 }
