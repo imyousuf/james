@@ -30,7 +30,7 @@ public interface MailRepository extends Store.Repository {
      */
     public final static String MAIL = "MAIL";
 
-
+ 
     /** Returns the key for a mail deposited in this Repository. Not sure this belongs here, only relevant for spool repositories.
      */
 
