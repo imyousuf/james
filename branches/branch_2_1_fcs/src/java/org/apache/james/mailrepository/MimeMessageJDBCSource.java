@@ -88,6 +88,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     String key = null;
     StreamRepository sr = null;
 
+    private long size = -1;
+
     /**
      * SQL used to retrieve the message body
      */
@@ -205,10 +207,11 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * Runs a custom SQL statement to check the size of the message body
      */
     public synchronized long getMessageSize() throws IOException {
+        if (size != -1) return size;
         if (retrieveMessageBodySizeSQL == null) {
             //There was no SQL statement for this repository... figure it out the hard way
             System.err.println("no SQL statement to find size");
-            return super.getMessageSize();
+            return size = super.getMessageSize();
         }
         Connection conn = null;
         PreparedStatement retrieveMessageSize = null;
@@ -225,16 +228,20 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 throw new IOException("Could not find message");
             }
 
-            long size = rsRetrieveMessageSize.getLong(1);
+            size = rsRetrieveMessageSize.getLong(1);
 
             InputStream in = null;
             try {
                 if (sr != null) {
-                    in = sr.get(key);
-                    int len = 0;
-                    byte[] block = new byte[1024];
-                    while ((len = in.read(block)) > -1) {
-                        size += len;
+                    if (sr instanceof org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository) {
+                        size += ((org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository) sr).getSize(key);
+                    } else {
+                        in = sr.get(key);
+                        int len = 0;
+                        byte[] block = new byte[1024];
+                        while ((len = in.read(block)) > -1) {
+                            size += len;
+                        }
                     }
                 }
             } catch (Exception e) {
