@@ -51,7 +51,7 @@ public class AvalonMailStore
     // map of [protocol(destinationURL) + type ]->classname of repository;
     private HashMap classes;
 
-    // map of [Repository Class]->default config for repository.
+    // map of [protocol(destinationURL) + type ]->default config for repository.
     private HashMap defaultConfigs;
 
     /**
@@ -175,11 +175,20 @@ public class AvalonMailStore
         {
             String protocol = protocols[i].getValue();
 
+            // Get the default configuration for these protocol/type combinations.
+            Configuration defConf = repConf.getChild("config");
+
             for ( int j = 0; j < types.length; j++ )
             {
                 String type = types[j].getValue();
                 String key = protocol + type ;
+                if (classes.get(key) != null) {
+                    throw new ConfigurationException("The combination of protocol and type comprise a unique key for repositories.  This constraint has been violated.  Please check your repository configuration.");
+                }
                 classes.put(key, className);
+                if (defConf != null) {
+                    defaultConfigs.put(key, defConf);
+                }
                 if (infoEnabled) {
                     StringBuffer logBuffer =
                         new StringBuffer(128)
@@ -192,11 +201,6 @@ public class AvalonMailStore
             }
         }
 
-        // Get the default configuration for this Repository class.
-        Configuration defConf = repConf.getChild("config");
-        if ( defConf != null ) {
-            defaultConfigs.put(className, defConf);
-        }
     }
 
     /**
@@ -258,7 +262,8 @@ public class AvalonMailStore
                 }
                 return (Component)reply;
             } else {
-                String repClass = (String) classes.get( protocol + type );
+                String key = protocol + type;
+                String repClass = (String) classes.get( key );
 
                 if (getLogger().isDebugEnabled()) {
                     logBuffer =
@@ -277,7 +282,7 @@ public class AvalonMailStore
                 // and the values in the selector.
                 // If no default values, just use the selector.
                 Configuration config;
-                Configuration defConf = (Configuration)defaultConfigs.get(repClass);
+                Configuration defConf = (Configuration)defaultConfigs.get(key);
                 if ( defConf == null) {
                     config = repConf;
                 }
