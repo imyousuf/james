@@ -9,6 +9,7 @@ Authors:
  Federico Barbieri <scoobie@apache.org>
  Berin Loritsch <bloritsch@apache.org>
  Peter Donald <donaldp@apache.org>
+ Charles Benett <charlesb@apache.org>
 
 Legal:
   Copyright (c) 1999-2000 The Apache Software Foundation. All Rights Reserved.
@@ -30,15 +31,20 @@ Legal:
   <property name="build.javadocs" value="${build.dir}/javadocs"/>
 
   <property name="james.src.dir" value="src/java"/>
-  <property name="avalon.base.dir" value="../jakarta-avalon"/>
-  <property name="avalon.src.dir" value="${avalon.base.dir}/src/java"/>
-  <property name="avalon.tools.dir" value="${avalon.base.dir}/tools"/>
-  <property name="scratchpad.src.dir" value="${avalon.base.dir}/src/scratchpad"/>
-  <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
+  <property name="framework.base.dir" value="../jakarta-avalon"/>
+  <property name="framework.src.dir" value="${framework.base.dir}/src/java"/>
+  <property name="framework.tools.dir" value="${framework.base.dir}/tools"/>
+  <property name="excalibur.base.dir" value="../jakarta-avalon-excalibur"/>
+  <property name="excalibur.src.dir" value="${excalibur.base.dir}/src/java"/>
+  <property name="scratchpad.src.dir" value="${excalibur.base.dir}/src/scratchpad"/>
   <property name="logkit.src.dir" value="../jakarta-avalon-logkit/src/java"/>
-  <property name="phoenix.src.dir" value="../jakarta-avalon-phoenix/src/java"/>
+
+  <property name="phoenix.base.dir" value="../jakarta-avalon-phoenix/"/>
+  <property name="phoenix.src.dir" value="${phoenix.base.dir}/src/java"/>
+  <property name="phoenix.lib.dir" value="${phoenix.base.dir}/lib"/>
+  <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
   <property name="testlet.src.dir" value="../jakarta-avalon-testlet/src/java"/>
-  <property name="phoenix.lib.dir" value="../jakarta-avalon-phoenix/src/java"/>
+
   <property name="james.lib.dir" value="lib"/>
   <property name="xerces.jar" value="${avalon.tools.dir}/lib/xerces.jar"/>
   <property name="xalan.jar" value="${avalon.tools.dir}/lib/xalan-2.1.0.jar"/>
@@ -101,14 +107,14 @@ Legal:
   </target>
 
   <target name="jdbc2" unless="jdbc3.present">
-    <copy file="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc2Connection.java"
-          tofile="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
+    <copy file="${excalibur.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc2Connection.java"
+          tofile="${build.src}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
           overwrite="yes"/>
   </target>
 
   <target name="jdbc3" if="jdbc3.present">
-    <copy file="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc3Connection.java"
-          tofile="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
+    <copy file="${excalibur.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc3Connection.java"
+          tofile="${build.src}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
           overwrite="yes"/>
   </target>
 
@@ -118,12 +124,19 @@ Legal:
                          Prepares the build directory
        ===================================================================
   -->
-  <target name="prepare" depends="check-datasource,jdbc2,jdbc3">
+  <target name="prepare" depends="check-datasource">
     <tstamp/>
     <mkdir dir="${build.dir}"/>
     <delete dir="${build.src}"/>
     <mkdir dir="${build.src}"/>
+  </target>
 
+  <!--
+       ===================================================================
+                         Copy all sources to the build directory
+       ===================================================================
+  -->
+  <target name="copy-sources" depends="prepare, jdbc2, jdbc3">
     <echo message=" "/>
     <echo message="Copying logkit sources"/>
     <copy todir="${build.src}" >
@@ -133,9 +146,15 @@ Legal:
       </fileset>
     </copy>
     <echo message=" "/>
-    <echo message="Copying framework and excalibur sources"/>
+    <echo message="Copying framework sources"/>
     <copy todir="${build.src}" >
-      <fileset dir="${avalon.src.dir}" >
+      <fileset dir="${framework.src.dir}" >
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying excalibur sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${excalibur.src.dir}" >
         <exclude name="org/apache/avalon/excalibur/datasource/J2eeDataSource.java"
                  unless="j2ee.present" />
       <exclude name="org/apache/avalon/excalibur/datasource/Jdbc2Connection.java"/>
@@ -148,6 +167,7 @@ Legal:
       <fileset dir="${scratchpad.src.dir}" >
       </fileset>
     </copy>
+
     <echo message=" "/>
     <echo message="Copying phoenix sources"/>
     <copy todir="${build.src}" >
@@ -171,6 +191,7 @@ Legal:
       <fileset dir="${testlet.src.dir}" >
       </fileset>
     </copy>
+
     <echo message=" "/>
     <echo message="Copying james sources"/>
     <copy todir="${build.src}" >
@@ -214,7 +235,7 @@ Legal:
                                   Main target
        ===================================================================
   -->
-  <target name="main" depends="banner, prepare, javadocs">
+  <target name="main" depends="banner, copy-sources, javadocs">
 
   </target>
 
