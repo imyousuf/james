@@ -237,12 +237,12 @@ public class NNTPHandler
     /**
      * The user id associated with the NNTP dialogue
      */
-    private String user;
+    private String user = null;
 
     /**
      * The password associated with the NNTP dialogue
      */
-    private String password;
+    private String password = null;
 
     /**
      * Whether the user for this session has already authenticated.
@@ -325,14 +325,14 @@ public class NNTPHandler
                         .append("201 ")
                         .append(theConfigData.getHelloName())
                         .append(" NNTP Service Ready, posting prohibited");
-                writer.println(respBuffer.toString());
+                writeLoggedFlushedResponse(respBuffer.toString());
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(128)
                             .append("200 ")
                             .append(theConfigData.getHelloName())
                             .append(" NNTP Service Ready, posting permitted");
-                writer.println(respBuffer.toString());
+                writeLoggedFlushedResponse(respBuffer.toString());
             }
 
             theWatchdog.start();
@@ -432,7 +432,7 @@ public class NNTPHandler
         command = command.toUpperCase(Locale.US);
 
         if (!isAuthorized(command) ) {
-            writer.println("502 User is not authenticated");
+            writeLoggedFlushedResponse("502 User is not authenticated");
             getLogger().debug("Command not allowed.");
             return true;
         }
@@ -505,7 +505,7 @@ public class NNTPHandler
                     .append(argument);
             getLogger().debug(logBuffer.toString());
         }
-        writer.println("500 Unknown command");
+        writeLoggedFlushedResponse("500 Unknown command");
     }
 
     /**
@@ -526,22 +526,46 @@ public class NNTPHandler
             }
         }
         if (command == null) {
-            writer.println("501 Syntax error");
+            writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
+            if ( isAlreadyAuthenticated ) {
+                writeLoggedFlushedResponse("482 Already authenticated - rejecting new credentials");
+            }
+            if (user != null) {
+                user = null;
+                password = null;
+                isAlreadyAuthenticated = false;
+                writeLoggedFlushedResponse("482 User already specified - rejecting new user");
+                return;
+            }
             user = value;
-            writer.println("381 More authentication information required");
+            writeLoggedFlushedResponse("381 More authentication information required");
         } else if ( command.equals(AUTHINFO_PARAM_PASS) ) {
+            if (user == null) {
+                writeLoggedFlushedResponse("482 User not yet specified.  Rejecting user.");
+                return;
+            }
+            if (password != null) {
+                user = null;
+                password = null;
+                isAlreadyAuthenticated = false;
+                writeLoggedFlushedResponse("482 Password already specified - rejecting new password");
+                return;
+            }
             password = value;
             if ( isAuthenticated() ) {
-                writer.println("281 Authentication accepted");
+                writeLoggedFlushedResponse("281 Authentication accepted");
             } else {
-                writer.println("482 Authentication rejected");
+                writeLoggedFlushedResponse("482 Authentication rejected");
                 // Clear bad authentication
                 user = null;
                 password = null;
             }
+        } else {
+            writeLoggedFlushedResponse("501 Syntax error");
+            return;
         }
     }
 
@@ -559,20 +583,20 @@ public class NNTPHandler
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
             getLogger().error("NEWNEWS had an invalid argument", nntpe);
-            writer.println("501 Syntax error");
+            writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
         Iterator iter = theConfigData.getNNTPRepository().getArticlesSince(theDate);
-        writer.println("230 list of new articles by message-id follows");
+        writeLoggedResponse("230 list of new articles by message-id follows");
         while ( iter.hasNext() ) {
             StringBuffer iterBuffer =
                 new StringBuffer(64)
                     .append("<")
                     .append(((NNTPArticle)iter.next()).getUniqueID())
                     .append(">");
-            writer.println(iterBuffer.toString());
+            writeLoggedResponse(iterBuffer.toString());
         }
-        writer.println(".");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -597,11 +621,11 @@ public class NNTPHandler
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
             getLogger().error("NEWGROUPS had an invalid argument", nntpe);
-            writer.println("501 Syntax error");
+            writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
         Iterator iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
-        writer.println("231 list of new newsgroups follows");
+        writeLoggedResponse("231 list of new newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
             StringBuffer iterBuffer =
@@ -613,9 +637,9 @@ public class NNTPHandler
                     .append(currentGroup.getFirstArticleNumber())
                     .append(" ")
                     .append((currentGroup.isPostAllowed()?"y":"n"));
-            writer.println(iterBuffer.toString());
+            writeLoggedResponse(iterBuffer.toString());
         }
-        writer.println(".");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -624,8 +648,8 @@ public class NNTPHandler
      * @param argument the argument passed in with the HELP command.
      */
     private void doHELP(String argument) {
-        writer.println("100 Help text follows");
-        writer.println(".");
+        writeLoggedResponse("100 Help text follows");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -636,7 +660,7 @@ public class NNTPHandler
     private void doDATE(String argument) {
         Date dt = new Date(System.currentTimeMillis()-UTC_OFFSET);
         String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
-        writer.println("111 "+dtStr);
+        writeLoggedFlushedResponse("111 "+dtStr);
     }
 
     /**
@@ -645,7 +669,7 @@ public class NNTPHandler
      * @param argument the argument passed in with the QUIT command
      */
     private void doQUIT(String argument) {
-        writer.println("205 closing connection");
+        writeLoggedFlushedResponse("205 closing connection");
     }
 
     /**
@@ -682,33 +706,33 @@ public class NNTPHandler
                 return;
             } else if (extension.equals("ACTIVE.TIMES") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                writer.println("503 program error, function not performed");
+                writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else if (extension.equals("DISTRIBUTIONS") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                writer.println("503 program error, function not performed");
+                writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else if (extension.equals("DISTRIB.PATS") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                writer.println("503 program error, function not performed");
+                writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else {
-                writer.println("501 Syntax error");
+                writeLoggedFlushedResponse("501 Syntax error");
                 return;
             }
         }
 
         Iterator iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
-        writer.println("215 list of newsgroups follows");
+        writeLoggedResponse("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup theGroup = (NNTPGroup)iter.next();
             if (isListNewsgroups) {
-                writer.println(theGroup.getListNewsgroupsFormat());
+                writeLoggedResponse(theGroup.getListNewsgroupsFormat());
             } else {
-                writer.println(theGroup.getListFormat());
+                writeLoggedResponse(theGroup.getListFormat());
             }
         }
-        writer.println(".");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -720,16 +744,16 @@ public class NNTPHandler
     private void doIHAVE(String id) {
         // see section 9.3.2.1
         if (!isMessageId(id)) {
-            writer.println("501 command syntax error");
+            writeLoggedFlushedResponse("501 command syntax error");
             return;
         }
         NNTPArticle article = theConfigData.getNNTPRepository().getArticleFromID(id);
         if ( article != null ) {
-            writer.println("435 article not wanted - do not send it");
+            writeLoggedFlushedResponse("435 article not wanted - do not send it");
         } else {
-            writer.println("335 send article to be transferred. End with <CR-LF>.<CR-LF>");
+            writeLoggedFlushedResponse("335 send article to be transferred. End with <CR-LF>.<CR-LF>");
             createArticle();
-            writer.println("235 article received ok");
+            writeLoggedFlushedResponse("235 article received ok");
         }
     }
 
@@ -741,11 +765,11 @@ public class NNTPHandler
     private void doPOST(String argument) {
         // see section 9.3.1.1
         if ( argument != null ) {
-            writer.println("501 Syntax error - unexpected parameter");
+            writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         }
-        writer.println("340 send article to be posted. End with <CR-LF>.<CR-LF>");
+        writeLoggedFlushedResponse("340 send article to be posted. End with <CR-LF>.<CR-LF>");
         createArticle();
-        writer.println("240 article received ok");
+        writeLoggedFlushedResponse("240 article received ok");
     }
 
     /**
@@ -763,24 +787,24 @@ public class NNTPHandler
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                writer.println("430 no such article");
+                writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
                             .append("223 0 ")
                             .append(param);
-                writer.println(respBuffer.toString());
+                writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                writer.println("412 no newsgroup selected");
+                writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        writer.println("420 no current article selected");
+                        writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -791,7 +815,7 @@ public class NNTPHandler
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    writer.println("423 no such article number in this group");
+                    writeLoggedFlushedResponse("423 no such article number in this group");
                     return;
                 } else {
                     currentArticleNumber = newArticleNumber;
@@ -805,7 +829,7 @@ public class NNTPHandler
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    writer.println(respBuffer.toString());
+                    writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
@@ -826,24 +850,24 @@ public class NNTPHandler
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                writer.println("430 no such article");
+                writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
                             .append("222 0 ")
                             .append(param);
-                writer.println(respBuffer.toString());
+                writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                writer.println("412 no newsgroup selected");
+                writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        writer.println("420 no current article selected");
+                        writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -854,7 +878,7 @@ public class NNTPHandler
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    writer.println("423 no such article number in this group");
+                    writeLoggedFlushedResponse("423 no such article number in this group");
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -867,13 +891,13 @@ public class NNTPHandler
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    writer.println(respBuffer.toString());
+                    writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
             article.writeBody(writer);
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -892,24 +916,24 @@ public class NNTPHandler
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                writer.println("430 no such article");
+                writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
                             .append("221 0 ")
                             .append(param);
-                writer.println(respBuffer.toString());
+                writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                writer.println("412 no newsgroup selected");
+                writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        writer.println("420 no current article selected");
+                        writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -920,7 +944,7 @@ public class NNTPHandler
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    writer.println("423 no such article number in this group");
+                    writeLoggedFlushedResponse("423 no such article number in this group");
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -933,13 +957,13 @@ public class NNTPHandler
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    writer.println(respBuffer.toString());
+                    writeLoggedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
             article.writeHead(writer);
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -958,24 +982,24 @@ public class NNTPHandler
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                writer.println("430 no such article");
+                writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
                             .append("220 0 ")
                             .append(param);
-                writer.println(respBuffer.toString());
+                writeLoggedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                writer.println("412 no newsgroup selected");
+                writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        writer.println("420 no current article selected");
+                        writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -986,7 +1010,7 @@ public class NNTPHandler
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    writer.println("423 no such article number in this group");
+                    writeLoggedFlushedResponse("423 no such article number in this group");
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -999,13 +1023,13 @@ public class NNTPHandler
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    writer.println(respBuffer.toString());
+                    writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
             article.writeArticle(writer);
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -1017,13 +1041,13 @@ public class NNTPHandler
     private void doNEXT(String argument) {
         // section 9.1.1.3.1
         if ( argument != null ) {
-            writer.println("501 Syntax error - unexpected parameter");
+            writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         } else if ( group == null ) {
-            writer.println("412 no newsgroup selected");
+            writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( currentArticleNumber < 0 ) {
-            writer.println("420 no current article has been selected");
+            writeLoggedFlushedResponse("420 no current article has been selected");
         } else if ( currentArticleNumber >= group.getLastArticleNumber() ) {
-            writer.println("421 no next article in this group");
+            writeLoggedFlushedResponse("421 no next article in this group");
         } else {
             currentArticleNumber++;
             NNTPArticle article = group.getArticle(currentArticleNumber);
@@ -1033,7 +1057,7 @@ public class NNTPHandler
                         .append(article.getArticleNumber())
                         .append(" ")
                         .append(article.getUniqueID());
-            writer.println(respBuffer.toString());
+            writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
@@ -1046,13 +1070,13 @@ public class NNTPHandler
     private void doLAST(String argument) {
         // section 9.1.1.2.1
         if ( argument != null ) {
-            writer.println("501 Syntax error - unexpected parameter");
+            writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         } else if ( group == null ) {
-            writer.println("412 no newsgroup selected");
+            writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( currentArticleNumber < 0 ) {
-            writer.println("420 no current article has been selected");
+            writeLoggedFlushedResponse("420 no current article has been selected");
         } else if ( currentArticleNumber <= group.getFirstArticleNumber() ) {
-            writer.println("422 no previous article in this group");
+            writeLoggedFlushedResponse("422 no previous article in this group");
         } else {
             currentArticleNumber--;
             NNTPArticle article = group.getArticle(currentArticleNumber);
@@ -1062,7 +1086,7 @@ public class NNTPHandler
                         .append(article.getArticleNumber())
                         .append(" ")
                         .append(article.getUniqueID());
-            writer.println(respBuffer.toString());
+            writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
@@ -1073,13 +1097,13 @@ public class NNTPHandler
      */
     private void doGROUP(String groupName) {
         if (groupName == null) {
-            writer.println("501 Syntax error - missing required parameter");
+            writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
             return;
         }
         NNTPGroup newGroup = theConfigData.getNNTPRepository().getGroup(groupName);
         // section 9.1.1.1
         if ( newGroup == null ) {
-            writer.println("411 no such newsgroup");
+            writeLoggedFlushedResponse("411 no such newsgroup");
         } else {
             group = newGroup;
             // if the number of articles in group == 0
@@ -1110,7 +1134,7 @@ public class NNTPHandler
                         .append(" ")
                         .append(group.getName())
                         .append(" group selected");
-            writer.println(respBuffer.toString());
+            writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
@@ -1119,14 +1143,14 @@ public class NNTPHandler
      */
     private void doLISTEXTENSIONS() {
         // 8.1.1
-        writer.println("202 Extensions supported:");
-        writer.println("LISTGROUP");
-        writer.println("AUTHINFO");
-        writer.println("OVER");
-        writer.println("XOVER");
-        writer.println("HDR");
-        writer.println("XHDR");
-        writer.println(".");
+        writeLoggedResponse("202 Extensions supported:");
+        writeLoggedResponse("LISTGROUP");
+        writeLoggedResponse("AUTHINFO");
+        writeLoggedResponse("OVER");
+        writeLoggedResponse("XOVER");
+        writeLoggedResponse("HDR");
+        writeLoggedResponse("XHDR");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -1137,9 +1161,10 @@ public class NNTPHandler
     private void doMODEREADER(String argument) {
         // 7.2
         if ( argument != null ) {
-            writer.println("501 Syntax error - unexpected parameter");
+            writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
+            return;
         }
-        writer.println(theConfigData.getNNTPRepository().isReadOnly()
+        writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
 
@@ -1153,14 +1178,14 @@ public class NNTPHandler
         // 9.5.1.1.1
         if (groupName==null) {
             if ( group == null) {
-                writer.println("412 no news group currently selected");
+                writeLoggedFlushedResponse("412 no news group currently selected");
                 return;
             }
         }
         else {
             group = theConfigData.getNNTPRepository().getGroup(groupName);
             if ( group == null ) {
-                writer.println("411 no such newsgroup");
+                writeLoggedFlushedResponse("411 no such newsgroup");
                 return;
             }
         }
@@ -1176,14 +1201,14 @@ public class NNTPHandler
                 currentArticleNumber = -1;
             }
 
-            writer.println("211 list of article numbers follow");
+            writeLoggedResponse("211 list of article numbers follow");
 
             Iterator iter = group.getArticles();
             while (iter.hasNext()) {
                 NNTPArticle article = (NNTPArticle)iter.next();
-                writer.println(article.getArticleNumber());
+                writeLoggedResponse(article.getArticleNumber() + "");
             }
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -1192,12 +1217,12 @@ public class NNTPHandler
      */
     private void doLISTOVERVIEWFMT() {
         // 9.5.3.1.1
-        writer.println("215 Information follows");
+        writeLoggedResponse("215 Information follows");
         String[] overviewHeaders = theConfigData.getNNTPRepository().getOverviewFormat();
         for (int i = 0;  i < overviewHeaders.length; i++) {
-            writer.println(overviewHeaders[i]);
+            writeLoggedResponse(overviewHeaders[i]);
         }
-        writer.println(".");
+        writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -1207,7 +1232,7 @@ public class NNTPHandler
      */
     private void doPAT(String argument) {
         // 9.5.3.1.1 in draft-12
-        writer.println("500 Command not recognized");
+        writeLoggedFlushedResponse("500 Command not recognized");
     }
 
     /**
@@ -1229,7 +1254,8 @@ public class NNTPHandler
     private void doHDR(String argument) {
         // 9.5.3
         if (argument == null) {
-            writer.println("501 Syntax error - missing required parameter");
+            writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
+            return;
         }
         String hdr = argument;
         String range = null;
@@ -1239,20 +1265,20 @@ public class NNTPHandler
             hdr = hdr.substring(0, spaceIndex);
         }
         if (group == null ) {
-            writer.println("412 No news group currently selected.");
+            writeLoggedFlushedResponse("412 No news group currently selected.");
             return;
         }
         if ((range == null) && (currentArticleNumber < 0)) {
-            writer.println("420 No current article selected");
+            writeLoggedFlushedResponse("420 No current article selected");
             return;
         }
         NNTPArticle[] article = getRange(range);
         if ( article == null ) {
-            writer.println("412 no newsgroup selected");
+            writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( article.length == 0 ) {
-            writer.println("430 no such article");
+            writeLoggedFlushedResponse("430 no such article");
         } else {
-            writer.println("221 Header follows");
+            writeLoggedResponse("221 Header follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
                 String val = article[i].getHeader(hdr);
                 if ( val == null ) {
@@ -1263,9 +1289,9 @@ public class NNTPHandler
                             .append(article[i].getArticleNumber())
                             .append(" ")
                             .append(val);
-                writer.println(hdrBuffer.toString());
+                writeLoggedResponse(hdrBuffer.toString());
             }
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -1288,18 +1314,18 @@ public class NNTPHandler
     private void doOVER(String range) {
         // 9.5.2.2.1
         if ( group == null ) {
-            writer.println("412 No newsgroup selected");
+            writeLoggedFlushedResponse("412 No newsgroup selected");
             return;
         }
         if ((range == null) && (currentArticleNumber < 0)) {
-            writer.println("420 No current article selected");
+            writeLoggedFlushedResponse("420 No current article selected");
             return;
         }
         NNTPArticle[] article = getRange(range);
         if ( article.length == 0 ) {
-            writer.println("420 No article(s) selected");
+            writeLoggedFlushedResponse("420 No article(s) selected");
         } else {
-            writer.println("224 Overview information follows");
+            writeLoggedResponse("224 Overview information follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
                 article[i].writeOverview(writer);
                 if (i % 100 == 0) {
@@ -1309,7 +1335,7 @@ public class NNTPHandler
                     theWatchdog.reset();
                 }
             }
-            writer.println(".");
+            writeLoggedFlushedResponse(".");
         }
     }
 
@@ -1463,6 +1489,44 @@ public class NNTPHandler
             return false;
         }
    }
+
+    /**
+     * This method logs at a "DEBUG" level the response string that 
+     * was sent to the SMTP client.  The method is provided largely
+     * as syntactic sugar to neaten up the code base.  It is declared
+     * private and final to encourage compiler inlining.
+     *
+     * @param responseString the response string sent to the client
+     */
+    private final void logResponseString(String responseString) {
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Sent: " + responseString);
+        }
+    }
+
+    /**
+     * Write and flush a response string.  The response is also logged.
+     * Should be used for the last line of a multi-line response or
+     * for a single line response.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedFlushedResponse(String responseString) {
+        writer.println(responseString);
+        writer.flush();
+        logResponseString(responseString);
+    }
+
+    /**
+     * Write a response string.  The response is also logged. 
+     * Used for multi-line responses.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedResponse(String responseString) {
+        writer.println(responseString);
+        logResponseString(responseString);
+    }
 
     /**
      * A private inner class which serves as an adaptor
