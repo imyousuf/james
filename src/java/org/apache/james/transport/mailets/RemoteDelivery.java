@@ -61,7 +61,7 @@ import org.apache.mailet.SpoolRepository;
  * as well as other places.
  *
  *
- * This is $Revision: 1.42 $
+ * This is $Revision: 1.43 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -74,6 +74,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
     private int maxRetries = 5; // default number of retries
     private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
+    private boolean sendPartial = false; // If false then ANY address errors will cause the transmission to fail
+    private int connectionTimeout = 60000;  // The amount of time JavaMail will wait before giving up on a socket connect()
     private int deliveryThreadCount = 1; // default number of delivery threads
     private String gatewayServer = null; // the server to send all email to
     private String gatewayPort = null;  //the port of the gateway server to send all email to
@@ -107,6 +109,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
             log("Invalid timeout setting: " + getInitParameter("timeout"));
         }
+
+        try {
+            if (getInitParameter("connectiontimeout") != null) {
+                connectionTimeout = Integer.parseInt(getInitParameter("connectiontimeout"));
+            }
+        } catch (Exception e) {
+            log("Invalid timeout setting: " + getInitParameter("timeout"));
+        }
+        sendPartial = (getInitParameter("sendpartial") == null) ? false : new Boolean(getInitParameter("sendpartial")).booleanValue();
+
         gatewayServer = getInitParameter("gateway");
         gatewayPort = getInitParameter("gatewayPort");
 
@@ -137,8 +149,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * throw an exception.
      *
      * Creation date: (2/24/00 11:25:00 PM)
-     * @param Mail org.apache.mailet.Mail
-     * @param Session javax.mail.Session
+     * @param mail org.apache.mailet.Mail
+     * @param session javax.mail.Session
      * @return boolean Whether the delivery was successful and the message can be deleted
      */
     private boolean deliver(Mail mail, Session session) {
@@ -320,7 +332,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
      * @param mail org.apache.mailet.MailImpl
-     * @param exception java.lang.Exception
+     * @param ex javax.mail.MessagingException
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
@@ -441,7 +453,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * messagecontainer ... that will handle storing it in the outgoing queue if needed.
      *
      * @param mail org.apache.mailet.Mail
-     * @return org.apache.mailet.MessageContainer
      */
     public void service(Mail mail) throws AddressException {
 
@@ -549,6 +560,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.ehlo", "false");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
+
+        props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
+        props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
+
         //Set the hostname we'll use as this server
         if (getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME) != null) {
             props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME));
