@@ -53,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.29 $
- * Committed on $Date: 2002/09/11 07:46:28 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.30 $
+ * Committed on $Date: 2002/09/11 08:31:07 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -62,26 +62,72 @@ public class James
     implements Contextualizable, Composable, Configurable, JamesMBean,
                Initializable, MailServer, MailetContext, Component {
 
-    private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
+    /**
+     * The software name and version
+     */
+    private final static String SOFTWARE_NAME_VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
 
     /**
      * Whether 'deep debugging' is turned on.
-     *
-     * TODO: Shouldn't this be false by default?
      */
-    private final static boolean DEEP_DEBUG = true;
+    private final static boolean DEEP_DEBUG = false;
 
+    /**
+     * The component manager used both internally by James and by Mailets.
+     */
     private DefaultComponentManager compMgr; //Components shared
+
+    /**
+     * TODO: Investigate what this is supposed to do.  Looks like it
+     *       was supposed to be the Mailet context.
+     */
     private DefaultContext context;
+
+    /**
+     * The top level configuration object for this server.
+     */
     private Configuration conf;
 
+    /**
+     * The logger used by the Mailet API.
+     */
     private Logger mailetLogger = null;
+
+    /**
+     * The mail store containing the inbox repository and the spool.
+     */
     private MailStore mailstore;
+
+    /**
+     * The store containing the local user repository.
+     */
     private UsersStore usersStore;
+
+    /**
+     * The spool used for processing mail handled by this server.
+     */
     private SpoolRepository spool;
+
+    /**
+     * The repository that stores the user inboxes.
+     */
     private MailRepository localInbox;
+
+    /**
+     * The root URL used to get mailboxes from the repository
+     */
     private String inboxRootURL;
+
+    /**
+     * The user repository for this mail server.  Contains all the users with inboxes
+     * on this server.
+     */
     private UsersRepository localusers;
+
+    /**
+     * The collection of domain/server names for which this instance of James
+     * will receive and process mail.
+     */
     private Collection serverNames;
 
     /**
@@ -110,6 +156,10 @@ public class James
      */
     private MailAddress postmaster;
 
+    /**
+     * A map used to store mailboxes and reduce the cost of lookup of individual
+     * mailboxes.
+     */
     private Map mailboxes; //Not to be shared!
 
     /**
@@ -122,6 +172,11 @@ public class James
      * The Avalon context used by the instance
      */
     protected Context           myContext;
+
+    /**
+     * An RFC822 date formatter used to format dates in mail headers
+     */
+    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     /**
      * Pass the Context to the component.
@@ -192,7 +247,6 @@ public class James
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Using UsersStore: " + usersStore.toString());
         }
-        context = new DefaultContext();
 
         String hostName = null;
         try {
@@ -200,6 +254,8 @@ public class James
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }
+
+        context = new DefaultContext();
         context.put("HostName", hostName);
         getLogger().info("Local host is: " + hostName);
 
@@ -320,7 +376,7 @@ public class James
         // an attribute
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
-        System.out.println(VERSION);
+        System.out.println(SOFTWARE_NAME_VERSION);
         getLogger().info("JAMES ...init end");
     }
 
@@ -595,7 +651,7 @@ public class James
             part.setContent(orig.getContent(), orig.getContentType());
             part.setHeader("Content-Type", orig.getContentType());
             multipart.addBodyPart(part);
-            reply.setHeader("Date", RFC822DateFormat.toString(new Date()));
+            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
             reply.setContent(multipart);
             reply.setHeader("Content-Type", multipart.getContentType());
         } catch (IOException ioe) {
