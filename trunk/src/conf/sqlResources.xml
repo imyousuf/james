@@ -152,6 +152,55 @@
     </sql>
 </sqlDefs>
 
+<sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+        	message_name varchar (200) NOT NULL,
+        	repository_name varchar (200) NOT NULL,
+        	message_state varchar (30) NOT NULL ,
+        	error_message varchar (200) NULL ,
+        	sender varchar (200) NULL ,
+        	recipients text NOT NULL ,
+        	remote_host varchar (100) NOT NULL ,
+        	remote_addr varchar (20) NOT NULL ,
+        	message_body longblob NOT NULL ,
+        	last_updated datetime NOT NULL,
+        	PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+        	[message_name] [varchar] (200) NOT NULL,
+        	[repository_name] [varchar] (200) NOT NULL,
+        	[message_state] [varchar] (30) NOT NULL ,
+        	[error_message] [varchar] (1000) NULL ,
+        	[sender] [varchar] (200) NULL ,
+        	[recipients] [text] NOT NULL ,
+        	[remote_host] [varchar] (100) NOT NULL ,
+        	[remote_addr] [varchar] (20) NOT NULL ,
+        	[message_body] [image] NOT NULL ,
+        	[last_updated] [datetime] NOT NULL
+        )
+		ALTER TABLE [${table}] WITH NOCHECK ADD
+			CONSTRAINT [PK_${table}] PRIMARY KEY
+			(
+				[message_name],
+				[repository_name]
+			)
+
+    </sql>
+</sqlDefs>
+
 <sqlDefs name="org.apache.james.transport.mailets.JDBCAlias">
     <sql name="tableName">${table}</sql>
     <sql name="select">SELECT source_email_address
