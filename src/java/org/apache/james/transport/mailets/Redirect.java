@@ -166,17 +166,16 @@ import org.apache.mailet.MailAddress;
 *&lt;inline&gt;unaltered&lt;/inline&gt;<BR>
 *&lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
 *&lt;replyto&gt;postmaster&lt;/replyto&gt;<BR>
-+*&lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;<BR>
-+*&lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;<BR>
+*&lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;<BR>
+*&lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;<BR>
 *&lt;static&gt;TRUE&lt;/static&gt;<BR>
-*&lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
 *&lt;/mailet&gt;<BR>
 *</P>
 *<P>and:</P>
 *<P> &lt;mailet match=&quot;All&quot; class=&quot;Redirect&quot;&gt;<BR>
 *&lt;recipients&gt;x@localhost&lt;/recipients&gt;<BR>
 *&lt;sender&gt;postmaster&lt;/sender&gt;<BR>
-*&lt;message&gt;Message marked as spam:<BR>
+*&lt;message xml:space="preserve"&gt;Message marked as spam:<BR>
 *&lt;/message&gt;<BR>
 *&lt;inline&gt;heads&lt;/inline&gt;<BR>
 *&lt;attachment&gt;message&lt;/attachment&gt;<BR>
@@ -192,12 +191,22 @@ import org.apache.mailet.MailAddress;
  *
  */
 public class Redirect extends GenericMailet {
+
+    // The values that indicate how to attach the original mail
+    // to the redirected mail.
+
     private static final int UNALTERED           = 0;
+
     private static final int HEADS               = 1;
+
     private static final int BODY                = 2;
+
     private static final int ALL                 = 3;
+
     private static final int NONE                = 4;
+
     private static final int MESSAGE             = 5;
+
     private InternetAddress[] apparentlyTo;
     private String messageText;
     private Collection recipients;
@@ -226,15 +235,15 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* returns one of these values to indicate how to append the original message
-*<ul>
-*    <li>UNALTERED : original message is the new message body</li>
-*    <li>BODY : original message body is appended to the new message</li>
-*    <li>HEADS : original message headers are appended to the new message</li>
-*    <li>ALL : original is appended with all headers</li>
-*    <li>NONE : original is not appended</li>
-*</ul>
-*/
+     * returns one of these values to indicate how to append the original message
+     *<ul>
+     *    <li>UNALTERED : original message is the new message body</li>
+     *    <li>BODY : original message body is appended to the new message</li>
+     *    <li>HEADS : original message headers are appended to the new message</li>
+     *    <li>ALL : original is appended with all headers</li>
+     *    <li>NONE : original is not appended</li>
+     *</ul>
+     */
     public int getInLineType() {
         if(getInitParameter("inline") == null) {
             return BODY;
@@ -253,8 +262,8 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* must return either an empty string, or a message to which the redirect can be attached/appended
-*/
+     * must return either an empty string, or a message to which the redirect can be attached/appended
+     */
     public String getMessage() {
         if(getInitParameter("message") == null) {
             return "";
@@ -264,8 +273,8 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* return true to allow thie original message to continue through the processor, false to GHOST it
-*/
+     * return true to allow thie original message to continue through the processor, false to GHOST it
+     */
     public boolean getPassThrough() {
         if(getInitParameter("passThrough") == null) {
             return false;
@@ -275,8 +284,8 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* must return a Collection of recipient MailAddress'es
-*/
+     * must return a Collection of recipient MailAddresses
+     */
     public Collection getRecipients() {
         Collection newRecipients           = new HashSet();
         String addressList                 = (getInitParameter("recipients") == null)
@@ -294,8 +303,10 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* return the reply to address as a string
-*/
+     * Returns the reply to address as a string.
+     *
+     * @return the replyto address for the mail as a string
+     */
     public MailAddress getReplyTo() {
         String sr = getInitParameter("replyto");
         if(sr != null) {
@@ -318,8 +329,8 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* returns the senders address, as a MailAddress
-*/
+     * returns the senders address, as a MailAddress
+     */
     public MailAddress getSender() {
         String sr = getInitParameter("sender");
         if(sr != null) {
@@ -342,11 +353,11 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* return true to reduce calls to getTo, getSender, getRecipients, getReplyTo amd getMessage
-* where these values don't change (eg hard coded, or got at startup from the mailet config)<br>
-* return false where any of these methods generate their results dynamically eg in response to the message being processed,
-* or by refrence to a repository of users
-*/
+     * return true to reduce calls to getTo, getSender, getRecipients, getReplyTo amd getMessage
+     * where these values don't change (eg hard coded, or got at startup from the mailet config)<br>
+     * return false where any of these methods generate their results dynamically eg in response to the message being processed,
+     * or by refrence to a repository of users
+     */
     public boolean isStatic() {
         if(getInitParameter("static") == null) {
             return false;
@@ -366,8 +377,8 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* returns an array of InternetAddress 'es for the To: header
-*/
+     * returns an array of InternetAddress 'es for the To: header
+     */
     public InternetAddress[] getTo() {
         String addressList        = (getInitParameter("to") == null)
                                         ? getInitParameter("recipients") : getInitParameter("to");
@@ -387,9 +398,9 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* return true to append a description of any error to the main body part
-* if getInlineType does not return "UNALTERED"
-*/
+     * return true to append a description of any error to the main body part
+     * if getInlineType does not return "UNALTERED"
+     */
     public boolean attachError() {
         if(getInitParameter("attachError") == null) {
             return false;
@@ -399,11 +410,11 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* init will setup static values for sender, recipients, message text, and reply to
-* <br> if isStatic() returns true
-* it calls getSender(), getReplyTo(), getMessage(), and getRecipients() and getTo()
-*
-*/
+      * init will setup static values for sender, recipients, message text, and reply to
+      * <br> if isStatic() returns true
+      * it calls getSender(), getReplyTo(), getMessage(), and getRecipients() and getTo()
+      *
+      */
     public void init() throws MessagingException {
         log("redirect init");
         if(isStatic()) {
@@ -426,11 +437,11 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-*
-* Service does the hard work,and redirects the mail in the form specified
-*
-*
-*/
+     * Service does the hard work,and redirects the mail in the form specified
+     *
+     * @param mail the mail to process and redirect
+     * @throws MessagingException if a problem arising formulating the redirected mail
+     */
     public void service(Mail mail) throws MessagingException {
         if(!isStatic()) {
             sender       = getSender();
@@ -544,8 +555,12 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* A private method to convert types from string to int.
-*/
+     * A private method to convert types from string to int.
+     *
+     * @param param the string type
+     *
+     * @return the corresponding int enumeration
+     */
     private int getTypeCode(String param) {
         int code;
         param = param.toLowerCase(Locale.US);
