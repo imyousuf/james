@@ -136,7 +136,7 @@ public class MailImpl implements Mail {
         //  maintained value (so we don't have to load and reparse
         //  messages each time).
         int size = message.getSize();
-        Enumeration e = message.getAllHeaders();
+        Enumeration e = message.getAllHeaderLines();
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
         }
