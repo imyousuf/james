@@ -205,10 +205,6 @@ public class SMTPServer extends AbstractJamesService implements Component {
             }
 
             String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
-            if (authorizedAddresses != null) {
-                getLogger().info("Authorized addresses: " + authorizedAddresses);
-            }
-
             if (!authRequired && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
@@ -235,6 +231,10 @@ public class SMTPServer extends AbstractJamesService implements Component {
                     networks.add(addr);
                 }
                 authorizedNetworks = new NetMatcher(networks);
+            }
+
+            if (authorizedNetworks != null) {
+                getLogger().info("Authorized addresses: " + authorizedNetworks.toString());
             }
 
             // get the message size limit from the conf file and multiply
