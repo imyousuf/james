@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.19 $
-    Committed on $Date: 2001/12/05 22:31:18 $ by: $Author: serge $
+    This is $Revision: 1.20 $
+    Committed on $Date: 2002/03/10 22:20:04 $ by: $Author: serge $
 -->
 <config>
 
@@ -252,7 +252,7 @@
 
            </administrator_accounts>
            <connectiontimeout> 60000 </connectiontimeout>
-	</handler>
+    </handler>
   </remotemanager>
 
   <pop3server>
@@ -290,12 +290,12 @@
           <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>360000</connectiontimeout>
 
-	  <!--<authRequired>true</authRequired> uncomment this if you want
+      <!--<authRequired>true</authRequired> uncomment this if you want
           SMTP AUTH support. This is useful if you have users who need to use
           the email server on the road, while not having your server act as an
           open relay! -->
 
-	  <!--<verifyIdentity>true</verifyIdentity> uncomment this if you want
+      <!--<verifyIdentity>true</verifyIdentity> uncomment this if you want
           to verify that the MAIL FROM: address is the same user that
           authenticated. This prevents a user of your mail server from acting
           as somebody else -->
@@ -334,28 +334,28 @@
 
   <nntp-repository>
         <!-- make this true to disallow posting to all newsgroups-->
-	<readOnly>false</readOnly>
-	<rootPath>file:///var/nntp/groups</rootPath>
-	<tempPath>file:///var/nntp/temp</tempPath>
-	<articleIDPath>file:///var/nntp/articleid</articleIDPath>
-	<articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
-	<!-- these additional news groups would be created and exposed-->
-	<newsgroups>
-	  <newsgroup>org.apache.james.dev</newsgroup>
-	  <newsgroup>org.apache.james.user</newsgroup>
-	  <newsgroup>org.apache.avalon.dev</newsgroup>
-	  <newsgroup>org.apache.avalon.user</newsgroup>
-	</newsgroups>
-	<spool>
+    <readOnly>false</readOnly>
+    <rootPath>file:///var/nntp/groups</rootPath>
+    <tempPath>file:///var/nntp/temp</tempPath>
+    <articleIDPath>file:///var/nntp/articleid</articleIDPath>
+    <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
+    <!-- these additional news groups would be created and exposed-->
+    <newsgroups>
+      <newsgroup>org.apache.james.dev</newsgroup>
+      <newsgroup>org.apache.james.user</newsgroup>
+      <newsgroup>org.apache.avalon.dev</newsgroup>
+      <newsgroup>org.apache.avalon.user</newsgroup>
+    </newsgroups>
+    <spool>
           <configuration>
-	    <spoolPath>file:///var/nntp/spool</spoolPath>
-	    <!-- number of threads that process spooler related tasks -->
-	    <threadCount>1</threadCount>
-	    <!-- the spool thread(s) should idle for some time,
-	        if it has nothing to do  -->
-	    <threadIdleTime>1000</threadIdleTime>
+        <spoolPath>file:///var/nntp/spool</spoolPath>
+        <!-- number of threads that process spooler related tasks -->
+        <threadCount>1</threadCount>
+        <!-- the spool thread(s) should idle for some time,
+            if it has nothing to do  -->
+        <threadIdleTime>1000</threadIdleTime>
           </configuration>
-	</spool>
+    </spool>
   </nntp-repository>
 
   <!-- The High Level Storage block -->
@@ -380,7 +380,7 @@
           </types>
         </repository>
 
-		<!-- These repositories store the entire message in the database -->
+        <!-- These repositories store the entire message in the database -->
         <repository
             class="org.apache.james.mailrepository.JDBCMailRepository">
           <protocols>
@@ -544,13 +544,15 @@
             <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
             <user>username</user>
             <password>password</password>
+            <max>2</max>
         </data-source>
         <data-source name="maildb"
                      class="org.apache.james.util.mordred.JdbcDataSource">
-        	<driver>com.inet.tds.TdsDriver</driver>
-        	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
-        	<user>sa_james</user>
-        	<password>blahblah</password>
+            <driver>com.inet.tds.TdsDriver</driver>
+            <dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
+            <user>sa_james</user>
+            <password>blahblah</password>
+            <max>2</max>
         </data-source>
         -->
     </data-sources>
