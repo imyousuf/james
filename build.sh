@@ -4,6 +4,7 @@ echo
 echo "James Build System"
 echo "-------------------"
 
+export CP=$CLASSPATH
 CLASSPATH=lib/xerces.jar
 
 ## Setup the Anakia stuff
@@ -33,3 +34,5 @@ export PROPOSAL=""
 unset ANT_HOME
 
 ./tools/bin/ant -emacs $@
+
+export CLASSPATH=$CP
