@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.86 $  Committed on $Date: 2001/10/30 14:07:50 $ by: $Author: serge $
+ James build file $Revision: 1.87 $  Committed on $Date: 2002/01/12 01:10:29 $ by: $Author: darrell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -106,15 +106,15 @@ Legal:
        ===================================================================
   -->
   <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
-  <property name="framework.jar" value="${lib.dir}/avalon-framework-20010912.jar"/>
-  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20010919.jar"/>
-  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20010919.jar"/>
-  <property name="logkit.jar" value="${lib.dir}/logkit-20010912.jar"/>
-  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20010925.bar"/>
-  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20010925.jar"/>
-  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20010925.jar"/>
-  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20010925.jar"/>
-  <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20010919.jar"/>
+  <property name="framework.jar" value="${lib.dir}/avalon-framework-20011115.jar"/>
+  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20011120.jar"/>
+  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20011122.jar"/>
+  <property name="logkit.jar" value="${lib.dir}/logkit-1.0.jar"/>
+  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20011230.bar"/>
+  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20011230.jar"/>
+  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20011230.jar"/>
+  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20011230.jar"/>
+  <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20011230.jar"/>
 
   <!--
     <property name="activation.jar" value="${lib.dir}/activation.jar"/>
@@ -210,12 +210,7 @@ Legal:
     <mkdir dir="${build.src}"/>
     <copy todir="${build.src}">
       <fileset dir="${java.dir}">
-        <exclude name="**/*.properties"/>
-        <exclude name="**/*.xinfo"/>
-      </fileset>
-    </copy>
-    <copy todir="${build.conf}">
-      <fileset dir="${conf.dir}">
+        <include name="${constants.file}"/>
       </fileset>
     </copy>
 
@@ -226,20 +221,6 @@ Legal:
     <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
     <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
 
-  </target>
-
-  <target name="prepare-proposal" depends="prepare" if="with.proposal">
-    <echo>Building with proposal </echo>
-    <copy todir="${build.src}" overwrite="on">
-      <fileset dir="${java.proposal.dir}">
-        <exclude name="**/*.properties"/>
-        <exclude name="**/*.xinfo"/>
-      </fileset>
-    </copy>
-    <copy todir="${build.conf}" overwrite="on">
-      <fileset dir="${conf.proposal.dir}">
-      </fileset>
-    </copy>
   </target>
 
   <target name="prepare-error" depends="prepare" unless="AnakiaTask.present">
@@ -253,19 +234,19 @@ Legal:
   <!-- =================================================================== -->
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
-  <target name="compile" depends="prepare-proposal">
+  <target name="compile" depends="prepare">
   <!--  <mkdir dir="${build.dir}"/> -->
     <available property="jndi.present" classname="javax.naming.InitialContext" />
 
     <mkdir dir="${build.classes}"/>
 
-    <javac srcdir="${build.src}"
-           destdir="${build.classes}"
+    <javac destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
            deprecation="${deprecation}">
       <classpath refid="project.class.path" />
-      <src path="${build.src}" />
+      <src path="${build.src}"/>
+      <src path="${java.dir}"/>
       <exclude name="${constants.file}" />
       <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java"
                unless="jndi.present" />
@@ -333,19 +314,19 @@ Legal:
         <include name="jakarta-oro-2.0.1.jar"/>
       </zipfileset>
 
-      <zipfileset dir="${build.conf}" fullpath="conf/config.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/config.xml">
         <include name="james-config.xml"/>
       </zipfileset>
 
-      <zipfileset dir="${build.conf}" fullpath="conf/assembly.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/assembly.xml">
         <include name="james-assembly.xml"/>
       </zipfileset>
 
-      <zipfileset dir="${build.conf}" fullpath="conf/server.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
         <include name="james-server.xml"/>
       </zipfileset>
 
-      <zipfileset dir="${build.conf}" fullpath="conf/sqlResources.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
         <include name="sqlResources.xml"/>
       </zipfileset>
 
@@ -360,6 +341,7 @@ Legal:
   <target name="dist-lite" depends="sar">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
+    <mkdir dir="${dist.dir}/ext"/>
 
     <delete dir="${dist.dir}/apps/${name}"/>
     <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>

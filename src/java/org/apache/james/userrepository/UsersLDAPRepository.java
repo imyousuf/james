@@ -35,7 +35,8 @@ import org.apache.log.Logger;
  * @author  Charles Bennett
  */
 public class UsersLDAPRepository
-    implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable
+{
 
     private ComponentManager comp;
 

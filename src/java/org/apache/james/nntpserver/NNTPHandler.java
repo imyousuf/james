@@ -31,12 +31,12 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.BaseConnectionHandler;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.log.Logger;
 
 /**
  * The NNTP protocol is defined by RFC 977.

@@ -13,6 +13,7 @@ import java.text.*;
 import java.util.*;
 import javax.mail.internet.*;
 import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.component.ComponentException;
@@ -43,7 +44,7 @@ import org.apache.log.Logger;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-public class BaseConnectionHandler extends AbstractLoggable implements Configurable {
+public class BaseConnectionHandler extends AbstractLogEnabled implements Configurable {
     protected int timeout;
     protected String helloName;
 
