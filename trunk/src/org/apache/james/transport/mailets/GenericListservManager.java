@@ -31,6 +31,12 @@ public abstract class GenericListservManager extends GenericMailet {
      * was successful.
      */
     public abstract boolean removeAddress(MailAddress address);
+    
+    /**
+     * Indicates whether an address already exists on the listserv. Returns
+     * whether the address exists.
+     */
+    public abstract boolean existsAddress(MailAddress address);
 
     /**
      * Processes the message.  Checks which command was sent based on the
@@ -43,16 +49,24 @@ public abstract class GenericListservManager extends GenericMailet {
         }
         MailAddress address = (MailAddress)mail.getRecipients().iterator().next();
         if (address.getUser().endsWith("-off")) {
-            if (removeAddress(mail.getSender())) {
-                getMailetContext().bounce(mail, "Successfully removed from listserv.");
+            if (existsAddress(mail.getSender())) {
+                if (removeAddress(mail.getSender())) {
+                    getMailetContext().bounce(mail, "Successfully removed from listserv.");
+                } else {
+                    getMailetContext().bounce(mail, "Unable to remove you from listserv for some reason");
+                }
             } else {
-                getMailetContext().bounce(mail, "Unable to remove you from listserv for some reason");
+                getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
             }
         } else if (address.getUser().endsWith("-on")) {
-            if (addAddress(mail.getSender())) {
-                getMailetContext().bounce(mail, "Successfully added to listserv.");
+            if (existsAddress(mail.getSender())) {
+                getMailetContext().bounce(mail, "You are already subscribed to this listserv.");
             } else {
-                getMailetContext().bounce(mail, "Unable to add you to the listserv for some reason");
+                if (addAddress(mail.getSender())) {
+                    getMailetContext().bounce(mail, "Successfully added to listserv.");
+                } else {
+                    getMailetContext().bounce(mail, "Unable to add you to the listserv for some reason");
+                }
             }
         } else {
             getMailetContext().bounce(mail, "Could not understand the command you sent to this listserv manager.\r\n"
