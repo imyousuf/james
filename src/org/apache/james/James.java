@@ -16,8 +16,8 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.util.lang.*;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.dnsserver.*;
@@ -31,6 +31,7 @@ import org.apache.log.LogKit;
 import org.apache.log.Logger;
 import org.apache.mailet.*;
 import org.apache.phoenix.Block;
+import org.apache.phoenix.BlockContext;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -46,7 +47,7 @@ import org.apache.phoenix.Block;
  */
 public class James 
     extends AbstractLoggable 
-    implements Block, Composer, Configurable, Initializable, MailServer, MailetContext {
+    implements Block, Contextualizable, Composer, Configurable, Initializable, MailServer, MailetContext {
     
     public final static String VERSION = "James 1.2.2 Alpha";
 
@@ -76,6 +77,12 @@ public class James
     private boolean provideIMAP = false;
     private IMAPSystem imapSystem;
     private Host imapHost;
+    protected BlockContext           blockContext;
+
+    public void contextualize( final Context context )
+    {
+        this.blockContext = (BlockContext)context;
+    }
 
     public void configure(Configuration conf) {
         this.conf = conf;
@@ -93,8 +100,10 @@ public class James
     public void init() throws Exception {
 
         getLogger().info("JAMES init...");
-        //threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
-        workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+
+        //TODO: This should retrieve a more specific named thread pool from BlockContext
+        //that is set up in server.xml
+        workerPool = blockContext.getThreadPool( "default" );
         try {
             mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
         } catch (Exception e) {
