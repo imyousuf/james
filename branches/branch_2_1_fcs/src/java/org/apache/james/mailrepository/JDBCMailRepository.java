@@ -107,8 +107,6 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Darrell DeBoer <dd@bigdaz.com>
  * @version 1.0.0, 24/04/1999
  */
 public class JDBCMailRepository
@@ -141,7 +139,7 @@ public class JDBCMailRepository
     /**
      * Destination URL for the repository.  See class description for more info
      */
-    protected String destination;
+//    protected String destination;
 
     /**
      * The table name parsed from the destination URL
@@ -156,12 +154,12 @@ public class JDBCMailRepository
     /**
      * The name of the filestore to be used to store mail when configured to use dbfile mode.
      */
-    protected String filestore;
+//    protected String filestore;
 
     /**
      * The name of the SQL configuration file to be used to configure this repository.
      */
-    protected String sqlFileName;
+    private String sqlFileName;
 
     /**
      * The stream repository used in dbfile mode
@@ -230,7 +228,7 @@ public class JDBCMailRepository
             getLogger().debug(this.getClass().getName() + ".configure()");
         }
 
-        destination = conf.getAttribute("destinationURL");
+        String destination = conf.getAttribute("destinationURL");
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
@@ -287,7 +285,7 @@ public class JDBCMailRepository
             getLogger().debug(logBuffer.toString());
         }
 
-        filestore = conf.getChild("filestore").getValue(null);
+        String filestore = conf.getChild("filestore").getValue(null);
         sqlFileName = conf.getChild("sqlFile").getValue();
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
@@ -364,6 +362,7 @@ public class JDBCMailRepository
             File sqlFile = null;
             try {
                 sqlFile = AvalonContextUtilities.getFile(context, sqlFileName);
+                sqlFileName = null;
             } catch (Exception e) {
                 getLogger().fatalError(e.getMessage(), e);
                 throw e;
