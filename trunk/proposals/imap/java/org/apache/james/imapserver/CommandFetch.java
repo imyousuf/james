@@ -59,9 +59,9 @@ public class CommandFetch
     public boolean process( ImapRequest request, ImapSession session )
     {
         setRequest( request );
-	StringTokenizer txt = request.getCommandLine();
+    StringTokenizer txt = request.getCommandLine();
 
-/*	System.out.println("CommandFetch.process: #args="+txt.countTokens());
+/*  System.out.println("CommandFetch.process: #args="+txt.countTokens());
         while (txt.hasMoreTokens()) {
             System.out.println("CommandFetch.process: arg='"+txt.nextToken()+"'");
         }

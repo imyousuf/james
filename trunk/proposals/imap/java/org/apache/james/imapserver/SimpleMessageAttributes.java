@@ -78,7 +78,7 @@ public class SimpleMessageAttributes
     private String contentEncoding;
 
     SimpleMessageAttributes() {
-	System.out.println("SimpleMessageAttributes()");
+    System.out.println("SimpleMessageAttributes()");
       //  new Throwable().printStackTrace();
     }
 
@@ -296,7 +296,7 @@ public class SimpleMessageAttributes
                     msgAttrs.setAttributesFor(message);
 
                     if (part instanceof MimeMessage) {
-						Comments out because I don't know what it should do here
+                        Comments out because I don't know what it should do here
                         MimeMessage msg1 = (MimeMessage) part;
                         MimeMessageWrapper message2 = new MimeMessageWrapper(msg1);
                         SimpleMessageAttributes msgAttrs2 = new SimpleMessageAttributes();

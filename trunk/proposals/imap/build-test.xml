@@ -16,7 +16,7 @@ Legal:
 ==============================================================================
  -->
 
-<project default="main" basedir="../..">
+<project default="main" name="IMAP tests" basedir="../..">
 
   <!--
     Give user a chance to override without editing this file

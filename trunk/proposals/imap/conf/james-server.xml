@@ -26,7 +26,7 @@
       <category name="remotemanager" log-level="DEBUG">
         <log-target id-ref="remotemanager-target"/>
       </category>
-      <category name="imapserver" log-level="DEBUG"/>
+      <category name="imapserver" log-level="DEBUG">
         <log-target id-ref="imapserver-target"/>
       </category>
       <category name="pop3server" log-level="DEBUG">
