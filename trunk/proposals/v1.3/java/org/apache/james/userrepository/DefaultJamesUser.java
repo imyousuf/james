@@ -11,14 +11,15 @@ import java.io.Serializable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.james.services.User;
 import org.apache.james.services.JamesUser;
+import org.apache.mailet.MailAddress;
 
 /**
  * Implementation of User Interface.
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:00:35 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/22 12:03:32 $
+ * $Revision: 1.2 $
  */
 
 public class DefaultJamesUser 
@@ -26,7 +27,7 @@ public class DefaultJamesUser
         implements JamesUser, Initializable {
 
     private boolean forwarding;
-    private String forwardingDestination;
+    private MailAddress forwardingDestination;
     private boolean aliasing;
     private String alias;
 
@@ -39,7 +40,7 @@ public class DefaultJamesUser
      */
     public void initialize() {
 	forwarding = false;
-	forwardingDestination = "";
+	forwardingDestination = null;
 	aliasing = false;
 	alias = "";
     }
@@ -57,13 +58,13 @@ public class DefaultJamesUser
     }
 
     
-    public boolean setForwardingDestination(String address) {
+    public boolean setForwardingDestination(MailAddress address) {
 	/* Some verification would be good */
 	forwardingDestination = address;
 	return true;
     }
 
-    public String getForwardingDestination() {
+    public MailAddress getForwardingDestination() {
 	return forwardingDestination;
     }
 

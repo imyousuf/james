@@ -75,6 +75,7 @@ public class James
     private Collection serverNames;
     private boolean ignoreCase;
     private boolean enableAliases;
+    private boolean enableForwarding;
 
     // this used to be long, but increment operations on long are not
     // thread safe. Changed to int. 'int' should be ok, because id generation
@@ -177,6 +178,12 @@ public class James
         } else {
 	    enableAliases = false;
 	}
+        if (userNamesConf.getAttribute("enableForwarding").equals("TRUE")) {
+            enableForwarding = true;
+        } else {
+	    enableForwarding = false;
+	}
+
         //Get localusers
         try {
             localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
@@ -482,10 +489,25 @@ public class James
             username = recipient.getUser();
         }
 	JamesUser user;
-	if (enableAliases) {
+	if (enableAliases || enableForwarding) {
 	    user = (JamesUser) localusers.getUserByName(username);
-	    if (user.getAliasing()) {
+	    if (enableAliases && user.getAliasing()) {
 	        username = user.getAlias();
+	    }
+	    if (enableForwarding && user.getForwarding()) {
+		MailAddress forwardTo = user.getForwardingDestination();
+		Collection recipients = new HashSet();
+		recipients.add(forwardTo);
+		try {
+		    sendMail(sender, recipients, message);
+		    getLogger().info("Mail for " + username + " forwarded to "
+                                 +  forwardTo.toString());
+		    return;
+		} catch (MessagingException me) {
+		    getLogger().error("Error forwarding mail to "
+				      + forwardTo.toString()
+				      + "attempting local delivery");
+		}
 	    }
 	}
 
