@@ -566,13 +566,15 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 }
                 catch (MessagingException ex)
                 {
-                    getLogger().error(ex.toString());
+                    getLogger().error(
+                        "A MessagingException has terminated processing of this Account",
+                        ex);
                 }
             }
         }
         catch (Exception ex)
         {
-            getLogger().error(ex.toString());
+            getLogger().error("An Exception has terminated this fetch.", ex);
         }
         finally
         {
