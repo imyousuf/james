@@ -1,31 +1,30 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.mailrepository;
 
-
-
-
-import java.io.*;
-import java.util.*;
-import javax.mail.MessagingException;
-import javax.mail.internet.*;
-import org.apache.avalon.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Iterator;
+import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Component;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.Lock;
 import org.apache.avalon.util.LockException;
 import org.apache.cornerstone.services.Store;
-import org.apache.james.core.*;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-import org.apache.mailet.*;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -43,10 +42,9 @@ import org.apache.mailet.*;
 public class AvalonMailRepository 
     extends AbstractLoggable
     implements MailRepository, Component, Configurable, Composer {
-    protected Lock lock;
 
+    protected Lock lock;
     private static final String TYPE = "MAIL";
-    private Logger logger =  LogKit.getLoggerFor("james.MailRepository");
     private Store store;
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;
@@ -57,8 +55,8 @@ public class AvalonMailRepository
         destination = conf.getAttribute("destinationURL");
         String checkType = conf.getAttribute("type");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-            logger.warn("Attempt to configure AvalonMailRepository as "
-                        + checkType);
+            getLogger().warn( "Attempt to configure AvalonMailRepository as " + 
+                              checkType);
             throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
         }
         // ignore model
@@ -84,7 +82,7 @@ public class AvalonMailRepository
             or = (Store.ObjectRepository) store.select(objConf);
             lock = new Lock();
         } catch (Exception e) {
-            logger.error( "Failed to retrieve Store component:" + e.getMessage() );
+            getLogger().error( "Failed to retrieve Store component:" + e.getMessage() );
             throw new ComponentManagerException( "Failed to retrieve store component", e );
         }
     }
@@ -106,8 +104,6 @@ public class AvalonMailRepository
             throw new LockException("Record " + key + " already locked by another thread");
         }
     }
-
-
 
     public synchronized void store(MailImpl mc) {
         try {
@@ -149,6 +145,4 @@ public class AvalonMailRepository
     public Iterator list() {
         return sr.list();
     }
-
-
 }
