@@ -19,12 +19,15 @@ import java.util.*;
 public class SenderInFakeDomain extends GenericMatcher {
 
     public Collection match(Mail mail) {
+        if (mail.getSender() == null) {
+            return mail.getRecipients();
+        }
         String domain = mail.getSender().getHost();
         //DNS Lookup for this domain
         Collection servers = getMailetContext().getMailServers(domain);
         if (servers.size() == 0) {
             //No records...could not deliver to this domain, so matches criteria.
-	    log("No MX record found for domain: " + domain);
+	        log("No MX, A, or CNAME record found for domain: " + domain);
             return mail.getRecipients();
         } else {
             //Some servers were found... the domain is not fake.
