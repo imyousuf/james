@@ -61,9 +61,9 @@ import javax.mail.Flags;
 
 public interface MailboxListener {
     // TODO shouldn't have exceptions here
-    void expunged(long uid) throws MailboxException;
+    void expunged(int msn);
     
-    void added(long uid);
+    void added(int msn);
 
-    void flagsUpdated(long uid, Flags flags) throws MailboxException;
+    void flagsUpdated(int msn, Flags flags, Long uid);
 }

@@ -75,7 +75,7 @@ import org.apache.james.core.MailImpl;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public interface ImapMailbox
 {
@@ -87,7 +87,7 @@ public interface ImapMailbox
 
     int getMessageCount();
 
-    int getRecentCount();
+    int getRecentCount(boolean reset);
 
     long getUidValidity();
 
@@ -120,9 +120,9 @@ public interface ImapMailbox
     void copyMessage( long uid, ImapMailbox toMailbox )
             throws MailboxException;
 
-    void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException;
+    void setFlags(Flags flags, boolean value, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException;
 
-    void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException;
+    void replaceFlags(Flags flags, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException;
 
     int getMsn( long uid ) throws MailboxException;
 

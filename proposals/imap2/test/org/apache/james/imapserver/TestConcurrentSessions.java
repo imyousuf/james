@@ -15,7 +15,7 @@ import junit.framework.TestSuite;
 
 /**
  * @author <a href="mailto:ddeboer@thoughtworks.com">Darrell DeBoer</a>
- * @version $Id: TestConcurrentSessions.java,v 1.1 2003/11/26 14:18:38 darrell Exp $
+ * @version $Id: TestConcurrentSessions.java,v 1.2 2003/11/30 07:03:48 darrell Exp $
  */
 public class TestConcurrentSessions extends TestCommandsInAuthenticatedState {
     public TestConcurrentSessions(String fileName) {
@@ -31,6 +31,7 @@ public class TestConcurrentSessions extends TestCommandsInAuthenticatedState {
         // Not valid in this state
         suite.addTest( new TestConcurrentSessions( "concurrent/FetchResponse" ) );
         suite.addTest( new TestConcurrentSessions( "concurrent/ExistsResponse" ) );
+        suite.addTest( new TestConcurrentSessions( "concurrent/ExpungeResponse" ) );
 
         return suite;
     }

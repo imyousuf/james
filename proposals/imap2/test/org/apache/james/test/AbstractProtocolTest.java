@@ -117,9 +117,9 @@ public abstract class AbstractProtocolTest
     protected int timeout = TIMEOUT;
 
     /** A UsersRepository which all tests share. */
-    private UsersRepository users;
+    private static UsersRepository users;
     /** An ImapHost instance which all tests share. */
-    private ImapHost imapHost;
+    private static ImapHost imapHost;
 
     public AbstractProtocolTest( String s )
     {
@@ -154,8 +154,7 @@ public abstract class AbstractProtocolTest
      * is parsed to determine if the actual response matches that expected.
      */
     private void runSocketProtocolSessions()
-            throws Exception
-    {
+            throws Exception {
         Socket[] socket = new Socket[testElements.getSessionCount()];
         PrintWriter[] out = new PrintWriter[socket.length];
         BufferedReader[] in = new BufferedReader[socket.length];
@@ -167,21 +166,34 @@ public abstract class AbstractProtocolTest
             in[i] = new BufferedReader(new InputStreamReader(socket[i].getInputStream()));
         }
 
+        Exception failure = null;
         try {
-             preElements.runLiveSession( out, in );
-             testElements.runLiveSession( out, in );
-             postElements.runLiveSession( out, in );
-         }
-         catch ( ProtocolSession.InvalidServerResponseException e ) {
-             fail( e.getMessage() );
-         }
+            preElements.runLiveSession(out, in);
+            testElements.runLiveSession(out, in);
+        } catch (ProtocolSession.InvalidServerResponseException e) {
+            failure = e;
+        } finally {
+            // Try our best to do cleanup.
+            try {
+                postElements.runLiveSession(out, in);
+            } catch (ProtocolSession.InvalidServerResponseException e) {
+                // Don't overwrite real error with error on cleanup.
+                if (failure == null) {
+                    failure = e;
+                }
+            }
+        }
+        
+        if (failure != null) {
+            fail(failure.getMessage());
+        }
 
         for (int i = 0; i < socket.length; i++) {
             out[i].close();
             in[i].close();
             socket[i].close();
         }
-     }
+    }
 
     /**
      * Runs the pre,test and post protocol sessions against a local copy of the ImapServer.
@@ -206,15 +218,35 @@ public abstract class AbstractProtocolTest
             socket[i].start();
         }
 
+        Exception failure = null;
         try {
              preElements.runLiveSession( out, in );
              testElements.runLiveSession( out, in );
-             postElements.runLiveSession( out, in );
+        } catch (ProtocolSession.InvalidServerResponseException e) {
+             failure = e;
+             // Try our best to do cleanup.
+               for (int i = 0; i < in.length; i++) {
+                   BufferedReader reader = in[i];
+                   while (reader.ready()) {
+                       reader.read();
+                   }
+               }
+         } finally {
+             try {
+                 postElements.runLiveSession(out, in);
+             } catch (ProtocolSession.InvalidServerResponseException e) {
+                 // Don't overwrite real error with error on cleanup.
+                 if (failure == null) {
+                     failure = e;
+                 }
+             }
          }
-         catch ( ProtocolSession.InvalidServerResponseException e ) {
-             fail( e.getMessage() );
+        
+         if (failure != null) {
+             fail(failure.getMessage());
          }
 
+ 
         for (int i = 0; i < socket.length; i++) {
             out[i].close();
             in[i].close();

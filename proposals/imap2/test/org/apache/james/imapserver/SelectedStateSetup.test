@@ -56,7 +56,7 @@ S: A003 OK APPEND completed
 C: a1 SELECT selected
 S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
 S: \* 4 EXISTS
-S: \* 0 RECENT
+S: \* 4 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]

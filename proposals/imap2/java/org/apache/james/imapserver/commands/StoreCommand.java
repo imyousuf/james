@@ -68,13 +68,14 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleImapMessage;
+import org.apache.james.imapserver.store.MailboxListener;
 
 /**
  * Handles processeing for the STORE imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -120,6 +121,11 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 //            mailbox.replaceFlags(flags, uidSet, directive.isSilent());
 //        }
 
+        MailboxListener silentListener = null;
+        if (directive.isSilent()) {
+            silentListener = mailbox;
+        }
+        
         // TODO do this in one hit.
         long[] uids = mailbox.getMessageUids();
         for ( int i = 0; i < uids.length; i++ ) {
@@ -130,26 +136,17 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
                  ( !useUids && includes( idSet, msn ) ) )
             {
                 if (directive.getSign() < 0) {
-                    mailbox.setFlags(flags, false, uid, directive.isSilent());
+                    mailbox.setFlags(flags, false, uid, silentListener, useUids);
                 }
                 else if (directive.getSign() > 0) {
-                    mailbox.setFlags(flags, true, uid, directive.isSilent());
+                    mailbox.setFlags(flags, true, uid, silentListener, useUids);
                 }
                 else {
-                    mailbox.replaceFlags(flags, uid, directive.isSilent());
+                    mailbox.replaceFlags(flags, uid, silentListener, useUids);
                 }
-//                SimpleImapMessage imapMessage = mailbox.getMessage( uid );
-//                storeFlags( imapMessage, directive, flags );
-//                mailbox.updateMessage( imapMessage );
-//
-//                if ( ! directive.isSilent() ) {
-//                    StringBuffer out = new StringBuffer( "FLAGS " );
-//                    out.append( MessageFlags.format(imapMessage.getFlags()) );
-//                    response.fetchResponse( msn, out.toString() );
-//                }
             }
         }
-
+        
         boolean omitExpunged = (!useUids);
         session.unsolicitedResponses( response, omitExpunged );
         response.commandComplete( this );

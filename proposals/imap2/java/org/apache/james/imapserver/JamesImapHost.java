@@ -80,7 +80,7 @@ import org.apache.mailet.User;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
@@ -227,8 +227,14 @@ public class JamesImapHost
         //            and leave INBOX (with children) intact.
         String userInboxName = getQualifiedMailboxName( user, INBOX_NAME );
         if ( userInboxName.equals( existingMailbox.getFullName() ) ) {
+            ImapMailbox inbox = existingMailbox;
             ImapMailbox newBox = createMailbox( user, newMailboxName );
-            // TODO copy all messages from INBOX.
+            long[] uids = inbox.getMessageUids();
+            for (int i = 0; i < uids.length; i++) {
+                long uid = uids[i];
+                inbox.copyMessage(uid, newBox);
+            }
+            inbox.deleteAllMessages();
             return;
         }
 

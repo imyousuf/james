@@ -1,12 +1,5 @@
 # Tests that appending a message from one session triggers an EXISTS response
 # in a concurrent session on the same mailbox
-
-# TODO: 
-# a) Check sending of EXISTS response when using other selected state commands.
-#            eg FETCH, STORE, COPY...
-# b) Check sending of EXISTS response when using other non-selected state commands 
-#            eg CREATE, APPEND...
-# c) Get RECENT working
 SESSION: 1
 C: 1a CREATE existsresponse
 S: 1a OK CREATE completed.
@@ -25,8 +18,28 @@ S: \* OK No messages unseen
 S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: 2a OK \[READ-WRITE\] SELECT completed
 
+SESSION: 3
+C: 3a SELECT existsresponse
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
+S: \* 0 EXISTS
+S: \* 0 RECENT
+S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK No messages unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: 3a OK \[READ-WRITE\] SELECT completed
+
+SESSION: 4
+C: 4a SELECT existsresponse
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
+S: \* 0 EXISTS
+S: \* 0 RECENT
+S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK No messages unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: 4a OK \[READ-WRITE\] SELECT completed
+
 SESSION: 1
-C: 1c APPEND existsresponse (\Deleted) {310+}
+C: 1c APPEND existsresponse {310+}
 C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
 C: From: Fred Foobar <foobar@Blurdybloop.COM>
 C: Subject: afternoon meeting
@@ -39,11 +52,41 @@ C: Hello Joe, do you think we can meet at 3:30 tomorrow?
 C:
 S: 1c OK APPEND completed
 
+C: 1b STATUS existsresponse (MESSAGES RECENT)
+S: \* STATUS existsresponse \(MESSAGES 1 RECENT 1\)
+S: 1b OK STATUS completed
+
+# EXISTS response on NOOP
 SESSION: 2
 C: 2b NOOP
 S: \* 1 EXISTS
-#S: \* 1 RECENT
+S: \* 1 RECENT
 S: 2b OK NOOP completed
 
-C: 2c DELETE existsresponse
-S: 2c OK DELETE completed
+C: 2c CLOSE
+S: 2c OK CLOSE completed
+
+# EXISTS response on STORE
+SESSION: 3
+C: 3b STORE 1 +FLAGS.SILENT (\Flagged)
+S: \* 1 EXISTS
+S: \* 0 RECENT
+S: 3b OK STORE completed
+
+C: 3c CLOSE
+S: 3c OK CLOSE completed
+
+# EXISTS response on CREATE
+SESSION: 4
+C: 4b CREATE another
+S: \* 1 EXISTS
+S: \* 0 RECENT
+S: \* 1 FETCH \(FLAGS \(\\Flagged\)
+S: 4b OK CREATE completed
+
+C: 4c DELETE another
+S: 4c OK DELETE completed
+
+C: 4c DELETE existsresponse
+S: 4c OK DELETE completed
+

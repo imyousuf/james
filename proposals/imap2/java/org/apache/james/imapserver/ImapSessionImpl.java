@@ -67,12 +67,13 @@ import org.apache.mailet.UsersRepository;
 import javax.mail.Flags;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
@@ -115,19 +116,25 @@ public final class ImapSessionImpl implements ImapSession
         if (selected != null) {
             // New message response
             // TODO: need RECENT...
-            if (selected._sizeChanged) {
+            if (selected.isSizeChanged()) {
                 request.existsResponse(selected.getMessageCount());
-                selected._sizeChanged = false;
+                request.recentResponse(selected.getRecentCount(true));
+                selected.setSizeChanged(false);
             }
 
-            Map flagUpdates = selected.getFlagUpdates();
-            Iterator iter = flagUpdates.entrySet().iterator();
+            List flagUpdates = selected.getFlagUpdates();
+            Iterator iter = flagUpdates.iterator();
             while (iter.hasNext()) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                int msn = ((Integer) entry.getKey()).intValue();
-                Flags updatedFlags = (Flags) entry.getValue();
+                ImapSessionMailbox.FlagUpdate entry = 
+                        (ImapSessionMailbox.FlagUpdate) iter.next();
+                int msn = entry.msn;
+                Flags updatedFlags = entry.flags;
                 StringBuffer out = new StringBuffer( "FLAGS " );
                 out.append( MessageFlags.format(updatedFlags) );
+                if (entry.uid != null) {
+                    out.append(" UID ");
+                    out.append(entry.uid);
+                }
                 request.fetchResponse(msn, out.toString());
 
             }

@@ -78,7 +78,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class ImapMailboxTest extends TestCase
         implements ImapConstants
@@ -188,17 +188,17 @@ public class ImapMailboxTest extends TestCase
         assertEquals(2, mailbox.getUnseenCount());
 
         // Flag the first as seen
-        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid1, true);
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid1, null, false);
         assertEquals(2, mailbox.getFirstUnseen());
         assertEquals(1, mailbox.getUnseenCount());
 
         // Flag the second as seen
-        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid2, true);
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid2, null, false);
         assertEquals(-1, mailbox.getFirstUnseen());
         assertEquals(0, mailbox.getUnseenCount());
 
         // Unset the seen flag on the first
-        mailbox.setFlags(new Flags(Flags.Flag.SEEN), false, uid1, true);
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), false, uid1, null, false);
         assertEquals(1, mailbox.getFirstUnseen());
         assertEquals(1, mailbox.getUnseenCount());
     }
