@@ -163,7 +163,7 @@ public class InaccurateTimeoutWatchdog
                         } else {
                             getLogger().debug("Watchdog has time to sleep " + timeToSleep);
                         }
-                        if (timeToSleep < 0) {
+                        if (timeToSleep <= 0) {
                             try {
                                 synchronized (this) {
                                     if ((isChecking) && (triggerTarget != null)) {
