@@ -104,7 +104,12 @@ public class UsersLDAPRepository
     }
 
     public void setServerRoot() {
-        this.setBase(serverRDN +", " + rootNodeDN);
+        StringBuffer serverRootBuffer =
+            new StringBuffer(128)
+                    .append(serverRDN)
+                    .append(", ")
+                    .append(rootNodeDN);
+        this.setBase(serverRootBuffer.toString());
     }
 
     public void setBase(String base) {
@@ -113,8 +118,12 @@ public class UsersLDAPRepository
 
     public void initialize() throws Exception {
         //setServerRoot();
-        rootURL = LDAPHost + "/" + rootNodeDN;
-        baseURL = LDAPHost + "/" + baseNodeDN;
+        StringBuffer urlBuffer =
+            new StringBuffer(128)
+                    .append(LDAPHost)
+                    .append("/");
+        rootURL = urlBuffer.toString() + rootNodeDN;
+        baseURL = urlBuffer.toString() + baseNodeDN;
 
         logger.info("Creating initial context from " + baseURL);
         //System.out.println("Creating initial context from " + baseURL);
@@ -132,7 +141,7 @@ public class UsersLDAPRepository
         }
 
 
-        logger.info("Initial context initialised from " + baseURL);
+        logger.info("Initial context initialized from " + baseURL);
     }
 
 
@@ -148,7 +157,13 @@ public class UsersLDAPRepository
             NamingEnumeration result  = ctx.search("", filter, ctls);
 
             if (result.hasMore()) {
-                destination = "cn=" + childName + ", " + baseNodeDN;
+                StringBuffer destinationBuffer =
+                    new StringBuffer(128)
+                            .append("cn=")
+                            .append(childName)
+                            .append(", ")
+                            .append(baseNodeDN);
+                destination = destinationBuffer.toString();
                 logger.info("Pre-exisisting LDAP node: " + destination);
             } else {
                 Attributes attrs = new BasicAttributes(true);
@@ -167,10 +182,16 @@ public class UsersLDAPRepository
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_PRINCIPAL, principal);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_CREDENTIALS, password);
 
-                ctx.createSubcontext("cn="+childName, attrs);
+                ctx.createSubcontext("cn=" + childName, attrs);
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
 
-                destination = "cn=" + childName + ", " + baseNodeDN;
+                StringBuffer destinationBuffer =
+                    new StringBuffer(128)
+                            .append("cn=")
+                            .append(childName)
+                            .append(", ")
+                            .append(baseNodeDN);
+                destination = destinationBuffer.toString();
                 logger.info("Created new LDAP node: " + destination);
             }
         } catch (NamingException e) {
@@ -209,15 +230,15 @@ public class UsersLDAPRepository
     // Methods from interface UsersRepository --------------------------
 
     public boolean addUser(User user) {
-	return false;
+        return false;
     }
 
     public  User getUserByName(String name) {
-	return new DefaultUser("dummy", "dummy");
+        return new DefaultUser("dummy", "dummy");
     }
 
     public User getUserByNameCaseInsensitive(String name) {
-	return getUserByName(name);
+        return getUserByName(name);
     }
 
     public boolean containsCaseInsensitive(String name) {
@@ -225,15 +246,15 @@ public class UsersLDAPRepository
     }
 
     public String getRealName(String name) {
-	return null;
+        return null;
     }
 
     public boolean updateUser(User user) {
-	return false;
+        return false;
     }
 
     public boolean test(String name, String password) {
-	return false;
+        return false;
     }
 
     /**
@@ -252,8 +273,13 @@ public class UsersLDAPRepository
 
 
             if (members != null && members.contains(userName)) {//user already here
-                logger.info("Found " + userName + " already in mailGroup. " );
-                //System.out.println("Found " + userName + " already in mailGroup. ");
+                StringBuffer infoBuffer =
+                    new StringBuffer(64)
+                            .append("Found ")
+                            .append(userName)
+                            .append(" already in mailGroup. ");
+                logger.info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
 
             } else {
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, authType);
@@ -266,11 +292,23 @@ public class UsersLDAPRepository
                 ctx.modifyAttributes("", mods);
 
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                logger.info(userName + " added to mailGroup " + baseNodeDN );
-                //System.out.println(userName + " added to mailGroup " + baseNodeDN);
+                StringBuffer infoBuffer =
+                    new StringBuffer(128)
+                            .append(userName)
+                            .append(" added to mailGroup ")
+                            .append(baseNodeDN);
+                logger.info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
             }
         } catch (NamingException e) {
-            logger.error("Problem adding user " + userName + " to: " + baseNodeDN + e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem adding user ")
+                        .append(userName)
+                        .append(" to: ")
+                        .append(baseNodeDN)
+                        .append(e);
+            logger.error(exceptionBuffer.toString());
             //System.out.println("Problem adding user " + userName + " to: " + baseNodeDN);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -294,14 +332,22 @@ public class UsersLDAPRepository
         env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(javax.naming.Context.PROVIDER_URL, rootURL);
 
+        DirContext rootCtx = null;
         try {
-            DirContext rootCtx = new InitialDirContext(env);
+            rootCtx = new InitialDirContext(env);
 
             String[] returnAttrs = {groupAttr};
             SearchControls ctls = new SearchControls();
             ctls.setReturningAttributes(attrIDs);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String filter = mailAddressAttr + "=" + userName + "@" + usersDomain;
+            StringBuffer filterBuffer =
+                new StringBuffer(128)
+                        .append(mailAddressAttr)
+                        .append("=")
+                        .append(userName)
+                        .append("@")
+                        .append(usersDomain);
+            String filter = filterBuffer.toString();
 
             NamingEnumeration enum  = rootCtx.search("", filter, ctls);
 
@@ -330,25 +376,24 @@ public class UsersLDAPRepository
                 }
 
             } else {
-                logger.info("User " + userName + " not in Directory.");
-                // System.out.println("User " + userName + " not in Directory.");
+                StringBuffer infoBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(userName)
+                            .append(" not in directory.");
+                logger.info(infoBuffer.toString());
+                // System.out.println(infoBuffer.toString());
 
             }
-            rootCtx.close();
-
-
-
         } catch (NamingException e) {
             logger.error("Problem adding group to user " + userName);
             //System.out.println("Problem adding group to user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
+        } finally {
+            closeDirContext(rootCtx);
         }
-
     }
-
-
-
 
     public synchronized Object getAttributes(String name) {
         return null;
@@ -385,7 +430,13 @@ public class UsersLDAPRepository
                 //System.out.println(userName + " removed from mailGroup. ");
             }
         } catch (NamingException e) {
-            logger.error("Problem removing user " + userName + e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem removing user ")
+                        .append(userName)
+                        .append(": ")
+                        .append(e);
+            logger.error(exceptionBuffer.toString());
             //System.out.println("Problem removing user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -407,15 +458,23 @@ public class UsersLDAPRepository
         env.put(javax.naming.Context.PROVIDER_URL, rootURL);
 
 
+        DirContext rootCtx = null;
         try {
-            DirContext rootCtx = new InitialDirContext(env);
+            rootCtx = new InitialDirContext(env);
 
             // Find directory entry
             String[] returnAttrs = {groupAttr};
             SearchControls ctls = new SearchControls();
             ctls.setReturningAttributes(returnAttrs);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String filter = mailAddressAttr + "=" + userName + "@" + usersDomain;
+            StringBuffer filterBuffer =
+                new StringBuffer(128)
+                        .append(mailAddressAttr)
+                        .append("=")
+                        .append(userName)
+                        .append("@")
+                        .append(usersDomain);
+            String filter = filterBuffer.toString();
 
             NamingEnumeration enum  = rootCtx.search("", filter, ctls);
 
@@ -454,19 +513,29 @@ public class UsersLDAPRepository
                 }
 
             } else {
-                logger.info("User " + userName + " not in Directory.");
-                //System.out.println("User " + userName + " not in Directory.");
+                StringBuffer infoBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(userName)
+                            .append(" not in directory.");
+                logger.info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
 
             }
-            rootCtx.close();
-
         } catch (NamingException e) {
-            logger.error("Problem removing user " + userName + e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem removing user ")
+                        .append(userName)
+                        .append(e);
+            logger.error(exceptionBuffer.toString());
             //System.out.println("Problem removing user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
+        } finally {
+            closeDirContext(rootCtx);
+            rootCtx = null;
         }
-
     }
 
 
@@ -478,12 +547,23 @@ public class UsersLDAPRepository
             Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
             if (members != null && members.contains(name)) {
                 found = true;
-                logger.info("Found " + name + " in mailGroup. " );
-                //System.out.println("Found " + name + " in mailGroup. ");
+                StringBuffer infoBuffer =
+                    new StringBuffer(64)
+                            .append("Found ")
+                            .append(name)
+                            .append(" in mailGroup. ");
+                logger.info(infoBuffer.toString());
+                //System.out.println(infoBuffer.toString());
             }
         } catch (NamingException e) {
-            logger.error("Problem finding user " + name + e);
-            //System.out.println("Problem finding user " + name + " : " + e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem finding user ")
+                        .append(name)
+                        .append(" : ")
+                        .append(e);
+            logger.error(exceptionBuffer.toString());
+            //System.out.println(exceptionBuffer.toString());
         }
         return found;
     }
@@ -500,25 +580,47 @@ public class UsersLDAPRepository
             SearchControls ctls = new SearchControls();
             ctls.setReturningAttributes(returnAttrs);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String filter = mailAddressAttr + "=" + name + "@" + usersDomain;
+            StringBuffer filterBuffer = 
+                new StringBuffer(128)
+                        .append(mailAddressAttr)
+                        .append("=")
+                        .append(name)
+                        .append("@")
+                        .append(usersDomain);
+            String filter = filterBuffer.toString();
 
             Hashtable env = new Hashtable();
             env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(javax.naming.Context.PROVIDER_URL, rootURL);
-            DirContext rootCtx = new InitialDirContext(env);
+            DirContext rootCtx = null;
 
-            NamingEnumeration enum  = rootCtx.search("", filter, ctls);
-            if (enum.hasMore()) { // ie User is in Directory
-                SearchResult sr = (SearchResult)enum.next();
-                String userRDN = sr.getName();
-                userDN = userRDN +", " + rootNodeDN;
-                foundFlag = true;
-                //System.out.println("UserDN is : " + userDN);
+            try {
+                rootCtx = new InitialDirContext(env);
+    
+                NamingEnumeration enum  = rootCtx.search("", filter, ctls);
+                if (enum.hasMore()) { // ie User is in Directory
+                    SearchResult sr = (SearchResult)enum.next();
+                    String userRDN = sr.getName();
+                    StringBuffer userDNBuffer =
+                        new StringBuffer(128)
+                                .append(userRDN)
+                                .append(", ")
+                                .append(rootNodeDN);
+                    userDN = userDNBuffer.toString();
+                    foundFlag = true;
+                    //System.out.println("UserDN is : " + userDN);
+                }
+            } finally {
+                closeDirContext(rootCtx);
             }
-
-            rootCtx.close();
         } catch (Exception e) {
-            logger.error("Problem finding user " + name + " for password test." +e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Problem finding user ")
+                        .append(name)
+                        .append(" for password test.")
+                        .append(e); 
+            logger.error(exceptionBuffer.toString());
             //e.getMessage();
             //e.printStackTrace();
         }
@@ -532,22 +634,36 @@ public class UsersLDAPRepository
             env2.put(javax.naming.Context.SECURITY_CREDENTIALS, testPassword);
             //System.out.println("Creating initial context from " + baseURL);
 
+            DirContext testCtx = null;
             try {
-                DirContext testCtx = new InitialDirContext(env2);
+                testCtx = new InitialDirContext(env2);
                 result = true;
-                testCtx.close();
 
             } catch (AuthenticationException ae) {
                 result = false;
-                logger.error("Attempt to authenticate with incorrect password for " + name + " : " + ae );
-                //System.out.println("Attempt to authenticate with incorrect password for " + name + " : " + ae);
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(256)
+                            .append("Attempt to authenticate with incorrect password for ")
+                            .append(name)
+                            .append(" : ")
+                            .append(ae); 
+                logger.error(exceptionBuffer.toString());
+                //System.out.println(exceptionBuffer.toString());
                 //System.out.println(ae.getMessage());
                 //ae.printStackTrace();
             } catch (Exception e) {
-                logger.error("Problem checking password for " + name + " : " + e );
-                //System.out.println("Problem checking password for " + name + " : " + e);
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(256)
+                            .append("Problem checking password for ")
+                            .append(name)
+                            .append(" : ")
+                            .append(e); 
+                logger.error(exceptionBuffer.toString());
+                //System.out.println(exceptionBuffer.toString());
                 //System.out.println(e.getMessage());
                 //e.printStackTrace();
+            } finally {
+                closeDirContext(testCtx);
             }
         }
         return result;
@@ -582,9 +698,19 @@ public class UsersLDAPRepository
      * Based on signature from interface Disposable in new Avalon
      */
     public void dispose() throws Exception {
-        ctx.close();
+        closeDirContext(ctx);
+        ctx = null;
     }
 
+    private void closeDirContext(DirContext ctx) {
+        try {
+            if (ctx != null) {
+                ctx.close();
+            }
+        } catch (NamingException ne) {
+            logger.warn("UsersLDAPRepository: Unexpected exception encountered while closing directory context: " + ne);
+        }
+    }
 }
 
 
