@@ -69,10 +69,10 @@ import java.util.StringTokenizer;
  * <P>Matches mails that are sent by an SMTP authenticated user.</P>
  * <P>If the sender was not authenticated it will not match.</P>
  * <PRE><CODE>
- * &lt;mailet match=&quot;SMTPAuthPassed&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
+ * &lt;mailet match=&quot;SMTPAuthSuccessful&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/07/17 13:57:48 $
+ * @version CVS $Revision: 1.2 $ $Date: 2003/09/01 09:54:50 $
  * @since 2.2.0
  */
 public class SMTPAuthSuccessful extends GenericMatcher {
