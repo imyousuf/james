@@ -133,13 +133,28 @@
                 <servlets>
 
 <!-- Thise servlet acts as system servlet and provides local delivery -->
-                    <servlet match="RecipientIsLocal" class="LocalDelivery">
-                    </servlet>
+                    <servlet match="All" class="ProcessingPipe">
+                        <node type="match" condition="All">
+                            <node type="match" condition="RecipientIsLocal">
+                                <node type="mailet" name="LocalDelivery"/>
+                            </node>
+                            <node type="mailet" name="RemoteDelivery"/>
+                        </node>
+                        
+                        <mailets>
+                            <mailet name="Null" class="org.apache.james.transport.servlet.Null">
+                            </mailet>
+                            <mailet name="LocalDelivery" class="org.apache.james.transport.servlet.LocalDelivery">
+                            </mailet>
+                            <mailet name="rootForward" class="org.apache.james.transport.servlet.Forward">
+                                <forwardTo> scoobie@localhost </forwardTo>
+                            </mailet>
+                            <mailet name="RemoteDelivery" class="org.apache.james.transport.servlet.RemoteDelivery">
+                                <delayTime>21600000</delayTime>
+                                <maxRetries>5</maxRetries>
+                            </mailet>
+                        </mailets>
 
-<!-- These servlet act as system servlet and provides remote deliver -->
-                    <servlet match="!HostIsLocal" class="RemoteDelivery">
-                        <delayTime>21600000</delayTime>
-                        <maxRetries>5</maxRetries>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->

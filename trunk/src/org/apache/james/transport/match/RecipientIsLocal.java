@@ -26,6 +26,7 @@ public class RecipientIsLocal extends AbstractMatch {
     public void setComponentManager(ComponentManager comp) {
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         users = (UsersRepository) manager.getUserRepository("LocalUsers");
+
     }
     
     public void setContext(Context context) {
