@@ -24,7 +24,7 @@ public class SchedulerNotifyOutputStream extends OutputStream {
 
     int writtenCounter = 0;
 
-    public SchedulerNotifyOutputStream(OutputStream in,
+    public SchedulerNotifyOutputStream(OutputStream out,
             TimeScheduler scheduler, String triggerName, int lengthReset) {
         this.out = out;
         this.scheduler = scheduler;
