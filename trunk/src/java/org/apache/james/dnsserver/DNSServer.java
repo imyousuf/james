@@ -9,30 +9,28 @@ package org.apache.james.dnsserver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
-
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.xbill.DNS.Cache;
+import org.apache.avalon.framework.logger.Logger;
 import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.ExtendedResolver;
+import org.xbill.DNS.FindServer;
 import org.xbill.DNS.MXRecord;
 import org.xbill.DNS.Name;
-import org.xbill.DNS.RRset;
-import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
-import org.xbill.DNS.SetResponse;
 import org.xbill.DNS.Type;
+import org.xbill.DNS.dns;
 
 /**
  * Provides DNS client functionality to components running
@@ -45,17 +43,13 @@ public class DNSServer
     implements Configurable, Initializable,
     org.apache.james.services.DNSServer {
 
-    /**
-     * A resolver instance used to retrieve DNS records.  This
-     * is a reference to a third party library object.
-     */
-    private Resolver resolver;
-
-    /**
-     * A TTL cache of results received from the DNS server.  This
-     * is a reference to a third party library object.
-     */
-    private Cache cache;
+    private static class PriorityCompare implements Comparator {
+        public int compare (Object a, Object b) {
+            MXRecord ma = (MXRecord)a;
+            MXRecord mb = (MXRecord)b;
+            return ma.getPriority () - mb.getPriority ();
+        }
+    }
 
     /**
      * Whether the DNS response is required to be authoritative
@@ -72,6 +66,10 @@ public class DNSServer
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
+
+ 
+        // TODO@ Maybe add some more config items to control DNS lookup retries and
+        // timeouts
 
         // Get the DNS servers that this service will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
@@ -93,25 +91,36 @@ public class DNSServer
     public void initialize()
         throws Exception {
 
+ 
+        /**
+         * A resolver instance used to retrieve DNS records.  This
+         * is a reference to a third party library object.
+         */
+        Resolver resolver = null;
+
+        /**
+        * Holds the list of dns servers used to create the new ExtendedResolver instance
+        */
+        String[] serversArray;
+
         getLogger().info("DNSServer init...");
 
-        // If no DNS servers were configured, default to local host
+        // If no DNS servers were configured, try and get the underlying systems dns servers
+        // otherwise use 127.0.0.1
+        // Currently, this works if either the appropriate properties are set, the OS has a unix-like /etc/resolv.conf,
+        // or the system is Windows based with ipconfig or winipcfg.
         if (dnsServers.isEmpty()) {
-            try {
-                dnsServers.add( InetAddress.getLocalHost().getHostName() );
-            } catch ( UnknownHostException ue ) {
-                dnsServers.add( "127.0.0.1" );
+            getLogger().info("Trying to locate your systems DNS Servers");
+            serversArray = FindServer.servers();
+            if (serversArray == null) {
+                getLogger().info("No DNS servers found, defaulting to 127.0.0.1");
+                serversArray = new String[]{"127.0.0.1"};
             }
+        } else {
+            //Create the extended resolver using config data
+            serversArray = (String[])dnsServers.toArray(new String[0]);
         }
 
-        if (getLogger().isInfoEnabled()) {
-            for (Iterator i = dnsServers.iterator(); i.hasNext(); ) {
-                getLogger().info("DNS Server is: " + i.next());
-            }
-        }
-
-        //Create the extended resolver...
-        final String serversArray[] = (String[])dnsServers.toArray(new String[0]);
         try {
             resolver = new ExtendedResolver( serversArray );
         } catch (UnknownHostException uhe) {
@@ -119,7 +128,14 @@ public class DNSServer
             throw uhe;
         }
 
-        cache = new Cache (DClass.IN);
+        if (getLogger().isInfoEnabled()) {
+            for(int i = 0; i < serversArray.length; i++) {
+                getLogger().info("DNS Server is: " + serversArray[i]);
+            }
+        }
+
+        // set the resolver for the static class dns
+        dns.setResolver(resolver);
 
         getLogger().info("DNSServer ...init end");
     }
@@ -128,19 +144,15 @@ public class DNSServer
      * <p>Return a prioritized list of MX records
      * obtained from the server.</p>
      *
-     * <p>TODO: This should actually return a List, not
-     * a Collection.</p>
-     *
      * @param the domain name to look up
      *
      * @return a list of MX records corresponding to
      *         this mail domain name
      */
     public Collection findMXRecords(String hostname) {
-        Record answers[] = lookup(hostname, Type.MX);
+        Record answers[] = dns.getRecords(hostname, Type.MX,  DClass.IN,  dnsCredibility);
 
-        // TODO: Determine why this collection is synchronized
-        Collection servers = new Vector();
+        List servers = new ArrayList();
         try {
             if (answers == null) {
                 return servers;
@@ -151,17 +163,7 @@ public class DNSServer
                 mxAnswers[i] = (MXRecord)answers[i];
             }
 
-            // TODO: Convert this to a static class instance
-            //       No need to pay the object creation cost
-            //       on each call
-            Comparator prioritySort = new Comparator () {
-                    public int compare (Object a, Object b) {
-                        MXRecord ma = (MXRecord)a;
-                        MXRecord mb = (MXRecord)b;
-                        return ma.getPriority () - mb.getPriority ();
-                    }
-                };
-
+            Comparator prioritySort = new PriorityCompare ();
             Arrays.sort(mxAnswers, prioritySort);
 
             for (int i = 0; i < mxAnswers.length; i++) {
@@ -182,84 +184,5 @@ public class DNSServer
                 }
             }
         }
-    }
-
-    /**
-     * Looks up DNS records of the specified type for the specified name.
-     *
-     * This method is a public wrapper for the private implementation
-     * method
-     *
-     * @param name the name of the host to be looked up
-     * @param type the type of record desired
-     */
-    public Record[] lookup(String name, short type) {
-        return rawDNSLookup(name,false,type);
-    }
-
-    /**
-     * Looks up DNS records of the specified type for the specified name
-     *
-     * @param name the name of the host to be looked up
-     * @param querysent whether the query has already been sent to the DNS servers
-     * @param type the type of record desired
-     */
-    private Record[] rawDNSLookup(String namestr, boolean querysent, short type) {
-        Name name = new Name(namestr);
-        short dclass = DClass.IN;
-
-        Record [] answers;
-        int answerCount = 0, n = 0;
-        Enumeration e;
-
-        SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
-        if (cached.isSuccessful()) {
-            RRset [] rrsets = cached.answers();
-            answerCount = 0;
-            for (int i = 0; i < rrsets.length; i++) {
-                answerCount += rrsets[i].size();
-            }
-
-            answers = new Record[answerCount];
-
-            for (int i = 0; i < rrsets.length; i++) {
-                e = rrsets[i].rrs();
-                while (e.hasMoreElements()) {
-                    Record r = (Record)e.nextElement();
-                    answers[n++] = r;
-                }
-            }
-        }
-        else if (cached.isNXDOMAIN() || cached.isNXRRSET()) {
-            return null;
-        }
-        else if (querysent) {
-            return null;
-        }
-        else {
-            Record question = Record.newRecord(name, type, dclass);
-            org.xbill.DNS.Message query = org.xbill.DNS.Message.newQuery(question);
-            org.xbill.DNS.Message response;
-
-            try {
-                response = resolver.send(query);
-            }
-            catch (Exception ex) {
-                return null;
-            }
-
-            short rcode = response.getHeader().getRcode();
-            if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
-                cache.addMessage(response);
-            }
-
-            if (rcode != Rcode.NOERROR) {
-                return null;
-            }
-
-            return rawDNSLookup(namestr, true, type);
-        }
-
-        return answers;
     }
 }
