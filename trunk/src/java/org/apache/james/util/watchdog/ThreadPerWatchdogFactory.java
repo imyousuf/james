@@ -65,7 +65,7 @@
  */
 package org.apache.james.util.watchdog;
 
-import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.excalibur.thread.ThreadPool ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**

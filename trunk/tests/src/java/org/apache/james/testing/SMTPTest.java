@@ -58,15 +58,12 @@
 
 package org.apache.james.testing;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Date;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.commons.net.SocketClient;
-import org.apache.commons.net.smtp.SMTP;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.mailet.dates.RFC822DateFormat;
 

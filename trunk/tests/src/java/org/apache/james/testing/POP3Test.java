@@ -58,18 +58,17 @@
 
 package org.apache.james.testing;
 
-import java.io.InputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.mail.internet.MimeMessage;
+
 import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.commons.net.SocketClient;
-import org.apache.commons.net.pop3.POP3;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
-
 import org.apache.james.fetchmail.ReaderInputStream;
 
 

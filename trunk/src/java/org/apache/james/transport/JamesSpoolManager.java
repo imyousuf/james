@@ -63,7 +63,7 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.excalibur.thread.ThreadPool ;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -90,7 +90,7 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.31 $
+ * @version This is $Revision: 1.32 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

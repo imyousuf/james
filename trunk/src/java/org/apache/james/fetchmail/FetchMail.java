@@ -91,7 +91,7 @@ import org.apache.mailet.MailAddress;
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.8 2003/04/28 13:02:29 danny Exp $
+ * $Id: FetchMail.java,v 1.9 2003/04/28 14:00:40 danny Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {
