@@ -28,8 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.avalon.excalibur.io.DirectoryFileFilter;
+import org.apache.james.util.io.AndFileFilter;
+import org.apache.james.util.io.DirectoryFileFilter;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;

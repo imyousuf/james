@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.excalibur.io.IOUtil;
+import org.apache.avalon.cornerstone.blocks.masterstore.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;

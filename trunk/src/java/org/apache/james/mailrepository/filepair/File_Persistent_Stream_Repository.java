@@ -31,7 +31,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.avalon.excalibur.io.IOUtil;
+import org.apache.avalon.cornerstone.blocks.masterstore.IOUtil;
 
 /**
  * Implementation of a StreamRepository to a File.
