@@ -42,6 +42,7 @@ public abstract class MimeMessageSource {
         while ((read = in.read(data)) > 0) {
             size += read;
         }
+        in.close();
         return size;
     }
 }
