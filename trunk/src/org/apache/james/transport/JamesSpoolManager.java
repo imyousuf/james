@@ -26,7 +26,7 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
     private SimpleComponentManager comp;
     private Configuration conf;
     private SimpleContext context;
-    private MailRepository spool;
+    private SpoolRepository spool;
     private Logger logger;
     //private Mailet rootMailet;
     //private Mailet errorMailet;
@@ -50,7 +50,7 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JamesSpoolManager init...", "Processor", logger.INFO);
-        spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
+        spool = (SpoolRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
         mailetcontext = (MailetContext) comp.getComponent(Interfaces.MAIL_SERVER);
 
         MailetLoader mailetLoader = new MailetLoader();

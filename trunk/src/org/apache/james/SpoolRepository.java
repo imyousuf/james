@@ -13,36 +13,30 @@ import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mailet.*;
-import org.apache.james.core.*;
+import org.apache.mailet.Mail;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 /**
- * Interface for a Repository to store Mails.
+ * Interface for a Repository for Spooling Mails.
+ * A spool repository is a transitory repository which should empty itself if inbound deliveries stop.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface MailRepository extends Store.Repository {
+public interface SpoolRepository extends MailRepository {
 
     /**
      * Define a STREAM repository. Streams are stored in the specified
      * destination.
      */
-    public final static String MAIL = "MAIL";
+    public final static String SPOOL = "SPOOL";
 
 
-    /** Stores a message in this repository. Shouldn't this return the key under which it is stored? */
-    public void store(MailImpl mc) ;
-      
-    /** Retrieves a message given a key. At the moment, keys can be obtained  from list() in superinterface Store.Repository */
-    public MailImpl retrieve(String key);
-    
-    /** Removes a specified message */
-    public void remove(MailImpl mail); 
+    /** Returns the key for an arbitrarily selected mail deposited in this Repository. 
+     * Useage: SpoolManager calls accept() to see if there are any unprocessed mails in the spool repository.
+     */
 
-    /** Removes a message identifed by key. */
-    public void remove(String key) ;
+    public String accept();
 
 
 }

@@ -39,12 +39,22 @@ WIDTH="609"></h2>
             <td> Is the source of error replies and the email users will mail to for any problem.  You
             should change this to an address that can receive incoming messages.</td>
         </tr>
+	<tr>
+            <td> helloName</td>
+            <td> attribute autodetect=TRUE and value of 'myMailServer'  </td>
+            <td> The name by which James will identify itself in SMTP and POP3
+	     greetings. If autodetect is TRUE James will attempt to detect
+            automatically the name, failing which it will use 'localhost'. If
+	    autodetect is not TRUE, James will use the specified name or 
+	    'localhost' if none is specified. Look in jamesinfo.log for
+	     lines like "[...] Local host is: [servername] and [...] Hello Name is: [machine name]"</td>
+        </tr>
         <tr>
             <td> servernames/servername</td>
-            <td> N.A. </td>
+            <td> attribute autodetect=TRUE and last value of 'localhost'</td>
             <td> A list of host names James will consider as local. Any user [user]@[servername]
-            will be considered to be local. If this is left empty James will attempt to detect
-            automatically the name. Look in jamesinfo.log for a line like "[...] Local host is: [servername]"</td>
+            will be considered to be local. If autodetect is TRUE James will attempt to detect
+            automatically the name and use any names specified. Look in jamesinfo.log for a line like "[...] Handling mail for:: [domain/host]"</td>
         </tr>
         <tr>
             <td> spoolRepository </td>

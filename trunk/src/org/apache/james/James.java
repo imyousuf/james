@@ -40,10 +40,12 @@ public class James implements MailServer, Block, MailetContext {
     private Logger logger;
     private ThreadManager threadManager;
     private Store store;
-    private MailRepository spool;
+    private SpoolRepository spool;
     private MailRepository localInbox;
     private Collection serverNames;
     private static long count;
+    private String helloName;
+    private String hostName;
 
     private Hashtable attributes = new Hashtable();
 
@@ -63,27 +65,51 @@ public class James implements MailServer, Block, MailetContext {
         store = (Store) comp.getComponent(Interfaces.STORE);
 
         context = new SimpleContext();
-            // Get this server names
+
+	try {
+                hostName = InetAddress.getLocalHost().getHostName();
+	} catch  (UnknownHostException ue) {
+		hostName = "localhost";
+	}
+	logger.log("Local host is: " + hostName, "JamesSystem", logger.INFO);
+
+
+	helloName = null;
+	Configuration helloConf = conf.getConfiguration("helloName");
+	if (helloConf.getAttribute("autodetect").equals("TRUE")) {
+	    helloName = hostName;
+	} else {
+	    helloName = helloConf.getValue();
+	    if (helloName == null || helloName.trim().equals("") ) 
+		helloName = "localhost";
+	}
+	logger.log("Hello Name is: " + helloName, "JamesSystem", logger.INFO);
+        context.put(Constants.HELO_NAME, helloName);
+
+	// Get this domains and hosts served by this instance
         serverNames = new Vector();
+	Configuration serverConf = conf.getConfiguration("servernames");
+	if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
+	    serverNames.add(hostName);
+	}
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
             serverNames.add(((Configuration) e.nextElement()).getValue());
         }
         if (serverNames.isEmpty()) {
-            try {
-                serverNames.add(InetAddress.getLocalHost().getHostName());
-            } catch (UnknownHostException ue) {
-            }
+	    throw new ConfigurationException ("Fatal configuration error: no servernames specified!", conf);
         }
-        serverNames.add("localhost");
+      
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-            logger.log("Local host is: " + i.next(), "JamesSystem", logger.INFO);
+            logger.log("Handling mail for: " + i.next(), "JamesSystem", logger.INFO);
         }
         context.put(Constants.SERVER_NAMES, serverNames);
-        context.put(Constants.HELO_NAME, serverNames.iterator().next());
-            // Get postmaster
+
+	
+	// Get postmaster
         String postmaster = conf.getConfiguration("postmaster").getValue("root@localhost");
         context.put(Constants.POSTMASTER, new MailAddress(postmaster));
-            // Get the LocalInbox repository
+
+	// Get the LocalInbox repository
         String inboxRepository = conf.getConfiguration("inboxRepository").getValue("file://../mail/inbox/");
         try {
             this.localInbox = (MailRepository) store.getPrivateRepository(inboxRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
@@ -97,12 +123,12 @@ public class James implements MailServer, Block, MailetContext {
 
         String spoolRepository = conf.getConfiguration("spoolRepository").getValue("file://../mail/spool/");
         try {
-            this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
+            this.spool = (SpoolRepository) store.getPrivateRepository(spoolRepository, SpoolRepository.SPOOL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
-            logger.log("Cannot open private MailRepository", "JamesSystem", logger.ERROR);
+            logger.log("Cannot open private SpoolRepository", "JamesSystem", logger.ERROR);
             throw e;
         }
-        logger.log("Private MailRepository Spool opened", "JamesSystem", logger.INFO);
+        logger.log("Private SpoolRepository Spool opened", "JamesSystem", logger.INFO);
         comp.put(Constants.SPOOL_REPOSITORY, spool);
 
         UserManager userManager = new UserManager();
