@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.18 $ Committed on $Date: 2003/09/21 20:03:36 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.19 $ Committed on $Date: 2003/10/20 03:14:15 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -212,12 +212,6 @@
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
          -->
 
-        <!-- This is an example configuration including configuration for a list server. -->
-        <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
-        <!--
-          &listserverConfig;
-        -->
-
          <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
@@ -253,6 +247,12 @@
       <!-- Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or -->
       <!-- remote delivery -->
       <processor name="transport">
+
+        <!-- This is an example configuration including configuration for a list server. -->
+        <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
+        <!--
+          &listserverConfig;
+        -->
 
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
