@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.7 $ Committed on $Date: 2003/05/17 07:41:42 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.8 $ Committed on $Date: 2003/05/27 06:26:32 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -287,6 +287,11 @@
             <!-- If your gateway mail server is listening on a port other than 25, -->
             <!-- you can set James to connect to it on that port using the gatewayPort -->
             <!-- element. -->
+            <!-- Although normally multiple addresses are implemented through proper -->
+            <!-- DNS configuration, the RemoteDelivery mail does allow specifying -->
+            <!-- multiple gateway elements, each of which may also have a port -->
+            <!-- e.g., mygateway:2525 -->
+            <!-- the gatewayPort element is used as a default -->
             <!--
             <gateway> otherserver.mydomain.com </gateway>
             <gatewayPort>25</gatewayPort>
@@ -431,6 +436,21 @@
          <!--  Uncomment this if you want to require SMTP authentication. -->
          <!--
          <authRequired>true</authRequired>
+         -->
+
+         <!--  Uncomment this if you want to authorize specific addresses/networks.
+               If you use SMTP AUTH, addresses that match those specified here will
+               be permitted to relay without SMTP AUTH.  If you do not use SMTP
+               AUTH, and you specify addreses here, then only addresses that match
+               those specified will be permitted to relay.
+
+               Addresses may be specified as a an IP address or domain name, with an
+               optional netmask, e.g.,
+
+               127.*, 127.0.0.0/8, 127.0.0.0/255.0.0.0, and localhost/8 are all the same
+         -->
+         <!--
+         <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
          -->
 
          <!--  Uncomment this if you want to verify sender addresses, ensuring that -->
