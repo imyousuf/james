@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.1 $  Committed on $Date: 2002/01/15 08:38:25 $ by: $Author: darrell $
+ James build file $Revision: 1.2 $  Committed on $Date: 2002/01/17 06:09:00 $ by: $Author: darrell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -18,7 +18,7 @@ Legal:
 ==============================================================================
  -->
 
-<project default="main" basedir="../..">
+<project name="build-imap" default="main" basedir="../..">
 
   <!--
     Give user a chance to override without editing this file

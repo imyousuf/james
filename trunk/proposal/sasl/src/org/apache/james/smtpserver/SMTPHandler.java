@@ -22,7 +22,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
@@ -44,8 +43,8 @@ import javax.security.sasl.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.1 $
- * Committed on $Date: 2001/11/23 18:55:01 $ by: $Author: hbedi $
+ * This is $Revision: 1.2 $
+ * Committed on $Date: 2002/01/17 06:09:00 $ by: $Author: darrell $
  */
 public class SMTPHandler
     extends BaseConnectionHandler

@@ -7,16 +7,9 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.*;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
-import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
 import org.apache.james.BaseConnectionHandler;
+
+import java.util.*;
 //import org.apache.james.core.EnhancedMimeMessage;
 
 

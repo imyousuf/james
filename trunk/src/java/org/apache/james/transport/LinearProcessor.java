@@ -10,12 +10,12 @@ package org.apache.james.transport;
 import java.io.*;
 import java.util.*;
 import javax.mail.*;
-import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.SpoolRepository;
-import org.apache.log.Logger;
 import org.apache.mailet.*;
 
 /**
@@ -34,8 +34,8 @@ import org.apache.mailet.*;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor
-    extends AbstractLoggable
+public class LinearProcessor 
+    extends AbstractLogEnabled
     implements Initializable {
 
     private List mailets;

@@ -22,7 +22,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.avalon.phoenix.Block;
@@ -32,7 +32,7 @@ import org.apache.avalon.phoenix.Block;
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
 public class AvalonUsersStore
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements Block, Contextualizable, Composable, Configurable, Initializable, UsersStore {
 
     private HashMap repositories;

@@ -22,7 +22,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.13 $
- * Committed on $Date: 2001/12/07 22:08:29 $ by: $Author: serge $
+ * This is $Revision: 1.14 $
+ * Committed on $Date: 2002/01/17 06:09:02 $ by: $Author: darrell $
  */
 public class SMTPHandler
     extends BaseConnectionHandler

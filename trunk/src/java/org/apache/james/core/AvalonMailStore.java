@@ -23,12 +23,12 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.Loggable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.log.Logger;
 import org.apache.avalon.phoenix.Block;
 
 /**
@@ -40,7 +40,7 @@ import org.apache.avalon.phoenix.Block;
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class AvalonMailStore
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements Block, Contextualizable, Composable, Configurable, Initializable, MailStore {
 
     private static final String REPOSITORY_NAME = "Repository";
@@ -194,7 +194,7 @@ public class AvalonMailStore
 
                 try {
                     reply = (MailRepository) Class.forName(repClass).newInstance();
-                    if (reply instanceof Loggable) {
+                    if (reply instanceof LogEnabled) {
                        setupLogger(reply);
                     }
                     if (reply instanceof Contextualizable) {

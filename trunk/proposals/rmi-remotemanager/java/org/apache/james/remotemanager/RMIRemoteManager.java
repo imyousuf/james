@@ -13,9 +13,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.phoenix.Block;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
@@ -34,7 +34,7 @@ import org.apache.avalon.framework.activity.Initializable;
  * 
  * @author <a href="mailto:buchi@email.com">Gabriel Bucher</a>
  */
-public class RMIRemoteManager extends AbstractLoggable 
+public class RMIRemoteManager extends AbstractLogEnabled
         implements Block, Contextualizable, Composable, Configurable, Initializable {
     
     // keywords for configuration
@@ -123,8 +123,8 @@ public class RMIRemoteManager extends AbstractLoggable
                 Class classObject = Class.forName(rmiClass);
                 Remote remote = (Remote)classObject.newInstance();
                 // first of all, set logger
-                if (remote instanceof AbstractLoggable) {
-                    ((AbstractLoggable)remote).setLogger(getLogger().getChildLogger(rmiBindname));
+                if (remote instanceof LogEnabled) {
+                    ((LogEnabled)remote).enableLogging(getLogger().getChildLogger(rmiBindname));
                 }
                 // Contextualizable, Composable, Configurable, Initializable
                 if (remote instanceof Contextualizable) {

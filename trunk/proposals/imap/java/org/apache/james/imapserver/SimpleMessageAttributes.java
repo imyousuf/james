@@ -14,7 +14,7 @@ import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.util.RFC822DateFormat;
 import org.apache.log.Logger;
@@ -32,7 +32,7 @@ import org.apache.mailet.*;
  * @version 0.1 on 14 Dec 2000
  */
 public class SimpleMessageAttributes
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements MessageAttributes, Serializable  {
 
     private final static String SP = " ";

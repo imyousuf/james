@@ -15,7 +15,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
@@ -47,7 +47,7 @@ import java.util.*;
  * @see RecordRepository
  */
 public class JamesHost
-        extends AbstractLoggable
+        extends AbstractLogEnabled
         implements Host, Block, Configurable, Composable, Contextualizable, Initializable
 {
 

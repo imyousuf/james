@@ -18,7 +18,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.excalibur.concurrent.Lock;
@@ -38,11 +38,11 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:35 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/17 06:09:02 $
+ * $Revision: 1.4 $
  */
 public class UsersFileRepository
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements UsersRepository, Component, Configurable, Composable, Initializable {
  
     protected static boolean DEEP_DEBUG = true;

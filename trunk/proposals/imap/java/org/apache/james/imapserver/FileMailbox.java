@@ -7,25 +7,23 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
-import org.apache.james.Constants;
-import org.apache.james.util.Assert;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.mailet.Mail;
+import org.apache.james.util.Assert;
+
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeMessage;
+import java.io.*;
+import java.util.*;
 
 /**
  * Object representing an IMAP4rev1 mailbox (folder) on a local file system.
@@ -89,7 +87,7 @@ import org.apache.mailet.Mail;
  * @version 0.1 on 14 Dec 2000
  */
 public class FileMailbox
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements ACLMailbox, Serializable {
 
     public static final String MAILBOX_FILE_NAME = "mailbox.mbr";

@@ -48,7 +48,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.core.MailImpl;
@@ -78,7 +78,7 @@ import org.apache.mailet.MailAddress;
  * @version 1.0.0, 24/04/1999
  */
 public class JDBCMailRepository
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
     protected Context context;
 

@@ -17,8 +17,8 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.avalon.framework.logger.Loggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.james.util.Lock;
 
@@ -28,7 +28,7 @@ import org.apache.james.util.Lock;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-class NNTPSpooler extends AbstractLoggable 
+class NNTPSpooler extends AbstractLogEnabled 
         implements Contextualizable, Configurable, Initializable {
 
     private Context context;
@@ -50,8 +50,8 @@ class NNTPSpooler extends AbstractLoggable
         worker = new Worker[threadCount];
         for ( int i = 0 ; i < worker.length ; i++ ) {
             worker[i] = new Worker(threadIdleTime,spoolPath);
-            if ( worker[i] instanceof Loggable )
-                ((Loggable)worker[i]).setLogger(getLogger());
+            if ( worker[i] instanceof LogEnabled )
+                ((LogEnabled)worker[i]).enableLogging(getLogger());
         }
     }
     void setRepository(NNTPRepository repo) {
@@ -72,7 +72,7 @@ class NNTPSpooler extends AbstractLoggable
         for ( int i = 0 ; i < worker.length ; i++ )
             new Thread(worker[i],"NNTPSpool-"+i).start();
     }
-    static class Worker extends AbstractLoggable implements Runnable {
+    static class Worker extends AbstractLogEnabled implements Runnable {
         private static final Lock lock = new Lock();
         private final File spoolPath;
         private final int threadIdleTime;

@@ -26,7 +26,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
@@ -50,7 +50,7 @@ import org.apache.james.util.Lock;
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
 public class AvalonMailRepository
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements MailRepository, Component, Configurable, Composable, Initializable {
 
     private Lock lock;
