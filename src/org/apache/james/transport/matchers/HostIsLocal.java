@@ -8,24 +8,23 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.avalon.utils.*;
+import org.apache.mailet.*;
 import java.util.*;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
-public class HostIsLocal extends AbstractRecipientMatcher {
+public class HostIsLocal extends GenericRecipientMatcher {
 
     private Collection localhosts;
 
-    public void init(String condition) {
-        localhosts = (Collection) getContext().get(Resources.SERVER_NAMES);
+    public void init() {
+        localhosts = getMailetContext().getServerNames();
     }
 
-    public boolean matchRecipient(String recipient) {
-        return localhosts.contains(Mail.getHost(recipient));
+    public boolean matchRecipient(MailAddress recipient) {
+        return localhosts.contains(recipient.getHost());
     }
 }

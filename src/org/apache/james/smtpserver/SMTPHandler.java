@@ -9,11 +9,11 @@ package org.apache.james.smtpserver;
 
 import java.io.*;
 import java.net.*;
-import java.text.*;
 import java.util.*;
-import org.apache.mail.*;
+import org.apache.mailet.*;
 import org.apache.avalon.blocks.*;
 import org.apache.james.*;
+import org.apache.james.core.*;
 import org.apache.avalon.*;
 import org.apache.james.CharTerminatedInputStream;
 import javax.mail.*;
@@ -206,8 +206,23 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 out.println("501 Usage: MAIL FROM:<sender>");
                 return true;
             } else {
-                String sender = argument1.replace('<', ' ').replace('>', ' ').trim();
-                state.put(SENDER, sender);
+                String sender = argument1.trim();
+                if (!sender.startsWith("<") || !sender.endsWith(">")) {
+                    out.println("501 Syntax error in parameters or arguments");
+                    logger.log("Error parsing sender address: " + sender + ": did not start and end with < >", "SMTP", logger.ERROR);
+                    return true;
+                }
+                MailAddress senderAddress = null;
+                //Remove < and >
+                sender = sender.substring(1, sender.length() - 1);
+                try {
+                    senderAddress = new MailAddress(sender);
+                } catch (ParseException pe) {
+                    out.println("501 Syntax error in parameters or arguments");
+                    logger.log("Error parsing sender address: " + sender + ": " + pe.getMessage(), "SMTP", logger.ERROR);
+                    return true;
+                }
+                state.put(SENDER, senderAddress);
                 out.println("250 Sender <" + sender + "> OK");
                 return true;
             }
@@ -221,9 +236,26 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 return true;
             } else {
                 Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
-                if (rcptColl == null) rcptColl = new Vector();
-                String recipient = argument1.replace('<', ' ').replace('>', ' ').trim();
-                rcptColl.add(recipient);
+                if (rcptColl == null) {
+                    rcptColl = new Vector();
+                }
+                String recipient = argument1.trim();
+                if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
+                    out.println("Syntax error in parameters or arguments");
+                    logger.log("Error parsing recipient address: " + recipient + ": did not start and end with < >", "SMTP", logger.ERROR);
+                    return true;
+                }
+                MailAddress recipientAddress = null;
+                //Remove < and >
+                recipient = recipient.substring(1, recipient.length() - 1);
+                try {
+                    recipientAddress = new MailAddress(recipient);
+                } catch (ParseException pe) {
+                    out.println("501 Syntax error in parameters or arguments");
+                    logger.log("Error parsing recipient address: " + recipient + ": " + pe.getMessage(), "SMTP", logger.ERROR);
+                    return true;
+                }
+                rcptColl.add(recipientAddress);
                 state.put(RCPT_VECTOR, rcptColl);
                 out.println("250 Recipient <" + recipient + "> OK");
                 return true;
@@ -262,7 +294,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     }
                     */
                     if (!headers.isSet("From")) {
-                        headers.setHeader("From", (String)state.get(SENDER));
+                        headers.setHeader("From", state.get(SENDER).toString());
                     }
 
                     String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
@@ -279,7 +311,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
                     // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
                     ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
-                    Mail mail = new Mail(mailServer.getId(), (String)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
+                    MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
                     mail.setRemoteHost((String)state.get(REMOTE_NAME));
                     mail.setRemoteAddr((String)state.get(REMOTE_IP));
                     mailServer.sendMail(mail);

@@ -8,20 +8,15 @@
 
 package org.apache.james.transport.matchers;
 
-import java.util.Collection;
-import org.apache.mail.*;
-import org.apache.james.transport.*;
+import java.util.*;
+import org.apache.mailet.*;
+
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class All extends AbstractMatcher {
-
-    public void init(String condition) {
-    }
-
+public class All extends GenericMatcher {
     public Collection match(Mail mail) {
         return mail.getRecipients();
     }
 }
-

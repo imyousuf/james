@@ -8,40 +8,26 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.*;
-import org.apache.james.*;
-import org.apache.mail.*;
-import org.apache.avalon.blocks.*;
-import org.apache.james.transport.*;
+import org.apache.mailet.*;
+import javax.mail.*;
 
 /**
- * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
- * the message to remote hosts. If for some reason mail can't be delivered
- * store it in the "delayed" Repository and set an Alarm. After "delayTime" the
- * Alarm will wake the mailet that will try to send it again. After "maxRetries"
- * the mail will be considered underiverable and will be returned to sender.
- *
- * Note: Many FIXME on the air.
+ * No idea what this class is for..... seems to send processor of a message to
+ * another mailet (which I didn't think we were supporting)
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class ToProcessor extends AbstractMailet {
+public class ToProcessor extends GenericMailet {
+    String processor;
 
-    private Logger logger;
-    private Mailet processor;
-
-    public void init () throws Exception {
-        MailetContext context = getContext();
-        ComponentManager comp = context.getComponentManager();
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        Configuration conf = context.getConfiguration();
-        String proc = conf.getConfiguration("processor").getValue();
-        processor = (Mailet) getContext().get(proc);
+    public void init() throws MailetException {
+        processor = getInitParameter("processor");
     }
 
-    public void service(Mail mail) throws Exception {
-        logger.log("Sending mail " + mail.getName() + " to " + processor, "Mailets", Logger.INFO);
-        processor.service(mail);
+    public void service(Mail mail) throws MailetException, MessagingException {
+        log("Sending mail " + mail + " to " + processor);
+        getMailetContext().sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage(), processor);
+        mail.setState(Mail.GHOST);
     }
 
 

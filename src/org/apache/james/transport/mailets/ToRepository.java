@@ -13,8 +13,9 @@ import org.apache.james.transport.*;
 import java.util.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
+import org.apache.james.core.*;
 import org.apache.avalon.blocks.*;
-import org.apache.mail.*;
+import org.apache.mailet.*;
 
 /**
  * Stores incoming Mail in the specified Repository.
@@ -23,28 +24,31 @@ import org.apache.mail.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class ToRepository extends AbstractMailet {
+public class ToRepository extends GenericMailet {
 
     private MailRepository repository;
-    private Logger logger;
-    private boolean passThrough;
+    private boolean passThrough = false;
     private String repositoryPath;
 
     public void init() {
-        MailetContext context = getContext();
-        ComponentManager comp = context.getComponentManager();
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        Configuration conf = context.getConfiguration();
-        repositoryPath = conf.getConfiguration("repositoryPath").getValue();
-        passThrough = conf.getConfiguration("passThrough").getValueAsBoolean(false);
+        repositoryPath = getInitParameter("repositoryPath");
+        try {
+            passThrough = new Boolean(getInitParameter("passThrough")).booleanValue();
+        } catch (Exception e) {
+        }
+
+        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         repository = (MailRepository) store.getPrivateRepository(repositoryPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
     }
 
-    public void service(Mail mail) {
-        logger.log("Storing mail " + mail.getName() + " in " + repositoryPath);
+    public void service(Mail genericmail) {
+        MailImpl mail = (MailImpl)genericmail;
+        log("Storing mail " + mail.getName() + " in " + repositoryPath);
         repository.store(mail);
-        if (!passThrough) mail.setState(Mail.GHOST);
+        if (!passThrough) {
+            mail.setState(Mail.GHOST);
+        }
     }
 
     public String getMailetInfo() {

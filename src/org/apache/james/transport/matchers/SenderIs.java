@@ -8,21 +8,19 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.avalon.utils.*;
+import org.apache.mailet.*;
 import java.util.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SenderIs extends AbstractMatcher {
+public class SenderIs extends GenericMatcher {
 
     private Collection senders;
 
     public void init(String condition) {
-        StringTokenizer st = new StringTokenizer(condition, ", ");
+        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         senders = new Vector();
         while (st.hasMoreTokens()) {
             senders.add(st.nextToken());

@@ -15,7 +15,7 @@ import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.usermanager.*;
 import org.apache.avalon.blocks.*;
-import org.apache.mail.*;
+import org.apache.mailet.*;
 import org.apache.james.transport.*;
 
 /**
@@ -34,56 +34,58 @@ import org.apache.james.transport.*;
  * </pre>
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class PicoListManager extends AbstractMailet {
+public class PicoListManager extends GenericMailet {
 
     private String listName;
     private UsersRepository members;
     private String subscribe;
     private String unsubscribe;
-    private Logger logger;
-    private Mailet transport;
 
     public void init () {
-        MailetContext context = getContext();
-        ComponentManager comp = context.getComponentManager();
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        Configuration conf = context.getConfiguration();
-        listName = conf.getConfiguration("listName").getValue();
-        subscribe = conf.getConfiguration("subscribe").getValue(listName + "-on");
-        unsubscribe = conf.getConfiguration("unsubscribe").getValue(listName + "-off");
+        listName = getInitParameter("listName");
+        subscribe = getInitParameter("subscribe");
+        if (subscribe == null) {
+            subscribe = listName + "-on";
+        }
+        unsubscribe = getInitParameter("unsubscribe");
+        if (unsubscribe == null) {
+            unsubscribe = listName + "-off";
+        }
+
+        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         members = (UsersRepository) manager.getUserRepository("list-" + listName);
-        transport = (Mailet) context.get("transport");
-        logger.log("PicoListserv: " + listName + " sub " + subscribe + " unsub " + unsubscribe + "-" + transport);
+        //transport = (Mailet) context.get("transport");
+        //log("PicoListserv: " + listName + " sub " + subscribe + " unsub " + unsubscribe + "-" + transport);
     }
 
-    public void service(Mail mail) throws Exception {
+    public void service(Mail mail) throws MailetException {
         Collection recipients = mail.getRecipients();
-        String recipient = (String) recipients.iterator().next();
+        MailAddress recipient = (MailAddress) recipients.iterator().next();
         if (recipients.size() != 1) {
-            logger.log("bouncing back: Cannot handle more than one recipient");
-            transport.service(mail.bounce("Cannot handle more than one recipient"));
+            log("bouncing back: Cannot handle more than one recipient");
+            getMailetContext().bounce(mail, "Cannot handle more than one recipient");
             mail.setState(Mail.GHOST);
             return;
         }
 
-        if (Mail.getUser(recipient).equalsIgnoreCase(subscribe)) {
-            String sender = mail.getSender();
-            members.addUser(sender, "");
-            logger.log("User " + sender + " subscribed to list " + listName);
-            transport.service(mail.bounce("You have been subscribed to this list"));
+        if (recipient.getUser().equalsIgnoreCase(subscribe)) {
+            MailAddress sender = mail.getSender();
+            members.addUser(sender.toString(), "");
+            log("User " + sender + " subscribed to list " + listName);
+            getMailetContext().bounce(mail, "You have been subscribed to this list");
             mail.setState(Mail.GHOST);
             return;
         }
-        if (Mail.getUser(recipient).equalsIgnoreCase(unsubscribe)) {
-            String sender = mail.getSender();
-            members.removeUser(sender);
-            logger.log("User " + sender + " unsubscribed to list " + listName);
-            transport.service(mail.bounce("You have been unsubscribed to this list"));
+        if (recipient.getUser().equalsIgnoreCase(unsubscribe)) {
+            MailAddress sender = mail.getSender();
+            members.removeUser(sender.toString());
+            log("User " + sender + " unsubscribed to list " + listName);
+            getMailetContext().bounce(mail, "You have been unsubscribed to this list");
             mail.setState(Mail.GHOST);
             return;
         }
-        logger.log("Return untouched mail. The address " + recipient + " cannot be handled.");
+        log("Return untouched mail. The address " + recipient + " cannot be handled.");
     }
 
     public String getMailetInfo() {

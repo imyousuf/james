@@ -11,7 +11,7 @@ package org.apache.avalon.blocks;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 import java.util.*;
-import org.apache.mail.*;
+import org.apache.mailet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
 import java.io.*;
@@ -22,10 +22,10 @@ import java.io.*;
 
 public interface MailServer {
 
-    public void sendMail(String sender, Collection recipients, MimeMessage msg)
+    public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
     throws MessagingException;
 
-    public void sendMail(String sender, Collection recipients, InputStream msg)
+    public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
     throws MessagingException;
 
     public void sendMail(Mail mail)

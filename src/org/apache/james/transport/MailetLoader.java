@@ -9,7 +9,8 @@ package org.apache.james.transport;
 
 import java.util.*;
 import org.apache.avalon.*;
-import org.apache.mail.*;
+import org.apache.mailet.*;
+import org.apache.james.core.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -29,19 +30,30 @@ public class MailetLoader implements Component, Configurable {
         }
     }
 
-    public Mailet getMailet(String mailetName, MailetContext context)
-    throws Exception {
-        for (int i = 0; i < mailetPackages.size(); i++) {
-            String className = (String)mailetPackages.elementAt(i) + mailetName;
-            try {
-                AbstractMailet mailet = (AbstractMailet) Class.forName(className).newInstance();
-                mailet.setMailetContext(context);
-                mailet.init();
-                return mailet;
-            } catch (ClassNotFoundException cnfe) {
-                //do this so we loop through all the packages
+    public Mailet getMailet(String mailetName, MailetContext context, Configuration configuration)
+    throws MailetException {
+        try {
+            for (int i = 0; i < mailetPackages.size(); i++) {
+                String className = (String)mailetPackages.elementAt(i) + mailetName;
+                try {
+                    MailetConfigImpl configImpl = new MailetConfigImpl();
+                    configImpl.setMailetName(mailetName);
+                    configImpl.setConfiguration(configuration);
+                    configImpl.setMailetContext(context);
+
+                    Mailet mailet = (Mailet) Class.forName(className).newInstance();
+                    mailet.init(configImpl);
+                    return mailet;
+                } catch (ClassNotFoundException cnfe) {
+                    //do this so we loop through all the packages
+                }
             }
+            throw new ClassNotFoundException("Requested mailet not found: " + mailetName + ".  looked in " + mailetPackages.toString());
+        } catch (MailetException me) {
+            throw me;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new MailetException("Could not load mailet " + mailetName, t);
         }
-        throw new ClassNotFoundException("Requested mailet not found: " + mailetName + ".  looked in " + mailetPackages.toString());
     }
 }

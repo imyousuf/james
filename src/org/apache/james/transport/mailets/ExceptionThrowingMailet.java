@@ -8,23 +8,20 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
+import org.apache.mailet.*;
 
 /**
  * Debugging purpose Mailet. Just throws an exception.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class ExceptionThrowingMailet extends AbstractMailet {
+public class ExceptionThrowingMailet extends GenericMailet {
 
-    public void service(Mail mail)
-    throws Exception {
-        throw new Exception("General protection fault");
+    public void service(Mail mail) throws MailetException {
+        throw new MailetException("General protection fault");
     }
 
     public String getMailetInfo() {
         return "ExceptionThrowingMailet Mailet";
     }
 }
-

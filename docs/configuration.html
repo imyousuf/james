@@ -3,27 +3,29 @@
 
 <head>
 <meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-<meta NAME="Author" CONTENT="Federico Barbieri">
 <title>Java Apache Mail Enterprise Server</title>
 </head>
 
 <body BGCOLOR="#FFFFFF">
+<!--
 <h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
 WIDTH="609"></h2>
-<h1 align="center">Configurations</h1>
-<h4 align="center">JAMES documentation is under construction.<br>
-        Everything you can find outside this page <br> is to be considered obsolete.  </h4>
+-->
+<h1 align="center">Configuration</h1>
+<h4 align="center">JAMES 1.1</h4>
 
 <h3>Configuration</h3>
 <blockquote>
-        <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+        <p>This document attempts explains the JAMES.conf.xml file.
+        JAMES is currently based on an older version of Avalon,
+        specifically the <code>avalon-james-1-1b1</code> branch in CVS.</p>
 </blockquote>
 
 <h3>James Server Configuration</h3>
 <blockquote>
     <h4>James Configuration</h4>
 <blockquote>
-    <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+    <p>These tag elements control the JAMES spooling and identification settings.</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -33,18 +35,16 @@ WIDTH="609"></h2>
         </tr>
         <tr>
             <td> postmaster </td>
-            <td> root@localhost </td>
-            <td> Is the source of error replies and the email users will mail to for any problem</td>
+            <td> Postmaster@localhost </td>
+            <td> Is the source of error replies and the email users will mail to for any problem.  You
+            should change this to an address that can receive incoming messages.</td>
         </tr>
         <tr>
-            <td> servernames</td>
-        </tr>
-        <tr>
-            <td> servername</td>
+            <td> servernames/servername</td>
             <td> N.A. </td>
-            <td> Is a list of host names James will consider as local. Any user [user]@[name]
+            <td> A list of host names James will consider as local. Any user [user]@[servername]
             will be considered to be local. If this is left empty James will attempt to detect
-            automatically the name. Look in jamesinfo.log for a line like "[...] Local host is: [name]"</td>
+            automatically the name. Look in jamesinfo.log for a line like "[...] Local host is: [servername]"</td>
         </tr>
         <tr>
             <td> spoolRepository </td>
@@ -67,7 +67,7 @@ WIDTH="609"></h2>
 
     <h4>SMTP Server</h4>
 <blockquote>
-    <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+    <p>These tag elements affect the SMTP listener (for incoming messages).</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -79,6 +79,11 @@ WIDTH="609"></h2>
             <td> port </td>
             <td> 25 </td>
             <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> bind </td>
+            <td> N.A. </td>
+            <td> Specific IP addresses that you wish to bind this service to. </td>
         </tr>
         <tr>
             <td> smtphandler </td>
@@ -94,7 +99,7 @@ WIDTH="609"></h2>
     </table>
     <h4>POP3 Server</h4>
 <blockquote>
-        <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+        <p>These tag elements affect the POP3 server (for message retrieval)</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -106,6 +111,16 @@ WIDTH="609"></h2>
             <td> port </td>
             <td> 110 </td>
             <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> bind </td>
+            <td> N.A. </td>
+            <td> Specific IP addresses that you wish to bind this service to. </td>
+        </tr>
+        <tr>
+            <td> useTLS </td>
+            <td> false </td>
+            <td> Whether you wish to require/use TLS (SSL) on this port. </td>
         </tr>
         <tr>
             <td> pop3handler </td>
@@ -121,7 +136,7 @@ WIDTH="609"></h2>
     </table>
     <h4>Users Manager</h4>
 <blockquote>
-        <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+        <p>These tag elements affect the configuration of the list of local users.</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -137,7 +152,7 @@ WIDTH="609"></h2>
     </table>
     <h4>Remote Manager</h4>
 <blockquote>
-        <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+        <p>These tag elements affect the remote manager, a telnet based utility to manage the User Manager.</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -149,6 +164,16 @@ WIDTH="609"></h2>
             <td> port </td>
             <td> 4555 </td>
             <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> bind </td>
+            <td> N.A. </td>
+            <td> Specific IP addresses that you wish to bind this service to. </td>
+        </tr>
+        <tr>
+            <td> useTLS </td>
+            <td> false </td>
+            <td> Whether you wish to require/use TLS (SSL) on this port. </td>
         </tr>
         <tr>
             <td> administrator_accounts </td>
@@ -168,7 +193,7 @@ WIDTH="609"></h2>
     </table>
     <h4>Transport</h4>
 <blockquote>
-        <p>Blah blah blah blah blah blah blah blah blah blah blah</p>
+        <p>These tag elements affect SMTP remote delivery, specifically, DNS lookup functionality.</p>
 </blockquote>
     <table border=1>
         <tr>
@@ -177,14 +202,15 @@ WIDTH="609"></h2>
             <th>meaning</th>
         </tr>
         <tr>
-            <td> DNSservers/server </td>
+            <td> dnsServer/servers/server </td>
             <td> N.A. </td>
             <td> This is a list of DNS to resolve external address. </td>
         </tr>
         <tr>
             <td> authoritative </td>
             <td> false </td>
-            <td> Refere to the DNS servers </td>
+            <td> Whether to require authoritative (non-cached) DNS records. Should always be false
+            unless you understand the implications. </td>
         </tr>
         <tr>
             <td> repository </td>
@@ -204,7 +230,7 @@ WIDTH="609"></h2>
 </blockquote>
 </blockquote>
 <br><br>
-    <h3>The mailet Processor pipe line</h3>
+    <h3>The Mailet processor pipeline</h3>
 <blockquote>
         <p>This is James sitemap. It defines how each incoming mail will be processed.
         Incoming mails begins their process at the first mailet in the pipe.
@@ -278,6 +304,26 @@ WIDTH="609"></h2>
             <td> match all recipients if sender is in the condition string, else match none. </td>
             <td> match="SenderIs=badBay@badhost" </td>
         </tr>
+        <tr>
+            <td> RelayLimit </td>
+            <td> Maximum number of hops. </td>
+            <td> match all recipients if the message has more than the specified number of SMTP hops.
+            Important to prevent race conditions in SMTP delivery.
+            </td>
+            <td> match="RelayLimit=30" </td>
+        </tr>
+        <tr>
+            <td> SubjectIs </td>
+            <td> comma separated list of address. </td>
+            <td> match all recipients if the subject is equal to the condition string, else match none. </td>
+            <td> match="SubjectIs=REMOVE" </td>
+        </tr>
+        <tr>
+            <td> SubjectStartsWith </td>
+            <td> comma separated list of address. </td>
+            <td> match all recipients if the subject starts with the condition string, else match none. </td>
+            <td> match="SubjectStartsWith: [ADV]" </td>
+        </tr>
     </table>
 <blockquote>
        Some examples:<br>
@@ -290,15 +336,15 @@ WIDTH="609"></h2>
 </blockquote>
     <h4>Mailet</h4>
 <blockquote>
-        <b>The inteface and pattern around mailet is in a pre beta stage since there is no
-        experience on that and so everything is to be considered under development.</b><br>
-        Mailet are the ones performing process on mails. They are provided with a Mail object
+        <p>
+        Mailet are the ones performing a process on a message. They are provided with a Mail object
         on which thy can perform any kind of task and they reply with another Mail object
-        conteining he response. Wise use of mailet allow to write any mail based application
+        containing the response.  Wise use of mailet allow to write any mail based application
         as http application using mailet. Simple mailet provides basic mail functionality like
         mail forwarding, mailing list, "I'm on vacation" message, mail logging etc. As simply as
         these mailet, you can write and deploy your own mailet to perform any kind of task. <br>
-        Here you are some mailet samples with their configuration:<br><br>
+        Here you are some mailet samples with their configuration:
+        </p>
 
         <b>Null</b>
 <blockquote>
@@ -324,6 +370,25 @@ WIDTH="609"></h2>
             &ltforwardto&gt green@blue.org &lt/forwardto&gt<br>
             &ltforwardto&gt red@yellow.com &lt/forwardto&gt<br>
 </blockquote>
+            &lt/mailet&gt<br><br>
+</blockquote>
+
+        <b>ToProcessor</b>
+<blockquote>
+            Sends the incoming mail object to a new processor pipeline.  <code>root</code> and
+            <code>error</code> are special processors that should always be defined.<br><br>
+            &ltmailet match="RecipientIsLocal" class="ToProcessor"&gt<br>
+<blockquote>
+            &ltprocessor&gt localdelivery &lt/processor&gt<br>
+</blockquote>
+            &lt/mailet&gt<br><br>
+</blockquote>
+
+        <b>ServerTime</b>
+<blockquote>
+            Replies to the sender with a short message with the current time.
+            No configuration needed.<br><br>
+            &ltmailet match="RecipientIs=time@localhost" class="ServerTime"&gt<br>
             &lt/mailet&gt<br><br>
 </blockquote>
 
@@ -365,7 +430,7 @@ WIDTH="609"></h2>
 </blockquote>
 </blockquote>
 
-<p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
+<p align="center"><font SIZE="-1">Copyright (c) 1997-2000 <a HREF="http://java.apache.org">The
 Java Apache Project</a>.<br>
 All rights reserved.</font></p>
 

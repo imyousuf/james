@@ -8,15 +8,14 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
+import org.apache.mailet.*;
 
 /**
  * Simpliest Mailet which destroy any incoming messages.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Null extends AbstractMailet {
+public class Null extends GenericMailet {
 
     public void service(Mail mail) {
         mail.setState(mail.GHOST);

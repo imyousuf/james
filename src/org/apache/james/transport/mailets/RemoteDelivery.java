@@ -14,15 +14,15 @@ import java.net.*;
 
 import org.apache.avalon.*;
 import org.apache.james.*;
-import org.apache.mail.*;
-import org.apache.avalon.blocks.*;
+import org.apache.james.core.*;
 import org.apache.james.transport.*;
+import org.apache.mailet.*;
+import org.apache.avalon.blocks.*;
 
-import javax.mail.URLName;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.URLName;
 import javax.mail.internet.*;
 
 
@@ -33,70 +33,69 @@ import javax.mail.internet.*;
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
  * the mail will be considered underiverable and will be returned to sender.
  *
- * Note: Many FIXME on the air.
- *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
+public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
 
-	private MailRepository delayed;
-	private TimeServer timeServer;
-	private long delayTime;
-	private int maxRetries;
-	private MailServer mailServer;
-	private Logger logger;
+    private MailRepository delayed;
+    private TimeServer timeServer;
+    private long delayTime = 21600000; // default is 6*60*60*1000 mills
+    private int maxRetries = 5; // default number of retries
+    private MailServer mailServer;
 
-	private InternetAddress postmaster;
+    public void init() throws MailetException {
+        try {
+            delayTime = Long.parseLong(getInitParameter("delayTime"));
+        } catch (Exception e) {
+        }
+        try {
+            maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
+        } catch (Exception e) {
+        }
+        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
 
-	public void init ()	throws Exception {
-	    MailetContext context = getContext();
-		ComponentManager comp = context.getComponentManager();
-		Configuration conf = context.getConfiguration();
-		logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-		delayTime = conf.getConfiguration("delayTime").getValueAsLong(21600000); // default is 6*60*60*1000 mills
-		maxRetries = conf.getConfiguration("maxRetries").getValueAsInt(5); // default is 5 retries
-		timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-
-            // Instanziate the a MailRepository for delayed mails
+        // Instanziate the a MailRepository for delayed mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
-        String delayedPath = conf.getConfiguration("delayed").getValue("../var/mail/delayed");
-		delayed = (MailRepository) store.getPrivateRepository(delayedPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
+        String delayedPath = getInitParameter("delayed");
+        if (delayedPath == null) {
+            delayedPath = "../var/mail/delayed";
+        }
+        delayed = (MailRepository) store.getPrivateRepository(delayedPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
 
-		postmaster = new InternetAddress((String) getContext().get(Resources.POSTMASTER));
-        mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
+        int i = 0;
+        for (Enumeration e = delayed.list(); e.hasMoreElements(); ) {
+            String key = (String) e.nextElement();
+            timeServer.setAlarm(key, this, ++i * 10000);
+            log("delayed message " + key + " set for delivery in " + (i * 10) + " seconds");
+        }
+    }
 
-		int i = 0;
-		for (Enumeration e = delayed.list(); e.hasMoreElements(); ) {
-			String key = (String) e.nextElement();
-			timeServer.setAlarm(key, this, ++i * 10000);
-			logger.log("delayed message " + key + " set for delivery in " + (i * 10) + " seconds");
-		}
-	}
-
-	/**
-	 * We can assume that the recipients of this message are all going to the same
-	 * mail server.  We will now rely on SmartTransport to do DNS MX record lookup
-	 * and try to deliver to the multiple mail servers.  If it fails, it should
-	 * throw an exception.
-	 *
-	 * Creation date: (2/24/00 11:25:00 PM)
-	 * @param Mail org.apache.mail.Mail
-	 */
-	private void deliver(Mail mail) {
-		try {
-			MimeMessage message = mail.getMessage ();
-			Collection recipients = mail.getRecipients ();
-			String rec = (String) recipients.iterator().next();
-			String host = rec.substring(rec.indexOf('@') + 1);
-			InternetAddress addr[] = new InternetAddress[recipients.size()];
-			int j = 0;
-			for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
-				addr[j] = new InternetAddress((String) i.next());
-			}
+    /**
+     * We can assume that the recipients of this message are all going to the same
+     * mail server.  We will now rely on SmartTransport to do DNS MX record lookup
+     * and try to deliver to the multiple mail servers.  If it fails, it should
+     * throw an exception.
+     *
+     * Creation date: (2/24/00 11:25:00 PM)
+     * @param Mail org.apache.mailet.Mail
+     */
+    private void deliver(MailImpl mail) {
+        try {
+            MimeMessage message = mail.getMessage();
+            Collection recipients = mail.getRecipients();
+            MailAddress rec = (MailAddress) recipients.iterator().next();
+            String host = rec.getHost();
+            InternetAddress addr[] = new InternetAddress[recipients.size()];
+            int j = 0;
+            for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
+                addr[j] = new InternetAddress(i.next().toString());
+            }
 
             if (addr.length > 0) {
                 //Lookup the possible targets
-                for (Iterator i = getContext().findMXRecords(host).iterator(); i.hasNext();) {
+                for (Iterator i = getMailetContext().getMailServers(host).iterator(); i.hasNext();) {
                     try {
                         String outgoingmailserver = i.next().toString ();
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
@@ -115,122 +114,121 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
                 throw new MessagingException("No route found to " + host);
             }
 
+            log("Mail sent");
+            //We've succeeded somehow!!!  Cheers!
+            return;
+        } catch (Exception ex) {
+            //We should do a better job checking this... if the failure is a general
+            //connect exception, this is less descriptive than more specific SMTP command
+            //failure... have to lookup and see what are the various Exception
+            //possibilities
 
-
-
-			logger.log("Mail sent");
-			//We've succeeded somehow!!!  Cheers!
-			return;
-		} catch (Exception ex) {
-			//We should do a better job checking this... if the failure is a general
-			//connect exception, this is less descriptive than more specific SMTP command
-			//failure... have to lookup and see what are the various Exception
-			//possibilities
-
-			//Unable to deliver message after numerous tries... fail accordingly
-			ex.printStackTrace();
-			failMessage (mail, "Delivery failure: " + ex.toString ());
-		}
-	}
-
-	public void destroy() {
-	}
+            //Unable to deliver message after numerous tries... fail accordingly
+            ex.printStackTrace();
+            failMessage (mail, "Delivery failure: " + ex.toString ());
+        }
+    }
 
     /**
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
-     * @param mail org.apache.mail.Mail
+     * @param mail org.apache.mailet.Mail
      * @param reason java.lang.String
      */
-    private void failMessage(Mail mail, String reason) {
-        logger.log("Exception delivering mail: " + reason);
+    private void failMessage(MailImpl mail, String reason) {
+        log("Exception delivering mail: " + reason);
         if (!mail.getState().equals(Mail.ERROR)) {
             mail.setState(Mail.ERROR);
             mail.setErrorMessage("1");
         }
         int retries = Integer.parseInt(mail.getErrorMessage());
         if (retries > maxRetries) {
-            logger.log("Sending back message " + mail.getName () + " after " + retries + " retries");
-            //logger.log("Sending back message " + mail.getMessage ().getMessageID () + " after " + retries + " retries");
+            log("Sending back message " + mail.getName () + " after " + retries + " retries");
+            //log("Sending back message " + mail.getMessage ().getMessageID () + " after " + retries + " retries");
             try {
                 //FIXME: need much better logging of why this message failed, including the
                 //original message as an attachment.  q.q.v. old james stuff.
                 MimeMessage reply = (MimeMessage) (mail.getMessage()).reply(false);
                 reply.setSubject("Unable to deliver this message to recipients: " + reason);
                 Collection recipients = new Vector ();
-                recipients.add(mail.getSender ());
-                InternetAddress addr[] = {new InternetAddress(mail.getSender())};
-                reply.setRecipients(Message.RecipientType.TO, addr);
-                reply.setFrom(postmaster);
+                recipients.add(mail.getSender().toString());
+                InternetAddress addr[] = {new InternetAddress(mail.getSender().toString())};
+                reply.setRecipients(javax.mail.Message.RecipientType.TO, addr);
+                reply.setFrom(getMailetContext().getPostmaster().toInternetAddress());
 
-                mailServer.sendMail (postmaster.toString (), recipients, reply);
+                mailServer.sendMail(getMailetContext().getPostmaster(), recipients, reply);
             } catch (Exception ignore) {
                 // FIXME: cannot destroy mails... what should we do here ?
-                logger.log("Unable to reply. Destroying message");
+                log("Unable to reply. Destroying message");
                 //This should go to straight to the postmaster... but I'm sleepy
             }
         } else {
             mail.setName(mail.getName() + retries);
-            logger.log("Storing message " + mail.getName () + " into delayed after " + retries + " retries");
-            mail.setErrorMessage("" + ++retries);
+            log("Storing message " + mail.getName() + " into delayed after " + retries + " retries");
+            ++retries;
+            mail.setErrorMessage(retries + "");
             delayed.store(mail);
-            timeServer.setAlarm(mail.getName (), this, delayTime);
+            timeServer.setAlarm(mail.getName(), this, delayTime);
         }
     }
 
-	public String getMailetInfo() {
-		return "RemoteDelivery Mailet";
-	}
-	/**
-	 * For this message, we take the list of recipients, organize these into distinct
-	 * servers, and duplicate the message for each of these servers, and then call
-	 * the deliver (messagecontainer) method for each server-specific
-	 * messagecontainer ... that will handle storing it in the delayed queue if needed.
-	 *
-	 * @param mail org.apache.mail.Mail
-	 * @return org.apache.mail.MessageContainer
-	 */
-	public void service(Mail mail) {
-		//Do I want to give the internal key, or the message's Message ID
-		logger.log("Remotly delivering mail " + mail.getName());
-		Collection recipients = mail.getRecipients();
+    public String getMailetInfo() {
+        return "RemoteDelivery Mailet";
+    }
 
-		//Must first organize the recipients into distinct servers (name made case insensitive)
-		Hashtable targets = new Hashtable ();
-		for (Iterator i = recipients.iterator(); i.hasNext();) {
-			String target = (String)i.next();
-			String targetServer = target.substring(target.indexOf ("@") + 1).toLowerCase ();
-			Collection temp = (Collection)targets.get(targetServer);
-			if (temp == null) {
-				temp = new Vector ();
-				targets.put (targetServer, temp);
-			}
-			temp.add(target);
-		}
+    /**
+     * For this message, we take the list of recipients, organize these into distinct
+     * servers, and duplicate the message for each of these servers, and then call
+     * the deliver (messagecontainer) method for each server-specific
+     * messagecontainer ... that will handle storing it in the delayed queue if needed.
+     *
+     * @param mail org.apache.mailet.Mail
+     * @return org.apache.mailet.MessageContainer
+     */
+    public void service(Mail genericmail) throws AddressException {
+        MailImpl mail = (MailImpl)genericmail;
 
-		//We have the recipients organized into distinct servers... put them into the
-		//delivery store organized like this... this is ultra inefficient I think...
+        //Do I want to give the internal key, or the message's Message ID
+        log("Remotly delivering mail " + mail.getName());
+        Collection recipients = mail.getRecipients();
 
-		//remove the original message from the container... I guess I would
-		//just return null so the primary James stream stops consider this message
-		// ??????? this really doesn't look right... it should work, but ugghgghghghhh...
-		//delayed.remove (mail.getMessageId ());
+        //Must first organize the recipients into distinct servers (name made case insensitive)
+        Hashtable targets = new Hashtable();
+        for (Iterator i = recipients.iterator(); i.hasNext();) {
+            MailAddress target = (MailAddress)i.next();
+            String targetServer = target.getHost().toLowerCase();
+            Collection temp = (Collection)targets.get(targetServer);
+            if (temp == null) {
+                temp = new Vector();
+                targets.put (targetServer, temp);
+            }
+            temp.add(target);
+        }
 
-		//store the new message containers - organized by server
-		String name = mail.getName();
-		for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
-		    String host = (String) i.next();
-		    Collection rec = (Collection) targets.get(host);
-		    logger.log("Sending mail to " + rec + " on " + host);
-		    mail.setRecipients(rec);
-		    mail.setName(name + "-to-" + host);
-			deliver (mail);
-		}
-		mail.setState(Mail.GHOST);
-	}
-	public void wake(String name, String memo) {
-		Mail mail = delayed.retrieve(name);
-		deliver(mail);
-		delayed.remove(name);
-	}
+        //We have the recipients organized into distinct servers... put them into the
+        //delivery store organized like this... this is ultra inefficient I think...
+
+        //remove the original message from the container... I guess I would
+        //just return null so the primary James stream stops consider this message
+        // ??????? this really doesn't look right... it should work, but ugghgghghghhh...
+        //delayed.remove (mail.getMessageId ());
+
+        //store the new message containers - organized by server
+        String name = mail.getName();
+        for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
+            String host = (String) i.next();
+            Collection rec = (Collection) targets.get(host);
+            log("Sending mail to " + rec + " on " + host);
+            mail.setRecipients(rec);
+            mail.setName(name + "-to-" + host);
+            deliver(mail);
+        }
+        mail.setState(Mail.GHOST);
+    }
+
+    public void wake(String name, String memo) {
+        MailImpl mail = delayed.retrieve(name);
+        deliver(mail);
+        delayed.remove(name);
+    }
 }

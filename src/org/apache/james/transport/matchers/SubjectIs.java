@@ -8,11 +8,10 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.Mail;
-import javax.mail.internet.*;
+import org.apache.mailet.*;
 import javax.mail.*;
+import javax.mail.internet.*;
 import java.util.*;
-import org.apache.james.transport.*;
 
 /**
  *
@@ -20,21 +19,12 @@ import org.apache.james.transport.*;
  * @version 1.0.0, 1/5/2000
  */
 
-public class SubjectIs extends AbstractMatcher {
-    String condition;
-
-    public void init(String condition) {
-        this.condition = condition;
-    }
-
-    public Collection match(Mail mail) {
-        try {
-            MimeMessage mm = mail.getMessage();
-            String subject = mm.getSubject();
-            if (subject != null && subject.equals(condition)) {
-                return mail.getRecipients();
-            }
-        } catch (MessagingException ex) {
+public class SubjectIs extends GenericMatcher {
+    public Collection match(Mail mail) throws MessagingException {
+        MimeMessage mm = mail.getMessage();
+        String subject = mm.getSubject();
+        if (subject != null && subject.equals(getCondition())) {
+            return mail.getRecipients();
         }
         return null;
     }
