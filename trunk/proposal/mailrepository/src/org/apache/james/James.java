@@ -14,8 +14,9 @@ import java.util.*;
 
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.*;
 
+import org.apache.james.core.*;
 import org.apache.james.transport.*;
 import org.apache.james.smtpserver.*;
 import org.apache.james.dnsserver.*;
@@ -31,7 +32,7 @@ import javax.mail.MessagingException;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class James implements MailServer, Block {
+public class James implements MailServer, Block, MailetContext {
 
     private SimpleComponentManager comp;
     private SimpleContext context;
@@ -44,6 +45,8 @@ public class James implements MailServer, Block {
     private Collection serverNames;
     private static long count;
 
+    private Hashtable attributes = new Hashtable();
+
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
@@ -52,7 +55,7 @@ public class James implements MailServer, Block {
         this.comp = new SimpleComponentManager(comp);
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JAMES init...", "JamesSystem", logger.INFO);
@@ -79,7 +82,7 @@ public class James implements MailServer, Block {
         context.put(Constants.HELO_NAME, serverNames.iterator().next());
             // Get postmaster
         String postmaster = conf.getConfiguration("postmaster").getValue("root@localhost");
-        context.put(Constants.POSTMASTER, postmaster);
+        context.put(Constants.POSTMASTER, new MailAddress(postmaster));
             // Get the LocalInbox repository
         String inboxRepository = conf.getConfiguration("inboxRepository").getValue("file://../mail/inbox/");
         try {
@@ -99,7 +102,7 @@ public class James implements MailServer, Block {
             logger.log("Cannot open private SpoolRepository", "JamesSystem", logger.ERROR);
             throw e;
         }
-        logger.log("Private SpoolRepository opened", "JamesSystem", logger.INFO);
+        logger.log("Private SpoolRepository Spool opened", "JamesSystem", logger.INFO);
         comp.put(Constants.SPOOL_REPOSITORY, spool);
 
         UserManager userManager = new UserManager();
@@ -155,6 +158,10 @@ public class James implements MailServer, Block {
             throw e;
         }
 
+        // For AVALON aware mailets and matchers, we put the Component object as
+        // an attribute
+        attributes.put(Constants.AVALON_COMPONENT_MANAGER, comp);
+
         int threads = conf.getConfiguration("spoolmanagerthreads").getValueAsInt(1);
         while (threads-- > 0) {
             try {
@@ -179,13 +186,21 @@ public class James implements MailServer, Block {
         logger.log("JAMES ...init end", "JamesSystem", logger.INFO);
     }
 
-    public void sendMail(String sender, Collection recipients, MimeMessage message)
+    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
     throws MessagingException {
 //FIX ME!!! we should validate here MimeMessage.
-        sendMail(new Mail(getId(), sender, recipients, message));
+        sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
-    public synchronized void sendMail(String sender, Collection recipients, InputStream msg)
+    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
+    throws MessagingException {
+//FIX ME!!! we should validate here MimeMessage.
+        MailImpl mail = new MailImpl(getId(), sender, recipients, message);
+        mail.setState(state);
+        sendMail(mail);
+    }
+
+    public synchronized void sendMail(MailAddress sender, Collection recipients, InputStream msg)
     throws MessagingException {
 
             // parse headers
@@ -196,21 +211,21 @@ public class James implements MailServer, Block {
         }
 //        headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
-        sendMail(new Mail(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
+        sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
 
-    public synchronized void sendMail(Mail mail)
-    throws MessagingException {
+    public synchronized void sendMail(Mail mail) throws MessagingException {
+        MailImpl mailimpl = (MailImpl)mail;
         try {
-            spool.store(mail);
+            spool.store(mailimpl);
         } catch (Exception e) {
             try {
-                spool.remove(mail);
+                spool.remove(mailimpl);
             } catch (Exception ignored) {
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage());
         }
-        logger.log("Mail " + mail.getName() + " pushed in spool", "JamesSystem", logger.INFO);
+        logger.log("Mail " + mailimpl.getName() + " pushed in spool", "JamesSystem", logger.INFO);
     }
 
     public synchronized MailRepository getUserInbox(String userName) {
@@ -230,15 +245,96 @@ public class James implements MailServer, Block {
         return "Mail" + System.currentTimeMillis() + "-" + count++;
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-	    System.out.println("ERROR!");
-	    System.out.println("Cannot execute James as a stand alone application.");
-	    System.out.println("To run James, you need to have the Avalon framework installed.");
-	    System.out.println("Please refer to the Readme file to know how to run James.");
+        System.out.println("ERROR!");
+        System.out.println("Cannot execute James as a stand alone application.");
+        System.out.println("To run James, you need to have the Avalon framework installed.");
+        System.out.println("Please refer to the Readme file to know how to run James.");
     }
 
-    public void destroy()
-    throws Exception {
+    public void destroy() {
+        //Does nothing... is this even called?
+    }
+
+
+    //Methods for MailetContext
+    public Collection getMailServers(String host) {
+        DNSServer dnsServer = (DNSServer) comp.getComponent("DNS_SERVER");
+        return dnsServer.findMXRecords(host);
+    }
+
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public void setAttribute(String key, Object object) {
+        attributes.put(key, object);
+    }
+
+    public void removeAttribute(String key) {
+        attributes.remove(key);
+    }
+
+    public Iterator getAttributeNames() {
+        Vector names = new Vector();
+        for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
+            names.add(e.nextElement());
+        }
+        return names.iterator();
+    }
+
+    public void bounce(Mail mail, String message) {
+        bounce(mail, message, getPostmaster().toString());
+    }
+
+    public void bounce(Mail mail, String message, String bouncer) {
+        throw new RuntimeException("Not yet implemented");
+    }
+
+    public Collection getLocalUsers() {
+        UserManager usersManager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
+        Vector users = new Vector();
+        for (Enumeration e = usersManager.getUserRepository("LocalUsers").list(); e.hasMoreElements(); ) {
+            users.add(e.nextElement());
+        }
+        return users;
+    }
+
+    public MailAddress getPostmaster() {
+        return (MailAddress)context.get(Constants.POSTMASTER);
+    }
+
+    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
+        Vector recipients = new Vector();
+        recipients.add(recipient);
+        MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
+        getUserInbox(recipient.getUser()).store(mailImpl);
+    }
+
+    public int getMajorVersion() {
+        return 1;
+    }
+
+    public int getMinorVersion() {
+        return 2;
+    }
+
+    public Collection getServerNames() {
+        Vector names = (Vector)context.get(Constants.SERVER_NAMES);
+        return (Collection)names.clone();
+    }
+
+    public String getServerInfo() {
+        return "JAMES/1.2";
+    }
+
+    public void log(String message) {
+        logger.log(message, "Mailets", logger.INFO);
+    }
+
+    public void log(String message, Throwable t) {
+        t.printStackTrace(); //DEBUG
+        logger.log(message + ": " + t.getMessage(), "Mailets", logger.INFO);
     }
 }

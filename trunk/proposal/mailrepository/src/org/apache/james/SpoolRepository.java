@@ -13,7 +13,7 @@ import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.Mail;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
