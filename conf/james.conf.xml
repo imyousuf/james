@@ -63,7 +63,7 @@
 
       <!-- Set the facilities offered by this instance of JAMES -->
       <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
-      <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"/>
+      <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"  NNTP="FALSE"/>
 
       <!-- Set the type of permanent mailfolders to be used.
       If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
@@ -168,6 +168,50 @@
           <connectiontimeout>1800000</connectiontimeout>
         </imaphandler>
       </imapServer>
+
+      <nntpServer>
+        <port>119</port>
+        <!-- <port>563</port> -->
+        <!-- port 563 is the well-known/IANA registered port for NNTPS
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <nntphandler>
+          <connectiontimeout>120000</connectiontimeout>
+	  <!-- make this true, if you want only authenticated users to access NNTP-->
+          <authRequired>false</authRequired>
+        </nntphandler>
+	<!-- NNTP Repository -->
+        <repository>
+            <configuration>
+	        <!-- make this true to disallow posting to all newsgroups-->
+		<readOnly>false</readOnly>
+	        <rootPath>file:///var/nntp/groups</rootPath>
+	        <tempPath>file:///var/nntp/temp</tempPath>
+	        <articleIDPath>file:///var/nntp/articleid</articleIDPath>
+	        <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
+		<!-- these additional news groups would be created and exposed-->
+		<newsgroups>
+		  <newsgroup>org.apache.james.dev</newsgroup>
+		  <newsgroup>org.apache.james.user</newsgroup>
+		  <newsgroup>org.apache.avalon.dev</newsgroup>
+		  <newsgroup>org.apache.avalon.user</newsgroup>
+		</newsgroups>
+	        <spool>
+            	  <configuration>
+		    <spoolPath>file:///var/nntp/spool</spoolPath>
+		    <!-- number of threads that process spooler related tasks -->
+		    <threadCount>1</threadCount>
+		    <!-- the spool thread(s) should idle for some time, 
+	               if it has nothing to do  -->
+		    <threadIdleTime>1000</threadIdleTime>
+            	  </configuration>
+	        </spool>
+            </configuration>
+	</repository>
+      </nntpServer>
 
 <!-- CHECKME! Change the default password! -->
       <remoteManager>
