@@ -78,8 +78,8 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
             getLogger().debug("in spool thread");
             while ( Thread.currentThread().isInterrupted() == false ) {
                 String[] list = spoolPath.list();
-                getLogger().debug("Files to process: "+list.length);
-                for ( int i = 0 ; i < list.length ; i++ )
+                for ( int i = 0 ; i < list.length ; i++ ) {
+                    getLogger().debug("Files to process: "+list.length);
                     if ( lock.lock(list[i]) ) {
                         File f = new File(spoolPath,list[i]).getAbsoluteFile();
                         getLogger().debug("processing file: "+f.getAbsolutePath());
@@ -92,7 +92,7 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
                             lock.unlock(list[i]);
                         }
                     }
-                getLogger().debug(" Sleeping...");
+                }
                 // this is good for other non idle threads
                 try {  Thread.currentThread().sleep(threadIdleTime);
                 } catch(InterruptedException ex) {  }
