@@ -21,7 +21,7 @@
 </section>
 
 <section name="Version 2.1.2">
-<p>Expected released February 2003</p>
+<p>Released 21 February 2003</p>
 <li>[NjB] (code) Fixed handling of permanent/temporary errors in RemoteDelivery</li>
 <li>[NjB] (code) Fixed bug where connect error could cause outgoing mail to be discarded.</li>
 <li>[PG]  (code) Fixed the bounce() method to add the original message as a message MIME type with an attachment disposition.</li>
