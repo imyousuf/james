@@ -54,14 +54,14 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.SpoolRepository;
 import org.apache.mailet.UsersRepository;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -74,7 +74,7 @@ import org.apache.mailet.UsersRepository;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.38 $
+ * @version This is $Revision: 1.39 $
 
  */
 public class James
@@ -899,5 +899,7 @@ public class James
     public UsersRepository getUserRepository(String respositoryName) throws MessagingException {
         return usersStore.getRepository(respositoryName);
     }
+
+    
 
 }

@@ -7,14 +7,9 @@
  */
 package org.apache.james.transport.mailets;
 
-//import org.apache.avalon.framework.component.ComponentException;
-//import org.apache.avalon.framework.component.ComponentManager;
-//import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import javax.mail.MessagingException;
 
-import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailStore;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
@@ -26,7 +21,7 @@ import org.apache.mailet.MailRepository;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.9 $
+ * @version This is $Revision: 1.10 $
  */
 public class ToRepository extends GenericMailet {
 

@@ -7,12 +7,8 @@
  */
 package org.apache.james.transport.mailets;
 
-//import org.apache.avalon.framework.component.ComponentException;
-//import org.apache.avalon.framework.component.ComponentManager;
 import javax.mail.MessagingException;
 
-import org.apache.james.Constants;
-//import org.apache.james.services.UsersStore;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.UsersRepository;
 
@@ -25,7 +21,7 @@ import org.apache.mailet.UsersRepository;
  * <br>&lt;/mailet&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.7 $
+ * @version This is $Revision: 1.8 $
  */
 public class AvalonListservManager extends GenericListservManager {
 

@@ -38,8 +38,8 @@ import javax.mail.internet.NewsAddress;
 
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 
 /**

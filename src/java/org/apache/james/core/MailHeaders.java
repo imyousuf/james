@@ -17,7 +17,7 @@ import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
-import org.apache.james.util.RFC2822Headers;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * This interface defines a container for mail headers. Each header must use

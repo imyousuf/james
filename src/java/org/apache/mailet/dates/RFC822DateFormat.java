@@ -5,10 +5,12 @@
  * version 1.1, a copy of which has been included with this distribution in
  * the LICENSE file.
  */
-package org.apache.james.util;
+package org.apache.mailet.dates;
 
 import java.util.Date;
+
 import javax.mail.internet.MailDateFormat;
+
 
 /**
  * A thread safe wrapper for the <code>javax.mail.internet.MailDateFormat</code> class.

@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.mailet.dates.RFC822DateFormat;
+
 /**
  * A utility class to allow creation of RFC822 date strings from Dates 
  * and dates from RFC822 strings<br>

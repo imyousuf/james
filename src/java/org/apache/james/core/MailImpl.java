@@ -27,9 +27,9 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.activity.Disposable;
-import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple
