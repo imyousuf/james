@@ -34,11 +34,9 @@ import org.apache.mailet.*;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor 
+public class LinearProcessor
     extends AbstractLoggable
     implements Initializable {
-
-    private final static boolean DEEP_DEBUG = false;
 
     private List mailets;
     private List matchers;
@@ -50,7 +48,6 @@ public class LinearProcessor
 
     public void setSpool(SpoolRepository spool) {
         this.spool = spool;
-	if (DEEP_DEBUG) getLogger().debug("Using spool: " + spool);
     }
 
 
@@ -72,7 +69,16 @@ public class LinearProcessor
 
 
     public synchronized void service(MailImpl mail) throws MessagingException {
-	if (DEEP_DEBUG) getLogger().debug("Servicing mail: " + mail.getName());
+        getLogger().debug("Servicing mail: " + mail.getName());
+        //unprocessed is an array of Lists of Mail objects
+        //  the array indicates which matcher/mailet (stage in the linear
+        //  processor) that this Mail needs to be processed.
+        //  e.g., a Mail in unprocessed[0] needs to be
+        //  processed by the first matcher/mailet.
+        //
+        //It is a List of Mail objects at each array spot as multiple Mail
+        //  objects could be at the same stage.
+
         //make sure we have the array built
         if (unprocessed == null) {
             //Need to construct that object
@@ -83,23 +89,26 @@ public class LinearProcessor
         for (int i = 0; i < unprocessed.length; i++) {
             unprocessed[i].clear();
         }
+
         //Add the object to the bottom of the list
         unprocessed[0].add(mail);
+
         //This is the original state of the message
         String originalState = mail.getState();
+
         //We'll use these as temporary variables in the loop
-        mail = null;
-        int i = 0;
+        mail = null;  // the message we're currently processing
+        int i = 0;    // where in the stage we're looking
         while (true) {
-            //The last element in the unprocessed array is a bucket of mail messages
-            //  that went through the entire processor.  We want them to just die,
-            //  so we clear that List so they are GC'd.
+            //The last element in the unprocessed array has mail messages
+            //  that have completed all stages.  We want them to just die,
+            //  so we clear that spot.
             unprocessed[unprocessed.length - 1].clear();
 
-            //Reset this to null before we start scanning for it
+            //initialize the mail reference we will be searching on
             mail = null;
 
-            //Try to find a message to process
+            //Scan through all stages, trying to find a message to process
             for (i = 0; i < unprocessed.length; i++) {
                 if (unprocessed[i].size() > 0) {
                     //Get the first element from the queue, and remove it from there
@@ -109,9 +118,9 @@ public class LinearProcessor
                 }
             }
 
-            //See if we didn't find any messages to process
+            //Check it we found anything
             if (mail == null) {
-                //We're done
+                //We found no messages to process... we're done servicing the mail object
                 return;
             }
 
@@ -119,6 +128,7 @@ public class LinearProcessor
             //Call the matcher and find what recipients match
             Collection recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
+            getLogger().debug("Checking " + mail.getName() + " with " + matcher);
             try {
                 recipients = matcher.match(mail);
                 if (recipients == null) {
@@ -130,7 +140,8 @@ public class LinearProcessor
             } catch (MessagingException me) {
                 handleException(me, mail, matcher.getMatcherConfig().getMatcherName());
             }
-            //Split the recipients into two pools
+            //Split the recipients into two pools.  notRecipients will contain the
+            //  recipients on the message that the matcher did not return.
             Collection notRecipients = new Vector();
             notRecipients.addAll(mail.getRecipients());
             notRecipients.removeAll(recipients);
@@ -152,6 +163,7 @@ public class LinearProcessor
             }
             //We have messages that need to process... time to run the mailet.
             Mailet mailet = (Mailet) mailets.get(i);
+            getLogger().debug("Servicing " + mail.getName() + " by " + mailet.getMailetInfo());
             try {
                 mailet.service(mail);
                 //Make sure all the recipients are still MailAddress objects
@@ -162,7 +174,6 @@ public class LinearProcessor
 
             //See if the state was changed by the mailet
             if (!mail.getState().equals(originalState)) {
-                getLogger().debug("State changed by: " + mailet.getMailetInfo());
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(mail.GHOST)) {
                     //let this instance die...
@@ -181,7 +192,6 @@ public class LinearProcessor
             } else {
                 //Ok, we made it through with the same state... move it to the next
                 //  spot in the array
-                if (DEEP_DEBUG) getLogger().debug("State not changed by: " + mailet.getMailetInfo());
                 unprocessed[i + 1].add(mail);
             }
 
@@ -209,6 +219,7 @@ public class LinearProcessor
     }
 
     private void handleException(MessagingException me, Mail mail, String offendersName) throws MessagingException {
+        System.err.println("exception! " + me);
         mail.setState(Mail.ERROR);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
