@@ -25,7 +25,7 @@
     Add full support of "TOP" command in POP3Handler.
   </action>
   <action context="code">
-    Improve matching sintax in JamesSpoolManager (Maybe split in a different class).
+    Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
   </action>
   <action context="code">
     Add needed functions to RemoteManager.
