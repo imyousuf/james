@@ -2,15 +2,15 @@
       <!-- TODO: add more examples                   -->
       <!-- CHECKME: check the <resource> path        -->
 
-        <mailet match="CommandListservMatcher=announce@localhost" class="CommandListservManager">
+        <mailet match="CommandListservMatcher=testlist@localhost" class="CommandListservManager">
            <!-- CHECKME! -->
            <!--resources-->
            <resources>/opt/james/apps/james/conf/miResources.xml</resources>
            <!-- general information -->
-           <listName>announce</listName>
-           <displayName>Announce mailing list</displayName>
+           <listName>testlist</listName>
+           <displayName>Test mailing list</displayName>
            <listOwner>owner@localhost</listOwner>
-           <repositoryName>list-announce</repositoryName>
+           <repositoryName>list-test</repositoryName>
            <listDomain>localhost</listDomain>
 
            <!-- the packages where the commands can be loaded from -->
@@ -31,13 +31,13 @@
         </mailet>
 
         <!-- the processor for this list serv -->
-        <mailet match="RecipientIs=announce@localhost" class="CommandListservProcessor">
+        <mailet match="RecipientIs=testlist@localhost" class="CommandListservProcessor">
            <membersonly>false</membersonly>
            <attachmentsallowed>true</attachmentsallowed>
            <replytolist>true</replytolist>
-           <repositoryName>list-announce</repositoryName>
-           <subjectprefix>Announce</subjectprefix>
+           <repositoryName>list-test</repositoryName>
+           <subjectprefix>Test</subjectprefix>
            <autobracket>true</autobracket>
            <listOwner>owner@localhost</listOwner>
-           <listName>announce</listName>
+           <listName>testlist</listName>
         </mailet>
