@@ -357,7 +357,7 @@ public class XMLResources
     {
         String str = getString(name);
 
-        if ( str == null ) {
+        if (str == null && required) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(64)
                         .append("Required String resource: '")
