@@ -64,7 +64,7 @@ import java.util.*;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.35.4.15 $
+ * @version This is $Revision: 1.35.4.16 $
 
  */
 public class James
@@ -564,7 +564,7 @@ public class James
      *
      * <p>TODO: This needs to be made a more specific ordered subtype of Collection.</p>
      *
-     * @param host 
+     * @param host
      */
     public Collection getMailServers(String host) {
         DNSServer dnsServer = null;
@@ -769,7 +769,7 @@ public class James
             if (enableForwarding && user.getForwarding()) {
                 MailAddress forwardTo = user.getForwardingDestination();
                 if (forwardTo == null) {
-                    StringBuffer errorBuffer = 
+                    StringBuffer errorBuffer =
                         new StringBuffer(128)
                             .append("Forwarding was enabled for ")
                             .append(username)
@@ -838,7 +838,7 @@ public class James
     }
 
     /**
-     * Check whether the mail domain in question is to be 
+     * Check whether the mail domain in question is to be
      * handled by this server.
      *
      * @param serverName the name of the server to check
@@ -854,7 +854,7 @@ public class James
      * @return the type of the server
      */
     public String getServerInfo() {
-        return "Apache Jakarta JAMES";
+        return "Apache JAMES";
     }
 
     /**

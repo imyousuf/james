@@ -4,7 +4,7 @@
 
  <properties>
   <title>ChangeLog</title>
-  <author email="james-dev@jakarta.apache.org">James Project</author>
+  <author email="server-dev@james.apache.org">James Project</author>
  </properties>
 
 <body>
@@ -12,7 +12,7 @@
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 <section name="Version 2.2.0">
-<p>Expected release June 2003</p>
+<p>Expected release May 2004</p>
 
 <li>[NjB,MT,VGP] (code) Added Quota Matcher framework and fixed storage matcher</li>
 <li>[NjB] (code) Fixed LocalDelivery.LocalMimeMessage to prevent re-rendering</li>

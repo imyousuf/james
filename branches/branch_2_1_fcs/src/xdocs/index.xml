@@ -4,7 +4,7 @@
 
  <properties>
   <title>Overview</title>
-  <author email="james-dev@jakarta.apache.org">James Project</author>
+  <author email="server-dev@james.apache.org">James Project</author>
  </properties>
 
 <body>
@@ -16,21 +16,21 @@
 </section>
 <section name="news">
 <p><b>James v2.1.3</b><br/><a href="#releases">James v2.1.3</a> is released.</p>
-<p><b>James Comes Of Age</b><br/>We're proud to announce that Jakarta James has been promoted from being a Jakarta sub-project to Apache James, a top-level project of the Apache Software Foundation (ASF).  James now has its own Project Management Committee, and reports directly to the <a href="http://www.apache.org/foundation">ASF</a>.</p>
+<p><b>James Comes Of Age</b><br/>We're proud to announce that James has been promoted from being a Jakarta sub-project to Apache James, a top-level project of the Apache Software Foundation (ASF).  James now has its own Project Management Committee, and reports directly to the <a href="http://www.apache.org/foundation">ASF</a>.</p>
 <p>We also have a brand new domain name: <b>http://james.apache.org</b> and are in the process of moving our infrastructure over to the new domain, so please forgive any confusion that might occur.</p>
 <p><i>At this time we would especially appreciate hearing about broken links or out of date references on this site.</i></p>
 </section>
 <section name="releases">
 <p><b>Latest and Stable: James v2.1.3</b><br/>
 James v2.1.3 is the current release, and the latest in the <A HREF="announcement_2_1.html">James v2.1 series</A>.
-Both <a href="http://jakarta.apache.org/site/binindex.cgi">binary</a> and <a href="http://jakarta.apache.org/site/sourceindex.cgi">source</a> distributions are available.</p>
+Both <a href="http://james.apache.org/download.cgi">binary</a> and <a href="http://james.apache.org/download.cgi">source</a> distributions are available.</p>
 
 <p>James v2.1.3 fixes several important defects, and contains functional improvements.
 See the <a href="changelog.html">Change Log</a> for a detailed list of changes.  <b>All
 users are urged to upgrade to v2.1.3 as soon as possible</b>.</p>
 
 <p>Any bugs found in James are dealt with promptly.  Please provide feedback on the james-user and james-dev mailing lists.</p>
-<p><b>Get your hands on the latest versions..</b><br/>We put significant milestones, and potential release candidates in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a><br/>Whilst the quality of these versions cannot be guaranteed they may contain important bug fixes and cool new features.<br/></p>
+<p><b>Get your hands on the latest versions..</b><br/>We put significant milestones, and potential release candidates in the <a href="http://cvs.apache.org/builds/james-server/test-build/">download area.</a><br/>Whilst the quality of these versions cannot be guaranteed they may contain important bug fixes and cool new features.<br/></p>
 </section>
 
 <section name="Feature Status">
@@ -109,9 +109,15 @@ users are urged to upgrade to v2.1.3 as soon as possible</b>.</p>
       </tr>
       <tr>
         <td>FetchPOP</td>
+        <td>Deprecated</td>
+        <td>2.1</td>
+        <td>2.1</td>
+      </tr>
+      <tr>
+        <td>FetchMail</td>
         <td>Experimental</td>
-        <td>2.1</td>
-        <td>2.1</td>
+        <td>2.2</td>
+        <td>2.2</td>
       </tr>
     </table>
 </section>

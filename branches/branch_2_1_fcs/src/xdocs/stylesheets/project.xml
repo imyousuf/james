@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="James"
-        href="http://jakarta.apache.org/james">
+        href="http://james.apache.org/">
 
     <title>Java Mail and News server, SMTP POP3 NNTP</title>
     <logo href="/images/james-logo.jpg">James - Java Apache Mail Enterprise Server</logo>
@@ -10,7 +10,7 @@
         <item name="Overview"          href="/index.html"/>
         <item name="James FAQ"      href="/FAQ.html"/>
     </menu>
-    
+
     <menu name="Translated">
         <item name="Japanese (web)" href="http://james.terra-intl.com/"/>
     </menu>
@@ -32,7 +32,7 @@
     <menu name="Older Documentation">
         <item name="James Document Archive"      href="/document_archive.html"/>
     </menu>
-    
+
     <menu name="Project">
         <item name="Bug Database "     href="/site/bugs.html"/>
         <item name="How Can I Contribute?" href="/contribute.html"/>
