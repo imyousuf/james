@@ -110,7 +110,7 @@
                             <server> 192.168.1.1 </server>
                         </DNSservers>
                         <authoritative>false</authoritative>
-                        <repository> file://../var/mail/delayed/ </repository>
+                        <delayed> file://../var/mail/delayed/ </delayed>
                     </mailet>
                 </processor>
             </spoolmanager>

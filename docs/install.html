@@ -21,10 +21,29 @@ WIDTH="609"></h2>
   Extract all files in your favorite folder.</p>
 </blockquote>
 
-<h3>Startup Configuration</h3>
+<h3>Startup</h3>
 <blockquote>
-    <p>In the distribution you'll find configuration file "/conf/james.conf.xml".
+    <p>M$ users shuold just run /bin/run.bat. Unix users will find run.sh
+    under the same folder. A JVM must be in the path.
+    The Loader will extract the configuration template from the jar (James.jar)
+    and place it under /conf/. Then will prompt you to fill the template with 
+    needed values. 
     Edit /conf/james.conf.xml and fill it with needed configuration follwing
+<<<<<<< install.html
+    instructions inside. The configuration file is filled with defaults. Values 
+    which cannot be set as default needs to be filled. Basically to make it work 
+    just replace any FILL ME tag with the appropiate value.
+    Current distribution just need that you set your DNS server in the RemoteDelivery 
+    mailet configuration. All other .conf files belongs to others Blocks that 
+    cohoperate with JAMES to make it work. They do not need specific configurations
+    since they are filled with defaults but a fast look may help.</p> 
+
+    <p>Running [run* -help] will provide a simple command line help.
+    By default Avalon will use Xerces.jar as XML parser, place the log file 
+    in /logs/ and uses as configuration file /conf/avalon.conf.xml. 
+    You can override these defaults using run [options].</p>
+</blockquote>
+=======
     instructions inside. The configuration file is filled with defaults. Values
     which cannot be set as default needs to be filled. Basically to make it work
     just replace any FILL ME tag with the appropiate value. All other .conf files
@@ -42,6 +61,7 @@ WIDTH="609"></h2>
     in /logs/ and uses as configuration file /conf/avalon.conf.xml.
     You can override these defaults using run [options].
 </blockquote>
+>>>>>>> 1.4
 
 <h3>Kickstart</h3>
 <blockquote>
