@@ -95,7 +95,7 @@ import java.util.HashSet;
  * <P><I>forwardto</I> can be used instead of
  * <I>forwardTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.6.4.12 $ $Date: 2003/07/07 06:17:42 $
+ * @version CVS $Revision: 1.6.4.13 $ $Date: 2003/09/03 15:18:25 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -167,7 +167,7 @@ public class Forward extends AbstractRedirect {
             for (int i = 0; i < iaarray.length; i++) {
                 String addressString = iaarray[i].getAddress();
                 MailAddress specialAddress = getSpecialAddress(addressString,
-                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+                new String[] {"postmaster", "sender", "from", "replyTo", "reversePath", "unaltered", "recipients", "to", "null"});
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
