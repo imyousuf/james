@@ -21,15 +21,11 @@ public class HostIs extends AbstractMatch {
         Vector matchingRecipients = new Vector();
         for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = (String) e.nextElement();
-            if (condition.indexOf(getHost(rec)) != -1) {
+            if (condition.indexOf(Mail.getHost(rec)) != -1) {
                 matchingRecipients.addElement(rec);
             }
         }
         return matchingRecipients;
-    }
-    
-    private String getHost(String recipient) {
-        return recipient.substring(recipient.indexOf("@") + 1);
     }
 }
     

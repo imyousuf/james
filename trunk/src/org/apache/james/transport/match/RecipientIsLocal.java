@@ -20,11 +20,12 @@ import org.apache.mail.Mail;
  */
 public class RecipientIsLocal extends AbstractMatch {
     
-    private UserManager users;
+    private UsersRepository users;
     private Vector serverNames;
 
     public void setComponentManager(ComponentManager comp) {
-        users = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
+        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
+        users = (UsersRepository) manager.getUserRepository("LocalUsers");
     }
     
     public void setContext(Context context) {
@@ -35,7 +36,7 @@ public class RecipientIsLocal extends AbstractMatch {
         Vector matchingRecipients = new Vector();
         for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = ((String) e.nextElement());
-            if (serverNames.contains(getHost(rec)) && users.containsKey(getUser(rec))) {
+            if (serverNames.contains(getHost(rec)) && users.contains(getUser(rec))) {
                 matchingRecipients.addElement(rec);
             }
         }
