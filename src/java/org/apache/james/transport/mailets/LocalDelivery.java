@@ -61,12 +61,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.james.services.JamesUser;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.UsersRepository;
+
 /**
  * Receives a Mail from JamesSpoolManager and takes care of delivery of the
  * message to local inboxes.
@@ -78,6 +80,7 @@ public class LocalDelivery extends GenericMailet {
     private String inboxURI;
     private UsersRepository localusers;
     private String users;
+
     /**
      * Return a string describing this mailet.
      *
@@ -86,6 +89,7 @@ public class LocalDelivery extends GenericMailet {
     public String getMailetInfo() {
         return "Local Delivery Mailet";
     }
+
     /**
      * @see org.apache.mailet.Mailet#init(org.apache.mailet.MailetConfig)
      */
@@ -128,14 +132,15 @@ public class LocalDelivery extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
+        if (mail == null) {
+            throw new IllegalArgumentException("Mail message to be stored cannot be null.");
+        }
+        MimeMessage message = mail.getMessage();
         for (Iterator i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress)i.next();
             String username = null;
             if (recipient == null) {
                 throw new IllegalArgumentException("Recipient for mail to be stored cannot be null.");
-            }
-            if (mail == null) {
-                throw new IllegalArgumentException("Mail message to be stored cannot be null.");
             }
             if (ignoreCase) {
                 username = localusers.getRealName(recipient.getUser());
@@ -167,7 +172,12 @@ public class LocalDelivery extends GenericMailet {
                         recipients = new HashSet();
                         recipients.add(forwardTo);
                         try {
-                            getMailetContext().sendMail(mail.getSender(), recipients, mail.getMessage());
+                            //Per RFC 1327 (?)
+                            MimeMessage localMessage = new MimeMessage(message);
+                            localMessage.addHeader("Delivered-To", recipient.toString());
+                            localMessage.saveChanges();
+
+                            getMailetContext().sendMail(mail.getSender(), recipients, localMessage);
                             StringBuffer logBuffer =
                                 new StringBuffer(128).append("Mail for ").append(username).append(
                                     " forwarded to ").append(
@@ -198,7 +208,7 @@ public class LocalDelivery extends GenericMailet {
             // mails on the ERROR processor must be returned to the sender.  Note that this
             // email doesn't include any details regarding the details of the failure(s).
             // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(), errors, mail.getMessage(), Mail.ERROR);
+            getMailetContext().sendMail(mail.getSender(), errors, message, Mail.ERROR);
         }
         //We always consume this message
         mail.setState(Mail.GHOST);
