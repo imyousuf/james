@@ -220,6 +220,8 @@ public class NNTPHandler extends BaseConnectionHandler
             doLISTOVERVIEWFMT();
         else if ( command.equals("GROUP") )
             doGROUP(tokens.hasMoreTokens()?tokens.nextToken():null);
+        else if ( command.equals("NEXT") )
+            doNEXT();
         else if ( command.equals("LAST") )
             doLAST();
         else if ( command.equals("ARTICLE") )
@@ -513,8 +515,8 @@ public class NNTPHandler extends BaseConnectionHandler
         else if ( group.getCurrentArticleNumber() >= group.getLastArticleNumber() )
             writer.println("421 no next article in this group");
         else {
-            NNTPArticle article = group.getCurrentArticle();
             group.setCurrentArticleNumber(group.getCurrentArticleNumber()+1);
+            NNTPArticle article = group.getCurrentArticle();
             StringBuffer respBuffer =
                 new StringBuffer(64)
                         .append("223 ")
@@ -534,8 +536,8 @@ public class NNTPHandler extends BaseConnectionHandler
         else if ( group.getCurrentArticleNumber() <= group.getFirstArticleNumber() )
             writer.println("422 no previous article in this group");
         else {
-            NNTPArticle article = group.getCurrentArticle();
             group.setCurrentArticleNumber(group.getCurrentArticleNumber()-1);
+            NNTPArticle article = group.getCurrentArticle();
             StringBuffer respBuffer =
                 new StringBuffer(64)
                         .append("223 ")
