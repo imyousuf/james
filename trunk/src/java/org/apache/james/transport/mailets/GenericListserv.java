@@ -84,6 +84,9 @@ public abstract class GenericListserv extends GenericMailet {
             if (getSubjectPrefix() != null) {
                 String prefix = "[" + getSubjectPrefix() + "]";
                 String subj = message.getSubject();
+                if (subj == null) {
+                    subj = "";
+                }
                 //If the "prefix" is in the subject line, remove it and everything before it
                 int index = subj.indexOf(prefix);
                 if (index > -1) {
@@ -95,7 +98,6 @@ public abstract class GenericListserv extends GenericMailet {
                 } else {
                     subj = prefix + ' ' + subj;
                 }
-
                 message.setSubject(subj);
             }
             MailAddress listservAddr = getListservAddress();
