@@ -553,7 +553,7 @@ public class NNTPHandler
             return;
         }
 
-		command = command.toUpperCase(Locale.US);
+        command = command.toUpperCase(Locale.US);
 
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
             // Reject re-authentication
