@@ -848,6 +848,7 @@ public class POP3Handler
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     out.println(responseString);
+                    out.flush();
                     OutputStream nouts =
                             new ExtraDotOutputStream(outs);
                     nouts = new BytesWrittenResetOutputStream(nouts,
@@ -923,6 +924,7 @@ public class POP3Handler
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     out.println(responseString);
+                    out.flush();
                     for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
                         out.println(e.nextElement());
                     }
