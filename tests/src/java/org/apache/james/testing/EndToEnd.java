@@ -67,26 +67,25 @@
  */
 package org.apache.james.testing;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.SocketException;
 import java.util.Date;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.telnet.TelnetClient;
-import examples.IOUtil;
 
 /**
  * A class to do end to end load SMTP testing on James.
  *
  *
- * $Id: EndToEnd.java,v 1.8 2003/03/08 21:13:48 noel Exp $
+ * $Id: EndToEnd.java,v 1.9 2003/04/28 14:00:43 danny Exp $
  */
 public class EndToEnd extends TestCase {
 
@@ -261,7 +260,7 @@ public class EndToEnd extends TestCase {
             System.out.println(pclient.getReplyString());
             pclient.login("test", "test");
             System.out.println(pclient.getReplyString());
-            pclient.setState(pclient.TRANSACTION_STATE);
+            pclient.setState(POP3Client.TRANSACTION_STATE);
             pclient.listMessages();
             System.out.println(pclient.getReplyString());
             pclient.disconnect();
