@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.6 $
+ * @version This is $Revision: 1.35.4.7 $
 
  */
 public class James
@@ -420,7 +420,11 @@ public class James
         Collection recipients = new HashSet();
         Address addresses[] = message.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            // Javamail treats the "newsgroups:" header field as a
+            // recipient, so we want to filter those out.
+            if ( addresses[i] instanceof InternetAddress ) {
+                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            }
         }
         sendMail(sender, recipients, message);
     }
@@ -703,7 +707,11 @@ public class James
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            // Javamail treats the "newsgroups:" header field as a
+            // recipient, so we want to filter those out.
+            if ( addresses[i] instanceof InternetAddress ) {
+                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+            }
         }
         //Change the sender...
         reply.setFrom(bouncer.toInternetAddress());
