@@ -62,7 +62,7 @@ class TestMethod {
             m.invoke(obj,new Object[0]);
             success++;
         } finally {
-            timeTaken += (int)(System.currentTimeMillis() - st);
+            timeTaken = (int)(System.currentTimeMillis() - st);
         }
     }
 
