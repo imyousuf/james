@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ import org.apache.mailet.UsersRepository;
  * <p>autobracket - if true the subject prefix will be rendered as
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
- * @version This is $Revision: 1.12 $
+ * @version This is $Revision: 1.13 $
  */
 public class AvalonListserv extends GenericListserv {
 

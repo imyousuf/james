@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ import java.util.Iterator;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.6 2003/02/27 06:23:42 noel Exp $
+ * $Id: FetchScheduler.java,v 1.7 2003/03/08 21:14:02 noel Exp $
  *
  *  @see org.apache.james.fetchmail.FetchMail#configure(Configuration) FetchMail
  *  

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import org.apache.commons.net.smtp.SMTPClient;
  *
  * A worker thread that is part of the SMTP delivery end to end testing.
  *
- * $Id: SMTPDeliveryWorker.java,v 1.5 2003/03/08 20:47:58 noel Exp $
+ * $Id: SMTPDeliveryWorker.java,v 1.6 2003/03/08 21:13:48 noel Exp $
  */
 public class SMTPDeliveryWorker implements Runnable {
     private SMTPClient client;

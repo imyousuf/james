@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import java.util.Properties;
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.5 2003/02/27 06:23:42 noel Exp $
+ * $Id: FetchMail.java,v 1.6 2003/03/08 21:14:02 noel Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {

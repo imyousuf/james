@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
- * $Id: Loader.java,v 1.6 2003/02/27 06:23:45 noel Exp $
+ * $Id: Loader.java,v 1.7 2003/03/08 21:14:08 noel Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;

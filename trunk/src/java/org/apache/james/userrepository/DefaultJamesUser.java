@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.apache.mailet.MailAddress;
  * Implementation of User Interface.
  *
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 
 public class DefaultJamesUser
