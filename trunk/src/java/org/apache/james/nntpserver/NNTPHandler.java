@@ -569,7 +569,7 @@ public class NNTPHandler
 
         boolean returnValue = true;
         if (!isAuthorized(command) ) {
-            writeLoggedFlushedResponse("502 User is not authenticated");
+            writeLoggedFlushedResponse("480 User is not authenticated");
             getLogger().debug("Command not allowed.");
             return returnValue;
         }
