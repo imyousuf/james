@@ -33,11 +33,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
+ * Manages the mail spool.  This class is responsible for retrieving
+ * messages from the spool, directing messages to the appropriate
+ * processor, and removing them from the spool when processing is
+ * complete.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.11 $
- * Committed on $Date: 2002/08/10 23:13:11 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.12 $
+ * Committed on $Date: 2002/08/16 17:08:53 $ by: $Author: pgoldstein $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -56,21 +61,51 @@ public class JamesSpoolManager
     private ThreadPool workerPool;
     private ThreadManager threadManager;
 
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
-        threads = conf.getChild("threads").getValueAsInteger(1);
-    }
-
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(Context context) {
         this.context = new DefaultContext( context );
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose(ComponentManager comp)
         throws ComponentException {
         threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
         compMgr = new DefaultComponentManager(comp);
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure(Configuration conf) throws ConfigurationException {
+        this.conf = conf;
+        threads = conf.getChild("threads").getValueAsInteger(1);
+    }
+
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
@@ -266,6 +301,9 @@ public class JamesSpoolManager
             try {
                 String key = spool.accept();
                 MailImpl mail = spool.retrieve(key);
+                if (mail == null) {
+                    continue;
+                }
                 if (infoEnabled) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
@@ -310,6 +348,8 @@ public class JamesSpoolManager
     /**
      * Process this mail message by the appropriate processor as designated
      * in the state of the Mail object.
+     *
+     * @param mail the mail message to be processed
      */
     protected void process(MailImpl mail) {
         while (true) {
@@ -369,7 +409,16 @@ public class JamesSpoolManager
         }
     }
 
-    // Shutdown processors
+    /**
+     * The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.
+     *
+     * This implementation shuts down the LinearProcessors managed by this
+     * JamesSpoolManager
+     *
+     * @throws Exception if an error is encountered during shutdown
+     */
     public void dispose() {
         getLogger().info("JamesSpoolManager dispose...");
         Iterator it = processors.keySet().iterator();
