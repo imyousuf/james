@@ -5,7 +5,7 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
- 
+
 package org.apache.james;
 
 import java.io.*;
@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
  * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
-    
+
     public MailHeaders()
     throws MessagingException {
         super();
@@ -38,26 +38,26 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
         }
         writer.println("");
     }
-    
+
     public void writeTo(OutputStream out) {
         writeTo(new PrintStream(out));
     }
-    
+
     public byte[] toByteArray() {
         ByteArrayOutputStream headersBytes = new ByteArrayOutputStream();
         writeTo(headersBytes);
         return headersBytes.toByteArray();
     }
-    
+
     public boolean isSet(String name) {
         return super.getHeader(name).length != 0;
     }
-    
+
     public boolean isValid() {
             // Check if MimeMessage contains REQUIRED headers fields as specified in RFC 822.
-        if (super.getHeader("Date").length == 0) return false;
-        if (super.getHeader("To").length == 0) return false;
-        if (super.getHeader("From").length == 0) return false;
+        if (super.getHeader("Date") == null) return false;
+        if (super.getHeader("To") == null) return false;
+        if (super.getHeader("From") == null) return false;
         return true;
     }
 }
