@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.52 $ Committed on $Date: 2003/05/12 21:10:59 $ by: $Author: noel $ -->
+<!-- $Revision: 1.53 $ Committed on $Date: 2003/05/17 07:39:57 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -623,6 +623,7 @@
             </types>
             <config>
                <sqlFile>file://conf/sqlResources.xml</sqlFile>
+               <maxcache>1000</maxcache>
             </config>
          </repository>
 
@@ -650,6 +651,7 @@
             <config>
                <sqlFile>file://conf/sqlResources.xml</sqlFile>
                <filestore>file://var/dbmail</filestore>
+               <maxcache>1000</maxcache>
             </config>
          </repository>
       </repositories>
