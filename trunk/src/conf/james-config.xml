@@ -13,9 +13,9 @@
 <!-- are preceded by a CHECKME! or CONFIRM? comment in the left margin. -->
 
 <!-- For production use you will probably need to make more extensive changes, see -->
-<!-- http://jakarta.apache.org/james/documentation_2_1.htm -->
+<!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.47 $ Committed on $Date: 2003/02/21 01:35:45 $ by: $Author: noel $ -->
+<!-- $Revision: 1.48 $ Committed on $Date: 2003/02/22 20:17:43 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -70,6 +70,15 @@
          <repository destinationURL="db://maildb/inbox/" type="MAIL"/>
       </inboxRepository>
       -->
+
+      <!-- Alternative inbox repository definition for DB use. -->
+      <!-- Stores message body in file system, rest in database -->
+      <!--
+      <inboxRepository>
+         <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
+      </inboxRepository>
+      -->
+
    </James>
 
    <!-- Fetch pop block, fetches mail from POP3 servers and inserts it into the incoming spool -->
@@ -619,6 +628,14 @@
          <repository destinationURL="db://maildb/spool/spool" type="SPOOL"/>
       </spoolRepository>
       -->
+
+      <!-- Alternative spool repository definition for JDBC use -->
+      <!-- Stores message body in file system, rest in database -->
+      <!--
+      <spoolRepository>
+         <repository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/>
+      </spoolRepository>
+      -->
    </mailstore>
 
 
@@ -685,7 +702,7 @@
          <!--
          <data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
-            <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
+            <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
             <user>username</user>
             <password>password</password>
             <max>20</max>
