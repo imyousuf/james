@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2001/06/25 17:00:25 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2001/06/25 18:13:19 $ by: $Author: charlesb $ 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -279,12 +279,13 @@ public class SMTPHandler
 	    if (authRequired) {
 	        out.println("250-AUTH LOGIN PLAIN");
             }
+	    if (maxmessagesize > 0) {
+	        out.println("250-SIZE " + maxmessagesize);
+            }
             out.println( "250 " + state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
-	    if (maxmessagesize > 0) {
-	        //    out.println("250 SIZE " + maxmessagesize);
-            }
+
 
         }
 
@@ -309,7 +310,7 @@ public class SMTPHandler
             } else
                 userpass = argument1.trim();
             authTokenizer = new StringTokenizer(
-                              Base64.decode(userpass).readLine().trim(), "\0");
+                              Base64.decodeAsString(userpass), "\0");
             user = authTokenizer.nextToken();
             pass = authTokenizer.nextToken();
             // Authenticate user
@@ -330,9 +331,9 @@ public class SMTPHandler
                 user = in.readLine().trim();
             } else
                 user = argument1.trim();
-            user = Base64.decode(user).readLine().trim();
+            user = Base64.decodeAsString(user);
             out.println("334 UGFzc3dvcmQ6"); // base64 encoded "Password:" 
-            pass = Base64.decode(in.readLine().trim()).readLine().trim();
+            pass = Base64.decodeAsString(in.readLine().trim());
             //Authenticate user
             if (users.test(user, pass)) {
                 state.put(AUTH, user);

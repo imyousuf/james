@@ -14,7 +14,8 @@ import org.apache.avalon.excalibur.io.InvertedFileFilter;
 import org.apache.avalon.excalibur.io.AndFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.nntpserver.DateSinceFileFilter;
-import sun.misc.BASE64Encoder;
+import org.apache.james.util.Base64;
+
 
 /** 
  * ArticleIDRepository: contains one file for each article.
@@ -35,15 +36,18 @@ public class ArticleIDRepository {
         this.root = root;
         this.articleIDDomainSuffix = articleIDDomainSuffix;
     }
+
     public File getPath() {
         return root;
     }
+
     String generateArticleID() {
         int idx = Math.abs(counter++);
         String unique = Thread.currentThread().hashCode()+"."+
             System.currentTimeMillis()+"."+idx;
         return "<"+unique+"@"+articleIDDomainSuffix+">";
     }
+
     /** @param prop contains the newsgroup name and article number */
     void addArticle(String articleID,Properties prop) throws IOException {
         if ( articleID == null )
@@ -52,12 +56,21 @@ public class ArticleIDRepository {
         prop.store(fout,new Date().toString());
         fout.close();
     }
+
     File getFileFromID(String articleID) {
-        return new File(root,new BASE64Encoder().encode(articleID.getBytes()));
+        String b64Id;
+        try {
+            b64Id = Base64.encodeAsString(articleID);
+        } catch (Exception e) {
+            throw new RuntimeException("This shouldn't happen: " + e);
+	}
+        return new File(root, b64Id);
     }
+
     boolean isExists(String articleID) {
         return ( articleID == null ) ? false : getFileFromID(articleID).exists();
     }
+
     NNTPArticle getArticle(NNTPRepository repo,String id) throws IOException {
         File f = getFileFromID(id);
         if ( f.exists() == false )
