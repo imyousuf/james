@@ -33,7 +33,7 @@ All theese package are in current distribution.
 <project default="package" basedir=".">
   <target name="init">
 	<property name="name" value="JAMES"/>
-	<property name="version" value="1.2"/>
+	<property name="version" value="1.2a1"/>
 	<property name="year" value="1999-2000"/>
 
 	<property name="build.compiler" value="classic"/>
@@ -130,7 +130,7 @@ All theese package are in current distribution.
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**"/>
+    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**"/>
     <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
@@ -149,11 +149,12 @@ All theese package are in current distribution.
     <copydir src="${build.src}" dest="${dist.dir}/src" excludes="james.conf.xml"/>
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
-    <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/blocks/${name}.jar"/>
+    <copyfile src="${build.dir}/${name}.bar" dest="${dist.dir}/bin/blocks/${name}.bar"/>
 
-    <copyfile src="./lib/Avalon.jar" dest="${dist.dir}/bin/blocks/Avalon.jar"/>
-    <copyfile src="./lib/AvalonAware.jar" dest="${dist.dir}/lib/AvalonAware.jar"/>
-    <copyfile src="./lib/Loader.jar" dest="${dist.dir}/bin/Loader.jar"/>
+    <copyfile src="./lib/avalon-core-blocks.bar" dest="${dist.dir}/bin/blocks/avalon-core-blocks.bar"/>
+    <copyfile src="./lib/avalon-engine.jar" dest="${dist.dir}/bin/avalon-engine.jar"/>
+    <copyfile src="./lib/avalon-loader.jar" dest="${dist.dir}/bin/avalon-loader.jar"/>
+    <copyfile src="./lib/avalonapi.jar" dest="${dist.dir}/lib/avalonapi.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail_1_1_3.jar" dest="${dist.dir}/lib/mail_1_1_3.jar"/>
     <copyfile src="./lib/xerces.jar" dest="${dist.dir}/lib/xerces.jar"/>
