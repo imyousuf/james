@@ -58,7 +58,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.RFC2822Headers;
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -96,7 +96,7 @@ import java.util.Iterator;
  * is set to true, such error message will be attached to the notification message.</LI>
  * <LI>The notified messages are attached in their entirety (headers and
  * content) and the resulting MIME part type is "message/rfc822".</LI>
- * <LI>passThrough is <B>true</B>.</LI>
+ * <LI>Supports by default the <CODE>passThrough</CODE> init parameter (true if missing).</LI>
  * </UL>
  *
  * <P>Sample configuration common to all notification mailet subclasses:</P>
@@ -105,9 +105,19 @@ import java.util.Iterator;
  *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
+ *   &lt;inline&gt;<I>see {@link Redirect}, default=none</I>&lt;/inline&gt;
+ *   &lt;attachment&gt;<I>see {@link Redirect}, default=message</I>&lt;/attachment&gt;
+ *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
+ * <I>message</I> and <I>attachError</I> can be used instead of
+ * <I>notice and </I> and <I>attachStackTrace</I>.
  *
+ * <P>CVS $Id: AbstractNotify.java,v 1.4 2003/06/15 18:44:03 noel Exp $</P>
+ * @version 2.2.0
+ * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
 
@@ -116,32 +126,49 @@ public abstract class AbstractNotify extends AbstractRedirect {
     /* ******************************************************************** */
 
     /**
-     * @return true, as all notifications should
+     * @return the <CODE>passThrough</CODE> init parameter, or true if missing
      */
     protected boolean getPassThrough() throws MessagingException {
-        return true;
+        if(getInitParameter("passThrough") == null) {
+            return true;
+        } else {
+            return new Boolean(getInitParameter("passThrough")).booleanValue();
+        }
     }
 
     /**
-     * @return <CODE>NONE</CODE>
+     * @return the <CODE>inline</CODE> init parameter, or <CODE>NONE</CODE> if missing
      */
-    protected int getInLineType() {
-        return NONE;
+    protected int getInLineType() throws MessagingException {
+        if(getInitParameter("inline") == null) {
+            return NONE;
+        } else {
+            return getTypeCode(getInitParameter("inline"));
+        }
     }
 
     /**
-     * @return <CODE>MESSAGE</CODE>
+     * @return the <CODE>attachment</CODE> init parameter, or <CODE>MESSAGE</CODE> if missing
      */
-    protected int getAttachmentType() {
-        return MESSAGE;
+    protected int getAttachmentType() throws MessagingException {
+        if(getInitParameter("attachment") == null) {
+            return MESSAGE;
+        } else {
+            return getTypeCode(getInitParameter("attachment"));
+        }
     }
 
     /**
-     * @return the <CODE>notice</CODE> init parameter
+     * @return the <CODE>notice</CODE> init parameter, or the <CODE>message</CODE> init parameter if missing,
+     * or a default string if both are missing
      */
     protected String getMessage() {
         if(getInitParameter("notice") == null) {
-            return "We were unable to deliver the attached message because of an error in the mail server.";
+            if(getInitParameter("message") == null) {
+                return "We were unable to deliver the attached message because of an error in the mail server.";
+            } else {
+                return getInitParameter("message");
+            }
         } else {
             return getInitParameter("notice");
         }
@@ -225,14 +252,32 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>attachStackTrace</CODE> init parameter
+     * @return the <CODE>prefix</CODE> init parameter or an empty string if missing
+     */
+    protected String getSubjectPrefix() throws MessagingException {
+        if(getInitParameter("prefix") == null) {
+            return "";
+        } else {
+            return getInitParameter("prefix");
+        }
+    }
+
+    /**
+     * @return the <CODE>attachStackTrace</CODE> init parameter, 
+     * or the <CODE>attachError</CODE> init parameter if missing,
+     * or false if missing 
      */
     protected boolean attachError() {
         boolean attachStackTrace = false;
         try {
             attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
         } catch (Exception e) {
-            // Ignore exception, default to false
+            // try with attachError
+            try {
+                attachStackTrace = new Boolean(getInitParameter("attachError")).booleanValue();
+            } catch (Exception e2) {
+                // Ignore exception, default to false
+            }
         }
         return attachStackTrace;
     }
