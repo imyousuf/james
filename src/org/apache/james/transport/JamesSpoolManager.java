@@ -1,10 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport;
 
 import java.io.*;
@@ -12,17 +12,17 @@ import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
 import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.DefaultContext;
-import org.apache.avalon.Composer;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.DefaultComponentManager;
+import org.apache.avalon.DefaultContext;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Stoppable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
-import org.apache.avalon.Stoppable;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
@@ -49,7 +49,7 @@ public class JamesSpoolManager
     }
 
     public void contextualize(Context context) {
-        this.context = new DefaultContext(context);
+        this.context = new DefaultContext( context );
     }
 
     public void compose(ComponentManager comp) {
@@ -69,8 +69,10 @@ public class JamesSpoolManager
             compMgr.put(Resources.MAILET_LOADER, mailetLoader);
             compMgr.put(Resources.MATCH_LOADER, matchLoader);
         } catch (ConfigurationException ce) {
-            getLogger().error("Unable to configure mailet/matcher Loaders: " + ce.getMessage());
-            throw new RuntimeException("Unable to start Spool Manager - failed to configure Loaders.");
+            final String message = 
+                "Unable to configure mailet/matcher Loaders: " + ce.getMessage();
+            getLogger().error( message, ce );
+            throw new RuntimeException( message );
         }
 
         //A processor is a Collection of
@@ -92,7 +94,8 @@ public class JamesSpoolManager
                 //  to the top
                 if (processorName.equals("root")) {
                     Matcher matcher = matchLoader.getMatcher("All", mailetcontext);
-                    Mailet mailet = mailetLoader.getMailet("PostmasterAlias", mailetcontext, null);
+                    Mailet mailet = 
+                        mailetLoader.getMailet("PostmasterAlias", mailetcontext, null);
                     processor.add(matcher, mailet);
                 }
 
@@ -110,7 +113,7 @@ public class JamesSpoolManager
                         getLogger().info("Matcher " + matcherName + " instantiated");
                     } catch (MessagingException ex) {
                         // **** Do better job printing out exception
-                        getLogger().error("Unable to init matcher " + matcherName + ": " + ex.toString());
+                        getLogger().error( "Unable to init matcher " + matcherName + ": " + ex.toString(), ex );
                         throw ex;
                     }
                     try {

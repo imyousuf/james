@@ -1,15 +1,13 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.services;
 
 import org.apache.phoenix.Service;
-
 
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore
@@ -22,6 +20,5 @@ import org.apache.phoenix.Service;
  */
 public interface UsersStore extends Service {
 
-    UsersRepository getRepository(String name);
-
+    UsersRepository getRepository( String name );
 }

@@ -9,22 +9,22 @@ package org.apache.james.mailrepository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.cornerstone.services.Store;
+import org.apache.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.JamesMimeMessageInputStream;
 
 public class FileMimeMessageInputStream 
     extends JamesMimeMessageInputStream {
 
     //Define how to get to the data
-    Store.StreamRepository sr = null;
+    StreamRepository sr = null;
     String key = null;
 
-    public FileMimeMessageInputStream(Store.StreamRepository sr, String key) throws IOException {
+    public FileMimeMessageInputStream( StreamRepository sr, String key) throws IOException {
         this.sr = sr;
         this.key = key;
     }
 
-    public Store.StreamRepository getStreamStore() {
+    public StreamRepository getStreamStore() {
         return sr;
     }
 

@@ -1,16 +1,14 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.services;
 
 import java.util.Iterator;
-import org.apache.james.core.*;
-
+import org.apache.james.core.MailImpl;
 
 /**
  * Interface for a Repository to store Mails.
@@ -43,7 +41,7 @@ public interface MailRepository {
      * Retrieves a message given a key. At the moment, keys can be obtained
      * from list() in superinterface Store.Repository
      */
-    MailImpl retrieve(String key);
+    MailImpl retrieve( String key );
 
     /**
      * Removes a specified message

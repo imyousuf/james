@@ -14,6 +14,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.Composer;
 import org.apache.avalon.Context;
 import org.apache.avalon.Contextualizable;
@@ -40,8 +41,7 @@ import org.apache.mailet.*;
  */
 public class SMTPHandler 
     extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, 
-    Initializable, Target  {
+    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target  {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -56,7 +56,6 @@ public class SMTPHandler
 
     private Socket socket;
     private DataInputStream in;
-    private InputStream socketIn;
     private PrintWriter out;
 
     private String remoteHost;
@@ -65,39 +64,31 @@ public class SMTPHandler
     private String messageID;
     private String smtpID;
 
-    private ComponentManager compMgr;
     private Configuration conf;
-    private Context context;
     private TimeScheduler scheduler;
     private MailServer mailServer;
 
     private String servername;
     private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
-    private Hashtable state;
-    private Random random;
+    private Hashtable state     = new Hashtable();
+    private Random random       = new Random();
     private int timeout;
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-        timeout = conf.getChild("connectiontimeout").getValueAsInt(120000);
+        timeout = conf.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
     }
 
-    public void  contextualize(Context context) {
-        this.context = context;
+    public void  contextualize( final Context context ) {
+        servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-
-    public void init() throws Exception {
-        mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-        scheduler = (TimeScheduler) compMgr.
+    public void compose( final ComponentManager componentManager ) 
+    throws ComponentManagerException {
+        mailServer = (MailServer)componentManager.lookup("org.apache.james.services.MailServer");
+        scheduler = (TimeScheduler)componentManager.
             lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
-        servername = (String) context.get(Constants.HELO_NAME);
-        state = new Hashtable();
-        random = new Random();
     }
 
     /**
@@ -112,8 +103,9 @@ public class SMTPHandler
         throws IOException {
         try {
             this.socket = connection;
-            socketIn = new BufferedInputStream(socket.getInputStream(), 1024);
-            in = new DataInputStream(socketIn);
+            final InputStream bufferedInput = 
+                new BufferedInputStream( socket.getInputStream(), 1024 );
+            in = new DataInputStream( bufferedInput );
             out = new InternetPrintWriter(socket.getOutputStream(), true);
 
             remoteHost = socket.getInetAddress ().getHostName ();
@@ -145,15 +137,15 @@ public class SMTPHandler
             }
             socket.close();
             scheduler.removeTrigger(this.toString());
-        } catch (SocketException e) {
-            getLogger().debug("Socket to " + remoteHost + " closed remotely.");
-        } catch (InterruptedIOException e) {
-            getLogger().debug("Socket to " + remoteHost + " timeout.");
-        } catch (IOException e) {
-            getLogger().debug("Exception handling socket to " + remoteHost + ":"
-                              + e.getMessage());
+        } catch (SocketException se) {
+            getLogger().debug("Socket to " + remoteHost + " closed remotely.", se );
+        } catch ( InterruptedIOException iioe ) {
+            getLogger().debug( "Socket to " + remoteHost + " timeout.", iioe );
+        } catch ( IOException ioe ) {
+            getLogger().debug( "Exception handling socket to " + remoteHost + ":"
+                               + ioe.getMessage(), ioe );
         } catch (Exception e) {
-            getLogger().debug("Exception opening socket: " + e.getMessage());
+            getLogger().debug( "Exception opening socket: " + e.getMessage(), e );
         } finally {
             try {
                 socket.close();
