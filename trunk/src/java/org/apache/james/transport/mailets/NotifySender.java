@@ -133,7 +133,8 @@ public class NotifySender extends GenericMailet {
         if (message.getSentDate() != null) {
             out.println("  Sent date: " + message.getSentDate());
         }
-        Address[] rcpts = message.getRecipients(Message.RecipientType.TO);
+        String[] rcpts = null;
+        rcpts = message.getHeader(RFC2822Headers.TO);
         if (rcpts != null) {
             out.print("  To: ");
             for (int i = 0; i < rcpts.length; i++) {
@@ -141,7 +142,7 @@ public class NotifySender extends GenericMailet {
             }
             out.println();
         }
-        rcpts = message.getRecipients(Message.RecipientType.CC);
+        rcpts = message.getHeader(RFC2822Headers.CC);
         if (rcpts != null) {
             out.print("  CC: ");
             for (int i = 0; i < rcpts.length; i++) {
