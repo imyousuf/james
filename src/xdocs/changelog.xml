@@ -11,6 +11,55 @@
 
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
+<section name="Version 2.1">
+<p>Expected release November 2002</p>
+<ul>
+<li>(PG) (code) Fixed platform-specific performance issue with the POP3 server delivery.</li>
+<li>(PG) (code) Fixed bug where RemoteDelivery did not iterate through all MX records on connect failure.</li>
+<li>(PG) (update) Updated James to use the Avalon Framework version 4.1.3.</li>
+<li>(PG) (update) Updated James to use Avalon Phoenix version 4.0.1.</li>
+<li>(PG) (doc) Added extensive commenting - specifically Javadoced the vast majority of methods.</li>
+<li>(PG) (code) Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.</li>
+<li>(NjB) (code) Corrected JDBCMailRepository to obey stated contract.</li>
+<li>(NjB,PG) (code) Adjusted service handlers to flush socket output streams to ensure prompt client interactions.</li>
+<li>(PG) (code) Adjusted the NNTP server so that it better conforms to the NNTP specification (see bug #13564 for details).</li>
+<li>(PG) (code) Corrected a typo that had been disabling NNTP using SSL functionality.</li>
+<li>(PG) (code) Corrected an architectural flaw in the NNTP server implemenation that disabled NNTP authentication.</li>
+<li>(NjB) (code) Fixed a bug in the GenericListserv subject normalization.  Neatened the code to make later modifications easier.</li>
+<li>(BW) (code) Fixed a bug in the RemoteDelivery mailet that caused the mailet to unnecessarily split the recipient list when using a gateway.</li>
+<li>(NjB,PG) (code) Added object pooling for service handlers to substantially improve performance.</li>
+<li>(AI,PG) (code) Added a new Watchdog interface to effectively support connection timeouts.  An implementation of the interface was added that uses a second thread per connection to ensure timeouts.</li>
+<li>(NjB,PG) (code) Resolved a memory leak in the source - a list of files to be deleted was being maintained that was unnecessary.  The file to be deleted is now deleted immediately after it is no longer needed.</li>
+<li>(PG) (code) Changed the code to ensure that all thread pool threads are returned to the thread pool in a non-interrupted state.</li>
+<li>(PG) (code) Centralized the file/directory lookup code inside James and fixed it so that it handled absolute URLs properly.</li>
+<li>(AI,PG) (code) Added a more substantial connection manager.  This connection manager allows us to limit the maximum number of client connections per server socket.  It also allows us to set the socket timeout for client sockets explicitly.</li>
+<li>(DA,PG) (code) Added enabled/disabled switch to main server components.</li>
+<li>(DA) (code) Added new FetchPOP functionality, to allow James to consolidate mail from a number of POP3 servers in a single server.</li>
+<li>(DA) (doc) Added documentation to demonstrate how to configure James as a universal sendmail relay.</li>
+<li>(NjB) (code) Added the HasHeader matcher.</li>
+<li>(NjB) (code) Added the JDBCVirtualUserTable mailet.</li>
+<li>(PG) (update) Fixed the log configuration so that AM and PM entries are properly distinguishable by default.</li>
+<li>(NjB) (code) Added a configurable debug parameter to several mailets to allow a more granular control of debug logging.</li>
+<li>(NjB) (code) Added the Habeas warrant mailet and matcher.</li>
+<li>(NjB,PG) (update) Changed the server configuration to default log at INFO level.  Adjusted logging statements so that they are log level appropriate.</li>
+<li>(PG) (code) Fixed a critical bug in the dbfile implementation.  Fixed repository implementation so that db repositories do not behave as dbfile repositories.</li>
+<li>(NjB) (code) Fixed MimeMessageWrapper so that mail headers are properly updated when headers are set on the wrapper.</li>
+<li>(PG) (code) Added UNSETFORWARDING functionality to the RemoteManager.</li>
+<li>(PG) (code) Closed an open relay hole involving an empty Sender header.</li>
+<li>(PG) (code) Fixed Oracle specific bug that limited us to messages of 4K or less in the repository.</li>
+<li>(SS,NjB,PG) (code) Ensured that a number of database and I/O resources are properly closed under all conditions.</li>
+<li>(PG) (code) Fixed NotifySender/NotifyPostmaster to be more robust against ill-formed headers in the email being forwarded.</li>
+<li>(PG) (code) Converted String concatenation to the use of StringBuffers throughout the code base.</li>
+<li>(PG) (code) Fixed date formatting to be thread safe.</li>
+<li>(NjB) (code) Fixed InSpammerBlacklist</li>
+<li>(PH) (update) Upgrade James to the Avalon 4.0/4.1 actual releases.</li>
+<li>(NjB,SK) (update) Fixed MailImpl.duplicate to include remote addr, remote host, and last updated fields.</li>
+<li>(CB2) (update) Fixed NNTP server bug where the NEXT command was not being properly dispatched and handled.</li>
+<li>(SK) (update) Cleaned up error handling in LocalDelivery.</li>
+<li>(SS2) (update) Reported the lack of in.close in MimeMessageSource.getSize(), which was causing stranded file handles, especially during large POP3 sessions.</li>
+<li>(AI) (update) Matcher config implementation object now properly set with matcher name.</li>
+</ul>
+</section>
 <section name="Version 2.0a3">
 <p>Released 20 April 2002</p>
 <ul>
@@ -96,7 +145,7 @@
 <li>(SK) (update) GenericListservManager now requires existsAddress() which it uses to prevent someone already on the list from subscribing or someone not on the list from removing themselves.</li>
 <li>(SK) (update) Changed User repository for file to *always* end the destination with a File.separator.  Otherwise if people mixed usage of this, it would crash the repositories with confusing error messages.  Child repositories were already properly created with a terminating File.separator.</li>
 <li>(SK) (code) New matcher: IsSingleRecipient</li>
-<li>(SK) (code) Added spam blacklist checking for 3 spam blacklists that make this available in a simple DNS lookup check.  All free services through mail-abuse.org.  Added to default configuration in JAMES.conf.xml</li>
+<li>(SK) (code) Added spam blacklist checking for 3 spam blacklists that make this available in a simple DNS lookup check.  All free services through mail-abuse.org.  Added to default configuration in config.xml</li>
 <li>(PU) (code) Added first testing program.  This would recreate file stuck problem.  Would be good to build collection of testing utilities in this new package.</li>
 <li>(SK) (docs) Documented what all the jars are in the lib directory (what they're called, where they're from)</li>
 </ul>

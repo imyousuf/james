@@ -11,21 +11,135 @@
     <person name="Ivan Seskar" email="iseskar@upsideweb.com" id="IS"/>
     <person name="Prasanna Uppaladadium" email="prasanna@vayusphere.com" id="PU"/>
     <person name="Gabriel Bucher" email="gabriel.bucher@razor.ch" id="GB"/>
-	<person name="Danny Angus" email="danny@thought.co.uk" id="DA"/>
-	<person name="Darrell DeBoer" email="?" id="DD"/>
-	<person name="Harmeet Bedi" email="harmeet@kodemuse.com" id="HB"/>
-	<person name="Matthew Pangaro" email="mattp@lokitech.com" id="MP"/>
-	<person name="Jason Borden" email="jborden@javasense.com" id="JB"/>
-	<person name="Samuel Sadek" email="Samuel.Sadek@kpmg.co.uk" id="SS"/>
-	<person name="Stephan Schiessling" email="s@rapi.com" id="SS2"/>
-	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
-	<person name="Paul Hammant" email="Paul_Hammant@yahoo.com" id="PH" />
-	<person name="Jeff Keyser" email="JKeyser@telocity.com" id="JK" />
-	<person name="Noel J. Bergman" email="noel@devtech.com" id="NjB" />
-	<person name="Andrei Ivanov" email="myfam@surfeu.fi" id="AI" />
+    <person name="Danny Angus" email="danny@thought.co.uk" id="DA"/>
+    <person name="Darrell DeBoer" email="?" id="DD"/>
+    <person name="Harmeet Bedi" email="harmeet@kodemuse.com" id="HB"/>
+    <person name="Matthew Pangaro" email="mattp@lokitech.com" id="MP"/>
+    <person name="Jason Borden" email="jborden@javasense.com" id="JB"/>
+    <person name="Samuel Sadek" email="Samuel.Sadek@kpmg.co.uk" id="SS"/>
+    <person name="Stephan Schiessling" email="s@rapi.com" id="SS2"/>
+    <person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
+    <person name="Paul Hammant" email="Paul_Hammant@yahoo.com" id="PH" />
+    <person name="Jeff Keyser" email="JKeyser@telocity.com" id="JK" />
+    <person name="Noel J. Bergman" email="noel@devtech.com" id="NjB" />
+    <person name="Andrei Ivanov" email="myfam@surfeu.fi" id="AI" />
+    <person name="Peter M. Goldstein" email="farsight@alum.mit.edu" id="PG" />
+    <person name="Brad Walker" email="bwalker@studentadvantage.com" id="BW" />
+    <person name="Christian Buchegger" email="christian.buchegger@planet-interkom.de" id="CB2" />
   </devs>
 
-<release version="2.0a4-dev" date="??">
+<release version="2.1" date="Expected release November 2002">
+  <action name="PG" type="code">
+    Fixed platform-specific performance issue with the POP3 server delivery.
+  </action>
+  <action name="PG" type="update">
+    Fixed bug where RemoteDelivery did not iterate through all MX records on connect failure.
+  </action>
+  <action name="PG" type="update">
+    Updated James to use the Avalon Framework version 4.1.3.
+  </action>
+  <action name="PG" type="update">
+    Updated James to use Avalon Phoenix version 4.0.1.
+  </action>
+  <action name="PG" type="doc">
+    Added extensive commenting - specifically Javadoced the vast majority of methods.
+  </action>
+  <action name="PG" type="code">
+    Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.
+  </action>
+  <action name="NjB" type="code">
+    Corrected JDBCMailRepository to obey stated contract.
+  </action>
+  <action name="NjB,PG" type="code">
+    Adjusted service handlers to flush socket output streams to ensure prompt client interactions.
+  </action>
+  <action name="PG" type="code">
+    Adjusted the NNTP server so that it better conforms to the NNTP specification (see bug #13564 for details).
+  </action>
+  <action name="PG" type="code">
+    Corrected a typo that had been disabling NNTP using SSL functionality.
+  </action>
+  <action name="PG" type="code">
+    Corrected an architectural flaw in the NNTP server implemenation that disabled NNTP authentication.
+  </action>
+  <action name="NjB" type="code">
+    Fixed a bug in the GenericListserv subject normalization.  Neatened the code to make later modifications easier.
+  </action>
+  <action name="BW" type="code">
+    Fixed a bug in the RemoteDelivery mailet that caused the mailet to unnecessarily split the recipient list when using a gateway.
+  </action>
+  <action name="NjB,PG" type="code">
+    Added object pooling for service handlers to substantially improve performance.
+  </action>
+  <action name="AI,PG" type="code">
+    Added a new Watchdog interface to effectively support connection timeouts.  An implementation of the interface was added that uses a second thread per connection to ensure timeouts.
+  </action>
+  <action name="NjB,PG" type="code">
+    Resolved a memory leak in the source - a list of files to be deleted was being maintained that was unnecessary.  The file to be deleted is now deleted immediately after it is no longer needed.
+  </action>
+  <action name="PG" type="code">
+    Changed the code to ensure that all thread pool threads are returned to the thread pool in a non-interrupted state.
+  </action>
+  <action name="PG" type="code">
+    Centralized the file/directory lookup code inside James and fixed it so that it handled absolute URLs properly.
+  </action>
+  <action name="AI,PG" type="code">
+    Added a more substantial connection manager.  This connection manager allows us to limit the maximum number of client connections per server socket.  It also allows us to set the socket timeout for client sockets explicitly.
+  </action>
+  <action name="DA,PG" type="code">
+    Added enabled/disabled switch to main server components.
+  </action>
+  <action name="DA" type="code">
+    Added new FetchPOP functionality, to allow James to consolidate mail from a number of POP3 servers in a single server.
+  </action>
+  <action name="DA" type="doc">
+    Added documentation to demonstrate how to configure James as a universal sendmail relay.
+  </action>
+  <action name="NjB" type="code">
+    Added the HasHeader matcher.
+  </action>
+  <action name="NjB" type="code">
+    Added the JDBCVirtualUserTable mailet.
+  </action>
+  <action name="PG" type="update">
+    Fixed the log configuration so that AM and PM entries are properly distinguishable by default.
+  </action>
+  <action name="NjB" type="code">
+    Added a configurable debug parameter to several mailets to allow a more granular control of debug logging.
+  </action>
+  <action name="NjB" type="code">
+    Added the Habeas warrant mailet and matcher.
+  </action>
+  <action name="NjB,PG" type="update">
+    Changed the server configuration to default log at INFO level.  Adjusted logging statements so that they are log level appropriate.
+  </action>
+  <action name="PG" type="code">
+    Fixed a critical bug in the dbfile implementation.  Fixed repository implementation so that db repositories do not behave as dbfile repositories.
+  </action>
+  <action name="NjB" type="code">
+    Fixed MimeMessageWrapper so that mail headers are properly updated when headers are set on the wrapper.
+  </action>
+  <action name="PG" type="code">
+    Added UNSETFORWARDING functionality to the RemoteManager.
+  </action>
+  <action name="PG" type="code">
+    Closed an open relay hole involving an empty Sender header.
+  </action>
+  <action name="PG" type="code">
+    Fixed Oracle specific bug that limited us to messages of 4K or less in the repository.
+  </action>
+  <action name="NjB,PG,SS" type="code">
+    Ensured that a number of database and I/O resources are properly closed under all conditions.
+  </action>
+  <action name="PG" type="code">
+    Fixed NotifySender/NotifyPostmaster to be more robust against ill-formed headers in the email being forwarded.
+  </action>
+  <action name="PG" type="code">
+    Converted String concatenation to the use of StringBuffers throughout the code base.
+  </action>
+  <action name="PG" type="code">
+    Fixed date formatting to be thread safe.
+  </action>
   <action name="PH" type="code">
     Upgrade James to the Avalon 4.0/4.1 actual releases.
   </action>
@@ -34,6 +148,9 @@
   </action>
   <action name="NjB,SK" type="update">
     Fixed MailImpl.duplicate to include remote addr, remote host, and last updated fields.
+  </action>
+  <action name="CB2" type="update">
+    Fixed NNTP server bug where the NEXT command was not being properly dispatched and handled.
   </action>
   <action name="SK" type="update">
     Cleaned up error handling in LocalDelivery.
@@ -119,13 +236,13 @@
     Used getAsBooleanValue in various configuration methods to make code more readable.
   </action>
   <action dev="SS" type="update">
-  	Added support for Oracle database for mail and spool JDBC repositories.
+    Added support for Oracle database for mail and spool JDBC repositories.
   </action>
 </release>
 
 <release version="2.0a1" date="30-Sep-2001">
   <action dev="CB,*" type="update">
-  	Moved to Avalon snapshot of 9-25-2001.
+    Moved to Avalon snapshot of 9-25-2001.
   </action>
   <action dev="HB" type="code">
     Added NNTP service.
@@ -143,7 +260,7 @@
     Converted Town mail and user repositories to straight JDBC ones, using Excalibur connection pooling and configurable SQL statements per DB.
   </action>
   <action dev="SK" type="update">
-  	Messages are no longer loaded until absolutely necessary.
+    Messages are no longer loaded until absolutely necessary.
   </action>
   <action dev="GB" type="update">
     Fixed exception being thrown on MailAddress parsing.
@@ -161,10 +278,10 @@
     Added a whole bunch of related RFCs to the webdocs.
   </action>
   <action dev="DA" type="update">
-  	Add date to bounced emails.
+    Add date to bounced emails.
   </action>
   <action dev="HB" type="update">
-  	Updated DNS library and started process to move it to Avalon service.
+    Updated DNS library and started process to move it to Avalon service.
   </action>
   <action type="update">
     More checks to fix "stuck file" problem in Avalon mail repository.
@@ -239,7 +356,7 @@
     New matcher: IsSingleRecipient
   </action>
   <action dev="SK" type="code">
-    Added spam blacklist checking for 3 spam blacklists that make this available in a simple DNS lookup check.  All free services through mail-abuse.org.  Added to default configuration in JAMES.conf.xml
+    Added spam blacklist checking for 3 spam blacklists that make this available in a simple DNS lookup check.  All free services through mail-abuse.org.  Added to default configuration in config.xml
   </action>
   <action dev="PU" type="code">
     Added first testing program.  This would recreate file stuck problem.  Would be good to build collection of testing utilities in this new package.
@@ -320,8 +437,8 @@
 
  <release version="0.9-dev" date="Can't remember">
   <action dev="FB" type="update">
-  	Based on much code from Serge Knystautas first implementation of JAMES on
-  	top of the Avalon framework.
+    Based on much code from Serge Knystautas first implementation of JAMES on
+    top of the Avalon framework.
   </action>
 </release>
 
