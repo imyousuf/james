@@ -12,7 +12,7 @@ import org.apache.mail.*;
 import org.apache.james.transport.*;
 
 /**
- * Simpliest MailServlet which destroy any incoming messages.
+ * Simpliest Mailet which destroy any incoming messages.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -21,9 +21,9 @@ public class Null extends AbstractMailet {
     public void service(Mail mail) {
         mail.setState(mail.GHOST);
     }
-    
-    public String getServletInfo() {
+
+    public String getMailetInfo() {
         return "Null Mailet";
     }
 }
-    
+

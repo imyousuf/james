@@ -182,7 +182,7 @@ All theese package are in current distribution.
     <mkdir dir="${build.docs}"/>
     <javadoc sourcepath="${build.src}"
         destdir="${build.docs}"
-        packagenames="org.apache.avalon.blocks.*,org.apache.james.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.match.*,org.apache.james.transport.servlet.*,org.apache.james.usermanager.*,org.apache.mail.*,org.apache.mail.servlet.*"
+        packagenames="org.apache.avalon.blocks.*,org.apache.james.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.match.*,org.apache.james.transport.mailets.*,org.apache.james.usermanager.*,org.apache.mail.*,org.apache.mail.mailets.*"
         classpath="${classpath}"
         />
   </target>

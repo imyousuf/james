@@ -49,12 +49,12 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
         MailetLoader mailetLoader = new MailetLoader();
-        mailetLoader.setConfiguration(conf.getConfiguration("servletpackages"));
+        mailetLoader.setConfiguration(conf.getConfiguration("mailetpackages"));
         comp.put(Resources.MAILET_LOADER, mailetLoader);
-        
+
         MatchLoader matchLoader = new MatchLoader();
         comp.put(Resources.MATCH_LOADER, matchLoader);
-        
+
         for (Enumeration e = conf.getConfigurations("processor"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
             String className = c.getAttribute("class");
@@ -121,8 +121,8 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             }
         }
     }
-    
+
     public void destroy() {}
-    
+
     public void stop() {}
 }

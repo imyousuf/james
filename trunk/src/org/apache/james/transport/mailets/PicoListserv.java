@@ -25,7 +25,7 @@ import org.apache.james.transport.*;
  * <replytolist>
  */
 public class PicoListserv extends AbstractMailet {
-    
+
     protected boolean membersOnly = false;
     protected boolean attachmentsAllowed = true;
     protected boolean replyToList = true;
@@ -73,10 +73,10 @@ public class PicoListserv extends AbstractMailet {
         return listName + "@" + serverNames.elementAt(0);
     }
 
-    public String getServletInfo() {
-        return "PicoListserv Servlet";
+    public String getMailetInfo() {
+        return "PicoListserv Mailet";
     }
-    
+
     public void service(Mail mail) throws Exception {
         mail.setRecipients(getMembers());
         transport.service(mail);

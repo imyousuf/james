@@ -15,11 +15,11 @@ import java.util.*;
 
 /**
  * Replace incoming recipient with specified ones.
- * 
+ *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class Forward extends AbstractMailet {
-    
+
     private Vector newRecipients;
     private Mailet transport;
 
@@ -33,9 +33,9 @@ public class Forward extends AbstractMailet {
             newRecipients.addElement(c.getValue());
         }
     }
-    
+
     public void service(Mail mail) throws Exception {
-        
+
         mail.setRecipients(newRecipients);
         MailetContext context = getContext();
         transport = (Mailet) context.get("transport");
@@ -47,9 +47,9 @@ public class Forward extends AbstractMailet {
         }
         mail.setState(Mail.GHOST);
     }
-    
-    public String getServletInfo() {
-        return "Forward Mail Servlet";
+
+    public String getMailetInfo() {
+        return "Forward Mailet";
     }
 }
-    
+

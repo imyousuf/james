@@ -12,7 +12,7 @@ import org.apache.java.lang.*;
 import org.apache.mail.*;
 
 /**
- * Draft of a MailServlet inteface.
+ * Draft of a Mailet inteface.
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri   <scoobie@pop.systemy.it>
@@ -21,14 +21,14 @@ import org.apache.mail.*;
  * @author  Serge Knystautas    <sergek@lokitech.com>
  */
 public class JamesMailetContext extends SimpleContext implements MailetContext, Configurable, Composer {
-    
+
     private Configuration conf;
     private ComponentManager comp;
 
     protected JamesMailetContext(Context parent) {
         super(parent);
     }
-    
+
     protected JamesMailetContext(MailetContext parent) {
         super(parent);
         setConfiguration(parent.getConfiguration());
@@ -38,23 +38,23 @@ public class JamesMailetContext extends SimpleContext implements MailetContext, 
     protected JamesMailetContext() {
         super();
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
     }
-    
+
     public ComponentManager getComponentManager() {
         return comp;
     }
-    
+
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public Configuration getConfiguration() {
         return conf;
     }
-    
+
     public MailetContext getChildContext(Configuration conf) {
         JamesMailetContext child = new JamesMailetContext(this);
         child.setComponentManager(comp);
@@ -65,8 +65,8 @@ public class JamesMailetContext extends SimpleContext implements MailetContext, 
     public MailetContext getChildContext(String childName) {
         return getChildContext(conf.getConfiguration(childName));
     }
-    
+
     // Fill Me!!!
 }
 
-    
+
