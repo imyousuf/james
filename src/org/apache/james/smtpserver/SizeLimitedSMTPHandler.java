@@ -14,7 +14,14 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Stoppable;
 import org.apache.cornerstone.services.Scheduler;
 
 import org.apache.james.*;
