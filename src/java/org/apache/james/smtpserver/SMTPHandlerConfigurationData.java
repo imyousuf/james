@@ -65,7 +65,6 @@ import org.apache.james.services.UsersRepository;
  * Provides a number of server-wide constant values to the
  * SMTPHandlers
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface SMTPHandlerConfigurationData {
 
@@ -89,6 +88,14 @@ public interface SMTPHandlerConfigurationData {
      * @return the maximum message size
      */
     long getMaxMessageSize();
+
+    /**
+     * Returns whether SMTP AUTH is active for this server, and
+     * necessary for the IP address passed.
+     *
+     * @return whether SMTP authentication is on
+     */
+    boolean isAuthRequired(String remoteIP);
 
     /**
      * Returns whether SMTP auth is active for this server.
@@ -118,5 +125,4 @@ public interface SMTPHandlerConfigurationData {
      * @return the local users repository
      */
     UsersRepository getUsersRepository();
-
 }

@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.35.4.9 $
+ * @version This is $Revision: 1.35.4.10 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -638,7 +638,7 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            if (theConfigData.isAuthRequired()) {
+            if (theConfigData.isAuthRequired(remoteIP)) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -653,7 +653,7 @@ public class SMTPHandler
                           .append(remoteIP)
                           .append("])");
             responseString = clearResponseBuffer();
-            if (theConfigData.isAuthRequired()) {
+            if (theConfigData.isAuthRequired(remoteIP)) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -684,7 +684,7 @@ public class SMTPHandler
                 responseString = "250-SIZE " + maxMessageSize;
                 writeLoggedResponse(responseString);
             }
-            if (theConfigData.isAuthRequired()) {
+            if (theConfigData.isAuthRequired(remoteIP)) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -699,7 +699,7 @@ public class SMTPHandler
                            .append(remoteIP)
                            .append("])");
             responseString = clearResponseBuffer();
-            if (theConfigData.isAuthRequired()) {
+            if (theConfigData.isAuthRequired(remoteIP)) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -1129,7 +1129,7 @@ public class SMTPHandler
                 }
                 return;
             }
-            if (theConfigData.isAuthRequired()) {
+            if (theConfigData.isAuthRequired(remoteIP)) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
                 if (getUser() == null) {

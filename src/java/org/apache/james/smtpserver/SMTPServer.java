@@ -78,23 +78,20 @@ import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.util.NetMatcher;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailetContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
  *
  * <p>Also responsible for loading and parsing SMTP specific configuration.</p>
  *
  * @version 1.1.0, 06/02/2001
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  Matthew Pangaro <mattp@lokitech.com>
- * @author  <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 /*
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
@@ -131,6 +128,12 @@ public class SMTPServer extends AbstractJamesService implements Component {
      * SMTP interaction.
      */
     private boolean verifyIdentity = false;
+
+    /**
+     * This is a Network Matcher that should be configured to contain
+     * authorized networks that bypass SMTP AUTH requirements.
+     */
+    private NetMatcher authorizedNetworks = null;
 
     /**
      * The maximum message size allowed by this SMTP server.  The default
@@ -200,6 +203,18 @@ public class SMTPServer extends AbstractJamesService implements Component {
             } else {
                 getLogger().info("This SMTP server does not require authentication.");
             }
+
+            String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
+            if (authorizedAddresses != null) {
+                java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
+                java.util.Collection networks = new java.util.ArrayList();
+                while (st.hasMoreTokens()) {
+                    String addr = st.nextToken();
+                    networks.add(addr);
+                }
+                authorizedNetworks = new NetMatcher(networks);
+            }
+
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
             maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
@@ -349,6 +364,17 @@ public class SMTPServer extends AbstractJamesService implements Component {
          */
         public long getMaxMessageSize() {
             return SMTPServer.this.maxMessageSize;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
+         */
+        public boolean isAuthRequired(String remoteIP) {
+            boolean authRequired = SMTPServer.this.authRequired;
+            if (authorizedNetworks != null) {
+                authRequired = authRequired && SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+            }
+            return authRequired;
         }
 
         /**
