@@ -18,6 +18,7 @@ import org.apache.mail.Mail;
 
 import org.apache.james.transport.*;
 import org.apache.james.smtpserver.*;
+import org.apache.james.dnsserver.*;
 import org.apache.james.pop3server.*;
 import org.apache.james.remotemanager.*;
 import org.apache.james.usermanager.*;
@@ -134,6 +135,17 @@ public class James implements MailServer, Block {
             throw e;
         }
 
+        DNSServer dnsServer = new DNSServer();
+        try {
+            dnsServer.setConfiguration(conf.getConfiguration("dnsServer"));
+            //dnsServer.setContext(context);
+            dnsServer.setComponentManager(comp);
+        } catch (Exception e) {
+            logger.log("Exception in DNSServer init: " + e.getMessage(), "JamesSystem", logger.ERROR);
+            throw e;
+        }
+        comp.put("DNS_SERVER", dnsServer);
+
         RemoteManager remoteAdmin = new RemoteManager();
         try {
             remoteAdmin.setConfiguration(conf.getConfiguration("remoteManager"));
@@ -159,9 +171,9 @@ public class James implements MailServer, Block {
             logger.log("SpoolManager " + (threads + 1) + " started", "JamesSystem", logger.INFO);
         }
 
-        userManager.init();
         pop3Server.init();
         smtpServer.init();
+        dnsServer.init();
         remoteAdmin.init();
 
         logger.log("JAMES ...init end", "JamesSystem", logger.INFO);

@@ -8,6 +8,8 @@
 
 package org.apache.james.transport;
 
+import java.util.*;
+import org.apache.james.dnsserver.DNSServer;
 import org.apache.avalon.*;
 import org.apache.mail.*;
 
@@ -66,7 +68,9 @@ public class JamesMailetContext extends SimpleContext implements MailetContext, 
         return getChildContext(conf.getConfiguration(childName));
     }
 
-    // Fill Me!!!
+    public Collection findMXRecords(String host) {
+        DNSServer dnsServer = (DNSServer) comp.getComponent("DNS_SERVER");
+        return dnsServer.findMXRecords(host);
+    }
 }
-
 

@@ -8,11 +8,12 @@
 
 package org.apache.mail;
 
+import java.util.*;
 import org.apache.avalon.*;
 
 /**
- * Draft of a Mailetcontext inteface. The implementation provides APIs to the 
- * Mailet as well as shared object and configurations. 
+ * Draft of a Mailetcontext inteface. The implementation provides APIs to the
+ * Mailet as well as shared object and configurations.
  * NOTE: this interface is under development!!!
  *
  * @version 1.0.0, 24/04/1999
@@ -22,13 +23,16 @@ import org.apache.avalon.*;
  * @author  Serge Knystautas    <sergek@lokitech.com>
  */
 public interface MailetContext extends Context {
-    
+
     public Configuration getConfiguration();
-    
+
     public ComponentManager getComponentManager();
-    
+
     public MailetContext getChildContext(Configuration conf);
     // Fill Me!!!
+
+    public Collection findMXRecords(String host);
+
 }
 
-    
+

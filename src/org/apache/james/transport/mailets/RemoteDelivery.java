@@ -21,6 +21,8 @@ import org.apache.james.transport.*;
 import javax.mail.URLName;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.*;
 
 
@@ -45,7 +47,6 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 	private Logger logger;
 
 	private InternetAddress postmaster;
-	private SmartTransport transport;
 
 	public void init ()	throws Exception {
 	    MailetContext context = getContext();
@@ -55,15 +56,6 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 		delayTime = conf.getConfiguration("delayTime").getValueAsLong(21600000); // default is 6*60*60*1000 mills
 		maxRetries = conf.getConfiguration("maxRetries").getValueAsInt(5); // default is 5 retries
 		timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-
-		    // Instantiate the SmartTransport
-		StringBuffer servers = new StringBuffer ();
-		for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
-			Configuration c = (Configuration)e.nextElement ();
-			servers.append (c.getValue () + " ");
-		}
-		boolean authoritative = conf.getConfiguration("authoritative").getValueAsBoolean(false);
-		transport = new SmartTransport (servers.toString(), authoritative);
 
             // Instanziate the a MailRepository for delayed mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
@@ -102,7 +94,30 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 				addr[j] = new InternetAddress((String) i.next());
 			}
 
-			transport.sendMessage (message, addr);
+            if (addr.length > 0) {
+                //Lookup the possible targets
+                for (Iterator i = getContext().findMXRecords(host).iterator(); i.hasNext();) {
+                    try {
+                        String outgoingmailserver = i.next().toString ();
+                        URLName urlname = new URLName("smtp://" + outgoingmailserver);
+
+                        Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
+
+                        transport.connect ();
+                        transport.sendMessage(message, addr);
+                        transport.close ();
+                        return;
+                    } catch (MessagingException me) {
+                        if (!i.hasNext())
+                            throw me;
+                    }
+                }
+                throw new MessagingException("No route found to " + host);
+            }
+
+
+
+
 			logger.log("Mail sent");
 			//We've succeeded somehow!!!  Cheers!
 			return;
