@@ -9,13 +9,13 @@
 This configuration file is designed to run without alteration for simple tests.
 It assumes you have a DNS server on localhost and assigns a root pasword of root.
 
-For in case the defaults do not suit you, the items you are most likely to need to change 
+In case the defaults do not suit you, the items you are most likely to need to change 
 are preceeded by a CHECKME! or CONFIRM? comment in the left margin.
 
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.23 $ Committed on $Date: 2002/05/16 11:37:30 $ by: $Author: danny $-->
+$Revision: 1.24 $ Committed on $Date: 2002/05/16 11:40:43 $ by: $Author: danny $-->
 
 <config>
    <James>
@@ -38,7 +38,7 @@ $Revision: 1.23 $ Committed on $Date: 2002/05/16 11:37:30 $ by: $Author: danny $
       <usernames ignoreCase="TRUE" enableAliases="TRUE" enableForwarding="TRUE"/>
       
       <!-- The inbox repository is the location for users inboxes -->
-      <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
+      <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
       <inboxRepository>
          <repository destinationURL="file://var/mail/inboxes/" type="MAIL"/>
       </inboxRepository>
