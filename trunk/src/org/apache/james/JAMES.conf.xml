@@ -185,9 +185,12 @@
                         <!-- <repositoryPath> town://mail-error </repositoryPath>-->
                         <passThrough> true </passThrough>
                     </mailet>
-                <!-- Send a notification to the sender that the message created an error condition -->
-                    <mailet match="All" class="Null">
-                    </mailet>
+                <!-- If you want to notify the sender their message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifySender">
+                    </mailet> -->
+                <!-- If you want to notify the postmaster that a message was marked as spam, uncomment this
+                    <mailet match="All" class="NotifyPostmaster">
+                    </mailet> -->
                 </processor>
 
 <!--        Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
