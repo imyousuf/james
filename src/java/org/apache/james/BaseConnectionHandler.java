@@ -40,6 +40,8 @@ import org.apache.log.Logger;
  * Different connection handlers extend this class
  * Common Connection Handler code could be factored into this class.
  * At present(April 28' 2001) there is not much in this class
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class BaseConnectionHandler extends AbstractLoggable implements Configurable {
     protected int timeout;
