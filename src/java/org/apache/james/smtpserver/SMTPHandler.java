@@ -93,6 +93,7 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.util.Base64;
 import org.apache.james.util.CharTerminatedInputStream;
+import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
@@ -104,7 +105,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.47 $
+ * @version This is $Revision: 1.48 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -1269,7 +1270,7 @@ public class SMTPHandler
                     msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
                 }
                 // Removes the dot stuffing
-                msgIn = new SMTPInputStream(msgIn);
+                msgIn = new DotStuffingInputStream(msgIn);
                 // Parse out the message headers
                 MailHeaders headers = new MailHeaders(msgIn);
                 headers = processMailHeaders(headers);
