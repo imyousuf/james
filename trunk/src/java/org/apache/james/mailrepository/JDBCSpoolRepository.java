@@ -57,11 +57,11 @@ import org.apache.mailet.MailAddress;
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class JDBCSpoolRepository
-    extends JDBCMailRepository
-    implements SpoolRepository {
+public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepository {
+    private final static int WAIT_LIMIT = 60000;
 
-    public synchronized String accept() {
+    public String accept() {
+        System.err.println("accept called on " + this);
         while (true) {
             Connection conn = null;
             PreparedStatement listMessages = null;
@@ -82,8 +82,6 @@ public class JDBCSpoolRepository
                         return message;
                     }
                 }
-                rsListMessages.close();
-                listMessages.close();
             } catch (Exception me) {
                 me.printStackTrace();
                 throw new RuntimeException("Exception while listing mail: " + me.getMessage());
@@ -102,13 +100,18 @@ public class JDBCSpoolRepository
                 }
             }
             try {
-                wait();
+                synchronized (this) {
+                    wait(WAIT_LIMIT);
+                }
             } catch (InterruptedException ignored) {
             }
         }
     }
 
-    public synchronized String accept(long delay) {
+    /**
+     * Find an available message, or an error one that hasn't been updated in a certain amount of time
+     */
+    public String accept(long delay) {
         while (true) {
             long next = 0;
             Connection conn = null;
@@ -164,10 +167,12 @@ public class JDBCSpoolRepository
 
             //We did not find any... let's wait for a certain amount of time
             try {
-                if (next == 0) {
-                    wait();
-                } else {
-                    wait(next - System.currentTimeMillis());
+                synchronized (this) {
+                    if (next == 0 || next - System.currentTimeMillis() > WAIT_LIMIT) {
+                        wait(WAIT_LIMIT);
+                    } else {
+                        wait(next - System.currentTimeMillis());
+                    }
                 }
             } catch (InterruptedException ignored) {
             }
