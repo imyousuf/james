@@ -88,7 +88,7 @@ public class NNTPUtil {
         try { clsName = configuration.getAttribute("class");
         } catch(ConfigurationException ce) { }
         try {
-            Object obj = Class.forName(clsName).newInstance();
+            Object obj = NNTPUtil.class.getClassLoader().loadClass(clsName).newInstance();
             if ( obj instanceof LogEnabled )
                 ((LogEnabled)obj).enableLogging( logger );
             if (obj instanceof Contextualizable) 

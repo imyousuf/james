@@ -79,7 +79,7 @@ public class MatchLoader implements Component, Configurable {
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(context);
 
-                    Matcher matcher = (Matcher) Class.forName(className).newInstance();
+                    Matcher matcher = (Matcher) this.getClass().getClassLoader().loadClass(className).newInstance();
                     matcher.init(configImpl);
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {

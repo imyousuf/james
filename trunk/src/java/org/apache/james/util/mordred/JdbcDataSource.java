@@ -48,7 +48,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.14 $
+ * @version CVS $Revision: 1.15 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -234,7 +234,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Loading new driver: " + jdbcDriver);
                 }
-                Class.forName(jdbcDriver, true, Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader().loadClass(jdbcDriver);
             } catch(ClassNotFoundException cnfe) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)

@@ -289,7 +289,7 @@ public class AvalonMailStore
                 }
 
                 try {
-                    reply = (MailRepository) Class.forName(repClass).newInstance();
+                    reply = (MailRepository) this.getClass().getClassLoader().loadClass(repClass).newInstance();
                     if (reply instanceof LogEnabled) {
                        setupLogger(reply);
                     }

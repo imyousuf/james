@@ -116,7 +116,7 @@ public class AvalonUsersStore
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Starting " + repClass);
             }
-            UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
+            UsersRepository rep = (UsersRepository) this.getClass().getClassLoader().loadClass(repClass).newInstance();
 
             setupLogger((Component)rep);
 
