@@ -53,15 +53,16 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2001/06/21 16:04:50 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2001/06/21 17:20:20 $ by: $Author: charlesb $ 
  */
 public class James
     extends AbstractLoggable
     implements Block, Contextualizable, Composable, Configurable,
                Initializable, MailServer, MailetContext {
 
-    public final static String VERSION = "James 1.2.2 Alpha"; // FIX!
+    public final static String VERSION = "jakarta-james 1.3-dev";
+    private final static boolean DEEP_DEBUG = true;
 
     private DefaultComponentManager compMgr; //Components shared
     private DefaultContext context;
@@ -259,39 +260,15 @@ public class James
         // Add this to comp
         compMgr.put("org.apache.james.services.MailServer", this);
 
-        Configuration spoolConf = conf.getChild("spoolRepository");
-        Configuration spoolRepConf = spoolConf.getChild("repository");
-        try {
-            this.spool = (SpoolRepository) mailstore.select(spoolRepConf);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private SpoolRepository");
-            throw e;
-        }
-        getLogger().info("Private SpoolRepository Spool opened: "+spool.hashCode());
-        //compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
+        spool = mailstore.getInboundSpool();
+        if (DEEP_DEBUG) getLogger().debug("Got spool");
+
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);
         // For AVALON aware mailets and matchers, we put the Component object as
         // an attribute
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
-        // int threads = conf.getConfiguration("spoolmanagerthreads").getValueAsInt(1);
-        //while (threads-- > 0) {
-/*
-        try {
-            JamesSpoolManager spoolMgr = new JamesSpoolManager();
-            setupLogger( spoolMgr, "SpoolManager" );
-            spoolMgr.configure(conf.getChild("spoolmanager"));
-            spoolMgr.contextualize(context);
-            spoolMgr.compose(compMgr);
-            spoolMgr.initialize();
-            workerPool.execute(spoolMgr);
-            getLogger().info("SpoolManager started");
-        } catch (Exception e) {
-            getLogger().error("Exception in SpoolManager init: " + e.getMessage());
-            throw e;
-        }
-*/
         System.out.println("James "+VERSION);
         getLogger().info("JAMES ...init end");
     }

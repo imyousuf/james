@@ -35,14 +35,15 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2001/06/21 16:04:52 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2001/06/21 17:20:32 $ by: $Author: charlesb $ 
  */
 public class JamesSpoolManager
     extends AbstractLoggable
     implements Contextualizable, Composable, Configurable, Initializable,
                Runnable, Disposable,  Block {
 
+    private final static boolean DEEP_DEBUG = true;
     private DefaultComponentManager compMgr;
     //using implementation as we need put method.
     private Configuration conf;
@@ -72,18 +73,11 @@ public class JamesSpoolManager
 
         getLogger().info("JamesSpoolManager init...");
         workerPool = blockContext.getThreadPool( "default" );
-        Configuration spoolConf = conf.getChild("spoolRepository");
-        Configuration spoolRepConf = spoolConf.getChild("repository");
         MailStore mailstore
           = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-        try {
-            this.spool = (SpoolRepository) mailstore.select(spoolRepConf);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private SpoolRepository");
-            throw e;
-        }
-        getLogger().info("Private SpoolRepository Spool opened: "
-                         + spool.hashCode());
+        spool = mailstore.getInboundSpool();
+        if (DEEP_DEBUG) getLogger().debug("Got spool");
+
         mailetcontext
           = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
         MailetLoader mailetLoader = new MailetLoader();
