@@ -60,7 +60,7 @@ package org.apache.james.transport.mailets;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
@@ -100,7 +100,7 @@ import org.apache.mailet.UsersRepository;
  * <p>autobracket - if true the subject prefix will be rendered as
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
- * @version This is $Revision: 1.13 $
+ * @version This is $Revision: 1.14 $
  */
 public class AvalonListserv extends GenericListserv {
 
@@ -172,7 +172,7 @@ public class AvalonListserv extends GenericListserv {
     }
 
     public Collection getMembers() throws ParseException {
-        Collection reply = new Vector();
+        Collection reply = new ArrayList();
         for (Iterator it = members.list(); it.hasNext(); ) {
             String member = it.next().toString();
             try {
