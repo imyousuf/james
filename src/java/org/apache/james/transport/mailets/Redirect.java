@@ -55,7 +55,7 @@ import org.apache.mailet.MailAddress;
 *<LI>getSender(), who the mail is from</LI>
 *<LI>getSubjectPrefix(), a prefix to be added to the message subject</LI>
 *<LI>getTo(), a list of people to whom the mail is *apparently* sent</LI>
-*<LI>getPassThrough(), should this mailet GHOST the original message.</LI>
+*<LI>getPassThrough(), should this mailet allow the original message to continue processing or GHOST it.</LI>
 *<LI>isStatic(), should this mailet run the get methods for every mail, or just
 *once. </LI>
 *</UL>
@@ -73,7 +73,7 @@ import org.apache.mailet.MailAddress;
 *<TD width="80%">A comma delimited list of addresses to appear in the To: header,
 *the email will only be delivered to these addresses if they are in the recipients
 *list.<BR>
-*The recipients list will be used if this is not supplied.<BR>The special value "recipients" in this parameter will cause the addresses in the original To header to be retained.</TD>
+*The recipients list will be used if this is not supplied.</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;sender&gt;</TD>
@@ -452,26 +452,14 @@ public class Redirect extends GenericMailet {
             recipients   = getRecipients();
             apparentlyTo = getTo();
         }
-        if(apparentlyTo[0].toString().equalsIgnoreCase("recipients")){
-            apparentlyTo = (InternetAddress[])mail.getMessage().getRecipients(Message.RecipientType.TO);
-//            Collection c = mail.getRecipients();
-//            Iterator i = c.iterator();
-//            Vector d = new Vector();
-//            MailAddress m = null;
-//            while(i.hasNext()){
-//                m = (MailAddress)i.next();
-//                d.add(m.toInternetAddress());
-//            }
-//            apparentlyTo = (InternetAddress[])d.toArray();
-            
-           
-        }
+
         MimeMessage message = mail.getMessage();
-        MimeMessage reply   = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
-                                                                         null));
+        MimeMessage reply = null;
         //Create the message
         if(getInLineType() != UNALTERED) {
             log("alter message inline=:" + getInLineType());
+            reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
+                                                               null));
             StringWriter sout = new StringWriter();
             PrintWriter out   = new PrintWriter(sout, true);
             Enumeration heads = message.getAllHeaderLines();
@@ -543,8 +531,9 @@ public class Redirect extends GenericMailet {
             reply.setContent(multipart);
             reply.setHeader("Content-Type", multipart.getContentType());
         } else {
+            // if we need the original, create a copy of this message to redirect
+            reply = getPassThrough() ? new MimeMessage(message) : message;
             log("message resent unaltered:");
-            reply = message;
         }
         //Set additional headers
         reply.setSubject(getSubjectPrefix() + message.getSubject());
