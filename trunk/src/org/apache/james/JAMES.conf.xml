@@ -1,62 +1,64 @@
 <?xml version="1.0"?>
 <avalon>
     <blocks>
-
-<!-- JAMES POP3 server Blocks -->
-
-        <block class="org.apache.james.pop3server.POP3Server"
-                serverName="James"
-                implementedInterface=""
-                help="This block impement a POP3 server. Il will look for mails
-                    under [mailboxName].[username]">
-
-            <port>110</port>
-<!--        <servername> To override autodetected server name uncomment this. </servername> -->
-            <pop3handler>
-                <connectiontimeout help="After this time in milliseconds that no
-                        command are received the connection will be closed">
-                    120000 
-                </connectiontimeout>
-            </pop3handler>
-        </block>
-
-<!-- JAMES SMTP server Blocks -->
-
-        <block class="org.apache.james.smtpserver.SMTPServer"
-                serverName="James"
-                implementedInterface=""
-                help="This block implements a SMTP server. Incoming mails will be
-                    delivered to the MailServer implementation">
-
-            <port>25</port>
-<!--        <servername> To override autodetected server name uncomment this. </servername> -->
-            <smtphandler>
-                <connectiontimeout help="After this time in milliseconds that no
-                        command are received the connection will be closed">
-                    120000 
-                </connectiontimeout>
-            </smtphandler>
-        </block>
-
-<!-- JAMES MailServer Implementation -->
-
-        <block class="org.apache.james.james.James"
+        <block class="org.apache.james.James"
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.MailServer">
+               
+            <postmaster> root@localhost </postmaster>
             <servernames>
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
             </servernames>
-<!-- Place here the path where incoming mail are temporaly stored before beeing processed. (ex. file://c:/james/spool/) -->
+<!-- Place here the path where incoming mail are temporaly stored before beeing processed.
+     (ex. file://c:/james/spool/) -->
             <spoolRepository> file://../mail/spool/ </spoolRepository>
             <mailboxName> localInbox </mailboxName>
-<!-- The number of threads that spool and process messages from spoolRepository. -->
+
+            <pop3Server>
+                <port>110</port>
+                <pop3handler>
+                    <connectiontimeout> 120000 </connectiontimeout>
+                </pop3handler>
+            </pop3Server>
+    
+            <smtpServer>
+                <port>25</port>
+                <smtphandler>
+                    <connectiontimeout> 120000 </connectiontimeout>
+                </smtphandler>
+            </smtpServer>
+    
+            <remoteManager>
+                <port>4555</port>
+                <administrator_accounts>
+                    <account login="root" password="root"/>
+                </administrator_accounts>
+                <connectiontimeout> 60000 </connectiontimeout>
+            </remoteManager>
+
+            <usersManager>
+                <repository> file://../users/ </repository>
+            </usersManager>
+
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
-<!-- ++++++++++++ MAIL SERVLET PIPE LINE +++++++++++++ -->
-<!-- Configure your mail Servlet processing pipe here. -->
-                <servlets rootpath="org.apache.james.james.servlet.">
+                <DNSservers>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
+<!-- Place here the list of your DNS servers, one for each <Server> tag-->
+                    <server> </server>
+                    <server> </server>
+                    <server> </server>
+<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+                </DNSservers>
+                <authoritative>false</authoritative>
+                <repository> file://../mail/delayed/ </repository>
+            
+<!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
+                <servlets rootpath="org.apache.james.transport.servlet.">
 
 <!-- Thise servlet acts as system servlet and provides local delivery -->
                     <servlet match="RecipientIsLocal" class="LocalDelivery">
@@ -64,21 +66,8 @@
 
 <!-- These servlet act as system servlet and provides remote deliver -->
                     <servlet match="!HostIsLocal" class="RemoteDelivery">
-                        <repository> file://../mail/delayed/ </repository>
                         <delayTime>21600000</delayTime>
                         <maxRetyes>5</maxRetyes>
-                        <DNSservers>
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
-<!-- Place here the list of your DNS servers, one for each <Server> tag-->
-                            <server> </server>
-                            <server> </server>
-                            <server> </server>
-<!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-                        </DNSservers>
-                        <authoritative>false</authoritative>
-                        <postmaster>scoobie@betaversion.org</postmaster>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
@@ -91,30 +80,15 @@
             </spoolmanager>
         </block>
 
-<!-- Block to manage JAMES users accounts -->
-
-        <block class="org.apache.james.remotemanager.RemoteManager"
-               serverName="James"
-               implementedInterface="">
-            <port>4555</port>
-            <AdministratorAccounts>
-                <Account login="root" password="root"/>
-            </AdministratorAccounts>
-                <connectiontimeout help="After this time in milliseconds that no
-                        command are received the connection will be closed">
-                    60000 
-                </connectiontimeout>
-        </block>
-
         <block class="org.apache.avalon.blocks.timeserver.TimeManager"
-                serverName="all"
+                serverName="James"
                 implementedInterface="org.apache.avalon.blocks.TimeServer"
                 help="Provide a simple interface to catch time events">
             <!-- No configurations needed for this block -->
         </block>
 
         <block class="org.apache.avalon.blocks.threadmanager.ThreadPool"
-                serverName="all"
+                serverName="James"
                 implementedInterface="org.apache.avalon.blocks.ThreadManager"
                 help="Takes care of execution of any Runnable in Avalon providing
                         a thread recycling capabilities">
@@ -127,7 +101,7 @@
         </block>
     
         <block class="org.apache.avalon.blocks.omero.Omero"
-               serverName="all"
+               serverName="James"
                implementedInterface="org.apache.avalon.blocks.Logger"
                help="Provides a pluggable logging system">
             <timestamp>
@@ -204,7 +178,7 @@
         </block>
                 
         <block class="org.apache.avalon.blocks.masterstore.MasterStore"
-                serverName="all"
+                serverName="James"
                 implementedInterface="org.apache.avalon.blocks.Store"
                 help="This is an imlpementation of the Store interface and 
                     provides a powerful interface to store any kind of objects. Its
@@ -248,7 +222,7 @@
         </block>
 
         <block class="org.apache.avalon.blocks.serversocket.SocketManager"
-               serverName="all"
+               serverName="James"
                implementedInterface="org.apache.avalon.blocks.SocketServer"
                help="Provides an simple interface to catch Socket events">
             <listenerDefinition help="These are default socket listener. An 

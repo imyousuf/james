@@ -54,7 +54,7 @@ All theese package are in current distribution.
   <property name="style" value="../xml-site/style/"/>
   <property name="doc.generator" value="org.apache.stylebook.StyleBook"/>
 
-  <property name="constants.file" value="org/apache/james/JamesConstants.java"/>
+  <property name="constants.file" value="org/apache/james/Constants.java"/>
 
   <property name="build.dir" value="./build"/>
   <property name="build.src" value="./build/src"/>

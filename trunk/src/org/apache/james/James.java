@@ -6,19 +6,26 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.james;
+package org.apache.james;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.arch.*;
-import org.apache.james.*;
-import org.apache.mail.Mail;
-import java.net.*;
 import java.io.*;
+import java.net.*;
+import java.util.*;
+
+import org.apache.arch.*;
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
+import org.apache.mail.Mail;
+
+import org.apache.james.transport.*;
+import org.apache.james.smtpserver.*;
+import org.apache.james.pop3server.*;
+import org.apache.james.remotemanager.*;
+import org.apache.james.usermanager.*;
+
 import javax.mail.internet.*;
 import javax.mail.Session;
 import javax.mail.MessagingException;
-import java.util.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -27,15 +34,12 @@ import java.util.*;
 public class James implements MailServer, Block {
 
     private SimpleComponentManager comp;
-    private Configuration conf;
-    private SimpleComponentManager spoolManagerCM;
     private SimpleContext context;
+    private Configuration conf;
     private Logger logger;
     private ThreadManager threadManager;
     private Store store;
     private MailRepository spool;
-    private MailRepository localInbox;
-    private Store.Repository mailUsers;
     private String mailboxName;
     
     public James() {
@@ -51,12 +55,13 @@ public class James implements MailServer, Block {
 
 	public void init() throws Exception {
 
-        spoolManagerCM = new SimpleComponentManager(comp);
-        spoolManagerCM.put(Interfaces.MAIL_SERVER, this);
-
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JAMES init...", "JAMES", logger.INFO);
+        threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
+        store = (Store) comp.getComponent(Interfaces.STORE);
+
         context = new SimpleContext();
+            // Get this server names 
         Vector serverNames = new Vector();
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
             serverNames.addElement(((Configuration) e.nextElement()).getValue());
@@ -72,48 +77,79 @@ public class James implements MailServer, Block {
             logger.log("Local host is: " + e.nextElement(), "JAMES", logger.INFO);
         }
         context.put(Constants.SERVER_NAMES, serverNames);
-        this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
-        this.store = (Store) comp.getComponent(Interfaces.STORE);
-
+        context.put(Constants.HELO_NAME, serverNames.elementAt(0));
+            // Get postmaster
+        String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
+        context.put(Constants.POSTMASTER, postmaster);
+            // Get the LocalInbox repository
+        mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
         try {
-            this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
-            this.localInbox = (MailRepository) store.getPublicRepository(mailboxName);
+            MailRepository localInbox = (MailRepository) store.getPublicRepository(mailboxName);
         } catch (RuntimeException e) {
             logger.log("Cannot open public Repository LocalInbox", "JAMES", logger.ERROR);
             throw e;
         }
         logger.log("Public Repository LocalInbox opened", "JAMES", logger.INFO);
-        context.put(Constants.INBOX_ROOT, mailboxName);
-
-        String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
-        context.put(Constants.POSTMASTER, postmaster);
+            // Add this to comp
+        comp.put(Interfaces.MAIL_SERVER, this);
         
-        try {
-            this.mailUsers = (Store.Repository) store.getPublicRepository("MailUsers");
-        } catch (RuntimeException e) {
-            logger.log("Cannot open public Repository MailUsers", "JAMES", logger.ERROR);
-            throw e;
-        }
-        logger.log("Public Repository MailUsers opened", "JAMES", logger.INFO);
-        spoolManagerCM.put(Constants.USERS_REPOSITORY, mailUsers);
-
         String spoolRepository = conf.getConfiguration("spoolRepository", ".").getValue();
         try {
             this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             logger.log("Cannot open private MailRepository", "JAMES", logger.ERROR);
             throw e;
         }
         logger.log("Private MailRepository Spool opened", "JAMES", logger.INFO);
-        spoolManagerCM.put(Constants.SPOOL_REPOSITORY, spool);
+        comp.put(Constants.SPOOL_REPOSITORY, spool);
 
+        UserManager userManager = new UserManager();
+        try {
+            userManager.setConfiguration(conf.getConfiguration("usersManager"));
+            userManager.setContext(context);
+            userManager.setComponentManager(comp);
+        } catch (Exception e) {
+            logger.log("Exception in UserManager init: " + e.getMessage(), "JAMES", logger.ERROR);
+            throw e;
+        }
+        comp.put(Constants.USERS_MANAGER, userManager);
+        
+        POP3Server pop3Server = new POP3Server();
+        try {
+            pop3Server.setConfiguration(conf.getConfiguration("pop3Server"));
+            pop3Server.setContext(context);
+            pop3Server.setComponentManager(comp);
+        } catch (Exception e) {
+            logger.log("Exception in POP3Server init: " + e.getMessage(), "JAMES", logger.ERROR);
+            throw e;
+        }
+        
+        SMTPServer smtpServer = new SMTPServer();
+        try {
+            smtpServer.setConfiguration(conf.getConfiguration("smtpServer"));
+            smtpServer.setContext(context);
+            smtpServer.setComponentManager(comp);
+        } catch (Exception e) {
+            logger.log("Exception in SMTPServer init: " + e.getMessage(), "JAMES", logger.ERROR);
+            throw e;
+        }
+        
+        RemoteManager remoteAdmin = new RemoteManager();
+        try {
+            remoteAdmin.setConfiguration(conf.getConfiguration("remoteManager"));
+            remoteAdmin.setComponentManager(comp);
+        } catch (Exception e) {
+            logger.log("Exception in RemoteAdmin init: " + e.getMessage(), "JAMES", logger.ERROR);
+            throw e;
+        }
+        
         int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
         while (threads-- > 0) {
             try {
                 JamesSpoolManager spoolMgr = new JamesSpoolManager();
                 spoolMgr.setConfiguration(conf.getConfiguration("spoolmanager"));
                 spoolMgr.setContext(context);
-                spoolMgr.setComponentManager(spoolManagerCM);
+                spoolMgr.setComponentManager(comp);
                 spoolMgr.init();
                 threadManager.execute(spoolMgr);
             } catch (Exception e) {
@@ -122,6 +158,12 @@ public class James implements MailServer, Block {
             }
             logger.log("SpoolManager " + (threads + 1) + " started", "JAMES", logger.INFO);
         }
+
+        userManager.init();
+        pop3Server.init();
+        smtpServer.init();
+        remoteAdmin.init();
+
         logger.log("JAMES ...init end", "JAMES", logger.INFO);
     }
 
@@ -158,10 +200,6 @@ public class James implements MailServer, Block {
         logger.log("Mail " + mail.getName() + " pushed in spool", "JAMES", logger.INFO);
     }
 
-    public MailRepository getInbox() {
-        return localInbox;
-    }
-
     public MailRepository getUserInbox(String userName) {
 
         MailRepository userInbox = (MailRepository) null;
@@ -177,6 +215,14 @@ public class James implements MailServer, Block {
     
     private String getId() {
         return "Mail" + System.currentTimeMillis();
+    }
+
+	public static void main(String[] args) {
+	    
+	    System.out.println("ERROR!");
+	    System.out.println("Cannot exceute James as a stand alone application.");
+	    System.out.println("To run James you need to have the Avalon framework installed.");
+	    System.out.println("Please refere to the Readme file to know how to run James.");
     }
 
     public void destroy()

@@ -6,40 +6,24 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.smtpserver;
+package org.apache.james.transport.match;
 
-import java.io.*;
+import org.apache.mail.Mail;
+import java.util.*;
+import org.apache.arch.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SMTPInputStream extends InputStream {
+public abstract class AbstractMatch implements Match {
     
-    private InputStream in;
+    public abstract Vector match(Mail mail, String condition);
     
-    private static final char[] EOM = {'\r','\n','.','\r','\n'};
-    
-    private int match;
-    
-    public SMTPInputStream (InputStream in) {
-        super();
-        this.in = new BufferedInputStream(in);
-        match = 0;
+    public void setComponentManager(ComponentManager comp) {
     }
-    
-    public int read()
-    throws IOException {
-        if (match == 5) return -1;
-        char next = (char) in.read();
-        if (next == EOM[match]) {
-            match++;
-        } else if (next == EOM[0]) {
-            match = 1;
-        } else {
-            match = 0;
-        }
-        return (int) next;
+
+    public void setContext(Context context) {
     }
 }
     

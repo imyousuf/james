@@ -6,15 +6,23 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.pop3server;
-
-import org.apache.james.JamesConstants;
+package org.apache.james.transport;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants extends JamesConstants {
+public class Resources {
     
-    public static final String SOFTWARE_NAME = "JAMES POP3 Server";
+    public static final String SERVER_NAMES = "SERVER_NAMES";
+
+    public static final String USERS_MANAGER = "USERS_MANAGER";
+
+    public static final String POSTMASTER = "POSTMASTER";
+    
+    public static final String MAIL_SERVER = "MAIL_SERVER";
+    
+    public static final String TRANSPORT = "TRANSPORT";
+    
+    public static final String TMP_REPOSITORY = "TMP_REPOSITORY";
 }

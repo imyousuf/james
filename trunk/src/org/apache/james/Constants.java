@@ -6,16 +6,27 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.smtpserver;
-
-import org.apache.james.JamesConstants;
+package org.apache.james;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants extends JamesConstants {
+public class Constants {
     
-    public static final String SOFTWARE_NAME = "JAMES SMTP Server";
+    public static final String SOFTWARE_VERSION = "@@version@@";
 
+    public static final String SOFTWARE_NAME = "JAMES Mail Server";
+    
+    public static final String SERVER_NAMES = "SERVER_NAMES";
+
+    public static final String USERS_MANAGER = "USERS_MANAGER";
+
+    public static final String SPOOL_REPOSITORY = "SPOOL_REPOSITORY";
+
+    public static final String POSTMASTER = "POSTMASTER";
+    
+    public static final String HELO_NAME = "HELO_NAME";
+    
+    public static final int HEADERLIMIT = 2048;
 }

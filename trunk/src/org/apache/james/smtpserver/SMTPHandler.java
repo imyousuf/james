@@ -47,14 +47,15 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String remoteIP;
     private String messageID;
 
-    private SimpleComponentManager comp;
+    private ComponentManager comp;
     private Configuration conf;
+    private Context context;
     private Logger logger;
     private TimeServer timeServer;
     private MailServer mailServer;
 
     private String servername;
-    private String softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
+    private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
     private Hashtable state;
 
@@ -66,14 +67,19 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     }
     
     public void setContext(Context context) {
-        this.servername = (String) context.get("servername");
+        this.context = context;
     }
     
     public void setComponentManager(ComponentManager comp) {
         this.comp = (SimpleComponentManager) comp;
+    }
+    
+    public void init()
+    throws Exception {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
+        servername = (String) context.get(Constants.HELO_NAME);
         state = new Hashtable();
     }
 

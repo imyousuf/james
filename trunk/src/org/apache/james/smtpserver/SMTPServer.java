@@ -18,14 +18,13 @@ import java.net.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SMTPServer implements SocketServer.SocketHandler, Block {
+public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
 
     private ComponentManager comp;
     private Configuration conf;
     private Logger logger;
     private ThreadManager threadManager;
-    private SimpleComponentManager SMTPCM;
-    private SimpleContext context;
+    private Context context;
     
     public SMTPServer() {
     }
@@ -37,29 +36,16 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
     }
+    
+    public void setContext(Context context) {
+        this.context = context;
+    }
 
 	public void init() throws Exception {
 
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("SMTPServer init...", "SMTPServer", logger.INFO);
-        SMTPCM = new SimpleComponentManager(comp);
-        String servername = "";
-        try {
-            servername = conf.getConfiguration("servername").getValue();
-        } catch (ConfigurationException ce) {
-        }
-        if (servername.equals("")) {
-            try {
-                servername = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException ue) {
-                servername = "localhost";
-                logger.log("Cannot detect localhost server name", "SMTPServer", logger.ERROR);
-            }
-        }
-        logger.log("Localhost name set to: " + servername, "SMTPServer", logger.INFO);
-        context = new SimpleContext();
-        context.put("servername", servername);
-        this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
+        threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
         logger.log("SMTPServer ...init end", "SMTPServer", logger.INFO);
@@ -71,7 +57,8 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
             SMTPHandler smtpHandler = new SMTPHandler();
             smtpHandler.setConfiguration(conf.getConfiguration("smtphandler"));
             smtpHandler.setContext(context);
-            smtpHandler.setComponentManager(SMTPCM);
+            smtpHandler.setComponentManager(comp);
+            smtpHandler.init();
             smtpHandler.parseRequest(s);
             threadManager.execute(smtpHandler);
             logger.log("Executing handler.", "SMTPServer", logger.DEBUG);

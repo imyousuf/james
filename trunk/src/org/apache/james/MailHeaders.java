@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
  
-package org.apache.james.james;
+package org.apache.james;
 
 import java.io.*;
 import java.text.*;

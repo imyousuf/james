@@ -6,27 +6,24 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.james;
+package org.apache.james.transport.servlet;
 
-import org.apache.james.JamesConstants;
+import org.apache.mail.*;
 
 /**
- * @version 1.0.0, 24/04/1999
+ * Opposite of Null Servlet. It let any incoming mail untouched. Used only for 
+ * debugging.
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants extends JamesConstants {
-    
-    public static final String SOFTWARE_NAME = "JAMES Mail Server";
-    
-    public static final String SERVER_NAMES = "SERVER_NAMES";
+public class Identity extends GenericMailServlet {
 
-    public static final String USERS_REPOSITORY = "USER_REPOSITORY";
-
-    public static final String SPOOL_REPOSITORY = "SPOOL_REPOSITORY";
-
-    public static final String INBOX_ROOT = "INBOX_ROOT";
+    public Mail service(Mail mail) {
+        log("Untouching mail " + mail.getName());
+        return mail;
+    }
     
-    public static final String POSTMASTER = "POSTMASTER";
-    
-    public static final int HEADERLIMIT = 2048;
+    public String getServletInfo() {
+        return "Identity Mail Servlet";
+    }
 }
+    
