@@ -365,7 +365,6 @@ public class AvalonMailStore
                         getLogger().warn( "Exception while creating repository:" +
                                           e.getMessage(), e );
                     }
-                    e.printStackTrace();
                     throw new
                         ComponentException("Cannot find or init repository",
                                            e);

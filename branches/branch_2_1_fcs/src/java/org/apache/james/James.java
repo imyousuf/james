@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.10 $
+ * @version This is $Revision: 1.35.4.11 $
 
  */
 public class James
@@ -555,7 +555,6 @@ public class James
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
-                e.printStackTrace();
                 if (getLogger().isErrorEnabled())
                 {
                     getLogger().error("Cannot open user Mailbox" + e);

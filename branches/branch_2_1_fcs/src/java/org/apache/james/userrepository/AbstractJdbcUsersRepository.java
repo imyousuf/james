@@ -434,7 +434,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             }
         }
         catch ( SQLException sqlExc) {
-            sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
@@ -467,7 +466,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             addUserStatement.execute();
         }
         catch ( SQLException sqlExc) {
-            sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(addUserStatement);
@@ -495,7 +493,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             removeUserStatement.execute();
         }
         catch ( SQLException sqlExc ) {
-            sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(removeUserStatement);
@@ -520,7 +517,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             updateUserStatement.execute();
         }
         catch ( SQLException sqlExc ) {
-            sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(updateUserStatement);
@@ -576,7 +572,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             return user;
         }
         catch ( SQLException sqlExc ) {
-            sqlExc.printStackTrace();
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {

@@ -110,7 +110,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.11 $ $Date: 2003/09/08 16:39:42 $
+ * @version CVS $Revision: 1.30.4.12 $ $Date: 2003/10/20 06:03:15 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -330,7 +330,6 @@ public class JDBCMailRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
-            e.printStackTrace();
             throw new ConfigurationException(message, e);
         }
     }
@@ -803,7 +802,6 @@ public class JDBCMailRepository
                 notify();
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new MessagingException("Exception caught while storing mail Container: " + e);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
@@ -898,14 +896,13 @@ public class JDBCMailRepository
                         }
                     }
                 } catch (SQLException sqle) {
-                    synchronized (System.err) {
-                        System.err.println("Error retrieving message");
-                        System.err.println(sqle.getMessage());
-                        System.err.println(sqle.getErrorCode());
-                        System.err.println(sqle.getSQLState());
-                        System.err.println(sqle.getNextException());
-                        sqle.printStackTrace();
-                    }
+                    StringBuffer errorBuffer =  new StringBuffer(256)
+                                                .append("Error retrieving message")
+                                                .append(sqle.getMessage())
+                                                .append(sqle.getErrorCode())
+                                                .append(sqle.getSQLState())
+                                                .append(sqle.getNextException());
+                    getLogger().error(errorBuffer.toString());
                 } finally {
                     theJDBCUtil.closeJDBCResultSet(rsMessageAttr);
                     theJDBCUtil.closeJDBCStatement(retrieveMessageAttr);
@@ -938,17 +935,15 @@ public class JDBCMailRepository
             mc.setMessage(message);
             return mc;
         } catch (SQLException sqle) {
-            synchronized (System.err) {
-                System.err.println("Error retrieving message");
-                System.err.println(sqle.getMessage());
-                System.err.println(sqle.getErrorCode());
-                System.err.println(sqle.getSQLState());
-                System.err.println(sqle.getNextException());
-                sqle.printStackTrace();
-            }
+            StringBuffer errorBuffer =  new StringBuffer(256)
+                                        .append("Error retrieving message")
+                                        .append(sqle.getMessage())
+                                        .append(sqle.getErrorCode())
+                                        .append(sqle.getSQLState())
+                                        .append(sqle.getNextException());
+            getLogger().error(errorBuffer.toString());
             throw new MessagingException("Exception while retrieving mail: " + sqle.getMessage());
         } catch (Exception me) {
-            me.printStackTrace();
             throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsMessage);
@@ -1033,7 +1028,6 @@ public class JDBCMailRepository
             }
             return messageList.iterator();
         } catch (Exception me) {
-            me.printStackTrace();
             throw new MessagingException("Exception while listing mail: " + me.getMessage());
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsListMessages);

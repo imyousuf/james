@@ -113,7 +113,7 @@ import java.lang.reflect.Array;
  * Therefore this implementation is best suited to people who wish to use the mbox format
  * for taking data out of James and into something else (IMAP server or mail list displayer)
  *
- * @version CVS $Revision: 1.1.2.1 $
+ * @version CVS $Revision: 1.1.2.2 $
  */
 
 
@@ -716,10 +716,8 @@ public class MBoxMailRepository
 
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             getLogger().error("Unable to save(open) file (File not found) " + mboxFile, e);
         } catch (IOException e) {
-            e.printStackTrace();
             getLogger().error("Unable to write file (General I/O problem) " + mboxFile, e);
         }
 

@@ -349,7 +349,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         try {
             return articleIDRepo.getArticle(this,id);
         } catch(Exception ex) {
-            ex.printStackTrace();
+            getLogger().error("Couldn't get article " + id + ": ", ex);
             return null;
         }
     }

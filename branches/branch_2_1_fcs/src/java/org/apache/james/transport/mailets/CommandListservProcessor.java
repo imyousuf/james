@@ -100,7 +100,7 @@ import java.util.*;
  *
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2003/10/19 20:22:50 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date: 2003/10/20 06:03:15 $
  * @since 2.2.0
  */
 public class CommandListservProcessor extends GenericMailet {
@@ -210,12 +210,7 @@ public class CommandListservProcessor extends GenericMailet {
         autoBracket = getBoolean("autobracket", true);
         try {
             listOwner = new MailAddress(getString("listOwner", null));
-        } catch (ParseException e) {
-            e.printStackTrace();  //To change body of catch statement use Options | File Templates.
-        }
-
-        //initialize resources
-        try {
+            //initialize resources
             initializeResources();
             //init user repos
             initUsersRepository();

@@ -99,7 +99,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.18.4.3 $
+ * @version CVS $Revision: 1.18.4.4 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -401,7 +401,6 @@ public class JdbcDataSource extends AbstractLogEnabled
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("----> Could not find connection to kill!!!");
             }
-            new Throwable().printStackTrace();
             return;
         }
     }
