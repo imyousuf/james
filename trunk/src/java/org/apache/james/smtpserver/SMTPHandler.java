@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.6 $
- * Committed on $Date: 2001/08/01 04:00:31 $ by: $Author: serge $
+ * This is $Revision: 1.7 $
+ * Committed on $Date: 2001/08/11 18:25:03 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -486,6 +486,10 @@ public class SMTPHandler
                     }
                     msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
                 }
+                //Removes the dot stuffing
+                msgIn = new SMTPInputStream(msgIn);
+
+                //Parse out the message headers
                 MailHeaders headers = new MailHeaders(msgIn);
 
                 // if headers do not contains minimum REQUIRED headers fields,
