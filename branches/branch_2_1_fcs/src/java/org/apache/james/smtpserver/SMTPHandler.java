@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.35.4.11 $
+ * @version This is $Revision: 1.35.4.12 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -341,7 +341,8 @@ public class SMTPHandler
             // An ASCII encoding can be used because all transmissions other
             // that those in the DATA command are guaranteed
             // to be ASCII
-            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
+            // inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
+            inReader = new CRLFTerminatedReader(in, "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
@@ -536,11 +537,15 @@ public class SMTPHandler
      * @throws IOException if an exception is generated reading in the input characters
      */
     final String readCommandLine() throws IOException {
-        String commandLine = inReader.readLine();
-        if (commandLine != null) {
-            commandLine = commandLine.trim();
+        for (;;) try {
+            String commandLine = inReader.readLine();
+            if (commandLine != null) {
+                commandLine = commandLine.trim();
+            }
+            return commandLine;
+        } catch (CRLFTerminatedReader.TerminationException te) {
+            writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
         }
-        return commandLine;
     }
 
     /**
