@@ -54,6 +54,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
+import org.apache.mailet.MailetContext;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -87,7 +88,7 @@ import org.apache.oro.text.regex.MatchResult;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.17 $ $Date: 2004/03/20 07:50:42 $
+ * @version CVS $Revision: 1.33.4.18 $ $Date: 2004/03/22 22:04:18 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -207,6 +208,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
+    private String bounceProcessor = null; // the processor for creating Bounces
 
     private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
@@ -279,6 +281,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("Invalid timeout setting: " + getInitParameter("timeout"));
         }
         sendPartial = (getInitParameter("sendpartial") == null) ? false : new Boolean(getInitParameter("sendpartial")).booleanValue();
+
+        bounceProcessor = getInitParameter("bounceProcessor");
 
         String gateway = getInitParameter("gateway");
         String gatewayPort = getInitParameter("gatewayPort");
@@ -669,7 +673,23 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 log(logBuffer.toString());
             }
         }
-        bounce(mail, ex);
+        if (bounceProcessor != null) {
+            // do the new DSN bounce
+            // setting attributes for DSN mailet
+            mail.setAttribute("delivery-error", ex);
+            mail.setState(bounceProcessor);
+            // re-insert the mail into the spool for getting it passed to the dsn-processor
+            MailetContext mc = getMailetContext();
+            try {
+                mc.sendMail(mail);
+            } catch (MessagingException e) {
+                // we shouldn't get an exception, because the mail was already processed
+                log("Exception re-inserting failed mail: ", e);
+            }
+        } else {
+            // do an old style bounce
+            bounce(mail, ex);
+        }
         return true;
     }
 

@@ -201,6 +201,12 @@ delivering emails. If the tag is absent then the service will bind to the
 default local address of the machine. This tag is useful for multihomed machines.<br/>
 Note: Currently you must use the same IP address for all of those RemoteDelivery 
 instances where you explicitly supply a bind address.</li>
+<li><strong>bounceProcessor</strong> - If present, this value is the
+name of a spool processor, on which mails that, are to bounce due to
+undeliverability, are sent. An exception carrying information about the
+cause of undeliverability, is added as a MailAttribute with name: delivery-error.
+If not present the mail is simply bounced to the sender, with a
+standard (hardcoded) undeliverability message. 
 <li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
 on.  Defaults to false.</li>
 </ul>
