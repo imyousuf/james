@@ -11,17 +11,13 @@
         <item name="Install"           href="/install.html"/>
         <item name="Configuration"     href="/configuration_v2_0.html"/>
         <item name="Architecture"      href="/architecture_v2_0.html"/>
-        <item name="Coding Standards"  href="/code-standards.html"/>
-        <item name="License"           href="/license.html"/>
-        <item name="TODO"              href="/todo.html"/>
-        <item name="Changelog"		   href="/changelog.html"/>
-    </menu>
+	</menu>
 
     <menu name="Download">
         <item name="Binaries"              href="/site/binindex.html"/>
         <item name="Source Code"           href="/site/sourceindex.html"/>
     </menu>
-
+	
     <menu name="Guides">
         <item name="James API"		href="javadocs/index.html"/>
         <item name="Mailet API"     href="/mailet/index.html"/>
@@ -29,11 +25,18 @@
         <item name="Using LDAP"     href="/usingLDAP_v1_2.html"/>
         <item name="Using TLS"     href="/usingTLS_v1_2.html"/>
         <item name="Useful RFCs {web}"   href="http://jakarta.apache.org/james/rfclist"/>
-        
     </menu>
+    
+	<menu name="Project">        
+        <item name="Coding Standards"  href="/code-standards.html"/>
+        <item name="License"           href="/license.html"/>
+        <item name="TODO"              href="/todo.html"/>
+        <item name="Changelog"		   href="/changelog.html"/>
+        <item name="Who We Are"		   href="/weare.html"/>
+    </menu>    
 
-    <menu name="Get Involved {web}">
-        <item name="Overview"              href="/site/getinvolved.html"/>
+    <menu name="Jakarta Information {web}">
+        <item name="Get Involved"          href="/site/getinvolved.html"/>
         <item name="CVS Repositories"      href="/site/cvsindex.html"/>
         <item name="Mailing Lists"         href="/site/mail.html"/>
         <item name="Reference Library"     href="/site/library.html"/>
