@@ -18,11 +18,12 @@ import java.util.StringTokenizer;
 //import org.apache.james.core.EnhancedMimeMessage;
 
 /**
- * Implements the IMAP FETCH command for a given ImapRequestImpl.
+ * Implements the IMAP STORE command for a given ImapRequestImpl.
  *
  * References: rfc 2060, rfc 2193, rfc 2221
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 17 Jan 2001
+ * @version 0.2 on 04 Aug 2002
  */
 public class CommandStore
     extends BaseCommand implements ImapCommand
@@ -56,8 +57,8 @@ public class CommandStore
     public boolean process( ImapRequest request, ImapSession session )
     {
         setRequest( request );
-        if ( request.arguments() < 5 ) {
-            session.badResponse( "Command should be <tag> <STORE> <message set> <message data item names> <value for message data item>" );
+        if ( request.arguments() < 3 ) {
+            session.badResponse( "Command '"+request.getCommandLine().nextToken()+"' should be <tag> <STORE> <message set> <message data item names> <value for message data item>" );
             return true;
         }
         service();
@@ -87,7 +88,6 @@ public class CommandStore
      */
     public void service() {
         List set;
-        List uidsList = null;
         if (useUIDs) {
             set = decodeUIDSet(commandLine.nextToken(),
                                currentMailbox.listUIDs(user));
@@ -109,8 +109,7 @@ public class CommandStore
                         if (request.toUpperCase().indexOf("SILENT") == -1) {
                             String newflags
                                 = currentMailbox.getFlagsUID(uid, user);
-                            int msn = uidsList.indexOf(uidObject) + 1;
-                            out.println(UNTAGGED + SP + msn + SP
+                            out.println(UNTAGGED + SP + SP
                                         + "FETCH (FLAGS " + newflags
                                         + " UID " + uid + ")");
                         } else {
@@ -143,7 +142,6 @@ public class CommandStore
             }
             caller.checkSize();
             out.println(tag + SP + OK + SP + "STORE completed");
-
         } catch (AccessControlException ace) {
             out.println(tag + SP + NO + SP + "No such mailbox");
             caller.logACE(ace);

@@ -13,8 +13,9 @@ import java.util.StringTokenizer;
  * An single client request to an IMAP server, with necessary details for
  * command processing
  *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 17 Jan 2001
+ * @version 0.2 on 04 Aug 2002
  */
 public class ImapRequestImpl implements ImapRequest
 {
@@ -53,6 +54,7 @@ public class ImapRequestImpl implements ImapRequest
     }
 
     public StringTokenizer getCommandLine() {
+        //return new java.util.StringTokenizer(this.getCommandRaw());
         return commandLine;
     }
 

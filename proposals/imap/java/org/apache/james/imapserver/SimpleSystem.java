@@ -9,10 +9,10 @@ package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.AuthenticationException;
 
 import java.net.InetAddress;
@@ -30,7 +30,7 @@ import java.util.Set;
  * @version 0.1 on 14 Dec 2000
  */
 public class SimpleSystem
-    implements IMAPSystem, Component, Initializable {
+    implements IMAPSystem, Block, Initializable {
 
     private static final String namespaceToken = "#";
     private static final String hierarchySeperator = ".";
@@ -83,7 +83,7 @@ public class SimpleSystem
      * with RFC2192, IMAP URL Scheme.
      *
      * @param username String representation of a user
-     * @return String holding an IMAP URL for the user's home server
+     * @returns String holding an IMAP URL for the user's home server
      * @throws AuthenticationException if this System does not recognise
      * the user.
      */
@@ -100,7 +100,7 @@ public class SimpleSystem
      * forward slash or backslash.
      *
      * @param namespace String identifying a namespace
-     * @return char, usually '.', '/', or '\'
+     * @returns char, usually '.', '/', or '\'
      */
     public String getHierarchySeperator(String namespace) {
         return hierarchySeperator;
@@ -113,7 +113,7 @@ public class SimpleSystem
      * <code>IMAPHosts</code>
      *
      * @param username String identifying a user of this System
-     * @return String whose contents should be a space seperated triple
+     * @returns String whose contents should be a space seperated triple
      * <personal namespaces(s)> space <other users' namespace(s)> space
      * <shared namespace(s)>, per RFC2342
      */

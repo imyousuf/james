@@ -17,9 +17,17 @@ public class MimeMessageFileSource extends MimeMessageSource {
 
     //Define how to get to the data
     String filename = null;
+    int uid;
+    static int global_uid = 0;
 
     public MimeMessageFileSource(String filename) {
         this.filename = filename;
+        this.uid = global_uid++;
+    }
+
+    public String getSourceId() {
+        System.out.println("Marcs MimeMessageFileSource Unique ID #"+uid);
+        return "Marcs MimeMessageFileSource Unique ID #"+uid;
     }
 
     public InputStream getInputStream() throws IOException {

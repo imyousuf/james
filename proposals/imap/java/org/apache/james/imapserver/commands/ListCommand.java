@@ -18,6 +18,15 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.List;
 
+/**
+ * List Command for listing some mailboxes. 
+ * See RFC 2060 for more details.
+ *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
+ */
+
 class ListCommand extends AuthenticatedSelectedStateCommand
 {
     public ListCommand()
@@ -45,6 +54,7 @@ class ListCommand extends AuthenticatedSelectedStateCommand
 
         Collection list = null;
         try {
+        System.out.println("getImapHost: "+session.getImapHost().getClass().getName());
             list = session.getImapHost().listMailboxes( session.getCurrentUser(), reference, folder,
                                                         subscribeOnly );
             if ( list == null ) {

@@ -44,6 +44,10 @@ public interface ImapSession extends MailboxEventListener
     PrintWriter getOut();
 
     void setOut( PrintWriter out );
+    
+    void setCanParseCommand(boolean canParseCommand);
+    
+    boolean getCanParseCommand();
 
     void checkSize();
     

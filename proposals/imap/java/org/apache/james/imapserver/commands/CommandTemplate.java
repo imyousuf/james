@@ -17,6 +17,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * Base Class for all Commands.
+ *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
+ */
+
 abstract class CommandTemplate 
         extends AbstractLogEnabled implements ImapCommand, ImapConstants
 {
@@ -60,8 +68,11 @@ abstract class CommandTemplate
         List args = getArgs();
         List argValues = new ArrayList();
 
+	System.out.println("CommandTemplate.process command: '"+getCommand()+"'");
         for ( Iterator iter = args.iterator(); iter.hasNext(); ) {
-            ImapArgument arg = (ImapArgument) iter.next();
+            System.out.println("CommandTemplate.process ARGUMENT");
+            Object o =  iter.next();
+            ImapArgument arg = (ImapArgument) o;
             try {
                 argValues.add( arg.parse( tokens ) );
             }
@@ -77,7 +88,7 @@ abstract class CommandTemplate
             session.badResponse( badMsg );
             return true;
         }
-
+        System.out.println("CommandTemplate.process starting doProcess");
         return doProcess( request, session, argValues );
 
     }

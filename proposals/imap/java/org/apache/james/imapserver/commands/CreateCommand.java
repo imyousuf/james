@@ -14,6 +14,14 @@ import org.apache.james.imapserver.*;
 import java.util.StringTokenizer;
 import java.util.List;
 
+/**
+ * Create Command for creating some new mailboxes.
+ *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
+ */
+
 class CreateCommand extends AuthenticatedSelectedStateCommand
 {
     public CreateCommand()
@@ -32,7 +40,7 @@ class CreateCommand extends AuthenticatedSelectedStateCommand
                 session.noResponse( command, "Folder exists and is selected." );
                 return true;
             }
-
+            System.out.println("CreteCommand FOLDERNAME: "+folder);
             ACLMailbox target = session.getImapHost().createMailbox( session.getCurrentUser(), folder );
             session.okResponse( command );
             session.getImapHost().releaseMailbox( session.getCurrentUser(), target );
