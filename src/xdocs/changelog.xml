@@ -22,6 +22,7 @@
 <p>Expected release February 2003</p>
 <li> [NjB] (update) Updated Avalon LogKit</li>
 <li> [NjB] (code) Infinite loops are interruptable</li>
+<li> [HB, NjB] (code) Fixed NNTP crossposting</li>
 <li> [NjB] (code) Fixed synchronizaion bug in file repository</li>
 <li> [NjB] (code) Enabled log rotation</li>
 <li> [NjB] (doc) Fixed broken links</li>
