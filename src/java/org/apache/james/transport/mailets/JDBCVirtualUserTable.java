@@ -22,18 +22,20 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.Map;
 
 /**
  * Implements a Virtual User Table for JAMES.  Derived from the
@@ -42,19 +44,9 @@ import java.util.Vector;
  * wildcard selection, verifies that a catchall address is for a domain
  * in the Virtual User Table, and handles forwarding.
  *
- * With JDBCAlias, if the destination address were remote it would be
- * subject to relay testing, even though it should be treated as a local
- * address.  JDBCVirtualUserTable incorporates JDBCAlias processing for
- * local destinations, and Forward processing for remote destinations.
- *
- * To prevent from breaking existing JDBCAlias applications, and to
- * allow for evolution of this mailet, it is released as a new mailet,
- * rather than as an update to JDBCAlias.  However, anyone using
- * JDBCAlias should be able to upgrade to JDBCVirtualUserTable.
- *
- * As with JDBCAlias, JDBCVirtualUserTable does not provide any
- * administation tools.  You'll have to create the VirtualUserTable
- * yourself.  The standard configuration is as follows:
+ * JDBCVirtualUserTable does not provide any administation tools.
+ * You'll have to create the VirtualUserTable yourself.  The standard
+ * configuration is as follows:
  *
  * CREATE TABLE VirtualUserTable
  * (
@@ -63,6 +55,12 @@ import java.util.Vector;
  *  target_address varchar(255) NOT NULL default '',
  *  PRIMARY KEY (user,domain)
  * );
+ *
+ * The user column specifies the username of the virtual recipient, the domain
+ * column the domain of the virtual recipient, and the target_address column
+ * the email address of the real recipient. The target_address column can contain
+ * just the username in the case of a local user, and multiple recipients can be
+ * specified in a list separated by commas, semi-colons or colons.
  *
  * The standard query used with VirtualUserTable is:
  *
@@ -88,9 +86,8 @@ import java.util.Vector;
  *   &lt;table&gt;db://maildb/VirtualUserTable&lt;/table&gt;
  *   &lt;sqlquery&gt;sqlquery&lt;/sqlquery&gt;
  * &lt;/mailet&gt;
- *
  */
-public class JDBCVirtualUserTable extends GenericMailet
+public class JDBCVirtualUserTable extends AbstractVirtualUserTable
 {
     protected DataSourceComponent datasource;
 
@@ -163,21 +160,16 @@ public class JDBCVirtualUserTable extends GenericMailet
     }
 
     /**
-     * Checks the recipient list of the email for user mappings.  Maps recipients as
-     * appropriate, modifying the recipient list of the mail and sends mail to any new
-     * non-local recipients.
-     *
-     * @param mail the mail to process
+     * Map any virtual recipients to real recipients using the configured
+     * JDBC connection, table and query.
+     * 
+     * @param recipientsMap the mapping of virtual to real recipients
      */
-    public void service(Mail mail)
-            throws MessagingException {
+    protected void mapRecipients(Map recipientsMap) throws MessagingException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
-        Collection recipients = mail.getRecipients();
-        Collection recipientsToRemove = new Vector();
-        Collection recipientsToAddLocal = new Vector();
-        Collection recipientsToAddForward = new Vector();
+        Collection recipients = recipientsMap.keySet();
 
         try {
             conn = datasource.getConnection();
@@ -192,31 +184,8 @@ public class JDBCVirtualUserTable extends GenericMailet
                     mappingStmt.setString(3, source.getHost());
                     mappingRS = mappingStmt.executeQuery();
                     if (mappingRS.next()) {
-                        try {
-                            String targetString = mappingRS.getString(1);
-                            MailAddress target = (targetString.indexOf('@') < 0) ? new MailAddress(targetString, "localhost")
-                                                                                 : new MailAddress(targetString);
-
-                            //Mark this source address as an address to remove from the recipient list
-                            recipientsToRemove.add(source);
-
-                            //Need to separate local and remote recipients.
-                            if (getMailetContext().isLocalServer(target.getHost())) {
-                                recipientsToAddLocal.add(target);
-                            } else {
-                                recipientsToAddForward.add(target);
-                            }
-                        } catch (ParseException pe) {
-                            //Don't map this address... there's an invalid address mapping here
-                            StringBuffer exceptionBuffer =
-                                new StringBuffer(128)
-                                .append("There is an invalid map from ")
-                                .append(source)
-                                .append(" to ")
-                                .append(mappingRS.getString(1));
-                            log(exceptionBuffer.toString());
-                            continue;
-                        }
+                        String targetString = mappingRS.getString(1);
+                        recipientsMap.put(source, targetString);
                     }
                 } finally {
                     theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -228,26 +197,9 @@ public class JDBCVirtualUserTable extends GenericMailet
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
-
-        // Remove mapped recipients
-        recipients.removeAll(recipientsToRemove);
-
-        // Add mapped recipients that are local
-        recipients.addAll(recipientsToAddLocal);
-
-        // Forward to mapped recipients that are remote
-        if (recipientsToAddForward.size() != 0) {
-            getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
-        }
-
-        // If there are no recipients left, Ghost the message
-        if (recipients.size() == 0) {
-            mail.setState(Mail.GHOST);
-        }
     }
 
     public String getMailetInfo() {
         return "JDBC Virtual User Table mailet";
     }
 }
-
