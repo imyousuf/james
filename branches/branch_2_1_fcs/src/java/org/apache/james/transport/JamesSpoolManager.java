@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.20 $
+ * @version This is $Revision: 1.20.4.1 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -386,7 +386,7 @@ public class JamesSpoolManager
                 if (getLogger().isDebugEnabled()) {
                     logMessageBuffer =
                         new StringBuffer(128)
-                                .append("Processed")
+                                .append("Processed ")
                                 .append(mail.getName())
                                 .append(" through ")
                                 .append(processorName);
