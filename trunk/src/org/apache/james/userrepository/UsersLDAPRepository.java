@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 import javax.naming.*;
 import javax.naming.directory.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
@@ -106,7 +106,7 @@ public class UsersLDAPRepository
         baseNodeDN = base;
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         //setServerRoot();
         rootURL = LDAPHost + "/" + rootNodeDN;
         baseURL = LDAPHost + "/" + baseNodeDN;

@@ -9,7 +9,7 @@ package org.apache.james.userrepository;
 
 import java.io.File;
 import java.util.Iterator;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
@@ -39,8 +39,7 @@ import org.apache.james.services.UsersRepository;
  */
 public class UsersFileRepository
     extends AbstractLoggable
-    implements UsersRepository, Component, Configurable, Composable,
-               Initializable {
+    implements UsersRepository, Component, Configurable, Composable, Initializable {
 
     private static final String TYPE = "USERS";
 
@@ -66,7 +65,7 @@ public class UsersFileRepository
             lookup( "org.apache.cornerstone.services.store.Store" );
     }
 
-    public void init()
+    public void initialize()
         throws Exception {
 
         try {

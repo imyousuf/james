@@ -10,7 +10,7 @@ package org.apache.james.nntpserver.repository;
 import java.io.*;
 import java.util.*;
 import javax.mail.internet.MimeMessage;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
@@ -28,8 +28,8 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
         //System.out.println(getClass().getName()+": configure");
         //NNTPUtil.show(configuration,System.out);
         spoolPath = NNTPUtil.getDirectory(configuration,"spoolPath");
-        int threadCount = configuration.getChild("threadCount").getValueAsInt(1);
-        int threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInt(1000);
+        int threadCount = configuration.getChild("threadCount").getValueAsInteger(1);
+        int threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(1000);
         //String tgName=configuration.getChild("threadGroupName").getValue("NNTPSpooler");
         worker = new Worker[threadCount];
         for ( int i = 0 ; i < worker.length ; i++ ) {
@@ -51,7 +51,7 @@ class NNTPSpooler extends AbstractLoggable implements Configurable, Initializabl
             spoolPath.mkdirs();
         return spoolPath;
     }
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         //System.out.println(getClass().getName()+": init");
         for ( int i = 0 ; i < worker.length ; i++ )
             new Thread(worker[i],"NNTPSpool-"+i).start();

@@ -9,7 +9,7 @@ package org.apache.james.nntpserver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
@@ -33,7 +33,7 @@ public class NNTPServer extends AbstractService {
         throws ConfigurationException
     {
         //System.out.println(getClass().getName()+": configure");
-        m_port = configuration.getChild( "port" ).getValueAsInt( 119 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 119 );
 
         try {
             String bindAddress = configuration.getChild( "bind" ).getValue( null );
@@ -51,9 +51,9 @@ public class NNTPServer extends AbstractService {
         getLogger().info("configured NNTPServer to run at : "+m_port);
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         //System.out.println(getClass().getName()+": init");
-        super.init();
+        super.initialize();
         System.out.println("Started NNTP Server "+m_connectionName);
     }
 }

@@ -90,7 +90,7 @@ public class POP3Handler
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
     }
 
     public void compose( final ComponentManager componentManager )

@@ -33,7 +33,7 @@ public class SMTPServer
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        m_port = configuration.getChild( "port" ).getValueAsInt( 25 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 25 );
 
         try 
         { 
@@ -54,9 +54,9 @@ public class SMTPServer
        super.configure( configuration.getChild( "smtphandler" ) );
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         getLogger().info("SMTPServer init...");
-        super.init();
+        super.initialize();
         getLogger().info("SMTPServer ...init end");
         System.out.println("Started SMTP Server "+m_connectionName);
     }

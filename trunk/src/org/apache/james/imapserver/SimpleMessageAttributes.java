@@ -22,16 +22,16 @@ import org.apache.mailet.*;
 
 /**
  * Attributes of a Message in IMAP4rev1 style. Message
- * Attributes should be set when a message enters a mailbox. 
+ * Attributes should be set when a message enters a mailbox.
  * <p> Note that the message in a mailbox have the same order using either
  * Message Sequence Numbers or UIDs.
- * <p> reInit() must be called on deserialization to reset Logger
+ * <p> reinitialize() must be called on deserialization to reset Logger
  *
  * Reference: RFC 2060 - para 2.3
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public class SimpleMessageAttributes 
+public class SimpleMessageAttributes
     implements MessageAttributes, Serializable  {
 
     private final static String SP = " ";
@@ -80,7 +80,7 @@ public class SimpleMessageAttributes
     SimpleMessageAttributes() {
     }
 
-    void reInit() {
+    void reinitialize() {
         logger = LogKit.getLoggerFor("james.JamesHost");
     }
 
@@ -195,7 +195,7 @@ public class SimpleMessageAttributes
         }
         if (contentTypeLine !=null ) {
             decodeContentType(contentTypeLine);
-        } 
+        }
         try {
             contentID = part.getContentID();
             if (DEBUG) logger.debug("parseMessage - contentID: " + contentID);
@@ -250,7 +250,7 @@ public class SimpleMessageAttributes
                         SimpleMessageAttributes partAttrs = new SimpleMessageAttributes();
                         partAttrs.parseMimePart((MimePart)nextPart);
                         parts[i] = partAttrs;
-                        
+
                     } else {
                         logger.info("Found a non-Mime bodyPart");
                     }
@@ -439,7 +439,7 @@ public class SimpleMessageAttributes
         }
         return buf.toString();
     }
-    
+
     /**
      * Decode a content Type header line into types and parameters pairs
      */
@@ -543,7 +543,7 @@ public class SimpleMessageAttributes
                 logger.debug("Assembling bodyStructure for type MESSAGE/FRC822");
                 buf.append("\"MESSAGE\" \"RFC822\" ");
                 buf.append(fields + SP);
-                ((SimpleMessageAttributes)parts[0]).reInit(); // reset transient logger
+                ((SimpleMessageAttributes)parts[0]).reinitialize(); // reset transient logger
                 buf.append(parts[0].getEnvelope() + SP);
                 buf.append(parts[0].getBodyStructure() + SP);
                 buf.append(lineCount);
@@ -551,7 +551,7 @@ public class SimpleMessageAttributes
                 logger.debug("Assembling bodystructure for type MULTIPART");
                 for (int i=0; i<parts.length; i++) {
                     logger.debug("Parsing part: " + i);
-                    ((SimpleMessageAttributes)parts[i]).reInit(); // reset transient logger
+                    ((SimpleMessageAttributes)parts[i]).reinitialize(); // reset transient logger
                     buf.append(parts[i].getBodyStructure());
                 }
                 buf.append(SP + secondaryType);

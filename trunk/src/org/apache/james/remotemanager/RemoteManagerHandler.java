@@ -56,7 +56,7 @@ public class RemoteManagerHandler
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
 
         final Configuration admin = configuration.getChild( "administrator_accounts" );
         final Configuration[] accounts = admin.getChildren( "account" );
