@@ -116,66 +116,16 @@ public interface Mail extends Serializable, Cloneable {
      *
      * @param out - the outputstream to send the MimeMessage headers and body content
      */
+    /*
     public void writeMessageTo(OutputStream out) throws IOException, MessagingException;
-
+    */
     /**
      * Dumps X many number of lines from this message to an output stream
      *
      * @param out - the outputstream to send the MimeMessage headers and body content
      * @param lines - the number of lines to return of the message
      */
-    public void writeContentTo(OutputStream out, int lines) throws IOException, MessagingException;
-
     /*
-    ------------------------------------------------------------------------
-    Below are methods that probably should be hidden from via.  They are implementation specific
-    ------------------------------------------------------------------------
-
-
-    **
-     * Sets the sender of this email message.
-     *
-    public void setSender(String sender);
-
-    **
-     * Sets who should receive this message, as specified by RCPT TO or internally defined.
-     *
-    public void setRecipients(Collection recipients);
-
-    **
-     * Sets the remote host name from where this message came.  Probably shouldn't be visible.
-     *
-    public void setRemoteHost(String remoteHost);
-
-    **
-     * Sets the remote ip address from where this message came.  Probably shouldn't be visible.
-     *
-    public void setRemoteAddr(String remoteAddr);
-
-    **
-     * Not sure why necessary
-     *
-    public void clean();
-
-    **
-     * Don't know why this isn't called clone
-     *
-    public Mail duplicate();
-
-    **
-     * Don't know why this is needed
-     *
-    public Mail duplicate(String newName);
-
-    **
-     * Gets the unique identifier for this message
-     *
-    public String getName();
-
-    **
-     * Sets the unique identifier for this message... probably shouldn't be available?
-     *
-    public void setName(String name);
-
+    public void writeContentTo(OutputStream out, int lines) throws IOException, MessagingException;
     */
 }
