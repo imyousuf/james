@@ -25,7 +25,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
 
    
     private ComponentManager comp;
-    //private Store.ObjectRepository or;
+  
     private Logger logger;
     private String path;
     private String name;
@@ -33,9 +33,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
     private String type;
     private String model;
     private DirContext ctx;
-    //private org.apache.avalon.Context jamesContext;
-
-    
+ 
     private String LDAPHost;
     private String rootNodeDN;
     private String rootURL;
@@ -55,41 +53,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
     private String passwordAttr;
  
 
-    //public static void main (String[] args) {
-    // Enumeration users;
-    // boolean result;
-    // int number;
-    //
-    //UsersLDAPRepository thisRep = new UsersLDAPRepository();
-    //
-    //if (args != null && args.length > 0) {
-    //    if (args[0].equals("list")){
-    //	users = thisRep.list();
-    //	while (users.hasMoreElements()) {
-    //	    System.out.println(users.nextElement());
-    //	}
-    //    }
-    //    else if (args[0].equals("addUser")) {
-    //	thisRep.addUser(args[1], args[2]);
-    //    }
-    //    else if (args[0].equals("removeUser")) {
-    //	thisRep.removeUser(args[1]);
-    //    }
-    //    else if (args[0].equals("test")) {
-    //	result = thisRep.test(args[1], args[2]);
-    //	System.out.println("Main: test: " + result);
-    //    }
-    //    else if (args[0].equals("contains")) {
-    //	result = thisRep.contains(args[1]);
-    //	System.out.println("Main: contains: " + result);
-    //    }
-    //    else if (args[0].equals("count")) {
-    //	number = thisRep.countUsers();
-    //	System.out.println("Main: count: " + number);
-    //    }
-    // 
-    //}
-    //}
+ 
 
     // Methods from interface Repository ---------------------------------------------
     public void setAttributes(String name, String destination, String type, String model) {
@@ -184,21 +148,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
 
     // Methods from Interface Configurable, Composer  ---------------------
 
-    //public UsersLDAPRepository() {
-    //LDAPHost = "ldap://localhost:389";
-    //rootNodeDN = "dc=apache, dc=org";
-    //serverRDN = "cn=mailserver.apache.org";
-    //mailAddressAttr = "mail";
-    //identAttr = "uid";
-    //authType = "simple";
-    //principal = "cn=Manager, dc=benett, dc=com";
-    //password = "secret";
-    //usersDomain = "apache.org";
-    //membersAttr = "member";
-    //manageGroupAttr = true;
-    //groupAttr = "memberOfGroup";
-    //managePasswordAttr = false;
-    //passwordAttr = "userpassword";
+ 
 
 
     public void setConfiguration(Configuration conf) {
