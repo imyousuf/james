@@ -184,7 +184,8 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;mailet match=&quot;CommandForListserv=james@localhost&quot; class=&quot;AvalonListservManager&quot;&gt;
+&lt;mailet match=&quot;CommandForListserv=james@localhost&quot; 
+	class=&quot;AvalonListservManager&quot;&gt;
 	&lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
 &lt;/mailet&gt;
 </pre></td>
@@ -215,11 +216,11 @@
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
 &lt;mailet match=&quot;RecipientIs=james@localhost&quot; class=&quot;AvalonListserv&quot;&gt;
-	&lt;membersonly&gt; false &lt;/membersonly&gt;
-	&lt;attachmentsallowed&gt; true &lt;/attachmentsallowed&gt;
-	&lt;replytolist&gt; true &lt;/replytolist&gt;
-	&lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
-	&lt;subjectprefix&gt;JamesList&lt;/subjectprefix&gt;
+ 	&lt;membersonly&gt; false &lt;/membersonly&gt;
+ 	&lt;attachmentsallowed&gt; true &lt;/attachmentsallowed&gt;
+ 	&lt;replytolist&gt; true &lt;/replytolist&gt;
+ 	&lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
+ 	&lt;subjectprefix&gt;JamesList&lt;/subjectprefix&gt;
 &lt;/mailet&gt;
 </pre></td>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
@@ -243,7 +244,9 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;repository name=&quot;list-james&quot; class=&quot;org.apache.james.userrepository.ListUsersJdbcRepository&quot; destinationURL=&quot;db://maildb/lists/list-james&quot;&gt;
+&lt;repository name=&quot;list-james&quot; 
+	class=&quot;org.apache.james.userrepository.ListUsersJdbcRepository&quot; 
+	destinationURL=&quot;db://maildb/lists/list-james&quot;&gt;
 	&lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
 &lt;/repository&gt;
 </pre></td>
@@ -268,7 +271,8 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;repository name=&quot;list-james&quot; class=&quot;org.apache.james.userrepository.UsersFileRepository&quot;&gt;
+&lt;repository name=&quot;list-james&quot; 
+	class=&quot;org.apache.james.userrepository.UsersFileRepository&quot;&gt;
     &lt;destination URL=&quot;file://var/lists/list-james/&quot;/&gt;
 &lt;/repository&gt;
 </pre></td>

@@ -30,7 +30,8 @@
   <p>James currently (v2.0a2) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
   <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
 <source>
-&lt;mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
+&lt;mailet match="CommandForListserv=james@localhost" 
+	class="AvalonListservManager">
 	&lt;repositoryName>list-james&lt;/repositoryName>
 &lt;/mailet>
 </source>
@@ -42,18 +43,28 @@
 </p>
 <p>and-</p>
 <source>
+&lt;mailet match="RecipientIs=james@localhost" class="AvalonListserv">
+ 	&lt;membersonly> false &lt;/membersonly>
+ 	&lt;attachmentsallowed> true &lt;/attachmentsallowed>
+ 	&lt;replytolist> true &lt;/replytolist>
+ 	&lt;repositoryName>list-james&lt;/repositoryName>
+ 	&lt;subjectprefix>JamesList&lt;/subjectprefix>
+&lt;/mailet>
 </source>
   <p>Which will distribute the mail to the current subscribers</p>
   <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
 <source>
-&lt;repository name="list-james" class="org.apache.james.userrepository.ListUsersJdbcRepository" destinationURL="db://maildb/lists/list-james">
+&lt;repository name="list-james" 
+	class="org.apache.james.userrepository.ListUsersJdbcRepository" 
+	destinationURL="db://maildb/lists/list-james">
 	&lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
 &lt;/repository>
 </source>
   <p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
   <p>Using the filesystem:-</p>
 <source>
-&lt;repository name="list-james" class="org.apache.james.userrepository.UsersFileRepository">
+&lt;repository name="list-james" 
+	class="org.apache.james.userrepository.UsersFileRepository">
     &lt;destination URL="file://var/lists/list-james/"/>
 &lt;/repository>
 </source>
