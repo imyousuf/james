@@ -1,30 +1,46 @@
 /**
- * SMTPDeliveryWorker.java
- * 
  * Copyright (C) 11-Oct-2002 The Apache Software Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software License
  * version 1.1, a copy of which has been included with this distribution in
  * the LICENSE file. 
- *
- * Danny Angus
  */
 package org.apache.james.testing;
 import java.io.IOException;
 import org.apache.commons.net.smtp.SMTPClient;
 /**
+ * SMTPDeliveryWorker.java
+ *
+ * A worker thread that is part of the SMTP delivery end to end testing.
+ *
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: SMTPDeliveryWorker.java,v 1.1 2002/10/13 08:17:04 danny Exp $
+ * $Id: SMTPDeliveryWorker.java,v 1.2 2002/10/14 06:44:22 pgoldstein Exp $
  */
 public class SMTPDeliveryWorker implements Runnable {
+    private SMTPClient client;
+
+    /**
+     * The test of the mail message to send.
+     */
+    private String mail;
+
+    /**
+     * The worker id.  Primarily used for identification by the class
+     * managing the threads.
+     */
+    private int workerid;
+
+    /**
+     * The EndToEnd test case that spawned this thread.
+     */
+    EndToEnd boss;
+
     /**
      * Constructor for SMTPDeliveryWorker.
+     *
+     * @param client the SMTP client being used by this test to 
      */
-    private SMTPClient client;
-    private String mail;
-    private int workerid;
-    EndToEnd boss;
     public SMTPDeliveryWorker(SMTPClient client, String mail, EndToEnd boss) {
         this.boss = boss;
         this.client = client;
@@ -53,9 +69,21 @@ public class SMTPDeliveryWorker implements Runnable {
         }
         boss.finished(workerid);
     }
+
+    /**
+     * Set the worker id for this worker thread.
+     *
+     * @param workerid the worker thread id
+     */
     public void setWorkerid(int workerid) {
         this.workerid = workerid;
     }
+
+    /**
+     * Get the worker id for this worker thread.
+     *
+     * @return the worker thread id
+     */
     public int getWorkerid() {
         return workerid;
     }
