@@ -26,9 +26,11 @@
     <person name="Peter M. Goldstein" email="farsight@alum.mit.edu" id="PG" />
     <person name="Brad Walker" email="bwalker@studentadvantage.com" id="BW" />
     <person name="Christian Buchegger" email="christian.buchegger@planet-interkom.de" id="CB2" />
+    <person name="Shilpa Dalmia" email="shilpa@postx.com" id="SD" />
+    <person name="Steve Short" email="sshort@postx.com" id="SS3" />
   </devs>
 
-<release version="2.1" date="Expected release November 2002">
+<release version="2.1" date="Expected release December 2002">
   <action name="PG" type="code">
     Fixed platform-specific performance issue with the POP3 server delivery.
   </action>
@@ -44,7 +46,7 @@
   <action name="PG" type="doc">
     Added extensive commenting - specifically Javadoced the vast majority of methods.
   </action>
-  <action name="PG" type="code">
+  <action name="PG,AI" type="code">
     Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.
   </action>
   <action name="NjB" type="code">
@@ -96,10 +98,16 @@
     Added documentation to demonstrate how to configure James as a universal sendmail relay.
   </action>
   <action name="NjB" type="code">
+    Made subject prefix bracketing in GenericListserv configurable.
+  </action>
+  <action name="NjB" type="code">
     Added the HasHeader matcher.
   </action>
   <action name="NjB" type="code">
     Added the JDBCVirtualUserTable mailet.
+  </action>
+  <action name="NjB" type="code">
+    Enhanced the RemoteAddrInNetwork and RemoteAddrNotInNetwork to accept domain names.
   </action>
   <action name="PG" type="update">
     Fixed the log configuration so that AM and PM entries are properly distinguishable by default.
@@ -131,8 +139,17 @@
   <action name="NjB,PG,SS" type="code">
     Ensured that a number of database and I/O resources are properly closed under all conditions.
   </action>
+  <action name="NjB" type="code">
+    Changed default column sizes for JDBC repositories to be RFC compliant.
+  </action>
+  <action name="NjB" type="code">
+    Fixed exception handling in JdbcDataSource when getConnection() fails.
+  </action>
   <action name="PG" type="code">
     Fixed NotifySender/NotifyPostmaster to be more robust against ill-formed headers in the email being forwarded.
+  </action>
+  <action name="SD,SS3" type="code">
+    Made a substantial performance enhancement to the LinearProcessor such that mail changes are not persisted to the store until necessary.  Also reduced synchronization scope.
   </action>
   <action name="PG" type="code">
     Converted String concatenation to the use of StringBuffers throughout the code base.
@@ -154,6 +171,9 @@
   </action>
   <action name="SK" type="update">
     Cleaned up error handling in LocalDelivery.
+  </action>
+  <action name="SS2" type="code">
+    Changed the default configuration so that log files are appending by default.
   </action>
   <action name="SS2" type="update">
     Reported the lack of in.close in MimeMessageSource.getSize(), which was causing stranded file handles, especially during large POP3 sessions.
