@@ -15,7 +15,7 @@ import org.apache.mail.*;
 import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.avalon.*;
-import org.apache.avalon.utils.io.CharTerminatedInputStream;
+import org.apache.james.CharTerminatedInputStream;
 import javax.mail.*;
 import javax.mail.internet.*;
 
@@ -40,7 +40,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     public final static char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
 
     private Socket socket;
-    private BufferedReader in;
+    private DataInputStream in;
     private InputStream socketIn;
     private PrintWriter out;
 
@@ -89,7 +89,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         try {
             this.socket = socket;
             socketIn = new BufferedInputStream(socket.getInputStream(), 1024);
-            in = new BufferedReader(new InputStreamReader(socketIn));
+            in = new DataInputStream(socketIn);
             out = new PrintWriter(socket.getOutputStream(), true);
 
             remoteHost = socket.getInetAddress ().getHostName ();
@@ -249,7 +249,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
                 try {
                     // parse headers
-                    InputStream msgIn = new CharTerminatedInputStream(socketIn, SMTPTerminator);
+                    InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
                     MailHeaders headers = new MailHeaders(msgIn);
                     // if headers do not contains minimum REQUIRED headers fields add them
                     if (!headers.isSet("Date")) {
