@@ -19,7 +19,7 @@
 </p>
 <subsection name="news">
   <p><!--Version 2.0a2 is available.  Significant changes have gone into this new release, and we appreciate everyone's contribution! Please let us know what you think.-->
-  A new Nightly build of source and binary distributions has been made, and is available at <a href="http://jakarta.apache.org/builds/jakarta-james/release/">nightly</a><br></br>
+  A new Nightly build of source and binary distributions has been made, and is available at <a href="http://jakarta.apache.org/builds/jakarta-james/nightly/">nightly</a><br></br>
   This is a release candidate for the next Milestone release which will be released as soon as any issues raised by the release candidate have been resolved.<br></br> We welcome any feedback (send mail to the lists) on this version, please use <A href="http://nagoya.apache.org/bugzilla/enter_bug.cgi?product=James">bugzilla</A> for reporting bugs in the application and documentation.
   </p>
   <p><a href="/builds/jakarta-james/release/v2.0a1/">Binary release of 2.0a1</a> <strong>Note:</strong> a last minute bug is preventing POP3 retrieval. This issue has been resolved in the lastest nightly build.</p>
