@@ -131,22 +131,31 @@
 
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
-
+                <!-- Set the packages from which to load mailets and matches -->
                 <mailetpackages>
                     <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
                 </mailetpackages>
                 <matcherpackages>
                     <mailetpackage>org.apache.james.transport.matchers.</mailetpackage>
                 </matcherpackages>
+
 <!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
                 <processor name="root">
+                <!-- Sample matching to kill a message (send to Null) -->
                     <mailet match="RecipientIs=badboy@badhost" class="Null">
                     </mailet>
+                <!-- Checks that the MAIL FROM command was for a valid domain. Important for spam blocking. -->
+                    <mailet match="SenderInFakeDomain" class="ToProcessor">
+                        <processor> spam </processor>
+                    </mailet>
+                <!-- This added to prevent relaying... modify this at your own risk -->
+                    <mailet match="SenderNotFromNetwork=127.0.0.1" class="ToProcessor">
+                        <processor> spam </processor>
+                    </mailet>
+                <!-- Important check to avoid race conditions -->
                     <mailet match="RelayLimit=30" class="Null">
                     </mailet>
-                    <mailet match="RecipientIs=administrator@localhost" class="Forward">
-                        <forwardto> root@localhost </forwardto>
-                    </mailet>
+                <!-- Sample listserv wrapping a local avalon list of users. -->
                     <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
                         <listName> james </listName>
                     </mailet>
@@ -156,32 +165,52 @@
                         <replytolist> true </replytolist>
                         <listName> james </listName>
                     </mailet>
+                <!-- Sends remaining mails to the transport processor for either local or remote delivery -->
                     <mailet match="All" class="ToProcessor">
                         <processor> transport </processor>
                     </mailet>
                 </processor>
+
 <!--        Processor CONFIGURATION SAMPLE: error is the processor mails with failure conditions enter -->
                 <processor name="error">
+                <!-- Logs any messages to the repository specified -->
                     <mailet match="All" class="ToRepository">
                         <repositoryPath> file://../var/mail/error/</repositoryPath>
 <!--                    <repositoryPath> town://mail-error@file:///dev/james/dist/var/maildatabase </repositoryPath>-->
-                        <passThrough> false </passThrough>
+                        <passThrough> true </passThrough>
+                    </mailet>
+                <!-- Send a notification to the sender that the message created an error condition -->
+                    <mailet match="All" class="ErrorBounce">
                     </mailet>
                 </processor>
+
 <!--        Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
                 <processor name="transport">
+                <!-- Is the recipient is for a local account, deliver it locally -->
                     <mailet match="RecipientIsLocal" class="LocalDelivery">
                     </mailet>
-                    <!-- is the host is to this server and it did not get locally delivered, this
-                       is an invalid recipient -->
+                <!-- If the host is handled by this server and it did not get locally delivered, this is an invalid recipient -->
                     <mailet match="HostIsLocal" class="ToProcessor">
                         <processor>error</processor>
                     </mailet>
+                <!-- Attempt local delivery using the specified repository for the spool, using delay time to retry delivery and the maximum number of retries -->
                     <mailet match="All" class="RemoteDelivery">
                         <outgoing> file://../var/mail/outgoing/ </outgoing>
 <!--                    <outgoing> town://mail-outgoing@file:///dev/james/dist/var/maildatabase </outgoing>-->
                         <delayTime> 21600000 </delayTime>
                         <maxRetries> 5 </maxRetries>
+                    </mailet>
+                </processor>
+
+<!--        Processor CONFIGURATION SAMPLE: spam is where messages detected as relaying or other problems will get sent.  You can either log these, bounce these, or just ignore them. -->
+                <processor name="spam">
+                <!-- If you wanted, you could just destroy messages
+                    <mailet match="All" class="Null">
+                    </mailet> -->
+                <!-- Out of the box, this will log the message to a repository -->
+                    <mailet match="All" class="ToRepository">
+                        <repositoryPath> file://../var/mail/spam/ </repositoryPath>
+<!--                    <repositoryPath> town://spam@file:///dev/james/dist/var/maildatabase </v>-->
                     </mailet>
                 </processor>
             </spoolmanager>
@@ -225,8 +254,6 @@
                     needs to share that repository with other Block the Repository must
                     be defined public since none of these block has 'the right' to own
                     Repository configurations. Place here any public Repository definition">
-
-<!--            <repository name="MyRepository" type="OBJECT" model="SYNCHRONOUS"> file://../myfolder/ </repository> -->
             </publicrepositories>
         </block>
 
