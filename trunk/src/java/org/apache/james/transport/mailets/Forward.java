@@ -75,6 +75,7 @@ import java.util.StringTokenizer;
  * &lt;mailet match="All" class="Forward">
  *   &lt;forwardto&gt;<I>comma delimited list of email addresses</I>&lt;/forwardto&gt;
  *   &lt;passThrough&gt;<I>true or false, default=false</I>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
@@ -83,14 +84,13 @@ import java.util.StringTokenizer;
  * <PRE><CODE>
  * &lt;mailet match="All" class="Redirect">
  *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
  *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
  *   &lt;inline&gt;unaltered&lt;/inline&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: Forward.java,v 1.13 2003/06/15 18:44:03 noel Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.14 $ $Date: 2003/06/25 22:00:38 $
  */
 public class Forward extends AbstractRedirect {
 

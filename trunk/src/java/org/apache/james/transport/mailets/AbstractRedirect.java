@@ -115,14 +115,15 @@ import org.apache.mailet.MailAddress;
  * a "setX(Mail, Tx, Mail)" method.<BR>
  * The roles are the following:</P>
  * <UL>
- * <LI>a "setX()" method returns the correspondent "X" value that can be evaluated "statically"
+ * <LI>a "getX()" method returns the correspondent "X" value that can be evaluated "statically"
  * once at init time and then stored in a variable and made available for later use by a
  * "getX(Mail)" method;</LI>
  * <LI>a "getX(Mail)" method is the one called to return the correspondent "X" value
  * that can be evaluated "dynamically", tipically based on the currently serviced mail;
- * the default behaviour is to return the value of getX().</LI>
+ * the default behaviour is to return the value of getX();</LI>
  * <LI>a "setX(Mail, Tx, Mail)" method is called to change the correspondent "X" value
- * of the redirected Mail object, using the value returned by "gexX(Mail)".</LI>
+ * of the redirected Mail object, using the value returned by "gexX(Mail)";
+ * if such value is null, it does nothing.</LI>
  * </UL>
  * <P>Here follows the typical pattern of those methods:</P>
  * <PRE><CODE>
@@ -162,7 +163,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.11 $ $Date: 2003/06/20 16:49:27 $
+ * @version CVS $Revision: 1.12 $ $Date: 2003/06/25 22:00:37 $
  * @since 2.2.0
  */
 
@@ -426,12 +427,16 @@ public abstract class AbstractRedirect extends GenericMailet {
      * built dynamically using the original Mail object.
      * Is a "getX(Mail)" method.
      *
-     * @return {@link #getRecipients()}, replacing <CODE>SpecialAddress.SENDER</CODE> if applicable
+     * @return {@link #getRecipients()},
+     * replacing <CODE>SpecialAddress.SENDER</CODE> if applicable with the original sender
+     * and <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
      */
     protected Collection getRecipients(Mail originalMail) throws MessagingException {
         Collection recipients = (isStatic()) ? this.recipients : getRecipients();
         if (recipients != null && recipients.size() == 1) {
-            if (recipients.contains(SpecialAddress.SENDER)) {
+            if (recipients.contains(SpecialAddress.UNALTERED)) {
+                recipients = null;
+            } else if (recipients.contains(SpecialAddress.SENDER)) {
                 recipients = new ArrayList();
                 recipients.add(originalMail.getSender());
             } else if (recipients.contains(SpecialAddress.RETURN_PATH)) {
@@ -453,6 +458,8 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     /**
      * Sets the recipients of <I>newMail</I> to <I>recipients</I>.
+     * If the requested value is null does nothing.
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setRecipients(Mail newMail, Collection recipients, Mail originalMail) throws MessagingException {
         if (recipients != null) {
@@ -557,6 +564,8 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     /**
      * Sets the "To:" header of <I>newMail</I> to <I>to</I>.
+     * If the requested value is null does nothing.
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setTo(Mail newMail, InternetAddress[] to, Mail originalMail) throws MessagingException {
         if (to != null) {
@@ -585,20 +594,42 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Is a "getX(Mail)" method.
      *
      * @return {@link #getReplyTo()}
+     * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
      */
     protected MailAddress getReplyTo(Mail originalMail) throws MessagingException {
         MailAddress replyTo = (isStatic()) ? this.replyTo : getReplyTo();
+        if (replyTo != null) {
+            if (replyTo == SpecialAddress.UNALTERED) {
+                replyTo = null;
+            }
+        }
         return replyTo;
     }
 
     /**
-     * Sets the "Reply-To:" header of <I>newMail</I> to <I>replyTo</I>.
+     * <P>Sets the "Reply-To:" header of <I>newMail</I> to <I>replyTo</I>.</P>
+     * <P>If the requested value is <CODE>SpecialAddress.SENDER</CODE> will use the original "From:" header;
+     * if this header is empty will use the original "Sender:" header;
+     * if this header is empty will use the original sender.
+     * If the requested value is null does nothing.</P>
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setReplyTo(Mail newMail, MailAddress replyTo, Mail originalMail) throws MessagingException {
         if(replyTo != null) {
+            if (replyTo == SpecialAddress.SENDER) {
+                replyTo = getSafeApparentSender(originalMail);
+
+                // if still null give up.
+                if (replyTo == null) {
+                    return;
+                }
+            }
+            
+            // do the job
             InternetAddress[] iart = new InternetAddress[1];
             iart[0] = replyTo.toInternetAddress();
             newMail.getMessage().setReplyTo(iart);
+            
             if (isDebug) {
                 log("replyTo set to: " + replyTo);
             }
@@ -622,12 +653,18 @@ public abstract class AbstractRedirect extends GenericMailet {
      * built dynamically using the original Mail object.
      * Is a "getX(Mail)" method.
      *
-     * @return {@link #getReturnPath()}, replacing <CODE>SpecialAddress.SENDER</CODE> if applicable, but not replacing <CODE>SpecialAddress.NULL</CODE>
+     * @return {@link #getReturnPath()},
+     * replacing <CODE>SpecialAddress.SENDER</CODE> if applicable with the original sender,
+     * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null,
+     * but not replacing <CODE>SpecialAddress.NULL</CODE>
      */
     protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
         MailAddress returnPath = (isStatic()) ? this.returnPath : getReturnPath();
         if (returnPath != null) {
-            if (returnPath == SpecialAddress.SENDER) {
+            if (returnPath == SpecialAddress.UNALTERED) {
+                returnPath = null;
+            }
+            else if (returnPath == SpecialAddress.SENDER) {
                 returnPath = originalMail.getSender();
             }
         }
@@ -636,6 +673,9 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     /**
      * Sets the "Return-Path:" header of <I>newMail</I> to <I>returnPath</I>.
+     * If the requested value is <CODE>SpecialAddress.NULL</CODE> sets it to "<>".
+     * If the requested value is null does nothing.
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setReturnPath(Mail newMail, MailAddress returnPath, Mail originalMail) throws MessagingException {
         if(returnPath != null) {
@@ -670,28 +710,91 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Is a "getX(Mail)" method.
      *
      * @return {@link #getSender()}
+     * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
      */
     protected MailAddress getSender(Mail originalMail) throws MessagingException {
         MailAddress sender = (isStatic()) ? this.sender : getSender();
+        if (sender != null) {
+            if (sender == SpecialAddress.UNALTERED) {
+                sender = null;
+            }
+        }
         return sender;
     }
 
     /**
-     * Sets the sender and the "From:" header of <I>newMail</I> to <I>sender</I>.
-     * If sender is null will set such values to the ones in <I>originalMail</I>.
+     * <P>Sets the sender and the "From:" header of <I>newMail</I> to <I>sender</I>.</P>
+     * <P>If the requested value is <CODE>SpecialAddress.SENDER</CODE> will use the original "From:" header;
+     * if this header is empty will use the original "Sender:" header;
+     * if this header is empty will use the original sender.
+     * If the requested value is null does nothing.</P>
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setSender(Mail newMail, MailAddress sender, Mail originalMail) throws MessagingException {
-        if (sender == null) {
-            MailAddress originalSender = new MailAddress(((InternetAddress) originalMail.getMessage().getFrom()[0]).getAddress());
-            newMail.getMessage().setHeader(RFC2822Headers.FROM, originalMail.getMessage().getHeader(RFC2822Headers.FROM, ","));
-            ((MailImpl) newMail).setSender(originalSender);
-        } else {
-            newMail.getMessage().setFrom(sender.toInternetAddress());
-            ((MailImpl) newMail).setSender(sender);
+        if (sender != null) {
+            if (sender == SpecialAddress.SENDER) {
+                MailAddress newSender = getSafeApparentSender(originalMail);
+                String newFromHeader = getSafeFromHeader(originalMail);
+                
+                if (!newFromHeader.trim().equals("")) {
+                    newMail.getMessage().setHeader(RFC2822Headers.FROM, newFromHeader);
+                }
+                
+                if (newSender != null) {
+                    ((MailImpl) newMail).setSender(newSender);
+                }
+                
+                // The new code should be compatible with and extend the previous code:
+//                MailAddress originalSender = new MailAddress(((InternetAddress) originalMail.getMessage().getFrom()[0]).getAddress());
+//                newMail.getMessage().setHeader(RFC2822Headers.FROM, originalMail.getMessage().getHeader(RFC2822Headers.FROM, ","));
+//                ((MailImpl) newMail).setSender(originalSender);
+            } else {
+                newMail.getMessage().setFrom(sender.toInternetAddress());
+                ((MailImpl) newMail).setSender(sender);
+            }
+            
             if (isDebug) {
                 log("sender set to: " + sender);
             }
         }
+    }
+    
+    /**
+     * <P>Gets a safe "apparent" sender using the original "From:" header if possible.</P>
+     * <P>Will use the original "From:" header;
+     * if this header is empty will use the original "Sender:" header;
+     * if this header is empty will use the original sender.</P>
+     */
+    private MailAddress getSafeApparentSender(Mail originalMail) throws MessagingException {
+        MailAddress sender = null;
+        InternetAddress from = (InternetAddress) originalMail.getMessage().getFrom()[0];
+        
+        if (from == null) {
+            // perhaps this is redundant, but just in case ...
+            from = originalMail.getSender().toInternetAddress();
+        }
+        if (from != null) {
+            sender = new MailAddress(from.getAddress());
+        }
+        
+        return sender;
+    }
+
+    /**
+     * <P>Gets a safe "From:" header using the original if possible.</P>
+     * <P>Will use the original "From:" header;
+     * if this header is empty will use the original "Sender:" header;
+     * if this header is empty will use the original sender.</P>
+     */
+    private String getSafeFromHeader(Mail originalMail) throws MessagingException {
+        MailAddress sender = getSafeApparentSender(originalMail);
+        String fromHeader = originalMail.getMessage().getHeader(RFC2822Headers.FROM, ",");
+        
+        if (fromHeader.trim().equals("") && sender != null) {
+            fromHeader = sender.toInternetAddress().toString();
+        }
+
+        return fromHeader;
     }
 
     /**

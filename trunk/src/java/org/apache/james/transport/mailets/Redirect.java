@@ -87,38 +87,55 @@ import org.apache.mailet.MailAddress;
 
 
 /**
- * <P>A mailet providing configurable redirection services<BR>
+ * <P>A mailet providing configurable redirection services.<BR>
  * This mailet can produce listserver, forward and notify behaviour, with the original
  * message intact, attached, appended or left out altogether.<BR>
- * This built in functionality is controlled by the configuration as laid out below.</P>
+ * This built in functionality is controlled by the configuration as laid out below.
+ * In the table please note that the parameters controlling message headers
+ * accept the <B>&quot;unaltered&quot;</B> value, whose meaning is to keep the associated
+ * header unchanged and, unless stated differently, corresponds to the assumed default
+ * if the parameter is missing. 
  * <P>The configuration parameters are:</P>
- * <TABLE width="75%" border="0" cellspacing="2" cellpadding="2">
- * <TR>
+ * <TABLE width="75%" border="1" cellspacing="2" cellpadding="2">
+ * <TR valign=top>
  * <TD width="20%">&lt;recipients&gt;</TD>
- * <TD width="80%">A comma delimited list of email addresses for recipients of
- * this message, it will use the &quot;to&quot; list if not specified. These
- * addresses will only appear in the To: header if no &quot;to&quot; list is
+ * <TD width="80%">
+ * A comma delimited list of email addresses for recipients of
+ * this message; it will use the &quot;to&quot; list if not specified, and &quot;unaltered&quot;
+ * if none of the lists is specified.<BR>
+ * These addresses will only appear in the To: header if no &quot;to&quot; list is
  * supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;returnPath&quot;</TD>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;to&gt;</TD>
- * <TD width="80%">A comma delimited list of addresses to appear in the To: header,
- * the email will only be delivered to these addresses if they are in the recipients
+ * <TD width="80%">
+ * A comma delimited list of addresses to appear in the To: header;
+ * the email will be delivered to any of these addresses if it is also in the recipients
  * list.<BR>
- * The recipients list will be used if this is not supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;</TD>
+ * The recipients list will be used if this list is not supplied;
+ * if none of the lists is specified it will be &quot;unaltered&quot;.<BR>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;sender&gt;</TD>
- * <TD width="80%">A single email address to appear in the From: header <BR>
- * It can include constants &quot;sender&quot; and &quot;postmaster&quot;</TD>
+ * <TD width="80%">
+ * A single email address to appear in the From: header and become the sender.<BR>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;unaltered&quot;;
+ * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
+ * original From: header (see {@link AbstractRedirect#setSender} and {@link AbstractRedirect#getSender(Mail)}).<BR>
+ * Default: &quot;unaltered&quot;.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;message&gt;</TD>
- * <TD width="80%">A text message to be the body of the email. Can be omitted.</TD>
+ * <TD width="80%">
+ * A text message to be the body of the email. Can be omitted.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;inline&gt;</TD>
  * <TD width="80%">
  * <P>One of the following items:</P>
@@ -134,9 +151,10 @@ import org.apache.mailet.MailAddress;
  * <LI>none&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Neither
  * body nor headers are appended</LI>
  * </UL>
+ * Default: &quot;body&quot;.
  * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;attachment&gt;</TD>
  * <TD width="80%">
  * <P>One of the following items:</P>
@@ -152,57 +170,78 @@ import org.apache.mailet.MailAddress;
  * this means that it can, in many cases, be opened, resent, fw'd, replied
  * to etc by email client software.</LI>
  * </UL>
+ * Default: &quot;none&quot;.
  * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;passThrough&gt;</TD>
- * <TD width="80%">true or false, if true the original message continues in the
+ * <TD width="80%">
+ * true or false, if true the original message continues in the
  * mailet processor after this mailet is finished. False causes the original
- * to be stopped. The default is false.</TD>
+ * to be stopped.<BR>
+ * Default: false.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;fakeDomainCheck&gt;</TD>
- * <TD width="80%">TRUE or FALSE, if true will check if the sender domain is valid.
- * The default is true.</TD>
+ * <TD width="80%">
+ * true or false, if true will check if the sender domain is valid.<BR>
+ * Default: true.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;attachError&gt;</TD>
- * <TD width="80%">TRUE or FALSE, if true any error message available to the
+ * <TD width="80%">
+ * true or false, if true any error message available to the
  * mailet is appended to the message body (except in the case of inline ==
- * unaltered)</TD>
+ * unaltered).<BR>
+ * Default: false.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;replyto&gt;</TD>
- * <TD width="80%">A single email address to appear in the Reply-To: header, can
- * also be &quot;sender&quot; or &quot;postmaster&quot;, this header is not
- * set if this is omitted.</TD>
+ * <TD width="80%">
+ * A single email address to appear in the Reply-To: header.<BR>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;unaltered&quot;;
+ * if &quot;sender&quot; is specified then it will follow a safe procedure from the 
+ * original From: header (see {@link AbstractRedirect#setReplyTo} and {@link AbstractRedirect#getReplyTo(Mail)}).<BR>
+ * Default: &quot;unaltered&quot;.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;returnPath&gt;</TD>
- * <TD width="80%">A single email address to appear in the Return-Path: header, can
- * also be &quot;sender&quot; or &quot;postmaster&quot; or &quot;null&quot;; this header is not
- * set if this parameter is omitted.</TD>
+ * <TD width="80%">
+ * A single email address to appear in the Return-Path: header.<BR>
+ * It can include constants &quot;sender&quot;, &quot;postmaster&quot; &quot;null&quot;and &quot;unaltered&quot;;
+ * if &quot;null&quot; is specified then it will set it to <>, meaning &quot;null return path&quot;.<BR>
+ * Default: &quot;unaltered&quot;.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;prefix&gt;</TD>
- * <TD width="80%">An optional subject prefix prepended to the original message
- * subject, for example:<BR>
- * Undeliverable mail: </TD>
+ * <TD width="80%">
+ * An optional subject prefix prepended to the original message
+ * subject, for example: <I>[Undeliverable mail]</I>.<BR>
+ * Default: &quot;&quot;.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;isReply&gt;</TD>
- * <TD width="80%">TRUE or FALSE, if true the IN_REPLY_TO header will be set to the
- * id of the current message.</TD>
+ * <TD width="80%">
+ * true or false, if true the IN_REPLY_TO header will be set to the
+ * id of the current message.<BR>
+ * Default: false.
+ * </TD>
  * </TR>
- * <TR>
+ * <TR valign=top>
  * <TD width="20%">&lt;static&gt;</TD>
  * <TD width="80%">
- * <P>TRUE or FALSE.  If this is TRUE it tells the mailet that it can
+ * true or false.  If this is true it tells the mailet that it can
  * reuse all the initial parameters (to, from, etc) without re-calculating
  * their values.  This will boost performance where a redirect task
- * doesn't contain any dynamic values.  If this is FALSE, it tells the
- * mailet to recalculate the values for each e-mail processed.</P>
- * <P>This defaults to false.<BR>
+ * doesn't contain any dynamic values.  If this is false, it tells the
+ * mailet to recalculate the values for each e-mail processed.<BR>
+ * Default: false.
  * </TD>
  * </TR>
  * </TABLE>
@@ -236,8 +275,7 @@ import org.apache.mailet.MailAddress;
  * &lt;static&gt;TRUE&lt;/static&gt;<BR>
  * &lt;/mailet&gt;</P>
  *
- * <P>CVS $Id: Redirect.java,v 1.29 2003/06/15 18:44:03 noel Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.30 $ $Date: 2003/06/25 22:00:38 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -296,21 +334,25 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>recipients</CODE> init parameter or <CODE>SpecialAddress.SENDER</CODE>
-     * or <CODE>SpecialAddress.RETURN_PATH</CODE> or null if missing
+     * @return the <CODE>recipients</CODE> init parameter
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * or <CODE>SpecialAddress.UNALTERED</CODE>
+     * or <CODE>null</CODE> if missing
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
         String addressList = (getInitParameter("recipients") == null)
                                  ? getInitParameter("to")
                                  : getInitParameter("recipients");
-        // if nothing was specified, return null meaning no change
+        // if nothing was specified, return <CODE>null</CODE> meaning no change
         if (addressList == null) {
             return null;
         }
 
         MailAddress specialAddress = getSpecialAddress(addressList,
-                                        new String[] {"postmaster", "sender", "returnPath"});
+                                        new String[] {"postmaster", "sender", "returnPath", "unaltered"});
         if (specialAddress != null) {
             newRecipients.add(specialAddress);
             return newRecipients;
@@ -328,8 +370,12 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>to</CODE> init parameter or <CODE>SpecialAddress.SENDER</CODE>
-     * or S<CODE>pecialAddress.RETURN_PATH</CODE> or <CODE>SpecialAddress.UNALTERED</CODE> or null if missing
+     * @return the <CODE>to</CODE> init parameter
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * or <CODE>SpecialAddress.UNALTERED</CODE>
+     * or <CODE>null</CODE> if missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
         String addressList = (getInitParameter("to") == null)
@@ -364,18 +410,18 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>replyto</CODE> init parameter or null if missing or == "sender"
+     * @return the <CODE>replyto</CODE> init parameter
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.UNALTERED</CODE>
+     * or <CODE>null</CODE> if missing
      */
     protected MailAddress getReplyTo() throws MessagingException {
         String addressString = getInitParameter("replyto");
         if(addressString != null) {
             MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender"});
+                                            new String[] {"postmaster", "sender", "unaltered"});
             if (specialAddress != null) {
-                if (specialAddress == SpecialAddress.SENDER) {
-                    // means no change
-                    return null;
-                }
                 return specialAddress;
             }
 
@@ -390,14 +436,18 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>returnPath</CODE> init parameter or <CODE>SpecialAddress.NULL</CODE>
-     * or <CODE>SpecialAddress.SENDER</CODE> or null if missing
+     * @return the <CODE>returnPath</CODE> init parameter 
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.NULL</CODE>
+     * or <CODE>SpecialAddress.UNALTERED</CODE>
+     * or <CODE>null</CODE> if missing
      */
     protected MailAddress getReturnPath() throws MessagingException {
         String addressString = getInitParameter("returnPath");
         if(addressString != null) {
             MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender", "null"});
+                                            new String[] {"postmaster", "sender", "null", "unaltered"});
             if (specialAddress != null) {
                 return specialAddress;
             }
@@ -413,18 +463,18 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>sender</CODE> init parameter or null if missing or == "sender"
+     * @return the <CODE>sender</CODE> init parameter
+     * or the postmaster address
+     * or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.UNALTERED</CODE>
+     * or <CODE>null</CODE> if missing
      */
     protected MailAddress getSender() throws MessagingException {
         String addressString = getInitParameter("sender");
         if(addressString != null) {
             MailAddress specialAddress = getSpecialAddress(addressString,
-                                            new String[] {"postmaster", "sender"});
+                                            new String[] {"postmaster", "sender", "unaltered"});
             if (specialAddress != null) {
-                if (specialAddress == SpecialAddress.SENDER) {
-                    // means no change: use FROM header; kept as is for compatibility
-                    return null;
-                }
                 return specialAddress;
             }
 
