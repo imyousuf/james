@@ -159,16 +159,27 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     }
 
     /**
-     * Return the key of a message to process.  This is a message in the spool that is not locked.
+     * Return a message to process.  This is a message in the spool that is not locked.
      */
-    public String accept() throws InterruptedException {
+    public Mail accept() throws InterruptedException {
         while (!Thread.currentThread().isInterrupted()) {
             //Loop through until we are either out of pending messages or have a message
             // that we can lock
             PendingMessage next = null;
             while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
                 if (lock(next.key)) {
-                    return next.key;
+                    try {
+                        MailImpl mail = retrieve(next.key);
+                        // Retrieve can return null if the mail is no longer on the spool
+                        // (i.e. another thread has gotten to it first).
+                        // In this case we simply continue to the next key
+                        if (mail == null) {
+                            continue;
+                        }
+                        return mail;
+                    } catch (javax.mail.MessagingException e) {
+                        getLogger().error("Exception during retrieve -- skipping item " + next.key, e);
+                    }
                 }
             }
             //Nothing to do... sleep!
@@ -191,54 +202,90 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     }
 
     /**
-     * Return the key of a message that's ready to process.  If a message is of type "error"
+     * Return a message that's ready to process.  If a message is of type "error"
      * then check the last updated time, and don't try it until the long 'delay' parameter
      * milliseconds has passed.
      */
-    public synchronized String accept(long delay) throws InterruptedException {
-        while (!Thread.currentThread().isInterrupted()) {
-            //Loop through until we are either out of pending messages or have a message
-            // that we can lock
-            PendingMessage next = null;
+    public synchronized Mail accept(final long delay) throws InterruptedException {
+        return accept (new SpoolRepository.AcceptFilter () {
             long sleepUntil = 0;
-            while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
-                //Check whether this is time to expire
-                boolean shouldProcess = false;
-                if (Mail.ERROR.equals(next.state)) {
+                
+                public boolean accept (String key, String state, long lastUpdated, String errorMessage) {
+                    if (Mail.ERROR.equals(state)) {
                     //if it's an error message, test the time
-                    long processingTime = delay + next.lastUpdated;
+                        long processingTime = delay + lastUpdated;
                     if (processingTime < System.currentTimeMillis()) {
                         //It's time to process
-                        shouldProcess = true;
+                            return true;
                     } else {
                         //We don't process this, but we want to possibly reduce the amount of time
                         //  we sleep so we wake when this message is ready.
                         if (sleepUntil == 0 || processingTime < sleepUntil) {
                             sleepUntil = processingTime;
                         }
+                            return false;
                     }
                 } else {
-                    shouldProcess = true;
+                        return true;
+                    }
                 }
+                
+
+                public long getWaitTime () {
+                    if (sleepUntil == 0) {
+                        sleepUntil = System.currentTimeMillis();
+                    }
+                    long waitTime = sleepUntil - System.currentTimeMillis();
+                    sleepUntil = 0;
+                    return waitTime <= 0 ? 1 : waitTime;
+                }
+                
+            });
+    }
+
+    /**
+     * Returns an arbitrarily selected mail deposited in this Repository for
+     * which the supplied filter's accept method returns true.
+     * Usage: RemoteDeliverySpool calls accept(filter) with some a filter which determines
+     * based on number of retries if the mail is ready for processing.
+     * If no message is ready the method will block until one is, the amount of time to block is
+     * determined by calling the filters getWaitTime method.
+     *
+     * @return  the mail
+     */
+    public synchronized Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException {
+        while (!Thread.currentThread().isInterrupted()) {
+            //Loop through until we are either out of pending messages or have a message
+            // that we can lock
+            PendingMessage next = null;
+            while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
+                //Check whether this is time to expire
+                
+                boolean shouldProcess = filter.accept (next.key, next.state, next.lastUpdated, next.errorMessage);
+                
                 if (shouldProcess && lock(next.key)) {
-                    return next.key;
+                    try {
+                        MailImpl mail = retrieve(next.key);
+                        // Retrieve can return null if the mail is no longer on the spool
+                        // (i.e. another thread has gotten to it first).
+                        // In this case we simply continue to the next key
+                        if (mail == null) {
+                            continue;
+                        }
+                        return mail;
+                    } catch (javax.mail.MessagingException e) {
+                        getLogger().error("Exception during retrieve -- skipping item " + next.key, e);
+                    }
                 }
             }
             //Nothing to do... sleep!
-            if (sleepUntil == 0) {
-                sleepUntil = System.currentTimeMillis() + WAIT_LIMIT;
+            long wait_time = filter.getWaitTime();
+            if (wait_time <= 0) {
+                wait_time = WAIT_LIMIT;
             }
             try {
                 synchronized (this) {
-                    long waitTime = sleepUntil - System.currentTimeMillis();
-                    //StringBuffer errorBuffer =
-                    //    new StringBuffer(128)
-                    //            .append("waiting ")
-                    //            .append((waitTime) / 1000L)
-                    //            .append(" in ")
-                    //            .append(repositoryName);
-                    //System.err.println(errorBuffer.toString());
-                    wait(waitTime <= 0 ? 1 : waitTime);
+                    wait (wait_time);
                 }
             } catch (InterruptedException ex) {
                 throw ex;
@@ -307,7 +354,8 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     String key = rsListMessages.getString(1);
                     String state = rsListMessages.getString(2);
                     long lastUpdated = rsListMessages.getTimestamp(3).getTime();
-                    pendingMessages.add(new PendingMessage(key, state, lastUpdated));
+                    String errorMessage = rsListMessages.getString(4);
+                    pendingMessages.add(new PendingMessage(key, state, lastUpdated, errorMessage));
                 }
             } catch (SQLException sqle) {
                 //Log it and avoid reloading for a bit
@@ -328,11 +376,13 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
         protected String key;
         protected String state;
         protected long lastUpdated;
+        protected String errorMessage;
 
-        public PendingMessage(String key, String state, long lastUpdated) {
+        public PendingMessage(String key, String state, long lastUpdated, String errorMessage) {
             this.key = key;
             this.state = state;
             this.lastUpdated = lastUpdated;
+            this.errorMessage = errorMessage;
         }
     }
 }

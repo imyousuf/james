@@ -346,7 +346,7 @@
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to list all messages stored in this repository. -->
-    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated, error_message FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
 
     <!-- Statements used to create the table associated with this class. -->
     <sql name="createTable" db="hypersonic">
