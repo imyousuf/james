@@ -382,6 +382,7 @@ public class MimeMessageWrapper extends MimeMessage {
      * to avoid memory hogging.
      */
     public int getLineCount() throws MessagingException {
+            InputStream in=null;
         try{
             InputStream in = getContentStream();
         }catch(Exception e){
