@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.123 $  Committed on $Date: 2003/02/09 02:54:42 $ by: $Author: mcconnell $
+ James build file $Revision: 1.124 $  Committed on $Date: 2003/02/09 03:10:49 $ by: $Author: mcconnell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -224,10 +224,10 @@ Legal:
           <param name="-breakiterator"/>
           <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
           <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
-          <param name="-link" value="http://jakarta.apache.org/avalon/api"/>
-          <param name="-link" value="http://jakarta.apache.org/avalon/phoenix/api"/>
-          <param name="-link" value="http://jakarta.apache.org/avalon/cornerstone/api"/>
-          <param name="-link" value="http://jakarta.apache.org/avalon/logkit/api"/>
+          <param name="-link" value="http://avalon.apache.org/api"/>
+          <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
+          <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
+          <param name="-link" value="http://avalon.apache.org/logkit/api"/>
           <param name="-doctitle" value="${Name} ${version}"/>
           <param name="-windowtitle" value="${Name} API"/>
           <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
