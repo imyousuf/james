@@ -58,13 +58,6 @@
 
 package org.apache.james.imapserver;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.james.imapserver.store.ImapMailbox;
@@ -73,6 +66,13 @@ import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.mailet.User;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 /**
  * An initial implementation of an ImapHost. By default, uses,
  * the {@link org.apache.james.imapserver.store.InMemoryStore} implementation of {@link org.apache.james.imapserver.store.ImapStore}.
@@ -80,7 +80,7 @@ import org.apache.mailet.User;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
@@ -194,14 +194,13 @@ public class JamesImapHost
             throws MailboxException, AuthorizationException
     {
         ImapMailbox toDelete = getMailbox( user, mailboxName, true );
-
         if ( store.getChildren( toDelete ).isEmpty() ) {
             toDelete.deleteAllMessages();
+            toDelete.signalDeletion();
             store.deleteMailbox( toDelete );
         }
         else {
             if ( toDelete.isSelectable() ) {
-                // TODO delete all messages.
                 toDelete.deleteAllMessages();
                 store.setSelectable( toDelete, false );
             }

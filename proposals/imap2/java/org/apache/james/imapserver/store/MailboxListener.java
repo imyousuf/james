@@ -60,10 +60,11 @@ package org.apache.james.imapserver.store;
 import javax.mail.Flags;
 
 public interface MailboxListener {
-    // TODO shouldn't have exceptions here
     void expunged(int msn);
     
     void added(int msn);
 
     void flagsUpdated(int msn, Flags flags, Long uid);
+    
+    void mailboxDeleted();
 }

@@ -58,15 +58,6 @@
 
 package org.apache.james.imapserver;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
@@ -76,6 +67,15 @@ import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailRepository;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
  * The handler class for IMAP connections.
@@ -176,35 +176,10 @@ public class ImapHandler
         return theWatchdogTarget;
     }
 
-    /**
-     * Idle out this connection
-     */
-    void idleClose()
-    {
-        // TODO: Send BYE message before closing.
-        if ( getLogger() != null ) {
-            getLogger().error( "IMAP Connection has idled out." );
-        }
-        try {
-            if ( socket != null ) {
-                socket.close();
-            }
-        }
-        catch ( Exception e ) {
-            // ignored
-        }
-        finally {
-            socket = null;
-        }
-
-        synchronized ( this ) {
-            // Interrupt the thread to recover from internal hangs
-            if ( handlerThread != null ) {
-                handlerThread.interrupt();
-                handlerThread = null;
-            }
-        }
-
+    public void forceConnectionClose(final String message) {
+        ImapResponse response = new ImapResponse(outs);
+        response.byeResponse(message);        
+        resetHandler();
     }
 
     /**
@@ -377,7 +352,11 @@ public class ImapHandler
         }
 
         synchronized ( this ) {
-            handlerThread = null;
+            // Interrupt the thread to recover from internal hangs
+            if ( handlerThread != null ) {
+                handlerThread.interrupt();
+                handlerThread = null;
+            }
         }
 
         // Clear user data
@@ -468,9 +447,8 @@ public class ImapHandler
          */
         public void execute()
         {
-            ImapHandler.this.idleClose();
+            forceConnectionClose("IMAP Connection has idled out.");
         }
-
     }
 
 }

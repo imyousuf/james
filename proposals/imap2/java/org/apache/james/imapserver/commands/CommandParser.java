@@ -58,24 +58,23 @@
 
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapConstants;
+import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MessageFlags;
+
+import javax.mail.Flags;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.mail.Flags;
-
-import org.apache.james.imapserver.ImapConstants;
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.MessageFlags;
-
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class CommandParser
 {

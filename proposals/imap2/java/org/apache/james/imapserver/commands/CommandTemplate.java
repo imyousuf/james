@@ -61,13 +61,13 @@ package org.apache.james.imapserver.commands;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapConstants;
-import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Base class for all command implementations. This class provides common
@@ -75,7 +75,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled

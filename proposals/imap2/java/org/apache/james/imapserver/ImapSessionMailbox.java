@@ -67,17 +67,25 @@ import org.apache.james.imapserver.store.SimpleImapMessage;
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     private ImapMailbox _mailbox;
+    private ImapSession _session;
     private boolean _readonly;
     private boolean _sizeChanged;
     private List _expungedMsns = Collections.synchronizedList(new LinkedList());
     private Map _modifiedFlags = Collections.synchronizedMap(new TreeMap());
 
-    public ImapSessionMailbox(ImapMailbox mailbox, boolean readonly) {
+    public ImapSessionMailbox(ImapMailbox mailbox, ImapSession session, boolean readonly) {
         _mailbox = mailbox;
+        _session = session;
         _readonly = readonly;
         // TODO make this a weak reference (or make sure deselect() is *always* called).
         _mailbox.addListener(this);
@@ -98,6 +106,10 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
             }
         }
         throw new MailboxException( "No such message." );
+    }
+
+    public void signalDeletion() {
+        _mailbox.signalDeletion();
     }
 
     public boolean isReadonly() {
@@ -145,6 +157,10 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     public void flagsUpdated(int msn, Flags flags, Long uid) {
         // This will overwrite any earlier changes
         _modifiedFlags.put(new Integer(msn), new FlagUpdate(msn, uid, flags));
+    }
+
+    public void mailboxDeleted() {
+        _session.closeConnection("Mailbox " + _mailbox.getName() + " has been deleted");
     }
 
     public String getName() {

@@ -58,10 +58,9 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.james.test.SimpleFileProtocolTest;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.james.test.SimpleFileProtocolTest;
 
 /**
  * Runs tests for commands valid in the AUTHENTICATED state. A login session precedes
@@ -100,26 +99,26 @@ public class TestCommandsInAuthenticatedState
     {
         TestSuite suite = new TestSuite();
         // Not valid in this state
-        suite.addTest( new TestCommandsInAuthenticatedState( "ValidSelected" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "ValidNonAuthenticated" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "ValidSelected" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "ValidNonAuthenticated" ) );
 
         // Valid in all states
-        suite.addTest( new TestCommandsInAuthenticatedState( "Capability" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Noop" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Logout" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Capability" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Noop" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Logout" ) );
 
         // Valid in authenticated state
-        suite.addTest( new TestCommandsInAuthenticatedState( "AppendExamineInbox" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "AppendSelectInbox" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Create" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "AppendExamineInbox" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "AppendSelectInbox" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Create" ) );
         suite.addTest( new TestCommandsInAuthenticatedState( "ExamineEmpty" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "SelectEmpty" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "ListNamespace" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "ListMailboxes" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Status" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Subscribe" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Delete" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "Append" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "SelectEmpty" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "ListNamespace" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "ListMailboxes" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Status" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Subscribe" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Delete" ) );
+//        suite.addTest( new TestCommandsInAuthenticatedState( "Append" ) );
 
         return suite;
     }

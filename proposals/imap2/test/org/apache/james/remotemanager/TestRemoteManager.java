@@ -58,10 +58,9 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.james.test.SimpleFileProtocolTest;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.james.test.SimpleFileProtocolTest;
 
 public class TestRemoteManager
         extends SimpleFileProtocolTest

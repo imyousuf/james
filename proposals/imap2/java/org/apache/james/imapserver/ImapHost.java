@@ -58,11 +58,11 @@
 
 package org.apache.james.imapserver;
 
-import java.util.Collection;
-
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.mailet.User;
+
+import java.util.Collection;
 
 /**
  * A host machine that has an IMAP4rev1 messaging server. There should be one
@@ -77,7 +77,7 @@ import org.apache.mailet.User;
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Darrell DeBoer <darrell@apache.org>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface ImapHost
 {

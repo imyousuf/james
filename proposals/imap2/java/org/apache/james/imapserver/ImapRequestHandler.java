@@ -58,9 +58,9 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.commands.ImapCommandFactory;
 import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.commands.ImapCommand;
+import org.apache.james.imapserver.commands.ImapCommandFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,7 +69,7 @@ import java.io.OutputStream;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public final class ImapRequestHandler
 {

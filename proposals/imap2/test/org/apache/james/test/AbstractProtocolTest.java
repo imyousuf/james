@@ -58,9 +58,11 @@
 
 package org.apache.james.test;
 
+import junit.framework.TestCase;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.ImapHost;
 import org.apache.james.imapserver.ImapRequestHandler;
+import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionImpl;
 import org.apache.james.imapserver.ImapTest;
@@ -72,18 +74,12 @@ import org.apache.james.userrepository.DefaultUser;
 import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
 
-import junit.framework.TestCase;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -203,7 +199,7 @@ public abstract class AbstractProtocolTest
      * Instead of sending requests to a socket connected to a running instance of James,
      * this method uses the {@link MockImapServer} to simplify testing. One mock instance
      * is required per protocol session/connection. These share the same underlying 
-     * Mailboxes, because of the way {@link #getImapSession()} works.
+     * Mailboxes, because of the way {@link MockImapServer#getImapSession()} works.
      */
     private void runLocalProtocolSessions() throws Exception
     {
@@ -212,7 +208,7 @@ public abstract class AbstractProtocolTest
         BufferedReader[] in = new BufferedReader[socket.length];
 
         for (int i = 0; i < socket.length; i++) {
-            socket[i] = new MockImapServer(getImapSession());
+            socket[i] = new MockImapServer();
             out[i] = socket[i].getWriter();
             in[i] = socket[i].getReader();
             socket[i].start();
@@ -253,16 +249,6 @@ public abstract class AbstractProtocolTest
             socket[i].stopServer();
         }
 
-    }
-
-    /**
-     * Provides an ImapSession to use for this test. An ImapSession is accosiated
-     * with a single client connection.
-     */
-    private ImapSession getImapSession() throws MailboxException
-    {
-        ImapSession session = new ImapSessionImpl( imapHost, users, new ImapHandler(), null, null );
-        return session;
     }
 
     /**
@@ -333,8 +319,8 @@ public abstract class AbstractProtocolTest
         /**
          * Creates a MockImapServer, with a handler for the session provided.
          */ 
-        public MockImapServer(ImapSession session) throws IOException {
-            this.session = session;
+        public MockImapServer() throws IOException {
+            this.session = getImapSession();
             requestOutputStream = new PipedOutputStream();
             requestInputStream = new PipedInputStream(requestOutputStream);
 
@@ -364,7 +350,6 @@ public abstract class AbstractProtocolTest
                     break;
                 }
             }
-
         }
 
         /** 
@@ -384,6 +369,23 @@ public abstract class AbstractProtocolTest
         /** stop the running server thread.*/
         public void stopServer() {
             running = false;
+        }
+
+        /**
+         * Provides an ImapSession to use for this test. An ImapSession is accosiated
+         * with a single client connection.
+         */
+        private ImapSession getImapSession()
+        {
+            ImapSession session = new ImapSessionImpl( imapHost, users, new MockImapHandler(), null, null );
+            return session;
+        }
+
+        private final class MockImapHandler extends ImapHandler {
+            public void forceConnectionClose(String message) {
+                ImapResponse response = new ImapResponse(responseOutputStream);
+                response.byeResponse(message);        
+            }
         }
     }
 }

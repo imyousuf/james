@@ -1,22 +1,5 @@
 Simple tests:
-1 Send FETCH response when another session performs a STORE against a message
-    (concurrent/FetchResponse.test)
-2 Send EXISTS and RECENT responses when a message is added
-    (concurrent/ExistsResponse.test) - still need RECENT
-3 Expunge response when another session performs a EXPUNGE against the mailbox
-
 FETCH should set the /SEEN flag, and this should be propogated to other sessions.
-
-
-From RFC2180
-3. Deletion/Renaming of a multi-accessed mailbox
-### Need to pick one of these 3...
-3.1. The server MAY fail the DELETE/RENAME command of a multi-accessed
-     mailbox
-
-3.3. The server MAY allow the DELETE/RENAME of a multi-accessed
-     mailbox, but disconnect all other clients who have the mailbox
-     accessed by sending a untagged BYE response.
 
 3.4. The server MAY allow the RENAME of a multi-accessed mailbox by
      simply changing the name attribute on the mailbox.

@@ -1,4 +1,4 @@
-# Tests that appending a message from one session triggers an EXISTS response
+# Tests that appending a message from one session triggers an EXISTS and RECENT response
 # in a concurrent session on the same mailbox
 SESSION: 1
 C: 1a CREATE existsresponse
@@ -66,7 +66,7 @@ S: 2b OK NOOP completed
 C: 2c CLOSE
 S: 2c OK CLOSE completed
 
-# EXISTS response on STORE
+# EXISTS response on STORE (recent is no longer set)
 SESSION: 3
 C: 3b STORE 1 +FLAGS.SILENT (\Flagged)
 S: \* 1 EXISTS
