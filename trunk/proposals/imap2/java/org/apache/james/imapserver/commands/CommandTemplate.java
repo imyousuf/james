@@ -24,7 +24,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
@@ -122,6 +122,17 @@ abstract class CommandTemplate
             throws MailboxException
     {
         return session.getHost().getMailbox( session.getUser(), mailboxName, mustExist );
+    }
+
+    protected ImapMailbox getMailbox( String mailboxName,
+                                      ImapSession session )
+    {
+        try {
+            return session.getHost().getMailbox( session.getUser(), mailboxName, false );
+        }
+        catch ( MailboxException e ) {
+            throw new RuntimeException( "Unexpected error in CommandTemplate.java" );
+        }
     }
 
     public CommandParser getParser()

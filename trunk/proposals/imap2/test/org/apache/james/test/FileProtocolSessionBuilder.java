@@ -18,12 +18,12 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class FileProtocolSessionBuilder
 {
-    private static final String CLIENT_TAG = "C: ";
-    private static final String SERVER_TAG = "S: ";
+    private static final String CLIENT_TAG = "C:";
+    private static final String SERVER_TAG = "S:";
     private static final String OPEN_UNORDERED_BLOCK_TAG = "SUB {";
     private static final String CLOSE_UNORDERED_BLOCK_TAG = "}";
     private static final String COMMENT_TAG = "#";
@@ -77,11 +77,17 @@ public class FileProtocolSessionBuilder
         while ( ( next = reader.readLine() ) != null ) {
             String location = fileName + ":" + lineNumber;
             if ( next.startsWith( CLIENT_TAG ) ) {
-                String clientMsg = next.substring( 3 );
+                String clientMsg = "";
+                if ( next.length() > 3 ) {
+                    clientMsg = next.substring( 3 );
+                }
                 session.CL( clientMsg );
             }
             else if ( next.startsWith( SERVER_TAG ) ) {
-                String serverMsg = next.substring( 3 );
+                String serverMsg = "";
+                if ( serverMsg.length() > 3 ) {
+                    serverMsg = next.substring( 3 );
+                }
                 session.SL( serverMsg, location );
             }
             else if ( next.startsWith( OPEN_UNORDERED_BLOCK_TAG ) ) {

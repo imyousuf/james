@@ -64,6 +64,8 @@ public class TestAuthenticated
         suite.addTest( new TestAuthenticated( "Subscribe" ) );
         suite.addTest( new TestAuthenticated( "Subscribe2" ) );
 
+        suite.addTest( new TestAuthenticated( "Append" ) );
+
         // Run delete last, because many of the tests depend on created mailboxes.
         suite.addTest( new TestAuthenticated( "Delete" ) );
 

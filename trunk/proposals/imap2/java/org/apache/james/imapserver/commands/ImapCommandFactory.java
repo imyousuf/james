@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ImapCommandFactory
         extends AbstractLogEnabled
@@ -54,7 +54,7 @@ public class ImapCommandFactory
         _imapCommands.put( ListCommand.NAME, ListCommand.class );
         _imapCommands.put( LsubCommand.NAME, LsubCommand.class );
         _imapCommands.put( StatusCommand.NAME, StatusCommand.class );
-//        _imapCommands.put( "APPEND", AppendCommand.class );
+        _imapCommands.put( AppendCommand.NAME, AppendCommand.class );
         
 //        // RFC2342 NAMESPACE
 //        _imapCommands.put( "NAMESPACE", NamespaceCommand.class );

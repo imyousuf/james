@@ -1,0 +1,12 @@
+C: A003 APPEND INBOX {309}
+C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
+C: From: Fred Foobar <foobar@Blurdybloop.COM>
+C: Subject: afternoon meeting
+C: To: mooch@owatagu.siam.edu
+C: Message-Id: <B27397-0100000@Blurdybloop.COM>
+C: MIME-Version: 1.0
+C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+C:
+C: Hello Joe, do you think we can meet at 3:30 tomorrow?
+C:
+S: A003 OK APPEND completed
