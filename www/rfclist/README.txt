@@ -33,12 +33,15 @@ RFC 2086: IMAP4 ACL extension
 RFC 2087: IMAP4 QUOTA extension
 RFC 2088: IMAP4 non-synchronizing literals
 RFC 2177: IMAP4 IDLE command
+RFC 2180: IMAP4 Multi-accessed Mailbox Practice
 RFC 2192: IMAP URL Scheme
 RFC 2193: IMAP4 Mailbox Referrals
 RFC 2195: IMAP/POP AUTHorize Extension for Simple Challenge/Response
 RFC 2221: IMAP4 Login Referrals
 RFC 2342: IMAP4 Namespace (elective)
 RFC 2359: IMAP4 UIDPLUS extension (elective)
+RFC 2595: Using TLS with IMAP, POP and ACAP
+RFC 2683: IMAP4 Implementation Recommendations
 
 NNTP
 ----
