@@ -14,6 +14,7 @@
 <section name="Version 2.1">
 <p>Expected release December 2002</p>
 <ul>
+<li>(AK) (doc) Added LDAP RFCs.</li>
 <li>(PG) (code) Fixed platform-specific performance issue with the POP3 server delivery.</li>
 <li>(PG) (code) Fixed bug where RemoteDelivery did not iterate through all MX records on connect failure.</li>
 <li>(PG) (update) Updated James to use the Avalon Framework version 4.1.3.</li>
