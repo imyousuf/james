@@ -1,11 +1,34 @@
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included  with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+/**
+ * MimeMessageInputStreamSource.java
+ *
+ *
+ * Created:
+ *
+ * @author
+ * @version
+ *
+ * Modified by <a href="mailto:okidz@pindad.com">Oki DZ</a>
+ * Thu Oct  4 15:15:27 WIT 2001
+ *
+ */
 public class MimeMessageInputStreamSource extends MimeMessageSource {
 
     String key = null;
@@ -27,7 +50,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
         if (file == null) {
             return in;
         } else {
-            return new FileInputStream(file);
+            return new BufferedInputStream(new FileInputStream(file));
         }
 	}
 
@@ -38,7 +61,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
         if (file == null) {
             //Create a temp file and channel the input stream into it
             file = File.createTempFile(key, ".m64");
-            FileOutputStream fout = new FileOutputStream(file);
+            OutputStream fout = new BufferedOutputStream(new FileOutputStream(file));
             int b = -1;
             while ((b = in.read()) != -1) {
                 fout.write(b);
@@ -48,5 +71,15 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
             file.deleteOnExit();
         }
         return file.length();
+    }
+
+    public void finalize() {
+        try {
+            if (file != null && file.exists()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            //ignore
+        }
     }
 }
