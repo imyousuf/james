@@ -19,6 +19,8 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.util.XMLResources;
+
+import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.*;
@@ -38,7 +40,7 @@ import java.io.IOException;
  * <br />
  * <br />
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.3 $ $Date$
  * @since 2.2.0
  * @see XMLResources
  */
@@ -104,28 +106,39 @@ public class CommandListservFooter extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         try {
             MimeMessage message = mail.getMessage();
-
-            //I want to modify the right message body
-            if (message.isMimeType("text/plain")) {
-                //This is a straight text message... just append the single part normally
-                addToText(message);
-            } else if (message.isMimeType("multipart/mixed")) {
-                //Find the first body part, and determine what to do then.
-                MimeMultipart multipart = (MimeMultipart) message.getContent();
-                MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(0);
-                attachFooter(part);
-                //We have to do this because of a bug in JavaMail (ref id 4404733)
-                message.setContent(multipart);
-            } else {
-                //Find the HTML and text message types and add to each
-                MimeMultipart multipart = (MimeMultipart) message.getContent();
-                int count = multipart.getCount();
-                for (int index = 0; index < count; index++) {
-                    MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(index);
-                    attachFooter(part);
+//            log("Trying to add footer to mail " + ((MailImpl)mail).getName());
+            if (attachFooter(message)) {
+                message.saveChanges();
+//                log("Message after saving: " + message.getContent().toString());
+                /*
+                java.io.ByteArrayOutputStream bodyOs = new java.io.ByteArrayOutputStream(512);
+                java.io.OutputStream bos;
+                java.io.InputStream bis;
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                    log("Using getRawInputStream()");
+                } catch(javax.mail.MessagingException me) {
+                    bos = javax.mail.internet.MimeUtility.encode(bodyOs, message.getEncoding());
+                    bis = message.getInputStream();
+                    log("Using getInputStream()");
                 }
-                //We have to do this because of a bug in JavaMail (ref id 4404733)
-                message.setContent(multipart);
+
+                try {
+                    byte[] block = new byte[1024];
+                    int read = 0;
+                    while ((read = bis.read(block)) > -1) {
+                        bos.write(block, 0, read);
+                    }
+                    bos.flush();
+                }
+                finally {
+                    org.apache.avalon.excalibur.io.IOUtil.shutdownStream(bis);             
+                }
+                log("Message from stream: " + bodyOs.toString());
+                */
+            } else {
+                log("Unable to add footer to mail " + ((MailImpl)mail).getName());
             }
         } catch (IOException ioe) {
             throw new MessagingException("Could not read message", ioe);
@@ -173,10 +186,15 @@ public class CommandListservFooter extends GenericMailet {
      * @throws java.io.IOException
      */
     protected void addToHTML(MimePart part) throws MessagingException, IOException {
+//        log("Trying to add footer to " + part.getContent().toString());
         String content = part.getContent().toString();
-        StringSubstitution stringSubstitution = new StringSubstitution("<br />" + getFooterHTML() + "</body</html>");
+        /* This HTML part may have a closing <BODY> tag.  If so, we
+         * want to insert out footer immediately prior to that tag.
+         */
+        StringSubstitution stringSubstitution = new StringSubstitution("<br />" + getFooterHTML() + "</body></html>");
         String result = Util.substitute(new Perl5Matcher(), insertPattern, stringSubstitution, content, 1);
         part.setContent(result, part.getContentType());
+//        log("After adding footer: " + part.getContent().toString());
     }
 
     /**
@@ -188,12 +206,14 @@ public class CommandListservFooter extends GenericMailet {
      * @throws IOException
      */
     protected void addToText(MimePart part) throws MessagingException, IOException {
+//        log("Trying to add footer to " + part.getContent().toString());
         String content = part.getContent().toString();
         if (!content.endsWith("\n")) {
             content += "\r\n";
         }
         content += getFooterText();
         part.setText(content);
+//        log("After adding footer: " + part.getContent().toString());
     }
 
     /**
@@ -204,21 +224,38 @@ public class CommandListservFooter extends GenericMailet {
      * @throws MessagingException
      * @throws IOException
      */
-    protected void attachFooter(MimePart part) throws MessagingException, IOException {
+    protected boolean attachFooter(MimePart part) throws MessagingException, IOException {
+//        log("Content type is " + part.getContentType());
         if (part.isMimeType("text/plain")) {
             addToText(part);
+            return true;
         } else if (part.isMimeType("text/html")) {
             addToHTML(part);
-        } else if (part.getContent() instanceof MimeMultipart) {
-            MimeMultipart multipart = (MimeMultipart) part.getContent();
-            int count = multipart.getCount();
-            for (int index = 0; index < count; index++) {
-                MimeBodyPart mimeBodyPart = (MimeBodyPart) multipart.getBodyPart(index);
-                attachFooter(mimeBodyPart);
-            }
+            return true;
+        } else if (part.isMimeType("multipart/mixed")) {
+            //Find the first body part, and determine what to do then.
+            MimeMultipart multipart = (MimeMultipart)part.getContent();
+            MimeBodyPart firstPart = (MimeBodyPart)multipart.getBodyPart(0);
+            boolean isFooterAttached = attachFooter(firstPart);
+            //We have to do this because of a bug in JavaMail (ref id 4404733)
             part.setContent(multipart);
+            return isFooterAttached;
+        } else if (part.isMimeType("multipart/alternative")) {
+            MimeMultipart multipart = (MimeMultipart)part.getContent();
+            int count = multipart.getCount();
+//            log("number of alternatives = " + count);
+            boolean isFooterAttached = false;
+            for (int index = 0; index < count; index++) {
+//                log("processing alternative #" + index);
+                MimeBodyPart mimeBodyPart = (MimeBodyPart)multipart.getBodyPart(index);
+                isFooterAttached |= attachFooter(mimeBodyPart);
+            }
+            //We have to do this because of a bug in JavaMail (ref id 4404733)
+            part.setContent(multipart);
+            return isFooterAttached;
         } else {
-            //System.err.println(part.getContentType());
+            //Give up... we won't attach the footer to this MimePart
+            return false;
         }
     }
 
