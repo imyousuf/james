@@ -167,7 +167,7 @@ public class DNSServer
                 }
             }
         }
-        else if (cached.isNXDOMAIN()) {
+        else if (cached.isNXDOMAIN() || cached.isNXRRSET()) {
             return null;
         }
         else if (querysent) {
