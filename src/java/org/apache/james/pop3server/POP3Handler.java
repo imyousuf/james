@@ -25,6 +25,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.SchedulerNotifyOutputStream;
 import org.apache.mailet.Mail;
@@ -389,9 +390,10 @@ public class POP3Handler
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                 if (mc != DELETED) {
                     out.println(OK_RESPONSE + " Message follows");
-                    SchedulerNotifyOutputStream nouts =
+                    OutputStream nouts =
+                            new ExtraDotOutputStream(
                             new SchedulerNotifyOutputStream(outs, scheduler,
-                            this.toString(), lengthReset);
+                            this.toString(), lengthReset));
                     mc.writeMessageTo(nouts);
                     out.println();
                     out.println(".");
@@ -429,7 +431,11 @@ public class POP3Handler
                         out.println(e.nextElement());
                     }
                     out.println("");
-                    mc.writeContentTo(outs, lines);
+                    OutputStream nouts =
+                            new ExtraDotOutputStream(
+                            new SchedulerNotifyOutputStream(outs, scheduler,
+                            this.toString(), lengthReset));
+                    mc.writeContentTo(nouts, lines);
                     out.println(".");
                 } else {
                     out.println(ERR_RESPONSE + " Message (" + num + ") already deleted.");
