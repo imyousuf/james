@@ -364,7 +364,6 @@ public class MimeMessageWrapper
                 bos = MimeUtility.encode(bodyOs, message.getEncoding());
                 bis = message.getInputStream();
             } catch(javax.activation.UnsupportedDataTypeException udte) {
-
                 /* If we get an UnsupportedDataTypeException try using
                  * the raw input stream as a "best attempt" at rendering
                  * a message.
@@ -388,8 +387,26 @@ public class MimeMessageWrapper
                 try {
                     bis = message.getRawInputStream();
                     bos = bodyOs;
-                } catch(javax.mail.MessagingException me) {
+                } catch(javax.mail.MessagingException _) {
                     throw udte;
+                }
+            }
+            catch(javax.mail.MessagingException me) {
+                /* This could be another kind of MessagingException
+                 * thrown by MimeMessage.getInputStream(), such as a
+                 * javax.mail.internet.ParseException.
+                 *
+                 * The ParseException is precisely one of the reasons
+                 * why the getRawInputStream() method exists, so that we
+                 * can continue to stream the content, even if we cannot
+                 * handle it.  Again, if we get an exception, we throw
+                 * the one that caused us to call getRawInputStream().
+                 */
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException _) {
+                    throw me;
                 }
             }
 
