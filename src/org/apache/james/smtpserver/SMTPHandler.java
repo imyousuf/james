@@ -85,13 +85,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             in = new BufferedReader(new InputStreamReader(socketIn));
             out = new PrintWriter(socket.getOutputStream(), true);
     
-/*            remoteHost = socket.getInetAddress ().getHostName ();
-            remoteIP = socket.getInetAddress ().getHostAddress ();*/
+            remoteHost = socket.getInetAddress ().getHostName ();
+            remoteIP = socket.getInetAddress ().getHostAddress ();
             state.clear();
             state.put(SERVER_NAME, this.servername );
             state.put(SERVER_TYPE, this.softwaretype );
-            remoteHost = "maggie";
-            remoteIP = "192.168.1.3";
             state.put(REMOTE_NAME, remoteHost);
             state.put(REMOTE_IP, remoteIP);
         } catch (Exception e) {
@@ -240,19 +238,13 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 return true;
             } else {
                 out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
-                    // parse headers
-                PushbackInputStream pbis = new PushbackInputStream(socketIn, 2048);
-                MailHeaders headers = new MailHeaders(pbis);
-                    // add if necessary Message-Id
-                if (!headers.isSet("Message-ID") && !headers.isSet("Message-Id")) {
-                    headers.addHeader("Message-Id", new String(new Date().getTime() + "." + count++ + "@" + servername));
+                try {
+                    mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), new CharTerminatedInputStream(socketIn, SMTPTerminator));
+                } catch (MessagingException me) {
+                    out.println("451 Error processing message: " + me.getMessage());
+                    logger.log("Error processing message: " + me.getMessage(), "SMTPServer", logger.ERROR);
+                    return true;
                 }
-                    // add Received header
-                headers.addHeader("Received", " from " + state.get(NAME_GIVEN) + " (" + state.get(REMOTE_NAME) + " [" + state.get(REMOTE_IP) + "]) by " + state.get(SERVER_NAME) + " with " + state.get(SERVER_TYPE));
-                    // push back in InputStream new headers
-                pbis.unread(headers.toByteArray());
-                    // call MailServer to send this stream
-                mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), new CharTerminatedInputStream(pbis, SMTPTerminator));
                 logger.log("Mail sent to Mail Server", "SMTPServer", logger.INFO);
                 resetState();
                 out.println("250 Message received");

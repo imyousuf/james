@@ -27,4 +27,6 @@ public class Constants extends JamesConstants {
     public static final String INBOX_ROOT = "INBOX_ROOT";
     
     public static final String POSTMASTER = "POSTMASTER";
+    
+    public static final int HEADERLIMIT = 2048;
 }

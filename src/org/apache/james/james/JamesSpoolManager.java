@@ -118,7 +118,16 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                             break;
                         }
                         GenericMailServlet servlet = (GenericMailServlet) servlets.elementAt(i);
-                        Mail response = servlet.service(next);
+			Mail response = null;
+			try {
+                            response = servlet.service(next);
+			} catch (Exception ex) {
+                ex.printStackTrace();
+			    response = next;
+			    response.setState(Mail.ERROR);
+			    response.setErrorMessage("Exception during mail servlet service: " + ex.getMessage());
+                            logger.log("Exception during mail servlet service: " + ex.getMessage(), "JAMES", logger.ERROR);
+			}
                         if (response == null) {
                             unprocessed.setElementAt(null, i + 1);
                         } else if (response.getState() == Mail.ERROR) {
@@ -128,7 +137,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                                 logger.log("Exception trying to store Mail " + response + " in error repository... deleting it", "JAMES", logger.ERROR);
                             }
                             unprocessed.setElementAt(null, i + 1);
-                        } else if (response.getRecipients().isEmpty()) {
+                        } else if (isEmpty(response)) {
                             unprocessed.setElementAt(null, i + 1);
                         } else {
                             unprocessed.setElementAt(response, i + 1);
