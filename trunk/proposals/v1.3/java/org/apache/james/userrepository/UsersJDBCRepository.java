@@ -84,10 +84,10 @@ public class UsersJDBCRepository extends AbstractUsersRepository
         // Load the driver.
 
         String driverName = configuration.getChild("destination").getChild("driver").getAttribute("class");
-	getLogger().debug("Loading driver :" + driverName);
+        getLogger().debug("Loading driver :" + driverName);
         try {
             Class.forName(driverName);
-	    getLogger().info("Database driver " + driverName + " loaded");
+            getLogger().info("Database driver " + driverName + " loaded");
         } 
         catch ( ClassNotFoundException cnfe ) {
             throw new ConfigurationException("Could not load specified driver - " + driverName);
@@ -137,7 +137,7 @@ public class UsersJDBCRepository extends AbstractUsersRepository
                 PreparedStatement createStatement = conn.prepareStatement(m_createUserTableSql);
                 createStatement.execute();
                 createStatement.close();
-		getLogger().info("Created \'JamesUsers\' table.");
+                getLogger().info("Created \'JamesUsers\' table.");
                 System.out.println("UsersStore - UsersJDBCRepository : Created \'JamesUsers\' table.");
             }
         }
@@ -209,13 +209,13 @@ public class UsersJDBCRepository extends AbstractUsersRepository
         String username = user.getUserName();
         String pwdHash = user.getHashedPassword();
         String pwdAlgorithm = user.getHashAlgorithm();
-        boolean useForwarding = user.getForwarding();
+        int useForwarding = user.getForwarding() ? 1 : 0;
         MailAddress forwardAddress = user.getForwardingDestination();
         String forwardDestination = null;
         if ( forwardAddress != null ) {
             forwardDestination = forwardAddress.toString();
         }
-        boolean useAlias = user.getAliasing();
+        int useAlias = user.getAliasing() ? 1 : 0;
         String alias = user.getAlias();
 
         Connection conn = getConnection();
@@ -227,9 +227,9 @@ public class UsersJDBCRepository extends AbstractUsersRepository
             addUserStatement.setString(1, username);
             addUserStatement.setString(2, pwdHash);
             addUserStatement.setString(3, pwdAlgorithm);
-            addUserStatement.setBoolean(4, useForwarding);
+            addUserStatement.setInt(4, useForwarding);
             addUserStatement.setString(5, forwardDestination);
-            addUserStatement.setBoolean(6, useAlias);
+            addUserStatement.setInt(6, useAlias);
             addUserStatement.setString(7, alias);
 
             addUserStatement.execute();
@@ -342,13 +342,13 @@ public class UsersJDBCRepository extends AbstractUsersRepository
         String username = user.getUserName();
         String pwdHash = user.getHashedPassword();
         String pwdAlgorithm = user.getHashAlgorithm();
-        boolean useForwarding = user.getForwarding();
+        int useForwarding = user.getForwarding() ? 1 : 0;
         MailAddress forwardAddress = user.getForwardingDestination();
         String forwardDestination = null;
         if ( forwardAddress != null ) {
             forwardDestination = forwardAddress.toString();
         }
-        boolean useAlias = user.getAliasing();
+        int useAlias = user.getAliasing() ? 1 : 0;
         String alias = user.getAlias();
 
         Connection conn = getConnection();
@@ -359,9 +359,9 @@ public class UsersJDBCRepository extends AbstractUsersRepository
             
             updateUserStatement.setString(1, pwdHash);
             updateUserStatement.setString(2, pwdAlgorithm);
-            updateUserStatement.setBoolean(3, useForwarding);
+            updateUserStatement.setInt(3, useForwarding);
             updateUserStatement.setString(4, forwardDestination);
-            updateUserStatement.setBoolean(5, useAlias);
+            updateUserStatement.setInt(5, useAlias);
             updateUserStatement.setString(6, alias);
             updateUserStatement.setString(7, username);
 
