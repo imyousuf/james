@@ -162,8 +162,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * <P>CVS $Id: AbstractRedirect.java,v 1.9 2003/06/19 16:10:33 vincenzo Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.10 $ $Date: 2003/06/19 16:29:08 $
  * @since 2.2.0
  */
 

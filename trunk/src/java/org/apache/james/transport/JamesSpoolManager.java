@@ -89,8 +89,7 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * <P>CVS $Id: JamesSpoolManager.java,v 1.35 2003/06/19 16:17:48 vincenzo Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.36 $ $Date: 2003/06/19 16:27:33 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
