@@ -111,42 +111,6 @@
     <jar jarfile="${build.lib}/${name}-${package-version}.jar"
          basedir="${build.classes}" includes="org/apache/james/**" >
 
-      <!--
-      <manifest>
-
-        <attribute name="Extension-Name" value="${extension.name}"/>
-        <attribute name="Specification-Vendor" value="${vendor}"/>
-        <attribute name="Specification-Version" value="${version}"/>
-        <attribute name="Implementation-Vendor" value="${vendor}"/>
-        <attribute name="Implementation-Version" value="${package-version}"/>
-
-        <attribute name="Extension-List" value="framework thread connection datasources store"/>
-
-        <attribute name="framework-Extension-Name" value="${avalon-framework.extension.name}"/>
-        <attribute name="framework-Specification-Version" value="${avalon-framework.extension.version}"/>
-        <attribute name="framework-Implementation-Version" value="${avalon-framework.extension.implementation}"/>
-
-        <attribute name="thread-Extension-Name" value="${cornerstone-threads.ext.name}"/>
-        <attribute name="thread-Specification-Version" value="${cornerstone-threads.ext.version}"/>
-
-        <attribute name="connection-Extension-Name" value="${cornerstone-connection.ext.name}"/>
-        <attribute name="connection-Specification-Version" value="${cornerstone-connection.ext.version}"/>
-
-        <attribute name="datasources-Extension-Name" value="${cornerstone-datasources.ext.name}"/>
-        <attribute name="datasources-Specification-Version" value="${cornerstone-datasources.ext.version}"/>
-
-        <attribute name="store-Extension-Name" value="${cornerstone-store.ext.name}"/>
-        <attribute name="store-Specification-Version" value="${cornerstone-store.ext.version}"/>
-
-        <attribute name="scheduler-Extension-Name" value="${cornerstone-scheduler.ext.name}"/>
-        <attribute name="scheduler-Specification-Version" value="${cornerstone-scheduler.ext.version}"/>
-
-        <attribute name="sockets-Extension-Name" value="${cornerstone-sockets.ext.name}"/>
-        <attribute name="sockets-Specification-Version" value="${cornerstone-sockets.ext.version}"/>
-
-      </manifest>
-      -->
-
       <fileset dir="${java.dir}">
          <include name="**/*.mxinfo"/>
          <include name="**/*.xinfo"/>
@@ -166,6 +130,9 @@
 
     <mkdir dir="${build.lib}"/>
 
+    <echo>I'm broken - cannot generate the sar file just yet.</echo>
+
+    <!--
     <jar jarfile="${build.lib}/james-new.sar"
        compress="${build.compress}"
        manifest="${src.dir}/Manifest.mf">
@@ -213,6 +180,7 @@
         <include name="mailet.jar"/>
       </zipfileset>
     </jar>
+    -->
 
   </target>
 
