@@ -14,7 +14,6 @@ import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.cornerstone.services.connection.AbstractService;
 import org.apache.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.cornerstone.services.connection.DefaultHandlerFactory;
-import org.apache.phoenix.Block;
 
 /**
  *
