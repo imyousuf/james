@@ -12,13 +12,14 @@
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 <section name="Version 2.0a2">
-<p>Released 1 November 2001</p>
+<p>Released 1 December 2001</p>
 <ul>
 <li>(DA) (update) Fixed POP3 message size bug that prevented retrieval</li>
 <li>(SK) (docs) Small updates to documentation</li>
 <li>(SK) (code) Added JDBCListserv, straight JDBC implementation of old TownListserv that extends GenericListserv</li>
 <li>(SK) (update) Patched bug in GenericListserv for when subject was null</li>
 <li>(SK) (update) Got mailets/matchers to load from something besides james.bar</li>
+<li>(SK) (code) Added scheduler notification during SMTP DATA reception and POP3 RETR sending so the connection handler doesn't time out connection while data is being transfered.</li>
 </ul>
 </section>
 
