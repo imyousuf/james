@@ -35,5 +35,5 @@
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.threads.ThreadManager" version="1.0"/>
     </dependency>
-  </dependencies>  
+  </dependencies>
 </blockinfo>

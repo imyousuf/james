@@ -27,7 +27,6 @@ import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -139,10 +138,7 @@ public class POP3Server extends AbstractJamesService implements Component {
             ((Initializable)theHandlerPool).initialize();
         }
 
-        theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
-        if (theWatchdogFactory instanceof LogEnabled) {
-            ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
-        }
+        theWatchdogFactory = getWatchdogFactory();
     }
 
     /**

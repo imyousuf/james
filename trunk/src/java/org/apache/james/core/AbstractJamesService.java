@@ -26,6 +26,9 @@ import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 
 import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogFactory;
 
 /**
  * Server which creates connection handlers. All new James servers must
@@ -364,6 +367,23 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     
         getLogger().debug(getServiceType() + " ...dispose end");
     }
+
+    /**
+     * This constructs the WatchdogFactory that will be used to guard
+     * against runaway or stuck behavior.  Should only be called once
+     * by a subclass in its initialize() method.
+     *
+     * @return the WatchdogFactory to be employed by subclasses.
+     */
+    protected WatchdogFactory getWatchdogFactory() {
+        WatchdogFactory theWatchdogFactory = null;
+        theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
+        if (theWatchdogFactory instanceof LogEnabled) {
+            ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
+        }
+        return theWatchdogFactory;
+     }
+
 
     /**
      * Describes whether this service is enabled by configuration.
