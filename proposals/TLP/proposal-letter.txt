@@ -109,7 +109,7 @@ FetchPOP, and other feature enhancements since then.
 ----------------------------------------------------------------------
 	Future:
 ----------------------------------------------------------------------
-Our vision of the future for James contains three main foci,
+Our vision of the future for James contains four main foci,
 
 1/ To continually improve the performance and functionality of the
 core messaging services. Currently focusing on making IMAP stable and
@@ -125,6 +125,10 @@ feedback from Mailet API users and Mailet developers.
 3/ To build on James' Mailet packages in order to provide more, and
 more sophisticated, behaviors which would be available to any
 application implementing the Mailet API. 
+
+4/ Provide a common repository abstraction to all of James' protocol
+servers (SMTP, POP3, NNTP and IMAP) and support standard repository
+data formats like maildir and mbox to ease migration to James.
 
 These plans include:
 - Providing functionality capable of reproducing services provided by
