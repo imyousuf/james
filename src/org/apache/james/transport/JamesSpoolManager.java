@@ -188,13 +188,13 @@ public class JamesSpoolManager
                 //This is a strange error situation that shouldn't ordinarily happen
                 System.err.println("Exception in processor <" + processorName + ">");
                 e.printStackTrace();
-                if (processorName.equals("Mail.ERROR")) {
+                if (processorName.equals(Mail.ERROR)) {
                     //We got an error on the error processor... kill the message
                     mail.setState(Mail.GHOST);
                     mail.setErrorMessage(e.getMessage());
                 } else {
                     //We got an error... send it to the error processor
-                    mail.setState("Mail.ERROR");
+                    mail.setState(Mail.ERROR);
                     mail.setErrorMessage(e.getMessage());
                 }
             }
