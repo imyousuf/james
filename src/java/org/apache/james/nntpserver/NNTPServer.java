@@ -64,25 +64,18 @@ import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
-
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.UsersRepository;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * NNTP Server
@@ -135,7 +128,7 @@ public class NNTPServer extends AbstractJamesService {
         UsersStore usersStore = (UsersStore)componentManager.lookup(UsersStore.ROLE);
         userRepository = usersStore.getRepository("LocalUsers");
         if (userRepository == null) {
-            throw new ServiceException("The user repository could not be found.");
+            throw new ServiceException("","The user repository could not be found.");
         }
 
         repo = (NNTPRepository)componentManager

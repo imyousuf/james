@@ -91,7 +91,7 @@ import org.apache.mailet.MailAddress;
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.7 2003/04/28 12:03:26 danny Exp $
+ * $Id: FetchMail.java,v 1.8 2003/04/28 13:02:29 danny Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {
@@ -385,7 +385,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             StringBuffer errorBuffer =
                     new StringBuffer(128).append("Component ").append(MailServer.ROLE).append(
                             "does not implement the required interface.");
-            throw new ServiceException(errorBuffer.toString());
+            throw new ServiceException("",errorBuffer.toString());
         }
     }
 

@@ -304,7 +304,7 @@ public class POP3Handler
                         .append(" ")
                         .append(theConfigData.getHelloName())
                         .append(" POP3 server (")
-                        .append(this.softwaretype)
+                        .append(POP3Handler.softwaretype)
                         .append(") ready ");
             out.println(responseBuffer.toString());
 

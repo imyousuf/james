@@ -58,9 +58,9 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.mailet.RFC2822Headers;
 import javax.mail.MessagingException;
+
+import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * Initializes RegexMatcher with regular expressions from a file.

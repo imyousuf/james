@@ -144,7 +144,7 @@ public class UsersLDAPRepository
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager compMgr) {
-        this.comp = comp;
+        this.comp = compMgr;
     }
 
     /**
@@ -647,7 +647,10 @@ public class UsersLDAPRepository
         return found;
     }
 
-
+    /**
+     * @deprecated
+     * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.Object)
+     */
     public boolean test(String name, Object attributes) {
         boolean result = false;
         boolean foundFlag = false;

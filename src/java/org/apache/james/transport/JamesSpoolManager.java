@@ -59,24 +59,23 @@
 package org.apache.james.transport;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import javax.mail.MessagingException;
+
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.activity.Executable;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailImpl;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -91,7 +90,7 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.30 $
+ * @version This is $Revision: 1.31 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

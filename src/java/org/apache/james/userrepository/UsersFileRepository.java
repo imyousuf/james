@@ -85,7 +85,7 @@ import java.util.Iterator;
  * Requires a logger called UsersRepository.
  *
  *
- * @version CVS $Revision: 1.17 $
+ * @version CVS $Revision: 1.18 $
  *
  */
 public class UsersFileRepository
@@ -120,7 +120,7 @@ public class UsersFileRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
-            throw new ServiceException ( message, e );
+            throw new ServiceException ("", message, e );
         }
     }
 
@@ -279,6 +279,10 @@ public class UsersFileRepository
         return false;
     }
 
+    /**
+     * @deprecated
+     * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.Object)
+     */
     public boolean test(String name, Object attributes) {
         try {
             return attributes.equals(or.get(name));
