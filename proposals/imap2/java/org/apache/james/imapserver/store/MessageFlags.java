@@ -20,15 +20,22 @@ package org.apache.james.imapserver.store;
 public class MessageFlags
 {
 
-    public static final int ANSWERED = 0;
-    public static final int DELETED = 1;
-    public static final int DRAFT = 2;
-    public static final int FLAGGED = 3;
-    public static final int RECENT = 4;
-    public static final int SEEN = 5;
+    public static final int ANSWERED_INDEX = 0;
+    public static final int DELETED_INDEX = 1;
+    public static final int DRAFT_INDEX = 2;
+    public static final int FLAGGED_INDEX = 3;
+    public static final int RECENT_INDEX = 4;
+    public static final int SEEN_INDEX = 5;
 
     // Array does not include seen flag
     private boolean[] flags = new boolean[6];
+
+
+    public static final String ANSWERED = "\\ANSWERED";
+    public static final String DELETED = "\\DELETED";
+    public static final String DRAFT = "\\DRAFT";
+    public static final String FLAGGED = "\\FLAGGED";
+    public static final String SEEN = "\\SEEN";
 
     public MessageFlags()
     {
@@ -47,22 +54,22 @@ public class MessageFlags
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "(" );
-        if ( flags[ANSWERED] ) {
+        if ( flags[ANSWERED_INDEX] ) {
             buf.append( "\\Answered " );
         }
-        if ( flags[DELETED] ) {
+        if ( flags[DELETED_INDEX] ) {
             buf.append( "\\Deleted " );
         }
-        if ( flags[DRAFT] ) {
+        if ( flags[DRAFT_INDEX] ) {
             buf.append( "\\Draft " );
         }
-        if ( flags[FLAGGED] ) {
+        if ( flags[FLAGGED_INDEX] ) {
             buf.append( "\\Flagged " );
         }
-        if ( flags[RECENT] ) {
+        if ( flags[RECENT_INDEX] ) {
             buf.append( "\\Recent " );
         }
-        if ( flags[SEEN] ) {
+        if ( flags[SEEN_INDEX] ) {
             buf.append( "\\Seen " );
         }
         // Remove the trailing space, if necessary.
@@ -110,89 +117,124 @@ public class MessageFlags
             return false;
         }
 
-        if ( flagString.indexOf( "\\ANSWERED" ) != -1 ) {
-            flags[ANSWERED] = modValue;
+        if ( flagString.indexOf( ANSWERED ) != -1 ) {
+            flags[ANSWERED_INDEX] = modValue;
         }
-        if ( flagString.indexOf( "\\DELETED" ) != -1 ) {
-            flags[DELETED] = modValue;
+        if ( flagString.indexOf( DELETED ) != -1 ) {
+            flags[DELETED_INDEX] = modValue;
         }
-        if ( flagString.indexOf( "\\DRAFT" ) != -1 ) {
-            flags[DRAFT] = modValue;
+        if ( flagString.indexOf( DRAFT ) != -1 ) {
+            flags[DRAFT_INDEX] = modValue;
         }
-        if ( flagString.indexOf( "\\FLAGGED" ) != -1 ) {
-            flags[FLAGGED] = modValue;
+        if ( flagString.indexOf( FLAGGED ) != -1 ) {
+            flags[FLAGGED_INDEX] = modValue;
         }
-        if ( flagString.indexOf( "\\SEEN" ) != -1 ) {
-            flags[SEEN] = modValue;
+        if ( flagString.indexOf( SEEN ) != -1 ) {
+            flags[SEEN_INDEX] = modValue;
         }
         return true;
     }
 
     public void setAnswered( boolean newState )
     {
-        flags[ANSWERED] = newState;
+        flags[ANSWERED_INDEX] = newState;
     }
 
     public boolean isAnswered()
     {
-        return flags[ANSWERED];
+        return flags[ANSWERED_INDEX];
     }
 
     public void setDeleted( boolean newState )
     {
-        flags[DELETED] = newState;
+        flags[DELETED_INDEX] = newState;
     }
 
     public boolean isDeleted()
     {
-        return flags[DELETED];
+        return flags[DELETED_INDEX];
     }
 
     public void setDraft( boolean newState )
     {
-        flags[DRAFT] = newState;
+        flags[DRAFT_INDEX] = newState;
     }
 
     public boolean isDraft()
     {
-        return flags[DRAFT];
+        return flags[DRAFT_INDEX];
     }
 
     public void setFlagged( boolean newState )
     {
-        flags[FLAGGED] = newState;
+        flags[FLAGGED_INDEX] = newState;
     }
 
     public boolean isFlagged()
     {
-        return flags[FLAGGED];
+        return flags[FLAGGED_INDEX];
     }
 
     public void setRecent( boolean newState )
     {
-        flags[RECENT] = newState;
+        flags[RECENT_INDEX] = newState;
     }
 
     public boolean isRecent()
     {
-        return flags[RECENT];
+        return flags[RECENT_INDEX];
     }
 
     public void setSeen( boolean newState )
     {
-        flags[SEEN] = newState;
+        flags[SEEN_INDEX] = newState;
     }
 
     public boolean isSeen()
     {
-        return flags[SEEN];
+        return flags[SEEN_INDEX];
     }
 
     public void setAll( boolean newState )
     {
-        for ( int i = ANSWERED; i <= SEEN; i++ )
+        for ( int i = ANSWERED_INDEX; i <= SEEN_INDEX; i++ )
         {
             flags[i] = newState;
+        }
+    }
+
+    public void setAll( MessageFlags newFlags ) {
+        setAnswered( newFlags.isAnswered() );
+        setDeleted( newFlags.isDeleted() );
+        setDraft( newFlags.isDraft() );
+        setFlagged( newFlags.isFlagged() );
+        setSeen( newFlags.isSeen() );
+    }
+
+    public void addAll( MessageFlags toAdd ) {
+        setFlagState( toAdd, true );
+    }
+
+    public void removeAll (MessageFlags toRemove) {
+        setFlagState( toRemove, false );
+    }
+
+    private void setFlagState( MessageFlags changes, boolean setState )
+    {
+        if ( changes.isAnswered() ) {
+            setAnswered( setState );
+        }
+        if ( changes.isDeleted() ) {
+            setDeleted( setState );
+        }
+        if ( changes.isDraft() ) {
+            setDraft( setState );
+        }
+        if ( changes.isFlagged() ) {
+            setFlagged( setState );
+        }
+        if ( changes.isSeen() ) {
+            setSeen( setState );
         }
     }
 }

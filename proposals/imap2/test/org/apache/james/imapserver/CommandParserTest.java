@@ -14,19 +14,29 @@ import junit.framework.TestCase;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 /**
  * Tests for the {@link ImapRequestLineReader}.
  * TODO: atom, literal, other (not yet implemented) arguments
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class CommandParserTest
         extends TestCase
 {
     private CommandParser parser = new CommandParser();
-    private StringWriter writer = new StringWriter();
+    private ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     public CommandParserTest( String s )
     {
@@ -99,16 +109,16 @@ public class CommandParserTest
     public void testLiteral() throws Exception
     {
         // Synchronized literal.
-        String test = "{24+}\nA \tsynchronized \nliteral {26}\nAn \tunsynchronized\nliteral";
+        String test = "{24+}\r\nA \tsynchronized \nliteral {27}\r\nThe \tunsynchronized\nliteral";
         ImapRequestLineReader request = getRequest(test );
 
         assertEquals( "A \tsynchronized \nliteral", parser.astring( request ) );
         // Make sure we didn't get a command continuation response
-        assertEquals( "", writer.getBuffer().toString() );
+        assertEquals( "", getServerResponse() );
 
-        assertEquals( "An \tunsynchronized\nliteral", parser.astring( request ) );
+        assertEquals( "The \tunsynchronized\nliteral", parser.astring( request ) );
         // Make sure we got a command continuation response
-        assertEquals( "+\n", writer.getBuffer().toString() );
+        assertEquals( "+\r\n", getServerResponse() );
 
     }
 
@@ -118,7 +128,7 @@ public class CommandParserTest
      */
     public void testAstring() throws Exception
     {
-        String testRequest = "atom at.om \"quoted\" \"\" {6+}\n\"here\"";
+        String testRequest = "atom at.om \"quoted\" \"\" {6+}\r\n\"here\"";
         ImapRequestLineReader request = getRequest( testRequest );
 
         assertEquals( "atom", parser.astring( request ) );
@@ -144,17 +154,42 @@ public class CommandParserTest
     }
 
     /**
-     * Builds and ImapRequestLineReader with the specified string, using {@link #writer}
+     * Tests for reading "date-time" arguments.
+     * TODO this test fails, as timezones aren't handled properly - need to investigate.
+     */
+    public void xtestDateTime() throws Exception
+    {
+        String testRequest = "\"20-Mar-1971 00:23:02 +0000\"";
+        ImapRequestLineReader request = getRequest( testRequest );
+
+        SimpleDateFormat formatter
+            = new SimpleDateFormat ("yyyyMMdd hh:mm:ss");
+        formatter.setTimeZone( TimeZone.getTimeZone( "UTC" ));
+        String actual = formatter.format( parser.dateTime( request ) );
+        assertEquals( "19710320 00:23:02", actual );
+    }
+
+    /**
+     * Builds and ImapRequestLineReader with the specified string, using {@link #output}
      * as the server writer for command continuation requests
      * @param testRequest A string containing client requests.
      * @return An initialised ImapRequestLineReader
      */
-    private ImapRequestLineReader getRequest( String testRequest )
+    private ImapRequestLineReader getRequest( String testRequest ) throws Exception
     {
-        BufferedReader reader = new BufferedReader( new StringReader( testRequest ) );
+        InputStream input = new ByteArrayInputStream( testRequest.getBytes( "US-ASCII" ) );
         // Clear the writer.
-        writer.getBuffer().setLength(0);
-        ImapRequestLineReader request = new ImapRequestLineReader( reader, writer );
+        output.reset();
+        ImapRequestLineReader request = new ImapRequestLineReader( input, output );
         return request;
     }
+
+    private String getServerResponse() throws UnsupportedEncodingException
+    {
+        byte[] bytesOut = output.toByteArray();
+        output.reset();
+        return new String( bytesOut, "US-ASCII" );
+    }
+
+
 }

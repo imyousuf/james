@@ -19,9 +19,9 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
-class UnsubscribeCommand extends CommandTemplate
+class UnsubscribeCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "UNSUBSCRIBE";
     public static final String ARGS = "<mailbox>";

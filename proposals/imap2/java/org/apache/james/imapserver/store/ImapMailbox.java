@@ -11,6 +11,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.core.MailImpl;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.search.SearchTerm;
 import java.util.Date;
 import java.util.Collection;
 
@@ -23,7 +24,7 @@ import java.util.Collection;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface ImapMailbox
 {
@@ -41,7 +42,7 @@ public interface ImapMailbox
 
     int getFirstUnseen();
 
-    int getIndex( int uid );
+    int getMsn( long uid ) throws MailboxException;
 
     boolean isSelectable();
 
@@ -49,15 +50,15 @@ public interface ImapMailbox
 
     int getUnseenCount();
 
-    ImapMessage createMessage( MimeMessage message, MessageFlags flags, Date internalDate );
+    SimpleImapMessage createMessage( MimeMessage message, MessageFlags flags, Date internalDate );
 
-    void storeMessage( ImapMessage message );
+    void updateMessage( SimpleImapMessage message ) throws MailboxException;
 
     void store( MailImpl mail) throws Exception;
 
-    ImapMessage getMessage( long uid );
+    SimpleImapMessage getMessage( long uid );
 
-    Collection getMessages();
+    long[] getMessageUids();
 
-
+    void deleteMessage( long uid );
 }

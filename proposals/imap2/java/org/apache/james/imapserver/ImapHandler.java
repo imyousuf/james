@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.io.Reader;
+import java.io.InputStream;
 import java.net.Socket;
 
 /**
@@ -77,6 +78,11 @@ public class ImapHandler
      * The reader associated with incoming characters.
      */
     private BufferedReader in;
+
+    /**
+     * The socket's input stream.
+     */
+    private InputStream ins;
 
     /**
      * The writer to which outgoing messages are written.
@@ -175,6 +181,7 @@ public class ImapHandler
             synchronized ( this ) {
                 handlerThread = Thread.currentThread();
             }
+            ins = socket.getInputStream();
             in = new BufferedReader( new InputStreamReader( socket.getInputStream(), "ASCII" ), 512 );
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
@@ -208,7 +215,7 @@ public class ImapHandler
         try {
             outs = new BufferedOutputStream( socket.getOutputStream(), 1024 );
             out = new InternetPrintWriter( outs, true );
-            ImapResponse untaggedResponse = new ImapResponse( out );
+            ImapResponse response = new ImapResponse( outs );
 
             // Write welcome message
             StringBuffer responseBuffer =
@@ -217,7 +224,7 @@ public class ImapHandler
                     .append( " Server " )
                     .append( theConfigData.getHelloName() )
                     .append( " ready" );
-            untaggedResponse.okResponse( null, responseBuffer.toString() );
+            response.okResponse( null, responseBuffer.toString() );
 
             session = new ImapSessionImpl( theConfigData.getImapHost(),
                                            theConfigData.getUsersRepository(),
@@ -226,7 +233,7 @@ public class ImapHandler
                                            socket.getInetAddress().getHostAddress());
 
             theWatchdog.start();
-            while ( requestHandler.handleRequest( in, out, session ) ) {
+            while ( requestHandler.handleRequest( ins, outs, session ) ) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();

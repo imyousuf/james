@@ -19,9 +19,11 @@ import java.util.List;
 /**
  * A protocol session which can be run against a reader and writer, which checks
  * the server response against the expected values.
+ * TODO make ProtocolSession itself be a permissible ProtocolElement,
+ * so that we can nest and reuse sessions.
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ProtocolSession
 {
@@ -134,9 +136,10 @@ public class ProtocolSession
          */
         public void testProtocol( PrintWriter out, BufferedReader in )
         {
-            out.print( message );
+            out.write( message );
             out.write( '\r' );
             out.write( '\n' );
+            out.flush();
         }
     }
 

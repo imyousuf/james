@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class FileProtocolSessionBuilder
 {
@@ -85,7 +85,7 @@ public class FileProtocolSessionBuilder
             }
             else if ( next.startsWith( SERVER_TAG ) ) {
                 String serverMsg = "";
-                if ( serverMsg.length() > 3 ) {
+                if ( next.length() > 3 ) {
                     serverMsg = next.substring( 3 );
                 }
                 session.SL( serverMsg, location );

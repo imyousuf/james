@@ -8,28 +8,34 @@
 package org.apache.james.imapserver.store;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.imapserver.store.ImapStore;
 import org.apache.james.imapserver.ImapConstants;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogKitLogger;
+import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.log.Logger;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.search.SearchTerm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.StringTokenizer;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
  * and development. Note: this implementation does not persist *anything* to disk.
- * 
+ *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
-public class InMemoryStore implements ImapStore, ImapConstants
+public class InMemoryStore
+        extends AbstractLogEnabled
+        implements ImapStore, ImapConstants
 {
     private RootMailbox rootMailbox = new RootMailbox();
     private static MessageFlags mailboxFlags = new MessageFlags();
@@ -133,18 +139,22 @@ public class InMemoryStore implements ImapStore, ImapConstants
             String matchPattern = searchPattern.substring( lastDot + 1, searchPattern.length() - 1 );
 
             HierarchicalMailbox parent = ( HierarchicalMailbox ) getMailbox( parentName );
+            // If the parent from the search pattern doesn't exist,
+            // return empty.
+            if ( parent != null ) {
+                Iterator children = parent.getChildren().iterator();
+                while ( children.hasNext() ) {
+                    HierarchicalMailbox child = ( HierarchicalMailbox ) children.next();
+                    if ( child.getName().startsWith( matchPattern ) ) {
+                        mailboxes.add( child );
 
-            Iterator children = parent.getChildren().iterator();
-            while ( children.hasNext() ) {
-                HierarchicalMailbox child = ( HierarchicalMailbox ) children.next();
-                if ( child.getName().startsWith( matchPattern ) ) {
-                    mailboxes.add( child );
-
-                    if ( starIndex != -1 ) {
-                        addAllChildren( child, mailboxes );
+                        if ( starIndex != -1 ) {
+                            addAllChildren( child, mailboxes );
+                        }
                     }
                 }
             }
+
         }
         else {
             ImapMailbox mailbox = getMailbox( searchPattern );
@@ -188,8 +198,8 @@ public class InMemoryStore implements ImapStore, ImapConstants
         protected String name;
         private boolean isSelectable = false;
 
-        private Map mailMessages = new HashMap();
-        private long nextUid = 1;
+        private Map mailMessages = new TreeMap();
+        private long nextUid = 10;
         private long uidValidity;
 
         public HierarchicalMailbox( HierarchicalMailbox parent,
@@ -248,11 +258,6 @@ public class InMemoryStore implements ImapStore, ImapConstants
             return mailMessages.size();
         }
 
-        public int getRecentCount()
-        {
-            return 0;
-        }
-
         public long getUidValidity()
         {
             return uidValidity;
@@ -273,9 +278,22 @@ public class InMemoryStore implements ImapStore, ImapConstants
             return 0;
         }
 
-        public int getIndex( int uid )
+        public int getRecentCount()
         {
             return 0;
+        }
+
+        public int getMsn( long uid ) throws MailboxException
+        {
+            Collection keys = mailMessages.keySet();
+            Iterator iterator = keys.iterator();
+            for ( int msn = 1; iterator.hasNext(); msn++ ) {
+                Long messageUid = ( Long ) iterator.next();
+                if ( messageUid.longValue() == uid ) {
+                    return msn;
+                }
+            }
+            throw new MailboxException( "No such message." );
         }
 
         public boolean isSelectable()
@@ -288,23 +306,29 @@ public class InMemoryStore implements ImapStore, ImapConstants
             isSelectable = selectable;
         }
 
-        public ImapMessage createMessage( MimeMessage message,
+        public SimpleImapMessage createMessage( MimeMessage message,
                                           MessageFlags flags,
                                           Date internalDate )
         {
             long uid = nextUid;
-            nextUid++;
+            nextUid+=10;
 
-            ImapMessage imapMessage = new ImapMessage( message, flags,
+            SimpleImapMessage imapMessage = new SimpleImapMessage( message, flags,
                                                        internalDate, uid );
+            setupLogger( imapMessage );
 
             mailMessages.put( new Long( uid ), imapMessage );
             return imapMessage;
         }
 
-        public void storeMessage( ImapMessage message )
+        public void updateMessage( SimpleImapMessage message )
+                throws MailboxException
         {
+
             Long key = new Long( message.getUid() );
+            if ( ! mailMessages.containsKey( key ) ) {
+                throw new MailboxException( "Message doesn't exist" );
+            }
             mailMessages.put( key, message );
         }
 
@@ -317,14 +341,27 @@ public class InMemoryStore implements ImapStore, ImapConstants
             createMessage( message, flags, internalDate );
         }
 
-        public ImapMessage getMessage( long uid )
+        public SimpleImapMessage getMessage( long uid )
         {
-            return (ImapMessage)mailMessages.get( new Long(uid ) );
+            return (SimpleImapMessage)mailMessages.get( new Long(uid ) );
         }
 
-        public Collection getMessages()
+        public long[] getMessageUids()
         {
-            return Collections.unmodifiableCollection( mailMessages.values() );
+            long[] uids = new long[ mailMessages.size() ];
+            Collection keys = mailMessages.keySet();
+            Iterator iterator = keys.iterator();
+            for ( int i = 0; iterator.hasNext(); i++ ) {
+                Long key = ( Long ) iterator.next();
+                uids[i] = key.longValue();
+            }
+            return uids;
         }
+
+        public void deleteMessage( long uid )
+        {
+            mailMessages.remove( new Long( uid ) );
+        }
+
     }
 }

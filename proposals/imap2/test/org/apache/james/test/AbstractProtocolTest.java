@@ -1,11 +1,11 @@
 package org.apache.james.test;
 
-import org.apache.james.imapserver.ImapTest;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.ImapHost;
 import org.apache.james.imapserver.ImapRequestHandler;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionImpl;
+import org.apache.james.imapserver.ImapTest;
 import org.apache.james.imapserver.JamesImapHost;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.User;
@@ -16,9 +16,10 @@ import org.apache.james.userrepository.DefaultUser;
 import junit.framework.TestCase;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PipedReader;
-import java.io.PipedWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -53,13 +54,19 @@ public abstract class AbstractProtocolTest
     protected int timeout = TIMEOUT;
 
     /** A UsersRepository which all tests share. */
-    private static UsersRepository users;
+    private UsersRepository users;
     /** An ImapHost instance which all tests share. */
-    private static ImapHost imapHost;
+    private ImapHost imapHost;
 
     public AbstractProtocolTest( String s )
     {
         super( s );
+    }
+
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        setUpEnvironment();
     }
 
     /**
@@ -110,36 +117,34 @@ public abstract class AbstractProtocolTest
      * This does not require that James be running, and is useful for rapid development and
      * debugging.
      *
-     * Instead of sending requests to a socket, requests are written to a PipedWriter,
-     * which then provides a Reader which can be given to the ImapRequestHandler.
-     * Likewise, server responses are writter to a PipedWriter, and the associate reader
+     * Instead of sending requests to a socket, requests are written to a CharArrayWriter,
+     * which then constructs a Reader which can be given to the ImapRequestHandler.
+     * Likewise, server responses are written to a CHarArrayWriter, and the associate reader
      * is parsed to ensure that the responses match those expected.
      */
     private void runLocalProtocolSessions() throws Exception
     {
-        // Read the client requests into a piped reader.
-        PipedReader clientPipeReader = new PipedReader();
-        PipedWriter clientPipeWriter = new PipedWriter( clientPipeReader );
-        PrintWriter clientOut = new PrintWriter( clientPipeWriter );
+        ByteArrayOutputStream clientRequestCollector = new ByteArrayOutputStream();
+        PrintWriter clientOut = new PrintWriter( clientRequestCollector );
         preElements.writeClient( clientOut );
         testElements.writeClient( clientOut );
         postElements.writeClient( clientOut );
 
-        clientPipeWriter.close();
+        InputStream clientIn = new ByteArrayInputStream( clientRequestCollector.toByteArray() );
+        clientRequestCollector.close();
 
-        BufferedReader clientIn = new BufferedReader( clientPipeReader );
-
-        PipedReader serverPipeReader = new PipedReader();
-        PipedWriter serverPipeWriter = new PipedWriter( serverPipeReader );
-        PrintWriter serverOut = new PrintWriter( serverPipeWriter );
-
-        serverOut.println( "* OK IMAP4rev1 Server XXX ready" );
+        ByteArrayOutputStream serverResponseCollector = new ByteArrayOutputStream();
+        serverResponseCollector.write( "* OK IMAP4rev1 Server XXX ready".getBytes() );
+        serverResponseCollector.write( '\r' );
+        serverResponseCollector.write( '\n' );
 
         ImapSession session = getImapSession();
         ImapRequestHandler requestHandler = new ImapRequestHandler();
-        while( requestHandler.handleRequest( clientIn, serverOut, session ) ) {};
+        while( requestHandler.handleRequest( clientIn, serverResponseCollector, session ) ) {};
 
-        BufferedReader serverIn = new BufferedReader( serverPipeReader );
+        InputStream serverInstream = new ByteArrayInputStream( serverResponseCollector.toByteArray() );
+        BufferedReader serverIn = new BufferedReader( new InputStreamReader( serverInstream ) );
+
         try {
             preElements.testResponse(  serverIn );
             testElements.testResponse(  serverIn );
@@ -156,7 +161,6 @@ public abstract class AbstractProtocolTest
      */
     private ImapSession getImapSession() throws MailboxException
     {
-        setUpEnvironment();
         ImapSession session = new ImapSessionImpl( imapHost, users, new ImapHandler(), null, null );
         return session;
     }

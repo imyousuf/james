@@ -112,32 +112,11 @@ Legal:
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
-
-        <!-- Load custom tasks -->
-        <!--
-            <taskdef classname="org.apache.james.test.JamesTask" name="james">
-                <classpath>
-                    <path location="${build.dir}/lib/james.bar"/>
-                    <path location="${build.test.classes}"/>
-                    <fileset dir="${lib.dir}">
-                        <include name="*.jar"/>
-                        <include name="logkit-1.0.jar"/>
-                        <include name="avalon-scratchpad-20011122.jar"/>
-                        <include name="avalon-excalibur-20011120.jar"/>
-                        <include name="avalon-framework-20011115.jar"/>
-                        <include name="phoenix-engine-20011230.jar"/>
-                        <include name="phoenix-client-20011230.jar"/>
-                    </fileset>
-                </classpath>
-            </taskdef>
-        -->
-
     </target>
 
-    <!-- Run the full set of Imap tests -->
-    <target name="testimap" depends="unit-tests, protocol-tests"/>
-
-    <target name="unit-tests" depends="compile">
+    <!-- Run the full set of Imap tests against local components -->
+    <target name="unit-tests" depends="compile"
+            description="Run the full set of IMAP tests against local components.">
         <junit fork="yes">
             <classpath>
                 <pathelement location="${build.test.classes}"/>
@@ -145,16 +124,21 @@ Legal:
             </classpath>
             <sysproperty key="runTestsLocal" value="true"/>
             <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.imapserver.ImapHostTest"/>
             <test name="org.apache.james.imapserver.CommandParserTest"/>
+            <test name="org.apache.james.imapserver.ImapHostTest"/>
             <test name="org.apache.james.imapserver.ImapStoreTest"/>
-            <test name="org.apache.james.imapserver.TestNonAuthenticated"/>
-            <test name="org.apache.james.imapserver.TestAuthenticated"/>
+            <test name="org.apache.james.imapserver.ImapMailboxTest"/>
+            <test name="org.apache.james.imapserver.TestCommandsInNonAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestCommandsInAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestCompound"/>
         </junit>
     </target>
 
     <!-- Executes tests against a running instance of James -->
-    <target name="protocol-tests" depends="testimap-init, testimap-nonauthenticated, testimap-authenticated"/>
+    <target name="protocol-tests" depends="testimap-init, testimap-commands"
+            description="Run the full set of IMAP protocol tests against a running instance of James. Note: James must be started manually."/>
 
     <!-- Initialises the IMAP server for running tests.
          Namely, creates the "imapuser" user, and sends 4 test messages to that user
@@ -169,12 +153,12 @@ Legal:
             <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.remotemanager.InitialImapUsersTest"/>
-            <test name="org.apache.james.imapserver.InitialMail"/>
+<!--            <test name="org.apache.james.imapserver.InitialMail"/>-->
         </junit>
     </target>
 
-    <!-- Tests IMAP commands valid in the NonAuthenticated state -->
-    <target name="testimap-nonauthenticated" depends="compile">
+    <!-- Tests IMAP commands against a running instance of James -->
+    <target name="testimap-commands" depends="compile">
         <junit fork="yes">
             <classpath>
                 <pathelement location="${build.test.classes}"/>
@@ -182,78 +166,12 @@ Legal:
             </classpath>
             <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.imapserver.TestNonAuthenticated"/>
+            <test name="org.apache.james.imapserver.TestCommandsInNonAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestCommandsInAuthenticatedState"/>
+            <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
+            <test name="org.apache.james.imapserver.TestCompound"/>
         </junit>
     </target>
-
-    <!-- Tests IMAP commands valid in the Authenticated state -->
-    <target name="testimap-authenticated" depends="compile">
-        <junit fork="yes">
-            <classpath>
-                <pathelement location="${build.test.classes}"/>
-                <path refid="test.class.path"/>
-            </classpath>
-            <sysproperty key="runTestsLocal" value="false"/>
-            <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.imapserver.TestAuthenticated"/>
-        </junit>
-    </target>
-
-    <!-- Tests IMAP commands valid in the selected state -->
-    <target name="testimap-selected" depends="compile">
-        <junit fork="yes">
-            <classpath>
-                <pathelement location="${build.test.classes}"/>
-                <path refid="test.class.path"/>
-            </classpath>
-            <sysproperty key="runTestsLocal" value="false"/>
-            <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.imapserver.TestSelected"/>
-        </junit>
-    </target>
-
-    <target name="test-remote-manager" depends="compile">
-        <junit fork="yes">
-            <classpath>
-                <pathelement location="${build.test.classes}"/>
-                <path refid="test.class.path"/>
-            </classpath>
-            <sysproperty key="runTestsLocall" value="false"/>
-            <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.remotemanager.TestRemoteManager"/>
-        </junit>
-    </target>
-
-
-    <!-- The following tasks attempt to use ANT to start/stop James. They don't really work at the moment. -->
-    <target name="test-james" depends="clean-james, start-james, testimap, stop-james"/>
-
-    <target name="start-james" depends="compile">
-        <james action="start"/>
-    </target>
-
-    <target name="stop-james" depends="compile">
-        <james action="stop"/>
-    </target>
-
-    <target name="start-stop" depends="compile">
-        <james action="start-stop">
-            <classpath>
-                <path location="${build.dir}/lib/james.bar"/>
-                <path location="${build.test.classes}"/>
-                <fileset dir="${lib.dir}">
-                    <include name="*.bar"/>
-                    <include name="*.jar"/>
-                    <include name="logkit-1.0.jar"/>
-                    <include name="avalon-scratchpad-20011122.jar"/>
-                    <include name="avalon-excalibur-20011120.jar"/>
-                    <include name="avalon-framework-20011115.jar"/>
-                    <include name="phoenix-engine-20011230.jar"/>
-                    <include name="phoenix-client-20011230.jar"/>
-                </fileset>
-            </classpath>
-        </james>
-    </target>
-
 </project>
 

@@ -12,7 +12,7 @@ import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
-import org.apache.james.imapserver.store.ImapMessage;
+import org.apache.james.imapserver.store.SimpleImapMessage;
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.core.MailImpl;
@@ -31,7 +31,7 @@ import java.net.InetAddress;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ImapMailboxTest extends TestCase
         implements ImapConstants
@@ -62,7 +62,7 @@ public class ImapMailboxTest extends TestCase
         "\r\n";
         long uid = appendMessage( message, flags, datetime, mailbox );
 
-        ImapMessage imapMessage = mailbox.getMessage( uid );
+        SimpleImapMessage imapMessage = mailbox.getMessage( uid );
 
         assertEquals( 1, mailbox.getMessageCount() );
         assertTrue( imapMessage.getFlags().isFlagged() );
@@ -83,7 +83,7 @@ public class ImapMailboxTest extends TestCase
                 new MimeMessageByteArraySource( "messageContent:" + System.currentTimeMillis(),
                                                 messageContent.getBytes());
         MimeMessage message = new MimeMessageWrapper( source );
-        ImapMessage imapMessage = mailbox.createMessage( message, flags, datetime );
+        SimpleImapMessage imapMessage = mailbox.createMessage( message, flags, datetime );
         return imapMessage.getUid();
     }
 

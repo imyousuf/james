@@ -19,7 +19,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class SelectCommand extends AuthenticatedStateCommand
 {
@@ -53,7 +53,7 @@ class SelectCommand extends AuthenticatedStateCommand
 
         int firstUnseen = mailbox.getFirstUnseen();
         if ( firstUnseen != 0 ) {
-            int msnUnseen = mailbox.getIndex( firstUnseen );
+            int msnUnseen = mailbox.getMsn( firstUnseen );
             response.okResponse( "UNSEEN " + msnUnseen,
                                  "Message " + msnUnseen + " is the first unseen" );
         }

@@ -1,3 +1,13 @@
+# Create a few folders
+C: 10 CREATE test
+S: 10 OK CREATE completed
+C: 11 CREATE test.subfolder
+S: 11 OK CREATE completed
+C: 12 CREATE test1
+S: 12 OK CREATE completed
+C: 13 CREATE test1.subfolder1
+S: 13 OK CREATE completed
+
 # Delete subfolder, then folder
 C: 10 DELETE test.subfolder
 S: 10 OK DELETE completed

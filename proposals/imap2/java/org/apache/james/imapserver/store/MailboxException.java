@@ -37,6 +37,8 @@ public class MailboxException extends Exception
     protected String status = null;
     protected String remoteServer = null;
 
+    private String responseCode = null;
+
     /**
      * Construct a new <code>MailboxException</code> instance.
      *
@@ -64,7 +66,7 @@ public class MailboxException extends Exception
      *
      * @param message The detail message for this exception (mandatory).
      * @param aStatus String constant indicating condition
-     * @param sServer String indicating another server where Mailbox should be.
+     * @param aServer String indicating another server where Mailbox should be.
      */
     public MailboxException( String message, String aStatus, String aServer )
     {
@@ -87,5 +89,15 @@ public class MailboxException extends Exception
     {
         return ( status.equals( ALREADY_EXISTS_REMOTELY )
                 || status.equals( IF_CREATED_REMOTE ) );
+    }
+
+    public String getResponseCode()
+    {
+        return responseCode;
+    }
+
+    public void setResponseCode( String responseCode )
+    {
+        this.responseCode = responseCode;
     }
 }

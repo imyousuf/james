@@ -7,7 +7,10 @@
  */
 package org.apache.james.imapserver.store;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 import javax.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
 import java.util.Date;
 
 /**
@@ -18,14 +21,16 @@ import java.util.Date;
  *
  * @version $Revision: 1.1 $
  */
-public class ImapMessage
+public class SimpleImapMessage
+        extends AbstractLogEnabled implements ImapMessage1
 {
     private MimeMessage mimeMessage;
     private MessageFlags flags;
     private Date internalDate;
     private long uid;
+    private SimpleMessageAttributes attributes;
 
-    ImapMessage( MimeMessage mimeMessage, MessageFlags flags,
+    SimpleImapMessage( MimeMessage mimeMessage, MessageFlags flags,
                  Date internalDate, long uid )
     {
         this.mimeMessage = mimeMessage;
@@ -48,5 +53,20 @@ public class ImapMessage
 
     public long getUid() {
         return uid;
+    }
+
+    public ImapMessageAttributes getAttributes() throws MailboxException
+    {
+        if ( attributes == null ) {
+            attributes = new SimpleMessageAttributes();
+            setupLogger( attributes );
+            try {
+                attributes.setAttributesFor( mimeMessage );
+            }
+            catch ( MessagingException e ) {
+                throw new MailboxException( "Could not parse mime message." );
+            }
+        }
+        return attributes;
     }
 }
