@@ -1,0 +1,38 @@
+dc=org
+objectClass=dcobject
+dc=org
+
+dc=apache, dc=org
+objectClass=dcobject
+dc=apache
+
+cn=mailserver.apache.org, dc=apache, dc=org
+objectClass=applicationProcess
+cn=mailserver.apache.org
+description=TestServerUsingJAMES
+
+dn: cn=King Arthur, dc=apache, dc=org
+objectClass: inetOrgPerson
+cn: King Arthur
+sn: Pendragon
+mail: Arthur@apache.org
+mail: TheKing@apache.org
+uid: Arthur@apache.org
+userPassword: king
+
+dn: cn=Morgan LeFay, dc=apache, dc=org
+objectClass: inetOrgPerson
+cn: Morgan LeFay
+sn: LeFay
+mail: Morgan.LeFay@apache.org
+uid: Morgan.LeFay@apache.org
+userPassword: sister
+
+cn=Sir Lancelot, dc=apache, dc=org
+objectClass=inetOrgPerson
+cn=Sir Lancelot
+sn=LoverOfGuinevere
+mail=Sir.Lancelot@apache.org
+uid=Lancelot.Loverboy@apache.org
+userPassword=knight
+
