@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2003-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -15,16 +15,6 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-/**
- * ReaderInputStream.java
- * 
- * Copyright (C) 24-Sep-2002 The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software License
- * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE file. 
- *
- */
 package org.apache.james.fetchmail;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +23,7 @@ import java.io.Reader;
  * 
  * Simple class to allow a cast from a java.io.Reader to a java.io.InputStream
  * 
- * $Id: ReaderInputStream.java,v 1.5 2004/01/30 02:22:08 noel Exp $
+ * $Id: ReaderInputStream.java,v 1.6 2004/02/11 18:02:06 sbrewin Exp $
  * 
  */
 public class ReaderInputStream extends InputStream {
