@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james;
+package org.apache.james.mailrepository;
 
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;

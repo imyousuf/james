@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james;
+package org.apache.james.mailrepository;
 
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
@@ -21,6 +21,7 @@ import com.workingdogs.town.*;
 
 /**
  * Implementation of a SpoolRepository on a database.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
@@ -38,9 +39,9 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
     private Lock lock;
 
     private String repositoryName;
-    private String conndefinition;
 
-    private String tableName = "Message";
+    private String conndefinition;
+    private String tableName;
 
     public TownSpoolRepository() {
     }
@@ -50,14 +51,10 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         this.model = model;
         this.type = type;
 
-        //need to parse the destination out to find the mail repository and
-        //  the database connection URL
+        //need to parse the destination out to find the mail repository name
         int slash = destination.indexOf("//");
         prefix = destination.substring(0, slash + 2);
-        String temp = destination.substring(slash + 2);
-        int at = temp.indexOf("@");
-        repositoryName = temp.substring(0, at);
-        conndefinition = temp.substring(at + 1);
+        repositoryName = destination.substring(slash + 2);
     }
 
     public void setComponentManager(ComponentManager comp) {
@@ -65,12 +62,8 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
     }
 
     public void setConfiguration(Configuration conf) {
-        System.err.println(conf);
-        try {
-            System.err.println(conf.getAttribute("conn"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        conndefinition = conf.getConfiguration("conn").getValue();
+        tableName = conf.getConfiguration("table").getValue();
     }
 
     public String getName() {
@@ -86,11 +79,10 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
     }
 
     public String getChildDestination(String childName) {
-        return prefix + repositoryName + "/" + childName + "@" + conndefinition;
+        return prefix + repositoryName + "/" + childName;
     }
 
     public synchronized void unlock(Object key) {
-
         if (lock.unlock(key)) {
             notifyAll();
         } else {
@@ -99,7 +91,6 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
     }
 
     public synchronized void lock(Object key) {
-
         if (lock.lock(key)) {
             notifyAll();
         } else {
@@ -107,14 +98,13 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         }
     }
 
-
     public synchronized void store(MailImpl mc) {
         try {
             //System.err.println("storing " + mc.getName());
             String key = mc.getName();
             mc.setLastUpdated(new Date());
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            messages.setWhere("message_name = '" + key + "'");
+            messages.setWhere("message_name = '" + key + "' and repository_name = '" + repositoryName + "'");
             Record mail = null;
             if (messages.size() == 0) {
                 //insert the message
@@ -141,7 +131,9 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             mail.setValue("last_updated", mc.getLastUpdated());
             MimeMessage messageBody = mc.getMessage();
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            messageBody.writeTo(bout);
+            if (messageBody != null) {
+                messageBody.writeTo(bout);
+            }
             mail.setValue("message_body", bout.toByteArray());
             mail.save();
             notifyAll();
@@ -201,22 +193,21 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
 
     public Enumeration list() {
         try {
-            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            messages.setColumns("message_name");
-            messages.setWhere("repository_name='" + repositoryName + "'");
-            messages.setOrder("last_updated");
+            QueryDataSet messages = new QueryDataSet(ConnDefinition.getInstance(conndefinition),
+                    "SELECT message_name FROM " + tableName + " WHERE repository_name = '" + repositoryName + "' "
+                    + "ORDER BY last_updated");
             Vector messageList = new Vector(messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 messageList.add(messages.getRecord(i).getAsString("message_name"));
             }
             return messageList.elements();
         } catch (Exception me) {
+            me.printStackTrace();
             throw new RuntimeException("Exception while listing mail: " + me.getMessage());
         }
     }
 
     public synchronized String accept() {
-
         while (true) {
             for(Enumeration e = list(); e.hasMoreElements(); ) {
                 Object o = e.nextElement();
@@ -271,5 +262,4 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             }
         }
     }
-
 }
