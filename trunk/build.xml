@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.110 $  Committed on $Date: 2002/09/26 00:39:23 $ by: $Author: pgoldstein $
+ James build file $Revision: 1.111 $  Committed on $Date: 2002/09/26 11:52:07 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -397,7 +397,7 @@ Legal:
         
         <!-- Make mailet.jar-->
         <jar jarfile="${build.lib}/mailet.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/>
-        <copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/>
+        <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
     </target>
     <!--
        ===================================================================
