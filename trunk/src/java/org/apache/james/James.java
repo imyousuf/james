@@ -53,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.27 $
- * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.28 $
+ * Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -63,6 +63,12 @@ public class James
                Initializable, MailServer, MailetContext, Component {
 
     private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
+
+    /**
+     * Whether 'deep debugging' is turned on.
+     *
+     * TODO: Shouldn't this be false by default?
+     */
     private final static boolean DEEP_DEBUG = true;
 
     private DefaultComponentManager compMgr; //Components shared
@@ -108,6 +114,7 @@ public class James
 
     /**
      * A hash table of server attributes
+     * These are the MailetContext attributes
      */
     private Hashtable attributes = new Hashtable();
 
@@ -129,16 +136,6 @@ public class James
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
-     */
-    public void configure(Configuration conf) {
-        this.conf = conf;
-    }
-
-    /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
      * The instance uses the specified <code>ComponentManager</code> to 
      * acquire the components it needs for execution.
@@ -150,6 +147,16 @@ public class James
     public void compose(ComponentManager comp) {
         compMgr = new DefaultComponentManager(comp);
         mailboxes = new HashMap(31);
+    }
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure(Configuration conf) {
+        this.conf = conf;
     }
 
     /**
@@ -197,7 +204,7 @@ public class James
         getLogger().info("Local host is: " + hostName);
 
         // Get the domains and hosts served by this instance
-        serverNames = new Vector();
+        serverNames = new HashSet();
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
             serverNames.add(hostName.toLowerCase(Locale.US));
@@ -206,7 +213,28 @@ public class James
         final Configuration[] serverNameConfs =
             conf.getChild( "servernames" ).getChildren( "servername" );
         for ( int i = 0; i < serverNameConfs.length; i++ ) {
-            serverNames.add( serverNameConfs[i].getValue());
+            serverNames.add( serverNameConfs[i].getValue().toLowerCase(Locale.US));
+
+            if (serverConf.getAttributeAsBoolean("autodetectIP", true)) {
+                try {
+                    /* This adds the IP address(es) for each host to support
+                     * support <user@address-literal> - RFC 2821, sec 4.1.3.
+                     * It might be proper to use the actual IP addresses
+                     * available on this server, but we can't do that
+                     * without NetworkInterface from JDK 1.4.  Because of
+                     * Virtual Hosting considerations, we may need to modify
+                     * this to keep hostname and IP associated, rather than
+                     * just both in the set.
+                     */
+                    InetAddress[] addrs = InetAddress.getAllByName(serverNameConfs[i].getValue());
+                    for (int j = 0; j < addrs.length ; j++) {
+                        serverNames.add(addrs[j].getHostAddress());
+                    }
+                }
+                catch(Exception genericException) {
+                    getLogger().error("Cannot get IP address(es) for " + serverNameConfs[i].getValue());
+                }
+            }
         }
         if (serverNames.isEmpty()) {
             throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
@@ -222,7 +250,22 @@ public class James
 
 
         // Get postmaster
-        String postMasterAddress = conf.getChild("postmaster").getValue("root@localhost");
+        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster");
+        // if there is no @domain part, then add the first one from the
+        // list of supported domains that isn't localhost.  If that
+        // doesn't work, use the hostname, even if it is localhost.
+        if (postMasterAddress.indexOf('@') < 0) {
+            String domainName = null;    // the domain to use
+            // loop through candidate domains until we find one or exhaust the list
+            for ( int i = 0; domainName == null && i < serverNameConfs.length ; i++ ) {
+                String serverName = serverNameConfs[i].getValue().toLowerCase(Locale.US);
+                if (!("localhost".equals(serverName))) {
+                    domainName = serverName;    // ok, not localhost, so use it
+                }
+            }
+            // if we found a suitable domain, use it.  Otherwise fallback to the host name.
+            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : hostName);
+        }
         this.postmaster = new MailAddress( postMasterAddress );
         context.put( Constants.POSTMASTER, postmaster );
 
@@ -457,6 +500,13 @@ public class James
 
     //Methods for MailetContext
 
+    /**
+     * <p>Get the prioritized list of mail servers for a given host.</p>
+     *
+     * <p>TODO: This needs to be made a more specific ordered subtype of Collection.</p>
+     *
+     * @param host 
+     */
     public Collection getMailServers(String host) {
         DNSServer dnsServer = null;
         try {
