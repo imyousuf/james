@@ -40,7 +40,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.16 $ $Date: 2004/03/15 03:54:18 $
+ * @version CVS $Revision: 1.35.4.17 $ $Date: 2004/03/22 05:48:38 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -729,6 +729,14 @@ public class SMTPHandler
     /**
      * Carries out the Plain AUTH SASL exchange.
      *
+     * According to RFC 2595 the client must send: [authorize-id] \0 authenticate-id \0 password.
+     * 
+     * >>> AUTH PLAIN dGVzdAB0ZXN0QHdpei5leGFtcGxlLmNvbQB0RXN0NDI=
+     * Decoded: test\000test@wiz.example.com\000tEst42
+     *
+     * >>> AUTH PLAIN dGVzdAB0ZXN0AHRFc3Q0Mg==
+     * Decoded: test\000test\000tEst42
+     *
      * @param initialResponse the initial response line passed in with the AUTH command
      */
     private void doPlainAuth(String initialResponse)
@@ -746,9 +754,46 @@ public class SMTPHandler
                 userpass = Base64.decodeAsString(userpass);
             }
             if (userpass != null) {
+                /*  See: RFC 2595, Section 6
+                    The mechanism consists of a single message from the client to the
+                    server.  The client sends the authorization identity (identity to
+                    login as), followed by a US-ASCII NUL character, followed by the
+                    authentication identity (identity whose password will be used),
+                    followed by a US-ASCII NUL character, followed by the clear-text
+                    password.  The client may leave the authorization identity empty to
+                    indicate that it is the same as the authentication identity.
+
+                    The server will verify the authentication identity and password with
+                    the system authentication database and verify that the authentication
+                    credentials permit the client to login as the authorization identity.
+                    If both steps succeed, the user is logged in.
+                */
                 StringTokenizer authTokenizer = new StringTokenizer(userpass, "\0");
-                user = authTokenizer.nextToken();
-                pass = authTokenizer.nextToken();
+                String authorize_id = authTokenizer.nextToken();  // Authorization Identity
+                user = authTokenizer.nextToken();                 // Authentication Identity
+                try {
+                    pass = authTokenizer.nextToken();             // Password
+                }
+                catch (java.util.NoSuchElementException _) {
+                    // If we got here, this is what happened.  RFC 2595
+                    // says that "the client may leave the authorization
+                    // identity empty to indicate that it is the same as
+                    // the authentication identity."  As noted above,
+                    // that would be represented as a decoded string of
+                    // the form: "\0authenticate-id\0password".  The
+                    // first call to nextToken will skip the empty
+                    // authorize-id, and give us the authenticate-id,
+                    // which we would store as the authorize-id.  The
+                    // second call will give us the password, which we
+                    // think is the authenticate-id (user).  Then when
+                    // we ask for the password, there are no more
+                    // elements, leading to the exception we just
+                    // caught.  So we need to move the user to the
+                    // password, and the authorize_id to the user.
+                    pass = user;
+                    user = authorize_id;
+                }
+
                 authTokenizer = null;
             }
         }
