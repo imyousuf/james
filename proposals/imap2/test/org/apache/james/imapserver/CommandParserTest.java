@@ -58,32 +58,24 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.commands.CommandParser;
-import org.apache.james.imapserver.commands.IdSet;
-import org.apache.james.imapserver.commands.IdRange;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
+import org.apache.james.imapserver.commands.CommandParser;
+import org.apache.james.imapserver.commands.IdRange;
 
 /**
  * Tests for the {@link ImapRequestLineReader}.
  * TODO: atom, literal, other (not yet implemented) arguments
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class CommandParserTest
         extends TestCase

@@ -58,11 +58,10 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.mailet.User;
-import org.apache.mailet.UsersRepository;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 /**
  * Encapsulates all state held for an ongoing Imap session,
@@ -71,7 +70,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public interface ImapSession
 {
