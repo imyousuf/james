@@ -20,14 +20,24 @@ import javax.mail.MessagingException;
 import java.util.Vector;
 
 /**
+ * Loads Matchers for use inside James.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MatchLoader implements Component, Configurable {
 
-    private Configuration conf;
+    /**
+     * The list of packages that may contain Mailets
+     */
     private Vector matcherPackages;
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf) throws ConfigurationException {
         matcherPackages = new Vector();
         matcherPackages.addElement("");
@@ -43,6 +53,15 @@ public class MatchLoader implements Component, Configurable {
         }
     }
 
+    /**
+     * Get a new Matcher with the specified name acting
+     * in the specified context.
+     *
+     * @param matchName the name of the matcher to be loaded
+     * @param context the MailetContext to be passed to the new
+     *                matcher
+     * @throws MessagingException if an error occurs
+     */
     public Matcher getMatcher(String matchName, MailetContext context)
         throws MessagingException {
         try {

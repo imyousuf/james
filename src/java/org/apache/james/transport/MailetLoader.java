@@ -20,14 +20,24 @@ import javax.mail.MessagingException;
 import java.util.Vector;
 
 /**
+ * Loads Mailets for use inside James.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MailetLoader implements Component, Configurable {
 
-    private Configuration conf;
+    /**
+     * The list of packages that may contain Mailets
+     */
     private Vector mailetPackages;
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf) throws ConfigurationException {
         mailetPackages = new Vector();
         mailetPackages.addElement("");
@@ -43,6 +53,15 @@ public class MailetLoader implements Component, Configurable {
         }
     }
 
+    /**
+     * Get a new Mailet with the specified name acting
+     * in the specified context.
+     *
+     * @param matchName the name of the mailet to be loaded
+     * @param context the MailetContext to be passed to the new
+     *                mailet
+     * @throws MessagingException if an error occurs
+     */
     public Mailet getMailet(String mailetName, MailetContext context, Configuration configuration)
         throws MessagingException {
         try {
