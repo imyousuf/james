@@ -72,7 +72,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;

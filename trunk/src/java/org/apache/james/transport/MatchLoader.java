@@ -57,8 +57,6 @@
  */
 
 package org.apache.james.transport;
-import java.util.Vector;
-
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.configuration.Configurable;

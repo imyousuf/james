@@ -172,7 +172,7 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
             StringBuffer errorBuffer =
                 new StringBuffer(128).append("Component ").append(MailServer.ROLE).append(
                     "does not implement the required interface.");
-            throw new ServiceException(errorBuffer.toString());
+            throw new ServiceException("",errorBuffer.toString());
         }
     }
     /**

@@ -57,8 +57,6 @@
  */
 
 package org.apache.mailet;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 

@@ -175,7 +175,7 @@ public class RepositoryManager
         }
         catch( final ClassCastException cce )
         {
-            throw new ServiceException( "Hint is of the wrong type. " +
+            throw new ServiceException("", "Hint is of the wrong type. " +
                                           "Must be a Configuration", cce );
         }
 
@@ -186,12 +186,12 @@ public class RepositoryManager
         }
         catch( final ConfigurationException ce )
         {
-            throw new ServiceException( "Malformed configuration has no " +
+            throw new ServiceException("","Malformed configuration has no " +
                                           "destinationURL attribute", ce );
         }
         catch( final MalformedURLException mue )
         {
-            throw new ServiceException( "destination is malformed. " +
+            throw new ServiceException("", "destination is malformed. " +
                                           "Must be a valid URL", mue );
         }
 
@@ -212,7 +212,7 @@ public class RepositoryManager
                 {
                     final String message = "There is already another repository with the " +
                         "same destination and type but with different model";
-                    throw new ServiceException( message );
+                    throw new ServiceException("", message );
                 }
             }
             else
@@ -265,13 +265,13 @@ public class RepositoryManager
                     final String message = "Cannot find or init repository: " + e.getMessage();
                     getLogger().warn( message, e );
 
-                    throw new ServiceException( message, e );
+                    throw new ServiceException("", message, e );
                 }
             }
         }
         catch( final ConfigurationException ce )
         {
-            throw new ServiceException( "Malformed configuration", ce );
+            throw new ServiceException("", "Malformed configuration", ce );
         }
     }
 

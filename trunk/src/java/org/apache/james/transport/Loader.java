@@ -58,11 +58,11 @@
 
 package org.apache.james.transport;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Vector;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
@@ -72,7 +72,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
- * $Id: Loader.java,v 1.7 2003/03/08 21:14:08 noel Exp $
+ * $Id: Loader.java,v 1.8 2003/04/28 13:02:31 danny Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;

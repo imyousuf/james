@@ -143,7 +143,7 @@ public class RemoteManager
             lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
-            throw new ServiceException("The user repository could not be found.");
+            throw new ServiceException("","The user repository could not be found.");
         }
     }
 

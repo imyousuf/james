@@ -58,14 +58,15 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Receives a Mail from JamesSpoolManager and takes care of delivery
@@ -87,6 +88,7 @@ public class LocalDelivery extends GenericMailet {
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress recipient = (MailAddress) i.next();
             try {
+                //getMailetContext().getUserRepository("repositoryName").
                 getMailetContext().storeMail(mail.getSender(), recipient, mail.getMessage());
             } catch (Exception ex) {
                 getMailetContext().log("Error while storing mail.", ex);

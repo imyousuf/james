@@ -61,7 +61,6 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
-import java.util.Locale;
 
 /**
  * @version 1.0.0, 24/04/1999

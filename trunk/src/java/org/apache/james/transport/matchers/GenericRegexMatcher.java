@@ -58,17 +58,17 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.RFC2822Headers;
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.util.Collection;
 
 /**
  * This is a generic matcher that uses regular expressions.  If any of

@@ -263,7 +263,7 @@ public class AvalonMailStore
         try {
             repConf = (Configuration) hint;
         } catch (ClassCastException cce) {
-            throw new ServiceException(
+            throw new ServiceException("",
                 "hint is of the wrong type. Must be a Configuration", cce);
         }
         String destination = null;
@@ -272,12 +272,12 @@ public class AvalonMailStore
             destination = repConf.getAttribute("destinationURL");
             int idx = destination.indexOf(':');
             if ( idx == -1 )
-                throw new ServiceException(
+                throw new ServiceException("",
                     "destination is malformed. Must be a valid URL: "
                     + destination);
             protocol = destination.substring(0,idx);
         } catch (ConfigurationException ce) {
-            throw new ServiceException(
+            throw new ServiceException("",
                 "Malformed configuration has no destinationURL attribute", ce);
         }
 
@@ -370,12 +370,12 @@ public class AvalonMailStore
                     }
                     e.printStackTrace();
                     throw new
-                        ServiceException("Cannot find or init repository",
+                        ServiceException("","Cannot find or init repository",
                                            e);
                 }
             }
         } catch( final ConfigurationException ce ) {
-            throw new ServiceException( "Malformed configuration", ce );
+            throw new ServiceException("", "Malformed configuration", ce );
         }
     }
 
