@@ -15,94 +15,29 @@ import java.util.*;
 import java.io.*;
 
 /**
- * Implementation of a Repository to store users.
+ * Interface for a Repository to store users.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class UsersRepository implements Store.Repository {
+public interface UsersRepository extends Store.Repository {
 
     public final static String USER = "USER";
 
-    private Store.ObjectRepository or;
-    private String path;
-    private String name;
-    private String destination;
-    private String type;
-    private String model;
-
-    public void setAttributes(String name, String destination, String type, String model) {
-
-        this.name = name;
-        this.destination = destination;
-        this.model = model;
-        this.type = type;
-    }
+ 
         
-    public void setComponentManager(ComponentManager comp) {
 
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        this.or = (Store.ObjectRepository) store.getPrivateRepository(destination, Store.OBJECT, model);
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public String getModel() {
-        return model;
-    }
-    
-    public String getChildDestination(String childName) {
-        return destination + childName.replace ('.', File.separatorChar) + File.separator;
-    }
+    public void addUser(String name, Object attributes) ;
 
-    public synchronized void addUser(String name, Object attributes) {
-        try {
-            or.store(name, attributes);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception caught while storing user: " + e);
-        }
-    }
-
-    public synchronized Object getAttributes(String name) {
-        try {
-            return or.get(name);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception while retrieving user: " + e.getMessage());
-        }
-    }
+    public Object getAttributes(String name) ;
     
-    public synchronized void removeUser(String name) {
-        or.remove(name);
-    }
-
-    public Enumeration list() {
-        return or.list();
-    }
+    public void removeUser(String name) ;
     
-    public boolean contains(String name) {
-        return or.containsKey(name);
-    }
+    public boolean contains(String name) ;
     
-    public boolean test(String name, Object attributes) {
-        try {
-            return attributes.equals(or.get(name));
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    public boolean test(String name, Object attributes) ;
     
-    public int countUsers() {
-        int count = 0;
-        for (Enumeration e = list(); e.hasMoreElements(); e.nextElement()) {
-            count++;
-        }
-        return count;
-    }
+    public int countUsers() ;
+    
 }
 
     

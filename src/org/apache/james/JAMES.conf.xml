@@ -35,11 +35,25 @@
                implementedInterface="org.apache.avalon.blocks.MailServer">
 
             <postmaster> Postmaster@localhost </postmaster>
-            <servernames>
+<!-- helloName is the single host name this instance of James will use to
+     identify itself  for example, in SMTP and POP3 greetings. 
+     If autodetect is TRUE, James will attempt to discover its own name OR
+     use 'localhost'. If autodetect is FALSE, James will use the value given
+     OR 'localhost' -->
+	    <helloName autodetect="TRUE">myMailServer</helloName>
+
+<!-- servernames identifies the DNS namespace served by this instance of James.
+     If autodetect is TRUE, James wil attempt to discover its own name AND use
+     any specified servernames.  If autodetect is FALSE, James will use only
+     the specified servernames.  By default, the servername 'localhost' is
+     specified. This can be removed, if required. -->
+            <servernames autodetect="TRUE">
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
+		 <servername>localhost</servername>
             </servernames>
+
 <!-- Place here the path where incoming mail are temporaly stored before beeing processed.
      (ex. file://c:/james/spool/) -->
             <spoolRepository> file://../var/mail/spool/ </spoolRepository>
@@ -86,7 +100,27 @@
             </dnsServer>
 
             <usersManager>
+	        <!-- type can be file or ldap -->
+	        <type>file</type>
+		<!-- comment out repository if using LDAP -->
                 <repository> file://../var/users/ </repository>
+
+		<LDAPRepository>
+		    <LDAPServer>ldap://localhost:389</LDAPServer>
+		    <LDAPRoot>dc=apache, dc=org</LDAPRoot>
+		    <ThisServerRDN>cn=mailserver.apache.org</ThisServerRDN>
+		    <MailAddressAttribute>mail</MailAddressAttribute>
+		    <IdentityAttribute>uid</IdentityAttribute>
+		    <AuthenticationType>simple</AuthenticationType>
+		    <Principal>  FILL ME!!! </Principal>
+		    <Password> FILL ME!!! </Password>
+		    <MembersAttribute>member</MembersAttribute>
+		    <ManageGroupAttribute>TRUE</ManageGroupAttribute>
+		    <GroupAttribute>memberOfGroup</GroupAttribute>
+		    <ManagePasswordAttribute>FALSE</ManagePasswordAttribute>
+		    <PasswordAttribute>userpassword</PasswordAttribute>
+		</LDAPRepository>
+
             </usersManager>
 
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
@@ -167,10 +201,13 @@
                     class="org.apache.avalon.blocks.masterstore.StreamStore"/>
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.MailRepository"/>
+                    class="org.apache.james.AvalonMailRepository"/>
+               <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.AvalonSpoolRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.usermanager.UsersRepository"/>
+                    class="org.apache.james.usermanager.UsersFileRepository"/>
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
