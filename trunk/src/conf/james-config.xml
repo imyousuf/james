@@ -15,7 +15,7 @@ are preceeded by a CHECKME! or CONFIRM? comment in the left margin.
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldstein $-->
+$Revision: 1.30 $ Committed on $Date: 2002/09/24 15:38:40 $ by: $Author: danny $-->
 
 <config>
    <James>
@@ -33,6 +33,8 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
       <servernames autodetect="TRUE" autodetectIP="TRUE">
          <!--<servername>To override autodetected server names  uncomment this.  </servername> -->
          <servername>localhost</servername>
+       	<!-- IMPORTANT if you are using fetchpop it is important to include the -->
+       	<!-- fetched domains here to prevent looping                            -->
       </servernames>
 
       <!-- Set whether user names are case sensitive or case insensitive -->
@@ -54,7 +56,28 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
          <repository destinationURL="db://maildb/inbox/" type="MAIL"/>
       </inboxRepository>-->
    </James>
-
+   
+   <!-- Fetch pop block, fetches mail from POP3 servers and inserts it into the incoming spool -->
+   <!-- IMPORTANT it is important to prevent mail from looping by setting the  -->
+   <!-- fetched domains in the <servernames> section of the <James> block      -->
+   <!-- above. fetchpop is disabled by default.                                  -->
+   
+	<fetchpop enabled="false">
+		<!-- you can have as many fetch tasks as you want to        -->
+		<!-- but each must have a unique name to identify itself by -->
+		<fetch name="mydomain.com">
+			<!-- host name or IP address -->
+			<host>mail.mydomain.com</host>
+			<!-- acount login username -->
+			<user>username</user>
+			<!-- account login password -->
+			<password>pass</password>
+			<!-- Interval to check this account in milliseconds, 60000 is every ten minutes -->
+			<interval>600000</interval>
+		</fetch>
+	</fetchpop>
+	
+	
    <!-- The James Spool Manager block  -->
    <spoolmanager>
       <!-- number of spool threads -->
@@ -130,7 +153,7 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
             <processor>error</processor>
          </mailet>
 
-<!-- CHECKME!    Anti-relay mailet: Add your network address here,
+		<!-- CHECKME!    Anti-relay mailet: Add your network address here,
                   e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*, 192.168.0.*"-->
 
          <!-- This matcher-mailet pair can prevent relaying...
@@ -231,7 +254,10 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
       </handler>
    </remotemanager>
 
-   <pop3server>
+	<!-- The POP3 server is enabled by default -->
+	<!-- Disabling blocks will stop them from listening, -->
+	<!-- but does not free as many resources as removing them would -->
+   <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
       <!-- port 100 is the well-known/IANA registered port for Standard POP3 -->
       <port>110</port>
@@ -252,7 +278,10 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
       </handler>
    </pop3server>
 
-   <smtpserver>
+	<!-- The SMTP server is enabled by default -->
+	<!-- Disabling blocks will stop them from listening, -->
+	<!-- but does not free as many resources as removing them would -->
+   <smtpserver enabled="true">
       <port>25</port>
 
       <!--  uncomment this if you want to bind to a specific inetaddress -->
@@ -283,7 +312,11 @@ $Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldst
          <maxmessagesize>0</maxmessagesize>
       </handler>
    </smtpserver>
-   <nntpserver>
+   
+   	<!-- The NNTP server is enabled by default -->
+	<!-- Disabling blocks will stop them from listening, -->
+	<!-- but does not free as many resources as removing them would -->
+   <nntpserver enabled="false">
       <!-- port 563 is the well-known/IANA registered port for nntp over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard nntp -->
       <port>119</port>

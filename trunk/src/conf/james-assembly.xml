@@ -2,6 +2,12 @@
 
 <assembly>
 
+<block class="org.apache.james.fetchpop.FetchScheduler" name="fetchpop">
+ 
+    <provide name="scheduler"
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
+        <provide name="James" role="org.apache.james.services.MailServer"/>      
+</block>
   <!-- The James block  -->
   <block class="org.apache.james.James" name="James" >
 
