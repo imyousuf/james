@@ -244,7 +244,7 @@ public class Redirect extends AbstractRedirect {
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
-        return "Resend Mailet";
+        return "Redirect Mailet";
     }
 
     /* ******************************************************************** */
