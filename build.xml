@@ -106,7 +106,7 @@ All theese package are in current distribution.
     <mkdir dir="${build.dest}"/>
 
     <!-- copy src files -->
-    <copydir src="${src.dir}" dest="${build.src}"/>
+    <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
