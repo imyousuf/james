@@ -15,7 +15,7 @@ are preceeded by a CHECKME! or CONFIRM? comment in the left margin.
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.27 $ Committed on $Date: 2002/07/29 13:47:39 $ by: $Author: danny $-->
+$Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldstein $-->
 
 <config>
    <James>
@@ -25,10 +25,12 @@ $Revision: 1.27 $ Committed on $Date: 2002/07/29 13:47:39 $ by: $Author: danny $
 
 <!-- CONFIRM? -->
       <!-- servernames identifies the DNS namespace served by this instance of James.
-         If autodetect is TRUE, James wil attempt to discover its own name AND use any specified servernames.
-            If autodetect is FALSE, James will use only the specified servernames.
-            By default, the servername 'localhost' is specified. This can be removed, if required. -->
-      <servernames autodetect="TRUE">
+           If autodetect is TRUE, James wil attempt to discover its own name AND use any specified servernames.
+           If autodetect is FALSE, James will use only the specified servernames.
+           If autodetectIP is not FALSE, James will also allow add the IP address for each servername.
+           The automatic IP detection is to support RFC 2821, Sec 4.1.3, address literals.
+           By default, the servername 'localhost' is specified. This can be removed, if required. -->
+      <servernames autodetect="TRUE" autodetectIP="TRUE">
          <!--<servername>To override autodetected server names  uncomment this.  </servername> -->
          <servername>localhost</servername>
       </servernames>
@@ -253,9 +255,9 @@ $Revision: 1.27 $ Committed on $Date: 2002/07/29 13:47:39 $ by: $Author: danny $
    <smtpserver>
       <port>25</port>
 
-      <!--  uncomment this if you want to bind to a specific  inetaddress -->
+      <!--  uncomment this if you want to bind to a specific inetaddress -->
       <!--<bind> </bind>-->
-      <!--  uncomment this if you want to use TLS (SSL)  on this port -->
+      <!--  uncomment this if you want to use TLS (SSL) on this port -->
       <!--<useTLS>true</useTLS>-->
 
       <handler>
@@ -465,13 +467,13 @@ $Revision: 1.27 $ Committed on $Date: 2002/07/29 13:47:39 $ by: $Author: danny $
       <!-- Configure database connections here. These connections are referred to by name elsewhere in the config file -->
       <!-- CHECKME! To allow James to use a database, configure the database connection here -->
       <data-sources>
-		
-		 <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC  -->
-		 <!-- driver no additional driver is needed for mysql. Read the mm.mysql LGPL  -->
-		 <!-- licence at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
-		 
-		 <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
-		
+
+         <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC  -->
+         <!-- driver no additional driver is needed for mysql. Read the mm.mysql LGPL  -->
+         <!-- licence at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
+
+         <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
+
          <!-- Example, connecting to a MySQL database called "mail" on localhost-->
          <!--<data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
