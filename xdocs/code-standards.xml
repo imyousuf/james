@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <header>
+  <title>Coding Standards</title>
+  <subtitle>Coding Standards</subtitle>
+  <authors>
+   <person name="Serge Knystautas" email="sergek@lokitech.com"/>
+  </authors>
+ </header>
+
+<body>
+
+<s1 title="Coding Standards">
+
+<p>
+    Submissions to the James project must follow the coding conventions 
+    outlined in this document. James developers 
+    are asked to follow coding conventions already present in the code. 
+    (For example, if the existing code has the bracket on
+    the same line as the if statement, then all subsequent code
+    should also follow that convention.) Anything not 
+    explicitly mentioned in this document should adhere to the 
+    official
+    <link href="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">Sun
+    Java Coding Conventions</link>. 
+</p>
+
+<p>
+    <strong>Developers who commit code that does not follow 
+    the coding conventions outlined in this document will be 
+    responsible for fixing their own code.</strong>
+</p>
+
+<p>
+1. Brackets should begin and end on new lines. Examples:
+</p>
+
+<p>
+<source><![CDATA[
+
+if ( foo )
+{
+    // code here
+}    
+
+try
+{
+    // code here
+}
+catch (Exception bar)
+{
+    // code here
+}
+finally
+{
+    // code here
+}    
+
+while ( true )
+{
+    // code here
+}    
+]]></source>
+</p>
+
+<p>
+2. Spaces between parentheses are optional. The preference is to exclude 
+extra spaces. Both of these conventions are acceptable:
+</p>
+
+<p>
+<source><![CDATA[
+
+if (foo)
+
+or
+
+if ( foo )
+]]></source>
+</p>
+
+<p>
+3. Four spaces. <strong>NO</strong> tabs. Period. The James
+mailing list receives cvs commit messages that are almost impossible 
+to read if tabs are used.
+</p>
+
+<p>
+In Emacs-speak, this translates to the following command:
+
+(setq-default tab-width 4 indent-tabs-mode nil)
+</p>
+
+<p>
+4. Use Unix linefeeds for all .java source code files. Only platform-specific
+files (e.g. .bat files for Windows) should contain non-Unix linefeeds.
+</p>
+
+<p>
+5. Javadoc <strong>MUST</strong> exist on all methods. Contributing
+a missing javadoc for any method, class, variable, etc., will be greatly
+appreciated as this will help to improve the James project.
+</p>
+
+<p>
+6. The Jakarta Apache/James License <strong>MUST</strong> be placed 
+at the top of every file.
+</p>
+
+</s1>
+
+</body>
+</document>
