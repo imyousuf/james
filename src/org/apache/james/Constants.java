@@ -13,7 +13,7 @@ package org.apache.james;
  */
 public class Constants {
 
-    public static final String SOFTWARE_VERSION = "1.2.2alpha";
+    public static final String SOFTWARE_VERSION = "@@version@@";
 
     public static final String SOFTWARE_NAME = "JAMES Mail Server";
 
@@ -24,8 +24,6 @@ public class Constants {
     public static final String LOCAL_USERS = "LOCAL_USERS";
 
     public static final String POSTMASTER = "POSTMASTER";
-
-    public static final String HELO_NAME = "HELO_NAME";
 
     public static final int HEADERLIMIT = 2048;
 

@@ -21,13 +21,6 @@
 <!-- CHECKME! Set this to the right email address for error reports -->
       <postmaster> Postmaster@localhost </postmaster>
 
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
-
 <!-- CONFIRM? -->
       <!-- servernames identifies the DNS namespace served by this instance
       of James.
@@ -303,6 +296,13 @@
 
 <!-- CHECKME! Change the default password! -->
   <remotemanager>
+      <!-- helloName is the single host name this instance of James will use to
+      identify itself  for example, in SMTP and POP3 greetings.
+      If autodetect is TRUE, James will attempt to discover its own name OR
+      use 'localhost'. If autodetect is FALSE, James will use the value given
+      OR 'localhost' -->
+      <helloName autodetect="TRUE">myMailServer</helloName>
+
         <port>4555</port>
         <!-- <bind>  </bind> uncomment this if you want to bind to a specific
         inetaddress -->
@@ -320,6 +320,13 @@
 
   <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
   <imapserver>
+      <!-- helloName is the single host name this instance of James will use to
+      identify itself  for example, in SMTP and POP3 greetings.
+      If autodetect is TRUE, James will attempt to discover its own name OR
+      use 'localhost'. If autodetect is FALSE, James will use the value given
+      OR 'localhost' -->
+      <helloName autodetect="TRUE">myMailServer</helloName>
+
         <port>143</port>
         <!-- <port>995</port> -->
         <!-- need to check what if any IMAP over SSL uses -->
@@ -333,6 +340,13 @@
   </imapserver>
 
   <pop3server>
+      <!-- helloName is the single host name this instance of James will use to
+      identify itself  for example, in SMTP and POP3 greetings.
+      If autodetect is TRUE, James will attempt to discover its own name OR
+      use 'localhost'. If autodetect is FALSE, James will use the value given
+      OR 'localhost' -->
+      <helloName autodetect="TRUE">myMailServer</helloName>
+
         <port>110</port>
         <!-- <port>995</port> -->
         <!-- port 995 is the well-known/IANA registered port for POP3S
@@ -347,6 +361,13 @@
   </pop3server>
 
   <smtpserver>
+      <!-- helloName is the single host name this instance of James will use to
+      identify itself  for example, in SMTP and POP3 greetings.
+      If autodetect is TRUE, James will attempt to discover its own name OR
+      use 'localhost'. If autodetect is FALSE, James will use the value given
+      OR 'localhost' -->
+      <helloName autodetect="TRUE">myMailServer</helloName>
+
         <port>25</port>
         <!--<bind></bind> uncomment this if you want to bind to a specific
         inetaddress -->
@@ -363,6 +384,13 @@
   </smtpserver>
 
   <nntpserver>
+      <!-- helloName is the single host name this instance of James will use to
+      identify itself  for example, in SMTP and POP3 greetings.
+      If autodetect is TRUE, James will attempt to discover its own name OR
+      use 'localhost'. If autodetect is FALSE, James will use the value given
+      OR 'localhost' -->
+      <helloName autodetect="TRUE">myMailServer</helloName>
+
         <port>119</port>
         <!-- <port>563</port> -->
         <!-- port 563 is the well-known/IANA registered port for NNTPS
