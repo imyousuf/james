@@ -1,16 +1,10 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.3 $  Committed on $Date: 2003/02/21 04:29:35 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.4 $  Committed on $Date: 2003/03/11 01:35:16 $ by: $Author: noel $
 
 Authors:
- Federico Barbieri <scoobie@systemy.it>
- Serge
- Charles Benett    <charlesb@apache.org>
- Peter Donald      <donaldp@apache.org>
- Harmeet Bedi      <harmeet@kodemuse.com>
- Danny Angus       <danny@apache.org>
- Peter M. Goldstein <farsight@alum.mit.edu>
+ James Project <james-dev@jakarta.apache.org>
 
 Legal:
   Copyright (c) 1999-2002 The Apache Software Foundation. All Rights Reserved.
@@ -27,7 +21,7 @@ Legal:
     <property file="${user.home}/.ant.properties"/>
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
-    <property name="version" value="2.1.2"/>
+    <property name="version" value="2.1.3a1"/>
     <property name="year" value="1999-2003"/>
     <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
@@ -475,9 +469,6 @@ Legal:
         <echo message ="Building source distributions with Phoenix binaries"/>
         <zip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.zip">
             <fileset dir=".">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
                 <exclude name=""/>
                 <include name="*.txt"/>
                 <include name="*.xml"/>
@@ -489,14 +480,11 @@ Legal:
                 <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="www/rfclist/**"/>
             </fileset>
         </zip>
         <tar longfile="gnu" tarfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar">
             <tarfileset dir="." username="${name}" group="${name}">
-                <include name="${dist.dir}/**"/>
-                <exclude name="${dist.dir}/downloads/**"/>
-                <exclude name="${dist.dir}/apps/*.sar"/>
                 <include name="*.txt"/>
                 <include name="*.xml"/>
                 <include name="KEYS"/>
@@ -507,7 +495,7 @@ Legal:
                 <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
-                <include name="www/**"/>
+                <include name="www/rfclist/**"/>
             </tarfileset>
         </tar>
         <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz" src="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
@@ -523,9 +511,8 @@ Legal:
             <fileset dir=".">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
                 <include name="proposals/**"/>
-                <include name="www/**"/>
+                <include name="www/rfclist/**"/>
                 <include name="tools/**"/>
                 <include name="*.xml"/>
                 <include name="*.txt"/>
@@ -538,9 +525,8 @@ Legal:
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="src/**"/>
                 <include name="lib/**"/>
-                <include name="${phoenix.lib.dir}/**"/>
                 <include name="proposals/**"/>
-                <include name="www/**"/>
+                <include name="www/rfclist/**"/>
                 <include name="tools/**"/>
                 <include name="*.xml"/>
                 <include name="*.txt"/>
