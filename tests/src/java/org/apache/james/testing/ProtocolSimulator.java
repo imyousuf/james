@@ -129,6 +129,9 @@ public class ProtocolSimulator {
             final String templateLine = templateReader.readLine();
             if ( templateLine == null )
                 break;
+            // ignore empty lines.
+            if ( templateLine.trim().length() == 0 )
+                continue;
             if ( templateLine.startsWith(COMMENT_TAG) )
                 continue;
             if ( templateLine.startsWith(CLIENT_TAG) ) {
