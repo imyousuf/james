@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
@@ -57,7 +57,7 @@ public class DNSServer
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
     }
 
-    public void init()
+    public void initialize()
         throws Exception {
 
         getLogger().info("DNSServer init...");

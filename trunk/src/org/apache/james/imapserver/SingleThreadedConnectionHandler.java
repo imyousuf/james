@@ -12,7 +12,7 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 import javax.mail.internet.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.Stoppable;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
@@ -21,6 +21,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.context.Context;
+import org.apache.avalon.context.ContextException;
 import org.apache.avalon.context.Contextualizable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
@@ -146,7 +147,8 @@ public class SingleThreadedConnectionHandler
             lookup("org.apache.james.imapserver.Host");
     }
 
-    public void contextualize( final Context context ) {
+    public void contextualize( final Context context ) 
+        throws ContextException {
         servername = (String)context.get( Constants.HELO_NAME );
         if ( servername == null )
             servername = "IMAPServer";
@@ -157,7 +159,7 @@ public class SingleThreadedConnectionHandler
         timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 1800000 );
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         getLogger().info("SingleThreadedConnectionHandler starting ...");
         namespaceToken = imapSystem.getNamespaceToken();
         getLogger().info("SingleThreadedConnectionHandler initialized");

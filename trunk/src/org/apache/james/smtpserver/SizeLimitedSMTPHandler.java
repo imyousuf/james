@@ -19,6 +19,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.context.Context;
+import org.apache.avalon.context.ContextException;
 import org.apache.avalon.context.Contextualizable;
 import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
@@ -79,7 +80,8 @@ public class SizeLimitedSMTPHandler
     private int timeout;
     private long maxmessagesize;
 
-    public void  contextualize( final Context context ) {
+    public void  contextualize( final Context context ) 
+        throws ContextException {
         servername = (String)context.get( Constants.HELO_NAME );
     }
 

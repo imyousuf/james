@@ -9,7 +9,7 @@ package org.apache.james.nntpserver.repository;
 
 import java.io.*;
 import java.util.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
@@ -62,7 +62,7 @@ public class NNTPRepositoryImpl extends AbstractLoggable
         addGroups = (String[])addGroupsList.toArray(new String[0]);
         getLogger().debug("repository configuration done");
     }
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         //System.out.println(getClass().getName()+": init");
         if ( rootPath.exists() == false )
             rootPath.mkdirs();
@@ -77,7 +77,7 @@ public class NNTPRepositoryImpl extends AbstractLoggable
         if ( articleIDPath.exists() == false )
             articleIDPath.mkdirs();
         if ( spool instanceof Initializable )
-            ((Initializable)spool).init();
+            ((Initializable)spool).initialize();
         getLogger().debug("repository initialization done");
     }
     public boolean isReadOnly() {

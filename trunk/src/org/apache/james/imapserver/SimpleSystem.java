@@ -8,7 +8,7 @@
 package org.apache.james.imapserver;
 
 import java.util.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.configuration.Configuration;
@@ -49,7 +49,7 @@ public class SimpleSystem
         compMgr = comp;
     }
 
-    public void init() {
+    public void initialize() throws Exception {
         // Derive namespace and namespaceToken from conf
         singleServer = (String) context.get("HostName");
         servers.add(singleServer);

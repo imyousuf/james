@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 
 /**
  * Object representing the record of a folder in an IMAP on an IMAP Host.
@@ -53,7 +53,7 @@ public class SimpleFolderRecord
         absoluteName = absName;
     }
 
-    public void init() {
+    public void initialize() {
         nameInUse = true;
         deleted = false;
         uidValidity = 1; 

@@ -14,7 +14,7 @@ import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.component.Component;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
@@ -72,12 +72,14 @@ public class James
     private String inboxRootURL;
     private UsersRepository localusers;
     private Collection serverNames;
+
     // this used to be long, but increment operations on long are not
     // thread safe. Changed to int. 'int' should be ok, because id generation
     // is based on System time and count
     private static int count;
     private String helloName;
     private String hostName;
+    private MailAddress postmaster;
     private Map mailboxes; //Not to be shared!
     private Hashtable attributes = new Hashtable();
 
@@ -86,6 +88,7 @@ public class James
     private IMAPSystem imapSystem;
     private Host imapHost;
     protected BlockContext           blockContext;
+
 
     public void contextualize( final Context context )
     {
@@ -105,7 +108,7 @@ public class James
         mailboxes = new HashMap(31);
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         getLogger().info("JAMES init...");
 
@@ -166,12 +169,13 @@ public class James
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
             getLogger().info("Handling mail for: " + i.next());
         }
-        context.put(Constants.SERVER_NAMES, serverNames);
+        context.put(Constants.SERVER_NAMES, this.serverNames);
 
 
         // Get postmaster
-        String postmaster = conf.getChild("postmaster").getValue("root@localhost");
-        context.put(Constants.POSTMASTER, new MailAddress(postmaster));
+        String postMasterAddress = conf.getChild("postmaster").getValue("root@localhost");
+        this.postmaster = new MailAddress( postMasterAddress );
+        context.put( Constants.POSTMASTER, postmaster );
 
         //Get localusers
         try {
@@ -210,7 +214,7 @@ public class James
                 imapSystem.contextualize(context);
                 imapSystem.compose(compMgr);
                 if (imapSystem instanceof Initializable) {
-                    ((Initializable)imapSystem).init();
+                    ((Initializable)imapSystem).initialize();
                 }
                 compMgr.put("org.apache.james.imapserver.IMAPSystem", (Component)imapSystem);
                 getLogger().info("Using SimpleSystem.");
@@ -220,7 +224,7 @@ public class James
                 imapHost.contextualize(context);
                 imapHost.compose(compMgr);
                 if (imapHost instanceof Initializable) {
-                    ((Initializable)imapHost).init();
+                    ((Initializable)imapHost).initialize();
                 }
                 compMgr.put("org.apache.james.imapserver.Host", (Component)imapHost);
                 getLogger().info("Using: " + imapHostClass);
@@ -269,7 +273,7 @@ public class James
             spoolMgr.configure(conf.getChild("spoolmanager"));
             spoolMgr.contextualize(context);
             spoolMgr.compose(compMgr);
-            spoolMgr.init();
+            spoolMgr.initialize();
             workerPool.execute(spoolMgr);
             getLogger().info("SpoolManager started");
         } catch (Exception e) {
@@ -462,7 +466,7 @@ public class James
     }
 
     public MailAddress getPostmaster() {
-        return (MailAddress)context.get(Constants.POSTMASTER);
+        return postmaster;
     }
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
@@ -505,9 +509,8 @@ public class James
         return 2;
     }
 
-    public boolean isLocalServer(String serverName) {
-        List names = (List)context.get(Constants.SERVER_NAMES);
-        return names.contains(serverName);
+    public boolean isLocalServer( final String serverName ) {
+        return serverNames.contains( serverName );
     }
 
     public String getServerInfo() {

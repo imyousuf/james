@@ -18,6 +18,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.context.Context;
+import org.apache.avalon.context.ContextException;
 import org.apache.avalon.context.Contextualizable;
 import org.apache.avalon.logger.Loggable;
 import org.apache.james.Constants;
@@ -90,7 +91,8 @@ public class UsersLDAPRepository
         this.comp = comp;
     }
 
-    public void contextualize(Context context) {
+    public void contextualize(Context context) 
+        throws ContextException {
         Collection serverNames
             = (Collection)context.get(Constants.SERVER_NAMES);
         usersDomain = (String)serverNames.iterator().next();

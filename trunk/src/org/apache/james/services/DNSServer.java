@@ -10,5 +10,5 @@ package org.apache.james.services;
 import java.util.Collection;
 
 public interface DNSServer {
-    public Collection findMXRecords(String hostname);
+    Collection findMXRecords(String hostname);
 }
