@@ -19,6 +19,8 @@
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+    <provide name="imaphost"
+             role="org.apache.james.imapserver.Host"/>
   </block>
 
   <!-- The James Spool Manager block  -->
@@ -55,6 +57,16 @@
     <provide name="scheduler"
         role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="imaphost" role="org.apache.james.imapserver.Host"/>
+    <provide name="imapsystem" role="org.apache.james.imapserver.IMAPSystem"/>
+  </block>
+
+  <block class="org.apache.james.imapserver.SimpleSystem" name="imapsystem">
+  </block>
+
+  <block class="org.apache.james.imapserver.JamesHost" name="imaphost">
+    <provide name="imapsystem" role="org.apache.james.imapserver.IMAPSystem"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
 
   <!-- POP3 Server -->
@@ -85,8 +97,7 @@
 
   <!-- NNTP Server -->
   <block class="org.apache.james.nntpserver.NNTPServer" name="nntpserver" >
-    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="nntpauth" role="org.apache.james.nntpserver.AuthService"/>
     <provide name="sockets"
         role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -95,6 +106,11 @@
         role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="nntp-repository"
         role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+  </block>
+
+  <!-- NNTP Authentication Service -->
+  <block class="org.apache.james.nntpserver.AuthServiceImpl" name="nntpauth" >
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
 
   <!-- NNTP Repository -->

@@ -15,17 +15,19 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.core.MimeMessageWrapper;
 
 /**
- * Implements the IMAP FETCH command for a given ImapRequest.
+ * Implements the IMAP FETCH command for a given ImapRequestImpl.
  *
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 17 Jan 2001
  */
 public class CommandFetch
-    extends BaseCommand {
+    extends BaseCommand implements ImapCommand
+{
 
     //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
@@ -47,6 +49,22 @@ public class CommandFetch
     private SingleThreadedConnectionHandler caller;
     private String currentFolder;
 
+    public boolean validForState( int state )
+    {
+        return ( state == ImapConstants.SELECTED );
+    }
+
+    public boolean process( ImapRequest request, ImapSession session )
+    {
+        setRequest( request );
+        if ( request.arguments() < 4 ) {
+            session.badResponse( "Command should be <tag> <FETCH> <message set> <message data item names>" );
+            return true;
+        }
+        service();
+        return true;
+    }
+
     /**
      * Debugging method - will probably disappear
      */
@@ -65,10 +83,10 @@ public class CommandFetch
     }
 
     /**
-     * Implements IMAP fetch commands given an ImapRequest.
+     * Implements IMAP fetch commands given an ImapRequestImpl.
      * This implementation attempts to satisfy the fetch command with the
      * smallest objects deserialized from storage.
-     * <p>Warning - maybecome service(ImapRequest request)
+     * <p>Warning - maybecome service(ImapRequestImpl request)
      * <p>Not yet complete - no partial (octet-counted or sub-parts) fetches.
      */
     public void service() {
@@ -121,28 +139,7 @@ public class CommandFetch
             }
         }
 
-
-        // convert macro fetch commands to basic commands
-        for(int k = 0; k < fetchAttrs.size(); k++) {
-            String arg = (String)fetchAttrs.get(k);
-            if (arg.equalsIgnoreCase("FAST")) {
-                fetchAttrs.add("FLAGS");
-                fetchAttrs.add("INTERNALDATE");
-                fetchAttrs.add("RFC822.SIZE");
-            } else if (arg.equalsIgnoreCase("ALL")) {
-                fetchAttrs.add("FLAGS");
-                fetchAttrs.add("INTERNALDATE");
-                fetchAttrs.add("RFC822.SIZE");
-                fetchAttrs.add("ENVELOPE");
-            } else if (arg.equalsIgnoreCase("FULL")) {
-                fetchAttrs.add("FLAGS");
-                fetchAttrs.add("INTERNALDATE");
-                fetchAttrs.add("RFC822.SIZE");
-                fetchAttrs.add("ENVELOPE");
-                fetchAttrs.add("BODY");
-            }
-            getLogger().debug("Found fetchAttrs: " + arg);
-        }
+        fetchAttrs = convertMacroCommands( fetchAttrs );
 
         try {
             for (int i = 0; i < set.size(); i++) {
@@ -202,10 +199,10 @@ public class CommandFetch
                         }
                         if (responseAdded) {
                             response += SP + "INTERNALDATE \""
-                                + attrs.getInternalDateAsString() + "\")" ;
+                                + attrs.getInternalDateAsString() + "\"" ;
                         } else {
                             response += "INTERNALDATE \""
-                                + attrs.getInternalDateAsString() + "\")" ;
+                                + attrs.getInternalDateAsString() + "\"" ;
                             responseAdded = true;
                         }
                     } else if (arg.equalsIgnoreCase("RFC822.SIZE")) {
@@ -537,7 +534,7 @@ public class CommandFetch
                             return;
                         }
                         try {
-                            int size = msg.getMessageSize();
+                            long size = msg.getMessageSize();
                             if (arg.equalsIgnoreCase("RFC822")) {
                                 out.println(UNTAGGED + SP + msn + SP + "FETCH ( RFC822 {" + size + "}");
                             } else {
@@ -692,5 +689,38 @@ public class CommandFetch
             if (DEEP_DEBUG) {e.printStackTrace();}
             return;
         }
+    }
+
+    private List convertMacroCommands( List fetchAttributes )
+    {
+        List convertedAttributes = new ArrayList();
+
+        // convert macro fetch commands to basic commands
+        Iterator iter = fetchAttributes.iterator();
+        while ( iter.hasNext() ) {
+            String arg = (String)iter.next();
+            if (arg.equalsIgnoreCase("FAST")) {
+                convertedAttributes.add("FLAGS");
+                convertedAttributes.add("INTERNALDATE");
+                convertedAttributes.add("RFC822.SIZE");
+            } else if (arg.equalsIgnoreCase("ALL")) {
+                convertedAttributes.add("FLAGS");
+                convertedAttributes.add("INTERNALDATE");
+                convertedAttributes.add("RFC822.SIZE");
+                convertedAttributes.add("ENVELOPE");
+            } else if (arg.equalsIgnoreCase("FULL")) {
+                convertedAttributes.add("FLAGS");
+                convertedAttributes.add("INTERNALDATE");
+                convertedAttributes.add("RFC822.SIZE");
+                convertedAttributes.add("ENVELOPE");
+                convertedAttributes.add("BODY");
+            }
+            else {
+                convertedAttributes.add( arg );
+            }
+            getLogger().debug("Found convertedAttributes: " + arg);
+        }
+
+        return convertedAttributes;
     }
 }

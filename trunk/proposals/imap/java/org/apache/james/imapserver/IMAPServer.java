@@ -12,6 +12,10 @@ import java.net.UnknownHostException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.cornerstone.services.connection.AbstractService;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
@@ -27,6 +31,8 @@ import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
  */
 public class IMAPServer 
     extends AbstractService {
+
+    private Context _context;
 
     protected ConnectionHandlerFactory createFactory()
     {

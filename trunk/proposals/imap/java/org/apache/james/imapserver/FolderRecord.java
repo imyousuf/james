@@ -26,7 +26,7 @@ public interface FolderRecord {
      *
      * @returns String mailbox hierarchical name including namespace
      */
-    String getFullName();
+    //String decodeMailboxName();
 
     /**
      * Returns the user in whose namespace the mailbox existed.

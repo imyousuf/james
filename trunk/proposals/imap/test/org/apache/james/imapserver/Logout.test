@@ -1,0 +1,3 @@
+C: A023 LOGOUT
+S: * BYE Server logging out
+S: A023 OK LOGOUT completed

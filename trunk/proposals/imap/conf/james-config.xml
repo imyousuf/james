@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.1 $
-    Committed on $Date: 2001/10/31 14:06:57 $ by: $Author: serge $
+    This is $Revision: 1.2 $
+    Committed on $Date: 2002/01/15 08:38:25 $ by: $Author: darrell $
 -->
 <config>
 
@@ -35,7 +35,6 @@
         <servername>To override autodetected server names
                     uncomment this.  </servername>-->
         <servername>localhost</servername>
-        <servername>host101.lokitech.com</servername>
       </servernames>
 
       <!-- Set whether user names are case sensitive or insensitive -->
@@ -49,46 +48,28 @@
       service is being provided then use must be 'basic' (default) . At some
       stage POP3 will, hopefully, be able to use IMAP storage as well.  This
       choice is irrelevant if the only service provided is SMTP. -->
-      <storage>basic</storage>
-
-      <!-- If storage is set to IMAP, systemClass and hostClass must point to
-      the appropriate classes. -->
-      <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
-                 hostClass="org.apache.james.imapserver.JamesHost"/>
-      <imapHost>
-        <recordRepository>var/mail/folderRecords/</recordRepository>
-        <mailboxRepository>var/mail/mailboxes/</mailboxRepository>
-        <namespaces token="#">
-          <privateNamespace separator=".">#mail</privateNamespace>
-          <otherusersNamespace separator=".">#users</otherusersNamespace>
-          <sharedNamespace separator=".">#shared</sharedNamespace>
-        </namespaces>
-      </imapHost>
-
-
+      <storage>IMAP</storage>
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
-<!--
       <inboxRepository>
-        <repository destinationURL="file://var/mail/inboxes/"
+        <repository destinationURL="file://../../var/mail/inboxes/"
                     type="MAIL">
         </repository>
       </inboxRepository>
--->
       <!-- Alternative inbox repository definition for DB use. -->
       <!--  The format for the destinationURL is "db://<data-source>/<table>"
             - <data-source> is the datasource name set up in the
                     database-connections block, below
             - <table> is the name of the table to store user inboxes in
            The user name is used as <repositoryName> for this repository config.
-      -->
 
            <inboxRepository>
         <repository destinationURL="db://maildb/inbox/"
                     type="MAIL">
         </repository>
       </inboxRepository>
+      -->
   </James>
 
   <!-- The James Spool Manager block  -->
@@ -100,12 +81,10 @@
 
         <!-- Set the packages from which to load mailets and matches -->
         <mailetpackages>
-          <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
-          <mailetpackage>example</mailetpackage>
+          <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
         </mailetpackages>
         <matcherpackages>
-          <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
-          <matcherpackage>example</matcherpackage>
+          <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
         </matcherpackages>
 
         <!-- Processor CONFIGURATION SAMPLE:
@@ -145,23 +124,6 @@
           <mailet match="RecipientIs=badboy@badhost" class="Null">
           </mailet>
 
-          <!-- Sample listserv wrapping a local avalon list of users. -->
-          <mailet match="CommandForListserv=james@localhost"
-                  class="AvalonListservManager">
-            <repositoryName>list-james</repositoryName>
-          </mailet>
-
-		<mailet match="SchedulingRequestMatcher" class="SchedulingRequestMailet">
-		</mailet>
-
-          <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
-            <membersonly> false </membersonly>
-            <attachmentsallowed> true </attachmentsallowed>
-            <replytolist> true </replytolist>
-            <repositoryName>list-james</repositoryName>
-            <subjectprefix>JamesList</subjectprefix>
-          </mailet>
-
           <!-- Sends remaining mails to the transport processor for either
           local or remote delivery -->
           <mailet match="All" class="ToProcessor">
@@ -174,7 +136,7 @@
         <processor name="error">
           <!-- Logs any messages to the repository specified -->
           <mailet match="All" class="ToRepository">
-            <repositoryPath> file://var/mail/error/</repositoryPath>
+            <repositoryPath> file://../../var/mail/error/</repositoryPath>
             <!-- <repositoryPath> db://conf/mail-error.properties </repositoryPath> -->
             <passThrough> true </passThrough>
           </mailet>
@@ -228,7 +190,7 @@
           using delay time to retry delivery and the maximum number of
           retries -->
           <mailet match="All" class="RemoteDelivery">
-            <outgoing> file://var/mail/outgoing/ </outgoing>
+            <outgoing> file://../../var/mail/outgoing/ </outgoing>
             <!-- <outgoing> db://conf/mail-outgoing.properties </outgoing> -->
             <delayTime> 21600000 </delayTime>
             <maxRetries> 5 </maxRetries>
@@ -259,7 +221,7 @@
 
           <!-- Out of the box, this will log the message to a repository -->
           <mailet match="All" class="ToRepository">
-            <repositoryPath>file://var/mail/spam/</repositoryPath>
+            <repositoryPath>file://../../var/mail/spam/</repositoryPath>
           </mailet>
         </processor>
   </spoolmanager>
@@ -269,7 +231,6 @@
   <dnsserver>
         <servers>
           <server>127.0.0.1</server>
-          <server>216.7.13.66</server>
           <!--<server> put extra dns server address here </server>-->
         </servers>
         <authoritative>false</authoritative>
@@ -302,7 +263,6 @@
 
   <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
   <imapserver>
-
         <port>143</port>
         <!-- <port>995</port> -->
         <!-- need to check what if any IMAP over SSL uses -->
@@ -320,6 +280,21 @@
           <connectiontimeout>1800000</connectiontimeout>
 	</handler>
   </imapserver>
+
+  <imaphost>
+    <recordRepository>var/mail/folderRecords</recordRepository>
+    <mailboxRepository>var/mail/mailboxes</mailboxRepository>
+    <!--
+    <namespaces token="#">
+      <privateNamespace separator=".">#mail</privateNamespace>
+      <otherusersNamespace separator=".">#users</otherusersNamespace>
+      <sharedNamespace separator=".">#shared</sharedNamespace>
+    </namespaces>
+    -->
+  </imaphost>
+
+  <imapsystem>
+  </imapsystem>
 
   <pop3server>
         <port>110</port>
@@ -390,10 +365,13 @@
           given OR 'localhost' -->
           <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>120000</connectiontimeout>
-	  <!-- make this true, if you want only authenticated users to access NNTP-->
-          <authRequired>false</authRequired>
         </handler>
   </nntpserver>
+
+  <nntpauth>
+     <!-- make this true, if you want only authenticated users to access NNTP-->
+     <authRequired>false</authRequired>
+  </nntpauth>
 
   <nntp-repository>
         <!-- make this true to disallow posting to all newsgroups-->
@@ -479,7 +457,7 @@
           </types>
           <config>
             <sqlFile>file://conf/sqlResources.xml</sqlFile>
-            <filestore>file://var/dbmail</filestore>
+            <filestore>file://../../var/dbmail</filestore>
           </config>
         </repository>
         <repository
@@ -492,7 +470,7 @@
           </types>
           <config>
             <sqlFile>file://conf/sqlResources.xml</sqlFile>
-            <filestore>file://var/dbmail</filestore>
+            <filestore>file://../../var/dbmail</filestore>
           </config>
         </repository>
       </repositories>
@@ -504,7 +482,7 @@
 
       <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
       <spoolRepository>
-        <repository destinationURL="file://var/mail/spool/"
+        <repository destinationURL="file://../../var/mail/spool/"
                     type="SPOOL">
         </repository>
       </spoolRepository>
@@ -532,7 +510,7 @@
          (Use of database or file-system is defined on a "per-repository" basis)
 
          Note: Two user repositories are required for default configuration:
-         LocalUsers - the users for whom you are providing POP3, IMAP or NNTP
+         LocalUsers - the users for whom you are providing POP3, NNTP, or
                       AUTH service
          list-james - the users of the james@localhost mailiinglist
     -->
@@ -543,12 +521,12 @@
       <!-- The LocalUsers repository, for storing James' User info. -->
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
-        <destination URL="file://var/users/"/>
+        <destination URL="file://../../var/users/"/>
       </repository>
       <!-- The list used by the default ListServ mailet -->
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
-        <destination URL="file://var/lists/list-james/"/>
+        <destination URL="file://../../var/lists/list-james/"/>
       </repository>
 
 
@@ -602,20 +580,20 @@
         -->
         <!--
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
             <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
             <user>username</user>
             <password>password</password>
         </data-source>
-        -->
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
         	<driver>com.inet.tds.TdsDriver</driver>
         	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
         	<user>sa_james</user>
         	<password>blahblah</password>
         </data-source>
+        -->
     </data-sources>
   </database-connections>
 

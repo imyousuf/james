@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
+package org.apache.james.imapserver;
+
+public interface ImapConstants
+{
+    // Connection states
+    int NON_AUTHENTICATED = 0;
+    int AUTHENTICATED = 1;
+    int SELECTED = 2;
+    int LOGOUT = 3;
+
+    // Basic response types
+    String OK = "OK";
+    String NO = "NO";
+    String BAD = "BAD";
+    String UNTAGGED = "*";
+
+    String SP = " ";
+    String VERSION = "IMAP4rev1";
+    String CAPABILITY_RESPONSE = "CAPABILITY " + VERSION; //add as implemented
+
+    String AUTH_FAIL_MSG
+            = "NO Command not authorized on this mailbox";
+    String BAD_LISTRIGHTS_MSG
+            = "BAD Command should be <tag> <LISTRIGHTS> <mailbox> <identifier>";
+    String BAD_LIST_MSG
+            = "BAD Command should be <tag> <LIST> <reference name> <mailbox>";
+    String BAD_LSUB_MSG
+            = "BAD Command should be <tag> <LSUB> <reference name> <mailbox>";
+    String NO_NOTLOCAL_MSG
+            = "NO Mailbox does not exist on this server";
+
+    //mainly to switch on stack traces and catch responses;
+    boolean DEEP_DEBUG = true;
+
+    // Connection termination options
+    int NORMAL_CLOSE = 0;
+    int OK_BYE = 1;
+    int UNTAGGED_BYE = 2;
+    int TAGGED_NO = 3;
+    int NO_BYE = 4;
+
+    String LIST_WILD = "*";
+    String LIST_WILD_FLAT = "%";
+    char[] CTL = {};
+    String[] ATOM_SPECIALS
+            = {"(", ")", "{", " ", LIST_WILD, LIST_WILD_FLAT, };
+
+    
+}

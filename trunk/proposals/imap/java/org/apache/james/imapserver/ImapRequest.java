@@ -7,80 +7,27 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-/**
- * An single client request to an IMAP server, with necessary details for
- * command processing
- *
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 17 Jan 2001
- */
-public class ImapRequest {
+public interface ImapRequest
+{
+    String getCommand();
+    
+    void setCommand( String command );
+    
+    StringTokenizer getCommandLine();
+    
+    int arguments();
 
-    private StringTokenizer commandLine;
-    private boolean useUIDs;
-    private ACLMailbox currentMailbox;
-    private String commandRaw;
-    private String tag;
-    private SingleThreadedConnectionHandler caller;
-    private String currentFolder;
+    SingleThreadedConnectionHandler getCaller();
 
-    public ImapRequest(SingleThreadedConnectionHandler handler) {
-        caller = handler;
-    }
+    boolean useUIDs();
 
-    public SingleThreadedConnectionHandler getCaller() {
-        return caller;
-    }
+    ACLMailbox getCurrentMailbox();
 
-    public void setCommandLine(StringTokenizer st) {
-        commandLine = st;
-    }
+    String getCommandRaw();
 
-    public StringTokenizer getCommandLine() {
-        return commandLine;
-    }
+    String getTag();
 
-    public void setUseUIDs(boolean state) {
-        useUIDs = state;
-    }
-
-    public boolean useUIDs() {
-        return useUIDs;
-    }
-
-    public void setCurrentMailbox(ACLMailbox mbox) {
-        currentMailbox = mbox;
-    }
-
-    public ACLMailbox getCurrentMailbox() {
-        return currentMailbox;
-    }
-
-    public void setCommandRaw(String raw) {
-        commandRaw = raw;
-    }
-
-    public String getCommandRaw() {
-        return commandRaw;
-    }
-
-    public void setTag(String t) {
-        tag = t;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setCurrentFolder(String f) {
-        currentFolder = f;
-    }
-
-    public String getCurrentFolder() {
-        return currentFolder;
-    }
+    String getCurrentFolder();
 }

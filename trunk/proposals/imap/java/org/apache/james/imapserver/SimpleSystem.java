@@ -8,12 +8,16 @@
 package org.apache.james.imapserver;
 
 import java.util.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.AuthenticationException;
 
 /**
@@ -24,7 +28,7 @@ import org.apache.james.AuthenticationException;
  * @version 0.1 on 14 Dec 2000
  */
 public class SimpleSystem
-    implements IMAPSystem, Component, Initializable {
+    implements IMAPSystem, Block, Initializable {
 
     private static final String namespaceToken = "#";
     private static final String hierarchySeperator = ".";
@@ -51,7 +55,13 @@ public class SimpleSystem
 
     public void initialize() throws Exception {
         // Derive namespace and namespaceToken from conf
-        singleServer = (String) context.get("HostName");
+        String hostName = null;
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch  (UnknownHostException ue) {
+            hostName = "localhost";
+        }
+        singleServer = hostName;
         servers.add(singleServer);
     }
 

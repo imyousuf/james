@@ -540,6 +540,22 @@ public interface Mailbox
      * an IMAP SELECT or EXAMINE.
      */
     Map getUnseenByUser();
+
+    /**
+     * Returns true if the named user is subscribed to this Mailbox.
+     */
+    boolean isSubscribed( String userName );
+
+    /**
+     * Subscribes a user to this Mailbox.
+     */
+    void subscribe( String userName );
+
+    /**
+     * Unsubscrive a user from this Mailbox.
+     */
+    void unsubscribe( String userName );
+
 }
 
 
