@@ -15,19 +15,37 @@ import javax.mail.*;
  * No idea what this class is for..... seems to send processor of a message to
  * another mailet (which I didn't think we were supporting)
  *
+ * Sample configuration:
+ * <mailet match="All" class="ToProcessor">
+ *   <processor>spam</processor>
+ *   <notice>Notice attached to the message (optional)</notice>
+ * </mailet>
+ *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class ToProcessor extends GenericMailet {
     String processor;
+    String noticeText = null;
 
-    public void init() {
+    public void init() throws MailetException {
         processor = getInitParameter("processor");
+        if (processor == null) {
+            throw new MailetException("processor parameter is required");
+        }
+        noticeText = getInitParameter("notice");
     }
 
     public void service(Mail mail) throws MessagingException {
         log("Sending mail " + mail + " to " + processor);
-        getMailetContext().sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage(), processor);
-        mail.setState(Mail.GHOST);
+        mail.setState(processor);
+        if (noticeText != null) {
+            if (mail.getErrorMessage() == null) {
+                mail.setErrorMessage(noticeText);
+            } else {
+                mail.setErrorMessage(mail.getErrorMessage() + "\r\n" + noticeText);
+            }
+        }
     }
 
 
