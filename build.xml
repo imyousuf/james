@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.86 $  Committed on $Date: 2001/10/30 14:07:50 $ by: $Author: serge $
+ James build file $Revision: 1.86.2.1 $  Committed on $Date: 2002/02/04 14:51:03 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -12,7 +12,7 @@ Authors:
  Harmeet Bedi <harmeet@kodemuse.com>
 
 Legal:
-  Copyright (c) 1999-2001 The Apache Software Foundation. All Rights Reserved.
+  Copyright (c) 1999-2002 The Apache Software Foundation. All Rights Reserved.
 
 
 ==============================================================================
@@ -30,7 +30,7 @@ Legal:
   <property name="name" value="james"/>
   <property name="Name" value="James"/>
   <property name="version" value="2.0a2"/>
-  <property name="year" value="1999-2001"/>
+  <property name="year" value="1999-2002"/>
 
   <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
