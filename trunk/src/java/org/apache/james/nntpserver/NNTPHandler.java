@@ -1418,12 +1418,12 @@ public class NNTPHandler
      * @return whether the command is authorized
      */
     private boolean isAuthorized(String command) {
-        boolean allowed = isAlreadyAuthenticated || isAuthenticated();
-        if (allowed) {
+        isAlreadyAuthenticated = isAlreadyAuthenticated || isAuthenticated();
+        if (isAlreadyAuthenticated) {
             return true;
         }
         // some commands are authorized, even if the user is not authenticated
-        allowed = allowed || command.equals("AUTHINFO");
+        boolean allowed = command.equals("AUTHINFO");
         allowed = allowed || command.equals("MODE");
         allowed = allowed || command.equals("QUIT");
         return allowed;
