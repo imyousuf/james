@@ -22,7 +22,7 @@ import java.util.Vector;
 /**
  * MailingListServer capability.
  * 
- * <p>Requires a configuration element in the .conf.xml file of the form:
+ * <p>Requires a configuration element in the config.xml file of the form:
  * <br>  &lt;mailet match="RecipientIs=LIST-ADDRESS" class="AvalonListserv"&gt;
  * <br>    &lt;repositoryName&gt;LIST-NAME&lt;/repositoryName&gt;
  * <br>    &lt;membersonly&gt;[true|false]&lt;/membersonly&gt;
@@ -52,7 +52,7 @@ import java.util.Vector;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.6 $
+ * @version This is $Revision: 1.7 $
  */
 public class AvalonListserv extends GenericListserv {
 
