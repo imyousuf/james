@@ -17,7 +17,7 @@ handles list messages.  The repository will hold the e-mail addresses
 of list subscribers.</p>
 
 <p>The mailets go into the processor chain (e.g., at the top of the
-<i>transport</i> processor, the last one goes into the
+<i>transport</i> processor), the repository goes into the
 &lt;users-store&gt; block.</p>
 
 <subsection name="Setting up the Mailets">
