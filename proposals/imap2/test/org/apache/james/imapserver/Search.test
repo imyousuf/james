@@ -1,4 +1,0 @@
-# TODO implement search - currently returns everything regardless
-C: a SEARCH FLAGGED
-S: \* SEARCH 1 2 3 4
-S: a OK SEARCH completed
