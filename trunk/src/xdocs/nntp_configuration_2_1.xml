@@ -50,6 +50,11 @@ value will result in an error.  If present, this tag overrides the useTLS tag.</
 <li><strong>threadGroup</strong> - This is an optional tag with a string body.  If the tag is present, 
 the body must be the name of one of the thread groups specified in the thread manager block.  Any other 
 value will result in an error.  This tag is best used to fine tune thread allocation between the services.</li>
+<li><strong>connectionLimit</strong> - The connectionLimit parameter specifies the maximum number of client 
+connections that this service will allow.  If no value is specified, the value defaults to that specified in 
+the connectionmanager block.  A value of 0 means that there is no limit imposed 
+by the service, although resource limitations imposed by other components 
+(i.e. max # of threads) may serve to limit the number of open connections.</li>
 </ul>
 </subsection>
 <subsection name="The nntp-repository block">
