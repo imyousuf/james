@@ -1362,7 +1362,7 @@ public class MessageProcessor extends ProcessorAbstract
                 hostNameEnd = domain.length();
             address = domain.substring(0, hostNameEnd);
         }
-        validatedAddress = org.xbill.DNS.Address.getByName(address).getHostAddress();
+        validatedAddress = org.apache.james.dnsserver.DNSServer.getByName(address).getHostAddress();
 
         return validatedAddress;
     }
@@ -1380,8 +1380,8 @@ public class MessageProcessor extends ProcessorAbstract
         // These shenanigans are required to get the fully qualified
         // hostname prior to JDK 1.4 in which get getCanonicalHostName()
         // does the job for us
-        InetAddress addr1 = org.xbill.DNS.Address.getByName(getRemoteAddress());
-        InetAddress addr2 = org.xbill.DNS.Address.getByName(addr1.getHostAddress());
+        InetAddress addr1 = org.apache.james.dnsserver.DNSServer.getByName(getRemoteAddress());
+        InetAddress addr2 = org.apache.james.dnsserver.DNSServer.getByName(addr1.getHostAddress());
         return addr2.getHostName();
     }        
 

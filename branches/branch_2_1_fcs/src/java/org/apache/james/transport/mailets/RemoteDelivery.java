@@ -88,7 +88,7 @@ import org.apache.oro.text.regex.MatchResult;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.20 $ $Date: 2004/04/13 01:39:44 $
+ * @version CVS $Revision: 1.33.4.21 $ $Date: 2004/05/02 06:08:37 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -1112,7 +1112,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     final String nextGateway = server;
                     final String nextGatewayPort = port;
                     try {
-                        final InetAddress[] ips = org.xbill.DNS.Address.getAllByName(nextGateway);
+                        final InetAddress[] ips = org.apache.james.dnsserver.DNSServer.getAllByName(nextGateway);
                         addresses = new Iterator() {
                             private InetAddress[] ipAddresses = ips;
                             int i = 0;
