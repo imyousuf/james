@@ -42,7 +42,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.30 $
+ * @version This is $Revision: 1.31 $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -342,7 +342,6 @@ public class SMTPHandler
                 scheduler.resetTrigger(this.toString());
             }
             getLogger().debug("Closing socket.");
-            scheduler.removeTrigger(this.toString());
         } catch (SocketException se) {
             if (getLogger().isDebugEnabled()) {
                 StringBuffer errorBuffer = 
@@ -391,6 +390,10 @@ public class SMTPHandler
                                       + e.getMessage());
                 }
             }
+            // release from scheduler.
+            try {
+                scheduler.removeTrigger(this.toString());
+            } catch(Throwable t) { }
         }
     }
 
