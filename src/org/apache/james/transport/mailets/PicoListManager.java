@@ -59,7 +59,7 @@ public class PicoListManager extends GenericMailet {
         //log("PicoListserv: " + listName + " sub " + subscribe + " unsub " + unsubscribe + "-" + transport);
     }
 
-    public void service(Mail mail) throws MailetException {
+    public void service(Mail mail) throws MailetException, MessagingException {
         Collection recipients = mail.getRecipients();
         MailAddress recipient = (MailAddress) recipients.iterator().next();
         if (recipients.size() != 1) {
