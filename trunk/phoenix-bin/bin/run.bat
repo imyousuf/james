@@ -59,7 +59,7 @@ goto end
 
 if not "%PHOENIX_TMPDIR%"=="" goto afterTmpDir
 set PHOENIX_TMPDIR=%PHOENIX_HOME%\temp
-if not exist "%PHOENIX_TMPDIR%" mkdir %PHOENIX_TMPDIR%
+if not exist "%PHOENIX_TMPDIR%" mkdir "%PHOENIX_TMPDIR%"
 
 :afterTmpDir
 
