@@ -144,17 +144,10 @@
                     <mailet match="RecipientIs=administrator@localhost" class="Forward">
                         <forwardto> root@localhost </forwardto>
                     </mailet>
-                    <mailet match="RecipientIs=james-on@localhost" class="PicoListManager">
-                        <subscribe> james-on </subscribe>
-                        <unsubscribe> james-off </unsubscribe>
+                    <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
                         <listName> james </listName>
                     </mailet>
-                    <mailet match="RecipientIs=james-off@localhost" class="PicoListManager">
-                        <subscribe> james-on </subscribe>
-                        <unsubscribe> james-off </unsubscribe>
-                        <listName> james </listName>
-                    </mailet>
-                    <mailet match="RecipientIs=james@localhost" class="PicoListserv">
+                    <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
                         <membersonly> false </membersonly>
                         <attachmentsallowed> true </attachmentsallowed>
                         <replytolist> true </replytolist>
@@ -212,10 +205,10 @@
                     class="org.apache.james.AvalonMailRepository"/>
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="town://"
-                    class="org.apache.james.TownMailRepository"/>
+                    class="org.apache.james.TownSpoolRepository"/>
                 <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="town://"
-                    class="org.apache.james.TownMailRepository"/>
+                    class="org.apache.james.TownSpoolRepository"/>
                 <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.AvalonMailRepository"/>

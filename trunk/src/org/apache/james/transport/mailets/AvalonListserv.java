@@ -24,7 +24,7 @@ import org.apache.mailet.*;
  * <replytolist>
  * <subjectprefix>
  */
-public class PicoListserv extends GenericListserv {
+public class AvalonListserv extends GenericListserv {
 
     protected boolean membersOnly = false;
     protected boolean attachmentsAllowed = true;
@@ -84,6 +84,6 @@ public class PicoListserv extends GenericListserv {
     }
 
     public String getMailetInfo() {
-        return "PicoListserv Mailet";
+        return "AvalonListserv Mailet";
     }
 }

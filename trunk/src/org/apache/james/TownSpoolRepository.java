@@ -20,17 +20,18 @@ import javax.mail.MessagingException;
 import com.workingdogs.town.*;
 
 /**
- * Implementation of a MailRepository on a database.
+ * Implementation of a SpoolRepository on a database.
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class TownMailRepository implements SpoolRepository {
+public class TownSpoolRepository implements SpoolRepository, Configurable {
 
     /**
      * Define a STREAM repository. Streams are stored in the specified
      * destination.
      */
 
+    private String prefix;
     private String name;
     private String type;
     private String model;
@@ -39,7 +40,9 @@ public class TownMailRepository implements SpoolRepository {
     private String repositoryName;
     private String conndefinition;
 
-    public TownMailRepository() {
+    private String tableName = "Message";
+
+    public TownSpoolRepository() {
     }
 
     public void setAttributes(String name, String destination, String type, String model) {
@@ -49,7 +52,9 @@ public class TownMailRepository implements SpoolRepository {
 
         //need to parse the destination out to find the mail repository and
         //  the database connection URL
-        String temp = destination.substring("town://".length());
+        int slash = destination.indexOf("//");
+        prefix = destination.substring(0, slash + 2);
+        String temp = destination.substring(slash + 2);
         int at = temp.indexOf("@");
         repositoryName = temp.substring(0, at);
         conndefinition = temp.substring(at + 1);
@@ -57,6 +62,15 @@ public class TownMailRepository implements SpoolRepository {
 
     public void setComponentManager(ComponentManager comp) {
         lock = new Lock();
+    }
+
+    public void setConfiguration(Configuration conf) {
+        System.err.println(conf);
+        try {
+            System.err.println(conf.getAttribute("conn"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getName() {
@@ -72,7 +86,7 @@ public class TownMailRepository implements SpoolRepository {
     }
 
     public String getChildDestination(String childName) {
-        return "town://" + repositoryName + "/" + childName + "@" + conndefinition;
+        return prefix + repositoryName + "/" + childName + "@" + conndefinition;
     }
 
     public synchronized void unlock(Object key) {
@@ -99,7 +113,7 @@ public class TownMailRepository implements SpoolRepository {
             //System.err.println("storing " + mc.getName());
             String key = mc.getName();
             mc.setLastUpdated(new Date());
-            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
+            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setWhere("message_name = '" + key + "'");
             Record mail = null;
             if (messages.size() == 0) {
@@ -133,7 +147,7 @@ public class TownMailRepository implements SpoolRepository {
             notifyAll();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Exception caught while storing Message Container: " + e);
+            throw new RuntimeException("Exception caught while storing mail Container: " + e);
         }
     }
 
@@ -141,7 +155,7 @@ public class TownMailRepository implements SpoolRepository {
         //MailImpl mc = (MailImpl) or.get(key);
         try {
             //System.err.println("retrieving " + key);
-            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
+            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
             MailImpl mc = new MailImpl();
@@ -174,7 +188,7 @@ public class TownMailRepository implements SpoolRepository {
     public synchronized void remove(String key) {
         lock(key);
         try {
-            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
+            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
             message.markToBeDeleted();
@@ -187,7 +201,7 @@ public class TownMailRepository implements SpoolRepository {
 
     public Enumeration list() {
         try {
-            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
+            TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setColumns("message_name");
             messages.setWhere("repository_name='" + repositoryName + "'");
             messages.setOrder("last_updated");
@@ -220,6 +234,7 @@ public class TownMailRepository implements SpoolRepository {
     public synchronized String accept(long delay) {
         while (true) {
             long youngest = 0;
+            //Really unoptimized query here... should be much smart about this...
             for (Enumeration e = list(); e.hasMoreElements(); ) {
                 String s = e.nextElement().toString();
                 if (lock.lock(s)) {
