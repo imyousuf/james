@@ -200,4 +200,13 @@ public class AvalonMailStore
         }
     }
 
+    public boolean hasComponent( Object hint ) {
+        Component comp = null;
+        try {
+            comp = select(hint);
+        } catch(ComponentException ex) {
+            getLogger().error("Exception AvalonMailStore.hasComponent-"+ex.toString());
+        }
+        return (comp != null);
+    }
 }
