@@ -64,7 +64,7 @@ import org.apache.james.util.*;
  *
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  * @author <a href="mailto:scoobie@systemy.it">Federico Barbieri</a>
- * @version $Revision: 1.2 $ $Date: 1999/09/07 15:52:17 $
+ * @version $Revision: 1.3 $ $Date: 1999/09/07 15:59:24 $
  */
 
 public class FileObjectStore implements ObjectStore {
@@ -108,20 +108,20 @@ System.out.println("repository: " + path);
      */
     public void store(Object key, Object value) {
         try {
-            String tempFilename = this.encode(key) + tempExt;
-            String storeFilename = this.encode(key) + storeExt;
-            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(tempFilename));
+            File tempFile = new File (this.encode(key) + tempExt);
+            File storeFile = new File (this.encode(key) + storeExt);
+            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(tempFile));
             stream.writeObject(value);
             stream.close();
 
-			while (storeFilename.exists()) {
-				storeFilename.delete();
+			while (storeFile.exists()) {
+				storeFile.delete();
 				sleep();
 			}
-			while (!tempFilename.renameTo(storeFilename)) {
+			while (!tempFile.renameTo(storeFile)) {
 				sleep();
 			}
-			while (tempFilename.exists()) {
+			while (tempFile.exists()) {
 				sleep();
 			}
 
@@ -217,7 +217,7 @@ System.out.println("repository: " + path);
     /**
      * Simple routine to sleep, catching exceptions
      */
-    private void sleep(long ms) {
+    private void sleep() {
         //System.out.println("Sleeping for 20s...");
 
         try {
