@@ -11,48 +11,43 @@
      <!--  Specify the target for each category of logger listed below.
            The name is the name in the code and should not be changed by assemblers, deployers or administrators.
            The priority is the lowest priority of logging mesage recorded.
-           In theory (but not tested) assemblers etc can point multiple categories at the same target.
-      -->
-      <category name="" target="default" priority="DEBUG" />
-      <category name="objectstorage" target="objectstorage-target" priority="DEBUG" />
-      <category name="james-storage" target="james-storage-target" priority="DEBUG" />
-      <category name="mailstore" target="mailstore-target" priority="DEBUG" />
-      <category name="users-store" target="userstore-target" priority="DEBUG" />
-      <category name="james" target="james-core-target" priority="DEBUG" />
-      <category name="JamesCore" target="james-core-target" priority="DEBUG" />
-      <category name="Mailets" target="mailets-target" priority="DEBUG" />
-      <category name="James.SMTPServer" target="smtpserver-target" priority="DEBUG" />
-      <category name="James.POP3Server" target="pop3server-target" priority="DEBUG" />
-      <category name="James.NNTPServer" target="nntpserver-target" priority="DEBUG" />
-      <category name="James.DnsServer" target="dnsserver-target" priority="DEBUG" />
-      <category name="James.RemoteManager" target="remotemanager-target" priority="DEBUG" />
-      <category name="James.SpoolManager" target="spoolmanager-target" priority="DEBUG" />
-      <category name="MailRepository" target="mailrepository-target" priority="DEBUG" />
-      <category name="James.IMAPServer" target="imapserver-target" priority="DEBUG" />
-      <category name="Security" target="security-target" priority="DEBUG" />
-      <category name="JamesHost" target="jameshost-target" priority="DEBUG" />
-
-      <!--  Specify where to write each log target listed below. 
-       The location is relative to the directory of the sar ?
       -->
 
-      <log-target name="default" location="/logs/avalon-demo.log" />
-      <log-target name="objectstorage-target" location="/logs/objectstorage.log" />
-      <log-target name="james-storage-target" location="/logs/jamesstorage.log" />
-      <log-target name="mailstore-target" location="/logs/mailstore.log" />
-      <log-target name="userstore-target" location="/logs/userstore.log" />
-      <log-target name="james-core-target" location="/logs/james-core.log" />
-      <log-target name="mailets-target" location="/logs/mailets.log" />
-      <log-target name="smtpserver-target" location="/logs/smtpserver.log" />
-      <log-target name="pop3server-target" location="/logs/pop3server.log" />
-      <log-target name="nntpserver-target" location="/logs/pop3server.log" />
-      <log-target name="dnsserver-target" location="/logs/dnsserver.log" />
-      <log-target name="remotemanager-target" location="/logs/remotemanager.log" />
-      <log-target name="spoolmanager-target" location="/logs/spoolmanager.log" />
-      <log-target name="mailrepository-target" location="/logs/mailrepository.log" />
-      <log-target name="imapserver-target" location="/logs/imapserver.log" />
-      <log-target name="security-target" location="/logs/security.log" />
-      <log-target name="jameshost-target" location="/logs/jameshost.log" />
+        <category name="" target="default" priority="DEBUG" />
+        <log-target name="default" location="/logs/James-default.log" />
+
+        <category name="James" target="James-target" priority="DEBUG"/>
+        <log-target name="James-target" location="/logs/James.log"/>
+        <category name="spoolmanager" target="spoolmanager-target" priority="DEBUG"/>
+        <log-target name="spoolmanager-target" location="/logs/spoolmanager.log"/>
+        <category name="dnsserver" target="dnsserver-target" priority="DEBUG"/>
+        <log-target name="dnsserver-target" location="/logs/dnsserver.log"/>
+        <category name="remotemanager" target="remotemanager-target" priority="DEBUG"/>
+        <log-target name="remotemanager-target" location="/logs/remotemanager.log"/>
+        <category name="imapserver" target="imapserver-target" priority="DEBUG"/>
+        <log-target name="imapserver-target" location="/logs/imapserver.log"/>
+        <category name="pop3server" target="pop3server-target" priority="DEBUG"/>
+        <log-target name="pop3server-target" location="/logs/pop3server.log"/>
+        <category name="smtpserver" target="smtpserver-target" priority="DEBUG"/>
+        <log-target name="smtpserver-target" location="/logs/smtpserver.log"/>
+        <category name="nntpserver" target="nntpserver-target" priority="DEBUG"/>
+        <log-target name="nntpserver-target" location="/logs/nntpserver.log"/>
+        <category name="nntp-repository" target="nntp-repository-target" priority="DEBUG
+"/>
+        <log-target name="nntp-repository-target" location="/logs/nntp-repository.log"/>
+        <category name="mailstore" target="mailstore-target" priority="DEBUG"/>
+        <log-target name="mailstore-target" location="/logs/mailstore.log"/>
+        <category name="users-store" target="users-store-target" priority="DEBUG"/>
+        <log-target name="users-store-target" location="/logs/users-store.log"/>
+        <category name="objectstorage" target="objectstorage-target" priority="DEBUG"/>
+        <log-target name="objectstorage-target" location="/logs/objectstorage.log"/>
+        <category name="connections" target="connections-target" priority="DEBUG"/>
+        <log-target name="connections-target" location="/logs/connections.log"/>
+        <category name="sockets" target="sockets-target" priority="DEBUG"/>
+        <log-target name="sockets-target" location="/logs/sockets.log"/>
+        <category name="scheduler" target="scheduler-target" priority="DEBUG"/>
+        <log-target name="scheduler-target" location="/logs/scheduler.log"/>
+
     </logs>
 
     <threads>

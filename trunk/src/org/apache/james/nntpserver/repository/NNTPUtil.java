@@ -23,6 +23,8 @@ public class NNTPUtil {
         throws ConfigurationException
     {
         String str = configuration.getChild(child).getValue();
+        if ( str.toLowerCase().startsWith("file://") )
+            str = str.substring("file://".length());
         File f = new File(str);
         if ( f.exists() && f.isFile() )
             throw new NNTPException("Expecting '"+f.getAbsolutePath()+"' directory");

@@ -77,7 +77,7 @@ public class JamesSpoolManager
             getLogger().error("Cannot open private SpoolRepository");
             throw e;
         }
-        getLogger().info("Private SpoolRepository Spool opened");
+        getLogger().info("Private SpoolRepository Spool opened: "+spool.hashCode());
         //compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
         //spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
         mailetcontext = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
@@ -163,7 +163,8 @@ public class JamesSpoolManager
                 throw ex;
             }
         }
-        while ( threads-- > 0 )
+        getLogger().info("Spooler Manager uses "+threads+" Thread(s)");
+        for ( int i = 0 ; i < threads ; i++ )
             workerPool.execute(this);
     }
 
@@ -172,7 +173,8 @@ public class JamesSpoolManager
      */
     public void run() {
 
-        getLogger().info("run JamesSpoolManager");
+        getLogger().info("run JamesSpoolManager: "+Thread.currentThread().getName());
+        getLogger().info("spool="+spool.getClass().getName());
         while(true) {
 
             try {

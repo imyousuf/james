@@ -7,8 +7,6 @@
  */
 package org.apache.james.core;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.apache.avalon.Initializable;
@@ -31,6 +29,9 @@ import org.apache.phoenix.Block;
 /**
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
+ *
+ * Provides Registry of mail repositories. A mail repository is uniquely identified 
+ * by destinationURL, type and model.
  */
 public class AvalonMailStore
     extends AbstractLoggable
@@ -38,8 +39,11 @@ public class AvalonMailStore
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;
+    // map of [destinationURL + type]->Repository
     private HashMap repositories;
+    // map of [destinationURL + type]->model
     private HashMap models;
+    // map of [protocol(destinationURL) + type + model]->classname of repository;
     private HashMap classes;
     protected Configuration          configuration;
     protected ComponentManager       componentManager;
@@ -72,7 +76,7 @@ public class AvalonMailStore
         getLogger().info("James RepositoryManager ...init");
     }
 
-    public void registerRepository(Configuration repConf)
+    public synchronized void registerRepository(Configuration repConf)
         throws ConfigurationException {
         String className = repConf.getAttribute("class");
         getLogger().info("Registering Repository " + className);
@@ -92,9 +96,9 @@ public class AvalonMailStore
                 for ( int k = 0; k < models.length; k++ )
                 {
                     String model = models[k].getValue();
-
-                    classes.put(protocol + type + model, className);
-                    getLogger().info("   for " + protocol + "," + type + "," + model);
+                    String key = protocol + type + model;
+                    classes.put(key, className);
+                    getLogger().info("Registered class: " + key+"->"+className);
                 }
             }
         }
@@ -104,8 +108,8 @@ public class AvalonMailStore
     {
     }
 
-    public Component select(Object hint) throws ComponentException,
-    ComponentException {
+    public synchronized Component select(Object hint) throws ComponentException
+    {
 
         Configuration repConf = null;
         try {
@@ -113,13 +117,17 @@ public class AvalonMailStore
         } catch (ClassCastException cce) {
             throw new ComponentException("hint is of the wrong type. Must be a Configuration", cce);
         }
-        URL destination = null;
+        String destination = null;
+        String protocol = null;
         try {
-            destination = new URL(repConf.getAttribute("destinationURL"));
+            destination = repConf.getAttribute("destinationURL");
+            int idx = destination.indexOf(':');
+            if ( idx == -1 )
+                throw new ComponentException
+                    ("destination is malformed. Must be a valid URL: "+destination);
+            protocol = destination.substring(0,idx);
         } catch (ConfigurationException ce) {
             throw new ComponentException("Malformed configuration has no destinationURL attribute", ce);
-        } catch (MalformedURLException mue) {
-            throw new ComponentException("destination is malformed. Must be a valid URL", mue);
         }
 
         try
@@ -130,16 +138,16 @@ public class AvalonMailStore
             String model = (String) repConf.getAttribute("model");
             if (reply != null) {
                 if (models.get(repID).equals(model)) {
+                    getLogger().debug("obtained repository: "+repID+","+reply.getClass());
                     return (Component)reply;
                 } else {
                     throw new ComponentException("There is already another repository with the same destination and type but with different model");
                 }
             } else {
-                String protocol = destination.getProtocol();
                 String repClass = (String) classes.get( protocol + type + model );
 
                 getLogger().debug( "Need instance of " + repClass +
-                                   " to handle: " + protocol + type + model );
+                                   " to handle: " + protocol + "," + type + "," +model );
 
                 try {
                     reply = (MailRepository) Class.forName(repClass).newInstance();
@@ -157,6 +165,7 @@ public class AvalonMailStore
                     }
                     repositories.put(repID, reply);
                     models.put(repID, model);
+                    getLogger().info("added repository: "+repID+"->"+repClass);
                     getLogger().info( "New instance of " + repClass +
                                       " created for " + destination );
                     return (Component)reply;

@@ -251,7 +251,7 @@ public class James
             getLogger().error("Cannot open private SpoolRepository");
             throw e;
         }
-        getLogger().info("Private SpoolRepository Spool opened");
+        getLogger().info("Private SpoolRepository Spool opened: "+spool.hashCode());
         //compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);
