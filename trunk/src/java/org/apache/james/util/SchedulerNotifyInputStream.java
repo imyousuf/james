@@ -25,6 +25,9 @@ public class SchedulerNotifyInputStream extends InputStream {
      */
     InputStream in = null;
 
+    /**
+     * The scheduler managing the trigger to be reset by this stream
+     */
     TimeScheduler scheduler = null;
 
     /**
@@ -42,6 +45,12 @@ public class SchedulerNotifyInputStream extends InputStream {
      */
     int readCounter = 0;
 
+    /**
+     * @param in the InputStream to be wrapped by this stream
+     * @param scheduler the TimeScheduler managing the trigger to be reset by this stream
+     * @param triggerName the name of the particular trigger to be reset by this stream
+     * @param lengthReset the number of bytes to be read in between trigger resets
+     */
     public SchedulerNotifyInputStream(InputStream in,
             TimeScheduler scheduler, String triggerName, int lengthReset) {
         this.in = in;

@@ -41,8 +41,8 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.14 $
- * Committed on $Date: 2002/08/23 04:43:48 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.15 $
+ * Committed on $Date: 2002/09/14 07:28:55 $ by: $Author: pgoldstein $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -245,7 +245,7 @@ public class JamesSpoolManager
                         //System.exit(1);
                         throw ex;
                     }
-                    //Add this pair to the proces
+                    //Add this pair to the processor
                     processor.add(matcher, mailet);
                 }
 
