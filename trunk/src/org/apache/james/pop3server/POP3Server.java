@@ -7,89 +7,56 @@
  */
 package org.apache.james.pop3server;
 
-import java.net.*;
-import java.util.Date;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.Composer;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.configuration.Configurable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Component;
-import org.apache.avalon.util.lang.ThreadManager;
-import org.apache.avalon.util.thread.ThreadPool;
-import org.apache.cornerstone.services.SocketServer;
-import org.apache.james.*;
+import org.apache.cornerstone.services.connection.AbstractService;
+import org.apache.cornerstone.services.connection.ConnectionHandlerFactory;
+import org.apache.cornerstone.services.connection.DefaultHandlerFactory;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class POP3Server 
-    extends AbstractLoggable
-    implements SocketServer.SocketHandler, Component, Configurable, Composer, Contextualizable {
+    extends AbstractService {
 
-    private Context context;
-    private Configuration conf;
-    private ComponentManager compMgr;
-    private ThreadPool threadPool;
+    protected ConnectionHandlerFactory createFactory()
+    {
+        return new DefaultHandlerFactory( POP3Handler.class );
+    }
 
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
-    }
-    
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-    
-    public void contextualize(Context context) {
-        this.context = context;
+    public void configure( final Configuration configuration )
+        throws ConfigurationException {
+
+        m_port = configuration.getChild( "port" ).getValueAsInt( 25 );
+
+        try 
+        { 
+            final String bindAddress = configuration.getChild( "bind" ).getValue( null );
+            if( null != bindAddress )
+            {
+                m_bindTo = InetAddress.getByName( bindAddress ); 
+            }
+        }
+        catch( final UnknownHostException unhe ) 
+        {
+            throw new ConfigurationException( "Malformed bind parameter", unhe );
+        }
+
+        final String useTLS = configuration.getChild("useTLS").getValue( "" );
+        if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
+
+        super.configure( configuration.getChild( "pop3handler" ) );
     }
 
     public void init() throws Exception {
 
-        getLogger().info("POP3Server init...");
-        
-        threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
-        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
-        int port = conf.getChild("port").getValueAsInt(110);
-        InetAddress bind = null;
-        try {
-            String bindTo = conf.getChild("bind").getValue();
-            if (bindTo.length() > 0) {
-                bind = InetAddress.getByName(bindTo);
-            }
-        } catch (ConfigurationException e) {
-        }
-
-        String type = SocketServer.DEFAULT;
-        
-        try {
-            if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-        } catch (ConfigurationException e) {
-        }
-        getLogger().info("POP3Listener using " + type + " on port " + port);
-        
-        socketServer.openListener("POP3Listener", type, port, bind, this);
-        getLogger().info("POP3Server ...init end");
-    }
-
-    public void parseRequest(Socket s) {
-
-        try {
-            POP3Handler handler = new POP3Handler();
-            handler.configure(conf.getChild("pop3handler"));
-            handler.contextualize(context);
-            handler.compose(compMgr);
-            handler.init();
-            handler.parseRequest(s);
-            threadPool.execute((Runnable) handler);
-        } catch (Exception e) {
-            getLogger().error("Cannot parse request on socket " + s + " : "
-                              + e.getMessage());
-        }
+        getLogger().info( "POP3Server init..." );
+        getLogger().info( "POP3Listener using " + m_serverSocketType + " on port " + m_port );
+        super.init();
+        getLogger().info( "POP3Server ...init end" );
     }
 }
     
