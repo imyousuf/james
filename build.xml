@@ -155,9 +155,9 @@ All theese package are in current distribution.
     <copyfile src="LICENSE" dest="${dist.dir}/LICENSE"/>
     <copyfile src="build.xml" dest="${dist.dir}/build.xml"/>
 
-<!--    <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
+    <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
-    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/> -->
+    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/> 
   </target>
 
   <!-- =================================================================== -->
