@@ -151,4 +151,31 @@ public class Mail implements Serializable, Cloneable {
 		out.writeObject(name);
 		
 	}
+	
+    public static String getUser(String recipient) {
+        return recipient.substring(0, recipient.indexOf("@"));
+    }
+
+    public static String getHost(String recipient) {
+        return recipient.substring(recipient.indexOf("@") + 1);
+    }
+
+    public Mail bounce(String message) throws MessagingException {
+
+        //This sends a message to the james component that is a bounce of the sent message
+        MimeMessage original = getMessage();
+        MimeMessage reply = (MimeMessage) original.reply(false);
+        reply.setSubject("Re: " + original.getSubject());
+        Vector recipients = new Vector();
+        recipients.addElement(getSender());
+        InternetAddress addr[] = {new InternetAddress(getSender())};
+        reply.setRecipients(Message.RecipientType.TO, addr);
+        reply.setFrom(new InternetAddress(getRecipients().elementAt(0).toString()));
+        reply.setText(message);
+        reply.setHeader("Message-Id", "replyTo:" + getName());
+
+        return new Mail("replyTo" + getName(), getRecipients().elementAt(0).toString(), recipients, reply);
+    }
+
+
 }
