@@ -153,12 +153,6 @@ All these package are in current distribution.
     <!-- copy src files -->
     <copy file="${src.dir}/${constants.file}" tofile="${build.src}/${constants.file}"/>
 
-    <copy file="${conf.dir}/james.conf.xml" tofile="${build.conf}/assembly.xml"/>
-
-    <!-- substitute tokens as needed -->
-    <replace file="${build.conf}/assembly.xml" token="@@DNS@@" value="${james.dns.server}"/>
-    <replace file="${build.conf}/assembly.xml" token="@@PASSWD@@" value="${james.passwd}"/>
-
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
   </target>
@@ -237,12 +231,16 @@ All these package are in current distribution.
         <include name="jakarta-oro-2.0.1.jar"/>
       </zipfileset>
 
-      <zipfileset dir="${build.conf}" fullpath="conf/assembly.xml">
-        <include name="assembly.xml"/>
+      <zipfileset dir="${conf.dir}" fullpath="conf/config.xml">
+        <include name="james-config.xml"/>
+      </zipfileset>
+
+      <zipfileset dir="${conf.dir}" fullpath="conf/assembly.xml">
+        <include name="james-assembly.xml"/>
       </zipfileset>
 
       <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
-        <include name="james.server.xml"/>
+        <include name="james-server.xml"/>
       </zipfileset>
 
     </jar>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<assembly>
+
+  <!-- The James block  -->
+  <block class="org.apache.james.James" name="James" >
+
+    <!-- Specify which components will provide the services required by this
+    block. The roles are specified in the code and the .xinfo file. The names
+    here must match the names specified for  a Block in this xml file.   -->
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+             role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+             role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+             role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+  </block>
+
+  <!-- The High Level Storage block -->
+  <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
+    <provide name="objectstorage"
+             role="org.apache.cornerstone.services.store.Store"/> 
+  </block>
+       
+  <!-- The User Storage block -->
+  <block class="org.apache.james.core.AvalonUsersStore" name="users-store" >
+    <!-- Configure file based user store here, defaults should be fine -->
+    <provide name="objectstorage"
+             role="org.apache.cornerstone.services.store.Store"/>
+  </block>
+      
+
+  <!-- Configuration for Cornerstone Blocks only after here
+       NOTHING BELOW THIS SHOULD NEED CHANGING,
+       (unless you want secure sockets (TLS)) -->
+
+  <!-- The Storage block -->
+  <block class="org.apache.cornerstone.blocks.masterstore.RepositoryManager" 
+         name="objectstorage" />
+
+  <!-- The Connection Manager block -->
+  <block class="org.apache.cornerstone.blocks.connection.DefaultConnectionManager" 
+           name="connections" />
+
+  <!-- The Socket Manager block -->
+  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager"
+         name="sockets" />
+
+  <!-- The Time Manager block -->
+  <block class="org.apache.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
+         name="scheduler"/>
+
+</assembly>
+
