@@ -4,7 +4,10 @@ echo
 echo "James Build System"
 echo "-------------------"
 
-export CP=$CLASSPATH
+export ANT_HOME=$ANT_HOME
+ANT_HOME=./tools
+
+export OLD_CLASSPATH=$CLASSPATH
 CLASSPATH=phoenix-bin/lib/xercesImpl-2.0.2.jar:phoenix-bin/lib/xml-apis.jar
 
 ## Setup the Anakia stuff
@@ -26,13 +29,13 @@ fi
 
 export CLASSPATH
 
-chmod u+x ./tools/bin/antRun
-chmod u+x ./tools/bin/ant
+chmod u+x ${ANT_HOME}/bin/antRun
+chmod u+x ${ANT_HOME}/bin/ant
 
 export PROPOSAL=""
 
-unset ANT_HOME
 
-./tools/bin/ant -emacs $@
+${ANT_HOME}/bin/ant -emacs $@
 
-export CLASSPATH=$CP
+export CLASSPATH=$OLD_CLASSPATH
+export ANT_HOME=$OLD_ANT_HOME
