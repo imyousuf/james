@@ -10,6 +10,7 @@
         <item name="Overview"          href="/index.html"/>
         <item name="James FAQ"      href="/FAQ.html"/>
         <item name="Mailing Lists"         href="http://jakarta.apache.org/site/mail.html"/>
+        <item name="Wiki"              href="http://nagoya.apache.org/wiki/apachewiki.cgi?James"/>
     </menu>
 
     <menu name="Downloads">
