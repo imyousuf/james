@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>Java Apache Mail Enterprise Server</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
+
+<body>
+
+<section name="What is it?">
+
+  <p>
+  The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure
+  Java server, designed to be a complete and portable enterprise mail engine solution
+  based on currently available open protocols (SMTP, POP3, IMAP, HTTP).  It requires
+  Java 2 (minimum requirement is the JRE 1.2).
+  </p>
+</section>
+
+<section name="Design Objectives">
+
+  <p>These are some of the currently implemented features:</p>
+  <p><i><b>Complete portability</b></i>  Apache James is be a 100% pure Java application
+       based on the Java 2 platform and the JavaMail 1.2 API.
+  </p>
+  <p><i><b>Protocol abstraction</b></i>  Unlike other mail engines, protocols are seen only
+       like "communication languages" ruling comunications between clients and
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (like JavaMail did on the
+       client side)</p>
+    <p><i><b>Complete solution</b></i>  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need for any other server or solution.</p>
+    <p><i><b>Mailet support</b></i>  Apache James supports the Apache Mailet API. A Mailet
+       is a discrete piece of mail-processing logic which is incorporated into
+       a Mailet-compliant mail-server's processing. This easy-to-write,
+       easy-to-use pattern allows developers to build powerful customized mail
+       systems. Examples of the services a Mailet might provide include: a
+       mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailling
+       list manager, etc. Several Mailets are included in the JAMES
+       distribution (see <a href="configuration_v1_2.html">Configuration</a>).</p>
+    <p><i><b>Resource abstraction</b></i>  Like protocols, resources are abstracted and,
+       accessed through defined interfaces (JavaMail for transport, JDBC for
+       spool storage or user accounts in RDBMS's, Apache Mailet API). The server is
+       highly modular and reuse solutions from other projects.</p>
+    <p><i><b>Secure and multi-threaded design</b></i>  Based on the technology developed
+       for the Apache JServ servlet engine, Apache James has a careful,
+       security-oriented, full multi-threaded design, to allow performance,
+       scalability and mission-critical use.</p>
+    <p>Anything else you may want if you help us write it :-)</p>
+</section>
+<section name="Feature Status">
+    <table>
+      <tr>
+        <th>Item</th>
+        <th>Status (v1.2.1)</th>
+        <th>Since</th>
+        <th>First released</th>
+      </tr>
+      <tr>
+        <td>SMTP server</td>
+        <td>Stable</td>
+        <td>1.0</td>
+        <td>0.95</td>
+      </tr>
+      <tr>
+        <td>Mailet Engine</td>
+        <td>Stable</td>
+        <td>1.2</td>
+        <td>0.95</td>
+      </tr>
+      <tr>
+        <td>FileSystem mailboxes/spool</td>
+        <td>Stable</td>
+        <td>1.2</td>
+        <td>1.0</td>
+      </tr>
+      <tr>
+        <td>RDBMS mailboxes/spool</td>
+        <td>Stable</td>
+        <td>1.2</td>
+        <td>1.2</td>
+      </tr>
+      <tr>
+        <td>POP3 server</td>
+        <td>Stable</td>
+        <td>1.1</td>
+        <td>1.0</td>
+      </tr>
+      <tr>
+        <td>RDBMS - Users</td>
+        <td>Stable</td>
+        <td>1.2.1</td>
+        <td>1.2.1</td>
+      </tr>
+      <tr>
+        <td>LDAP Support - Users</td>
+        <td>Experimental</td>
+        <td>1.2</td>
+        <td>1.2</td>
+      </tr>
+      <tr>
+        <td>TLS Support - POP3</td>
+        <td>Experimental</td>
+        <td>1.2</td>
+        <td>1.2</td>
+      </tr>
+      <tr>
+        <td>Remote Manager</td>
+        <td>Stable</td>
+        <td>1.0</td>
+        <td>1.0</td>
+      </tr>
+      <tr>
+        <td>TLS Support - Remote Manager</td>
+        <td>Stable</td>
+        <td>1.2</td>
+        <td>1.2</td>
+      </tr>
+      <tr>
+        <td>NNTP server</td>
+        <td>Experimental</td>
+        <td>1.2</td>
+        <td>1.2</td>
+      </tr>
+    </table>
+
+</section>
+
+</body>
+</document>

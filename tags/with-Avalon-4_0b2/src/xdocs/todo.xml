@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>TODO</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+  <author email="charles@benett1.co.uk">Charles Benett</author>
+ </properties>
+
+<body>
+
+<section name="TODO">
+<p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
+Last Updated 17 May 2001.</p>
+</section>
+<section name="High Priority">
+<p>Port existing documentation to xdocs format</p>
+<p>Bundle docs in dist</p>
+<p>Allow RemoteManager to change passwords of users (change attribute)<b> In proposals dir </b> </p>
+<p>Revive RDBMS support for messages and users. Possibly move from town to straight jdbc, or jakarta-turbine.</p>
+
+</section>
+
+<section name="Medium Priority">
+<p>Enable multiple domains/ virtual hosting</p>
+<p>Rewrite SMTP and POP3 handlers to use streams not MimeMessage objects</p>
+<p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway, relay or 'smart' host) </p>
+<p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
+<p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
+<p>Write more documentation. </p>
+<p>Make James stoppable (elegantly)</p>
+<p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
+<p>Add #news namespace to IMAP system</p>
+<p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
+<p>Make James reconfigurable/contextualizable/composable.</p>
+<p>Reinject error/spam mails incorrecty handled.</p>
+<p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
+<p>Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern</p>
+<p>Add support for deployable message processing apps using Camelot pattern</p>
+<p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
+<p>Simplify email aliasing</p>
+<p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
+</section>
+
+<section name="Low Priority">
+
+<p>Add support for DRAC login/relay allowing</p>
+<p>Review threadpooling - is it dynamic?</p>
+<p>Enable read receipts to be handled properly</p>
+</section>
+
+</body>
+</document>
+

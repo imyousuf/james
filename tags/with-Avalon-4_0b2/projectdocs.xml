@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+
+<!--
+==============================================================================
+
+ Avalon build file
+
+Authors:
+ Federico Barbieri <scoobie@apache.org>
+ Berin Loritsch <bloritsch@apache.org>
+ Peter Donald <donaldp@apache.org>
+
+Legal:
+  Copyright (c) 1999-2000 The Apache Software Foundation. All Rights Reserved.
+
+==============================================================================
+-->
+
+<project default="main" basedir=".">
+
+  <!--
+       ==================================================================
+                             Property definitions
+       ==================================================================
+  -->
+  <property name="Name" value="James"/>
+  <property name="build.dir" value="../build/james"/>
+  <property name="build.lib" value="${build.dir}/lib"/>
+  <property name="build.src" value="${build.dir}/src"/>
+  <property name="build.javadocs" value="${build.dir}/javadocs"/>
+
+  <property name="james.src.dir" value="src"/>
+  <property name="avalon.src.dir" value="../jakarta-avalon/src/java"/>
+  <property name="scratchpad.src.dir" value="../jakarta-avalon/src/scratchpad"/>
+  <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
+  <property name="logkit.src.dir" value="../jakarta-avalon-logkit/src/java"/>
+  <property name="phoenix.src.dir" value="../jakarta-avalon-phoenix/src/java"/>
+  <property name="testlet.src.dir" value="../jakarta-avalon-testlet/src/java"/>
+  <property name="phoenix.lib.dir" value="../jakarta-avalon-phoenix/src/java"/>
+  <property name="james.lib.dir" value="lib"/>
+
+  <path id="project.class.path">
+    <pathelement path="${java.class.path}" />
+    <pathelement location="lib/activation.jar"/>
+    <pathelement location="lib/jmxri.jar"/>
+    <pathelement location="lib/jmxtools.jar"/>
+    <pathelement location="lib/mail_1_2.jar"/>
+    <pathelement location="lib/town.jar"/>
+    <pathelement location="lib/xerces.jar"/>
+    <pathelement location="./../jakarta-avalon/lib/bytecode.jar"/>
+    <pathelement location="./../jakarta-avalon/lib/jdom.jar"/>
+
+  </path>
+
+
+  <!--
+       ===================================================================
+                                  banner target
+       ===================================================================
+  -->
+  <target name="banner">
+    <echo message=""/>
+    <echo>
+      *************************************************************
+      ** 
+      ** Building integrated javadocs for james on avalon        **
+      **
+      *************************************************************
+    </echo>
+    <echo message=""/>
+  </target>
+
+
+  <!--
+       ===================================================================
+                  Checks the environment for existing resources
+       ===================================================================
+  -->
+  <target name="check-environment">
+    <available property="jndi.present" classname="javax.naming.Context">
+    </available>
+    <available property="datasource.present" classname="javax.sql.DataSource">
+    </available>
+    <available property="servlet.present" 
+               classname="javax.servlet.ServletContext"/>
+    <available property="jsse.present" classname="javax.net.ssl.SSLServerSocket" />
+  </target>
+
+  <target name="check-datasource" depends="check-environment" if="datasource.present">
+    <property name="j2ee.present" value="true"/>
+  </target>
+
+  <!--
+       ===================================================================
+                         Prepares the build directory
+       ===================================================================
+  -->
+  <target name="prepare" depends="check-datasource">
+    <tstamp/>
+    <mkdir dir="${build.dir}"/>
+    <delete dir="${build.src}"/>
+    <mkdir dir="${build.src}"/>
+
+    <echo message=" "/>
+    <echo message="Copying logkit sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${logkit.src.dir}" >
+        <exclude name="org/apache/log/output/ServletOutputLogTarget.java" 
+               unless="servlet.present" />
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying framework and excalibur sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${avalon.src.dir}" >
+        <exclude name="org/apache/avalon/excalibur/datasource/J2eeDataSource.java"
+                 unless="j2ee.present" />
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying scratchpad sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${scratchpad.src.dir}" >
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying phoenix sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${phoenix.src.dir}" >
+      <exclude name="org/apache/jmx/**" />
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying cornerstone sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${cornerstone.src.dir}" >
+      <exclude name="org/apache/avalon/cornerstone/blocks/serversocket/TLSServerSocketAcceptor.java"
+               unless="jsse.present" />
+      <exclude name="org/apache/avalon/cornerstone/blocks/sockets/TLSServerSocketFactory.java"
+               unless="jsse.present" />
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying testlet sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${testlet.src.dir}" >
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying james sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${james.src.dir}" >
+      </fileset>
+    </copy>
+  </target>
+
+
+
+ <!--
+       ===================================================================
+       Create the API documentation
+       ===================================================================
+  -->
+  <target name="javadocs">
+
+    <delete dir="${build.javadocs}"/>
+    <mkdir dir="${build.javadocs}"/>
+
+    <javadoc packagenames="org.apache.*"
+             sourcepath="${build.src}"
+             destdir="${build.javadocs}">
+     <classpath refid="project.class.path" /> 
+      <doclet name="com.sun.tools.doclets.standard.Standard">
+       <param name="-author"/>
+       <param name="-version"/>
+       <param name="-use"/>
+       <param name="-doctitle" value="${Name}"/>
+       <param name="-windowtitle" value="${Name} API"/>
+       <param name="-bottom"
+              value="&quot;Copyright &#169; 2001 Apache Jakarta Project. All Rights Reserved.&quot;"/>
+      </doclet>
+    </javadoc>
+
+  </target>
+
+
+  <!--
+       ===================================================================
+                                  Main target
+       ===================================================================
+  -->
+  <target name="main" depends="banner, prepare, javadocs">
+
+  </target>
+
+
+</project>
