@@ -191,7 +191,11 @@ public class JDBCMailRepository
                 PreparedStatement updateMessage = conn.prepareStatement(sqlQueries.getProperty("updateMessageSQL"));
                 updateMessage.setString(1, mc.getState());
                 updateMessage.setString(2, mc.getErrorMessage());
-                updateMessage.setString(3, mc.getSender().toString());
+                if (mc.getSender() == null) {
+                    updateMessage.setNull(3, java.sql.Types.VARCHAR);
+                } else {
+                    updateMessage.setString(3, mc.getSender().toString());
+                }
                 StringBuffer recipients = new StringBuffer();
                 for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
                     recipients.append(i.next().toString());
@@ -250,7 +254,11 @@ public class JDBCMailRepository
                 insertMessage.setString(2, repositoryName);
                 insertMessage.setString(3, mc.getState());
                 insertMessage.setString(4, mc.getErrorMessage());
-                insertMessage.setString(5, mc.getSender().toString());
+                if (mc.getSender() == null) {
+                    insertMessage.setNull(5, java.sql.Types.VARCHAR);
+                } else {
+                    insertMessage.setString(5, mc.getSender().toString());
+                }
                 StringBuffer recipients = new StringBuffer();
                 for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
                     recipients.append(i.next().toString());
@@ -314,7 +322,12 @@ public class JDBCMailRepository
             mc.setName(key);
             mc.setState(rsMessage.getString(1));
             mc.setErrorMessage(rsMessage.getString(2));
-            mc.setSender(new MailAddress(rsMessage.getString(3)));
+            String sender = rsMessage.getString(3);
+            if (sender == null) {
+                mc.setSender(null);
+            } else {
+                mc.setSender(new MailAddress(sender));
+            }
             StringTokenizer st = new StringTokenizer(rsMessage.getString(4), "\r\n", false);
             Set recipients = new HashSet();
             while (st.hasMoreTokens()) {
