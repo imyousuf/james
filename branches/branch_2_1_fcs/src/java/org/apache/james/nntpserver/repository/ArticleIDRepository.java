@@ -155,11 +155,27 @@ public class ArticleIDRepository {
     File getFileFromID(String articleID) {
         String b64Id;
         try {
-            b64Id = Base64.encodeAsString(articleID);
+            b64Id = removeCRLF(Base64.encodeAsString(articleID));
         } catch (Exception e) {
             throw new RuntimeException("This shouldn't happen: " + e);
         }
         return new File(root, b64Id);
+    }
+
+    /**
+     * the base64 encode from javax.mail.internet.MimeUtility adds line
+     * feeds to the encoded stream.  This removes them, since we will
+     * use the String as a filename.
+     */
+    private static String removeCRLF(String str) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c != '\r' && c != '\n') {
+                buffer.append(c);
+            }
+        }
+        return buffer.toString();
     }
 
     /**
