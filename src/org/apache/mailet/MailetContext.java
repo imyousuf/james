@@ -38,7 +38,7 @@ public interface MailetContext {
      * @param mail - the message that is to be bounced and sender to whom to return the message
      * @param message - a descriptive message as to why the message bounced
      */
-    public void bounce(Mail mail, String message);
+    public void bounce(Mail mail, String message) throws MessagingException;
 
     /**
      * Bounces the email message using the provided email address as the
@@ -48,7 +48,7 @@ public interface MailetContext {
      * @param message - a descriptive message as to why the message bounced
      * @param bouncer - the address to give as the sender of the bounced message
      */
-    public void bounce(Mail mail, String message, String bouncer);
+    public void bounce(Mail mail, String message, String bouncer) throws MessagingException;
 
     /**
      * Returns a Collection of Strings of hostnames or ip addresses that
@@ -168,6 +168,16 @@ public interface MailetContext {
      * @param name - a String specifying the name of the attribute to be removed
      */
     public void removeAttribute(String name);
+
+    /**
+     * Send an outgoing message to the top of this mailet container's root queue.
+     * This is the equivalent of opening an SMTP session to localhost.
+     * This uses sender and recipients as specified in the message itself.
+     *
+     * @param msg - the MimeMessage of the headers and body content of the outgoing message
+     * @throws MessagingException - if the message fails to parse
+     */
+    public void sendMail(MimeMessage msg) throws MessagingException;
 
     /**
      * Send an outgoing message to the top of this mailet container's root queue.
