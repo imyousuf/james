@@ -14,7 +14,6 @@ import java.util.Date;
 import org.apache.avalon.*;
 import org.apache.avalon.services.*;
 import org.apache.avalon.util.lang.*;
-//import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;

@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.imapserver;
+package org.apache.james;
 
 /**
  * Thrown when a user fails to authenticate either because their identity is
