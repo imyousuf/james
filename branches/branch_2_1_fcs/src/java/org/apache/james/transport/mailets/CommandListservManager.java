@@ -85,7 +85,7 @@ import java.util.*;
  * &lt;listName&gt;-&lt;commandName&gt;-&lt;optCommandParam&gt;@domain
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date: 2004/03/30 02:15:24 $
  * @since 2.2.0
  */
 public class CommandListservManager extends GenericMailet implements ICommandListservManager {
@@ -196,6 +196,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     public Properties getStandardProperties() {
         Properties standardProperties = new Properties();
         standardProperties.put("LIST_NAME", getListName(false));
+        standardProperties.put("DISPLAY_NAME", getListName(true));
         standardProperties.put("DOMAIN_NAME", getListDomain());
         return standardProperties;
     }
