@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.85 $  Committed on $Date: 2001/10/25 02:57:23 $ by: $Author: serge $
+ James build file $Revision: 1.86 $  Committed on $Date: 2001/10/30 14:07:50 $ by: $Author: serge $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -29,7 +29,7 @@ Legal:
 
   <property name="name" value="james"/>
   <property name="Name" value="James"/>
-  <property name="version" value="2.0a1-dev"/>
+  <property name="version" value="2.0a2"/>
   <property name="year" value="1999-2001"/>
 
   <!-- There should be no need to override default compiler but need to change
@@ -105,7 +105,7 @@ Legal:
        Set the classpath
        ===================================================================
   -->
-  <property name="xerces.jar" value="${lib.dir}/xerces.jar"/>
+  <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
   <property name="framework.jar" value="${lib.dir}/avalon-framework-20010912.jar"/>
   <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20010919.jar"/>
   <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20010919.jar"/>
