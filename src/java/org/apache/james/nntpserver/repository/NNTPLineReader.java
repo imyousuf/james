@@ -15,8 +15,10 @@ package org.apache.james.nntpserver.repository;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPLineReader {
+
     /** 
-     * reads a line of data.
+     * Reads a line of data.
+     *
      * @return null indicates end of data
      */
     String readLine();

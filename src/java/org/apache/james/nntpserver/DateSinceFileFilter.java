@@ -15,8 +15,8 @@ import java.io.FilenameFilter;
  *
  * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
-public class DateSinceFileFilter implements FilenameFilter
-{
+public class DateSinceFileFilter implements FilenameFilter {
+
     /**
      * The date that serves as the lower bound of the region of 
      * interest
@@ -30,8 +30,7 @@ public class DateSinceFileFilter implements FilenameFilter
      * @param date the date that serves as the lower bound of the region of 
      * interest
      */
-    public DateSinceFileFilter( long date ) 
-    {
+    public DateSinceFileFilter( long date ) {
         m_date = date;
     }
 
@@ -44,8 +43,7 @@ public class DateSinceFileFilter implements FilenameFilter
      *
      * @return true if the file meets the criteria, false otherwise
      */
-    public boolean accept( final File dir, final String name ) 
-    {
+    public boolean accept( final File dir, final String name ) {
         return (new File(dir,name).lastModified() >= m_date);
     }
 }

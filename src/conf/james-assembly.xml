@@ -88,7 +88,7 @@
 
   <!-- NNTP Server -->
   <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >
-    <provide name="nntpauth" role="org.apache.james.nntpserver.AuthService"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"

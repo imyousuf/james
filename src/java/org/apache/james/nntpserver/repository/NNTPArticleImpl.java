@@ -18,29 +18,55 @@ import java.io.*;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 class NNTPArticleImpl implements NNTPArticle {
-    private final File f;
+
+    /**
+     * The file that stores the article data
+     */
+    private final File articleFile;
+
+    /**
+     * The sole constructor for this class.
+     *
+     * @param f the file that stores the article data
+     */
     NNTPArticleImpl(File f) {
-        this.f = f;
+        articleFile = f;
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#getGroup()
+     */
     public NNTPGroup getGroup() {
-        return new NNTPGroupImpl(f.getParentFile());
+        return new NNTPGroupImpl(articleFile.getParentFile());
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#getArticleNumber()
+     */
     public int getArticleNumber() {
-        return Integer.parseInt(f.getName());
+        return Integer.parseInt(articleFile.getName());
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#getUniqueID()
+     */
     public String getUniqueID() {
         try {
-            FileInputStream fin = new FileInputStream(f);
+            FileInputStream fin = new FileInputStream(articleFile);
             InternetHeaders headers = new InternetHeaders(fin);
             String[] idheader = headers.getHeader("Message-Id");
             fin.close();
             return ( idheader.length > 0 ) ? idheader[0] : null;
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeArticle(PrintWriter)
+     */
     public void writeArticle(PrintWriter prt) {
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(f));
+            reader = new BufferedReader(new FileReader(articleFile));
             String line = null;
             while ( ( line = reader.readLine() ) != null ) {
                 prt.println(line);
@@ -57,9 +83,13 @@ class NNTPArticleImpl implements NNTPArticle {
             }
         }
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeHead(PrintWriter)
+     */
     public void writeHead(PrintWriter prt) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(f));
+            BufferedReader reader = new BufferedReader(new FileReader(articleFile));
             String line = null;
             while ( ( line = reader.readLine() ) != null ) {
                 if ( line.trim().length() == 0 )
@@ -69,9 +99,13 @@ class NNTPArticleImpl implements NNTPArticle {
             reader.close();
         } catch(IOException ex) { throw new NNTPException(ex); }
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeBody(PrintWriter)
+     */
     public void writeBody(PrintWriter prt) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(f));
+            BufferedReader reader = new BufferedReader(new FileReader(articleFile));
             String line = null;
             boolean startWriting = false;
             while ( ( line = reader.readLine() ) != null ) {
@@ -84,23 +118,12 @@ class NNTPArticleImpl implements NNTPArticle {
         } catch(IOException ex) { throw new NNTPException(ex); }
     }
 
-    // rfc2980: 2.8 XOVER
-    // requires newline and tab to be converted to space
-    private String cleanHeader(String field) {
-        if ( field == null )
-            field = "";
-        StringBuffer sb = new StringBuffer(field);
-        for( int i=0 ; i<sb.length() ; i++ ) {
-            char c = sb.charAt(i);
-            if( (c=='\n') || (c=='\t') ) 
-                sb.setCharAt(i, ' ');
-        }
-        return sb.toString();
-    }
-    
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeOverview(PrintWriter)
+     */
     public void writeOverview(PrintWriter prt) {
         try {
-            FileInputStream fin = new FileInputStream(f);
+            FileInputStream fin = new FileInputStream(articleFile);
             InternetHeaders hdr = new InternetHeaders(fin);
             fin.close();
             int articleNumber = getArticleNumber();
@@ -109,7 +132,7 @@ class NNTPArticleImpl implements NNTPArticle {
             String date = hdr.getHeader("Date",null);
             String msgId = hdr.getHeader("Message-Id",null);
             String references = hdr.getHeader("References",null);
-            long byteCount = f.length();
+            long byteCount = articleFile.length();
             long lineCount = -1;
             StringBuffer line=new StringBuffer(128)
                 .append(articleNumber + "\t")
@@ -123,12 +146,38 @@ class NNTPArticleImpl implements NNTPArticle {
             prt.println(line.toString());
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
+
+    /**
+     * @see org.apache.james.nntpsever.repository.NNTPArticle#getHeader(String)
+     */
     public String getHeader(String header) {
         try {
-            FileInputStream fin = new FileInputStream(f);
+            FileInputStream fin = new FileInputStream(articleFile);
             InternetHeaders hdr = new InternetHeaders(fin);
             fin.close();
             return hdr.getHeader(header,null);
-        } catch(Exception ex) { throw new NNTPException(ex); }
+        } catch(Exception ex) {
+            throw new NNTPException(ex);
+        }
+    }
+
+    /**
+     * Strips out newlines and tabs, converting them to spaces.
+     * rfc2980: 2.8 XOVER requires newline and tab to be converted to spaces
+     *
+     * @param the input String
+     *
+     * @return the cleaned string
+     */
+    private String cleanHeader(String field) {
+        if ( field == null )
+            field = "";
+        StringBuffer sb = new StringBuffer(field);
+        for( int i=0 ; i<sb.length() ; i++ ) {
+            char c = sb.charAt(i);
+            if( (c=='\n') || (c=='\t') ) 
+                sb.setCharAt(i, ' ');
+        }
+        return sb.toString();
     }
 }

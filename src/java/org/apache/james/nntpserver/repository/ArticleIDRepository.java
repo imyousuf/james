@@ -31,18 +31,41 @@ import java.util.Properties;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class ArticleIDRepository {
+
+    /**
+     * The root of the repository in the file system
+     */
     private final File root;
+
+    /**
+     * The suffix appended to the articleIDs
+     */
     private final String articleIDDomainSuffix;
+
+    /**
+     * A counter of the number of article IDs
+     *
+     * TODO: Potentially serious threading problem here
+     */
     private int counter = 0;
+
     ArticleIDRepository(File root,String articleIDDomainSuffix) {
         this.root = root;
         this.articleIDDomainSuffix = articleIDDomainSuffix;
     }
 
+    /**
+     * Returns the root of the repository.
+     *
+     * @return the root of the repository
+     */
     public File getPath() {
         return root;
     }
 
+    /**
+     * Generate a new article ID for use in the repository.
+     */
     String generateArticleID() {
         int idx = Math.abs(counter++);
         StringBuffer idBuffer =
@@ -59,10 +82,15 @@ public class ArticleIDRepository {
         return idBuffer.toString();
     }
 
-    /** @param prop contains the newsgroup name and article number */
+    /**
+     * Add the article information to the repository.
+     *
+     * @param prop contains the newsgroup name and article number.
+     */
     void addArticle(String articleID,Properties prop) throws IOException {
-        if ( articleID == null )
+        if ( articleID == null ) {
             articleID = generateArticleID();
+        }
         FileOutputStream fout = null;
         try {
             fout = new FileOutputStream(getFileFromID(articleID));
@@ -74,6 +102,14 @@ public class ArticleIDRepository {
         }
     }
 
+    /**
+     * Returns the file in the repository corresponding to the specified
+     * article ID.
+     *
+     * @param articleID the article ID
+     *
+     * @return the repository file
+     */
     File getFileFromID(String articleID) {
         String b64Id;
         try {
@@ -84,14 +120,32 @@ public class ArticleIDRepository {
         return new File(root, b64Id);
     }
 
+    /**
+     * Returns whether the article ID is in the repository
+     *
+     * @param articleID the article ID
+     *
+     * @return whether the article ID is in the repository
+     */
     boolean isExists(String articleID) {
         return ( articleID == null ) ? false : getFileFromID(articleID).exists();
     }
 
+    /**
+     * Get the article from the NNTP respository with the specified id.
+     *
+     * @param repo the NNTP repository where the article is stored
+     * @param id the id of the article to retrieve
+     *
+     * @return the article
+     *
+     * @throws IOException if the ID information cannot be loaded
+     */
     NNTPArticle getArticle(NNTPRepository repo,String id) throws IOException {
         File f = getFileFromID(id);
-        if ( f.exists() == false )
+        if ( f.exists() == false ) {
             return null;
+        }
         FileInputStream fin = null;
         Properties prop = new Properties();
         try {
@@ -108,8 +162,9 @@ public class ArticleIDRepository {
             String groupName = (String)enum.nextElement();
             int number = Integer.parseInt(prop.getProperty(groupName));
             NNTPGroup group = repo.getGroup(groupName);
-            if ( group != null )
+            if ( group != null ) {
                 article = group.getArticle(number);
+            }
         }
         return article;
     }

@@ -25,56 +25,122 @@ import java.util.List;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 class NNTPGroupImpl implements NNTPGroup {
+
+    /**
+     * The directory to which this group maps.
+     */
     private final File root;
+
+    /**
+     * The article number of the current article
+     */
     private int currentArticle = -1;
+
+    /**
+     * The last article number in the group
+     */
     private int lastArticle;
+
+    /**
+     * The last article number in the group
+     */
     private int firstArticle;
+
+    /**
+     * The number of articles in the group.
+     */
     private int numOfArticles;
-    // an instance may collect range info once. This involves disk I/O
+
+    /**
+     * Whether the first, last, and total number of articles in the
+     * group have been read from disk.
+     * An instance may collect range info once. This involves disk I/O
+     */
     private boolean articleRangeInfoCollected = false;
+
+    /**
+     * The sole constructor for this particular NNTPGroupImpl.
+     *
+     * @param root the directory containing the articles
+     */
     NNTPGroupImpl(File root) {
         this.root = root;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getName()
+     */
     public String getName() {
         return root.getName();
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getDescription()
+     */
     public String getDescription() {
         return getName();
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#isPostAllowed()
+     */
     public boolean isPostAllowed() {
         return true;
     }
+
+    /**
+     * Generates the first, last, and number of articles from the
+     * information in the group directory.
+     */
     private void collectArticleRangeInfo() {
-        if ( articleRangeInfoCollected )
+        if ( articleRangeInfoCollected ) {
             return;
+        }
         String[] list = root.list();
-        //new InvertedFileFilter(new ExtensionFileFilter(".id")));
         int first = -1;
         int last = -1;
         for ( int i = 0 ; i < list.length ; i++ ) {
             int num = Integer.parseInt(list[i]);
-            if ( first == -1 || num < first )
+            if ( first == -1 || num < first ) {
                 first = num;
-            if ( num > last )
+            }
+            if ( num > last ) {
                 last = num;
+            }
         }
         numOfArticles = list.length;
         firstArticle = Math.max(first,0);
         lastArticle = Math.max(last,0);
         articleRangeInfoCollected = true;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getNumberOfArticles()
+     */
     public int getNumberOfArticles() {
         collectArticleRangeInfo();
         return numOfArticles;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getFirstArticleNumber()
+     */
     public int getFirstArticleNumber() {
         collectArticleRangeInfo();
         return firstArticle;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getLastArticleNumber()
+     */
     public int getLastArticleNumber() {
         collectArticleRangeInfo();
         return lastArticle;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getCurrentArticleNumber()
+     */
     public int getCurrentArticleNumber() {
         collectArticleRangeInfo();
         // this is not as per RFC, but this is not significant.
@@ -82,17 +148,60 @@ class NNTPGroupImpl implements NNTPGroup {
             currentArticle = firstArticle;
         return currentArticle;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#setCurrentArticleNumber(int)
+     */
     public void setCurrentArticleNumber(int articleNumber) {
         this.currentArticle = articleNumber;
     }
 
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getCurrentArticle()
+     */
     public NNTPArticle getCurrentArticle() {
         return getArticle(getCurrentArticleNumber());
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getArticle(int)
+     */
     public NNTPArticle getArticle(int number) {
         File f = new File(root,number + "");
         return f.exists() ? new NNTPArticleImpl(f) : null;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getArticlesSince(Date)
+     */
+    public Iterator getArticlesSince(Date dt) {
+        File[] f = root.listFiles(new AndFileFilter
+            (new DateSinceFileFilter(dt.getTime()),
+             new InvertedFileFilter(new ExtensionFileFilter(".id"))));
+        List list = new ArrayList();
+        for ( int i = 0 ; i < f.length ; i++ )
+            list.add(new NNTPArticleImpl(f[i]));
+        return list.iterator();
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getArticles()
+     */
+    public Iterator getArticles() {
+        File[] f = root.listFiles();
+        List list = new ArrayList();
+        for ( int i = 0 ; i < f.length ; i++ )
+            list.add(new NNTPArticleImpl(f[i]));
+        return list.iterator();
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.NNTPGroup#getPath()
+     */
+    public Object getPath() {
+        return root;
+    }
+
 //     public NNTPArticle getArticleFromID(String id) {
 //         if ( id == null )
 //             return null;
@@ -115,25 +224,5 @@ class NNTPGroupImpl implements NNTPGroup {
 //             throw new NNTPException("could not fectch article: "+id,ioe);
 //         }
 //     }
-    public Iterator getArticlesSince(Date dt) {
-        File[] f = root.listFiles(new AndFileFilter
-            (new DateSinceFileFilter(dt.getTime()),
-             new InvertedFileFilter(new ExtensionFileFilter(".id"))));
-        List list = new ArrayList();
-        for ( int i = 0 ; i < f.length ; i++ )
-            list.add(new NNTPArticleImpl(f[i]));
-        return list.iterator();
-    }
 
-    public Iterator getArticles() {
-        File[] f = root.listFiles();
-        //(new InvertedFileFilter(new ExtensionFileFilter(".id")));
-        List list = new ArrayList();
-        for ( int i = 0 ; i < f.length ; i++ )
-            list.add(new NNTPArticleImpl(f[i]));
-        return list.iterator();
-    }
-    public Object getPath() {
-        return root;
-    }
 }

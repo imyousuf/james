@@ -44,8 +44,7 @@ public class AuthServiceImpl extends AbstractLogEnabled
     public boolean isAuthorized(String command) {
         command = command.toUpperCase(Locale.US);
         boolean allowed = isAuthenticated();
-        // some commads are authorized, even if the user is not authenticated
-        allowed = allowed || command.equals("AUTHINFO");
+        // some commands are authorized, even if the user is not authenticated
         allowed = allowed || command.equals("AUTHINFO");
         allowed = allowed || command.equals("MODE");
         allowed = allowed || command.equals("QUIT");
@@ -53,13 +52,7 @@ public class AuthServiceImpl extends AbstractLogEnabled
     }
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException
@@ -69,10 +62,7 @@ public class AuthServiceImpl extends AbstractLogEnabled
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( Configuration configuration ) throws ConfigurationException {
         authRequired =

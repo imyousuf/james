@@ -30,8 +30,8 @@
       <service name="org.apache.james.nntpserver.repository.NNTPRepository" version="1.0"/>
     </dependency> 
     <dependency>
-      <role>org.apache.james.nntpserver.AuthService</role>
-      <service name="org.apache.james.nntpserver.AuthService" version="1.0"/>
+      <role>org.apache.james.services.UsersStore</role>
+      <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency> 
   </dependencies>
 
