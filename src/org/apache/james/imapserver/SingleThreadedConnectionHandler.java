@@ -203,7 +203,7 @@ public class SingleThreadedConnectionHandler
                                 + "logged in as" + SP + user);
                     state = AUTHENTICATED;
                     user = "preauth user";
-                    securityGetLogger().info("Pre-authenticated connection from  "
+                    securityLogger.info("Pre-authenticated connection from  "
                                         + remoteHost + "(" + remoteIP
                                         + ") received by SingleThreadedConnectionHandler");
                 } else {
@@ -211,7 +211,7 @@ public class SingleThreadedConnectionHandler
                                 + "server " + this.servername + SP + "ready.");
                     state = NON_AUTHENTICATED;
                     user = "unknown";
-                    securityGetLogger().info("Non-authenticated connection from  "
+                    securityLogger.info("Non-authenticated connection from  "
                                         + remoteHost + "(" + remoteIP
                                         + ") received by SingleThreadedConnectionHandler");
                 }
@@ -370,7 +370,7 @@ public class SingleThreadedConnectionHandler
                 out.println(tag + SP + NO + SP + "Auth type not supported.");
                 getLogger().info("Attempt to use Authenticate command by "
                             + remoteHost  + "(" + remoteIP  + ")");
-                securityGetLogger().info("Attempt to use Authenticate command by "
+                securityLogger.info("Attempt to use Authenticate command by "
                                     + remoteHost  + "(" + remoteIP  + ")");
                 return true;
             } else if (command.equalsIgnoreCase("LOGIN")) {
@@ -384,7 +384,7 @@ public class SingleThreadedConnectionHandler
                 user = decodeAstring(commandLine.nextToken());
                 String password = decodeAstring(commandLine.nextToken());
                 if (users.test(user, password)) {
-                    securityGetLogger().info("Login successful for " + user + " from  "
+                    securityLogger.info("Login successful for " + user + " from  "
                                         + remoteHost + "(" + remoteIP  + ")");
                     // four possibilites handled:
                     // private mail: isLocal, is Remote
@@ -435,7 +435,7 @@ public class SingleThreadedConnectionHandler
                 } // failed password test
                 // We should add ability to monitor attempts to login
                 out.println(tag + SP + NO + SP + "LOGIN failed");
-                securityGetLogger().error("Failed attempt to use Login command for account "
+                securityLogger.error("Failed attempt to use Login command for account "
                                      + user + " from "  + remoteHost  + "(" + remoteIP
                                      + ")");
                 return true;
@@ -535,13 +535,13 @@ public class SingleThreadedConnectionHandler
                     if (target.setRights(user, identity, changes)) {
                         out.println(tag + SP + OK + SP 
                                     + "SetACL command completed");
-                        securityGetLogger().info("ACL rights for "  + identity + " in "
+                        securityLogger.info("ACL rights for "  + identity + " in "
                                             + folder  + " changed by " + user + " : "
                                             +  changes);
                     } else {
                         out.println(tag + SP + NO + SP 
                                     + "SetACL command failed");
-                        securityGetLogger().info("Failed attempt to change ACL rights for "
+                        securityLogger.info("Failed attempt to change ACL rights for "
                                             + identity + " in " + folder  + " by "
                                             + user);
                     }
@@ -583,12 +583,12 @@ public class SingleThreadedConnectionHandler
                     if (target.setRights(user, identity, changes)) {
                         out.println(tag + SP + OK + SP
                                     + "DeleteACL command completed");
-                        securityGetLogger().info("ACL rights for "  + identity + " in "
+                        securityLogger.info("ACL rights for "  + identity + " in "
                                             + folder + " deleted by " + user);
                     } else {
                         out.println(tag + SP + NO + SP 
                                     + "SetACL command failed");
-                        securityGetLogger().info("Failed attempt to change ACL rights for "
+                        securityLogger.info("Failed attempt to change ACL rights for "
                                             + identity + " in " + folder  + " by "
                                             + user);
                     }
@@ -1218,7 +1218,7 @@ public class SingleThreadedConnectionHandler
                     return true;
                 }
                 CommandFetch fetcher = new CommandFetch();
-                fetcher.setLogger(logger);
+                fetcher.setLogger( getLogger() );
                 fetcher.setRequest(request);
                 fetcher.service();
                 return true;
@@ -1231,7 +1231,7 @@ public class SingleThreadedConnectionHandler
                 }
                 //storeCommand(commandLine, false);
                 CommandStore storer = new CommandStore();
-                storer.setLogger(logger);
+                storer.setLogger( getLogger() );
                 storer.setRequest(request);
                 storer.service();
                 return true;
@@ -1245,13 +1245,13 @@ public class SingleThreadedConnectionHandler
                 if (uidCommand.equalsIgnoreCase("STORE")) {
                     //storeCommand(commandLine, true);
                     CommandStore storer = new CommandStore();
-                    storer.setLogger(logger);
+                    storer.setLogger( getLogger() );
                     storer.setRequest(request);
                     storer.service();
                     return true;
                 } else if (uidCommand.equalsIgnoreCase("FETCH")) {
                     CommandFetch fetcher = new CommandFetch();
-                    fetcher.setLogger(logger);
+                    fetcher.setLogger( getLogger() );
                     fetcher.setRequest(request);
                     fetcher.service();
                     return true;
@@ -1327,14 +1327,14 @@ public class SingleThreadedConnectionHandler
     }
 
     public void logACE(AccessControlException ace) {
-        securityGetLogger().error("AccessControlException by user "  + user
+        securityLogger.error("AccessControlException by user "  + user
                              + " from "  + remoteHost  + "(" + remoteIP
                              + ") with " + commandRaw + " was "
                              + ace.getMessage());
     }
 
     public void logAZE(AuthorizationException aze) {
-        securityGetLogger().error("AuthorizationException by user "  + user
+        securityLogger.error("AuthorizationException by user "  + user
                              + " from "  + remoteHost  + "(" + remoteIP
                              + ") with " + commandRaw + " was "
                              + aze.getMessage());
@@ -1350,10 +1350,6 @@ public class SingleThreadedConnectionHandler
 
     public String getUser() {
         return user;
-    }
-
-    public Logger getLogger() {
-        return logger;
     }
 
     private String decodeAstring(String rawAstring) {
