@@ -10,9 +10,14 @@ package org.apache.james.nntpserver.repository;
 import org.apache.avalon.excalibur.io.AndFileFilter;
 import org.apache.avalon.excalibur.io.ExtensionFileFilter;
 import org.apache.avalon.excalibur.io.InvertedFileFilter;
+import org.apache.avalon.excalibur.io.IOUtil;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -24,7 +29,7 @@ import java.util.List;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-class NNTPGroupImpl implements NNTPGroup {
+class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
 
     /**
      * The directory to which this group maps.
@@ -168,7 +173,7 @@ class NNTPGroupImpl implements NNTPGroup {
      */
     public NNTPArticle getArticle(int number) {
         File f = new File(root,number + "");
-        return f.exists() ? new NNTPArticleImpl(f) : null;
+        return f.exists() ? new NNTPArticleImpl(this, f) : null;
     }
 
     /**
@@ -180,7 +185,7 @@ class NNTPGroupImpl implements NNTPGroup {
              new InvertedFileFilter(new ExtensionFileFilter(".id"))));
         List list = new ArrayList();
         for ( int i = 0 ; i < f.length ; i++ )
-            list.add(new NNTPArticleImpl(f[i]));
+            list.add(new NNTPArticleImpl(this, f[i]));
         return list.iterator();
     }
 
@@ -191,15 +196,70 @@ class NNTPGroupImpl implements NNTPGroup {
         File[] f = root.listFiles();
         List list = new ArrayList();
         for ( int i = 0 ; i < f.length ; i++ )
-            list.add(new NNTPArticleImpl(f[i]));
+            list.add(new NNTPArticleImpl(this, f[i]));
         return list.iterator();
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getPath()
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getListFormat()
      */
-    public Object getPath() {
-        return root;
+    public String getListFormat() {
+        StringBuffer showBuffer =
+            new StringBuffer(128)
+                .append(getName())
+                .append(" ")
+                .append(getFirstArticleNumber())
+                .append(" ")
+                .append(getLastArticleNumber())
+                .append(" ")
+                .append((isPostAllowed() ? "y":"n"));
+        return showBuffer.toString();
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#getListNewsgroupsFormat()
+     */
+    public String getListNewsgroupsFormat() {
+        StringBuffer showBuffer =
+            new StringBuffer(128)
+                .append(getName())
+                .append(" ")
+                .append(getDescription());
+         return showBuffer.toString();
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPGroup#addArticle(InputStream)
+     */
+    public NNTPArticle addArticle(InputStream newsStream)
+            throws IOException {
+        File articleFile = null;
+        synchronized (this) {
+            int artNum = getLastArticleNumber();
+            articleFile = new File(root,(artNum + 1)+"");
+            articleFile.createNewFile();
+            lastArticle++;
+            numOfArticles++;
+        }
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Copying message to: "+articleFile.getAbsolutePath());
+        }
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(articleFile);
+            IOUtil.copy(newsStream,fout);
+            fout.flush();
+        } finally {
+            try {
+                if (fout != null) {
+                    fout.close();
+                }
+            } catch (IOException ioe) {
+                // Ignore this exception so we don't
+                // trash any "real" exceptions
+            }
+        }
+        return new NNTPArticleImpl(this, articleFile);
     }
 
 //     public NNTPArticle getArticleFromID(String id) {

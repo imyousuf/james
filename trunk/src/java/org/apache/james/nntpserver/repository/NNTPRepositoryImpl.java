@@ -17,6 +17,8 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.oro.io.GlobFilenameFilter;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,6 +45,11 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * The context employed by this repository
      */
     private Context context;
+
+    /**
+     * The configuration employed by this repository
+     */
+    private Configuration configuration;
 
     /**
      * Whether the repository is read only
@@ -74,6 +82,33 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private String[] addGroups = null;
 
     /**
+     * The root path as a String.
+     */
+    private String rootPathString = null;
+
+    /**
+     * The temp path as a String.
+     */
+    private String tempPathString = null;
+
+    /**
+     * The article ID path as a String.
+     */
+    private String articleIdPathString = null;
+
+    /**
+     * The domain suffix used for files in the article ID repository.
+     */
+    private String articleIDDomainSuffix = null;
+
+    /**
+     * This is a mapping of group names to NNTP group objects.
+     *
+     * TODO: This needs to be addressed so it scales better
+     */
+    private HashMap repositoryGroups = new HashMap();
+
+    /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(Context context)
@@ -84,19 +119,50 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure( Configuration configuration ) throws ConfigurationException {
-        //System.out.println(getClass().getName() + ": configure");
-        //NNTPUtil.show(configuration,System.out);
+    public void configure( Configuration aConfiguration ) throws ConfigurationException {
+        configuration = aConfiguration;
         readOnly = configuration.getChild("readOnly").getValueAsBoolean(false);
-        rootPath = NNTPUtil.getDirectory(context, configuration, "rootPath");
-        tempPath = NNTPUtil.getDirectory(context, configuration, "tempPath");
-        File articleIDPath = NNTPUtil.getDirectory(context, configuration, "articleIDPath");
-        String articleIDDomainSuffix = configuration.getChild("articleIDDomainSuffix")
+        Configuration newsgroupConfiguration = configuration.getChild("newsgroups");
+        List addGroupsList = new ArrayList();
+        if ( configuration != null ) {
+            Configuration[] children = newsgroupConfiguration.getChildren("newsgroup");
+            if ( children != null ) {
+                for ( int i = 0 ; i < children.length ; i++ ) {
+                    addGroupsList.add(children[i].getValue());
+                }
+            }
+        }
+        articleIDDomainSuffix = configuration.getChild("articleIDDomainSuffix")
             .getValue("foo.bar.sho.boo");
-        articleIDRepo = new ArticleIDRepository(articleIDPath,articleIDDomainSuffix);
-        spool = (NNTPSpooler)NNTPUtil.createInstance
-            (context,configuration.getChild("spool"),getLogger(),
-             "org.apache.james.nntpserver.repository.NNTPSpooler");
+        addGroups = (String[])addGroupsList.toArray(new String[0]);
+        rootPathString = configuration.getChild("rootPath").getValue();
+        tempPathString = configuration.getChild("tempPath").getValue();
+        articleIdPathString = configuration.getChild("articleIDPath").getValue();
+        getLogger().debug("Repository configuration done");
+    }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+
+        File articleIDPath = null;
+
+        try {
+            rootPath = AvalonContextUtilities.getFile(context, rootPathString);
+            tempPath = AvalonContextUtilities.getFile(context, tempPathString);
+            articleIDPath = AvalonContextUtilities.getFile(context, articleIdPathString);
+        } catch (Exception e) {
+            getLogger().fatalError(e.getMessage(), e);
+            throw e;
+        }
+
+        if ( articleIDPath.exists() == false ) {
+            articleIDPath.mkdirs();
+        }
+
+        articleIDRepo = new ArticleIDRepository(articleIDPath, articleIDDomainSuffix);
+        spool = (NNTPSpooler)createSpooler();
         spool.setRepository(this);
         spool.setArticleIDRepository(articleIDRepo);
         if (getLogger().isDebugEnabled()) {
@@ -104,41 +170,18 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             getLogger().debug("repository:rootPath=" + rootPath.getAbsolutePath());
             getLogger().debug("repository:tempPath=" + tempPath.getAbsolutePath());
         }
-        configuration = configuration.getChild("newsgroups");
-        List addGroupsList = new ArrayList();
-        if ( configuration != null ) {
-            Configuration[] children = configuration.getChildren("newsgroup");
-            if ( children != null )
-                for ( int i = 0 ; i < children.length ; i++ )
-                    addGroupsList.add(children[i].getValue());
-        }
-        addGroups = (String[])addGroupsList.toArray(new String[0]);
-        getLogger().debug("repository configuration done");
-    }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        //System.out.println(getClass().getName() + ": init");
         if ( rootPath.exists() == false ) {
             rootPath.mkdirs();
         }
         for ( int i = 0 ; i < addGroups.length ; i++ ) {
-            File groupF = new File(rootPath,addGroups[i]);
-            if ( groupF.exists() == false ) {
-                groupF.mkdirs();
+            File groupFile = new File(rootPath,addGroups[i]);
+            if ( groupFile.exists() == false ) {
+                groupFile.mkdirs();
             }
         }
         if ( tempPath.exists() == false ) {
             tempPath.mkdirs();
-        }
-        File articleIDPath = articleIDRepo.getPath();
-        if ( articleIDPath.exists() == false ) {
-            articleIDPath.mkdirs();
-        }
-        if ( spool instanceof Initializable ) {
-            ((Initializable)spool).initialize();
         }
         getLogger().debug("repository initialization done");
     }
@@ -154,8 +197,17 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroup(String)
      */
     public NNTPGroup getGroup(String groupName) {
-        File f = new File(rootPath,groupName);
-        return ( f.exists() && f.isDirectory() ) ? new NNTPGroupImpl(f) : null;
+        File groupFile = new File(rootPath,groupName);
+        NNTPGroup groupToReturn = null;
+        synchronized(this) {
+            groupToReturn = (NNTPGroup)repositoryGroups.get(groupName);
+            if ((groupToReturn == null) && groupFile.exists() && groupFile.isDirectory() ) {
+                groupToReturn = new NNTPGroupImpl(groupFile);
+                ((NNTPGroupImpl)groupToReturn).enableLogging(getLogger());
+                repositoryGroups.put(groupName, groupToReturn);
+            }
+        }
+        return groupToReturn;
     }
 
     /**
@@ -219,7 +271,9 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private Iterator getGroups(File[] f) {
         List list = new ArrayList();
         for ( int i = 0 ; i < f.length ; i++ ) {
-            list.add(new NNTPGroupImpl(f[i]));
+            if (f[i] != null) {
+                list.add(getGroup(f[i].getName()));
+            }
         }
         return list.iterator();
     }
@@ -273,4 +327,51 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
                 }
             };
     }
+
+    /**
+     * Creates an instance of the spooler class.
+     *
+     * TODO: This method doesn't properly implement the Avalon lifecycle.
+     */
+    private NNTPSpooler createSpooler() 
+            throws ConfigurationException {
+        String className = "org.apache.james.nntpserver.repository.NNTPSpooler";
+        Configuration spoolerConfiguration = configuration.getChild("spool");
+        try {
+            // Must be a subclass of org.apache.james.nntpserver.repository.NNTPSpooler
+            className = spoolerConfiguration.getAttribute("class");
+        } catch(ConfigurationException ce) {
+            // Use the default class.
+        }
+        try {
+            Object obj = getClass().getClassLoader().loadClass(className).newInstance();
+            // TODO: Need to support compose
+            if ( obj instanceof LogEnabled ) {
+                ((LogEnabled)obj).enableLogging( getLogger() );
+            }
+            if (obj instanceof Contextualizable) {
+                ((Contextualizable)obj).contextualize(context);
+            }
+            if ( obj instanceof Configurable ) {
+                ((Configurable)obj).configure(spoolerConfiguration.getChild("configuration"));
+            }
+            if ( obj instanceof Initializable ) {
+                ((Initializable)obj).initialize();
+            }
+            return (NNTPSpooler)obj;
+        } catch(ClassCastException cce) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                    .append("Spooler initialization failed because the spooler class ")
+                    .append(className)
+                    .append(" was not a subclass of org.apache.james.nntpserver.repository.NNTPSpooler");
+            String errorString = errorBuffer.toString();
+            getLogger().error(errorString, cce);
+            throw new ConfigurationException(errorString, cce);
+        } catch(Exception ex) {
+            getLogger().error("Spooler initialization failed",ex);
+            throw new ConfigurationException("Spooler initialization failed",ex);
+        }
+    }
+
 }

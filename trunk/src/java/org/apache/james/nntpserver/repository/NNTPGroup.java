@@ -7,6 +7,8 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -109,8 +111,28 @@ public interface NNTPGroup {
     Iterator getArticles();
 
     /**
-     * TODO: I don't understand the purpose of this method.  It seems to 
-     *       be an implementation hack.  
+     * Retrieves the group information in a format consistent with
+     * a LIST or LIST ACTIVE return line
+     *
+     * @return the properly formatted string
      */
-    Object getPath();
+    String getListFormat();
+
+    /**
+     * Retrieves the group information in a format consistent with
+     * a LIST NEWSGROUPS return line
+     *
+     * @return the properly formatted string
+     */
+    String getListNewsgroupsFormat();
+
+    /**
+     * Adds an article to the group based on the data in the
+     * stream.
+     *
+     * @param newsStream the InputStream containing the article data
+     *
+     * @return the newly created article
+     */
+    NNTPArticle addArticle(InputStream newsStream) throws IOException;
 }

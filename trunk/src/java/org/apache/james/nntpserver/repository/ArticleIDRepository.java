@@ -55,15 +55,6 @@ public class ArticleIDRepository {
     }
 
     /**
-     * Returns the root of the repository.
-     *
-     * @return the root of the repository
-     */
-    public File getPath() {
-        return root;
-    }
-
-    /**
      * Generate a new article ID for use in the repository.
      */
     String generateArticleID() {
