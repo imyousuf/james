@@ -17,9 +17,10 @@ import java.util.Collection;
  * Matches mail with a header set by Fetchpop X-fetched-from <br>
  * fetchpop sets X-fetched-by to the "name" of the fetchpop fetch task.<br>
  * This is used to match all mail fetched from a specific pop account.
+ * Once the condition is met the header is stripped from the message to prevent looping if the mail is re-inserted into the spool.
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: FetchedFrom.java,v 1.1 2002/09/27 12:03:59 danny Exp $
+ * $Id: FetchedFrom.java,v 1.2 2002/09/27 14:08:00 danny Exp $
  */
 
 public class FetchedFrom extends GenericMatcher {
@@ -27,6 +28,7 @@ public class FetchedFrom extends GenericMatcher {
         MimeMessage message = mail.getMessage();
         String fetch = message.getHeader("X-fetched-from", null);
         if (fetch != null && fetch.equals(getCondition())) {
+            mail.getMessage().removeHeader("X-fetched-from");
             return mail.getRecipients();
         }
         return null;
