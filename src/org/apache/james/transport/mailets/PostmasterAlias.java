@@ -27,13 +27,13 @@ public class PostmasterAlias extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection recipientsToRemove = null;
-        Collection servernames = getMailetContext().getServerNames();
+        MailetContext mailetContext = getMailetContext();
         boolean postmasterAddressed = false;
 
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress addr = (MailAddress)i.next();
             if (addr.getUser().equalsIgnoreCase("postmaster") &&
-                    servernames.contains(addr.getHost())) {
+                    mailetContext.isLocalServer(addr.getHost())) {
                 //Should remove this address... we want to replace it with
                 //  the server's postmaster address
                 if (recipientsToRemove == null) {
@@ -54,4 +54,3 @@ public class PostmasterAlias extends GenericMailet {
         return "Postmaster aliasing mailet";
     }
 }
-
