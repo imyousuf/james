@@ -61,7 +61,7 @@ import org.apache.mailet.SpoolRepository;
  * as well as other places.
  *
  *
- * This is $Revision: 1.44 $
+ * This is $Revision: 1.45 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -294,7 +294,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 throw lastError;
             }
         } catch (SendFailedException sfe) {
+            boolean deleteMessage = false;
+            Collection recipients = mail.getRecipients();
+
             //Would like to log all the types of email addresses
+            if (isDebug) log("Recipients: " + recipients);
+
             /*
             if (sfe.getValidSentAddresses() != null) {
                 Address[] validSent = sfe.getValidSentAddresses();
@@ -333,11 +338,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
              *
              */
 
-            boolean deleteMessage = false;
-            Collection recipients = mail.getRecipients();
-
-            log("Recipients: " + recipients);
-
             if (sfe.getInvalidAddresses() != null) {
                 Address[] address = sfe.getInvalidAddresses();
                 if (address.length > 0) {
@@ -352,7 +352,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             log("Can't parse invalid address: " + pe.getMessage());
                         }
                     }
-                    log("Invalid recipients: " + recipients);
+                    if (isDebug) log("Invalid recipients: " + recipients);
                     deleteMessage = failMessage(mail, sfe, true);
                 }
             }
@@ -371,7 +371,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             log("Can't parse unsent address: " + pe.getMessage());
                         }
                     }
-                    log("Unsent recipients: " + recipients);
+                    if (isDebug) log("Unsent recipients: " + recipients);
                     deleteMessage = failMessage(mail, sfe, false);
                 }
             }
