@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.34 $
+ * @version This is $Revision: 1.35 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -146,6 +146,11 @@ public class SMTPHandler
      * The text string for the SMTP MAIL command SIZE option.
      */
     private final static String MAIL_OPTION_SIZE = "SIZE";
+
+    /**
+     * The thread executing this handler 
+     */
+    private Thread handlerThread;
 
     /**
      * The TCP/IP socket over which the SMTP 
@@ -259,6 +264,13 @@ public class SMTPHandler
         } catch (Exception e) {
             // ignored
         }
+
+        synchronized (this) {
+            // Interrupt the thread to recover from internal hangs
+            if (handlerThread != null) {
+                handlerThread.interrupt();
+            }
+        }
     }
 
     /**
@@ -268,6 +280,9 @@ public class SMTPHandler
 
         try {
             this.socket = connection;
+            synchronized (this) {
+                handlerThread = Thread.currentThread();
+            }
             in = new BufferedInputStream(socket.getInputStream(), 1024);
             // An ASCII encoding can be used because all transmissions other
             // that those in the DATA command are guaranteed
@@ -401,6 +416,10 @@ public class SMTPHandler
             }
         } finally {
             socket = null;
+        }
+
+        synchronized (this) {
+            handlerThread = null;
         }
 
     }
