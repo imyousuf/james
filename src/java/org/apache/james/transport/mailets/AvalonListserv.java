@@ -68,7 +68,7 @@ import org.apache.mailet.MailAddress;
 import javax.mail.internet.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * MailingListServer capability.
@@ -103,7 +103,7 @@ import java.util.Vector;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.7.4.2 $
+ * @version This is $Revision: 1.7.4.3 $
  */
 public class AvalonListserv extends GenericListserv {
 
@@ -179,7 +179,7 @@ public class AvalonListserv extends GenericListserv {
     }
 
     public Collection getMembers() throws ParseException {
-        Collection reply = new Vector();
+        Collection reply = new ArrayList();
         for (Iterator it = members.list(); it.hasNext(); ) {
             String member = it.next().toString();
             try {
