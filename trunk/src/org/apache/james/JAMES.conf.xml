@@ -70,7 +70,8 @@
 <!--                <bind>  </bind> uncomment this if you want to bind to a specific inetaddress-->
 <!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <administrator_accounts>
-                    <account login="root" password="root"/>
+<!-- FILL ME!!!!!!  You must provide a password for your administrator accounts (cannot be blank) -->
+                    <account login="root" password=""/>
                 </administrator_accounts>
                 <connectiontimeout> 60000 </connectiontimeout>
             </remoteManager>
@@ -132,6 +133,11 @@
 <!--        Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
                 <processor name="transport">
                     <mailet match="RecipientIsLocal" class="LocalDelivery">
+                    </mailet>
+                    <!-- is the host is to this server and it did not get locally delivered, this
+                       is an invalid recipient -->
+                    <mailet match="HostIsLocal" class="ToProcessor">
+                        <processor>error</processor>
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
                         <delayed> file://../var/mail/delayed/ </delayed>

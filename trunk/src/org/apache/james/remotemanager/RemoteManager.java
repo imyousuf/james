@@ -18,7 +18,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Provides a really rude network interface to administer James. 
+ * Provides a really rude network interface to administer James.
  * Allow to add accounts.
  * TODO: -improve protocol
  *       -add remove user
@@ -44,12 +44,12 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("RemoteManager init...", "RemoteAdmin", logger.INFO);
@@ -65,12 +65,12 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         } catch (ConfigurationException e) {
         }
 
-	String type = SocketServer.DEFAULT;
-	try {
-	    if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-	} catch (ConfigurationException e) {
-	}
-	String typeMsg = "RemoteManager using " + type + " on port " + port;
+    String type = SocketServer.DEFAULT;
+    try {
+        if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+    } catch (ConfigurationException e) {
+    }
+    String typeMsg = "RemoteManager using " + type + " on port " + port;
         logger.log(typeMsg, "RemoteAdmin", logger.INFO);
 
         socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
@@ -104,7 +104,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
-            while (!password.equals(admaccount.get(login))) {
+            while (!password.equals(admaccount.get(login)) || password.length() == 0) {
                 out.println("Login failed for " + login);
                 logger.log("Login for " + login + " failed", "RemoteAdmin", logger.INFO);
                 login = in.readLine();
@@ -125,7 +125,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         }
         timeServer.removeAlarm("RemoteManager");
     }
-    
+
     public void wake(String name, String memo) {
         logger.log("Connection timeout on socket", "RemoteAdmin", logger.ERROR);
         try {
@@ -226,4 +226,4 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
     public void destroy() {
     }
 }
-    
+
