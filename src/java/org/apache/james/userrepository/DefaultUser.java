@@ -19,8 +19,8 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
+ * $Revision: 1.3 $
  */
 
 public class DefaultUser implements User, Serializable {
@@ -57,7 +57,7 @@ public class DefaultUser implements User, Serializable {
     /**
      * Accessor for immutable name
      *
-     * @returns the String of this users name
+     * @return the String of this users name
      */
     public String getUserName() {
 	return userName;
@@ -67,7 +67,7 @@ public class DefaultUser implements User, Serializable {
      *  Method to verify passwords. 
      *
      * @param pass the String that is claimed to be the password for this user
-     * @returns true if the hash of pass with the current algorithm matches
+     * @return true if the hash of pass with the current algorithm matches
      * the stored hash.
      */
     public boolean verifyPassword(String pass) {
@@ -84,7 +84,7 @@ public class DefaultUser implements User, Serializable {
      * password.
      *
      * @param newPass the String that is the new password.
-     * @returns true if newPass successfuly hashed
+     * @return true if newPass successfuly hashed
      */
     public boolean setPassword(String newPass) {
         try {
@@ -98,7 +98,7 @@ public class DefaultUser implements User, Serializable {
     /**
      * Method to access hash of password
      *
-     * @returns the String of the hashed Password
+     * @return the String of the hashed Password
      */
     protected String getHashedPassword() {
 	return hashedPassword;

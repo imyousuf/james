@@ -207,7 +207,7 @@ public class MailAddress implements java.io.Serializable {
      * explicit definition, the default hashCode will create different hashcodes
      * for separate object instances.
      *
-     * @returns the hashcode.
+     * @return the hashcode.
      * @author Stuart Roebuck <stuart.roebuck@adolos.com>
      */
     public int hashCode() {

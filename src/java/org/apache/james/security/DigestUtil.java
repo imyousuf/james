@@ -19,8 +19,8 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:37 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
+ * $Revision: 1.3 $
  */
 public class DigestUtil {
 
@@ -138,7 +138,7 @@ public class DigestUtil {
      *
      * @param pass the String to be hashed
      * @param algorithm the algorithm to be used
-     * @returns String Base-64 encoding of digest
+     * @return String Base-64 encoding of digest
      */
     public static String digestString(String pass, String algorithm )
             throws NoSuchAlgorithmException  {
