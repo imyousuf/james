@@ -11,6 +11,16 @@ if [ "$JAVA_HOME" = "" ] ; then
   exit 1
 fi
 
+if [ ! -f Loader.jar ] ; then
+  echo "ERROR: Loader.jar not found."
+  echo
+  echo "Please execute this 'run.sh' script from within the bin directory"
+  echo "by moving to the 'bin' directory and executing './run.sh'."
+  echo "If you obtained the source from CVS, build with the 'dist' target"
+  echo "then copy the JAMES zip or tar file to a working directory and unbundle it."
+  exit 1
+fi
+
 LOCAL_CLASSPATH=Loader.jar:../lib/AvalonAware.jar:../lib/xerces.jar:../lib/mail_1_1_3.jar:../lib/activation.jar
 
 $JAVA_HOME/bin/java -cp $CLASSPATH:$LOCAL_CLASSPATH org.apache.avalon.loader.Main $*

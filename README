@@ -110,7 +110,13 @@ Summary (for impatient people)
    
     M$ users shuold just run /bin/run.bat. Unix users will find run.sh
     under the same folder. A JVM must be in the path.
-    Running [run* -help] will provide a simple command line help.
+    Running [run* -help] will provide a simple command line help.	
+
+    Most UNIX systems require superuser privileges to open sockets below 1024,
+    which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
+    These default ports can be changed in the conf.xml file. (Obviously, you
+    would then need to reconfigure your clients. This may not be an option if
+    you want to recieve mail from exernal mailservers.)
 
     The Avalon framework will unpack the neccessay configuration files and wait
     for you to configure them. For basic use, you only need to set two items
