@@ -81,6 +81,10 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.container.ContainerUtil;
 
 /**
  * @phoenix:block
@@ -90,7 +94,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  */
 public class RepositoryManager
     extends AbstractLogEnabled
-    implements Store, Contextualizable, Composable, Configurable
+    implements Store, Contextualizable, Composable, Serviceable, Configurable
 {
     private static final String REPOSITORY_NAME = "Repository";
     private static long id = 0;
@@ -99,6 +103,7 @@ public class RepositoryManager
     protected HashMap m_models = new HashMap();
     protected HashMap m_classes = new HashMap();
     protected ComponentManager m_componentManager;
+    protected ServiceManager m_serviceManager;
     protected Context m_context;
 
     public void contextualize( final Context context )
@@ -110,6 +115,12 @@ public class RepositoryManager
         throws ComponentException
     {
         m_componentManager = componentManager;
+    }
+
+    public void service( final ServiceManager serviceManager )
+        throws ServiceException
+    {
+        m_serviceManager = serviceManager;
     }
 
     public void configure( final Configuration configuration )
@@ -159,6 +170,14 @@ public class RepositoryManager
     }
 
     public boolean hasComponent( final Object hint )
+    {
+        if( hint instanceof Configuration )
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isSelectable( final Object hint )
     {
         if( hint instanceof Configuration )
             return true;
@@ -229,25 +248,11 @@ public class RepositoryManager
                     reply = (Repository)Class.forName( repClass ).newInstance();
                     setupLogger( reply, "repository" );
 
-                    if( reply instanceof Contextualizable )
-                    {
-                        ( (Contextualizable)reply ).contextualize( m_context );
-                    }
-
-                    if( reply instanceof Composable )
-                    {
-                        ( (Composable)reply ).compose( m_componentManager );
-                    }
-
-                    if( reply instanceof Configurable )
-                    {
-                        ( (Configurable)reply ).configure( repConf );
-                    }
-
-                    if( reply instanceof Initializable )
-                    {
-                        ( (Initializable)reply ).initialize();
-                    }
+                    ContainerUtil.contextualize(reply, m_context);
+                    ContainerUtil.compose(reply, m_componentManager);
+                    ContainerUtil.service(reply, m_serviceManager);
+                    ContainerUtil.configure(reply, repConf);
+                    ContainerUtil.initialize(reply);
 
                     m_repositories.put( repID, reply );
                     m_models.put( repID, model );
