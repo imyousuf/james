@@ -18,7 +18,8 @@ import org.apache.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface UsersStore extends Service {
+public interface UsersStore 
+    extends Service {
 
     UsersRepository getRepository( String name );
 }

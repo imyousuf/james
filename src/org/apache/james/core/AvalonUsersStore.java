@@ -63,11 +63,12 @@ public class AvalonUsersStore
 
             setupLogger((Component)rep);
 
-            if (rep instanceof Configurable) {
-                ((Configurable) rep).configure(repConf);
-            }
             if (rep instanceof Composer) {
                 ((Composer) rep).compose( componentManager );
+            }
+
+            if (rep instanceof Configurable) {
+                ((Configurable) rep).configure(repConf);
             }
             /*
               if (rep instanceof Contextualizable) {

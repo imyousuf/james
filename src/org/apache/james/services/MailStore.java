@@ -17,14 +17,15 @@ import org.apache.cornerstone.services.store.Store;
  *  <br>            type="MAIL"
  *  <br>            model="SYNCHRONOUS"/>
  *  <br></repository>
- * <p>This configuration, including any included child elements, is used to configure the returned component.
+ * <p>This configuration, including any included child elements, is used to configure 
+ * the returned component.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface MailStore extends Store {
-
+public interface MailStore 
+    extends Store {
     // MailRepository getInbox(String user);
-
 }
  

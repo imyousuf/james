@@ -9,7 +9,9 @@ package org.apache.james.services;
 
 /**
  * Interface for a Repository for Spooling Mails.
- * A spool repository is a transitory repository which should empty itself if inbound deliveries stop.
+ * A spool repository is a transitory repository which should empty itself 
+ * if inbound deliveries stop.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -24,7 +26,8 @@ public interface SpoolRepository
 
     /**
      * Returns the key for an arbitrarily selected mail deposited in this Repository.
-     * Useage: SpoolManager calls accept() to see if there are any unprocessed mails in the spool repository.
+     * Useage: SpoolManager calls accept() to see if there are any unprocessed 
+     * mails in the spool repository.
      */
     String accept();
 

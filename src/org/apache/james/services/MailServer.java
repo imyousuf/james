@@ -21,7 +21,8 @@ import org.apache.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface MailServer extends Service {
+public interface MailServer 
+    extends Service {
 
     /**
      * Reserved user name for the mail delivery agent for multi-user mailboxes

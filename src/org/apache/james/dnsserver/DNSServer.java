@@ -1,26 +1,26 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.dnsserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.net.UnknownHostException;
+import java.net.InetAddress;
+import java.util.Collection;
+import java.util.Arrays;
+import java.util.Vector;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
 import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.Initializable;
-import org.apache.avalon.Component;
 import org.apache.james.transport.Resources;
-import org.apache.mailet.Mail;
 import org.xbill.DNS.*;
 
 /**
@@ -29,49 +29,51 @@ import org.xbill.DNS.*;
  */
 public class DNSServer 
     extends AbstractLoggable
-    implements Component, Configurable, Contextualizable, Initializable {
+    implements Configurable, Initializable {
 
-    private Configuration conf;
     private Resolver resolver;
     private Cache cache;
     private byte dnsCredibility;
+    private Collection servers = new Vector();
 
-    public void configure(Configuration conf) throws ConfigurationException{
-        this.conf = conf;
+    public void configure( final Configuration configuration ) 
+        throws ConfigurationException {
+
+        // Get this servers that this block will use for lookups
+        final Configuration serversConfiguration = configuration.getChild( "servers" );
+        final Configuration[] serverConfigurations = 
+            serversConfiguration.getChildren( "server" );
+
+        for ( int i = 0; i < serverConfigurations.length; i++ )
+        {
+            servers.add( serverConfigurations[ i ].getValue() );
+        }
+
+        final boolean authoritative = 
+            configuration.getChild( "authoritative" ).getValueAsBoolean( false );
+        dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
     }
 
-    public void contextualize(Context context) {
-    }
-
-    public void init() throws Exception {
+    public void init() 
+        throws Exception {
 
         getLogger().info("DNSServer init...");
 
-        // Get this servers that this block will use for lookups
-        Collection servers = new Vector();
-        Configuration serversConf = conf.getChild("servers");
-        final Configuration[] serverConfs = serversConf.getChildren( "server" );
-        for ( int i = 0; i < serverConfs.length; i++ )
-        {
-            servers.add( serverConfs[i].getValue() );
-        }
         if (servers.isEmpty()) {
             try {
-                servers.add(InetAddress.getLocalHost().getHostName());
-            } catch (UnknownHostException ue) {
-                servers.add("127.0.0.1");
+                servers.add( InetAddress.getLocalHost().getHostName() );
+            } catch ( UnknownHostException ue ) {
+                servers.add( "127.0.0.1" );
             }
         }
+
         for (Iterator i = servers.iterator(); i.hasNext(); ) {
             getLogger().info("DNS Servers is: " + i.next());
         }
-        boolean authoritative = conf.getChild("authoritative").getValueAsBoolean(false);
 
         //Create the extended resolver...
-        String serversArray[] = (String[])servers.toArray(new String[0]);
-        resolver = new ExtendedResolver (serversArray);
-
-        dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
+        final String serversArray[] = (String[])servers.toArray(new String[0]);
+        resolver = new ExtendedResolver( serversArray );
 
         cache = new Cache ();
 
@@ -99,6 +101,7 @@ public class DNSServer
                     return ma.getPriority () - mb.getPriority ();
                 }
             };
+
             Arrays.sort(mxAnswers, prioritySort);
 
             for (int i = 0; i < mxAnswers.length; i++) {

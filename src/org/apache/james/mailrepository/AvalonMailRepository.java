@@ -64,28 +64,36 @@ public class AvalonMailRepository
         // ignore model
     }
 
-    public void compose(ComponentManager compMgr) 
+    public void compose( final ComponentManager componentManager ) 
         throws ComponentManagerException {
         try {
-            store = (Store)compMgr.lookup("org.apache.cornerstone.services.store.Store");
+            store = (Store)componentManager.
+                lookup( "org.apache.cornerstone.services.store.Store" );
+
             //prepare Configurations for object and stream repositories
-            DefaultConfiguration objConf
-                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-            objConf.addAttribute("destinationURL", destination);
-            objConf.addAttribute("type", "OBJECT");
-            objConf.addAttribute("model", "SYNCHRONOUS");
-            DefaultConfiguration strConf
-                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-            strConf.addAttribute("destinationURL", destination);
-            strConf.addAttribute("type", "STREAM");
-            strConf.addAttribute("model", "SYNCHRONOUS");
+            DefaultConfiguration objectConfiguration
+                = new DefaultConfiguration( "repository", 
+                                            "generated:AvalonFileRepository.compose()" );
+
+            objectConfiguration.addAttribute("destinationURL", destination);
+            objectConfiguration.addAttribute("type", "OBJECT");
+            objectConfiguration.addAttribute("model", "SYNCHRONOUS");
+
+            DefaultConfiguration streamConfiguration
+                = new DefaultConfiguration( "repository", 
+                                            "generated:AvalonFileRepository.compose()" );
+
+            streamConfiguration.addAttribute( "destinationURL", destination );
+            streamConfiguration.addAttribute( "type", "STREAM" );
+            streamConfiguration.addAttribute( "model", "SYNCHRONOUS" );
             
-            sr = (StreamRepository) store.select(strConf);
-            or = (ObjectRepository) store.select(objConf);
+            sr = (StreamRepository) store.select(streamConfiguration);
+            or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
         } catch (Exception e) {
-            getLogger().error( "Failed to retrieve Store component:" + e.getMessage() );
-            throw new ComponentManagerException( "Failed to retrieve store component", e );
+            final String message = "Failed to retrieve Store component:" + e.getMessage();
+            getLogger().error( message, e );
+            throw new ComponentManagerException( message, e );
         }
     }
 

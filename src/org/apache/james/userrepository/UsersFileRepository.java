@@ -45,36 +45,43 @@ public class UsersFileRepository
     private Store store;
     private ObjectRepository or;
     private String destination;
-    private Lock lock;
+    private Lock lock  = new Lock();
 
-    public UsersFileRepository() {
-    }
+    public void configure( final Configuration configuration ) 
+        throws ConfigurationException {
 
-    public void configure(Configuration conf) throws ConfigurationException {
+        destination = configuration.getChild( "destination" ).getAttribute( "URL" );
 
-        destination = conf.getChild("destination").getAttribute("URL");
         if (!destination.endsWith(File.separator)) {
             destination += File.separator;
         }
     }
 
-    public void compose( final ComponentManager componentManager ) {
+    public void compose( final ComponentManager componentManager ) 
+        throws ComponentManagerException {
+
+        store = (Store)componentManager.
+            lookup( "org.apache.cornerstone.services.store.Store" );
+    }
+    
+    public void init()
+        throws Exception {
+
         try {
-            store = (Store)componentManager.
-                lookup( "org.apache.cornerstone.services.store.Store" );
             //prepare Configurations for object and stream repositories
-            DefaultConfiguration objConf
-                = new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
-            objConf.addAttribute("destinationURL", destination);
-            objConf.addAttribute("type", "OBJECT");
-            objConf.addAttribute("model", "SYNCHRONOUS");
+            final DefaultConfiguration objectConfiguration
+                = new DefaultConfiguration( "repository", 
+                                            "generated:UsersFileRepository.compose()" );
+
+            objectConfiguration.addAttribute( "destinationURL", destination );
+            objectConfiguration.addAttribute( "type", "OBJECT" );
+            objectConfiguration.addAttribute( "model", "SYNCHRONOUS" );
         
-            or = (ObjectRepository) store.select(objConf);
-            lock = new Lock();
-        } catch (ComponentManagerException cme) {
-            getLogger().error("Failed to retrieve Store component:" + cme.getMessage(), cme );
+            or = (ObjectRepository)store.select( objectConfiguration );
+
         } catch (Exception e) {
             getLogger().error("Failed to retrieve Store component:" + e.getMessage(), e );
+            throw e;
         }
     }
 
