@@ -4,7 +4,7 @@
         <block class="org.apache.james.James"
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.MailServer">
-               
+
             <postmaster> root@localhost </postmaster>
             <servernames>
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
@@ -23,14 +23,14 @@
                     <connectiontimeout> 120000 </connectiontimeout>
                 </pop3handler>
             </pop3Server>
-    
+
             <smtpServer>
                 <port>25</port>
                 <smtphandler>
                     <connectiontimeout> 120000 </connectiontimeout>
                 </smtphandler>
             </smtpServer>
-    
+
             <remoteManager>
                 <port>4555</port>
                 <administrator_accounts>
@@ -57,7 +57,7 @@
                 </DNSservers>
                 <authoritative>false</authoritative>
                 <repository> file://../var/mail/delayed/ </repository>
-            
+
 <!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
                 <servlets rootpath="org.apache.james.transport.servlet.">
 
@@ -68,7 +68,7 @@
 <!-- These servlet act as system servlet and provides remote deliver -->
                     <servlet match="!HostIsLocal" class="RemoteDelivery">
                         <delayTime>21600000</delayTime>
-                        <maxRetyes>5</maxRetyes>
+                        <maxRetries>5</maxRetries>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
@@ -100,25 +100,25 @@
                 64
             </capacity>
         </block>
-    
+
         <block class="org.apache.avalon.blocks.omero.Omero"
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.Logger"
                help="Provides a pluggable logging system">
             <timestamp>
-                <granularity help="Sets the timestamp time granularity in 
-                        milliseconds. If set to 0 means to use maximum time precision 
+                <granularity help="Sets the timestamp time granularity in
+                        milliseconds. If set to 0 means to use maximum time precision
                         else timestam is calculated every 'granularity' milliseconds">
                     0
                 </granularity>
                 <format help="Define the format for the timestamp">
-                    yyyy.MM.dd hh:mm:ss SSS 
+                    yyyy.MM.dd hh:mm:ss SSS
                 </format>
             </timestamp>
-            <channels help="Every log call is performed througt a channel. 
+            <channels help="Every log call is performed througt a channel.
                     The proposed pattern is: each application (Block) should use its own
-                    channel to allow adminitrators to set what to log from that 
-                    application and where to place logs. So if you plug a new server 
+                    channel to allow adminitrators to set what to log from that
+                    application and where to place logs. So if you plug a new server
                     under Avalon you MUST place channel definition from that server
                     configuration file hereafter">
                 <channel name="default"        loglevel="DEBUG"  logwriter="stdout"/>
@@ -177,18 +177,18 @@
                 </writer>
             </logwriters>
         </block>
-                
+
         <block class="org.apache.avalon.blocks.masterstore.MasterStore"
                 serverName="James"
                 implementedInterface="org.apache.avalon.blocks.Store"
-                help="This is an imlpementation of the Store interface and 
+                help="This is an imlpementation of the Store interface and
                     provides a powerful interface to store any kind of objects. Its
                     power resides in its pluggable pattern.">
             <repositoriesDefinition help="Here goes Repository definitions. If
             an application needs its own Repository (see MailRepository
             for JAMES), it will place here its definition. These are default
             Repository.">
-                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS" 
+                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.avalon.blocks.masterstore.PersistentStore"/>
                 <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
@@ -200,9 +200,9 @@
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
-                    be available only to caller application. If, on the other side, it 
-                    needs to share that repository with other Block the Repository must 
-                    be defined public since none of these block has 'the right' to own 
+                    be available only to caller application. If, on the other side, it
+                    needs to share that repository with other Block the Repository must
+                    be defined public since none of these block has 'the right' to own
                     Repository configurations. Place here any public Repository definition">
 
 <!--            <repository name="MyRepository" type="OBJECT" model="SYNCHRONOUS"> file://../myfolder/ </repository> -->
@@ -213,7 +213,7 @@
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.SocketServer"
                help="Provides an simple interface to catch Socket events">
-            <listenerDefinition help="These are default socket listener. An 
+            <listenerDefinition help="These are default socket listener. An
                     application can implement an use its own lstener to perform
                     specific task (ex. FirewalledListener etc.)" >
                 <listener type="DEFAULT" class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor">
@@ -223,6 +223,6 @@
                 </listener>
             </listenerDefinition>
         </block>
-        
+
     </blocks>
 </avalon>
