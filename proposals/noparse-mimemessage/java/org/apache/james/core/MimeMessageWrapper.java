@@ -49,8 +49,7 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded these headers
             return;
         }
-        System.err.println("parsing headers of " + this);
-        //new Throwable().printStackTrace();
+        //System.err.println("parsing headers of " + this);
         try {
             InputStream in = source.getInputStream();
             headers = new MailHeaders(in);
@@ -69,8 +68,7 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded this message
             return;
         }
-        System.err.println("parsing headers and message of " + this);
-        //new Throwable().printStackTrace();
+        //System.err.println("parsing headers and message of " + this);
         try {
             InputStream in = source.getInputStream();
             headers = new MailHeaders(in);
@@ -131,7 +129,7 @@ public class MimeMessageWrapper extends MimeMessage {
      * Rewritten for optimization purposes
      */
     public void writeTo(OutputStream os) throws IOException, MessagingException {
-        if (message == null || !modified) {
+        if (message == null || !isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
             byte[] block = new byte[1024];
@@ -142,40 +140,93 @@ public class MimeMessageWrapper extends MimeMessage {
             }
             in.close();
         } else {
+            message.saveChanges();
             message.writeTo(os);
         }
     }
 
     /**
-     * Could be rewritten for optimization purposes at some point
+     * Rewritten for optimization purposes
      */
     public void writeTo(OutputStream os, String[] ignoreList) throws IOException, MessagingException {
-        if (message == null || !modified) {
+        writeTo(os, os, ignoreList);
+    }
+
+    /**
+     * Write
+     */
+    public void writeTo(OutputStream headerOs, OutputStream bodyOs) throws IOException, MessagingException {
+        writeTo(headerOs, bodyOs, new String[0]);
+    }
+
+    public void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+        if (message == null || !isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
 
             //First handle the headers
             InputStream in = source.getInputStream();
             InternetHeaders headers = new InternetHeaders(in);
-            PrintStream pos = new PrintStream(os);
+            PrintStream pos = new PrintStream(headerOs);
             for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
                 String header = (String)e.nextElement();
                 pos.print(header);
                 pos.print("\r\n");
-                //System.err.println(header);
             }
             pos.print("\r\n");
-            //System.err.println();
             pos.flush();
             byte[] block = new byte[1024];
             int read = 0;
             while ((read = in.read(block)) > 0) {
-                os.write(block, 0, read);
-                //System.err.write(block, 0, read);
+                bodyOs.write(block, 0, read);
             }
             in.close();
         } else {
-            message.writeTo(os, ignoreList);
+            writeTo(message, headerOs, bodyOs, ignoreList);
+        }
+    }
+
+    /**
+     * Convenience method to take any MimeMessage and write the headers and body to two
+     * different output streams
+     */
+    public static void writeTo(MimeMessage message, OutputStream headerOs, OutputStream bodyOs) throws IOException, MessagingException {
+        writeTo(message, headerOs, bodyOs, null);
+    }
+
+    /**
+     * Convenience method to take any MimeMessage and write the headers and body to two
+     * different output streams, with an ignore list
+     */
+    public static void writeTo(MimeMessage message, OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+        if (message instanceof MimeMessageWrapper) {
+            MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
+            wrapper.writeTo(headerOs, bodyOs, ignoreList);
+        } else {
+            message.saveChanges();
+
+            //Write the headers (minus ignored ones)
+            Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
+            PrintStream pos = new PrintStream(headerOs);
+            while (headers.hasMoreElements()) {
+                pos.print((String)headers.nextElement());
+                pos.print("\r\n");
+            }
+            pos.flush();
+
+            //Write the message without any headers
+
+            //Get a list of all headers
+            Vector headerNames = new Vector();
+            Enumeration allHeaders = message.getAllHeaders();
+            while (allHeaders.hasMoreElements()) {
+                Header header = (Header)allHeaders.nextElement();
+                headerNames.add(header.getName());
+            }
+            String headerNamesArray[] = (String[])headerNames.toArray(new String[0]);
+
+            //Write message to bodyOs, ignoring all headers (without writing any headers)
+            message.writeTo(bodyOs, headerNamesArray);
         }
     }
 
