@@ -132,7 +132,7 @@ Sometimes the purpose for a Test Build could be soliciting feedback on
 a specific change.  Test Builds are announced on the General mailing
 list (general&#64;james.apache.org).</p>
 
-<a href="http://cvs.apache.org/builds/james-server/test-build/">Latest Test Build</a>
+<a href="http://cvs.apache.org/dist/james/">Latest Test Build</a>
 
 </section>
 
