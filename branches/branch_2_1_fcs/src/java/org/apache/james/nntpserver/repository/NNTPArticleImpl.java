@@ -140,14 +140,15 @@ class NNTPArticleImpl implements NNTPArticle {
             String references = hdr.getHeader("References",null);
             long byteCount = articleFile.length();
             long lineCount = -1;
-            StringBuffer line=new StringBuffer(128)
+            StringBuffer line=new StringBuffer(256)
+                .append(getArticleNumber())      .append("\t")
                 .append(cleanHeader(subject))    .append("\t")
                 .append(cleanHeader(author))     .append("\t")
                 .append(cleanHeader(date))       .append("\t")
                 .append(cleanHeader(msgId))      .append("\t")
                 .append(cleanHeader(references)) .append("\t")
-                .append(byteCount + "\t")
-                .append(lineCount + "");
+                .append(byteCount)               .append("\t")
+                .append(lineCount);
             prt.println(line.toString());
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
@@ -180,7 +181,7 @@ class NNTPArticleImpl implements NNTPArticle {
         StringBuffer sb = new StringBuffer(field);
         for( int i=0 ; i<sb.length() ; i++ ) {
             char c = sb.charAt(i);
-            if( (c=='\n') || (c=='\t') ) {
+            if( (c=='\n') || (c=='\t') || (c=='\r') ) {
                 sb.setCharAt(i, ' ');
             }
         }
