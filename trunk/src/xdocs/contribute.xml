@@ -7,9 +7,9 @@
    <body>
 	   <section name="Introduction">
 	   <p>
-		   <b>anyone can contribute></b><br/>
-		   Thats right, we always want to hear from people with contributions to the code, 
-		   the documentation, the website and bug reports.<br/> 
+		   <b>Anyone can contribute</b><br/>
+		   That's right, we always want to hear from people with contributions to the code, 
+		   the documentation, the website, and bug reports.<br/> 
 		   The rest of this document outlines the way to go about these to maximum effect.<br/>
 	   </p>
 	   <p>
@@ -27,7 +27,7 @@
 			Patches should be submitted to the developers mailing list.<br/>
 			<b>Always</b> use diff -u to generate patches, make sure you are patching the latest cvs (the HEAD).<br/>
 			Make your patch from the jakarta-james directory and make sure it conforms 
-			to the code standards, otherwise it may be ignored. Its is OK to make a single patch covering several 
+			to the code standards, otherwise it may be ignored. It is OK to make a single patch covering several 
 			files, but please only one issue at a time.<br/>
 			Prefix the mail subject with [PATCH]<br/>
 			Briefly outline the reason for your patch, 
@@ -48,7 +48,7 @@
 			your submission conforms to the code standards. Provide a Brief outline of 
 			your intentions, as above, so that your code can be reviewed easily, and a 
 			note of any relevant bug numbers.<br/>
-			New files must contain a refrence to the Apache licence, copy the header from an existing file.<br/>
+			New files must contain a reference to the Apache licence, copy the header from an existing file.<br/>
 			It also helps if you send your files in an archive (tar, zip) which preserves directories, make it from the jakarta-james directory so we can un-tar your files into the right place.
 		</p>
 		</section>
@@ -79,7 +79,7 @@
 			If this means nothing to you please try to contribute HTML or plain text documents without 
 			any styling, so that we can get at the words and easily convert them into our xml format.<br/>
 			If all this seems like unnecessary nonsense, send us whatever you like, we'd still be
-			 happy to recieve good documentation.
+			 happy to receive good documentation.
 		 </p>
 		 </section>
 	
