@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.49 $ Committed on $Date: 2003/04/28 13:59:28 $ by: $Author: danny $ -->
+<!-- $Revision: 1.50 $ Committed on $Date: 2003/04/29 13:15:43 $ by: $Author: danny $ -->
 
 <config>
    <James>
@@ -244,7 +244,15 @@
       <processor name="transport">
 
          <!-- Is the recipient is for a local account, deliver it locally -->
-         <mailet match="RecipientIsLocal" class="LocalDelivery"/>
+         <mailet match="RecipientIsLocal" class="LocalDelivery">
+             <!-- These are new and override the James level equivalents -->
+       	     <inboxURI>db://maildb/inbox/</inboxURI>
+             <users>LocalUsers</users>
+             <ignoreCase>true</ignoreCase>
+             <enableAliases>true</enableAliases>
+             <enableForwarding>true</enableForwarding>
+         </mailet>
+
 
          <!-- If the host is handled by this server and it did not get -->
          <!-- locally delivered, this is an invalid recipient -->

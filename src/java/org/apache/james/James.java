@@ -119,7 +119,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.55 $
+ * @version This is $Revision: 1.56 $
 
  */
 public class James
@@ -243,10 +243,15 @@ public class James
         if (getLogger().isInfoEnabled()) {
             getLogger().info("JAMES init...");
         }
-        String strictMailet = conf.getChild("StrictObeyMailet").getValue();
-        if (strictMailet != null && strictMailet.equalsIgnoreCase("true")) {
-            ObeyStrictMailet3 = true;
+        try{
+            String strictMailet = conf.getChild("StrictObeyMailet").getValue();
+            if (strictMailet != null && strictMailet.equalsIgnoreCase("true")) {
+                        ObeyStrictMailet3 = true;
+            }
+        }catch (ConfigurationException e) {
+            getLogger().info("Can't read config param StrictObeyMailet assuming 'false'");
         }
+        
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
@@ -346,7 +351,7 @@ public class James
             getLogger().warn(warnBuffer.toString());
         }
         Configuration userNamesConf = conf.getChild("usernames");
-        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
+        //ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
         enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
         enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
         //Get localusers
