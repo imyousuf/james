@@ -97,9 +97,10 @@
         <filename>${app.home}/logs/default</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -107,9 +108,10 @@
         <filename>${app.home}/logs/mailet</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -117,9 +119,10 @@
         <filename>${app.home}/logs/james</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -127,9 +130,10 @@
         <filename>${app.home}/logs/spoolmanager</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -137,9 +141,10 @@
         <filename>${app.home}/logs/dnsserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -147,9 +152,10 @@
         <filename>${app.home}/logs/remotemanager</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -157,9 +163,10 @@
         <filename>${app.home}/logs/pop3server</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -167,9 +174,10 @@
         <filename>${app.home}/logs/smtpserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -177,9 +185,10 @@
         <filename>${app.home}/logs/nntpserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -187,9 +196,10 @@
         <filename>${app.home}/logs/nntpstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -197,9 +207,10 @@
         <filename>${app.home}/logs/mailstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -207,9 +218,10 @@
         <filename>${app.home}/logs/usersstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -217,9 +229,10 @@
         <filename>${app.home}/logs/objectstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -227,9 +240,10 @@
         <filename>${app.home}/logs/connections</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -237,9 +251,10 @@
         <filename>${app.home}/logs/sockets</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -247,9 +262,10 @@
         <filename>${app.home}/logs/scheduler</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
@@ -257,13 +273,13 @@
         <filename>${app.home}/logs/fetchpop</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
           <or>
             <date>dd</date>
+            <size>10485760</size>
           </or>
         </rotation>
       </file>
     </targets>
   </logs>
-
 </server>
