@@ -30,14 +30,18 @@ Legal:
   <property name="build.javadocs" value="${build.dir}/javadocs"/>
 
   <property name="james.src.dir" value="src/java"/>
-  <property name="avalon.src.dir" value="../jakarta-avalon/src/java"/>
-  <property name="scratchpad.src.dir" value="../jakarta-avalon/src/scratchpad"/>
+  <property name="avalon.base.dir" value="../jakarta-avalon"/>
+  <property name="avalon.src.dir" value="${avalon.base.dir}/src/java"/>
+  <property name="avalon.tools.dir" value="${avalon.base.dir}/tools"/>
+  <property name="scratchpad.src.dir" value="${avalon.base.dir}/src/scratchpad"/>
   <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
   <property name="logkit.src.dir" value="../jakarta-avalon-logkit/src/java"/>
   <property name="phoenix.src.dir" value="../jakarta-avalon-phoenix/src/java"/>
   <property name="testlet.src.dir" value="../jakarta-avalon-testlet/src/java"/>
   <property name="phoenix.lib.dir" value="../jakarta-avalon-phoenix/src/java"/>
   <property name="james.lib.dir" value="lib"/>
+  <property name="xerces.jar" value="${avalon.tools.dir}/lib/xerces.jar"/>
+  <property name="xalan.jar" value="${avalon.tools.dir}/lib/xalan-2.1.0.jar"/>
 
   <path id="project.class.path">
     <pathelement path="${java.class.path}" />
@@ -45,8 +49,11 @@ Legal:
     <pathelement location="lib/jmxri.jar"/>
     <pathelement location="lib/jmxtools.jar"/>
     <pathelement location="lib/mail_1_2.jar"/>
+    <pathelement location="lib/jakarta-oro-2.0.1.jar"/>
     <pathelement location="lib/town.jar"/>
-    <pathelement location="lib/xerces.jar"/>
+
+    <pathelement location="${xerces.jar}"/>
+    <pathelement location="${xalan.jar}"/>
     <pathelement location="./../jakarta-avalon/lib/bytecode.jar"/>
     <pathelement location="./../jakarta-avalon/lib/jdom.jar"/>
 
@@ -81,6 +88,9 @@ Legal:
     </available>
     <available property="datasource.present" classname="javax.sql.DataSource">
     </available>
+    <available property="jdbc3.present" classname="java.sql.Savepoint">
+      <classpath refid="project.class.path"/>
+    </available>
     <available property="servlet.present" 
                classname="javax.servlet.ServletContext"/>
     <available property="jsse.present" classname="javax.net.ssl.SSLServerSocket" />
@@ -90,12 +100,25 @@ Legal:
     <property name="j2ee.present" value="true"/>
   </target>
 
+  <target name="jdbc2" unless="jdbc3.present">
+    <copy file="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc2Connection.java"
+          tofile="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
+          overwrite="yes"/>
+  </target>
+
+  <target name="jdbc3" if="jdbc3.present">
+    <copy file="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/Jdbc3Connection.java"
+          tofile="${avalon.src.dir}/org/apache/avalon/excalibur/datasource/JdbcConnection.java"
+          overwrite="yes"/>
+  </target>
+
+
   <!--
        ===================================================================
                          Prepares the build directory
        ===================================================================
   -->
-  <target name="prepare" depends="check-datasource">
+  <target name="prepare" depends="check-datasource,jdbc2,jdbc3">
     <tstamp/>
     <mkdir dir="${build.dir}"/>
     <delete dir="${build.src}"/>
@@ -115,6 +138,8 @@ Legal:
       <fileset dir="${avalon.src.dir}" >
         <exclude name="org/apache/avalon/excalibur/datasource/J2eeDataSource.java"
                  unless="j2ee.present" />
+      <exclude name="org/apache/avalon/excalibur/datasource/Jdbc2Connection.java"/>
+      <exclude name="org/apache/avalon/excalibur/datasource/Jdbc3Connection.java"/>
       </fileset>
     </copy>
     <echo message=" "/>
