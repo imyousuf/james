@@ -73,7 +73,7 @@ import org.apache.avalon.framework.component.Component;
 
 /**
  *
- * $Id: Loader.java,v 1.8.2.1 2003/06/02 05:37:27 noel Exp $
+ * $Id: Loader.java,v 1.8.2.2 2003/08/05 22:35:23 noel Exp $
  */
 public class Loader implements Contextualizable, Component {
     protected ClassLoader mailetClassLoader = null;
@@ -97,8 +97,8 @@ public class Loader implements Contextualizable, Component {
         } 
         catch (Throwable e) 
         {
-            logger.error( "cant get base directory for mailet loader" );
-            throw new ContextException("cant contextualise mailet loader " + e.getMessage(), e);
+            logger.error( "can't get base directory for mailet loader" );
+            throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
         }
     }
 
@@ -133,11 +133,11 @@ public class Loader implements Contextualizable, Component {
         Vector jarlist = new Vector();
         URL[] classPath = null;
         try {
-            jarlist.add(new URL("file://" + baseDirectory + "/SAR-INF/classes/"));
+            jarlist.add(new URL("file:///" + baseDirectory + "/SAR-INF/classes/"));
         } catch (MalformedURLException e) {
             logger.error(
-                "cant add "
-                    + "file://"
+                "can't add "
+                    + "file:///"
                     + baseDirectory
                     + "/SAR-INF/classes/ to mailet classloader");
         }
@@ -145,11 +145,11 @@ public class Loader implements Contextualizable, Component {
             for (int i = 0; i < flist.length; i++) {
                 try {
                     if (flist[i].indexOf("jar") == flist[i].length() - 3) {
-                        jarlist.add(new URL("file://" + baseDirectory +"/SAR-INF/lib/"+ flist[i]));
-                        logger.debug("added file://" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
+                        jarlist.add(new URL("file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i]));
+                        logger.debug("added file:///" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
                     }
                 } catch (MalformedURLException e) {
-                    logger.error("cant add file://" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
+                    logger.error("can't add file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
                 }
             }
         }
