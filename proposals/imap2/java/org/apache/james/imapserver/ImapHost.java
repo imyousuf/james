@@ -26,7 +26,7 @@ import java.util.Collection;
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Darrell DeBoer <darrell@apache.org>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ImapHost
 {
@@ -238,10 +238,10 @@ public interface ImapHost
     /**
      * Unsubscribes from a given mailbox.
      *
-     * @param username String representation of an email address
+     * @param user String representation of an email address
      * @param mailbox String representation of a mailbox name.
      */
-    void unsubscribe( String username, String mailbox )
+    void unsubscribe( User user, String mailbox )
             throws MailboxException;
 
 }
