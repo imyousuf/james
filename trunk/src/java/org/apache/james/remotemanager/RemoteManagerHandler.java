@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: serge $ on $Date: 2001/11/05 13:27:21 $
- * $Revision: 1.5 $
+ * Last changed by: $Author: danny $ on $Date: 2001/11/30 11:20:16 $
+ * $Revision: 1.6 $
  *
  */
 public class RemoteManagerHandler
@@ -295,6 +295,7 @@ public class RemoteManagerHandler
             out.println("unsetalias [username]                   removes a user's alias");
             out.println("setforwarding [username] [emailaddress] forwards a user's email to another account");
             out.println("user [repositoryname]                   change to another user repository");
+            out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
             out.println("quit                                    close connection");
             out.flush();
         } else if (command.equalsIgnoreCase("SETALIAS")) {
@@ -433,6 +434,10 @@ public class RemoteManagerHandler
 
         } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("bye");
+            return false;
+        } else if (command.equalsIgnoreCase("SHUTDOWN")) {
+            out.println("shuting down, bye bye");
+            System.exit(0);
             return false;
         } else {
             out.println("unknown command " + command);
