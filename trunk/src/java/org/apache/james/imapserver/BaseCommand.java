@@ -17,7 +17,7 @@ import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.BaseConnectionHandler;
-import org.apache.james.core.EnhancedMimeMessage;
+//import org.apache.james.core.EnhancedMimeMessage;
 
 
 /**

@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
 import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.james.core.EnhancedMimeMessage;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.util.RFC822DateFormat;
 import org.apache.log.Logger;
 import org.apache.mailet.*;
@@ -262,19 +262,22 @@ public class SimpleMessageAttributes
             if (secondaryType.equalsIgnoreCase("RFC822")) {
                 try {
 
-                    EnhancedMimeMessage message = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null), part.getInputStream());
+                    /*
+                    MimeMessageWrapper message = new MimeMessageWrapper(part.getInputStream());
                     SimpleMessageAttributes msgAttrs = new SimpleMessageAttributes();
                     msgAttrs.setAttributesFor(message);
 
                     if (part instanceof MimeMessage) {
+						Comments out because I don't know what it should do here
                         MimeMessage msg1 = (MimeMessage) part;
-                        EnhancedMimeMessage message2 = new EnhancedMimeMessage(msg1);
+                        MimeMessageWrapper message2 = new MimeMessageWrapper(msg1);
                         SimpleMessageAttributes msgAttrs2 = new SimpleMessageAttributes();
                         msgAttrs.setAttributesFor(message2);
                     }
 
                     parts = new SimpleMessageAttributes[1];
                     parts[0] = msgAttrs;
+                    */
                 } catch (Exception e) {
                     getLogger().error("Error interpreting a message/rfc822: " + e);
                     e.printStackTrace();

@@ -20,7 +20,7 @@ import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
-import org.apache.james.core.EnhancedMimeMessage;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.UsersRepository;
 import org.apache.mailet.Mail;
 
@@ -1083,14 +1083,14 @@ public class FileMailbox
      *
      * @param msn the message sequence number
      * @param username String represnting user
-     * @returns an  EnhancedMimeMessage object containing the message, null if no message with
+     * @returns an  MimeMessageWrapper object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public synchronized EnhancedMimeMessage retrieve(int msn, String user)
+    public synchronized MimeMessageWrapper retrieve(int msn, String user)
         throws AccessControlException, AuthorizationException {
         if (!hasReadRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to read.");
@@ -1110,24 +1110,24 @@ public class FileMailbox
      *
      * @param uid the unique identifier of a message
      * @param username String represnting user
-     * @returns an EnhancedMimeMessage object containing the message, null if no message with
+     * @returns an MimeMessageWrapper object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public synchronized EnhancedMimeMessage retrieveUID(int uid, String user)
+    public synchronized MimeMessageWrapper retrieveUID(int uid, String user)
         throws AccessControlException, AuthorizationException {
         if (!hasReadRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to read.");
         }
-        EnhancedMimeMessage response = null;
+        MimeMessageWrapper response = null;
         if (sequence.contains(new Integer(uid))) {
             BufferedInputStream inMsg = null;
             try {
-                inMsg = new BufferedInputStream( new FileInputStream(path + File.separator + uid + MESSAGE_EXTENSION));
-                response = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null),inMsg);
+				MimeMessageFileSource source = new MimeMessageFileSource(path + File.separator + uid + MESSAGE_EXTENSION);
+                response = new MimeMessageWrapper(source);
                 inMsg.close();
             } catch(Exception e) {
                 getLogger().error("Error reading message from disc: " + e);
@@ -1142,7 +1142,7 @@ public class FileMailbox
                     getLogger().error("Error closing streams: " + ie);
                 }
             }
-            getLogger().info("EnhancedMimeMessage " + uid + " read from " + absoluteName);
+            getLogger().info("MimeMessageWrapper " + uid + " read from " + absoluteName);
             return response;
         } else {
             return null;

@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
-import org.apache.james.core.EnhancedMimeMessage;
+import org.apache.james.core.MimeMessageWrapper;
 
 /**
  * Implements the IMAP FETCH command for a given ImapRequest.
@@ -158,7 +158,8 @@ public class CommandFetch
                 }
                 MessageAttributes  attrs = null;
                 String flags = null;
-                EnhancedMimeMessage msg = null;
+                //EnhancedMimeMessage msg = null;
+                MimeMessageWrapper msg = null;
                 String response = UNTAGGED + SP + msn + SP + "FETCH (";
                 boolean responseAdded = false;
                 Iterator it = fetchAttrs.iterator();

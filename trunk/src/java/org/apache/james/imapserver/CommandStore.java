@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
-import org.apache.james.core.EnhancedMimeMessage;
+//import org.apache.james.core.EnhancedMimeMessage;
 
 /**
  * Implements the IMAP FETCH command for a given ImapRequest.
@@ -24,9 +24,9 @@ import org.apache.james.core.EnhancedMimeMessage;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 17 Jan 2001
  */
-public class CommandStore 
+public class CommandStore
     extends BaseCommand {
-    //mainly to switch on stack traces and catch responses;  
+    //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
 
     private static final String OK = "OK";
@@ -64,7 +64,7 @@ public class CommandStore
     }
 
     /**
-     * Implements IMAP store commands given an ImapRequest. 
+     * Implements IMAP store commands given an ImapRequest.
      * <p>Warning - maybecome service(ImapRequest request)
      */
     public void service() {
@@ -125,7 +125,7 @@ public class CommandStore
             }
             caller.checkSize();
             out.println(tag + SP + OK + SP + "STORE completed");
-            
+
         } catch (AccessControlException ace) {
             out.println(tag + SP + NO + SP + "No such mailbox");
             caller.logACE(ace);
