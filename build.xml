@@ -97,6 +97,10 @@ All these package are in current distribution.
   <property name="lib.dir" value="lib"/>
   <property name="tools.dir" value="tools"/>
   <property name="xdocs.dir" value="${src.dir}/xdocs"/>
+  <property name="docs.src" value="${xdocs.dir}"/>
+  <property name="docs.dir" value="docs"/>
+  <property name="www.dir" value="www"/>
+  <property name="javadocs.dir" value="${docs.dir}/api"/>
 
   <property name="dist.name" value="${name}-${version}"/>
 
@@ -107,8 +111,7 @@ All these package are in current distribution.
   <property name="site.dir" value="../xml-site/sources/james"/>
   <property name="site.docs" value="../xml-site/targets/james"/>
 
-  <property name="docs.src" value="${xdocs.dir}"/>
-  <property name="docs.dest" value="./docs"/>
+
 
   <!--
        ===================================================================
@@ -421,6 +424,18 @@ All these package are in current distribution.
   </target>
 
   <!-- =================================================================== -->
+  <!-- Documentation                                                       -->
+  <!-- =================================================================== -->
+  <!-- Docs are generated from xml sources in src/xdocs, javadocs from     -->
+  <!-- source files in src/java.                                           -->
+  <!-- Docs for most recent release are on the website and in www dir.     -->
+  <!-- Docs for cvs state are generated on demand and can, optionally,     -->
+  <!-- be placed in docs dir.                                              -->
+  <!-- =================================================================== -->
+
+
+
+  <!-- =================================================================== -->
   <!-- Generates the javadoc                                               -->
   <!-- =================================================================== -->
   <target name="javadocs">
@@ -474,7 +489,7 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <target name="xdocs" depends="prepare-error" if="AnakiaTask.present">
     <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
-    <anakia basedir="${docs.src}" destdir="${docs.dest}/"
+    <anakia basedir="${docs.src}" destdir="${build.docs}/"
          extension=".html" style="./site.vsl"
          projectFile="stylesheets/project.xml"
          excludes="**/stylesheets/** empty.xml"
@@ -483,7 +498,7 @@ All these package are in current distribution.
          templatePath="../jakarta-site2/xdocs/stylesheets">
     </anakia>
 
-    <copy todir="${docs.dest}/images" filtering="no">
+    <copy todir="${build.docs}/images" filtering="no">
         <fileset dir="${docs.src}/images">
             <include name="**/*.gif"/>
             <include name="**/*.jpeg"/>
@@ -491,4 +506,68 @@ All these package are in current distribution.
         </fileset>
     </copy>
   </target>
+
+  <!--
+       ===================================================================
+       Create the Local site documentation
+       ===================================================================
+  -->
+  <target name="local-xdocs" depends="xdocs">
+
+    <delete>
+      <fileset dir="${docs.dir}">
+        <exclude name="framework/api/**"/>
+      </fileset>
+    </delete>
+    <mkdir dir="${docs.dir}"/>
+
+    <copy todir="${docs.dir}">
+      <fileset dir="${build.docs}" />
+    </copy>
+
+  </target>
+
+  <!--
+       ===================================================================
+       Create the Local API documentation
+       ===================================================================
+  -->
+  <target name="local-javadocs" depends="javadocs">
+
+    <delete dir="${javadocs.dir}"/>
+    <mkdir dir="${javadocs.dir}"/>
+
+    <copy todir="${javadocs.dir}">
+      <fileset dir="${build.javadocs}" />
+    </copy>
+
+  </target>
+
+  <target name="local-docs" depends="local-javadocs,local-xdocs"/>
+
+  <!--
+       ===================================================================
+       Update the www directory
+       ===================================================================
+  -->
+  <target name="site-docs" depends="local-xdocs">
+
+    <!-- delete all old documents but keep CVS directories -->
+    <!-- note that by doing an include the defaultexcludes (CVS dirs) will be kept -->
+    <delete>
+      <fileset dir="${www.dir}">
+        <include name="**"/>
+      </fileset>
+    </delete>
+
+    <mkdir dir="${www.dir}"/>
+    <copy todir="${www.dir}">
+      <fileset dir="${docs.dir}">
+        <exclude name="api/**"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+
 </project>
