@@ -76,22 +76,6 @@ import java.util.Vector;
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class LocalDelivery extends GenericMailet {
-
-    /* MimeMessage that does NOT change the headers when we save it */
-    class LocalMimeMessage extends MimeMessage {
-
-        public LocalMimeMessage(MimeMessage source) throws MessagingException {
-            super(source);
-        }
-
-        protected void updateHeaders() throws MessagingException {
-            if (getMessageID() == null) super.updateHeaders();
-            else {
-                modified = false;
-            }
-        }
-    }
-
     /**
      * Delivers a mail to a local mailbox.
      *
@@ -107,7 +91,14 @@ public class LocalDelivery extends GenericMailet {
             MailAddress recipient = (MailAddress) i.next();
             try {
                 // Add qmail's de facto standard Delivered-To header
-                MimeMessage localMessage = new LocalMimeMessage(message);
+                MimeMessage localMessage = new MimeMessage(message) {
+                    protected void updateHeaders() throws MessagingException {
+                        if (getMessageID() == null) super.updateHeaders();
+                        else {
+                            modified = false;
+                        }
+                    }
+                };
                 localMessage.addHeader("Delivered-To", recipient.toString());
                 localMessage.saveChanges();
 
