@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -46,7 +47,6 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.DNSServer;
@@ -55,6 +55,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
@@ -72,7 +73,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.44 $
+ * @version This is $Revision: 1.45 $
 
  */
 public class James
@@ -184,7 +185,7 @@ public class James
     /**
      * The Avalon context used by the instance
      */
-    protected Context           myContext;
+    private Context myContext;
 
     /**
      * An RFC822 date formatter used to format dates in mail headers
@@ -336,7 +337,7 @@ public class James
 
         //Get localusers
         try {
-            localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
+            localusers = usersStore.getRepository("LocalUsers");
         } catch (Exception e) {
             getLogger().error("Cannot open private UserRepository");
             throw e;
@@ -345,15 +346,7 @@ public class James
         compMgr.put( "org.apache.mailet.UsersRepository", (Component)localusers);
         getLogger().info("Local users repository opened");
 
-        Configuration inboxConf = conf.getChild("inboxRepository");
-        Configuration inboxRepConf = inboxConf.getChild("repository");
-        try {
-            localInbox = (MailRepository) mailstore.select(inboxRepConf);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private MailRepository");
-            throw e;
-        }
-        inboxRootURL = inboxRepConf.getAttribute("destinationURL");
+        initialiseInboxes(conf, compMgr);
 
         getLogger().info("Private Repository LocalInbox opened");
 
@@ -373,9 +366,32 @@ public class James
         //TODO NOT unless specifically required by conf
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        attributes.put("confDir", ((BlockContext)myContext).getBaseDirectory().getCanonicalPath()+"/conf/");
+        File configDir = AvalonContextUtilities.getFile( myContext, "file://conf/" );
+        attributes.put("confDir", configDir.getCanonicalPath() );
+
         System.out.println(SOFTWARE_NAME_VERSION);
         getLogger().info("JAMES ...init end");
+    }
+
+    /**
+     * Initiliases the local inbox repository.
+     * @param configuration The James component configuration
+     * @param componentManager The ComponentManager which can be used to locate
+     *                         other services
+     * @throws Exception If the local mail storage can't be initiliased.
+     */
+    protected void initialiseInboxes( Configuration configuration,
+                                      ComponentManager componentManager ) throws Exception
+    {
+        Configuration inboxConf = configuration.getChild("inboxRepository");
+        Configuration inboxRepConf = inboxConf.getChild("repository");
+        try {
+            localInbox = (MailRepository) mailstore.select(inboxRepConf);
+        } catch (Exception e) {
+            getLogger().error("Cannot open private MailRepository");
+            throw e;
+        }
+        inboxRootURL = inboxRepConf.getAttribute("destinationURL");
     }
 
     /**
@@ -753,6 +769,20 @@ public class James
             }
         }
 
+        storeMail( username, message, recipient, sender );
+    }
+
+    /**
+     * Given a MimeMessage, sender and single recipient, store
+     * the message in the local inbox for the named user.
+     * @param username Use the inbox for this user.
+     * @param message The mime message to store.
+     * @param recipient The recipient which caused this mail to be delivered here.
+     * @param sender The message sender.
+     * @throws MessagingException If a problem occurs
+     */
+    protected void storeMail( String username, MimeMessage message, MailAddress recipient, MailAddress sender ) throws MessagingException
+    {
         Collection recipients = new HashSet();
         recipients.add(recipient);
         MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
@@ -899,6 +929,11 @@ public class James
         return usersStore.getRepository(respositoryName);
     }
 
-
-
+    /**
+     * Provides access to the localusers UsersRepository for subclasses.
+     */
+    protected UsersRepository getLocalusers()
+    {
+        return localusers;
+    }
 }
