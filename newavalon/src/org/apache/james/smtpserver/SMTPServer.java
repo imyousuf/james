@@ -72,7 +72,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             smtpHandler.compose(compMgr);
             smtpHandler.init();
             smtpHandler.parseRequest(s);
-            workerPool.execute(smtpHandler);
+            workerPool.execute((Runnable)smtpHandler);
             logger.debug("Executing handler.");
         } catch (Exception e) {
             logger.error("Cannot parse request on socket " + s + " : "

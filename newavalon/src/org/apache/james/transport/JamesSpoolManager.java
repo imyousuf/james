@@ -25,7 +25,7 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class JamesSpoolManager implements Component, Composer, Configurable, Stoppable, Service, Contextualizable {
+public class JamesSpoolManager implements Component, Composer, Configurable, Runnable, Stoppable, Service, Contextualizable {
 
     private DefaultComponentManager compMgr;
                    //using implementation as we need put method.

@@ -224,7 +224,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 	    spoolMgr.contextualize(context);
 	    spoolMgr.compose(compMgr);
 	    spoolMgr.init();
-	    workerPool.execute(spoolMgr);
+	    workerPool.execute((Runnable)spoolMgr);
 	} catch (Exception e) {
 	    logger.error("Exception in SpoolManager init: " + e.getMessage());
 	    throw e;
