@@ -1,13 +1,9 @@
-/**
- * FetchPOP.java
- * 
- * Copyright (C) 24-Sep-2002 The Apache Software Foundation. All rights reserved.
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software License
  * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE file. 
- *
- * Danny Angus
+ * the LICENSE file.
  */
 package org.apache.james.fetchpop;
 import java.io.IOException;
@@ -20,62 +16,96 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.james.services.MailServer;
 /**
  *
- * A class which fetches mail from a single POP account and inserts it into the incoming spool<br>
- * <br>$Id: FetchPOP.java,v 1.1 2002/09/24 15:36:30 danny Exp $
+ * A class which fetches mail from a single POP account and inserts it 
+ * into the incoming spool<br>
+ *
+ * <br>$Id: FetchPOP.java,v 1.2 2002/09/24 22:03:12 pgoldstein Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */
-public class FetchPOP implements Target {
-    private Configuration conf;
-    private DefaultComponentManager compMgr;
+public class FetchPOP extends AbstractLogEnabled implements Configurable, Target {
+
+    /**
+     * The MailServer service
+     */
     private MailServer server;
+
+    /**
+     * The unique, identifying name for this task
+     */
+    private String fetchTaskName;
+
+    /**
+     * The POP3 server host name for this fetch task
+     */
     private String popHost;
+
+    /**
+     * The POP3 user name for this fetch task
+     */
     private String popUser;
+
+    /**
+     * The POP3 user password for this fetch task
+     */
     private String popPass;
-    private String popName;
-    private Logger logger;
+
     /**
      * @see org.apache.avalon.cornerstone.services.scheduler.Target#targetTriggered(String)
      */
     public void targetTriggered(String arg0) {
-        getLogger().debug(popName + " fetcher starting fetch");
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug(fetchTaskName + " fetcher starting fetch");
+        }
         POP3Client pop = new POP3Client();
         try {
             pop.connect(popHost);
             pop.login(popUser, popPass);
-            getLogger().debug("login:" + pop.getReplyString());
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Login:" + pop.getReplyString());
+            }
             pop.setState(POP3Client.TRANSACTION_STATE);
             POP3MessageInfo[] messages = pop.listMessages();
-            getLogger().debug("list:" + pop.getReplyString());
-            Vector recieved = new Vector();
+            getLogger().debug("List:" + pop.getReplyString());
+            Vector received = new Vector();
             for (int i = 0; i < messages.length; i++) {
                 InputStream in = new ReaderInputStream(pop.retrieveMessage(messages[i].number));
-                getLogger().debug("retrieve:" + pop.getReplyString());
+                getLogger().debug("Retrieve:" + pop.getReplyString());
                 MimeMessage message = new MimeMessage(null, in);
                 in.close();
-                message.addHeader("X-fetchpop", "fetched by james");
+                message.addHeader("X-fetchpop", "Fetched by James");
                 message.saveChanges();
-                logger.debug("sent message " + message.toString());
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Sent message " + message.toString());
+                }
                 server.sendMail(message);
-                recieved.add(messages[i]);
+                received.add(messages[i]);
             }
-            Enumeration enum = recieved.elements();
+            Enumeration enum = received.elements();
             while (enum.hasMoreElements()) {
                 POP3MessageInfo element = (POP3MessageInfo) enum.nextElement();
                 pop.deleteMessage(element.number);
-                getLogger().debug("delete:" + pop.getReplyString());
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Delete:" + pop.getReplyString());
+                }
             }
             pop.logout();
-            getLogger().debug("logout:" + pop.getReplyString());
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("logout:" + pop.getReplyString());
+            }
             pop.disconnect();
         } catch (SocketException e) {
             getLogger().error(e.getMessage());
@@ -85,39 +115,40 @@ public class FetchPOP implements Target {
             getLogger().error(e.getMessage());
         }
     }
+
     /**
-     * Method configure.
-     * &lt;fetchpop enabled="false"&gt;<br>
-     *  &lt;!-- you can have as many fetch tasks as you want to        --&gt;<br>
-     *  &lt;!-- but each must have a unique name to identify itself by --&gt;<br>
-     *  &lt;fetch name="mydomain.com"&gt;<br>
-     *      &lt;!-- host name or IP address --&gt;<br>
-     *      &lt;host&gt;mail.mydomain.com&lt;/host&gt;<br>
-     *      &lt;!-- acount login username --&gt;<br>
-     *      &lt;user&gt;username&lt;/user&gt;<br>
-     *      &lt;!-- account login password --&gt;<br>
-     *      &lt;password&gt;pass&lt;/password&gt;<br>
-     *      &lt;!-- Interval to check this account in milliseconds, 60000 is every ten minutes --&gt;<br>
-     *      &lt;interval&gt;600000&lt;/interval&gt;<br>
-     *  &lt;/fetch&gt;<br>
-     *  &lt;/fetchpop&gt;<br>
-     *  @param conf configuration element for this fetcher:<br>
-     * @param server mailserver which can spool fetched mail
-     * @param logger child logger of FetchScheduler
-     * @throws ConfigurationException
+     * Pass the <code>ComponentManager</code> to the instance.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
      */
-    public void configure(Configuration conf, MailServer server, Logger logger)
-        throws ConfigurationException {
-        logger.debug("configured fetch");
-        this.conf = conf;
-        this.server = server;
-        this.logger = logger;
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
+        try {
+            server = (MailServer) componentManager.lookup(MailServer.ROLE);
+        } catch (ClassCastException cce) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                        .append("Component ")
+                        .append(MailServer.ROLE)
+                        .append("does not implement the required interface.");
+            throw new ComponentException(errorBuffer.toString());
+        }
+    }
+
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration conf) throws ConfigurationException {
         this.popHost = conf.getChild("host").getValue();
         this.popUser = conf.getChild("user").getValue();
         this.popPass = conf.getChild("password").getValue();
-        this.popName = conf.getAttribute("name");
-    }
-    private Logger getLogger() {
-        return logger;
+        this.fetchTaskName = conf.getAttribute("name");
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Configured FetchPOP");
+        }
     }
 }
