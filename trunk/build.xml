@@ -98,7 +98,7 @@ All theese package are in current distribution.
   </target>
 
   <!-- =================================================================== -->
-  <!-- Compiles the source code                                            -->
+  <!-- Copies the source code                                              -->
   <!-- =================================================================== -->
   <target name="prepare-src" depends="prepare">
     <!-- create directories -->
@@ -171,7 +171,7 @@ All theese package are in current distribution.
   </target>
 
   <!-- =================================================================== -->
-  <!-- Cleans everything                                                   -->
+  <!-- Generates the javadoc                                               -->
   <!-- =================================================================== -->
   <target name="javadoc" depends="prepare-src">
     <mkdir dir="${build.docs}"/>
