@@ -27,11 +27,11 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;

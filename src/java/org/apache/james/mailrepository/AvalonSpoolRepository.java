@@ -8,8 +8,8 @@
 package org.apache.james.mailrepository;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.SpoolRepository;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;

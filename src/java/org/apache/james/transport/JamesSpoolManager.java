@@ -22,7 +22,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
-import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.*;
 
 import javax.mail.MessagingException;
@@ -38,7 +37,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.20 $
+ * @version This is $Revision: 1.21 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

@@ -7,6 +7,7 @@
  */
 package org.apache.james.services;
 
+import org.apache.mailet.*;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -21,7 +22,7 @@ import java.util.Collection;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.11 $
+ * @version This is $Revision: 1.12 $
  */
 public interface MailServer
 {
