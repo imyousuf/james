@@ -14,6 +14,7 @@ import javax.mail.internet.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.mailet.*;
+import org.apache.james.util.RFC822Date;
 
 /**
  * Sends an error message to the sender of a message (that's typically landed in
@@ -29,6 +30,7 @@ import org.apache.mailet.*;
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  * @author  Ivan Seskar <iseskar@upsideweb.com>
+ * @author  Danny Angus <danny@thought.co.uk>
  */
 public class NotifySender extends GenericMailet {
     MailAddress notifier = null;
@@ -146,7 +148,14 @@ public class NotifySender extends GenericMailet {
         recipients.add(mail.getSender());
 
         //Set additional headers
-        reply.setSubject("Re:" + message.getSubject());
+        if (reply.getHeader("Date")==null){
+            reply.setHeader("Date",new RFC822Date().toString());
+        }
+        if(message.getSubject().indexOf("Re:")==0){
+            reply.setSubject(message.getSubject());
+        }else{
+            reply.setSubject("Re:" + message.getSubject());
+        }
         reply.setHeader("In-Reply-To", message.getMessageID());
 
         //Send it off...
