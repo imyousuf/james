@@ -59,6 +59,16 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     protected static final String TIMEOUT_NAME = "connectiontimeout";
 
     /**
+     * The default value for the connection backlog.
+     */
+    protected static final int DEFAULT_BACKLOG = 5;
+
+    /**
+     * The name of the parameter defining the connection backlog.
+     */
+    protected static final String BACKLOG_NAME = "connectionBacklog";
+
+    /**
      * The name of the parameter defining the service hello name.
      */
     public static final String HELLO_NAME = "helloName";
@@ -118,6 +128,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * problems from hanging a connection.
      */
     protected int timeout;
+
+    /**
+     * The connection backlog.
+     */
+    protected int backlog;
 
     /**
      * The hello name for the service.
@@ -252,6 +267,15 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(timeout);
         getLogger().info(infoBuffer.toString());
 
+        backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
+
+        infoBuffer =
+                    new StringBuffer(64)
+                    .append(getServiceType())
+                    .append(" connection backlog is: ")
+                    .append(backlog);
+        getLogger().info(infoBuffer.toString());
+
         final String location = "generated:" + getServiceType();
 
         if (connectionManager instanceof JamesConnectionManager) {
@@ -300,7 +324,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
 
         ServerSocketFactory factory = socketManager.getServerSocketFactory(serverSocketType);
-        ServerSocket serverSocket = factory.createServerSocket(port, 5, bindTo);
+        ServerSocket serverSocket = factory.createServerSocket(port, backlog, bindTo);
     
         if (null == connectionName) {
             final StringBuffer sb = new StringBuffer();
