@@ -1,0 +1,47 @@
+// Empty 1st arg searches default context (#mail)
+C: 10 LIST "" test
+S: * LIST (\Unmarked) "." test
+S: 10 OK LIST completed
+
+// % returns all folders
+C: a1 LIST "" %
+S: * LIST (\Unmarked) "." test
+S: * LIST (\Unmarked) "." test1
+S: * LIST (\Marked) "." inbox
+S: a1 OK LIST completed
+C: b2 LIST "" INBOX%
+S: * LIST (\Marked) "." inbox
+S: b2 OK LIST completed
+C: b3 LIST "" I%
+S: * LIST (\Marked) "." inbox
+S: b3 OK LIST completed
+C: b4 LIST "" t%
+S: * LIST (\Unmarked) "." test
+S: * LIST (\Unmarked) "." test1
+S: b4 OK LIST completed
+
+
+// * returns all folders and subfolders
+C: b1 LIST "" *
+SUB: 1
+S: * LIST (\Unmarked) "." test
+S: * LIST (\Unmarked) "." test1
+S: * LIST (\Unmarked) "." test.subfolder
+S: * LIST (\Unmarked) "." test1.subfolder1
+S: * LIST (\Marked) "." inbox
+S: b1 OK LIST completed
+SUB: 1
+C: b2 LIST "" INBOX*
+S: * LIST (\Marked) "." inbox
+S: b2 OK LIST completed
+C: b3 LIST "" I*
+S: * LIST (\Marked) "." inbox
+S: b3 OK LIST completed
+C: b4 LIST "" t*
+SUB: 2
+S: * LIST (\Unmarked) "." test
+S: * LIST (\Unmarked) "." test1
+S: * LIST (\Unmarked) "." test.subfolder
+S: * LIST (\Unmarked) "." test1.subfolder1
+S: b4 OK LIST completed
+SUB: 2
