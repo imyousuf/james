@@ -26,7 +26,7 @@ import java.io.OutputStream;
 
 import javax.mail.internet.InternetHeaders;
 
-import org.apache.avalon.excalibur.io.IOUtil;
+import org.apache.avalon.cornerstone.blocks.masterstore.IOUtil;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.NNTPException;
 

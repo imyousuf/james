@@ -86,7 +86,7 @@ public class AddFooter extends GenericMailet {
                     bos.flush();
                 }
                 finally {
-                    org.apache.avalon.excalibur.io.IOUtil.shutdownStream(bis);             
+                    org.apache.avalon.cornerstone.blocks.masterstore.IOUtil.shutdownStream(bis);             
                 }
                 log("Message from stream: " + bodyOs.toString());
                 */
