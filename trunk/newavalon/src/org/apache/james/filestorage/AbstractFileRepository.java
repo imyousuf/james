@@ -28,8 +28,8 @@ import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
 /**
+ * DO NOT USE - only here to deal with classloader problems, use avalon version
  * This an abstract class implementing functionality for creating a file-store.
- *
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */

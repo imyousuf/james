@@ -140,13 +140,14 @@
 
             <!-- Set the facilities offered by this instance of JAMES -->
             <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"/>
-            <!-- Set the type of permanent mailfolders to be used.
-	    If IMAP service is to be provided, use must be 'IMAP'; if only POP3 service is
-	     being provided then use can be 'basic' (default) of 'IMAP'. This choice is
-	      irrelevant if the only service provided is SMTP. -->
 
+            <!-- Set the type of permanent mailfolders to be used.
+	    If IMAP service is to be provided, storage must be 'IMAP'; if only POP3 service is
+	     being provided then use must be 'basic' (default) . At some stage POP3 will, hopefully, be able to use IMAP storage as well.  This choice is
+	      irrelevant if the only service provided is SMTP. -->
             <storage>Basic</storage>
-	    <!-- If use is set to IMAP, systemClass and hostClass must point to the
+
+	    <!-- If storage is set to IMAP, systemClass and hostClass must point to the
 	     appropriate classes. -->
 	    <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
 		hostClass="org.apache.james.imapserver.JamesHost"/>
@@ -366,8 +367,8 @@
            name="mailstore" >
 
 
-      <!--  <provide name="objectstorage" role="org.apache.avalon.services.Store"/> -->
-        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
+        <provide name="objectstorage" role="org.apache.avalon.services.Store"/> 
+        <!--     <provide name="james-storage" role="org.apache.avalon.services.Store"/>-->
         <configuration>
 	  <repositories>
                  <repository class="org.apache.james.mailrepository.AvalonMailRepository">
@@ -406,8 +407,8 @@
            name="users-store" >
 
 
-      <!--  <provide name="objectstorage" role="org.apache.avalon.services.Store"/> -->
-        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
+        <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
+       <!--  <provide name="james-storage" role="org.apache.avalon.services.Store"/> -->
         <configuration>
 	    <repository name="LocalUsers"
 	                class="org.apache.james.usersrepository.UsersFileRepository">
@@ -422,8 +423,8 @@
     </block>
       
 
- <!-- The Low-Level Storage block -->
-
+ <!-- The Low-Level Storage block
+     This is to avoid class-loader problems with early versions of Avalon 3
     <block class="org.apache.james.filestorage.RepositoryManager" 
            name="james-storage" >
 
@@ -464,9 +465,9 @@
 
     </block>
 
+ -->
 
-
-    <!-- The Storage block 
+    <!-- The Storage block -->
     <block class="org.apache.avalon.blocks.masterstore.RepositoryManager" 
            name="objectstorage" >
 
@@ -503,7 +504,7 @@
 
     </block>
 
--->
+
     <!-- The Socket Manager block -->
     <block class="org.apache.avalon.blocks.serversocket.SocketManager" name="sockets" >
 

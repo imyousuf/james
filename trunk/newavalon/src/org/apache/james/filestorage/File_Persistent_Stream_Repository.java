@@ -17,6 +17,7 @@ import org.apache.avalon.services.Store;
 import org.apache.avalon.util.io.ResettableFileInputStream;
 
 /**
+ * DO NOT USE - only here to deal with classloader problems, use avalon version
  * Implementation of a StreamRepository to a File.
  * TODO: -retieve(String key) should return a FilterInputStream to allow 
  * mark and reset methods. (working not like BufferedInputStream!!!)
