@@ -89,7 +89,7 @@ All these package are in current distribution.
 
   <property name="src.dir" value="src"/>
   <property name="java.dir" value="${src.dir}/java"/>
-  <property name="conf.dir" value="conf"/>
+  <property name="conf.dir" value="${src.dir}/conf"/>
   <property name="lib.dir" value="lib"/>
   <property name="tools.dir" value="tools"/>
   <property name="xdocs.dir" value="${src.dir}/xdocs"/>
