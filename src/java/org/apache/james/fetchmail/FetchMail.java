@@ -39,7 +39,7 @@ import org.apache.james.core.MailImpl;
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.1 2003/02/05 04:31:40 noel Exp $
+ * $Id: FetchMail.java,v 1.2 2003/02/06 06:25:58 noel Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {

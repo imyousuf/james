@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.1 2003/02/05 04:31:40 noel Exp $
+ * $Id: FetchScheduler.java,v 1.2 2003/02/06 06:25:58 noel Exp $
  *
  *  @see org.apache.james.fetchmail.FetchMail#configure(Configuration) FetchMail
  *  
