@@ -70,6 +70,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
@@ -85,8 +86,6 @@ import java.util.*;
 /**
  * The handler class for POP3 connections.
  *
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class POP3Handler
     extends AbstractLogEnabled
@@ -135,7 +134,7 @@ public class POP3Handler
     private MailRepository userInbox;
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
@@ -177,7 +176,7 @@ public class POP3Handler
      */
     private ArrayList userMailbox = new ArrayList();
 
-    private ArrayList backupUserMailbox;         // A snapshot list representing the set of 
+    private ArrayList backupUserMailbox;         // A snapshot list representing the set of
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
@@ -260,7 +259,8 @@ public class POP3Handler
             synchronized (this) {
                 handlerThread = Thread.currentThread();
             }
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
+            // in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
+            in = new CRLFTerminatedReader(new BufferedInputStream(socket.getInputStream(), 512), "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress ();
             remoteHost = socket.getInetAddress().getHostName ();
         } catch (Exception e) {
@@ -299,12 +299,12 @@ public class POP3Handler
                         .append(" ")
                         .append(theConfigData.getHelloName())
                         .append(" POP3 server (")
-                        .append(this.softwaretype)
+                        .append(POP3Handler.softwaretype)
                         .append(") ready ");
             out.println(responseBuffer.toString());
 
             theWatchdog.start();
-            while (parseCommand(in.readLine())) {
+            while (parseCommand(readCommandLine())) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
@@ -417,7 +417,7 @@ public class POP3Handler
      * Implements a "stat".  If the handler is currently in
      * a transaction state, this amounts to a rollback of the
      * mailbox contents to the beginning of the transaction.
-     * This method is also called when first entering the 
+     * This method is also called when first entering the
      * transaction state to initialize the handler copies of the
      * user inbox.
      *
@@ -427,7 +427,7 @@ public class POP3Handler
         userMailbox.add(DELETED);
         for (Iterator it = userInbox.list(); it.hasNext(); ) {
             String key = (String) it.next();
-            MailImpl mc = userInbox.retrieve(key);
+            Mail mc = userInbox.retrieve(key);
             // Retrieve can return null if the mail is no longer in the store.
             // In this case we simply continue to the next key
             if (mc == null) {
@@ -436,6 +436,24 @@ public class POP3Handler
             userMailbox.add(mc);
         }
         backupUserMailbox = (ArrayList) userMailbox.clone();
+    }
+
+    /**
+     * Reads a line of characters off the command line.
+     *
+     * @return the trimmed input line
+     * @throws IOException if an exception is generated reading in the input characters
+     */
+    final String readCommandLine() throws IOException {
+        for (;;) try {
+            String commandLine = in.readLine();
+            if (commandLine != null) {
+                commandLine = commandLine.trim();
+            }
+            return commandLine;
+        } catch (CRLFTerminatedReader.TerminationException te) {
+            writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+        }
     }
 
     /**
@@ -455,8 +473,7 @@ public class POP3Handler
             return false;
         }
         boolean returnValue = true;
-        String command = rawCommand.trim();
-        rawCommand = command;
+        String command = rawCommand;
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -1064,7 +1081,7 @@ public class POP3Handler
     }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the POP3 client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -1091,7 +1108,7 @@ public class POP3Handler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client
