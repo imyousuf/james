@@ -73,6 +73,14 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                 processor.init();
                 processors.put(processorName, processor);
 
+                //If this is the root processor, add the PostmasterAlias mailet silently
+                //  to the top
+                if (processorName.equals("root")) {
+                    Matcher matcher = matchLoader.getMatcher("All", mailetcontext);
+                    Mailet mailet = mailetLoader.getMailet("PostmasterAlias", mailetcontext, null);
+                    processor.add(matcher, mailet);
+                }
+
                 for (Enumeration mailetConfs = processorConf.getConfigurations("mailet"); mailetConfs.hasMoreElements(); ) {
                     Configuration c = (Configuration) mailetConfs.nextElement();
                     String mailetClassName = c.getAttribute("class");
