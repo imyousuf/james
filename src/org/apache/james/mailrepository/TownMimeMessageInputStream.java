@@ -1,17 +1,33 @@
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.mailrepository;
 
-import java.io.*;
-import com.workingdogs.town.*;
-import org.apache.james.core.*;
+import com.workingdogs.town.ConnDefinition;
+import com.workingdogs.town.QueryDataSet;
+import com.workingdogs.town.Record;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.james.core.JamesMimeMessageInputStream;
 
-public class TownMimeMessageInputStream extends JamesMimeMessageInputStream {
+public class TownMimeMessageInputStream 
+    extends JamesMimeMessageInputStream {
+
     //Define how to get to the data
     String connDefinition = null;
     String table = null;
     String key = null;
     String repository = null;
 
-    public TownMimeMessageInputStream(String connDefinition, String table, String key, String repository) throws IOException {
+    public TownMimeMessageInputStream(String connDefinition, 
+                                      String table, 
+                                      String key, 
+                                      String repository) throws IOException {
         if (connDefinition == null) {
             throw new IOException("Conn definition is null");
         }
@@ -53,9 +69,9 @@ public class TownMimeMessageInputStream extends JamesMimeMessageInputStream {
         //messages.setWhere("message_name='" + key + "' and repository_name='" + repository + "'");
         //messages.setColumns("message_body");
         QueryDataSet messages = new QueryDataSet(ConnDefinition.getInstance(connDefinition),
-                "SELECT message_body "
-                + " FROM " + table
-                + " WHERE message_name='" + key + "' AND repository_name='" + repository + "'");
+                                                 "SELECT message_body "
+                                                 + " FROM " + table
+                                                 + " WHERE message_name='" + key + "' AND repository_name='" + repository + "'");
         if (messages.size() == 0) {
             throw new IOException("Could not find message");
         }
@@ -67,9 +83,9 @@ public class TownMimeMessageInputStream extends JamesMimeMessageInputStream {
         if (obj instanceof TownMimeMessageInputStream) {
             TownMimeMessageInputStream in = (TownMimeMessageInputStream)obj;
             return in.getConnDefinition().equals(connDefinition)
-                    && in.getTable().equals(table)
-                    && in.getMessageName().equals(key)
-                    && in.getRepository().equals(repository);
+                && in.getTable().equals(table)
+                && in.getMessageName().equals(key)
+                && in.getRepository().equals(repository);
         }
         return false;
     }
