@@ -15,7 +15,7 @@ import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.avalon.*;
-import org.apache.james.CharTerminatedInputStream;
+import org.apache.james.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
@@ -90,7 +90,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             this.socket = socket;
             socketIn = new BufferedInputStream(socket.getInputStream(), 1024);
             in = new DataInputStream(socketIn);
-            out = new PrintWriter(socket.getOutputStream(), true);
+            out = new InternetPrintWriter(socket.getOutputStream(), true);
 
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
