@@ -15,6 +15,7 @@ import java.util.*;
 import org.apache.arch.*;
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 import org.apache.mail.Mail;
 
 import org.apache.james.transport.*;
@@ -36,7 +37,8 @@ public class James implements MailServer, Block {
     private SimpleComponentManager comp;
     private SimpleContext context;
     private Configuration conf;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
     private ThreadManager threadManager;
     private Store store;
     private MailRepository spool;
@@ -56,8 +58,9 @@ public class James implements MailServer, Block {
 
 	public void init() throws Exception {
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("JAMES init...", "JAMES", logger.INFO);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger.log("JAMES init...", logger.INFO);
         threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         store = (Store) comp.getComponent(Interfaces.STORE);
 
@@ -75,7 +78,7 @@ public class James implements MailServer, Block {
         }
         serverNames.addElement("localhost");
         for (Enumeration e = serverNames.elements(); e.hasMoreElements(); ) {
-            logger.log("Local host is: " + e.nextElement(), "JAMES", logger.INFO);
+            logger.log("Local host is: " + e.nextElement(), logger.INFO);
         }
         context.put(Constants.SERVER_NAMES, serverNames);
         context.put(Constants.HELO_NAME, serverNames.elementAt(0));
@@ -87,10 +90,10 @@ public class James implements MailServer, Block {
         try {
             this.localInbox = (MailRepository) store.getPrivateRepository(inboxRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
-            logger.log("Cannot open private MailRepository", "JAMES", logger.ERROR);
+            logger.log("Cannot open private MailRepository", logger.ERROR);
             throw e;
         }
-        logger.log("Private Repository LocalInbox opened", "JAMES", logger.INFO);
+        logger.log("Private Repository LocalInbox opened", logger.INFO);
             // Add this to comp
         comp.put(Interfaces.MAIL_SERVER, this);
         
@@ -98,10 +101,10 @@ public class James implements MailServer, Block {
         try {
             this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
-            logger.log("Cannot open private MailRepository", "JAMES", logger.ERROR);
+            logger.log("Cannot open private MailRepository", logger.ERROR);
             throw e;
         }
-        logger.log("Private MailRepository Spool opened", "JAMES", logger.INFO);
+        logger.log("Private MailRepository Spool opened", logger.INFO);
         comp.put(Constants.SPOOL_REPOSITORY, spool);
 
         UserManager userManager = new UserManager();
@@ -111,11 +114,11 @@ public class James implements MailServer, Block {
             userManager.setComponentManager(comp);
             userManager.init();
         } catch (Exception e) {
-            logger.log("Exception in UserManager init: " + e.getMessage(), "JAMES", logger.ERROR);
+            logger.log("Exception in UserManager init: " + e.getMessage(), logger.ERROR);
             throw e;
         }
         comp.put(Constants.USERS_MANAGER, userManager);
-        logger.log("Users Manager Opened", "JAMES", logger.INFO);
+        logger.log("Users Manager Opened", logger.INFO);
         
         POP3Server pop3Server = new POP3Server();
         try {
@@ -123,7 +126,7 @@ public class James implements MailServer, Block {
             pop3Server.setContext(context);
             pop3Server.setComponentManager(comp);
         } catch (Exception e) {
-            logger.log("Exception in POP3Server init: " + e.getMessage(), "JAMES", logger.ERROR);
+            logger.log("Exception in POP3Server init: " + e.getMessage(), logger.ERROR);
             throw e;
         }
         
@@ -133,7 +136,7 @@ public class James implements MailServer, Block {
             smtpServer.setContext(context);
             smtpServer.setComponentManager(comp);
         } catch (Exception e) {
-            logger.log("Exception in SMTPServer init: " + e.getMessage(), "JAMES", logger.ERROR);
+            logger.log("Exception in SMTPServer init: " + e.getMessage(), logger.ERROR);
             throw e;
         }
         
@@ -142,7 +145,7 @@ public class James implements MailServer, Block {
             remoteAdmin.setConfiguration(conf.getConfiguration("remoteManager"));
             remoteAdmin.setComponentManager(comp);
         } catch (Exception e) {
-            logger.log("Exception in RemoteAdmin init: " + e.getMessage(), "JAMES", logger.ERROR);
+            logger.log("Exception in RemoteAdmin init: " + e.getMessage(), logger.ERROR);
             throw e;
         }
         
@@ -156,10 +159,10 @@ public class James implements MailServer, Block {
                 spoolMgr.init();
                 threadManager.execute(spoolMgr);
             } catch (Exception e) {
-                logger.log("Exception in SpoolManager thread-" + threads + " init: " + e.getMessage(), "JAMES", logger.ERROR);
+                logger.log("Exception in SpoolManager thread-" + threads + " init: " + e.getMessage(), logger.ERROR);
                 throw e;
             }
-            logger.log("SpoolManager " + (threads + 1) + " started", "JAMES", logger.INFO);
+            logger.log("SpoolManager " + (threads + 1) + " started", logger.INFO);
         }
 
         userManager.init();
@@ -167,7 +170,7 @@ public class James implements MailServer, Block {
         smtpServer.init();
         remoteAdmin.init();
 
-        logger.log("JAMES ...init end", "JAMES", logger.INFO);
+        logger.log("JAMES ...init end", logger.INFO);
     }
 
     public void sendMail(String sender, Vector recipients, MimeMessage message)
@@ -201,7 +204,7 @@ public class James implements MailServer, Block {
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage());
         }
-        logger.log("Mail " + mail.getName() + " pushed in spool", "JAMES", logger.INFO);
+        logger.log("Mail " + mail.getName() + " pushed in spool", logger.INFO);
     }
 
     public MailRepository getUserInbox(String userName) {

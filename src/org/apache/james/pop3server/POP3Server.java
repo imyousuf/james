@@ -14,6 +14,7 @@ import org.apache.java.util.*;
 import org.apache.james.*;
 import java.net.*;
 import java.util.Date;
+import org.apache.avalon.blocks.masterconnection.logger.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -25,7 +26,8 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     private Configuration conf;
     private ComponentManager comp;
     private ThreadManager threadManager;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
 
     public POP3Server() {}
 
@@ -43,12 +45,13 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
 
 	public void init() throws Exception {
 
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("POP3Server init...", "POP3Server", logger.INFO);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger.log("POP3Server init...", logger.INFO);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
-        logger.log("POP3Server ...init end", "POP3Server", logger.INFO);
+        logger.log("POP3Server ...init end", logger.INFO);
     }
 
     public void parseRequest(Socket s) {
@@ -62,7 +65,7 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
             handler.parseRequest(s);
             threadManager.execute((Runnable) handler);
         } catch (Exception e) {
-            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "POP3Server", logger.ERROR);
+            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), logger.ERROR);
         }
     }
 

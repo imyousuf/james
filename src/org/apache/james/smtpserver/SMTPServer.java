@@ -8,6 +8,7 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.blocks.masterconnection.logger.*;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
 import org.apache.arch.*;
@@ -22,7 +23,8 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
 
     private ComponentManager comp;
     private Configuration conf;
-    private Logger logger;
+    private ConnectionManager connectionManager;
+    private LogChannel logger;
     private ThreadManager threadManager;
     private Context context;
     
@@ -43,12 +45,13 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
 
 	public void init() throws Exception {
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("SMTPServer init...", "SMTPServer", logger.INFO);
+        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
+        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger.log("SMTPServer init...", logger.INFO);
         threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
-        logger.log("SMTPServer ...init end", "SMTPServer", logger.INFO);
+        logger.log("SMTPServer ...init end", logger.INFO);
     }
 
     public void parseRequest(Socket s) {
@@ -61,9 +64,9 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             smtpHandler.init();
             smtpHandler.parseRequest(s);
             threadManager.execute(smtpHandler);
-            logger.log("Executing handler.", "SMTPServer", logger.DEBUG);
+            logger.log("Executing handler.", logger.DEBUG);
         } catch (Exception e) {
-            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "SMTPServer", logger.ERROR);
+            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), logger.ERROR);
             e.printStackTrace();
         }
     }
