@@ -48,7 +48,7 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     public void init() throws Exception {
 
         logger.info("POP3Server init...");
-	// this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
+	
 	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(110);
