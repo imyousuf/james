@@ -24,7 +24,7 @@ import org.apache.mail.MessageContainer;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler implements Composer, Stoppable, Configurable, Service, TimeServer.Bell {
+public class POP3Handler implements Composer, Stoppable, Configurable, Service, TimeServer.Bell, Contextualizable {
 
     private SimpleComponentManager comp;
     private Configuration conf;
@@ -59,15 +59,17 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     }
     
     public void setConfiguration(Configuration conf) {
-
         this.conf = conf;
     }
     
     public void setComponentManager(ComponentManager comp) {
-
         this.comp = (SimpleComponentManager) comp;
     }
 
+    public void setContext(Context context) {
+        this.servername = (String) context.get("servername");
+    }
+    
     public void init() 
     throws Exception {
         
@@ -75,7 +77,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-        this.servername = (String) comp.get("servername");
         this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
         this.userMailbox = new Vector();
     }

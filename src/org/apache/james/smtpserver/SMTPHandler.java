@@ -24,7 +24,7 @@ import javax.mail.internet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell {
+public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell, Contextualizable {
 
 	public final static String SERVER_NAME = "SERVER_NAME";
 	public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -64,13 +64,16 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         this.conf = conf;
     }
     
+    public void setContext(Context context) {
+        this.servername = (String) context.get("servername");
+    }
+    
     public void setComponentManager(ComponentManager comp) {
         this.comp = (SimpleComponentManager) comp;
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         state = new Hashtable();
-        this.servername = (String) this.comp.get("servername");
     }
 
     public void parseRequest(Socket socket) {

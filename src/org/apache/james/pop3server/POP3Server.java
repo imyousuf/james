@@ -27,6 +27,7 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
     private Logger logger;
     private ThreadManager threadManager;
     private SimpleComponentManager pop3CM;
+    private SimpleContext context;
 
     public POP3Server() {}
 
@@ -47,6 +48,7 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
         Store.Repository mailUsers = (Store.Repository) store.getPublicRepository("MailUsers");
         logger.log("Public Repository MailUsers opened", "POP3Server", logger.INFO);
         pop3CM = new SimpleComponentManager(comp);
+        context = new SimpleContext();
         pop3CM.put("mailUsers", mailUsers);
         String servername = "";
         try {
@@ -61,7 +63,7 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
             }
         }
         logger.log("Localhost name set to: " + servername, "POP3Server", logger.INFO);
-        pop3CM.put("servername", servername);
+        context.put("servername", servername);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
         logger.log("POP3Server ...init end", "POP3Server", logger.INFO);
@@ -72,6 +74,7 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
         try {
             POP3Handler handler = new POP3Handler();
             handler.setConfiguration(conf.getConfiguration("pop3handler"));
+            handler.setContext(context);
             handler.setComponentManager(pop3CM);
             handler.init();
             handler.parseRequest(s);
