@@ -34,7 +34,7 @@ import java.util.Set;
  * message.  If you do not specify one, it will use the postmaster's address
  *
  * Sample configuration:
- * <mailet match="All" class="NotifyPostmaster">
+ * <mailet match="All" class="NotifySender">
  *   <sendingAddress>nobounce@localhost</sendingAddress>
  *   <attachStackTrace>true</attachStackTrace>
  *   <notice>Notice attached to the message (optional)</notice>
