@@ -62,7 +62,7 @@ public class NetMatcher
 
         try
         {
-            ip = InetAddress.getByName(hostIP);
+            ip = org.xbill.DNS.Address.getByName(hostIP);
         }
         catch (java.net.UnknownHostException uhe)
         {
@@ -130,7 +130,7 @@ class InetNetwork
 
     public boolean contains(final String name) throws java.net.UnknownHostException
     {
-        return network.equals(maskIP(InetAddress.getByName(name), netmask));
+        return network.equals(maskIP(org.xbill.DNS.Address.getByName(name), netmask));
     }
 
     public boolean contains(final InetAddress ip)
@@ -164,8 +164,8 @@ class InetNetwork
             else if (netspec.indexOf('.', iSlash) == -1) netspec = normalizeFromCIDR(netspec);
         }
 
-        return new InetNetwork(InetAddress.getByName(netspec.substring(0, netspec.indexOf('/'))),
-                               InetAddress.getByName(netspec.substring(netspec.indexOf('/') + 1)));
+        return new InetNetwork(org.xbill.DNS.Address.getByName(netspec.substring(0, netspec.indexOf('/'))),
+                               org.xbill.DNS.Address.getByName(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
     public static InetAddress maskIP(final byte[] ip, final byte[] mask)
