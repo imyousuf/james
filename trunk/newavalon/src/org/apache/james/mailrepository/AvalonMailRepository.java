@@ -14,7 +14,6 @@ import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
-//import org.apache.avalon.blocks.*;
 import org.apache.avalon.services.*;
 import org.apache.avalon.util.*;
 import org.apache.log.LogKit;
@@ -70,7 +69,6 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
 
     public void compose(ComponentManager compMgr) {
 	try {
-	    //  mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
@@ -97,27 +95,7 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
     }
 
  
-    //   public Store.Repository getChildRepository(String childName) {
-    //String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
-    ////prepare Configurations for object and stream repositories
-    //DefaultConfiguration childConf = new DefaultConfiguration("repository", "generated:AvalonFileRepository.getChildRepository()");
-    //childConf.addAttribute("destinationURL", childDestination);
-    //childConf.addAttribute("type", "MAIL");
-    //childConf.addAttribute("model", "SYNCHRONOUS");
-    //try {
-    //    Store.Repository child = (Store.Repository) store.select(childConf);
-    //    return child;
-    //} catch (ComponentNotFoundException cnfe) {
-    // if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
-    //    return null;
-    //} catch (ComponentNotAccessibleException cnae) {
-    //    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
-    //    return null;
-    //} catch (Exception e) {
-    //    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
-    //    return null;
-    //}
-    //}
+
 
     public synchronized void unlock(Object key) {
 
@@ -156,7 +134,9 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
     public synchronized MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
-            mc.setMessage(sr.get(key));
+	    BufferedInputStream in = new BufferedInputStream(sr.get(key));
+            mc.setMessage(in);
+	    in.close();
         } catch (Exception me) {
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
