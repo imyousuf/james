@@ -10,12 +10,16 @@
 package org.apache.james.transport.mailets;
 
 import java.util.*;
+
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
+
 import org.apache.james.*;
 import org.apache.james.core.*;
-import org.apache.james.mailrepository.*;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.MailRepository;
 import org.apache.james.transport.*;
-import org.apache.avalon.blocks.*;
+
 import org.apache.mailet.*;
 
 /**
@@ -38,9 +42,24 @@ public class ToRepository extends GenericMailet {
         } catch (Exception e) {
         }
 
-        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        repository = (MailRepository) store.getPrivateRepository(repositoryPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
+        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+	try {
+	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+	    DefaultConfiguration mailConf
+		= new DefaultConfiguration("repository", "generated:ToRepository");
+	    mailConf.addAttribute("destinationURL", repositoryPath);
+	    mailConf.addAttribute("type", "MAIL");
+	    mailConf.addAttribute("model", "SYNCHRONOUS");
+	    
+	    repository = (MailRepository) mailstore.select(mailConf);
+	} catch (ComponentNotFoundException cnfe) {
+	    log("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    log("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    log("Failed to retrieve Store component:" + e.getMessage());
+	}
+      
     }
 
     public void service(Mail genericmail) {

@@ -104,7 +104,7 @@ public abstract class GenericListserv extends GenericMailet {
                 //Use the recipient
                 listservAddr = (MailAddress)mail.getRecipients().iterator().next();
             }
-            
+
             if (isReplyToList()) {
                 message.setHeader("Reply-To", listservAddr.toString());
             }

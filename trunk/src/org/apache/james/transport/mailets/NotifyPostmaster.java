@@ -126,6 +126,7 @@ public class NotifyPostmaster extends GenericMailet {
             out.println("  Number of lines: " + message.getLineCount());
         }
 
+
         try {
             //Create the message body
             MimeMultipart multipart = new MimeMultipart();

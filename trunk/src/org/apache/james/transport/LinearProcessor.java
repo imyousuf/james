@@ -12,11 +12,13 @@ import java.io.*;
 import java.util.*;
 import javax.mail.*;
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.utils.*;
+
+//import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.mailrepository.*;
+import org.apache.james.services.SpoolRepository;
+import org.apache.log.Logger;
 import org.apache.mailet.*;
 
 /**
@@ -35,7 +37,7 @@ import org.apache.mailet.*;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor {
+public class LinearProcessor implements Loggable, Initializable {
     private final static boolean DEBUG_PRINT_PIPE = false;
 
     private List mailets;
@@ -46,14 +48,6 @@ public class LinearProcessor {
     private Logger logger;
     private SpoolRepository spool;
 
-    public void init() {
-        this.matchers = new Vector();
-        this.mailets = new Vector();
-        tempUnprocessed = new Vector();
-        tempUnprocessed.add(new Vector(2, 2));
-        random = new Random();
-    }
-
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
@@ -62,6 +56,16 @@ public class LinearProcessor {
         this.spool = spool;
     }
 
+
+    public void init() {
+        this.matchers = new Vector();
+        this.mailets = new Vector();
+        tempUnprocessed = new Vector();
+        tempUnprocessed.add(new Vector(2, 2));
+        random = new Random();
+    }
+
+
     public void add(Matcher matcher, Mailet mailet) {
         matchers.add(matcher);
         mailets.add(mailet);
@@ -69,7 +73,8 @@ public class LinearProcessor {
         tempUnprocessed.add(new Vector(2, 2));
     }
 
-    public synchronized void service(MailImpl mail) throws MessagingException {
+
+   public synchronized void service(MailImpl mail) throws MessagingException {
         //make sure we have the array built
         if (unprocessed == null) {
             //Need to construct that object
@@ -104,22 +109,23 @@ public class LinearProcessor {
                     unprocessed[i].remove(mail);
                     break;
                 }
-            }
+	    }
 
             //See if we didn't find any messages to process
             if (mail == null) {
                 //We're done
                 return;
             }
+    
 
-            //Call the matcher and find what recipients match
+           //Call the matcher and find what recipients match
             Collection recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
             try {
                 recipients = matcher.match(mail);
                 if (recipients == null) {
-                    //In case the matcher returned null, create an empty Vector
-                    recipients = new Vector();
+                  //In case the matcher returned null, create an empty Vector
+                   recipients = new Vector();
                 }
                 //Make sure all the objects are MailAddress objects
                 verifyMailAddresses(recipients);
@@ -158,6 +164,7 @@ public class LinearProcessor {
 
             //See if the state was changed by the mailet
             if (!mail.getState().equals(originalState)) {
+		logger.debug("State changed by: " + mailet.getMailetInfo());
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(mail.GHOST)) {
                     //let this instance die...
@@ -173,12 +180,15 @@ public class LinearProcessor {
                 spool.store(mail);
                 mail = null;
                 continue;
-            }
-            //Ok, we made it through with the same state... move it to the next
-            //  spot in the array
-            unprocessed[i + 1].add(mail);
-        }
-    }
+            } else {
+                //Ok, we made it through with the same state... move it to the next
+                //  spot in the array
+		logger.debug("State not changed by: " + mailet.getMailetInfo());
+                unprocessed[i + 1].add(mail);
+	    }
+	    
+	}
+   }
 
     /**
      * Create a unique new primary key name
@@ -187,6 +197,8 @@ public class LinearProcessor {
         String name = mail.getName();
         return name + "-!" + Math.abs(random.nextInt());
     }
+
+
 
     /**
      * Checks that all objects in this class are of the form MailAddress
@@ -213,7 +225,7 @@ public class LinearProcessor {
             }
         }
         mail.setErrorMessage(sout.toString());
-        logger.log(sout.toString(), "Processor", logger.ERROR);
+        logger.error(sout.toString());
         throw me;
     }
 }

@@ -22,11 +22,11 @@ public class MatchLoader implements Component, Configurable {
     private Configuration conf;
     private Vector matcherPackages;
 
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException {
         matcherPackages = new Vector();
         matcherPackages.addElement("");
-        for (Enumeration e = conf.getConfigurations("matcherpackage"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
+        for (Iterator it = conf.getChildren("matcherpackage"); it.hasNext(); ) {
+            Configuration c = (Configuration) it.next();
             String packageName = c.getValue();
             if (!packageName.endsWith(".")) {
                 packageName += ".";
@@ -36,7 +36,7 @@ public class MatchLoader implements Component, Configurable {
     }
 
     public Matcher getMatcher(String matchName, MailetContext context)
-    throws MessagingException {
+	throws MessagingException {
         try {
             String condition = (String) null;
             int i = matchName.indexOf('=');

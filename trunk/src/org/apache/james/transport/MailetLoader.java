@@ -22,11 +22,11 @@ public class MailetLoader implements Component, Configurable {
     private Configuration conf;
     private Vector mailetPackages;
 
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException {
         mailetPackages = new Vector();
         mailetPackages.addElement("");
-        for (Enumeration e = conf.getConfigurations("mailetpackage"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
+        for (Iterator it = conf.getChildren("mailetpackage"); it.hasNext(); ) {
+            Configuration c = (Configuration) it.next();
             String packageName = c.getValue();
             if (!packageName.endsWith(".")) {
                 packageName += ".";
