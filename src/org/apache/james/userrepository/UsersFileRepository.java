@@ -34,6 +34,9 @@ public class UsersFileRepository implements UsersRepository {
 
         this.name = name;
         this.destination = destination;
+        if (!this.destination.endsWith(File.separator)) {
+            this.destination += File.separator;
+        }
         this.model = model;
         this.type = type;
     }
