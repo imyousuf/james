@@ -1,24 +1,26 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
+package org.apache.james.userrepository;
 
-package org.apache.james.usersrepository;
-
-import java.util.*;
-import java.io.*;
-
-import org.apache.avalon.*;
-import org.apache.cornerstone.services.Store;
+import java.io.File;
+import java.util.Iterator;
+import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Component;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.Lock;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
+import org.apache.cornerstone.services.Store;
 import org.apache.james.services.UsersRepository;
-
 
 /**
  * Implementation of a Repository to store users on the File System.
@@ -33,66 +35,56 @@ import org.apache.james.services.UsersRepository;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class UsersFileRepository implements UsersRepository, Loggable, Component, Configurable, Composer {
+public class UsersFileRepository 
+    extends AbstractLoggable
+    implements UsersRepository, Component, Configurable, Composer {
+
     private static final String TYPE = "USERS";
-    private final static boolean        LOG        = true;
-    private final static boolean        DEBUG      = LOG && false;
-    private Logger logger;// =  LogKit.getLoggerFor("james.users-store");
+
     private Store store;
     private Store.ObjectRepository or;
- 
     private String destination;
-
     private Lock lock;
 
     public UsersFileRepository() {
     }
 
-    public void setLogger(final Logger a_Logger) {
-	logger = a_Logger;
-    }
-
     public void configure(Configuration conf) throws ConfigurationException {
 
-	destination = conf.getChild("destination").getAttribute("URL");
+        destination = conf.getChild("destination").getAttribute("URL");
         if (!destination.endsWith(File.separator)) {
-           destination += File.separator;
+            destination += File.separator;
         }
     }
 
-
     public void compose(ComponentManager compMgr) {
-	try {
-	    store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
-	    //prepare Configurations for object and stream repositories
-	    DefaultConfiguration objConf
-		= new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
-	    objConf.addAttribute("destinationURL", destination);
-	    objConf.addAttribute("type", "OBJECT");
-	    objConf.addAttribute("model", "SYNCHRONOUS");
-	
-	    or = (Store.ObjectRepository) store.select(objConf);
-	    lock = new Lock();
-	} catch (ComponentNotFoundException cnfe) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
-	} catch (ComponentNotAccessibleException cnae) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
-	} catch (Exception e) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
-	}
+        try {
+            store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
+            //prepare Configurations for object and stream repositories
+            DefaultConfiguration objConf
+                = new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
+            objConf.addAttribute("destinationURL", destination);
+            objConf.addAttribute("type", "OBJECT");
+            objConf.addAttribute("model", "SYNCHRONOUS");
+        
+            or = (Store.ObjectRepository) store.select(objConf);
+            lock = new Lock();
+        } catch (ComponentManagerException cme) {
+            getLogger().error("Failed to retrieve Store component:" + cme.getMessage(), cme );
+        } catch (Exception e) {
+            getLogger().error("Failed to retrieve Store component:" + e.getMessage(), e );
+        }
     }
-
 
     public Iterator list() {
         return or.list();
     }
-
  
     public synchronized void addUser(String name, Object attributes) {
         try {
             or.put(name, attributes);
         } catch (Exception e) {
-            throw new RuntimeException("Exception caught while storing user: " + e);
+            throw new RuntimeException("Exception caught while storing user: " + e );
         }
     }
 
@@ -107,7 +99,6 @@ public class UsersFileRepository implements UsersRepository, Loggable, Component
     public synchronized void removeUser(String name) {
         or.remove(name);
     }
-
 
     public boolean contains(String name) {
         return or.containsKey(name);
