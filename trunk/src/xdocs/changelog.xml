@@ -45,6 +45,7 @@ Last Updated  30 October 2001.</p>
 <li>(MP) (update) Patch to support username@[yyy.yyy.yyy.yyy] addresses</li>
 <li>(GB) (update) Patch to fix size calculation from headers</li>
 <li>(RS) (image) Contributed James logo</li>
+<li>(SK) (update) Changed MailetException to extend MessagingException, and Mailet.init() throws MailetException.</li>
 </ul>
 </section>
 
