@@ -182,8 +182,9 @@ class NNTPArticleImpl implements NNTPArticle {
         StringBuffer sb = new StringBuffer(field);
         for( int i=0 ; i<sb.length() ; i++ ) {
             char c = sb.charAt(i);
-            if( (c=='\n') || (c=='\t') ) 
+            if( (c=='\n') || (c=='\t') ) {
                 sb.setCharAt(i, ' ');
+            }
         }
         return sb.toString();
     }
