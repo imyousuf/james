@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.14 $ $Date: 2003/08/30 17:45:13 $
+ * @version CVS $Revision: 1.35.4.15 $ $Date: 2004/01/09 22:42:28 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -595,12 +595,12 @@ public class SMTPHandler
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand(String rawCommand) throws Exception {
+    private boolean parseCommand(String command) throws Exception {
         String argument = null;
         boolean returnValue = true;
-        String command = rawCommand;
+        
 
-        if (rawCommand == null) {
+        if (command == null) {
             return false;
         }
         if ((state.get(MESG_FAILED) == null) && (getLogger().isDebugEnabled())) {
