@@ -45,21 +45,102 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  *
  */
 public class RemoteManagerHandler
     extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Target {
 
+    /**
+     * The text string for the ADDUSER command
+     */
+    private static final String COMMAND_ADDUSER = "ADDUSER";
+
+    /**
+     * The text string for the SETPASSWORD command
+     */
+    private static final String COMMAND_SETPASSWORD = "SETPASSWORD";
+
+    /**
+     * The text string for the DELUSER command
+     */
+    private static final String COMMAND_DELUSER = "DELUSER";
+
+    /**
+     * The text string for the LISTUSERS command
+     */
+    private static final String COMMAND_LISTUSERS = "LISTUSERS";
+
+    /**
+     * The text string for the COUNTUSERS command
+     */
+    private static final String COMMAND_COUNTUSERS = "COUNTUSERS";
+
+    /**
+     * The text string for the VERIFY command
+     */
+    private static final String COMMAND_VERIFY = "VERIFY";
+
+    /**
+     * The text string for the HELP command
+     */
+    private static final String COMMAND_HELP = "HELP";
+
+    /**
+     * The text string for the SETFORWARDING command
+     */
+    private static final String COMMAND_SETFORWARDING = "SETFORWARDING";
+
+    /**
+     * The text string for the UNSETFORWARDING command
+     */
+    private static final String COMMAND_UNSETFORWARDING = "UNSETFORWARDING";
+
+    /**
+     * The text string for the SETALIAS command
+     */
+    private static final String COMMAND_SETALIAS = "SETALIAS";
+
+    /**
+     * The text string for the UNSETALIAS command
+     */
+    private static final String COMMAND_UNSETALIAS = "UNSETALIAS";
+
+    /**
+     * The text string for the USER command
+     */
+    private static final String COMMAND_USER = "USER";
+
+    /**
+     * The text string for the QUIT command
+     */
+    private static final String COMMAND_QUIT = "QUIT";
+
+    /**
+     * The text string for the SHUTDOWN command
+     */
+    private static final String COMMAND_SHUTDOWN = "SHUTDOWN";
+
+    /**
+     * The UsersStore that contains all UsersRepositories managed by this RemoteManager
+     */
     private UsersStore usersStore;
+
+    /**
+     * The current UsersRepository being managed/viewed/modified
+     */
     private UsersRepository users;
 
     /**
      * The scheduler used to handle timeouts for the RemoteManager
      * interaction
-    */
+     */
     private TimeScheduler scheduler;
+
+    /**
+     * The reference to the internal MailServer service
+     */
     private MailServer mailServer;
 
     /**
@@ -139,14 +220,6 @@ public class RemoteManagerHandler
      */
     public void handleConnection( final Socket connection )
         throws IOException {
-
-        /*
-          if( adminAccounts.isEmpty() ) {
-          getLogger().warn("No Administrative account defined");
-          getLogger().warn("RemoteManager failed to be handled");
-          return;
-          }
-        */
 
         final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
         scheduler.addTrigger( this.toString(), trigger, this );
@@ -274,36 +347,38 @@ public class RemoteManagerHandler
         String argument = null;
         int breakIndex = command.indexOf(" ");
         if (breakIndex > 0) {
-            argument = command.substring((breakIndex + 1), command.length());
+            argument = command.substring(breakIndex + 1);
             command = command.substring(0, breakIndex);
         }
         command = command.toUpperCase(Locale.US);
         String argument1 = null;
-        if (command.equals("ADDUSER")) {
+        if (command.equals(COMMAND_ADDUSER)) {
             doADDUSER(argument);
-        } else if (command.equals("SETPASSWORD")) {
+        } else if (command.equals(COMMAND_SETPASSWORD)) {
             return doSETPASSWORD(argument);
-        } else if (command.equals("DELUSER")) {
+        } else if (command.equals(COMMAND_DELUSER)) {
             return doDELUSER(argument);
-        } else if (command.equals("LISTUSERS")) {
+        } else if (command.equals(COMMAND_LISTUSERS)) {
             return doLISTUSERS(argument);
-        } else if (command.equals("COUNTUSERS")) {
+        } else if (command.equals(COMMAND_COUNTUSERS)) {
             return doCOUNTUSERS(argument);
-        } else if (command.equals("VERIFY")) {
+        } else if (command.equals(COMMAND_VERIFY)) {
             return doVERIFY(argument);
-        } else if (command.equals("HELP")) {
+        } else if (command.equals(COMMAND_HELP)) {
             return doHELP(argument);
-        } else if (command.equals("SETALIAS")) {
+        } else if (command.equals(COMMAND_SETALIAS)) {
             return doSETALIAS(argument);
-        } else if (command.equals("SETFORWARDING")) {
+        } else if (command.equals(COMMAND_SETFORWARDING)) {
             return doSETFORWARDING(argument);
-        } else if (command.equals("UNSETALIAS")) {
+        } else if (command.equals(COMMAND_UNSETALIAS)) {
             return doUNSETALIAS(argument);
-        } else if (command.equals("USER")) {
+        } else if (command.equals(COMMAND_UNSETFORWARDING)) {
+            return doUNSETFORWARDING(argument);
+        } else if (command.equals(COMMAND_USER)) {
             return doUSER(argument);
-        } else if (command.equals("QUIT")) {
+        } else if (command.equals(COMMAND_QUIT)) {
             return doQUIT(argument);
-        } else if (command.equals("SHUTDOWN")) {
+        } else if (command.equals(COMMAND_SHUTDOWN)) {
             return doSHUTDOWN(argument);
         } else {
             return doUnknownCommand(rawCommand);
@@ -327,7 +402,7 @@ public class RemoteManagerHandler
             return true;
         }
         String username = argument.substring(0,breakIndex);
-        String passwd = argument.substring((breakIndex + 1), argument.length());
+        String passwd = argument.substring(breakIndex + 1);
         if (username.equals("") || passwd.equals("")) {
             out.println("Usage: adduser [username] [password]");
             out.flush();
@@ -344,6 +419,8 @@ public class RemoteManagerHandler
             String response = responseBuffer.toString();
             out.println(response);
         } else if ( inLocalUsers ) {
+            // TODO: Why does the LocalUsers repository get treated differently?
+            //       What exactly is the LocalUsers repository?
             success = mailServer.addUser(username, passwd);
         } else {
             DefaultUser user = new DefaultUser(username, "SHA");
@@ -384,7 +461,7 @@ public class RemoteManagerHandler
             return true;
         }
         String username = argument.substring(0,breakIndex);
-        String passwd = argument.substring((breakIndex + 1), argument.length());
+        String passwd = argument.substring(breakIndex + 1);
 
         if (username.equals("") || passwd.equals("")) {
             out.println("Usage: adduser [username] [password]");
@@ -525,9 +602,10 @@ public class RemoteManagerHandler
         out.println("verify [username]                       verify if specified user exist");
         out.println("deluser [username]                      delete existing user");
         out.println("setpassword [username] [password]       sets a user's password");
-        out.println("setalias [username] [alias]             sets a user's alias");
-        out.println("unsetalias [username]                   removes a user's alias");
-        out.println("setforwarding [username] [emailaddress] forwards a user's email to another account");
+        out.println("setalias [alias] [user]                 locally forwards all email for 'alias' to 'user'");
+        out.println("unsetalias [alias]                      unsets an alias");
+        out.println("setforwarding [username] [emailaddress] forwards a user's email to another email address");
+        out.println("unsetforwarding [username]              removes a forward");
         out.println("user [repositoryname]                   change to another user repository");
         out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
         out.println("quit                                    close connection");
@@ -546,13 +624,13 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            out.println("Usage: setforwarding [username] [emailaddress]");
+            out.println("Usage: setalias [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
-        String alias = argument.substring((breakIndex + 1), argument.length());
+        String alias = argument.substring(breakIndex + 1);
         if (username.equals("") || alias.equals("")) {
-            out.println("Usage: adduser [username] [alias]");
+            out.println("Usage: setalias [username] [alias]");
             return true;
         }
         JamesUser user = (JamesUser) users.getUserByName(username);
@@ -603,7 +681,7 @@ public class RemoteManagerHandler
             return true;
         }
         String username = argument.substring(0,breakIndex);
-        String forward = argument.substring((breakIndex + 1), argument.length());
+        String forward = argument.substring(breakIndex + 1);
         if (username.equals("") || forward.equals("")) {
            out.println("Usage: setforwarding [username] [emailaddress]");
            return true;
@@ -689,6 +767,41 @@ public class RemoteManagerHandler
     }
 
     /**
+     * Handler method called upon receipt of an UNSETFORWARDING command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doUNSETFORWARDING(String argument) {
+        if ((argument == null) || (argument.equals(""))) {
+            out.println("Usage: unsetforwarding [username]");
+            out.flush();
+            return true;
+        }
+        String username = argument;
+        JamesUser user = (JamesUser) users.getUserByName(username);
+        if (user == null) {
+            out.println("No such user " + username);
+        } else if (user.getForwarding()){
+            user.setForwarding(false);
+            users.updateUser(user);
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Forward for ")
+                        .append(username)
+                        .append(" unset");
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else {
+            out.println("Forwarding not active for" + username);
+            getLogger().info("Forwarding not active for" + username);
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
      * Handler method called upon receipt of a USER command.
      * Returns whether further commands should be read off the wire.
      *
@@ -729,7 +842,7 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doQUIT(String argument) {
-        out.println("bye");
+        out.println("Bye");
         out.flush();
         return false;
     }
