@@ -74,63 +74,38 @@ import java.util.List;
  * so that we can nest and reuse sessions.
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class ProtocolSession
 {
+    private int maxSessionNumber;
     protected List testElements = new ArrayList();
     private static final Perl5Util perl = new Perl5Util();
 
     /**
-     * Executes the ProtocolSession in real time against the reader and writer
+     * Returns the number of sessions required to run this ProtocolSession.
+     * If the number of readers and writers provided is less than this number,
+     * an exception will occur when running the tests.
+     */
+    public int getSessionCount() {
+        return maxSessionNumber + 1;
+    }
+
+    /**
+     * Executes the ProtocolSession in real time against the readers and writers
      * supplied, writing client requests and reading server responses in the order
-     * that they appear in the test elements.
+     * that they appear in the test elements. The index of a reader/writer in the array
+     * corresponds to the number of the session.
      * If an exception occurs, no more test elements are executed.
      * @param out The client requests are written to here.
      * @param in The server responses are read from here.
      */
-    public void runLiveSession( PrintWriter out, BufferedReader in ) throws Exception
-    {
+    public void runLiveSession(PrintWriter[] out, BufferedReader[] in) throws InvalidServerResponseException {
         for ( Iterator iter = testElements.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if ( obj instanceof ProtocolElement ) {
                 ProtocolElement test = ( ProtocolElement ) obj;
                 test.testProtocol( out, in );
-            }
-        }
-    }
-
-    /**
-     * Write an entire client session to the specified PrintWriter. Server
-     * responses are not collected, but clients may collect themfor later
-     * testing with {@link #testResponse}.
-     * @param out The client requests are written to here.
-     */
-    public void writeClient( PrintWriter out ) throws Exception
-    {
-        Iterator iterator = testElements.iterator();
-        while ( iterator.hasNext() ) {
-            ProtocolElement element = (ProtocolElement) iterator.next();
-            if ( element instanceof ClientRequest ) {
-                element.testProtocol( out, null );
-            }
-        }
-    }
-
-    /**
-     * Reads Server responses from the supplied Buffered reader, ensuring that
-     * they match the expected responses for the protocol session. This permits
-     * clients to run a session asynchronously, by first writing the client requests
-     * with {@link #writeClient} and later testing the responses.
-     * @param in The server responses are read from here.
-     */
-    public void testResponse( BufferedReader in ) throws Exception
-    {
-        Iterator iterator = testElements.iterator();
-        while ( iterator.hasNext() ) {
-            ProtocolElement element = (ProtocolElement) iterator.next();
-            if ( element instanceof ServerResponse ) {
-                element.testProtocol( null, in );
             }
         }
     }
@@ -160,11 +135,30 @@ public class ProtocolSession
     }
 
     /**
-     * Adds a ProtocolElement to the test elements.
+     * adds a new Client request line to the test elements
      */
-    public void addProtocolElement( ProtocolElement element )
+    public void CL( int sessionNumber, String clientLine )
     {
-        testElements.add( element );
+        this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
+        testElements.add( new ClientRequest( sessionNumber, clientLine ) );
+    }
+
+    /**
+     * adds a new Server Response line to the test elements, with the specified location.
+     */
+    public void SL( int sessionNumber, String serverLine, String location )
+    {
+        this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
+        testElements.add( new ServerResponse( sessionNumber, serverLine, location ) );
+    }
+
+    /**
+     * adds a new Server Unordered Block to the test elements.
+     */
+    public void SUB( int sessionNumber, List serverLines, String location )
+    {
+        this.maxSessionNumber = Math.max(this.maxSessionNumber, sessionNumber);
+        testElements.add( new ServerUnorderedBlockResponse( sessionNumber, serverLines, location ) );
     }
 
     /**
@@ -172,6 +166,7 @@ public class ProtocolSession
      */
     private class ClientRequest implements ProtocolElement
     {
+        private int sessionNumber;
         private String message;
 
         /**
@@ -179,18 +174,43 @@ public class ProtocolSession
          */
         public ClientRequest( String message )
         {
+            this(-1, message);
+        }
+
+        /**
+         * Initialises the ClientRequest, with a message and session number.
+         * @param sessionNumber
+         * @param message
+         */
+        public ClientRequest(int sessionNumber, String message) {
+            this.sessionNumber = sessionNumber;
             this.message = message;
         }
 
         /**
-         * Writes the request message to the PrintWriter.
+         * Writes the request message to the PrintWriters. If the sessionNumber == -1,
+         * the request is written to *all* supplied writers, otherwise, only the
+         * writer for this session is writted to.
          */
-        public void testProtocol( PrintWriter out, BufferedReader in )
+        public void testProtocol( PrintWriter[] out, BufferedReader[] in )
         {
-            out.write( message );
-            out.write( '\r' );
-            out.write( '\n' );
-            out.flush();
+            if (sessionNumber < 0) {
+                for (int i = 0; i < out.length; i++) {
+                    PrintWriter printWriter = out[i];
+                    writeMessage(printWriter);
+                }
+            }
+            else {
+                PrintWriter writer = out[sessionNumber];
+                writeMessage(writer);
+            }
+        }
+
+        private void writeMessage(PrintWriter writer) {
+            writer.write(message);
+            writer.write('\r');
+            writer.write('\n');
+            writer.flush();
         }
     }
 
@@ -201,6 +221,7 @@ public class ProtocolSession
      */
     private class ServerResponse implements ProtocolElement
     {
+        private int sessionNumber;
         private String expectedLine;
         protected String location;
 
@@ -212,22 +233,49 @@ public class ProtocolSession
          */
         public ServerResponse( String expectedPattern, String location )
         {
+            this(-1, expectedPattern, location);
+        }
+
+        /**
+         * Sets up a server response.
+         * @param sessionNumber The number of session for a multi-session test
+         * @param expectedPattern A Perl regular expression pattern used to test
+         *                        the line recieved.
+         * @param location A descriptive value to use in error messages.
+         */
+        public ServerResponse( int sessionNumber, String expectedPattern, String location )
+        {
+            this.sessionNumber = sessionNumber;
             this.expectedLine = expectedPattern;
             this.location = location;
         }
 
         /**
          * Reads a line from the supplied reader, and tests that it matches
-         * the expected regular expression.
+         * the expected regular expression. If the sessionNumber == -1, then all
+         * readers are tested, otherwise, only the reader for this session is tested.
          * @param out Is ignored.
          * @param in The server response is read from here.
          * @throws InvalidServerResponseException If the actual server response didn't
          *          match the regular expression expected.
          */
-        public void testProtocol( PrintWriter out, BufferedReader in )
+        public void testProtocol( PrintWriter[] out, BufferedReader[] in )
                 throws InvalidServerResponseException
         {
-            String testLine = readLine( in );
+            if (sessionNumber < 0) {
+                for (int i = 0; i < in.length; i++) {
+                    BufferedReader reader = in[i];
+                    checkResponse(reader);
+                }
+            }
+            else {
+                BufferedReader reader = in[sessionNumber];
+                checkResponse(reader);
+            }
+        }
+
+        protected void checkResponse(BufferedReader reader) throws InvalidServerResponseException {
+            String testLine = readLine(reader);
             if ( ! match( expectedLine, testLine ) ) {
                 String errMsg = "\nLocation: " + location +
                         "\nExcpected: " + expectedLine +
@@ -260,12 +308,11 @@ public class ProtocolSession
         {
             try {
                 return in.readLine();
-            }
-            catch ( IOException e ) {
+            } catch (IOException e) {
                 String errMsg = "\nLocation: " + location +
-                        "\nExpected: " + expectedLine +
-                        "\nReason: Server Timeout.";
-                throw new InvalidServerResponseException( errMsg );
+                                "\nExpected: " + expectedLine +
+                                "\nReason: Server Timeout.";
+                throw new InvalidServerResponseException(errMsg);
             }
         }
     }
@@ -286,7 +333,21 @@ public class ProtocolSession
          */
         public ServerUnorderedBlockResponse( List expectedLines, String location )
         {
-            super( "<Unordered Block>", location );
+            this(-1, expectedLines, location);
+        }
+
+        /**
+         * Sets up a ServerUnorderedBlockResponse with the list of expected lines.
+         * @param sessionNumber The number of the session to expect this block,
+         *              for a multi-session test.
+         * @param expectedLines A list containing a reqular expression for each
+         *                      expected line.
+         * @param location A descriptive location string for error messages.
+         */
+        public ServerUnorderedBlockResponse( int sessionNumber,
+                                             List expectedLines, String location )
+        {
+            super( sessionNumber, "<Unordered Block>", location );
             this.expectedLines = expectedLines;
         }
 
@@ -294,46 +355,39 @@ public class ProtocolSession
          * Reads lines from the server response and matches them against the
          * list of expected regular expressions. Each regular expression in the
          * expected list must be matched by only one server response line.
-         * @param out Is ignored.
-         * @param in Server responses are read from here.
+         * @param reader Server responses are read from here.
          * @throws InvalidServerResponseException If a line is encountered which doesn't
          *              match one of the expected lines.
          */
-        public void testProtocol( PrintWriter out, BufferedReader in )
-                throws InvalidServerResponseException
-        {
-            List testLines = new ArrayList( expectedLines );
-            while ( testLines.size() > 0 )
-            {
-                String actualLine = readLine( in );
-                boolean foundMatch = false;
+        protected void checkResponse(BufferedReader reader) throws InvalidServerResponseException {
+            List testLines = new ArrayList(expectedLines);
+            while (testLines.size() > 0) {
+                String actualLine = readLine(reader);
 
-                for ( int i = 0; i < testLines.size(); i++ )
-                {
-                    String expected = (String)testLines.get( i );
-                    if ( match( expected, actualLine ))
-                    {
+                boolean foundMatch = false;
+                for (int i = 0; i < testLines.size(); i++) {
+                    String expected = (String) testLines.get(i);
+                    if (match(expected, actualLine)) {
                         foundMatch = true;
-                        testLines.remove( expected );
+                        testLines.remove(expected);
                         break;
                     }
                 }
 
-                if (! foundMatch )
-                {
+                if (!foundMatch) {
                     StringBuffer errMsg = new StringBuffer()
-                        .append( "\nLocation: " )
-                        .append( location )
-                        .append( "\nExpected one of: " );
+                            .append("\nLocation: ")
+                            .append(location)
+                            .append("\nExpected one of: ");
                     Iterator iter = expectedLines.iterator();
-                    while ( iter.hasNext() ) {
-                        errMsg.append( "\n    " );
-                        errMsg.append( iter.next() );
+                    while (iter.hasNext()) {
+                        errMsg.append("\n    ");
+                        errMsg.append(iter.next());
                     }
-                    errMsg.append("\nActual: " )
-                          .append( actualLine );
+                    errMsg.append("\nActual: ")
+                            .append(actualLine);
 
-                    throw new InvalidServerResponseException( errMsg.toString() );
+                    throw new InvalidServerResponseException(errMsg.toString());
                 }
             }
         }
@@ -344,7 +398,7 @@ public class ProtocolSession
      * read responses from the server, or both. Implementations should test the server
      * response against an expected response, and throw an exception on mismatch.
      */
-    interface ProtocolElement
+    private interface ProtocolElement
     {
         /**
          * Executes the ProtocolElement against the supplied read and writer.
@@ -353,7 +407,7 @@ public class ProtocolSession
          * @throws InvalidServerResponseException If the actual server response
          *              doesn't match the one expected.
          */
-        void testProtocol( PrintWriter out, BufferedReader in )
+        void testProtocol( PrintWriter[] out, BufferedReader[] in )
                 throws InvalidServerResponseException;
     }
 

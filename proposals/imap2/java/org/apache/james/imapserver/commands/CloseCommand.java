@@ -70,7 +70,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class CloseCommand extends SelectedStateCommand
 {
@@ -90,7 +90,8 @@ class CloseCommand extends SelectedStateCommand
             mailbox.expunge();
         }
         session.deselect();
-
+        
+//      Don't send unsolicited responses on close.
         session.unsolicitedResponses( response );
         response.commandComplete( this );
     }

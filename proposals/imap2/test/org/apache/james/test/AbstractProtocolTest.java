@@ -65,6 +65,7 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionImpl;
 import org.apache.james.imapserver.ImapTest;
 import org.apache.james.imapserver.JamesImapHost;
+import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.userrepository.AbstractUsersRepository;
 import org.apache.james.userrepository.DefaultUser;
@@ -79,6 +80,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -151,11 +156,17 @@ public abstract class AbstractProtocolTest
     private void runSocketProtocolSessions()
             throws Exception
     {
-        Socket socket = new Socket( host, port );
-        socket.setSoTimeout( timeout );
+        Socket[] socket = new Socket[testElements.getSessionCount()];
+        PrintWriter[] out = new PrintWriter[socket.length];
+        BufferedReader[] in = new BufferedReader[socket.length];
 
-        PrintWriter out = new PrintWriter( socket.getOutputStream(), true );
-        BufferedReader in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
+        for (int i = 0; i < socket.length; i++) {
+            socket[i] = new Socket(host, port);
+            socket[i].setSoTimeout(timeout);
+            out[i] = new PrintWriter(socket[i].getOutputStream());
+            in[i] = new BufferedReader(new InputStreamReader(socket[i].getInputStream()));
+        }
+
         try {
              preElements.runLiveSession( out, in );
              testElements.runLiveSession( out, in );
@@ -165,9 +176,11 @@ public abstract class AbstractProtocolTest
              fail( e.getMessage() );
          }
 
-        out.close();
-        in.close();
-        socket.close();
+        for (int i = 0; i < socket.length; i++) {
+            out[i].close();
+            in[i].close();
+            socket[i].close();
+        }
      }
 
     /**
@@ -175,42 +188,39 @@ public abstract class AbstractProtocolTest
      * This does not require that James be running, and is useful for rapid development and
      * debugging.
      *
-     * Instead of sending requests to a socket, requests are written to a CharArrayWriter,
-     * which then constructs a Reader which can be given to the ImapRequestHandler.
-     * Likewise, server responses are written to a CHarArrayWriter, and the associate reader
-     * is parsed to ensure that the responses match those expected.
+     * Instead of sending requests to a socket connected to a running instance of James,
+     * this method uses the {@link MockImapServer} to simplify testing. One mock instance
+     * is required per protocol session/connection. These share the same underlying 
+     * Mailboxes, because of the way {@link #getImapSession()} works.
      */
     private void runLocalProtocolSessions() throws Exception
     {
-        ByteArrayOutputStream clientRequestCollector = new ByteArrayOutputStream();
-        PrintWriter clientOut = new PrintWriter( clientRequestCollector );
-        preElements.writeClient( clientOut );
-        testElements.writeClient( clientOut );
-        postElements.writeClient( clientOut );
+        MockImapServer[] socket = new MockImapServer[testElements.getSessionCount()];
+        PrintWriter[] out = new PrintWriter[socket.length];
+        BufferedReader[] in = new BufferedReader[socket.length];
 
-        InputStream clientIn = new ByteArrayInputStream( clientRequestCollector.toByteArray() );
-        clientRequestCollector.close();
-
-        ByteArrayOutputStream serverResponseCollector = new ByteArrayOutputStream();
-        serverResponseCollector.write( "* OK IMAP4rev1 Server XXX ready".getBytes() );
-        serverResponseCollector.write( '\r' );
-        serverResponseCollector.write( '\n' );
-
-        ImapSession session = getImapSession();
-        ImapRequestHandler requestHandler = new ImapRequestHandler();
-        while( requestHandler.handleRequest( clientIn, serverResponseCollector, session ) ) {};
-
-        InputStream serverInstream = new ByteArrayInputStream( serverResponseCollector.toByteArray() );
-        BufferedReader serverIn = new BufferedReader( new InputStreamReader( serverInstream ) );
+        for (int i = 0; i < socket.length; i++) {
+            socket[i] = new MockImapServer(getImapSession());
+            out[i] = socket[i].getWriter();
+            in[i] = socket[i].getReader();
+            socket[i].start();
+        }
 
         try {
-            preElements.testResponse(  serverIn );
-            testElements.testResponse(  serverIn );
-            postElements.testResponse(  serverIn );
+             preElements.runLiveSession( out, in );
+             testElements.runLiveSession( out, in );
+             postElements.runLiveSession( out, in );
+         }
+         catch ( ProtocolSession.InvalidServerResponseException e ) {
+             fail( e.getMessage() );
+         }
+
+        for (int i = 0; i < socket.length; i++) {
+            out[i].close();
+            in[i].close();
+            socket[i].stopServer();
         }
-        catch ( ProtocolSession.InvalidServerResponseException e ) {
-            fail( e.getMessage() );
-        }
+
     }
 
     /**
@@ -266,6 +276,82 @@ public abstract class AbstractProtocolTest
         protected void doUpdateUser( User user )
         {
             users.put( user.getUserName(), user );
+        }
+    }
+
+    /**
+     * A simple test utility which allows testing of Imap commands without
+     * deployment of the full server. Piped input and output streams are used
+     * to provide the equivilant of a socket interface.
+     */ 
+    private class MockImapServer extends Thread {
+        private ImapRequestHandler handler = new ImapRequestHandler();
+
+        private PipedInputStream requestInputStream;
+        private PipedOutputStream requestOutputStream;
+
+        private PipedInputStream responseInputStream;
+        private PipedOutputStream responseOutputStream;
+
+        private ImapSession session;
+        private ProtocolException exception;
+
+        private boolean running;
+
+        /**
+         * Creates a MockImapServer, with a handler for the session provided.
+         */ 
+        public MockImapServer(ImapSession session) throws IOException {
+            this.session = session;
+            requestOutputStream = new PipedOutputStream();
+            requestInputStream = new PipedInputStream(requestOutputStream);
+
+            responseInputStream = new PipedInputStream();
+            responseOutputStream = new PipedOutputStream(responseInputStream);
+
+        }
+
+        /**
+         * Core loop where Imap commands are handled
+         */ 
+        public void run() {
+            running = true;
+            try {
+                responseOutputStream.write( "* OK IMAP4rev1 Server XXX ready".getBytes() );
+                responseOutputStream.write( '\r' );
+                responseOutputStream.write( '\n' );
+            } catch (IOException e) {
+                throw new RuntimeException("Couldn't write welcome message", e);
+            }
+
+            while (running) {
+                try {
+                    handler.handleRequest(requestInputStream, responseOutputStream, session);
+                } catch (ProtocolException e) {
+                    exception = e;
+                    break;
+                }
+            }
+
+        }
+
+        /** 
+         * @return A writer which is used to send commands to the mock server.
+         */ 
+        public PrintWriter getWriter() {
+            return new PrintWriter(requestOutputStream);
+        }
+
+        /**
+         * @return A reader which is used to read responses from the mock server.
+         */ 
+        public BufferedReader getReader() {
+            return new BufferedReader(new InputStreamReader(responseInputStream));
+        }
+
+        /** stop the running server thread.*/
+        public void stopServer() {
+            running = false;
         }
     }
 }

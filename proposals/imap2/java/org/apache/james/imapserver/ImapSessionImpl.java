@@ -72,7 +72,7 @@ import java.util.Iterator;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
@@ -177,6 +177,8 @@ public final class ImapSessionImpl implements ImapSession
     public void deselect()
     {
         this.state = ImapSessionState.AUTHENTICATED;
+        // TODO is there more to do here, to cleanup the mailbox.
+        this.selectedMailbox = null;
     }
 
     public void setSelected( ImapMailbox mailbox, boolean readOnly )
