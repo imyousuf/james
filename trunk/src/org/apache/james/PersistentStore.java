@@ -62,7 +62,7 @@ import java.io.*;
  *
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  * @author <a href="mailto:scoobie@systemy.it">Federico Barbieri</a>
- * @version $Revision: 1.1 $ $Date: 1999/11/11 03:48:28 $
+ * @version $Revision: 1.2 $ $Date: 1999/11/12 20:38:34 $
  */
 
 public class PersistentStore {
@@ -115,11 +115,7 @@ public class PersistentStore {
      */
     public synchronized void remove(Object key) {
         try {
-            File file = new File(this.encode(key));
-            ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-            Object object = stream.readObject();
-            stream.close();
-            file.delete();
+            new File(this.encode(key)).delete();
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while removing an object: " + e);
         }
