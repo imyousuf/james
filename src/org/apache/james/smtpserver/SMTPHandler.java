@@ -27,16 +27,16 @@ import javax.mail.internet.*;
  */
 public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell, Contextualizable {
 
-	public final static String SERVER_NAME = "SERVER_NAME";
-	public final static String SERVER_TYPE = "SERVER_TYPE";
-	public final static String REMOTE_NAME = "REMOTE_NAME";
-	public final static String REMOTE_IP = "REMOTE_IP";
-	public final static String NAME_GIVEN = "NAME_GIVEN";
-	public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
+    public final static String SERVER_NAME = "SERVER_NAME";
+    public final static String SERVER_TYPE = "SERVER_TYPE";
+    public final static String REMOTE_NAME = "REMOTE_NAME";
+    public final static String REMOTE_IP = "REMOTE_IP";
+    public final static String NAME_GIVEN = "NAME_GIVEN";
+    public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
     public final static String SENDER = "SENDER_ADDRESS";
     public final static String RCPT_VECTOR = "RCPT_VECTOR";
     private static final char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
-    
+
     private Socket socket;
     private BufferedReader in;
     private InputStream socketIn;
@@ -65,15 +65,15 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setContext(Context context) {
         this.context = context;
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = (SimpleComponentManager) comp;
     }
-    
+
     public void init()
     throws Exception {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
@@ -90,7 +90,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             socketIn = new BufferedInputStream(socket.getInputStream(), 1024);
             in = new BufferedReader(new InputStreamReader(socketIn));
             out = new PrintWriter(socket.getOutputStream(), true);
-    
+
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
             state.clear();
@@ -105,9 +105,9 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
         logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", "SMTPServer", logger.INFO);
     }
-    
+
     public void run() {
-        
+
         try {
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
@@ -148,9 +148,9 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
     private boolean parseCommand(String command)
     throws Exception {
-            
+
         if (command == null) return false;
-        logger.log("Command recieved: " + command, "SMTPServer", logger.INFO);
+        logger.log("Command received: " + command, "SMTPServer", logger.INFO);
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -270,7 +270,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         state.put(SERVER_NAME, this.servername );
         state.put(SERVER_TYPE, this.softwaretype );
     }
-    
+
     public void stop() {
     }
 }
