@@ -56,6 +56,7 @@ public class AvalonSpoolRepository
                 wait();
             } catch (InterruptedException ignored) {
             } catch (ConcurrentModificationException ignoredAlso) {
+               // Should never get here now that list methods clones keyset for iterator
             }
         }
     }
@@ -107,7 +108,9 @@ public class AvalonSpoolRepository
                     wait(youngest - System.currentTimeMillis());
                 }
             } catch (InterruptedException ignored) {
+            } catch (ConcurrentModificationException ignoredAlso) {
+               // Should never get here now that list methods clones keyset for iterator
             }
-        }
+}
     }
 }

@@ -63,5 +63,17 @@ public class SMTPServer
         getLogger().info("SMTPServer ...init end");
         System.out.println("Started SMTP Server "+m_connectionName);
     }
+    
+    public void dispose()
+    {
+    	getLogger().info( "SMTPServer dispose..." );
+    	getLogger().info( "SMTPServer dispose..." + m_connectionName);
+    	super.dispose();
+       
+        // This is needed to make sure sockets are promptly closed on Windows 2000
+	System.gc();
+	
+	getLogger().info( "SMTPServer ...dispose end" );
+    }
 }
 

@@ -67,5 +67,16 @@ public class RemoteManager
         super.initialize();
         getLogger().info("RemoteManager ...init end");
     }
-}
 
+    public void dispose()
+    {
+    	getLogger().info( "RemoteManager dispose..." );
+    	getLogger().info( "RemoteManager dispose..." + m_connectionName);
+    	super.dispose();
+       
+        // This is needed to make sure that sockets are released promptly on Windows 2000
+	System.gc();
+	
+	getLogger().info( "RemoteManager ...dispose end" );
+    }
+}
