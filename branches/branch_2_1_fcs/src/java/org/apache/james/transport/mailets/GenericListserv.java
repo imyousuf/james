@@ -286,8 +286,7 @@ public abstract class GenericListserv extends GenericMailet {
      */
     public final void service(Mail mail) throws MessagingException {
         try {
-            Collection members = new Vector();
-            members.addAll(getMembers());
+            Collection members = getMembers();
 
             //Check for members only flag....
             if (isMembersOnly() && !members.contains(mail.getSender())) {
