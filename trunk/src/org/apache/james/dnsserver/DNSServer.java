@@ -99,10 +99,10 @@ public class DNSServer implements Component, Configurable, Contextualizable {
                 public int compare (Object a, Object b) {
                     MXRecord ma = (MXRecord)a;
                     MXRecord mb = (MXRecord)b;
-                    return mb.getPriority () - ma.getPriority ();
+                    return ma.getPriority () - mb.getPriority ();
                 }
             };
-            Arrays.sort (mxAnswers, prioritySort);
+            Arrays.sort(mxAnswers, prioritySort);
 
             for (int i = 0; i < mxAnswers.length; i++) {
                 servers.add(mxAnswers[i].getTarget ().toString ());
@@ -133,8 +133,9 @@ public class DNSServer implements Component, Configurable, Contextualizable {
         if (cached.isSuccessful()) {
             RRset [] rrsets = cached.answers();
             answerCount = 0;
-            for (int i = 0; i < rrsets.length; i++)
+            for (int i = 0; i < rrsets.length; i++) {
                 answerCount += rrsets[i].size();
+            }
 
             answers = new Record[answerCount];
 
@@ -165,11 +166,13 @@ public class DNSServer implements Component, Configurable, Contextualizable {
             }
 
             short rcode = response.getHeader().getRcode();
-            if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN)
+            if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
                 cache.addMessage(response);
+            }
 
-            if (rcode != Rcode.NOERROR)
+            if (rcode != Rcode.NOERROR) {
                 return null;
+            }
 
             return rawDNSLookup(namestr, true, Type.MX);
         }
