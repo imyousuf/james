@@ -15,7 +15,6 @@ import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.arch.*;
 import org.apache.java.io.CharTerminatedInputStream;
-import org.apache.avalon.blocks.masterconnection.logger.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
@@ -51,8 +50,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private ComponentManager comp;
     private Configuration conf;
     private Context context;
-    private ConnectionManager connectionManager;
-    private LogChannel logger;
+    private Logger logger;
     private TimeServer timeServer;
     private MailServer mailServer;
 
@@ -60,9 +58,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
     private Hashtable state;
-
-    public SMTPHandler() {
-    }
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -73,13 +68,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     }
 
     public void setComponentManager(ComponentManager comp) {
-        this.comp = (SimpleComponentManager) comp;
+        this.comp = comp;
     }
 
-    public void init()
-    throws Exception {
-        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
-        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+    public void init() throws Exception {
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         servername = (String) context.get(Constants.HELO_NAME);
@@ -102,11 +95,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             state.put(REMOTE_NAME, remoteHost);
             state.put(REMOTE_IP, remoteIP);
         } catch (Exception e) {
-            logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), logger.ERROR);
+            logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), "SMTP", logger.ERROR);
             throw new RuntimeException("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
         }
 
-        logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", logger.INFO);
+        logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", "SMTP", logger.INFO);
     }
 
     public void run() {
@@ -124,24 +117,24 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             socket.close();
             timeServer.removeAlarm("RemoteManager");
         } catch (SocketException e) {
-            logger.log("Socket to " + remoteHost + " closed remotely.", logger.DEBUG);
+            logger.log("Socket to " + remoteHost + " closed remotely.", "SMTP", logger.DEBUG);
         } catch (InterruptedIOException e) {
-            logger.log("Socket to " + remoteHost + " timeout.", logger.DEBUG);
+            logger.log("Socket to " + remoteHost + " timeout.", "SMTP", logger.DEBUG);
         } catch (IOException e) {
-            logger.log("Exception handling socket to " + remoteHost + ":" + e.getMessage(), logger.DEBUG);
+            logger.log("Exception handling socket to " + remoteHost + ":" + e.getMessage(), "SMTP", logger.DEBUG);
         } catch (Exception e) {
-            logger.log("Exception opening socket: " + e.getMessage(), logger.DEBUG);
+            logger.log("Exception opening socket: " + e.getMessage(), "SMTP", logger.DEBUG);
         } finally {
             try {
             socket.close();
             } catch (IOException e) {
-                logger.log("Exception closing socket: " + e.getMessage(), logger.ERROR);
+                logger.log("Exception closing socket: " + e.getMessage(), "SMTP", logger.ERROR);
             }
         }
     }
 
     public void wake(String name, String memo) {
-        logger.log("Connection timeout on socket", logger.ERROR);
+        logger.log("Connection timeout on socket", "SMTP", logger.ERROR);
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -153,7 +146,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     throws Exception {
 
         if (command == null) return false;
-        logger.log("Command received: " + command, logger.INFO);
+        logger.log("Command received: " + command, "SMTP", logger.INFO);
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -251,10 +244,10 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), new CharTerminatedInputStream(socketIn, SMTPTerminator));
                 } catch (MessagingException me) {
                     out.println("451 Error processing message: " + me.getMessage());
-                    logger.log("Error processing message: " + me.getMessage(), logger.ERROR);
+                    logger.log("Error processing message: " + me.getMessage(), "SMTP", logger.ERROR);
                     return true;
                 }
-                logger.log("Mail sent to Mail Server", logger.INFO);
+                logger.log("Mail sent to Mail Server", "SMTP", logger.INFO);
                 resetState();
                 out.println("250 Message received");
                 return true;
