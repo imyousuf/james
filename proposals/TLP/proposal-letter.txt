@@ -131,7 +131,7 @@ These plans include:
 commercial and open source competitors such as Microsoft Exchange, or
 ezmlm.
 - Implementing a number of related services defined by RFC's, such as
-the email aspects of Icalendar, Vcard to name but two.
+the email aspects of iCalendar, vCard to name but two.
 - And offering greater interoperability with other mail applications,
 such as sendmail.
 
