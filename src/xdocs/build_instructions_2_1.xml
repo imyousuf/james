@@ -14,9 +14,8 @@ distribution yourself.
 <section name="Getting the Source Code">
 <p>There are two ways to get the James source code.</p>
 <p>1. Download the source distribution - the source is available from the 
-<a href="http://jakarta.apache.org/builds/jakarta-james/latest/">James download directory</a>.
-Simply choose the version of James you'd like to download, navigate into the src subdirectory 
-for that version, and pick the source distribution appropriate for your platform.
+<a href="http://james.apache.org/download.cgi">James release mirrors</a>.
+Simply choose the version of James you'd like to download, and pick the source distribution appropriate for your platform.
 </p>
 <p>2. Get the source code using CVS - this method gives you access to the cutting edge code 
 base.  Instructions on how to use CVS to get the James source code (the jakarta-james distribution) 
@@ -30,7 +29,7 @@ James distribution.  The exact JDKs available depend on the platform.  A JDK mus
 installed before the build can run.</p>
 <p>2. Ant - This is a Java-tailored, XML-configured, extensible build or make system.  The James 
 source tree includes Ant v1.5.  You can get the latest version of Ant 
-<a href="http://jakarta.apache.org/ant">here</a>.  Since Ant is currently included in the source 
+<a href="http://ant.apache.org/">here</a>.  Since Ant is currently included in the source 
 distribution, it is not necessary to download it separately.</p>
 </section>
 <section name="Building the Distribution">

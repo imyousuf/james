@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.7 2004/02/03 20:18:04 noel Exp $ -->
+<!-- $Id: site.xsl,v 1.8 2004/02/04 20:11:56 noel Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -131,7 +131,7 @@
       <xsl:comment>PAGE FOOTER</xsl:comment>
       <tr><td colspan="2">
         <div align="center"><font color="{$body-link}" size="-1"><em>
-        Copyright &#169; 1999-2003, Apache Software Foundation
+        Copyright &#169; 1999-2004, Apache Software Foundation
         </em></font></div>
       </td></tr>
 

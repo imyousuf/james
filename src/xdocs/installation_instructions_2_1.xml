@@ -37,9 +37,8 @@ be unpacked.  The server should be stopped, the configuration files edited, and 
 </section>
 <section name="Installing the Binary">
 <subsection name="Installing a Stand-alone James Server">
-<p>Obtain the full James binary distribution from the <a href="http://jakarta.apache.org/builds/jakarta-james/">James 
-download directory</a>.  It can be found in the bin subdirectory of the distribution directory for the particular 
-build you are downloading.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
+<p>Obtain the full James binary distribution from the <a href="http://james.apache.org/download.cgi">James 
+release mirrors</a>.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
 installation directory and run the "run" script (either run.sh or run.bat, depending on your platform).  The configuration
 file is now unpacked and available for editing.</p>
 </subsection>
@@ -47,9 +46,9 @@ file is now unpacked and available for editing.</p>
 <p><strong>Warning!</strong> - James requires Phoenix version 4.0.x to run.  There is a known issue with logging in Phoenix 4.0, so version 
 4.0.1 or higher is strongly recommended.  Before attempting to deploy James in a Phoenix container, please make sure
 it meets these version criteria.</p>
-<p>Deploying James in Phoenix is fairly easy.  Obtain the james.sar file from the 
-<a href="http://jakarta.apache.org/builds/jakarta-james/">James download directory</a>.  It can be found in the bin 
-subdirectory of the distribution directory for the particular build you are downloading.  After downloading the james.sar,
+<p>Deploying James in Phoenix is fairly easy.  Obtain the james.sar file from the <a href="http://james.apache.org/download.cgi">James 
+release mirrors</a>.  It can be found in the "Other Binaries" 
+area of the distribution directory.  After downloading the james.sar,
 simply place it in the apps subdirectory of your Phoenix installation.  Restart Phoenix, and the james.sar should unpack and you
 will be ready to configure your James installation.</p>
 </subsection>

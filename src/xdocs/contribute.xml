@@ -66,7 +66,7 @@
             reports, and contributed fixes, often by the same person. It is sometimes said that Apache 
             projects evolve because users become so fed-up waiting for bugs to be addressed that they 
             fix them themselves. :)<br/>
-            If you report a bug, <a href="http://jakarta.apache.org/site/bugs.html">here</a> we'd appreciate it if you could send a mail to the users or developers 
+            If you report a bug, <a href="http://issues.apache.org/jira">here</a> we'd appreciate it if you could send a mail to the users or developers 
             mailing lists, so that we can discuss it with you, bugzilla isn't a great way for mediating 
             communication.<br/>
             If you want to fix a bug, please contribute your changes according to the guidelines above, 
