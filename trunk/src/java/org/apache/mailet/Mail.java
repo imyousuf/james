@@ -61,6 +61,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Date;
 /**
  * Wrap a MimeMessage with routing information (from SMTP) such
@@ -163,4 +164,55 @@ public interface Mail extends Serializable, Cloneable {
      * @return Date. timestamp of the last action which changed this Mail
      */
     Date getLastUpdated();
+    /**
+     * Returns the Mail session attribute with the given name, or null
+     * if there is no attribute by that name.
+     * An attribute allows a mailet to give this Mail instance additional information
+     * not already provided by this interface.<p>
+     * A list of currently set attributes can be retrieved using getAttributeNames.
+     * <p>
+     * The attribute is returned as a java.lang.Object or some subclass. Attribute
+     * names should follow the same convention as package names. The Java Mailet API
+     * specification reserves names matching java.*, javax.*, and sun.*
+     *
+     * @param name - a String specifying the name of the attribute
+     * @return an Object containing the value of the attribute, or null if no attribute
+     *      exists matching the given name
+     */
+    Serializable getAttribute(String name);
+    /**
+     * Returns an Iterator containing the attribute names currently available within
+     * this Mail instance.  Use the getAttribute(java.lang.String) method with an
+     * attribute name to get the value of an attribute.
+     *
+     * @return an Iterator of attribute names
+     */
+    Iterator getAttributeNames();
+    /**
+     * Removes the attribute with the given name from this Mail instance. After
+     * removal, subsequent calls to getAttribute(java.lang.String) to retrieve
+     * the attribute's value will return null.
+     *
+     * @param name - a String specifying the name of the attribute to be removed
+     * @return previous attribute value associated with specified name, or null
+     * if there was no mapping for name (null can also mean that null
+     * was bound to the name)
+     */
+    Serializable removeAttribute(String name);
+    /**
+     * Binds an object to a given attribute name in this Mail instance. If the name
+     * specified is already used for an attribute, this method will remove the old
+     * attribute and bind the name to the new attribute.
+     * As instances of Mail is Serializable, it is necessary that the attributes being
+     * Serializable as well
+     * <p>
+     * Attribute names should follow the same convention as package names. The Java
+     * Mailet API specification reserves names matching java.*, javax.*, and sun.*.
+     *
+     * @param name - a String specifying the name of the attribute
+     * @param object - a Serializable Object representing the attribute to be bound
+     * @return the object previously bound to the name, null if the name was
+     * not bound (null can also mean that null was bound to the name)
+     */
+    Serializable setAttribute(String name, Serializable object);
 }
