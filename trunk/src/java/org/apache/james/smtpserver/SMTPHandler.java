@@ -105,7 +105,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.52 $
+ * @version This is $Revision: 1.53 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -618,12 +618,12 @@ public class SMTPHandler
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand(String rawCommand) throws Exception {
+    private boolean parseCommand(String command) throws Exception {
         String argument = null;
         boolean returnValue = true;
-        String command = rawCommand;
+        
 
-        if (rawCommand == null) {
+        if (command == null) {
             return false;
         }
         if ((state.get(MESG_FAILED) == null) && (getLogger().isDebugEnabled())) {
