@@ -21,8 +21,9 @@ import org.apache.log.Logger;
 
 
 /**
- * @version 1.0.0, 24/04/1999
+ * @version 1.1.0, 06/02/2001
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author  Matthew Pangaro <mattp@lokitech.com>
  */
 public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
 
@@ -31,7 +32,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
     private ComponentManager compMgr;
     private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
     private ThreadPool threadPool;
- 
+    private String handlerStartMesg = "Executing handler";
     
     public void configure(Configuration conf) throws ConfigurationException{
         this.conf = conf;
@@ -57,6 +58,13 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             if (bindTo.length() > 0) {
                 bind = InetAddress.getByName(bindTo);
             }
+	    //get the configured max message size so we can log it
+	    long limit =
+		conf.getChild("smtphandler").getChild("maxmessagesize").getValueAsLong(0);
+	    if (limit > 0) {
+		handlerStartMesg += " with message size limit : " + limit 
+		    + " KBytes";
+	    }
         } catch (ConfigurationException e) {
         }
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, port, bind, this);
@@ -73,7 +81,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             smtpHandler.init();
             smtpHandler.parseRequest(s);
             threadPool.execute((Runnable)smtpHandler);
-            logger.debug("Executing handler.");
+            logger.debug(handlerStartMesg);
         } catch (Exception e) {
             logger.error("Cannot parse request on socket " + s + " : "
 			 + e.getMessage());
