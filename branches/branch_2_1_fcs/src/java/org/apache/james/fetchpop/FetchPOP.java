@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it 
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.5.4.1 2003/02/27 06:16:16 noel Exp $
+ * <br>$Id: FetchPOP.java,v 1.5.4.2 2003/03/08 21:54:03 noel Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import java.io.Reader;
  * 
  * 
  * Simple class to allow a cast from a java.io.Reader to a java.io.InputStream<br>
- * <br>$Id: ReaderInputStream.java,v 1.1.4.1 2003/02/27 06:16:16 noel Exp $
+ * <br>$Id: ReaderInputStream.java,v 1.1.4.2 2003/03/08 21:54:03 noel Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import examples.IOUtil;
  *
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: EndToEnd.java,v 1.3.2.1 2003/03/08 21:47:47 noel Exp $
+ * $Id: EndToEnd.java,v 1.3.2.2 2003/03/08 21:53:49 noel Exp $
  */
 public class EndToEnd extends TestCase {
 

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ import java.util.*;
  *
  * as well as other places.
  *
- * This is $Revision: 1.33.4.6 $
+ * This is $Revision: 1.33.4.7 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -695,8 +695,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
 
-        //props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
-        //props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
+//        props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
+//        props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         //Set the hostname we'll use as this server
         if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
