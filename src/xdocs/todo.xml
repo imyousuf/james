@@ -13,7 +13,7 @@
 
 <section name="TODO">
 <p>This is a living document that will give new and existing volunteers some areas where we need help.  As always, any help is appreciated, be it documentation, code, suggestions, or feedback.
-Last Updated  10 December 2002.</p>
+Last Updated  January 2005.</p>
 </section>
 
 <section name="Cross-Service Issues">
@@ -63,9 +63,8 @@ within a fixed period of the POP3 authentication.</p>
 the capability to handle multiple lists of 100,000+ members, double opt-in subscription mechanisms,
 and a full suite of mail-driven commands.</p>
 </section>
-<section name="Avalon Integration">
-<p>Update code base to use Serviceable/ServiceManager rather than Composable/ComponentManager.  This 
-requires an effective change in how we expose components through the Mailet API.</p>
+<section name="Container options">
+<p>Discuss and agree future architecture in the light of Avalon's demise. Modify codebase to implement architecture design.</p>
 </section>
 
 <section name="Mailet API">
