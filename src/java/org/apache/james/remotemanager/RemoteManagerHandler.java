@@ -45,8 +45,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/10 17:53:08 $
- * $Revision: 1.12 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/18 07:21:09 $
+ * $Revision: 1.13 $
  *
  */
 public class RemoteManagerHandler
@@ -55,15 +55,47 @@ public class RemoteManagerHandler
 
     private UsersStore usersStore;
     private UsersRepository users;
-    private boolean inLocalUsers = true;
+
+    /**
+     * The scheduler used to handle timeouts for the RemoteManager
+     * interaction
+    */
     private TimeScheduler scheduler;
     private MailServer mailServer;
 
+    /**
+     * Whether the local users repository should be used to store new
+     * users.
+     */
+    private boolean inLocalUsers = true;
+
+    /**
+     * The reader associated with incoming commands.
+     */
     private BufferedReader in;
+
+    /**
+     * The writer to which outgoing messages are written.
+     */
     private PrintWriter out;
-    private HashMap admaccount = new HashMap();
+
+    /**
+     * The TCP/IP socket over which the RemoteManager interaction
+     * is occurring
+     */
     private Socket socket;
 
+    /**
+     * A HashMap of (user id, passwords) for James administrators
+     */
+    private HashMap admaccount = new HashMap();
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
@@ -78,6 +110,15 @@ public class RemoteManagerHandler
         }
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
 
@@ -95,8 +136,8 @@ public class RemoteManagerHandler
      * This handler is responsible for processing connections as they occur.
      *
      * @param connection the connection
-     * @exception IOException if an error reading from socket occurs
-     * @exception ProtocolException if an error handling connection occurs
+     * @throws IOException if an error reading from socket occurs
+     * @throws ProtocolException if an error handling connection occurs
      */
     public void handleConnection( final Socket connection )
         throws IOException {
@@ -201,6 +242,13 @@ public class RemoteManagerHandler
         scheduler.removeTrigger(this.toString());
     }
 
+    /**
+     * Callback method called when the the PeriodicTimeTrigger in 
+     * handleConnection is triggered.  In this case the trigger is
+     * being used as a timeout, so the method simply closes the connection.
+     *
+     * @param triggerName the name of the trigger
+     */
     public void targetTriggered( final String triggerName ) {
         getLogger().error("Connection timeout on socket");
         try {
@@ -210,6 +258,17 @@ public class RemoteManagerHandler
         }
     }
 
+    /**
+     * <p>This method parses and processes RemoteManager commands read off the 
+     * wire in handleConnection.  It returns true if expecting additional 
+     * commands, false otherwise.</p>
+     *
+     * <p>TODO: Break this method into smaller methods.</p>
+     *
+     * @param command the raw command string passed in over the socket
+     *
+     * @return whether additional commands are expected.
+     */
     private boolean parseCommand( String command ) {
         if (command == null) {
             return false;
@@ -404,8 +463,7 @@ public class RemoteManagerHandler
                 return true;
             }
 
-            boolean success;
-            success = user.setAlias(alias);
+            boolean success = user.setAlias(alias);
             if (success) {
                 user.setAliasing(true);
                 users.updateUser(user);
@@ -457,8 +515,7 @@ public class RemoteManagerHandler
                 return true;
             }
 
-            boolean success;
-            success = user.setForwardingDestination(forwardAddr);
+            boolean success = user.setForwardingDestination(forwardAddr);
             if (success) {
                 user.setForwarding(true);
                 users.updateUser(user);
