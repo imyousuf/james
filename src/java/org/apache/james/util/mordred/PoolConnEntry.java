@@ -18,6 +18,7 @@ import java.util.Map;
  * @author: Serge Knystautas <sergek@lokitech.com>
  */
 public class PoolConnEntry implements java.sql.Connection{
+    private static final boolean DEEP_DEBUG = false;
 
     // States for connections (in use, being tested, or active)
     public final static int     AVAILABLE = 0;
@@ -49,19 +50,40 @@ public class PoolConnEntry implements java.sql.Connection{
      * Locks an entry for anybody else using it
      */
     public synchronized boolean lock() throws SQLException {
+        if (DEEP_DEBUG) {
+            System.out.println("Trying to lock");
+        }
+
         if (status != PoolConnEntry.AVAILABLE) {
             return false;
         }
 
-        if (connection.isClosed()) {
-            throw new SQLException("Connection has been closed.");
+        if (DEEP_DEBUG) {
+            System.out.println("Available");
         }
+
+        if (false) {
+            //There really is no sense in doing this...
+            //  maybe make it a conf option at some point, but really slows
+            //  down the pooling.
+            if (connection.isClosed()) {
+                throw new SQLException("Connection has been closed.");
+            }
+
+            if (DEEP_DEBUG) {
+                System.out.println("not closed");
+            }
+        }
+
 
         status = PoolConnEntry.ACTIVE;
         lockTime = System.currentTimeMillis();
         lastActivity = lockTime;
         trace = new Throwable();
         clearWarnings();
+        if (DEEP_DEBUG) {
+            System.out.println("Returning");
+        }
         return true;
     }
 
