@@ -90,6 +90,23 @@ public interface SMTPHandlerConfigurationData {
     long getMaxMessageSize();
 
     /**
+     * Returns whether relaying is allowed for the IP address passed.
+     *
+     * @param remoteIP the remote IP address in String form
+     * @return whether relaying is allowed
+     */
+    boolean isRelayingAllowed(String remoteIP);
+
+    /**
+     * Returns whether SMTP AUTH is active for this server, and
+     * necessary for the IP address passed.
+     *
+     * @param remoteIP the remote IP address in String form
+     * @return whether SMTP authentication is on
+     */
+    boolean isAuthRequired(String remoteIP);
+
+    /**
      * Returns whether SMTP auth is active for this server.
      *
      * @return whether SMTP authentication is on
@@ -117,5 +134,4 @@ public interface SMTPHandlerConfigurationData {
      * @return the local users repository
      */
     UsersRepository getUsersRepository();
-
 }
