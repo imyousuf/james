@@ -140,18 +140,17 @@ processor.</p>
 <p>Parameters: None.</p>
 </subsection>
 <subsection name="Redirect">
-<p>Description: This mailet provides configurable redirection services.  Users are encouraged to consult 
-the source and subclass this Mailet to produce a variety of effects.</p>
-<p>Parameters:
-<ul>
-<li><strong>prefix</strong> (optional) - an prefix for the subject line of the redirected message.  If set, this is 
-prepended to the original subject line.  If unset, the subject line is left unchanged.</li>
-<li><strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether 
-processing should continue on the message is on.  If false, the original message is GHOSTed.  Defaults to false.</li>
-<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is 
-on.  Defaults to false.</li>
-</ul>
+<p>Description: A mailet providing powerful, configurable redirection services.<br/>
+      This mailet can produce listserver, forward and notify behaviour, with the
+      original message intact, attached, appended or left out altogether.<br/>
+      This built in functionality is controlled by the configuration as described <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
+<p>It is also intended to be easily subclassed to make providing bespoke redirection
+    mailets simple. <br/>
+    By extending it and overriding one or more of its methods new behaviour can
+    be quickly created without the author having to address any other issue than
+    the relevant one. For more information see the javadocs <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
 </p>
+<p>Parameters: <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">See javadocs.</a></p>
 </subsection>
 <subsection name="RemoteDelivery">
 <p>Manages delivery of messages to recipients on remote SMTP hosts.</p>
