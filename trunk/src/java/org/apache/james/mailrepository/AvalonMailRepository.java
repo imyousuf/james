@@ -23,6 +23,7 @@ import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
@@ -138,9 +139,12 @@ public class AvalonMailRepository
 	if(DEEP_DEBUG) getLogger().debug("Retrieving mail: " + key);
         MailImpl mc = (MailImpl) or.get(key);
         try {
-            InputStream in = new FileMimeMessageInputStream(sr, key);
-            mc.setMessage(in);
-            in.close();
+			MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, key);
+			mc.setMessage(new MimeMessageWrapper(source));
+
+            //InputStream in = new FileMimeMessageInputStream(sr, key);
+            //mc.setMessage(in);
+            //in.close();
         } catch (Exception me) {
 	    getLogger().error("Exception retrieving mail: " + me);
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
