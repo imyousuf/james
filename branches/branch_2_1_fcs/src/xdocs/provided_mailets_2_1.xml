@@ -162,10 +162,23 @@ processor.</p>
 <ul>
 <li><strong>outgoing</strong> (required) - The URL for the repository that will hold messages being processed
 by the RemoteDelivery Mailet.</li>
-<li><strong>delayTime</strong> (optional) - a non-negative Long value that is the time in
-milliseconds between redelivery attempts for a particular mail.  Defaults to six hours.</li>
+<li><strong>delayTime</strong> (optional) - takes the form
+&lt;attempts*delay quantifier&gt; where attempts and quantifier are both
+optional an defaults to 1 and miliseconds respectively.
+The delay is a non-negative value that is the time between redelivery
+attempts for a particular mail. Defaults to six hours. Allowed
+quantifiers are msec(s),sec(s),minute(s),hour(s),day(s). The attempts
+is the number of times the specified delay is used. It is possible to
+have multiple entries of this parameter, and if so the the delayTimes
+are used in the order specified, this allows you to try a few times
+in rapid succession and then move on to longer delays</li>
 <li><strong>maxRetries</strong> (optional) - a non-negative Integer value that is number of times
-the Mailet will attempt to deliver a particular mail.  Defaults to five.</li>
+the Mailet will attempt to deliver a particular mail.  If inconsistent
+with number of attempts in <strong>delayTime</strong>
+specifications. <strong>maxRetries<strong> will be increased if it is
+less than the total number of attempts in <strong>delayTime</strong>,
+if it is more the last specified <strong>delayTime</strong> is used
+for the missing delays. Defaults to five. </li>
 <li><strong>timeout</strong> (optional) - The SMTP connection timeout for SMTP connections generated
 by this Mailet.  Defaults to 60 seconds.</li>
 <li><strong>deliveryThreads</strong> (optional) - The number of threads this Mailet will use to generate

@@ -68,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
@@ -98,12 +99,19 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.MatchResult;
+
+
 /**
  * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
- * store it in the "outgoing" Repository and set an Alarm. After "delayTime" the
+ * store it in the "outgoing" Repository and set an Alarm. After the next "delayTime" the
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
- * the mail will be considered underiverable and will be returned to sender.
+ * the mail will be considered undeliverable and will be returned to sender.
  *
  * TO DO (in priority):
  * 1. Support a gateway (a single server where all mail will be delivered) (DONE)
@@ -119,9 +127,105 @@ import org.apache.mailet.MailAddress;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.13 $ $Date: 2003/08/28 16:22:37 $
+ * @version CVS $Revision: 1.33.4.14 $ $Date: 2003/11/16 21:47:24 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
+
+    private static final long DEFAULT_DELAY_TIME = 21600000; // default is 6*60*60*1000 millis (6 hours)
+    private static final String PATTERN_STRING =
+        "\\s*([0-9]*\\s*[\\*])?\\s*([0-9]+)\\s*([a-z,A-Z]*)\\s*";//pattern to match
+                                                                 //[attempts*]delay[units]
+                                            
+    private static Pattern PATTERN = null; //the compiled pattern of the above String
+    private static final HashMap MULTIPLIERS = new HashMap (10); //holds allowed units for delaytime together with
+                                                                //the factor to turn it into the equivalent time in msec
+
+    /*
+     * Static initializer.<p>
+     * Compiles pattern for processing delaytime entries.<p>
+     * Initializes MULTIPLIERS with the supported unit quantifiers
+     */
+    static {
+        try {
+            Perl5Compiler compiler = new Perl5Compiler(); 
+            PATTERN = compiler.compile(PATTERN_STRING, Perl5Compiler.READ_ONLY_MASK);
+        } catch(MalformedPatternException mpe) {
+            //this should not happen as the pattern string is hardcoded.
+            System.err.println ("Malformed pattern: " + PATTERN_STRING);
+            mpe.printStackTrace (System.err);
+        }
+        //add allowed units and their respective multiplier
+        MULTIPLIERS.put ("msec", new Integer (1));
+        MULTIPLIERS.put ("msecs", new Integer (1));
+        MULTIPLIERS.put ("sec",  new Integer (1000));
+        MULTIPLIERS.put ("secs",  new Integer (1000));
+        MULTIPLIERS.put ("minute", new Integer (1000*60));
+        MULTIPLIERS.put ("minutes", new Integer (1000*60));
+        MULTIPLIERS.put ("hour", new Integer (1000*60*60));
+        MULTIPLIERS.put ("hours", new Integer (1000*60*60));
+        MULTIPLIERS.put ("day", new Integer (1000*60*60*24));
+        MULTIPLIERS.put ("days", new Integer (1000*60*60*24));
+    }
+    
+    /**
+     * This filter is used in the accept call to the spool.
+     * It will select the next mail ready for processing according to the mails
+     * retrycount and lastUpdated time
+     **/
+    private class MultipleDelayFilter implements SpoolRepository.AcceptFilter
+    {
+        /**
+         * holds the time to wait for the youngest mail to get ready for processing
+         **/
+        long youngest = 0;
+
+        /**
+         * Uses the getNextDelay to determine if a mail is ready for processing based on the delivered parameters
+         * errorMessage (which holds the retrycount), lastUpdated and state
+         * @param key the name/key of the message
+         * @param state the mails state
+         * @param lastUpdated the mail was last written to the spool at this time.
+         * @param errorMessage actually holds the retrycount as a string (see failMessage below)
+         **/
+        public boolean accept (String key, String state, long lastUpdated, String errorMessage) {
+            if (state.equals(Mail.ERROR)) {
+                //Test the time...
+                int retries = Integer.parseInt(errorMessage);
+                long delay = getNextDelay (retries);
+                long timeToProcess = delay + lastUpdated;
+
+                
+                if (System.currentTimeMillis() > timeToProcess) {
+                    //We're ready to process this again
+                    return true;
+                } else {
+                    //We're not ready to process this.
+                    if (youngest == 0 || youngest > timeToProcess) {
+                        //Mark this as the next most likely possible mail to process
+                        youngest = timeToProcess;
+                    }
+                    return false;
+                }
+            } else {
+                //This mail is good to go... return the key
+                return true;
+            }
+        }
+
+        /**
+         * @return the optimal time the SpoolRepository.accept(AcceptFilter) method should wait before
+         * trying to find a mail ready for processing again.
+         **/
+        public long getWaitTime () {
+            if (youngest == 0) {
+                return 0;
+            } else {
+                long duration = youngest - System.currentTimeMillis();
+                youngest = 0; //get ready for next run
+                return duration <= 0 ? 1 : duration;
+            }
+        }
+    }
 
     /**
      * Controls certain log messages
@@ -129,7 +233,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private boolean isDebug = false;
 
     private SpoolRepository outgoing; // The spool of outgoing mail
-    private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
+    private long[] delayTimes; //holds expanded delayTimes
     private int maxRetries = 5; // default number of retries
     private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
     private boolean sendPartial = false; // If false then ANY address errors will cause the transmission to fail
@@ -145,14 +249,28 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private MailServer mailServer;
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
+    private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
+    private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
+    
     /**
      * Initialize the mailet
      */
     public void init() throws MessagingException {
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
+        ArrayList delay_times_list = new ArrayList();
         try {
             if (getInitParameter("delayTime") != null) {
-                delayTime = Long.parseLong(getInitParameter("delayTime"));
+                delayTimeMatcher = new Perl5Matcher();
+                String delay_times = getInitParameter("delayTime");
+                //split on comma's
+                StringTokenizer st = new StringTokenizer (delay_times,",");
+                while (st.hasMoreTokens()) {
+                    String delay_time = st.nextToken();
+                    delay_times_list.add (new Delay(delay_time));
+                }
+            } else {
+                //use default delayTime.
+                delay_times_list.add (new Delay());
             }
         } catch (Exception e) {
             log("Invalid delayTime setting: " + getInitParameter("delayTime"));
@@ -161,8 +279,30 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (getInitParameter("maxRetries") != null) {
                 maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
             }
+            //check consistency with delay_times_list attempts
+            int total_attempts = calcTotalAttempts (delay_times_list);
+            if (total_attempts > maxRetries) {
+                log("Total number of delayTime attempts exceeds maxRetries specified. Increasing maxRetries from "+maxRetries+" to "+total_attempts);
+                maxRetries = total_attempts;
+            } else {
+                int extra = maxRetries - total_attempts;
+                if (extra != 0) {
+                    log("maxRetries is larger than total number of attempts specified. Increasing last delayTime with "+extra+" attempts ");
+
+                    if (delay_times_list.size() != 0) { 
+                        Delay delay = (Delay)delay_times_list.get (delay_times_list.size()-1); //last Delay
+                        delay.setAttempts (delay.getAttempts()+extra);
+                        log("Delay of "+delay.getDelayTime()+" msecs is now attempted: "+delay.getAttempts()+" times");
+                    } else {
+                        log ("NO, delaytimes cannot continue");
+                    }
+                }
+            }
+            delayTimes = expandDelays (delay_times_list);
+            
         } catch (Exception e) {
             log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
+            e.printStackTrace();
         }
         try {
             if (getInitParameter("timeout") != null) {
@@ -778,7 +918,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             while (!Thread.currentThread().interrupted() && !destroyed) {
                 try {
-                    String key = outgoing.accept(delayTime);
+                    MailImpl mail = (MailImpl)outgoing.accept(delayFilter);
+                    String key = mail.getName();
                     try {
                         if (isDebug) {
                             StringBuffer logMessageBuffer =
@@ -787,12 +928,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                         .append(" will process mail ")
                                         .append(key);
                             log(logMessageBuffer.toString());
-                        }
-                        MailImpl mail = outgoing.retrieve(key);
-                        // Retrieve can return null if the mail is no longer on the outgoing spool.
-                        // In this case we simply continue to the next key
-                        if (mail == null) {
-                            continue;
                         }
                         if (deliver(mail, session)) {
                             //Message was successfully delivered/fully failed... delete it
@@ -818,4 +953,144 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             Thread.currentThread().interrupted();
         }
     }
+
+    /**
+     * @param list holding Delay objects
+     * @return the total attempts for all delays
+     **/
+    private int calcTotalAttempts (ArrayList list) {
+        int sum = 0;
+        Iterator i = list.iterator();
+        while (i.hasNext()) {
+            Delay delay = (Delay)i.next();
+            sum += delay.getAttempts();
+        }
+        return sum;
+    }
+    
+    /**
+     * This method expands an ArrayList containing Delay objects into an array holding the
+     * only delaytime in the order.<p>
+     * So if the list has 2 Delay objects the first having attempts=2 and delaytime 4000
+     * the second having attempts=1 and delaytime=300000 will be expanded into this array:<p>
+     * long[0] = 4000<p>
+     * long[1] = 4000<p>
+     * long[2] = 300000<p>
+     * @param list the list to expand
+     * @return the expanded list
+     **/
+    private long[] expandDelays (ArrayList list) {
+        long[] delays = new long [calcTotalAttempts(list)];
+        Iterator i = list.iterator();
+        int idx = 0;
+        while (i.hasNext()) {
+            Delay delay = (Delay)i.next();
+            for (int j=0; j<delay.getAttempts(); j++) {
+                delays[idx++]= delay.getDelayTime();
+            }            
+        }
+        return delays;
+    }
+    
+    /**
+     * This method returns, given a retry-count, the next delay time to use.
+     * @param retry_count the current retry_count.
+     * @return the next delay time to use, given the retry count
+     **/
+    private long getNextDelay (int retry_count) {
+        return delayTimes[retry_count-1];
+    }
+
+    /**
+     * This class is used to hold a delay time and its corresponding number
+     * of retries.
+     **/
+    private class Delay {
+        private int attempts = 1;
+        private long delayTime = DEFAULT_DELAY_TIME;
+        
+            
+        /**
+         * This constructor expects Strings of the form "[attempt\*]delaytime[unit]". <p>
+         * The optional attempt is the number of tries this delay should be used (default = 1)
+         * The unit if present must be one of (msec,sec,minute,hour,day) (default = msec)
+         * The constructor multiplies the delaytime by the relevant multiplier for the unit,
+         * so the delayTime instance variable is always in msec.
+         * @param init_string the string to initialize this Delay object from
+         **/
+        public Delay (String init_string) throws MessagingException
+        {
+            String unit = "msec"; //default unit
+            if (delayTimeMatcher.matches (init_string, PATTERN)) {
+                MatchResult res = delayTimeMatcher.getMatch ();
+                //the capturing groups will now hold
+                //at 1:  attempts * (if present)
+                //at 2:  delaytime
+                //at 3:  unit (if present)
+                
+                if (res.group(1) != null && !res.group(1).equals ("")) {
+                    //we have an attempt *
+                    String attempt_match = res.group(1);
+                    //strip the * and whitespace
+                    attempt_match = attempt_match.substring (0,attempt_match.length()-1).trim();
+                    attempts = Integer.parseInt (attempt_match);
+                }
+                
+                delayTime = Long.parseLong (res.group(2));
+                
+                if (!res.group(3).equals ("")) {
+                    //we have a unit
+                    unit = res.group(3).toLowerCase();
+                }
+            } else {
+                throw new MessagingException(init_string+" does not match "+PATTERN_STRING);
+            }
+            if (MULTIPLIERS.get (unit)!=null) {
+                int multiplier = ((Integer)MULTIPLIERS.get (unit)).intValue();
+                delayTime *= multiplier;
+            } else {
+                throw new MessagingException("Unknown unit: "+unit);
+            }
+        }
+
+        /**
+         * This constructor makes a default Delay object, ie. attempts=1 and delayTime=DEFAULT_DELAY_TIME
+         **/
+        public Delay () {
+        }
+
+        /**
+         * @return the delayTime for this Delay
+         **/
+        public long getDelayTime () {
+            return delayTime;
+        }
+
+        /**
+         * @return the number attempts this Delay should be used.
+         **/
+        public int getAttempts () {
+            return attempts;
+        }
+        
+        /**
+         * Set the number attempts this Delay should be used.
+         **/
+        public void setAttempts (int value) {
+            attempts = value;
+        }
+        
+        /**
+         * Pretty prints this Delay 
+         **/
+        public String toString () {
+            StringBuffer buf = new StringBuffer(15);
+            buf.append (getAttempts ());
+            buf.append ('*');
+            buf.append (getDelayTime());
+            buf.append ("msec");
+            return buf.toString();
+        }
+    }
+    
 }

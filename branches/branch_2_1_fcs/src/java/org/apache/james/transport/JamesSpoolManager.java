@@ -88,7 +88,7 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.20.4.11 $ $Date: 2003/10/20 08:18:29 $
+ * @version CVS $Revision: 1.20.4.12 $ $Date: 2003/11/16 21:47:24 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -350,14 +350,8 @@ public class JamesSpoolManager
         while(true) {
             String key = null;
             try {
-                key = spool.accept();
-                MailImpl mail = spool.retrieve(key);
-                // Retrieve can return null if the mail is no longer on the spool
-                // (i.e. another thread has gotten to it first).
-                // In this case we simply continue to the next key
-                if (mail == null) {
-                    continue;
-                }
+                MailImpl mail = (MailImpl)spool.accept();
+                key = mail.getName();
                 if (getLogger().isDebugEnabled()) {
                     StringBuffer debugBuffer =
                         new StringBuffer(64)
