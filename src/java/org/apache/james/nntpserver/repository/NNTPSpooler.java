@@ -72,9 +72,11 @@ import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.Lock;
 
 import javax.mail.internet.MimeMessage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -311,6 +313,21 @@ class NNTPSpooler extends AbstractLogEnabled
                     IOUtil.shutdownStream(fin);
                 }
 
+                String lineCount = null;
+                String[] lineCountHeader = msg.getHeader("Lines");
+                if (lineCountHeader == null || lineCountHeader.length == 0) {
+                    BufferedReader rdr = new BufferedReader(new InputStreamReader(msg.getDataHandler().getInputStream()));
+                    int lines = 0;
+                    while (rdr.readLine() != null) {
+                        lines++;
+                    }
+
+                    lineCount = Integer.toString(lines);
+                    rdr.close();
+
+                    msg.setHeader("Lines", lineCount);
+                }
+
                 // ensure no duplicates exist.
                 String[] idheader = msg.getHeader("Message-Id");
                 articleID = ((idheader != null && (idheader.length > 0))? idheader[0] : null);
@@ -320,9 +337,11 @@ class NNTPSpooler extends AbstractLogEnabled
                         getLogger().error("Could not delete duplicate message from spool: " + spoolFile.getAbsolutePath());
                     return;
                 }
-                if ( articleID == null ) {
-                    articleID = articleIDRepo.generateArticleID();
-                    msg.setHeader("Message-Id", articleID);
+                if ( articleID == null || lineCount != null) {
+                    if (articleID == null) {
+                        articleID = articleIDRepo.generateArticleID();
+                        msg.setHeader("Message-Id", articleID);
+                    }
                     FileOutputStream fout = new FileOutputStream(spoolFile);
                     try {
                         msg.writeTo(fout);
