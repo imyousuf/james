@@ -9,8 +9,6 @@ package org.apache.james.services;
 
 import java.util.Iterator;
 
-import org.apache.avalon.phoenix.Service;
-
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore
  * contains one or more UserRepositories. Multiple UserRepositories may or may
@@ -20,10 +18,9 @@ import org.apache.avalon.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface UsersStore 
-    extends Service {
+public interface UsersStore {
 
-    String ROLE = "org.apache.james.services.UsersStore";
+    String ROLE = UsersStore.class.getName();
 
     UsersRepository getRepository( String name );
 
