@@ -7,5 +7,6 @@ if [ "$JAVA_HOME" = "" ] ; then
   echo "location of the Java Virtual Machine you want to use."
   exit 1
 fi
+JAMES_CLASSPATH=avalon-loader.jar:../lib/xerces.jar:../lib/mail_1_1_3.jar:../lib/activation.jar:../lib/dnsjava.jar:../lib/town.jar
 
-$JAVA_HOME/bin/java $AVALON_JVM_FLAGS -jar avalon-loader.jar $*
+$JAVA_HOME/bin/java -cp $CLASSPATH:$JAMES_CLASSPATH $AVALON_JVM_FLAGS AvalonLoader $*

@@ -60,7 +60,7 @@ public class AvalonMailRepository implements SpoolRepository, Configurable, Comp
     public void configure(Configuration conf) throws ConfigurationException {
 	destination = conf.getAttribute("destinationURL");
 	String checkType = conf.getAttribute("type");
-	if (checkType != TYPE) {
+	if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
 	    logger.warn("Attempt to configure AvalonMailRepository as "
 			+ checkType);
 	    throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
@@ -73,12 +73,12 @@ public class AvalonMailRepository implements SpoolRepository, Configurable, Comp
 	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
-		= new DefaultConfiguration("repository");
+		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
 	    objConf.addAttribute("destinationURL", destination);
 	    objConf.addAttribute("type", "OBJECT");
 	    objConf.addAttribute("model", "SYNCHRONOUS");
 	    DefaultConfiguration strConf
-		= new DefaultConfiguration("repository");
+		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
 	    strConf.addAttribute("destinationURL", destination);
 	    strConf.addAttribute("type", "STREAM");
 	    strConf.addAttribute("model", "SYNCHRONOUS");
@@ -99,7 +99,7 @@ public class AvalonMailRepository implements SpoolRepository, Configurable, Comp
     public Store.Repository getChildRepository(String childName) {
 	String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
 	//prepare Configurations for object and stream repositories
-	DefaultConfiguration childConf = new DefaultConfiguration("repository");
+	DefaultConfiguration childConf = new DefaultConfiguration("repository", "generated:AvalonFileRepository.getChildRepository()");
 	childConf.addAttribute("destinationURL", childDestination);
 	childConf.addAttribute("type", "MAIL");
 	childConf.addAttribute("model", "SYNCHRONOUS");

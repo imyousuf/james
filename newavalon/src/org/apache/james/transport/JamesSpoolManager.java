@@ -55,7 +55,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     public void init() throws Exception {
 
         logger.info("JamesSpoolManager init...");
-        spool = (SpoolRepository) compMgr.lookup("org.apache.james.SpoolRepository");
+        spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
         mailetcontext = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
 	MailetLoader mailetLoader = new MailetLoader();
 	MatchLoader matchLoader = new MatchLoader();

@@ -13,11 +13,11 @@ import java.util.*;
 import java.net.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.Store;
 
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.transport.*;
 import org.apache.mailet.*;
@@ -65,15 +65,15 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
 	try {
 	    // Instantiate the a MailRepository for outgoing mails
-	    Store store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	    
 	    DefaultConfiguration spoolConf
-		= new DefaultConfiguration("repository");
+		= new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
 	    spoolConf.addAttribute("destinationURL", outgoingPath);
 	    spoolConf.addAttribute("type", "SPOOL");
 	    spoolConf.addAttribute("model", "SYNCHRONOUS");
 	    
-	    outgoing = (SpoolRepository) store.select(spoolConf);
+	    outgoing = (SpoolRepository) mailstore.select(spoolConf);
     	} catch (ComponentNotFoundException cnfe) {
 	    log("Failed to retrieve Store component:" + cnfe.getMessage());
 	} catch (ComponentNotAccessibleException cnae) {

@@ -12,10 +12,10 @@ package org.apache.james.transport.mailets;
 import java.util.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.Store;
 
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.services.MailStore;
 import org.apache.james.services.MailRepository;
 import org.apache.james.transport.*;
 
@@ -43,14 +43,14 @@ public class ToRepository extends GenericMailet {
 
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 	try {
-	    Store store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	    DefaultConfiguration mailConf
-		= new DefaultConfiguration("repository");
+		= new DefaultConfiguration("repository", "generated:ToRepository");
 	    mailConf.addAttribute("destinationURL", repositoryPath);
 	    mailConf.addAttribute("type", "MAIL");
 	    mailConf.addAttribute("model", "SYNCHRONOUS");
 	    
-	    repository = (MailRepository) store.select(mailConf);
+	    repository = (MailRepository) mailstore.select(mailConf);
 	} catch (ComponentNotFoundException cnfe) {
 	    log("Failed to retrieve Store component:" + cnfe.getMessage());
 	} catch (ComponentNotAccessibleException cnae) {
