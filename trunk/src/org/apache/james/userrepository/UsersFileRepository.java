@@ -14,6 +14,7 @@ import org.apache.avalon.Component;
 import org.apache.avalon.ComponentManager;
 import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.Composer;
+import org.apache.avalon.Initializable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
@@ -38,7 +39,8 @@ import org.apache.james.services.UsersRepository;
  */
 public class UsersFileRepository 
     extends AbstractLoggable
-    implements UsersRepository, Component, Configurable, Composer {
+    implements UsersRepository, Component, Configurable, Composer, 
+               Initializable {
 
     private static final String TYPE = "USERS";
 

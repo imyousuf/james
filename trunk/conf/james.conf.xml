@@ -2,58 +2,15 @@
 <!--
                                 README!
 
-    REQUIRED
+    This configuration file is designed to run without alteration, for simple tests.
+    It assumes you have a DNS server on localhost and assigns a root pasword of root.
 
-    Please fill the DNSservers.server tag with the value of your DNS.
+    For production use, or in case the defaults do not suit you, the items you are most
+    likely to need to change are preceeded by a CHECKME! or CONFIRM? comment in the left
+    margin.
 
-    <dnsServer>
-        <servers>
-            <server> [hear goes your dns] </server>
-        </servers>
-    </dnsServer>
-
-    You can set as many dns as you want.
-
-    OPTIONAL, but very important
-
-    You should probably fill in the following settings:
-
-    <postmaster> [the email address to use as your postmaster] </postmaster>
-
-    <servernames>
-        <servername> [a domain name for this server to handle] </servername>
-        <servername> [another domain name to handle] </servername>
-    </servernames>
-
-    <account login="root" password="[my password]"/>
-    Note that you cannot leave a blank password.  If the password is blank, 
-    the admin account is disabled.
-
-    Anti-relay mailet: Add your network address here, 
-    e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
-
-    <processor name="transport"> 
-        <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
-                      
-
-    OPTIONAL, and interesting
-
-    For TLS support on POP3 or RemoteManager, enable the TLS Listener in 
-    AVALON.conf.xml, then uncomment the <useTLS>TRUE</useTLS> elements for the 
-    appropriate protocol/ service. Please check docs/usingTLS.html for requirements.
-
-
-    For LDAP support for users, change the  <userRepository> element from:
-    <userRepository>file://var/users/ </userRepository> to: 
-    <userRepository>ldap </userRepository>
-    
-    then set the parameteers for your LDAP server.  Please check docs/usingLDAP.html 
-    for requirements.
-
-    !!TODO!
-   
-    - Quickly mention where to look to configure for database storage
 -->
+
 <avalon>
 
 
@@ -73,6 +30,8 @@
     <!-- Configuration section begins here -->
     <!-- Note trailing file searator in destinationURL for repositories -->
     <configuration>
+
+<!-- CHECKME! Set this to the right email address for error reports -->
       <postmaster> Postmaster@localhost </postmaster>
 
       <!-- helloName is the single host name this instance of James will use to
@@ -82,6 +41,7 @@
       OR 'localhost' -->
       <helloName autodetect="TRUE">myMailServer</helloName>
 
+<!-- CONFIRM? -->
       <!-- servernames identifies the DNS namespace served by this instance of James.
       If autodetect is TRUE, James wil attempt to discover its own name AND use
       any specified servernames.  If autodetect is FALSE, James will use only
@@ -191,6 +151,7 @@
         </imaphandler>
       </imapServer>
 
+<!-- CHECKME! Change the default password! -->
       <remoteManager>
         <port>4555</port>
         <!-- <bind>  </bind> uncomment this if you want to bind to a specific inetaddress -->
@@ -198,15 +159,16 @@
         <administrator_accounts>
           <!-- FILL ME!!!!!!  You must provide a password for youradministrator 
           accounts (cannot be blank) -->
-          <account login="root" password="@@PASSWD@@"/>
+          <account login="root" password="root"/>
         </administrator_accounts>
         <connectiontimeout> 60000 </connectiontimeout>
       </remoteManager>
 
+<!-- CONFIRM? Enter ip address of your DNS server, one per element -->
       <dnsServer>
         <servers>
-          <server>@@DNS@@</server>
-          <!--<server> FILL ME!!!! </server>-->
+          <server>127.0.0.1</server>
+          <!--<server> put extra dns server address here </server>-->
         </servers>
         <authoritative>false</authoritative>
       </dnsServer>
@@ -307,6 +269,11 @@
           <mailet match="HostIsLocal" class="ToProcessor">
             <processor>error</processor>
           </mailet>
+
+<!-- CHECKME! 
+    Anti-relay mailet: Add your network address here, 
+    e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
+-->
 
           <!-- This matcher-mailet pair can prevent relaying... if you change this, 
           you risk making your mail server an open relay point for spammers .

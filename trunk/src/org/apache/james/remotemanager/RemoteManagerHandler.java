@@ -24,6 +24,7 @@ import org.apache.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -35,11 +36,13 @@ import org.apache.james.services.UsersRepository;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
+ *
  */
 public class RemoteManagerHandler 
     extends AbstractLoggable
     implements ConnectionHandler, Composer, Configurable, Target {
 
+    private UsersStore usersStore;
     private UsersRepository users;
     private TimeScheduler scheduler;
     private MailServer mailServer;
@@ -71,8 +74,9 @@ public class RemoteManagerHandler
             lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
-        users = (UsersRepository)componentManager.
-            lookup( "org.apache.james.services.UsersRepository" );
+	usersStore = (UsersStore)componentManager.
+	    lookup( "org.apache.james.services.UsersStore" );
+        users = usersStore.getRepository("LocalUsers");;
     }
 
     /**
