@@ -34,8 +34,8 @@ public class POP3Hammering {
             Session session = Session.getDefaultInstance(prop, null);
             // Transport transport = session.getTransport("smtp");
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress("prasanna@localhost"));
-            msg.addRecipient(Message.RecipientType.TO, new InternetAddress("prasanna@localhost"));
+            msg.setFrom(new InternetAddress(user + "@localhost"));
+            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user + "@localhost"));
             msg.setContent(body + ++iter, "text/plain");
             Transport.send(msg);
             // transport.close();
