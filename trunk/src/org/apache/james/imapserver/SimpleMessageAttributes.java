@@ -504,7 +504,7 @@ public class SimpleMessageAttributes implements MessageAttributes, Serializable 
 	    buf.append(LB);
 	    Iterator it = parameters.iterator();
 	    while(it.hasNext()) {
-		buf.append(LB + (String)it.next() + RB);
+		buf.append((String)it.next());
 	    }
 	    buf.append(RB);
 	}
@@ -512,19 +512,19 @@ public class SimpleMessageAttributes implements MessageAttributes, Serializable 
 	if(contentID == null) {
 	    buf.append(NIL);
 	} else {
-	    buf.append(contentID);
+	    buf.append(Q + contentID + Q);
 	}
 	buf.append(SP);
 	if(contentDesc == null) {
 	    buf.append(NIL);
 	} else {
-	    buf.append(contentDesc);
+	    buf.append(Q + contentDesc + Q);
 	}
 	buf.append(SP);
 	if(contentEncoding == null) {
 	    buf.append(NIL);
 	} else {
-	    buf.append(contentEncoding);
+	    buf.append(Q + contentEncoding + Q);
 	}
 	buf.append(SP);
 	buf.append(size);
