@@ -25,6 +25,7 @@ import org.apache.mailet.MailAddress;
 
 import javax.mail.Header;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetHeaders;
 
@@ -53,45 +54,43 @@ public class LocalDelivery extends GenericMailet {
 
         MimeMessage message = mail.getMessage();
 
-        // Create an InternetHeader collection with only our Return-Path
-        // header.  The InternetHeader() constructor creates an
-        // InternetHeader instance with invisible placehoders for
-        // various headers.
-        InternetHeaders newHeaders = new InternetHeaders(new java.io.ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": " + (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">\r\n")).getBytes()));
-        // Remove all Return-Path headers from the message
-        message.removeHeader(RFC2822Headers.RETURN_PATH);
-        // Copy all remaining header lines from the message to our new header set
-        Enumeration headers = message.getAllHeaderLines();
-        while (headers.hasMoreElements()) {
-            newHeaders.addHeaderLine((String) headers.nextElement());
+        // Set Return-Path and remove all other Return-Path headers from the message
+        // This only works because there is a placeholder inserted by MimeMessageWrapper
+        message.setHeader(RFC2822Headers.RETURN_PATH, (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">"));
+
+/*
+        if(message.getMessageID() == null) {
+            MimeMessage midMsg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
+            midMsg.saveChanges();
+            message.addHeaderLine("Message-ID: " + midMsg.getMessageID());
         }
-        // Remember all Header names
-        headers = message.getAllHeaders();
-        ArrayList names = new ArrayList();
+*/
+        // Copy any Delivered-To headers from the message
+        InternetHeaders deliveredTo = new InternetHeaders();
+        Enumeration headers = message.getMatchingHeaders(new String[] {"Delivered-To"});
         while (headers.hasMoreElements()) {
-            names.add(((Header)headers.nextElement()).getName());
+            Header header = (Header) headers.nextElement();
+            deliveredTo.addHeader(header.getName(), header.getValue());
         }
-        final String[] headerNames = (String[]) names.toArray(new String[0]);
-        names = null;
 
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                // Remove all headers
-                for(int h = 0; h < headerNames.length; h++) {
-                    message.removeHeader(headerNames[h]);
-                }
-
-                // Copy our new header set to the message
-                headers = newHeaders.getAllHeaderLines();
-                while (headers.hasMoreElements()) {
-                    message.addHeaderLine((String) headers.nextElement());
-                }
-
                 // Add qmail's de facto standard Delivered-To header
-                message.addHeaderLine("Delivered-To: " + recipient.toString());
+                message.addHeader("Delivered-To", recipient.toString());
 
                 getMailetContext().storeMail(mail.getSender(), recipient, message);
+
+                if (i.hasNext()) {
+                    // Remove headers but leave all placeholders
+                    message.removeHeader("Delivered-To");
+                    headers = deliveredTo.getAllHeaders();
+                    // And restore any original Delivered-To headers
+                    while (headers.hasMoreElements()) {
+                        Header header = (Header) headers.nextElement();
+                        message.addHeader(header.getName(), header.getValue());
+                    }
+                }
             } catch (Exception ex) {
                 getMailetContext().log("Error while storing mail.", ex);
                 errors.add(recipient);

@@ -103,6 +103,13 @@ public class MimeMessageWrapper
         return source.getSourceId();
     }
 
+    private synchronized MailHeaders loadHeaders(InputStream is) throws MessagingException {
+        headers = new MailHeaders(new ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": placeholder").getBytes()));
+        headers.setHeader(RFC2822Headers.RETURN_PATH, null);
+        headers.load(is);
+        return headers;
+    }
+
     /**
      * Load the message headers from the internal source.
      *
@@ -117,7 +124,7 @@ public class MimeMessageWrapper
         try {
             InputStream in = source.getInputStream();
             try {
-                headers = new MailHeaders(in);
+                headers = loadHeaders(in);
             } finally {
                 IOUtil.shutdownStream(in);
             }
@@ -140,7 +147,7 @@ public class MimeMessageWrapper
         InputStream in = null;
         try {
             in = source.getInputStream();
-            headers = new MailHeaders(in);
+            headers = loadHeaders(in);
 
             ByteArrayInputStream headersIn
                     = new ByteArrayInputStream(headers.toByteArray());
