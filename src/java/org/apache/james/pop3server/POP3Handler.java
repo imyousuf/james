@@ -110,7 +110,7 @@ public class POP3Handler
      * @exception ProtocolException if an error handling connection occurs
      */
     public void handleConnection( Socket connection )
-        throws IOException {
+            throws IOException {
 
         try {
             this.socket = connection;
@@ -254,7 +254,7 @@ public class POP3Handler
                 for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                     MailImpl mc = (MailImpl) e.nextElement();
                     if (mc != DELETED) {
-                        size += mc.getSize();
+                        size += mc.getMessageSize();
                         count++;
                     }
                 }
@@ -275,7 +275,7 @@ public class POP3Handler
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                         MailImpl mc = (MailImpl) e.nextElement();
                         if (mc != DELETED) {
-                            size += mc.getSize();
+                            size += mc.getMessageSize();
                             count++;
                         }
                     }
@@ -284,7 +284,7 @@ public class POP3Handler
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
                         MailImpl mc = (MailImpl) e.nextElement();
                         if (mc != DELETED) {
-                            out.println(count + " " + mc.getSize());
+                            out.println(count + " " + mc.getMessageSize());
                         }
                     }
                     out.println(".");
@@ -297,7 +297,7 @@ public class POP3Handler
                     num = Integer.parseInt(argument);
                     MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                     if (mc != DELETED) {
-                        out.println(OK_RESPONSE + " " + num + " " + mc.getSize());
+                        out.println(OK_RESPONSE + " " + num + " " + mc.getMessageSize());
                     } else {
                         out.println(ERR_RESPONSE + " Message (" + num + ") does not exist.");
                     }

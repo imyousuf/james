@@ -32,32 +32,32 @@ import java.io.OutputStream;
 public class MimeMessageInputStreamSource extends MimeMessageSource {
 
     String key = null;
-	InputStream in = null;
+    InputStream in = null;
     File file = null;
 
     //If you try to access this size first, it will load it into a temp file
     //  and work from there.
 
-	public MimeMessageInputStreamSource(String key, InputStream in) {
+    public MimeMessageInputStreamSource(String key, InputStream in) {
         this.key = key;
-		this.in = in;
-	}
+        this.in = in;
+    }
 
-	/**
-	 * Return an input stream to the data
-	 */
+    /**
+     * Return an input stream to the data
+     */
     public synchronized InputStream getInputStream() throws IOException {
         if (file == null) {
             return in;
         } else {
             return new BufferedInputStream(new FileInputStream(file));
         }
-	}
+    }
 
     /**
      * If not already, read the stream into a temp file
      */
-    public synchronized long getSize() throws IOException {
+    public synchronized long getMessageSize() throws IOException {
         if (file == null) {
             //Create a temp file and channel the input stream into it
             file = File.createTempFile(key, ".m64");
