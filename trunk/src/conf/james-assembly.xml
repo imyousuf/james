@@ -99,11 +99,6 @@
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
   </block>
 
-  <!-- NNTP Authentication Service -->
-  <block name="nntpauth" class="org.apache.james.nntpserver.AuthServiceImpl" >
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-  </block>
-
   <!-- NNTP Repository -->
   <block name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
 
@@ -142,7 +137,7 @@
 
   <!-- The Connection Manager block -->
   <block name="connections"
-         class="org.apache.avalon.cornerstone.blocks.connection.DefaultConnectionManager" >
+         class="org.apache.james.util.connection.SimpleConnectionManager" >
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
