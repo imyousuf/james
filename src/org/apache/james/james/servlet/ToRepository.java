@@ -8,7 +8,6 @@
 
 package org.apache.james.james.servlet;
 
-import java.io.*;
 import java.util.*;
 import org.apache.arch.*;
 import org.apache.james.*;
@@ -16,7 +15,7 @@ import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
 
 /**
- * Stores incoming MessageContainer in the specified Repository. 
+ * Stores incoming Mail in the specified Repository. 
  * If the "passThrough" in confs is true the mail will be returned untouched in 
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
@@ -24,7 +23,7 @@ import org.apache.mail.*;
  */
 public class ToRepository extends GenericMailServlet {
 
-    private MessageContainerRepository repository;
+    private MailRepository repository;
     private boolean passThrough;
     private String repositoryPath;
 
@@ -33,17 +32,14 @@ public class ToRepository extends GenericMailServlet {
         repositoryPath = getConfiguration("repositoryPath").getValue();
         passThrough = getConfiguration("passThrough", "false").getValueAsBoolean();
         Store store = (Store) comp.getComponent(Interfaces.STORE);
-        repository = (MessageContainerRepository) store.getPrivateRepository(repositoryPath, MessageContainerRepository.MESSAGE_CONTAINER, Store.ASYNCHRONOUS);
+        repository = (MailRepository) store.getPrivateRepository(repositoryPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
     }
     
-    public MessageContainer service(MessageContainer mc) {
-        log("Storing mail " + mc.getMessageId() + " in " + repositoryPath);
-        repository.store(mc.getMessageId(), mc);
-        if (passThrough) return mc;
-        else return (MessageContainer) null;
-    }
-
-    public void destroy() {
+    public Mail service(Mail mail) {
+        log("Storing mail " + mail.getName() + " in " + repositoryPath);
+        repository.store(mail);
+        if (passThrough) return mail;
+        else return (Mail) null;
     }
 
     public String getServletInfo() {

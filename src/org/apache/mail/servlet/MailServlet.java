@@ -10,10 +10,6 @@ package org.apache.mail.servlet;
 
 import org.apache.arch.*;
 import org.apache.mail.*;
-import org.apache.avalon.blocks.*;
-import javax.mail.internet.MimeMessage;
-import java.util.*;
-import org.apache.james.MessageContainerRepository;
 
 /**
  * Draft of a MailServlet inteface.
@@ -26,7 +22,7 @@ import org.apache.james.MessageContainerRepository;
  */
 public interface MailServlet extends Configurable, Service {
 
-    public MessageContainer service(MessageContainer mc);
+    public Mail service(Mail mail);
     
     public String getServletInfo();
 }

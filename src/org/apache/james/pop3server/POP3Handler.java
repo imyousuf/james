@@ -18,7 +18,7 @@ import org.apache.java.util.*;
 import org.apache.arch.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
-import org.apache.mail.MessageContainer;
+import org.apache.mail.Mail;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
@@ -30,7 +30,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private Configuration conf;
     private Logger logger;
     private MailServer mailServer;
-    private MessageContainerRepository userInbox;
+    private MailRepository userInbox;
     private Store.ObjectRepository userRepository;
     private TimeServer timeServer;
 
@@ -46,7 +46,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private String user;
     private Vector userMailbox;
     private Vector backupUserMailbox;
-    private static final MessageContainer DELETED = new MessageContainer();
+    private static final Mail DELETED = new Mail();
     
     private static int AUTHENTICATION_READY = 0;
     private static int AUTHENTICATION_USERSET = 1;
@@ -108,7 +108,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 timeServer.resetAlarm(this.toString());
             }
             socket.close();
-            timeServer.removeAlarm("RemoteManager");
+            timeServer.removeAlarm(this.toString());
             logger.log("Connection closed", "POP3Server", logger.INFO);
 
         } catch (Exception e) {
@@ -175,7 +175,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 int count = 0;
                 try {
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
-                        MessageContainer mc = (MessageContainer) e.nextElement();
+                        Mail mc = (Mail) e.nextElement();
                         if (mc != DELETED) {
                             size += mc.getMessage().getSize();
                             count++;
@@ -196,7 +196,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     int count = 0;
                     try {
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
-                            MessageContainer mc = (MessageContainer) e.nextElement();
+                            Mail mc = (Mail) e.nextElement();
                             if (mc != DELETED) {
                                 size += mc.getMessage().getSize();
                                 count++;
@@ -205,7 +205,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         out.println("+OK " + count + " " + size);
                         count = 0;
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
-                            MessageContainer mc = (MessageContainer) e.nextElement();
+                            Mail mc = (Mail) e.nextElement();
                             if (mc != DELETED) {
                                 out.println(count + " " + mc.getMessage().getSize());
                             }
@@ -218,7 +218,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     int num = 0;
                     try {
                         num = Integer.parseInt(argument);
-                        MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
+                        Mail mc = (Mail) userMailbox.elementAt(num);
                         if (mc != DELETED) {
                             out.println("+OK " + num + " " + mc.getMessage().getSize());
                         } else {
@@ -242,9 +242,9 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     out.println("+OK unique-id listing follows");
                     int count = 0;
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
-                        MessageContainer mc = (MessageContainer) e.nextElement();
+                        Mail mc = (Mail) e.nextElement();
                         if (mc != DELETED) {
-                            out.println(count + " " + mc.getMessageId());
+                            out.println(count + " " + mc.getName());
                         }
                     }
                     out.println(".");                    
@@ -252,9 +252,9 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     int num = 0;
                     try {
                         num = Integer.parseInt(argument);
-                        MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
+                        Mail mc = (Mail) userMailbox.elementAt(num);
                         if (mc != DELETED) {
-                            out.println("+OK " + num + " " + mc.getMessageId());
+                            out.println("+OK " + num + " " + mc.getName());
                         } else {
                             out.println("-ERR. Message (" + num + ") does not exist.");
                         }
@@ -309,10 +309,10 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 }
 //?May be written as return parseCommand("TOP " + num + " " + Integer.MAX_VALUE);?
                 try {
-                    MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
+                    Mail mc = (Mail) userMailbox.elementAt(num);
                     if (mc != DELETED) {
                         out.println("+OK Message follows");
-                        mc.getMessage().writeTo(outs);
+                        mc.writeMessageTo(outs);
                     } else {
                         out.println("-ERR. Message (" + num + ") deleted.");
                     }
@@ -340,7 +340,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     return true;
                 }
                 try {
-                    MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
+                    Mail mc = (Mail) userMailbox.elementAt(num);
                     if (mc != DELETED) {
                         out.println("+OK Message follows");
                         for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
@@ -367,22 +367,16 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
                 return false;
             }
-            Vector toBeRemoved = new Vector();
-            for (Enumeration e = backupUserMailbox.elements(); e.hasMoreElements(); ) {
-                Object mail = e.nextElement();
-                if (!userMailbox.contains(mail)) {
-                    toBeRemoved.addElement(mail);
-                }
-            }
+            Vector toBeRemoved = VectorUtils.subtract(backupUserMailbox, userMailbox);
             try {
                 for (Enumeration e = toBeRemoved.elements(); e.hasMoreElements(); ) {
-                    MessageContainer mc = (MessageContainer) e.nextElement();
-                    userInbox.remove(mc.getMessageId());
+                    Mail mc = (Mail) e.nextElement();
+                    userInbox.remove(mc.getName());
                 }
                 out.println("+OK. Apache James POP3 Server signinig off.");
             } catch (Exception ex) {
-                ex.printStackTrace();
-                out.println("-ERR. Some deleted messages were not removed.");
+                out.println("-ERR. Some deleted messages were not removed");
+                logger.log("Some deleted messages were not removed: " + ex.getMessage(), "POP3Server", logger.ERROR);
             }
             return false;
         } else {
@@ -406,7 +400,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         userMailbox.addElement(DELETED);
         for (Enumeration e = userInbox.list(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
-            MessageContainer mc = userInbox.retrieve(key);
+            Mail mc = userInbox.retrieve(key);
             userMailbox.addElement(mc);
         }
         backupUserMailbox = (Vector) userMailbox.clone();

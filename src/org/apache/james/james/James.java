@@ -12,13 +12,12 @@ import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
 import org.apache.arch.*;
 import org.apache.james.*;
+import org.apache.mail.Mail;
 import java.net.*;
 import java.io.*;
 import javax.mail.internet.*;
 import javax.mail.Session;
-import java.util.Date;
 import java.util.*;
-import org.apache.mail.MessageContainer;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -33,12 +32,11 @@ public class James implements MailServer, Block {
     private Logger logger;
     private ThreadManager threadManager;
     private Store store;
-    private MessageContainerRepository spool;
-    private MessageContainerRepository localInbox;
+    private MailRepository spool;
+    private MailRepository localInbox;
     private Store.Repository mailUsers;
     private String mailboxName;
     private static long count;
-    private String serverName;
     
     public James() {
     }
@@ -69,14 +67,13 @@ public class James implements MailServer, Block {
             }
         }
         serverNames.addElement("localhost");
-        serverName = (String) serverNames.elementAt(1);
         context.put(Constants.SERVER_NAMES, serverNames);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
 
         try {
             this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
-            this.localInbox = (MessageContainerRepository) store.getPublicRepository(mailboxName);
+            this.localInbox = (MailRepository) store.getPublicRepository(mailboxName);
         } catch (RuntimeException e) {
             logger.log("Cannot open public Repository LocalInbox", "JAMES", logger.ERROR);
             throw e;
@@ -98,12 +95,12 @@ public class James implements MailServer, Block {
 
         String spoolRepository = conf.getConfiguration("spoolRepository", ".").getValue();
         try {
-            this.spool = (MessageContainerRepository) store.getPrivateRepository(spoolRepository, MessageContainerRepository.MESSAGE_CONTAINER, Store.ASYNCHRONOUS);
+            this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (RuntimeException e) {
-            logger.log("Cannot open private MessageContainerRepository", "JAMES", logger.ERROR);
+            logger.log("Cannot open private MailRepository", "JAMES", logger.ERROR);
             throw e;
         }
-        logger.log("Private MessageContainerRepository Spool opened", "JAMES", logger.INFO);
+        logger.log("Private MailRepository Spool opened", "JAMES", logger.INFO);
         spoolManagerCM.put(Constants.SPOOL_REPOSITORY, spool);
 
         int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
@@ -126,47 +123,48 @@ public class James implements MailServer, Block {
 
     public void sendMail(String sender, Vector recipients, MimeMessage message) {
         try {
-            String id = getMessageId();
-            spool.store(id, sender, recipients, message);
-            logger.log("Sending mail " + id, "JAMES", logger.INFO);
+            Mail mc = new Mail(getId(), sender, recipients, message);
+            sendMail(mc);
         } catch (Exception e) {
         }
     }
 
-    public void sendMail(String sender, Vector recipients, String message) {
+    public void sendMail(String sender, Vector recipients, InputStream msg) {
         try {
-            MimeMessage msg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-            msg.setText(message);
-            msg.saveChanges();
-            sendMail(sender, recipients, msg);
+            Mail mc = new Mail(getId(), sender, recipients, msg);
+            sendMail(mc);
         } catch (Exception e) {
         }
     }
 
-    public MessageContainerRepository getInbox() {
+    public void sendMail(Mail mail) {
+        spool.store(mail);
+        logger.log("Mail " + mail.getName() + " pushed in spool", "JAMES", logger.INFO);
+    }
+
+    public MailRepository getInbox() {
         return localInbox;
     }
 
-    public MessageContainerRepository getUserInbox(String userName) {
+    public MailRepository getUserInbox(String userName) {
 
-        MessageContainerRepository userInbox = (MessageContainerRepository) null;
+        MailRepository userInbox = (MailRepository) null;
         String repositoryName = mailboxName + userName;
         try {
-            userInbox = (MessageContainerRepository) comp.getComponent(repositoryName);
+            userInbox = (MailRepository) comp.getComponent(repositoryName);
         } catch (ComponentNotFoundException ex) {
-            userInbox = (MessageContainerRepository) store.getPublicRepository(repositoryName);
+            userInbox = (MailRepository) store.getPublicRepository(repositoryName);
             comp.put(repositoryName, userInbox);
         }
         return userInbox;
+    }
+    
+    private String getId() {
+        return "Mail" + count++;
     }
 
     public void destroy()
     throws Exception {
     }
-
-    private String getMessageId() {
-        return new String(new Date().getTime() + "." + count++ + "@" + serverName);
-    }
-
 }
     

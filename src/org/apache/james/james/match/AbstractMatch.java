@@ -8,9 +8,7 @@
 
 package org.apache.james.james.match;
 
-import javax.mail.internet.*;
-import javax.mail.Session;
-import org.apache.mail.MessageContainer;
+import org.apache.mail.Mail;
 import java.util.*;
 import org.apache.arch.*;
 
@@ -20,7 +18,7 @@ import org.apache.arch.*;
  */
 public abstract class AbstractMatch implements Match {
     
-    public abstract Vector match(MessageContainer mc, String condition);
+    public abstract Vector match(Mail mail, String condition);
     
     public void setComponentManager(ComponentManager comp) {
     }

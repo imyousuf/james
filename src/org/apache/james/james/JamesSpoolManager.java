@@ -27,7 +27,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private SimpleComponentManager comp;
     private Configuration conf;
     private Context context;
-    private MessageContainerRepository spool;
+    private MailRepository spool;
     private Logger logger;
     private Vector servlets;
     private Vector servletMatchs;
@@ -59,7 +59,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
-        this.spool = (MessageContainerRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
+        this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
         servletsRootPath = conf.getConfiguration("servlets").getAttribute("rootpath");
@@ -89,7 +89,6 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
         logger.log("run JamesSpoolManager", "JAMES", logger.INFO);
 
-        String key;
         Vector unprocessed = new Vector(servlets.size() + 1, 2);
         unprocessed.setSize(servlets.size() + 1);
         GenericMailServlet errorServlet = (GenericMailServlet) servlets.elementAt(servlets.size() - 1);
@@ -97,33 +96,37 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         while(true) {
 
             try {
-                key = spool.accept();
-                MessageContainer mc = spool.retrieve(key);
-                logger.log("==== Begin processing mail " + mc.getMessageId() + " ====", "JAMES", logger.INFO);
+                String key = spool.accept();
+                Mail mc = spool.retrieve(key);
+                logger.log("==== Begin processing mail " + key + " ====", "JAMES", logger.INFO);
                 unprocessed.insertElementAt(mc, 0);
 // ---- Reactor begin ----
-                printPipe(unprocessed);
+/*DEBUG*/       printPipe(unprocessed);
                 for (int i = 0; true ; i++) {
                     logger.log("===== i = " + i + " =====", "JAMES", logger.DEBUG);
-                    MessageContainer next = (MessageContainer) unprocessed.elementAt(i);
+                    Mail next = (Mail) unprocessed.elementAt(i);
                     if (!isEmpty(next)) {
                         split(unprocessed, i, (String) servletMatchs.elementAt(i));
                         logger.log("--- after split (" + i + ")---", "JAMES", logger.DEBUG);
-                        printPipe(unprocessed);
+/*DEBUG*/               printPipe(unprocessed);
                     } else {
                         try {
                             do {
-                                next = (MessageContainer) unprocessed.elementAt(--i);
+                                next = (Mail) unprocessed.elementAt(--i);
                             } while (isEmpty(next));
                         } catch (ArrayIndexOutOfBoundsException emptyPipe) {
                             break;
                         }
                         GenericMailServlet servlet = (GenericMailServlet) servlets.elementAt(i);
-                        MessageContainer response = servlet.service(next);
+                        Mail response = servlet.service(next);
                         if (response == null) {
                             unprocessed.setElementAt(null, i + 1);
-                        } else if (response.getState() == MessageContainer.ERROR) {
-                            errorServlet.service(response);
+                        } else if (response.getState() == Mail.ERROR) {
+                            try {
+                                errorServlet.service(response);
+                            } catch (Exception ex) {
+                                logger.log("Exception trying to store Mail " + response + " in error repository... deleting it", "JAMES", logger.ERROR);
+                            }
                             unprocessed.setElementAt(null, i + 1);
                         } else if (response.getRecipients().isEmpty()) {
                             unprocessed.setElementAt(null, i + 1);
@@ -132,12 +135,12 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                         }
                         unprocessed.setElementAt(null, i);
                         logger.log("--- after service (" + i + ")---", "JAMES", logger.DEBUG);
-                        printPipe(unprocessed);
+/*DEBUG*/               printPipe(unprocessed);
                     }
                 }
 // ---- Reactor end ----                
                 spool.remove(key);
-                logger.log("==== Removed from spool mail " + mc.getMessageId() + " ====", "JAMES", logger.INFO);
+                logger.log("==== Removed from spool mail " + mc.getName() + " ====", "JAMES", logger.INFO);
             } catch (Exception e) {
                 logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "JAMES", logger.ERROR);
                 e.printStackTrace();
@@ -147,7 +150,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
     private void split(Vector pipe, int i, String conditions) {
 
-        MessageContainer mc = (MessageContainer) pipe.elementAt(i);
+        Mail mc = (Mail) pipe.elementAt(i);
         StringTokenizer matchT = new StringTokenizer(conditions.trim(), " ");
         Vector matchingRecipients = new Vector();
 // Fix Me!!! some recursive pattern needed. Now only ONE or TWO conditions allowed.
@@ -165,7 +168,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 pipe.setElementAt(mc, i);
                 pipe.setElementAt(null, i + 1);
             } else {
-                MessageContainer response = mc.duplicate();
+                Mail response = mc.duplicate();
                 response.setRecipients(matchingRecipients);
                 mc.setRecipients(unMatchingRecipients);
                 pipe.setElementAt(response, i);
@@ -174,7 +177,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         }
     }
     
-    private Vector doubleMatch(MessageContainer mc, String condition1, String operator, String condition2) {
+    private Vector doubleMatch(Mail mc, String condition1, String operator, String condition2) {
         Vector r1 = singleMatch(mc, condition1);
         Vector r2 = singleMatch(mc, condition2);
         if (operator.equals(OP_AND)) {
@@ -184,7 +187,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         }
     }
     
-    private Vector singleMatch(MessageContainer mc, String conditions) {
+    private Vector singleMatch(Mail mc, String conditions) {
         boolean opNot = conditions.startsWith(OP_NOT);
         if (opNot) {
             conditions = conditions.substring(1);
@@ -214,7 +217,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         else return match.match(mc, param);
     }
     
-    private boolean isEmpty(MessageContainer mc) {
+    private boolean isEmpty(Mail mc) {
         if (mc == null) return true;
         else if (mc.getRecipients().isEmpty()) return true;
         else return false;
@@ -228,7 +231,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     }
 
 // Debuggin methods...
-    private String printRecipients(MessageContainer mc) {
+    private String printRecipients(Mail mc) {
         if (mc == null) return "Null ";
         Vector rec = mc.getRecipients();
         StringBuffer buffer = new StringBuffer("Recipients: ");
@@ -243,7 +246,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     
     private void printPipe(Vector unprocessed) {
         for (int j = 0; j < unprocessed.size(); j++) {
-            MessageContainer m = (MessageContainer) unprocessed.elementAt(j);
+            Mail m = (Mail) unprocessed.elementAt(j);
             if (m == null) {
                 logger.log("unprocessed " + j + " -> Null ", "JAMES", logger.DEBUG);
             } else {

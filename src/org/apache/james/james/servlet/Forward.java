@@ -8,15 +8,9 @@
 
 package org.apache.james.james.servlet;
 
-import java.io.*;
 import java.util.*;
-import java.net.*;
-import org.apache.arch.*;
-import org.apache.james.*;
-import org.apache.avalon.blocks.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mail.*;
+import org.apache.arch.Configuration;
+import org.apache.mail.Mail;
 
 /**
  * Replace incoming recipient with specified ones.
@@ -35,16 +29,13 @@ public class Forward extends GenericMailServlet {
         }
     }
     
-    public MessageContainer service(MessageContainer mc) {
+    public Mail service(Mail mail) {
         
-        log("Forwarding mail " + mc.getMessageId() + " to " + newRecipients);
-        mc.setRecipients(newRecipients);
-        return mc;
+        log("Forwarding mail " + mail.getName() + " to " + newRecipients);
+        mail.setRecipients(newRecipients);
+        return mail;
     }
     
-    public void destroy() {
-    }
-
     public String getServletInfo() {
         return "Forward Mail Servlet";
     }

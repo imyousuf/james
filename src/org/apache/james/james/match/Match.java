@@ -8,9 +8,7 @@
 
 package org.apache.james.james.match;
 
-import javax.mail.internet.*;
-import javax.mail.Session;
-import org.apache.mail.MessageContainer;
+import org.apache.mail.Mail;
 import java.util.*;
 import org.apache.arch.*;
 
@@ -20,6 +18,6 @@ import org.apache.arch.*;
  */
 public interface Match extends Component, Composer, Contextualizable {
     
-    public Vector match(MessageContainer mc, String condition);
+    public Vector match(Mail mail, String condition);
 }
     

@@ -8,10 +8,8 @@
 
 package org.apache.james.james.match;
 
-import javax.mail.internet.*;
-import javax.mail.Session;
-import org.apache.mail.MessageContainer;
 import java.util.*;
+import org.apache.mail.Mail;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -19,9 +17,9 @@ import java.util.*;
  */
 public class RecipientIs extends AbstractMatch {
     
-    public Vector match(MessageContainer mc, String condition) {
+    public Vector match(Mail mail, String condition) {
         Vector matchingRecipients = new Vector();
-        for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
+        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = (String) e.nextElement();
             if (condition.indexOf(rec) != -1) {
                 matchingRecipients.addElement(rec);

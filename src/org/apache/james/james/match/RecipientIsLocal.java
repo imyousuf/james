@@ -8,13 +8,11 @@
 
 package org.apache.james.james.match;
 
-import javax.mail.internet.*;
-import javax.mail.Session;
-import org.apache.mail.MessageContainer;
 import java.util.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.blocks.Store;
+import org.apache.james.james.Constants;
+import org.apache.mail.Mail;
 import org.apache.arch.*;
-import org.apache.james.james.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -33,9 +31,9 @@ public class RecipientIsLocal extends AbstractMatch {
         serverNames = (Vector) context.get(Constants.SERVER_NAMES);
     }
 
-    public Vector match(MessageContainer mc, String condition) {
+    public Vector match(Mail mail, String condition) {
         Vector matchingRecipients = new Vector();
-        for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
+        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = (String) e.nextElement();
             if (serverNames.contains(getHost(rec)) && users.containsKey(getUser(rec))) {
                 matchingRecipients.addElement(rec);
