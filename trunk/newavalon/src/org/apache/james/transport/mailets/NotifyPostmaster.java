@@ -25,19 +25,27 @@ import org.apache.james.transport.*;
  * <mailet match="All" class="NotifyPostmaster">
  *   <sendingAddress>nobounce@localhost</sendingAddress>
  *   <attachStackTrace>true</attachStackTrace>
+ *   <notice>Notice attached to the message (optional)</notice>
  * </mailet>
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
+ * @author  Ivan Seskar <iseskar@upsideweb.com>
  */
 public class NotifyPostmaster extends GenericMailet {
     MailAddress notifier = null;
     boolean attachStackTrace = false;
+    String noticeText = null;
 
     public void init() throws MessagingException {
         if (getInitParameter("sendingAddress") == null) {
             notifier = getMailetContext().getPostmaster();
         } else {
             notifier = new MailAddress(getInitParameter("sendingAddress"));
+        }
+        if (getInitParameter("notice") == null) {
+            noticeText = "We were unable to deliver the attached message because of an error in the mail server.";
+        } else {
+            noticeText = getInitParameter("notice");
         }
         try {
             attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
@@ -64,7 +72,16 @@ public class NotifyPostmaster extends GenericMailet {
         //Create the message
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        out.println("We were unable to deliver the attached message because of an error in the mail server.");
+
+        // First add the "local" notice
+        // (either from conf or generic error message)
+        out.println(noticeText);
+        // And then the message from other mailets
+        if (mail.getErrorMessage() != null) {
+            out.println();
+            out.println("Error message below:");
+            out.println(mail.getErrorMessage());
+        }
         out.println();
         out.println("Message details:");
 
@@ -108,12 +125,7 @@ public class NotifyPostmaster extends GenericMailet {
         if (message.getLineCount() >= 0) {
             out.println("  Number of lines: " + message.getLineCount());
         }
-        if (mail.getErrorMessage() != null) {
-            out.println();
-            out.println("Error message below:");
-            StringTokenizer st = new StringTokenizer(mail.getErrorMessage(), "\r\n", false);
-            out.println(st.nextToken());
-        }
+
 
         try {
             //Create the message body
@@ -145,7 +157,7 @@ public class NotifyPostmaster extends GenericMailet {
         }
 
         //Create the list of recipients in our MailAddress format
-        Collection recipients = new Vector();
+        Set recipients = new HashSet();
         recipients.add(getMailetContext().getPostmaster());
 
         //Set additional headers

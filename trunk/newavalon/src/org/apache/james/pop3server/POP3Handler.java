@@ -152,7 +152,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null) return false;
-        logger.info("Command recieved: " + commandRaw);
+        logger.info("Command received: " + commandRaw);
         String command = commandRaw.trim();
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
@@ -202,7 +202,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                         MailImpl mc = (MailImpl) e.nextElement();
                         if (mc != DELETED) {
-                            size += mc.getMessage().getSize();
+                            size += mc.getSize();
                             count++;
                         }
                     }
@@ -223,7 +223,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                             MailImpl mc = (MailImpl) e.nextElement();
                             if (mc != DELETED) {
-                                size += mc.getMessage().getSize();
+                                size += mc.getSize();
                                 count++;
                             }
                         }
@@ -232,7 +232,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
                             MailImpl mc = (MailImpl) e.nextElement();
                             if (mc != DELETED) {
-                                out.println(count + " " + mc.getMessage().getSize());
+                                out.println(count + " " + mc.getSize());
                             }
                         }
                         out.println(".");
@@ -245,7 +245,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         num = Integer.parseInt(argument);
                         MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                         if (mc != DELETED) {
-                            out.println(OK_RESPONSE + " " + num + " " + mc.getMessage().getSize());
+                            out.println(OK_RESPONSE + " " + num + " " + mc.getSize());
                         } else {
                             out.println(ERR_RESPONSE + " Message (" + num + ") does not exist.");
                         }

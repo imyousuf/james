@@ -48,8 +48,10 @@ import org.apache.mailet.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class James extends AbstractBlock implements  Block, Configurable, Composer, Initializable,
-			       MailServer, MailetContext {
+public class James extends AbstractBlock implements  Block, Configurable,
+     Composer, Initializable, MailServer, MailetContext {
+
+    public final static String VERSION = "James 1.2.2 Alpha";
 
     private DefaultComponentManager compMgr; //Components shared
     private DefaultContext context;
@@ -93,21 +95,21 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 
     public void init() throws Exception {
 
-        m_logger.info("JAMES init...");
+        getLogger().info("JAMES init...");
         //threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
 	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
 	try {
 	    mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	} catch (Exception e) {
-	    m_logger.warn("Can't get Store: " + e);
+	    getLogger().warn("Can't get Store: " + e);
 	}
 	m_logger.debug("Using MailStore: " + mailstore.toString());
 	try {
 	    usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
 	} catch (Exception e) {
-	    m_logger.warn("Can't get Store: " + e);
+	    getLogger().warn("Can't get Store: " + e);
 	}
-	m_logger.debug("Using UsersStore: " + usersStore.toString());
+	getLogger().debug("Using UsersStore: " + usersStore.toString());
         context = new DefaultContext();
 	
 	try {
@@ -115,7 +117,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	} catch  (UnknownHostException ue) {
 	    hostName = "localhost";
 	}
-	m_logger.info("Local host is: " + hostName);
+	getLogger().info("Local host is: " + hostName);
 	
 
 	helloName = null;
@@ -127,7 +129,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	    if (helloName == null || helloName.trim().equals("") )
 		helloName = "localhost";
 	}
-	m_logger.info("Hello Name is: " + helloName);
+	getLogger().info("Hello Name is: " + helloName);
         context.put(Constants.HELO_NAME, helloName);
 
 	// Get the domains and hosts served by this instance
@@ -144,7 +146,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
         }
 	
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-            m_logger.info("Handling mail for: " + i.next());
+            getLogger().info("Handling mail for: " + i.next());
         }
         context.put(Constants.SERVER_NAMES, serverNames);
 
@@ -157,15 +159,15 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	Configuration services = conf.getChild("services");
 	if (services.getAttribute("SMTP").equals("TRUE")) {
 	    provideSMTP = true;
-            m_logger.info("Providing SMTP services");
+            getLogger().info("Providing SMTP services");
 	}
 	if (services.getAttribute("POP3").equals("TRUE")) {
 	    providePOP3 = true;
-            m_logger.info("Providing POP3 services");
+            getLogger().info("Providing POP3 services");
 	}
 	if (services.getAttribute("IMAP").equals("TRUE")) {
 	    provideIMAP = true;
-            m_logger.info("Providing IMAP services");
+            getLogger().info("Providing IMAP services");
 	}
 	if (! (provideSMTP | providePOP3 | provideIMAP)) {
 	    throw new ConfigurationException ("Fatal configuration error: no services specified!");
@@ -175,12 +177,12 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	try {
 	    localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
 	} catch (Exception e) {
-		m_logger.error("Cannot open private UserRepository");
+		getLogger().error("Cannot open private UserRepository");
 		throw e;
 	}
 	//}
         compMgr.put("org.apache.james.services.UsersRepository", (Component)localusers);
-        m_logger.info("Local users repository opened");
+        getLogger().info("Local users repository opened");
       
 	// Get storage system
 	if (conf.getChild("storage").getValue().equals("IMAP")) {
@@ -207,7 +209,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		  ((Initializable)imapSystem).init();
 		}
 		compMgr.put("org.apache.james.imapserver.IMAPSystem", (Component)imapSystem);
-		m_logger.info("Using SimpleSystem.");
+		getLogger().info("Using SimpleSystem.");
 		imapHost = (Host) Class.forName(imapHostClass).newInstance();
 		//imapHost = new JamesHost();
 		imapHost.configure(conf.getChild("imapHost"));
@@ -217,9 +219,9 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		    ((Initializable)imapHost).init();
 		}
 		compMgr.put("org.apache.james.imapserver.Host", (Component)imapHost);
-		m_logger.info("Using: " + imapHostClass);
+		getLogger().info("Using: " + imapHostClass);
 	    } catch (Exception e) {
-		m_logger.error("Exception in IMAP Storage init: " + e.getMessage());
+		getLogger().error("Exception in IMAP Storage init: " + e.getMessage());
 		throw e;
 	    }
 	} else {
@@ -228,12 +230,12 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	    try {
 		localInbox = (MailRepository) mailstore.select(inboxRepConf);
 	    } catch (Exception e) {
-		m_logger.error("Cannot open private MailRepository");
+		getLogger().error("Cannot open private MailRepository");
 		throw e;
 	    }
 	    inboxRootURL = inboxRepConf.getAttribute("destinationURL");
 	}
-        m_logger.info("Private Repository LocalInbox opened");
+        getLogger().info("Private Repository LocalInbox opened");
 
 	// Add this to comp
         compMgr.put("org.apache.james.services.MailServer", this);
@@ -243,10 +245,10 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
         try {
             this.spool = (SpoolRepository) mailstore.select(spoolRepConf);
         } catch (Exception e) {
-            m_logger.error("Cannot open private SpoolRepository");
+            getLogger().error("Cannot open private SpoolRepository");
             throw e;
         }
-        m_logger.info("Private SpoolRepository Spool opened");
+        getLogger().info("Private SpoolRepository Spool opened");
         compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
 
    
@@ -258,21 +260,21 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		pop3Server.contextualize(context);
 		pop3Server.compose(compMgr);
 	    } catch (Exception e) {
-		m_logger.error("Exception in POP3Server init: " + e.getMessage());
+		getLogger().error("Exception in POP3Server init: " + e.getMessage());
 		throw e;
 	    }
 	}
 
 	IMAPServer imapServer = null;
 	if (provideIMAP) {
-	    m_logger.info("Attempting IMAPServer init... ");
+	    getLogger().info("Attempting IMAPServer init... ");
 	    imapServer = new IMAPServer();
 	    try {
 	    	imapServer.configure(conf.getChild("imapServer"));
 	    	imapServer.contextualize(context);
 	    	imapServer.compose(compMgr);
 	        } catch (Exception e) {
-	    	m_logger.error("Exception in IMAPServer init: " + e.getMessage());
+	    	getLogger().error("Exception in IMAPServer init: " + e.getMessage());
 	    throw e;
 	       }
 	}
@@ -286,7 +288,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		smtpServer.contextualize(context);
 		smtpServer.compose(compMgr);
 	    } catch (Exception e) {
-		m_logger.error("Exception in SMTPServer init: " + e.getMessage());
+		getLogger().error("Exception in SMTPServer init: " + e.getMessage());
 		throw e;
 	    }
 
@@ -295,7 +297,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		dnsServer.configure(conf.getChild("dnsServer"));
 		dnsServer.compose(compMgr);
 	    } catch (Exception e) {
-		m_logger.error("Exception in DNSServer init: " + e.getMessage());
+		getLogger().error("Exception in DNSServer init: " + e.getMessage());
 		throw e;
 	    }
 	    compMgr.put("DNS_SERVER", dnsServer);
@@ -306,7 +308,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
             remoteAdmin.configure(conf.getChild("remoteManager"));
             remoteAdmin.compose(compMgr);
         } catch (Exception e) {
-            m_logger.error("Exception in RemoteAdmin init: " + e.getMessage());
+            getLogger().error("Exception in RemoteAdmin init: " + e.getMessage());
             throw e;
         }
 
@@ -325,12 +327,12 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	    spoolMgr.compose(compMgr);
 	    spoolMgr.init();
 	    workerPool.execute(spoolMgr);
+            getLogger().info("SpoolManager started");
 	} catch (Exception e) {
-	    m_logger.error("Exception in SpoolManager init: " + e.getMessage());
+	    getLogger().error("Exception in SpoolManager init: " + e.getMessage());
 	    throw e;
 	}
-	m_logger.info("SpoolManager started");
-	//}
+
 
 	if (providePOP3) pop3Server.init();
 	if (provideIMAP) imapServer.init();
@@ -340,13 +342,19 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	}
         remoteAdmin.init();
 
-        m_logger.info("JAMES ...init end");
+	System.out.print(VERSION + " providing: ");
+        if (provideSMTP) {System.out.print("SMTP ");}
+	if (providePOP3) {System.out.print("POP3 ");}
+	if (provideIMAP) {System.out.print("IMAP ");}
+	System.out.println("services.");
+
+        getLogger().info("JAMES ...init end");
     }
     
 
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         Address addresses[] = message.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress((InternetAddress)addresses[i]));
@@ -397,7 +405,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage());
         }
-        m_logger.info("Mail " + mailimpl.getName() + " pushed in spool");
+        getLogger().info("Mail " + mailimpl.getName() + " pushed in spool");
     }
 
     /**
@@ -413,11 +421,11 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	    return userInbox;
 	} else if (mailboxes.containsKey(userName)) {
 	    // we have a problem
-	    m_logger.error("Null mailbox for non-null key");
+	    getLogger().error("Null mailbox for non-null key");
 	    throw new RuntimeException("Error in getUserInbox.");
 	} else {
 	    // need mailbox object
-	    m_logger.info("Need inbox for " + userName );
+	    getLogger().info("Need inbox for " + userName );
 	    String destination = inboxRootURL + userName + File.separator;;
 	    DefaultConfiguration mboxConf
 		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
@@ -428,7 +436,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		userInbox = (MailRepository) mailstore.select(mboxConf);
 		mailboxes.put(userName, userInbox);
 	    } catch (Exception e) {
-		m_logger.error("Cannot open user Mailbox" + e);
+		getLogger().error("Cannot open user Mailbox" + e);
 		throw new RuntimeException("Error in getUserInbox." + e);
 	    }
 	    return userInbox;
@@ -461,7 +469,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	try {
 	    dnsServer = (DNSServer) compMgr.lookup("DNS_SERVER");
 	} catch (CascadingException ex) {
-	    m_logger.error("Fatal configuration error - DNS Servers lost!");
+	    getLogger().error("Fatal configuration error - DNS Servers lost!");
 	    throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
 	}
         return dnsServer.findMXRecords(host);
@@ -496,7 +504,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
         //Create the list of recipients in our MailAddress format
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress((InternetAddress)addresses[i]));
@@ -548,14 +556,14 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		m_logger.debug("Want to store to: " + folderName);
 		mbox = imapHost.getMailbox(MailServer.MDA, folderName);
 		if(mbox.store(message,MailServer.MDA)) {
-		    m_logger.info("Message " + message.getMessageID() +" stored in " + folderName);
+		    getLogger().info("Message " + message.getMessageID() +" stored in " + folderName);
 		} else {
 		    throw new RuntimeException("Failed to store mail: ");
 		}
 		imapHost.releaseMailbox(MailServer.MDA, mbox);
 		mbox = null;
 	    } catch (Exception e) {
-		m_logger.error("Exception storing mail: " + e);
+		getLogger().error("Exception storing mail: " + e);
 		e.printStackTrace();
 		if (mbox != null) {
 		    imapHost.releaseMailbox(MailServer.MDA, mbox);
@@ -564,7 +572,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 		throw new RuntimeException("Exception storing mail: " + e);
 	    }
 	} else {
-	    Vector recipients = new Vector();
+	    Collection recipients = new HashSet();
 	    recipients.add(recipient);
 	    MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
 	    getUserInbox(recipient.getUser()).store(mailImpl);
@@ -615,7 +623,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
 	if (useIMAPstorage) {
 	    JamesHost jh = (JamesHost) imapHost;
 	    if (jh.createPrivateMailAccount(userName)) {
-		m_logger.info("New MailAccount created for" + userName);
+		getLogger().info("New MailAccount created for" + userName);
 	    }
 	}
         return true;

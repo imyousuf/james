@@ -132,10 +132,10 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
         }
     }
 
-    public synchronized MailImpl retrieve(String key) {
+    public MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
-	    BufferedInputStream in = new BufferedInputStream(sr.get(key));
+	    InputStream in = new FileMimeMessageInputStream(sr, key);
             mc.setMessage(in);
 	    in.close();
         } catch (Exception me) {
@@ -144,11 +144,11 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
         return mc;
     }
 
-    public synchronized void remove(MailImpl mail) {
+    public void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
-    public synchronized void remove(String key) {
+    public void remove(String key) {
         lock(key);
         sr.remove(key);
         or.remove(key);

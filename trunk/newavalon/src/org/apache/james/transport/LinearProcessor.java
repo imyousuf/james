@@ -17,6 +17,7 @@ import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.mailrepository.*;
+import org.apache.james.services.SpoolRepository;
 import org.apache.log.Logger;
 import org.apache.mailet.*;
 
@@ -33,168 +34,171 @@ import org.apache.mailet.*;
  *          <maxRetries>5</maxRetries>
  *      </mailet>
  *  </processor>
+ *
+ * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor {
+public class LinearProcessor implements Loggable, Initializable {
     private final static boolean DEBUG_PRINT_PIPE = false;
 
     private List mailets;
     private List matchers;
-    private Vector unprocessed;
+    private List[] unprocessed;
+    private Collection tempUnprocessed;
     private Random random;
     private Logger logger;
-
-    public void init() {
-        this.matchers = new Vector();
-        this.mailets = new Vector();
-        this.unprocessed = new Vector();    //mailets.size() + 1, 2);
-        random = new Random();
-    }
+    private SpoolRepository spool;
 
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
 
+    public void setSpool(SpoolRepository spool) {
+        this.spool = spool;
+    }
+
+
+    public void init() {
+        this.matchers = new Vector();
+        this.mailets = new Vector();
+        tempUnprocessed = new Vector();
+        tempUnprocessed.add(new Vector(2, 2));
+        random = new Random();
+    }
+
+
     public void add(Matcher matcher, Mailet mailet) {
         matchers.add(matcher);
         mailets.add(mailet);
+        //Make the collections array one larger
+        tempUnprocessed.add(new Vector(2, 2));
     }
 
-    public void service(MailImpl mail) throws MessagingException {
-        if (DEBUG_PRINT_PIPE) {
-            logger.info("Processing mail " + mail.getName());
+
+   public synchronized void service(MailImpl mail) throws MessagingException {
+        //make sure we have the array built
+        if (unprocessed == null) {
+            //Need to construct that object
+            unprocessed = (List[])tempUnprocessed.toArray(new List[0]);
+            tempUnprocessed = null;
         }
-        unprocessed.setSize(mailets.size() + 2);
-        unprocessed.add(0, mail);
-        printPipe(unprocessed);/*DEBUG*/
-        for (int i = 0; true ; i++) {
-            if (DEBUG_PRINT_PIPE) {
-                logger.info("===== i = " + i + " =====");
-            }
-            MailImpl next = (MailImpl) unprocessed.get(i);
-            if (!isEmpty(next)) {
-                Collection rcpts = null;
-                Matcher matcher = (Matcher) matchers.get(i);
-                try {
-                    rcpts = matcher.match(next);
-                    if (rcpts == null) {
-                        rcpts = new Vector();
-                    }
-                    verifyMailAddresses(rcpts);
-                } catch (MessagingException me) {
-                    handleException(me, next, matcher.getMatcherConfig().getMatcherName());
-                }
-                //Split the recipients
-                Collection notRcpts = new Vector();
-                notRcpts.addAll(next.getRecipients());
-                notRcpts.removeAll(rcpts);
+        //Wipe all the data (just to be sure)
+        for (int i = 0; i < unprocessed.length; i++) {
+            unprocessed[i].clear();
+        }
+        //Add the object to the bottom of the list
+        unprocessed[0].add(mail);
+        //This is the original state of the message
+        String originalState = mail.getState();
+        //We'll use these as temporary variables in the loop
+        mail = null;
+        int i = 0;
+        while (true) {
+            //The last element in the unprocessed array is a bucket of mail messages
+            //  that went through the entire processor.  We want them to just die,
+            //  so we clear that List so they are GC'd.
+            unprocessed[unprocessed.length - 1].clear();
 
-                //Leave recipients that match (and the other Mail info)
-                //in this spot in the array, and push all others onto the next spot (mailet).
-                MailImpl[] mailBucket = {null, null};
-                if (rcpts.isEmpty()) {
-                    next.setRecipients(notRcpts);
-                    mailBucket[0] = (MailImpl) null;
-                    mailBucket[1] = next;
-                } else if (notRcpts.isEmpty()) {
-                    next.setRecipients(rcpts);
-                    mailBucket[0] = next;
-                    mailBucket[1] = (MailImpl) null;
-                } else {
-                    //This old method of key creation might create
-                    //duplicates in certain circumtances
-                    MailImpl notNext = (MailImpl)mail.duplicate(newName(next));
-                    next.setRecipients(rcpts);
-                    notNext.setRecipients(notRcpts);
-                    mailBucket[0] = next;
-                    mailBucket[1] = notNext;
-                }
-                unprocessed.set(i, mailBucket[0]);
-                unprocessed.set(i + 1, mailBucket[1]);
+            //Reset this to null before we start scanning for it
+            mail = null;
 
-                if (DEBUG_PRINT_PIPE) {
-                    logger.info("--- after split (" + i + ")---");
-                }
-                printPipe(unprocessed);/*DEBUG*/
-            } else {
-                try {
-                    do {
-                        next = (MailImpl) unprocessed.get(--i);
-                    } while (isEmpty(next));
-                } catch (ArrayIndexOutOfBoundsException emptyPipe) {
+            //Try to find a message to process
+            for (i = 0; i < unprocessed.length; i++) {
+                if (unprocessed[i].size() > 0) {
+                    //Get the first element from the queue, and remove it from there
+                    mail = (MailImpl)unprocessed[i].get(0);
+                    unprocessed[i].remove(mail);
                     break;
                 }
-                Mailet mailet = (Mailet) mailets.get(i);
-                try {
-                    mailet.service(next);
-                    verifyMailAddresses(mail.getRecipients());
-                } catch (MessagingException me) {
-                    handleException(me, next, mailet.getMailetConfig().getMailetName());
-                }
-                if (isEmpty(next)) {
-                    unprocessed.set(i + 1, null);
-                } else {
-                    unprocessed.set(i + 1, next);
-                }
-                unprocessed.set(i, null);
-                if (DEBUG_PRINT_PIPE) {
-                    logger.info("--- after service (" + i + ")---");
-                }
-                printPipe(unprocessed);/*DEBUG*/
+	    }
+
+            //See if we didn't find any messages to process
+            if (mail == null) {
+                //We're done
+                return;
             }
-        }
-        if (DEBUG_PRINT_PIPE) {
-            logger.info("Mail " + mail.getName() + " processed");
-        }
-    }
+    
 
-    private boolean isEmpty(Mail mail) {
-        if (mail == null) {
-            return true;
-        }  else if (mail.getRecipients().isEmpty()) {
-            return true;
-        } else if (mail.getState() == mail.GHOST) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+           //Call the matcher and find what recipients match
+            Collection recipients = null;
+            Matcher matcher = (Matcher) matchers.get(i);
+            try {
+                recipients = matcher.match(mail);
+                if (recipients == null) {
+                  //In case the matcher returned null, create an empty Vector
+                   recipients = new Vector();
+                }
+                //Make sure all the objects are MailAddress objects
+                verifyMailAddresses(recipients);
+            } catch (MessagingException me) {
+                handleException(me, mail, matcher.getMatcherConfig().getMatcherName());
+            }
+            //Split the recipients into two pools
+            Collection notRecipients = new Vector();
+            notRecipients.addAll(mail.getRecipients());
+            notRecipients.removeAll(recipients);
 
+            if (recipients.size() == 0) {
+                //Everything was not a match... store it in the next spot in the array
+                unprocessed[i + 1].add(mail);
+                continue;
+            }
+            if (notRecipients.size() != 0) {
+                //There are a mix of recipients and not recipients.
+                //We need to clone this message, put the notRecipients on the clone
+                //  and store it in the next spot
+                MailImpl notMail = (MailImpl)mail.duplicate(newName(mail));
+                notMail.setRecipients(notRecipients);
+                unprocessed[i + 1].add(notMail);
+                //We have to set the reduce possible recipients on the old message
+                mail.setRecipients(recipients);
+            }
+            //We have messages that need to process... time to run the mailet.
+            Mailet mailet = (Mailet) mailets.get(i);
+            try {
+                mailet.service(mail);
+                //Make sure all the recipients are still MailAddress objects
+                verifyMailAddresses(mail.getRecipients());
+            } catch (MessagingException me) {
+                handleException(me, mail, mailet.getMailetConfig().getMailetName());
+            }
+
+            //See if the state was changed by the mailet
+            if (!mail.getState().equals(originalState)) {
+		logger.debug("State changed by: " + mailet.getMailetInfo());
+                //If this message was ghosted, we just want to let it die
+                if (mail.getState().equals(mail.GHOST)) {
+                    //let this instance die...
+                    mail = null;
+                    continue;
+                }
+                //This was just set to another state... store this back in the spool
+                //  and it will get picked up and run in that processor
+
+                //Note we need to store this with a new mail name, otherwise it
+                //  will get deleted upon leaving this processor
+                mail.setName(newName(mail));
+                spool.store(mail);
+                mail = null;
+                continue;
+            } else {
+                //Ok, we made it through with the same state... move it to the next
+                //  spot in the array
+		logger.debug("State not changed by: " + mailet.getMailetInfo());
+                unprocessed[i + 1].add(mail);
+	    }
+	    
+	}
+   }
+
+    /**
+     * Create a unique new primary key name
+     */
     private String newName(MailImpl mail) {
         String name = mail.getName();
         return name + "-!" + Math.abs(random.nextInt());
     }
 
-// Debuggin methods...
-    private String printRecipients(Mail mail) {
-        if (mail == null) return "Null ";
-        Collection rec = mail.getRecipients();
-        StringBuffer buffer = new StringBuffer("Recipients: ");
-        boolean empty = true;
-        for (Iterator i = rec.iterator(); i.hasNext(); ) {
-            buffer.append(i.next().toString() + " ");
-            empty = false;
-        }
-        if (empty) {
-            return "Empty";
-        } else {
-            return buffer.toString();
-        }
-    }
 
-    private void printPipe(List unprocessed) {
-        if (!DEBUG_PRINT_PIPE) {
-            return;
-        }
-        int j = 0;
-        for (Iterator i = unprocessed.iterator(); i.hasNext(); j++) {
-            Mail m = (Mail) i.next();
-            if (m == null) {
-                logger.info("unprocessed " + j + " -> Null ");
-            } else {
-                logger.info("unprocessed " + j + " -> " + printRecipients(m));
-            }
-        }
-    }
 
     /**
      * Checks that all objects in this class are of the form MailAddress

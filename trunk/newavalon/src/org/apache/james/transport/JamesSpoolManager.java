@@ -25,7 +25,7 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class JamesSpoolManager implements Component, Composer, Configurable, Runnable, Stoppable, Service, Contextualizable {
+public class JamesSpoolManager implements Component, Composer, Configurable, Initializable, Runnable, Stoppable, Service, Contextualizable {
 
     private DefaultComponentManager compMgr;
                    //using implementation as we need put method.
@@ -62,12 +62,13 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Run
 	try {
 	    mailetLoader.configure(conf.getChild("mailetpackages"));
 	    matchLoader.configure(conf.getChild("matcherpackages"));
+	    compMgr.put(Resources.MAILET_LOADER, mailetLoader);
+	    compMgr.put(Resources.MATCH_LOADER, matchLoader);
 	} catch (ConfigurationException ce) {
 	    logger.error("Unable to configure mailet/matcher Loaders: " + ce.getMessage());
 	    throw new RuntimeException("Unable to start Spool Manager - failed to configure Loaders.");
 	}
-	compMgr.put(Resources.MAILET_LOADER, mailetLoader);
-	compMgr.put(Resources.MATCH_LOADER, matchLoader);
+
         //A processor is a Collection of
         processors = new HashMap();
 
@@ -76,6 +77,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Run
             String processorName = processorConf.getAttribute("name");
             try {
                 LinearProcessor processor = new LinearProcessor();
+                processor.setSpool(spool);
                 processor.setLogger(logger);
                 processor.init();
                 processors.put(processorName, processor);
@@ -148,6 +150,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Run
                 process(mail);
                 spool.remove(key);
                 logger.info("==== Removed from spool mail " + mail.getName() + " ====");
+		mail = null;
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("Exception in JamesSpoolManager.run " + e.getMessage());
@@ -167,37 +170,26 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Run
                 if (processor == null) {
                     throw new MailetException("Unable to find processor " + processorName);
                 }
+		logger.info("Processing " + mail.getName() + " through " + processorName);
                 processor.service(mail);
-            } catch (MessagingException me) {
-                if (processorName.equals("error")) {
-                    //We got an error on the error processor... just kill the message
-                    mail.setState(Mail.GHOST);
-                } else {
-                    //We got an error... send it through the error process
-                    mail.setState("error");
-                }
+		return;
             } catch (Exception e) {
-                //This is a strange error message we probably want to prevent...
-                System.err.println("Exception in processor <" + processorName + ">");
+               //This is a strange error situation that shouldn't ordinarily happen
+               System.err.println("Exception in processor <" + processorName + ">");
                 e.printStackTrace();
-                if (processorName.equals("error")) {
-                    //We got an error on the error processor... just kill the message
+                if (processorName.equals("Mail.ERROR")) {
+                    //We got an error on the error processor... kill the message
                     mail.setState(Mail.GHOST);
+                    mail.setErrorMessage(e.getMessage());
                 } else {
-                    //We got an error... send it through the error processor
-                    mail.setState("error");
+                    //We got an error... send it to the error processor
+                    mail.setState("Mail.ERROR");
+                    mail.setErrorMessage(e.getMessage());
                 }
             }
             logger.info("Processed " + mail.getName() + " through " + processorName);
             logger.info("Result was " + mail.getState());
-            if (mail.getState().equals(Mail.GHOST)) {
-                //Need to delete this message
-                return;
-            }
-            if (mail.getState().equals(processorName)) {
-                //We're done... if it's not sent to a different processor, we shut down
-                return;
-            }
+
         }
     }
 
