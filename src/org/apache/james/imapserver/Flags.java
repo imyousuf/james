@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.avalon.activity.Initializable;
+import org.apache.avalon.framework.activity.Initializable;
 
 /**
  * The set of flags associated with a message. The \Seen flag is maintained

@@ -9,12 +9,12 @@ package org.apache.james.imapserver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.cornerstone.services.connection.AbstractService;
-import org.apache.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.cornerstone.services.connection.DefaultHandlerFactory;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.cornerstone.services.connection.AbstractService;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
+import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
 
 /**
  * The Server listens on a specified port and passes connections to a

@@ -15,14 +15,14 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
-import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.component.Component;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.logger.AbstractLoggable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.transport.Resources;
-import org.apache.phoenix.Block;
+import org.apache.avalon.phoenix.Block;
 import org.xbill.DNS.*;
 
 /**

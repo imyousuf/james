@@ -11,7 +11,7 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import sun.net.nntp.*;
-import org.apache.excalibur.io.IOUtil;
+import org.apache.avalon.excalibur.io.IOUtil;
 import java.io.*;
 
 /**

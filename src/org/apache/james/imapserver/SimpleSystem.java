@@ -8,12 +8,12 @@
 package org.apache.james.imapserver;
 
 import java.util.*;
-import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.component.Component;
-import org.apache.avalon.component.ComponentManager;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.context.Context;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
 import org.apache.james.AuthenticationException;
 
 /**

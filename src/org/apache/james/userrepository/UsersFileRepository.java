@@ -9,19 +9,19 @@ package org.apache.james.userrepository;
 
 import java.io.File;
 import java.util.Iterator;
-import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.component.Component;
-import org.apache.avalon.component.ComponentException;
-import org.apache.avalon.component.ComponentManager;
-import org.apache.avalon.component.Composable;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.configuration.DefaultConfiguration;
-import org.apache.avalon.logger.AbstractLoggable;
-import org.apache.cornerstone.services.store.ObjectRepository;
-import org.apache.cornerstone.services.store.Store;
-import org.apache.excalibur.concurrent.Lock;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.cornerstone.services.store.ObjectRepository;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.excalibur.concurrent.Lock;
 import org.apache.james.services.UsersRepository;
 
 /**

@@ -2,7 +2,7 @@
 
 <blockinfo>
   <services>
-    <service name="org.apache.avalon.component.Component" version="1.0"/>
+    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
   </services>
 
   <dependencies>

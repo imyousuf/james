@@ -8,11 +8,11 @@
 package org.apache.james.nntpserver.repository;
 
 import java.io.*;
-import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.logger.Loggable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Loggable;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.log.Logger;
 

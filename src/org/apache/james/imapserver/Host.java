@@ -9,11 +9,12 @@ package org.apache.james.imapserver;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.avalon.component.Composable;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.phoenix.Service;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 
@@ -34,7 +35,7 @@ import org.apache.james.AuthorizationException;
  * @see RecordRepository
  */
 public interface Host
-    extends Configurable, Composable, Contextualizable, org.apache.phoenix.Service {
+    extends Configurable, Composable, Contextualizable, Service {
 
     String IMAP_HOST = "IMAP_HOST";
 

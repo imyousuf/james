@@ -7,7 +7,7 @@
  */
 package org.apache.james.services;
 
-import org.apache.phoenix.Service;
+import org.apache.avalon.phoenix.Service;
 
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore

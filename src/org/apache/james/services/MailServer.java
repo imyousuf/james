@@ -13,7 +13,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.*;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.phoenix.Service;
+import org.apache.avalon.phoenix.Service;
 
 /**
  * The interface for Phoenix blocks to the James MailServer

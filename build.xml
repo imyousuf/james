@@ -69,7 +69,7 @@ All these package are in current distribution.
 
   <target name="init">
 
-    <property name="classpath" value="./lib/avalonapi.jar;./lib/logkit.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar;./lib/jakarta-oro-2.0.1.jar"/>
+    <property name="classpath" value="./lib/avalon-framework.jar;./lib/avalon-excalibur.jar;./lib/logkit.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar;./lib/jakarta-oro-2.0.1.jar"/>
 
     <property name="src.dir" value="src"/>
     <property name="conf.dir" value="conf"/>
@@ -268,7 +268,8 @@ All these package are in current distribution.
     <copy todir="${dist.dir}/lib">
       <fileset dir="lib">
         <include name="phoenix-client.jar"/>
-        <include name="avalonapi.jar"/>
+        <include name="avalon-framework.jar"/>
+        <include name="avalon-excalibur.jar"/>
         <include name="avalon-jmx.jar"/>
         <include name="jmxri.jar"/>
         <include name="jmxtools.jar"/>

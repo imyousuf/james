@@ -7,9 +7,9 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.avalon.activity.Disposable;
-import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.context.Contextualizable;
 
 /**
  * Interface for objects representing an IMAP4rev1 mailbox (folder) with
