@@ -8,32 +8,33 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.java.util.*;
+import org.apache.mail.Mail;
+import javax.mail.internet.*;
+import javax.mail.*;
 import java.util.*;
 
 /**
- * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ *
+ * @author  Dino Fancellu <dino.fancellu@ntlworld.com>
+ * @version 1.0.0, 1/5/2000
  */
-public class SenderIs extends AbstractMatcher {
 
-    private Collection senders;
+public class SubjectIs extends AbstractMatch {
+    String condition;
 
     public void init(String condition) {
-        StringTokenizer st = new StringTokenizer(condition, ", ");
-        senders = new Vector();
-        while (st.hasMoreTokens()) {
-            senders.add(st.nextToken());
-        }
+        this.condition = condition;
     }
 
-    public Collection match(Mail mail) {
-        if (senders.contains(mail.getSender())) {
-            return mail.getRecipients();
-        } else {
-            return null;
+    public Collection match(Mail mail, String condition) {
+        try {
+            MimeMessage mm = mail.getMessage();
+            String subject = mm.getSubject();
+            if (subject != null && subject.equals(condition)) {
+                return mail.getRecipients();
+            }
+        } catch (MessagingException ex) {
         }
+        return null;
     }
 }
