@@ -27,7 +27,7 @@ S: a001 OK STATUS completed
 
 # non-synchronized literal
 C: a001 STATUS {4}
-S: +
+S: \+
 C: test (MESSAGES)
 S: \* STATUS test \(MESSAGES \d+\)
 S: a001 OK STATUS completed

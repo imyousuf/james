@@ -19,7 +19,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class DeleteCommand extends AuthenticatedStateCommand
 {
@@ -33,7 +33,7 @@ class DeleteCommand extends AuthenticatedStateCommand
             throws ProtocolException, MailboxException, AuthorizationException
     {
 
-        String mailboxName = parser.astring( request );
+        String mailboxName = parser.mailbox( request );
         parser.endLine( request );
 
         session.getHost().deleteMailbox( session.getUser(), mailboxName );
