@@ -63,13 +63,15 @@ public class JDBCSpoolRepository
 
     public synchronized String accept() {
         while (true) {
+            Connection conn = null;
+            PreparedStatement listMessages = null;
+            ResultSet rsListMessages = null;
             try {
-                //System.err.println("querying db");
-                Connection conn = getConnection();
-                PreparedStatement listMessages = 
+                conn = getConnection();
+                listMessages =
                     conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
                 listMessages.setString(1, repositoryName);
-                ResultSet rsListMessages = listMessages.executeQuery();
+                rsListMessages = listMessages.executeQuery();
 
                 while (rsListMessages.next()) {
                     String message = rsListMessages.getString(1);
@@ -77,16 +79,27 @@ public class JDBCSpoolRepository
                     if (lock(message)) {
                         rsListMessages.close();
                         listMessages.close();
-                        conn.close();
                         return message;
                     }
                 }
                 rsListMessages.close();
                 listMessages.close();
-                conn.close();
             } catch (Exception me) {
                 me.printStackTrace();
                 throw new RuntimeException("Exception while listing mail: " + me.getMessage());
+            } finally {
+                try {
+                    rsListMessages.close();
+                } catch (Exception e) {
+                }
+                try {
+                    listMessages.close();
+                } catch (Exception e) {
+                }
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
             }
             try {
                 wait();
@@ -98,12 +111,15 @@ public class JDBCSpoolRepository
     public synchronized String accept(long delay) {
         while (true) {
             long next = 0;
+            Connection conn = null;
+            PreparedStatement listMessages = null;
+            ResultSet rsListMessages = null;
             try {
-                Connection conn = getConnection();
-                PreparedStatement listMessages = 
+                conn = getConnection();
+                listMessages =
                     conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
                 listMessages.setString(1, repositoryName);
-                ResultSet rsListMessages = listMessages.executeQuery();
+                rsListMessages = listMessages.executeQuery();
 
                 while (rsListMessages.next()) {
                     String message = rsListMessages.getString(1);
@@ -125,18 +141,25 @@ public class JDBCSpoolRepository
                     }
 
                     if (process && lock(message)) {
-                        rsListMessages.close();
-                        listMessages.close();
-                        conn.close();
                         return message;
                     }
                 }
-                rsListMessages.close();
-                listMessages.close();
-                conn.close();
             } catch (Exception me) {
                 me.printStackTrace();
                 throw new RuntimeException("Exception while listing mail: " + me.getMessage());
+            } finally {
+                try {
+                    rsListMessages.close();
+                } catch (Exception e) {
+                }
+                try {
+                    listMessages.close();
+                } catch (Exception e) {
+                }
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
             }
 
             //We did not find any... let's wait for a certain amount of time
