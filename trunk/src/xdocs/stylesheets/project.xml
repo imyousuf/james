@@ -16,8 +16,8 @@
     </menu>
 
     <menu name="Downloads">
-        <item name="Binaries"              href="/site/binindex.html"/>
-        <item name="Source Code"           href="/site/sourceindex.html"/>
+        <item name="Binaries"              href="/site/binindex.cgi"/>
+        <item name="Source Code"           href="/site/sourceindex.cgi"/>
     </menu>
 
     <menu name="Current Documentation">
