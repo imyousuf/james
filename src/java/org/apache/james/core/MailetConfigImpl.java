@@ -68,8 +68,7 @@ import java.util.Iterator;
 /**
  * Implements the configuration object for a Mailet.
  *
- * <P>CVS $Id: MailetConfigImpl.java,v 1.3.4.4 2003/06/24 19:32:37 serge Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.3.4.5 $ $Date: 2003/06/25 10:33:43 $
  */
 public class MailetConfigImpl implements MailetConfig {
 
@@ -158,15 +157,10 @@ public class MailetConfigImpl implements MailetConfig {
      *
      * @param name the name of the attribute whose value is to be retrieved.
      *
-     * @return the attribute value
+     * @return the attribute value or null if missing
      */
     public String getInitAttribute(String name) {
-        try {
-            return configuration.getAttribute(name);
-        } catch (ConfigurationException ce) {
-            throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
-        }
-
+        return configuration.getAttribute(name, null);
     }
 
     /**
