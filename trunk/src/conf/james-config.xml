@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.5 $
-    Committed on $Date: 2001/06/21 16:04:49 $ by: $Author: charlesb $ 
+    This is $Revision: 1.6 $
+    Committed on $Date: 2001/06/21 17:20:16 $ by: $Author: charlesb $ 
 -->
 <config>
 
@@ -64,24 +64,7 @@
         </namespaces>
       </imapHost> 
 
-      <!-- The spool repository is a singular location where incoming mails
-      are temporarily stored before being processed.
-     (ex. file://c:/james/spool/) -->
-      <spoolRepository>
-        <repository destinationURL="file://var/mail/spool/"
-                    type="SPOOL">
-        </repository>
-      </spoolRepository>
 
-      <!-- Alternative spool repository definition for Town use
-      <spoolRepository>
-        <repository destinationURL="town://mainspool"
-                    type="SPOOL">
-          <conn>file:///dev/james/dist/var/maildatabase</conn>
-          <table>Message</table>
-        </repository>
-      </spoolRepository>
-      -->
 
       <!-- The inbox repository is the location for users inboxes -->
       <inboxRepository>
@@ -103,26 +86,7 @@
 
   <!-- The James Spool Manager block  -->
   <spoolmanager>
-      <!-- The spool repository is a singular location where incoming mails
-      are temporarily stored before being processed.
-     (ex. file://c:/james/spool/) 
-	The Spoool Manager and James Block must point to the same repository
-	to add and process same messages. -->
-      <spoolRepository>
-        <repository destinationURL="file://var/mail/spool/"
-                    type="SPOOL">
-        </repository>
-      </spoolRepository>
 
-      <!-- Alternative spool repository definition for Town use
-      <spoolRepository>
-        <repository destinationURL="town://mainspool"
-                    type="SPOOL">
-          <conn>file:///dev/james/dist/../../store/maildatabase</conn>
-          <table>Message</table>
-        </repository>
-      </spoolRepository>
-      -->
 
       <!-- number of spool threads -->
       <threads> 1 </threads>
@@ -477,6 +441,25 @@
           </types>
         </repository>
       </repositories>
+
+      <!-- The spool repository is a singular location where incoming mails
+      are temporarily stored before being processed.
+     (ex. file://c:/james/spool/) -->
+      <spoolRepository>
+        <repository destinationURL="file://var/mail/spool/"
+                    type="SPOOL">
+        </repository>
+      </spoolRepository>
+
+      <!-- Alternative spool repository definition for Town use
+      <spoolRepository>
+        <repository destinationURL="town://mainspool"
+                    type="SPOOL">
+          <conn>file:///dev/james/dist/var/maildatabase</conn>
+          <table>Message</table>
+        </repository>
+      </spoolRepository>
+      -->
   </mailstore>
        
   <!-- The User Storage block -->

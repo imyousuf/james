@@ -13,19 +13,27 @@ import org.apache.avalon.cornerstone.services.store.Store;
  * Interface for an object which provides MailRepositories or SpoolRepositories
  *
  * <p>The select method requires a configuration object with the form:
- *  <br><repository destinationURL="file://path-to-root-dir-for-repository"
- *  <br>            type="MAIL"
- *  <br>            model="SYNCHRONOUS"/>
- *  <br></repository>
- * <p>This configuration, including any included child elements, is used to configure 
- * the returned component.
+ *  <br>&lt;repository destinationURL="file://path-to-root-dir-for-repository"
+ *  <br>            type="MAIL"&gt;
+ *  <br>&lt;/repository&gt;
+ * <p>This configuration, including any included child elements, is used to 
+ * configure the returned component.
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ *
+ * This is $Revision: 1.2 $
+ * Committed on $Date: 2001/06/21 17:20:28 $ by: $Author: charlesb $ 
  */
 public interface MailStore 
     extends Store {
     // MailRepository getInbox(String user);
+
+    /**
+     * Convenience method to get the inbound spool repository.
+     */
+    SpoolRepository getInboundSpool();
+
 }
  

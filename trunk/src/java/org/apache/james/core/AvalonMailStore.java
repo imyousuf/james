@@ -23,6 +23,7 @@ import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 import org.apache.avalon.phoenix.Block;
@@ -49,6 +50,8 @@ public class AvalonMailStore
     protected Configuration          configuration;
     protected ComponentManager       componentManager;
 
+    private SpoolRepository inboundSpool;
+
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
@@ -73,6 +76,18 @@ public class AvalonMailStore
         {
             registerRepository((Configuration) registeredClasses[i]);
         }
+
+
+        Configuration spoolRepConf
+          = configuration.getChild("spoolRepository").getChild("repository");
+        try {
+           inboundSpool  = (SpoolRepository) select(spoolRepConf);
+        } catch (Exception e) {
+            getLogger().error("Cannot open private SpoolRepository");
+            throw e;
+        }
+        getLogger().info("SpoolRepository inboundSpool opened: "
+                          + inboundSpool.hashCode());
         getLogger().info("James MailStore ...init");
     }
 
@@ -176,4 +191,13 @@ public class AvalonMailStore
     public static final String getName() {
         return REPOSITORY_NAME + id++;
     }
+
+    public SpoolRepository getInboundSpool() {
+        if (inboundSpool != null) {
+            return inboundSpool;
+        } else {
+            throw new RuntimeException("Inbound spool not defined");
+        }
+    }
+
 }
