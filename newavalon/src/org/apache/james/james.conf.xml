@@ -66,6 +66,9 @@
 	<logger name="RemoteManager" destinationURL="../logs/remotemanager.log" priority="DEBUG"/>
 	<logger name="SpoolManager" destinationURL="../logs/spoolmanager.log" priority="DEBUG"/>
 	<logger name="MailRepository" destinationURL="../logs/mailrepository.log" priority="DEBUG"/>
+	<logger name="IMAPServer" destinationURL="../logs/imapserver.log" priority="DEBUG"/>
+	<logger name="Security" destinationURL="../logs/security.log" priority="DEBUG"/>
+	<logger name="JamesHost" destinationURL="../logs/jameshost.log" priority="DEBUG"/>
 
 	<!-- Specify which components will provide the services required by this block. The roles are
 	 specified in the code and the .xinfo file. The names here must match the names specified for
@@ -99,6 +102,28 @@
                 <!-- <servername> To override autodetected server names uncomment this. </servername> -->
                 <servername>localhost</servername>
             </servernames>
+
+            <!-- Set the facilities offered by this instance of JAMES -->
+            <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"/>
+            <!-- Set the type of permanent mailfolders to be used.
+	    If IMAP service is to be provided, use must be 'IMAP'; if only POP3 service is
+	     being provided then use can be 'basic' (default) of 'IMAP'. This choice is
+	      irrelevant if the only service provided is SMTP. -->
+
+            <storage>Basic</storage>
+	    <!-- If use is set to IMAP, systemClass and hostClass must point to the
+	     appropriate classes. -->
+	    <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
+		hostClass="org.apache.james.imapserver.JamesHost"/>
+	    <imapHost>
+	        <recordRepository>../var/mail/folderRecords/</recordRepository>
+		<mailboxRepository>../var/mail/mailboxes/</mailboxRepository>
+		<namespaces token="#">
+		    <privateNamespace separator=".">#mail</privateNamespace>
+		    <otherusersNamespace separator=".">#users</otherusersNamespace>
+		    <sharedNamespace separator=".">#shared</sharedNamespace>
+		</namespaces>
+	    </imapHost> 
 
             <!-- The spool repository is a singular location where incoming mails are temporaly stored
 	     before being processed.
@@ -147,6 +172,18 @@
                 </pop3handler>
             </pop3Server>
 
+            <imapServer>
+                <port>143</port>
+                <!-- <port>995</port> -->
+                <!-- port 995 is the well-known/IANA registered port for POP3S ie over SSL/TLS -->
+
+                <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
+                <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+                <imaphandler>
+                    <connectiontimeout> 1800000 </connectiontimeout>
+                </imaphandler>
+            </imapServer>
+
             <remoteManager>
                 <port>4555</port>
                 <!-- <bind>  </bind> uncomment this if you want to bind to a specific inetaddress -->
@@ -185,10 +222,10 @@
                     </mailet>
 
 		    <!-- Checks that the MAIL FROM command was for a valid domain. Important for spam prevention. -->
-                    <mailet match="SenderInFakeDomain" class="ToProcessor">
+    <!--                <mailet match="SenderInFakeDomain" class="ToProcessor">
                         <processor> spam </processor>
                     </mailet>
-
+-->
 		    <!-- Important check to avoid race conditions -->
                     <mailet match="RelayLimit=30" class="Null">
                     </mailet>

@@ -117,7 +117,7 @@ public class MailImpl implements Mail {
 
     private void parse(InputStream messageIn) throws MessagingException {
         if (messageIn != null) {
-            message = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
+            message = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
         } else {
 	    throw new MessagingException("Attempt to parse null input stream.");
 	}
