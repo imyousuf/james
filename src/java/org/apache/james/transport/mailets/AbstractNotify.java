@@ -116,7 +116,7 @@ import java.util.Iterator;
  * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.1.2.9 $ $Date: 2003/07/04 16:42:17 $
+ * @version CVS $Revision: 1.1.2.10 $ $Date: 2003/10/14 16:52:20 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -268,16 +268,33 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * @return the value of the <CODE>sendingAddress</CODE> init parameter,
      * or the value of the <CODE>sender</CODE> init parameter if missing,
      * or the postmaster address if both are missing
+     * @return the <CODE>sendingAddress</CODE> init parameter
+     * or the <CODE>sender</CODE> init parameter
+     * or the postmaster address if both are missing;
+     * possible special addresses returned are
+     * <CODE>SpecialAddress.SENDER</CODE>
+     * and <CODE>SpecialAddress.UNALTERED</CODE>
      */
     protected MailAddress getSender() throws MessagingException {
-        if (getInitParameter("sendingAddress") == null) {
-            if (getInitParameter("sender") == null) {
+        String addressString = getInitParameter("sendingAddress");
+        
+        if (addressString == null) {
+            addressString = getInitParameter("sender");
+            if (addressString == null) {
                 return getMailetContext().getPostmaster();
-            } else {
-                return new MailAddress(getInitParameter("sender"));
             }
-        } else {
-            return new MailAddress(getInitParameter("sendingAddress"));
+        }
+        
+        MailAddress specialAddress = getSpecialAddress(addressString,
+                                        new String[] {"postmaster", "sender", "unaltered"});
+        if (specialAddress != null) {
+            return specialAddress;
+        }
+
+        try {
+            return new MailAddress(addressString);
+        } catch(Exception e) {
+            throw new MessagingException("Exception thrown in getSender() parsing: " + addressString, e);
         }
     }
 
