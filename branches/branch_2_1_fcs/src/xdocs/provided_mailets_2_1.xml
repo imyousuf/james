@@ -206,7 +206,7 @@ name of a spool processor, on which mails that, are to bounce due to
 undeliverability, are sent. An exception carrying information about the
 cause of undeliverability, is added as a MailAttribute with name: delivery-error.
 If not present the mail is simply bounced to the sender, with a
-standard (hardcoded) undeliverability message. 
+standard (hardcoded) undeliverability message. </li>
 <li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
 on.  Defaults to false.</li>
 </ul>
