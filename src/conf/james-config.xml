@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!DOCTYPE config [
+<!ENTITY listserverConfig SYSTEM "file:../apps/james/conf/james-listmanager.xml">
+<!ENTITY listserverStores SYSTEM "file:../apps/james/conf/james-liststores.xml">
+]>
+
 <!--  Configuration file for the Apache Jakarta James server -->
 
 <!--  This file contains important settings that control the behaviour -->
@@ -15,7 +20,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.11 $ Committed on $Date: 2003/06/16 05:33:02 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.12 $ Committed on $Date: 2003/07/03 07:50:14 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -184,6 +189,11 @@
          <!--
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
          -->
+
+        <!-- This is an example configuration including configuration for a list server. -->
+        <!--
+          &listserverConfig;
+        -->
 
          <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
@@ -734,6 +744,11 @@
       <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
+      -->
+
+      <!-- This is an example configuration including configuration for a list server. -->
+      <!--
+        &listserverStores;
       -->
 
    </users-store>
