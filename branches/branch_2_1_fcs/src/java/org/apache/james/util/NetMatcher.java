@@ -112,7 +112,7 @@ public class NetMatcher
 
         boolean sameNet = false;
 
-        for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
+        if (ip != null) for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
         {
             InetNetwork network = (InetNetwork) iter.next();
             sameNet = network.contains(ip);
