@@ -12,19 +12,27 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Loggable;
+import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.log.Logger;
 
 // processes entries and sends to appropriate groups.
 // eats up inappropriate entries.
 public class NNTPUtil {
-    static File getDirectory(Configuration configuration,String child)
+    static File getDirectory(Context context, Configuration configuration, String child)
         throws ConfigurationException
     {
         String str = configuration.getChild(child).getValue();
-        if ( str.toLowerCase().startsWith("file://") )
-            str = str.substring("file://".length());
+        if (!str.toLowerCase().startsWith("file://") ) {
+            throw new ConfigurationException
+                ("Malformed " + child + " - Must be of the format \"file://<filename>\".");
+        }
+        str = str.substring("file://".length());
+        str = ((BlockContext)context).getBaseDirectory() +
+                File.separator + str;
         File f = new File(str);
         if ( f.exists() && f.isFile() )
             throw new NNTPException("Expecting '"+f.getAbsolutePath()+"' directory");
@@ -32,8 +40,11 @@ public class NNTPUtil {
             f.mkdirs();
         return f;
     }
-    public static Object createInstance(Configuration configuration,Logger logger,
-                                        String clsName) throws ConfigurationException
+    public static Object createInstance(Context context, 
+                                        Configuration configuration,
+                                        Logger logger,
+                                        String clsName) 
+            throws ConfigurationException
     {
         try { clsName = configuration.getAttribute("class");
         } catch(ConfigurationException ce) { }
@@ -41,6 +52,8 @@ public class NNTPUtil {
             Object obj = Class.forName(clsName).newInstance();
             if ( obj instanceof Loggable )
                 ((Loggable)obj).setLogger( logger );
+            if (obj instanceof Contextualizable) 
+                ((Contextualizable)obj).contextualize(context);
             if ( obj instanceof Configurable )
                 ((Configurable)obj).configure(configuration.getChild("configuration"));
             return obj;

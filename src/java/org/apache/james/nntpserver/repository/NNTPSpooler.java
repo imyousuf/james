@@ -14,6 +14,9 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.excalibur.io.IOUtil;
@@ -21,13 +24,22 @@ import org.apache.james.util.Lock;
 
 // processes entries and sends to appropriate groups.
 // eats up inappropriate entries.
-class NNTPSpooler extends AbstractLoggable implements Configurable, Initializable {
+class NNTPSpooler extends AbstractLoggable 
+        implements Contextualizable, Configurable, Initializable {
+
+    private Context context;
     private Worker[] worker;
     private File spoolPath;
+
+    public void contextualize(final Context context) 
+            throws ContextException {
+        this.context = context;
+    }
+
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName()+": configure");
         //NNTPUtil.show(configuration,System.out);
-        spoolPath = NNTPUtil.getDirectory(configuration,"spoolPath");
+        spoolPath = NNTPUtil.getDirectory(context, configuration, "spoolPath");
         int threadCount = configuration.getChild("threadCount").getValueAsInteger(1);
         int threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(1000);
         //String tgName=configuration.getChild("threadGroupName").getValue("NNTPSpooler");
