@@ -62,7 +62,6 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.ImapHost;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
@@ -71,7 +70,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class CloseCommand extends SelectedStateCommand
 {
@@ -86,10 +85,9 @@ class CloseCommand extends SelectedStateCommand
     {
         parser.endLine( request );
 
-        if ( ! session.selectedIsReadOnly() ) {
+        if ( ! session.getSelected().isReadonly() ) {
             ImapMailbox mailbox = session.getSelected();
-            ImapHost host = session.getHost();
-            host.expunge( mailbox );
+            mailbox.expunge();
         }
         session.deselect();
 

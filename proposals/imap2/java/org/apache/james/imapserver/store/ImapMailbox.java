@@ -75,7 +75,7 @@ import java.util.Collection;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public interface ImapMailbox
 {
@@ -84,6 +84,8 @@ public interface ImapMailbox
     String getFullName();
 
     MessageFlags getAllowedFlags();
+    
+    MessageFlags getPermanentFlags();
 
     int getMessageCount();
 
@@ -91,7 +93,7 @@ public interface ImapMailbox
 
     long getUidValidity();
 
-    int getFirstUnseen();
+    long getFirstUnseen();
 
     int getMsn( long uid ) throws MailboxException;
 
@@ -112,4 +114,16 @@ public interface ImapMailbox
     long[] getMessageUids();
 
     void deleteMessage( long uid );
+    
+    void expunge() throws MailboxException;
+
+    void addExpungeListener(MailboxListener listener);
+
+    void removeExpungeListener(MailboxListener listener);
+
+    long[] search(SearchTerm searchTerm);
+
+    void copyMessage( long uid, ImapMailbox toMailbox )
+            throws MailboxException;
+
 }

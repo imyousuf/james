@@ -58,16 +58,15 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.excalibur.util.StringUtil;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleImapMessage;
-import org.apache.james.imapserver.store.ImapMailbox;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -78,14 +77,13 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collection;
 
 /**
  * Handles processeing for the FETCH imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -125,6 +123,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 SimpleImapMessage imapMessage = mailbox.getMessage( uid );
                 String msgData = outputMessage( fetch, imapMessage );
                 response.fetchResponse( msn, msgData );
+                if (imapMessage.getFlags().isRecent()) {
+                    imapMessage.getFlags().setRecent(false);
+                    mailbox.updateMessage(imapMessage);
+                }
             }
         }
 
@@ -292,8 +294,23 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     {
         // Remove the trailing and leading ')('
         String tmp = headerList.substring( prefixLen + 1, headerList.length() - 1 );
-        String[] headerNames = StringUtil.split( tmp, " " );
+        String[] headerNames = split( tmp, " " );
         return headerNames;
+    }
+    
+    private String[] split(String value, String delimiter) {
+        ArrayList strings = new ArrayList();
+        int startPos = 0;
+        int delimPos;
+        while ( (delimPos = value.indexOf(delimiter, startPos) ) != -1) {
+            String sub = value.substring(startPos, delimPos);
+            strings.add(sub);
+            startPos = delimPos + 1;
+        }
+        String sub = value.substring(startPos);
+        strings.add(sub);
+        
+        return (String[]) strings.toArray(new String[0]);
     }
 
     private void addHeaders( Enumeration enum, StringBuffer response )

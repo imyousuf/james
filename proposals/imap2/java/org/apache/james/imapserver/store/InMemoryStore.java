@@ -58,15 +58,13 @@
 
 package org.apache.james.imapserver.store;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.imapserver.ImapConstants;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogKitLogger;
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.log.Logger;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,6 +73,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
@@ -82,7 +82,7 @@ import java.util.TreeMap;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled
@@ -250,8 +250,10 @@ public class InMemoryStore
         private boolean isSelectable = false;
 
         private Map mailMessages = new TreeMap();
-        private long nextUid = 10;
+        private long nextUid = 1;
         private long uidValidity;
+
+        private List _mailboxListeners = new LinkedList();
 
         public HierarchicalMailbox( HierarchicalMailbox parent,
                                     String name )
@@ -304,6 +306,10 @@ public class InMemoryStore
             return mailboxFlags;
         }
 
+        public MessageFlags getPermanentFlags() {
+            return getAllowedFlags();
+        }
+
         public int getMessageCount()
         {
             return mailMessages.size();
@@ -321,12 +327,27 @@ public class InMemoryStore
 
         public int getUnseenCount()
         {
-            return 0;
+            int count = 0;
+            Iterator iter = mailMessages.values().iterator();
+            while (iter.hasNext()) {
+                SimpleImapMessage message = (SimpleImapMessage) iter.next();
+                if (! message.getFlags().isSeen()) {
+                    count++;
+                }
+            }
+            return count;
         }
 
-        public int getFirstUnseen()
+        public long getFirstUnseen()
         {
-            return 0;
+            Iterator iter = mailMessages.values().iterator();
+            while (iter.hasNext()) {
+                SimpleImapMessage message = (SimpleImapMessage) iter.next();
+                if (! message.getFlags().isSeen()) {
+                    return message.getUid();
+                }
+            }
+            return -1;
         }
 
         public int getRecentCount()
@@ -362,13 +383,23 @@ public class InMemoryStore
                                           Date internalDate )
         {
             long uid = nextUid;
-            nextUid+=10;
+            nextUid++;
 
+//            flags.setRecent(true);
             SimpleImapMessage imapMessage = new SimpleImapMessage( message, flags,
                                                        internalDate, uid );
             setupLogger( imapMessage );
 
             mailMessages.put( new Long( uid ), imapMessage );
+            
+            // Notify all the listeners of the pending delete
+            synchronized (_mailboxListeners) {
+                for (int j = 0; j < _mailboxListeners.size(); j++) {
+                    MailboxListener listener = (MailboxListener) _mailboxListeners.get(j);
+                    listener.added(uid);
+                }
+            }
+            
             return imapMessage;
         }
 
@@ -414,5 +445,81 @@ public class InMemoryStore
             mailMessages.remove( new Long( uid ) );
         }
 
+        public long[] search(SearchTerm searchTerm) {
+            ArrayList matchedMessages = new ArrayList();
+
+            long[] allUids = getMessageUids();
+            for ( int i = 0; i < allUids.length; i++ ) {
+                long uid = allUids[i];
+                SimpleImapMessage message = getMessage( uid );
+                if ( searchTerm.match( message.getMimeMessage() ) ) {
+                    matchedMessages.add( message );
+                }
+            }
+
+            long[] matchedUids = new long[ matchedMessages.size() ];
+            for ( int i = 0; i < matchedUids.length; i++ ) {
+                SimpleImapMessage imapMessage = ( SimpleImapMessage ) matchedMessages.get( i );
+                long uid = imapMessage.getUid();
+                matchedUids[i] = uid;
+            }
+            return matchedUids;
+        }
+
+        public void copyMessage( long uid, ImapMailbox toMailbox )
+                throws MailboxException
+        {
+            SimpleImapMessage originalMessage = getMessage( uid );
+            MimeMessage newMime = null;
+            try {
+                newMime = new MimeMessage( originalMessage.getMimeMessage() );
+            }
+            catch ( MessagingException e ) {
+                // TODO chain.
+                throw new MailboxException( "Messaging exception: " + e.getMessage() );
+            }
+            MessageFlags newFlags = new MessageFlags();
+            newFlags.setAll( originalMessage.getFlags() );
+            Date newDate = originalMessage.getInternalDate();
+
+            toMailbox.createMessage( newMime, newFlags, newDate);
+        }
+
+        public void expunge() throws MailboxException {
+
+            long[] allUids = getMessageUids();
+            for (int i = 0; i < allUids.length; i++) {
+                long uid = allUids[i];
+                SimpleImapMessage message = getMessage(uid);
+                if (message.getFlags().isDeleted()) {
+                    expungeMessage(uid);
+
+                }
+            }
+        }
+
+        private void expungeMessage(long uid) throws MailboxException {
+            // Notify all the listeners of the pending delete
+            synchronized (_mailboxListeners) {
+                for (int j = 0; j < _mailboxListeners.size(); j++) {
+                    MailboxListener expungeListener = (MailboxListener) _mailboxListeners.get(j);
+                    expungeListener.expunged(uid);
+                }
+            }
+
+            deleteMessage(uid);
+        }
+
+        public void addExpungeListener(MailboxListener listener) {
+            synchronized(_mailboxListeners) {
+                _mailboxListeners.add(listener);
+            }
+        }
+
+        public void removeExpungeListener(MailboxListener listener) {
+            synchronized (_mailboxListeners) {
+                _mailboxListeners.remove(listener);
+            }
+        }
     }
 }

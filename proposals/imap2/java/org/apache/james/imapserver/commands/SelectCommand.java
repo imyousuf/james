@@ -64,13 +64,14 @@ import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.ImapSessionMailbox;
 
 /**
  * Handles processeing for the SELECT imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class SelectCommand extends AuthenticatedStateCommand
 {
@@ -88,6 +89,35 @@ class SelectCommand extends AuthenticatedStateCommand
 
         session.deselect();
 
+        selectMailbox(mailboxName, session);
+
+        ImapSessionMailbox mailbox = session.getSelected();
+        response.flagsResponse( mailbox.getAllowedFlags() );
+        response.existsResponse( mailbox.getMessageCount() );
+        response.recentResponse( mailbox.getRecentCount() );
+        response.okResponse( "UIDVALIDITY " + mailbox.getUidValidity(), null );
+
+        long firstUnseen = mailbox.getFirstUnseen();
+        if ( firstUnseen > 0 ) {
+            int msnUnseen = mailbox.getMsn( firstUnseen );
+            response.okResponse( "UNSEEN " + msnUnseen,
+                                 "Message " + msnUnseen + " is the first unseen" );
+        }
+        else {
+            response.okResponse( null, "No messages unseen" );
+        }
+        
+        response.permanentFlagsResponse(mailbox.getAllowedFlags());
+
+        if ( mailbox.isReadonly() ) {
+            response.commandComplete( this, "READ-ONLY" );
+        }
+        else {
+            response.commandComplete( this, "READ-WRITE" );
+        }
+    }
+
+    private boolean selectMailbox(String mailboxName, ImapSession session) throws MailboxException {
         ImapMailbox mailbox = getMailbox( mailboxName, session, true );
 
         if ( !mailbox.isSelectable() ) {
@@ -96,29 +126,7 @@ class SelectCommand extends AuthenticatedStateCommand
 
         boolean readOnly = ( this instanceof ExamineCommand );
         session.setSelected( mailbox, readOnly );
-
-        response.flagsResponse( mailbox.getAllowedFlags() );
-        response.existsResponse( mailbox.getMessageCount() );
-        response.recentResponse( mailbox.getRecentCount() );
-        response.okResponse( "UIDVALIDITY " + mailbox.getUidValidity(), null );
-
-        int firstUnseen = mailbox.getFirstUnseen();
-        if ( firstUnseen != 0 ) {
-            int msnUnseen = mailbox.getMsn( firstUnseen );
-            response.okResponse( "UNSEEN " + msnUnseen,
-                                 "Message " + msnUnseen + " is the first unseen" );
-        }
-        else {
-            response.okResponse( null, "No messages unseen" );
-        }
-
-
-        if ( readOnly ) {
-            response.commandComplete( this, "READ-ONLY" );
-        }
-        else {
-            response.commandComplete( this, "READ-WRITE" );
-        }
+        return readOnly;
     }
 
     /** @see ImapCommand#getName */

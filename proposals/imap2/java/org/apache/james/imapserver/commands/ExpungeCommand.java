@@ -71,7 +71,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class ExpungeCommand extends SelectedStateCommand
 {
@@ -86,17 +86,12 @@ class ExpungeCommand extends SelectedStateCommand
     {
         parser.endLine( request );
 
-        if ( session.selectedIsReadOnly() ) {
+        if (session.getSelected().isReadonly()) {
             response.commandFailed( this, "Mailbox selected read only." );
         }
 
         ImapMailbox mailbox = session.getSelected();
-        ImapHost host = session.getHost();
-        int[] msns = host.expunge( mailbox );
-        for ( int i = 0; i < msns.length; i++ ) {
-            int msn = msns[i];
-            response.expungeResponse( msn );
-        }
+        mailbox.expunge();
 
         session.unsolicitedResponses( response );
         response.commandComplete( this );

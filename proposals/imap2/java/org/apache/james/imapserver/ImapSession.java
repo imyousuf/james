@@ -70,7 +70,7 @@ import org.apache.james.imapserver.store.ImapMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public interface ImapSession
 {
@@ -150,13 +150,6 @@ public interface ImapSession
      * session is not in {@link ImapSessionState#SELECTED} state.
      * @return the currently selected mailbox.
      */
-    ImapMailbox getSelected();
-
-    /**
-     * TODO? return a read-only wrapper for read-only selections, and put the
-     * isReadOnly() on the mailbox itself?
-     * @return if the currently selected mailbox is open read only.
-     */
-    boolean selectedIsReadOnly();
+    ImapSessionMailbox getSelected();
 
 }

@@ -62,6 +62,7 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.ImapSessionMailbox;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.SimpleImapMessage;
@@ -71,7 +72,7 @@ import org.apache.james.imapserver.store.SimpleImapMessage;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -97,7 +98,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
 
-        ImapMailbox currentMailbox = session.getSelected();
+        ImapSessionMailbox currentMailbox = session.getSelected();
         ImapMailbox toMailbox;
         try {
             toMailbox = getMailbox( mailboxName, session, true );
@@ -120,7 +121,7 @@ class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
             }
 
             if ( inSet ) {
-                session.getHost().copyMessage( uid, currentMailbox, toMailbox );
+                currentMailbox.copyMessage(uid, toMailbox);
             }
         }
 

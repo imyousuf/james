@@ -73,7 +73,7 @@ import javax.mail.Message;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -102,7 +102,7 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
         parser.endLine( request );
 
         ImapMailbox mailbox = session.getSelected();
-        long[] uids = session.getHost().search( searchTerm, mailbox );
+        long[] uids = mailbox.search( searchTerm);
         StringBuffer idList = new StringBuffer();
         for ( int i = 0; i < uids.length; i++ ) {
             if ( i > 0 ) {

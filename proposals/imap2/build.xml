@@ -20,4 +20,15 @@
             <property name="version" value="3.0a1-imap2"/>
         </ant>
     </target>
+
+    <target name="clean">
+        <ant antfile="build.xml" target="clean">
+            <property name="build.dir" value="${proposal.dir}/build"/>
+            <property name="dist.base" value="${proposal.dir}/dist"/>
+            <property name="conf.dir" value="${conf.proposal.dir}"/>
+            <property name="version" value="3.0a1-imap2"/>
+        </ant>
+    </target>
+    
+    <target name="rebuild" depends="clean,main"/>
 </project>

@@ -58,27 +58,21 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
-import org.apache.james.imapserver.store.ImapMailbox;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
     private User user = null;
-    private ImapMailbox selectedMailbox = null;
-    // TODO: Use a session-specific wrapper for user's view of mailbox
-    // this wrapper would provide access control and track if the mailbox
-    // is opened read-only.
-    private boolean selectedIsReadOnly = false;
+    private ImapSessionMailbox selectedMailbox = null;
 
     private String clientHostName;
     private String clientAddress;
@@ -108,6 +102,23 @@ public final class ImapSessionImpl implements ImapSession
 
     public void unsolicitedResponses( ImapResponse request )
     {
+        ImapSessionMailbox selected = getSelected();
+        if (selected != null) {
+            
+            // Expunge response
+            int[] expunged = selected.getExpunged();
+            for (int i = 0; i < expunged.length; i++) {
+                int msn = expunged[i];
+                request.expungeResponse(msn);
+            }
+            
+            // New message response 
+            // TODO: need RECENT...
+            if (selected._sizeChanged) {
+                request.existsResponse(selected.getMessageCount());
+                selected._sizeChanged = false;
+            }
+        }
     }
 
     public void closeConnection()
@@ -148,23 +159,24 @@ public final class ImapSessionImpl implements ImapSession
 
     public void setSelected( ImapMailbox mailbox, boolean readOnly )
     {
+        ImapSessionMailbox sessionMailbox = new ImapSessionMailbox(mailbox, readOnly);
         this.state = ImapSessionState.SELECTED;
-        this.selectedMailbox = mailbox;
-        this.selectedIsReadOnly = readOnly;
+        this.selectedMailbox = sessionMailbox;
     }
 
-    public ImapMailbox getSelected()
+    public ImapSessionMailbox getSelected()
     {
         return this.selectedMailbox;
     }
 
     public boolean selectedIsReadOnly()
     {
-        return this.selectedIsReadOnly;
+        return selectedMailbox.isReadonly();
     }
 
     public ImapSessionState getState()
     {
         return this.state;
     }
+
 }
