@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.105 $  Committed on $Date: 2002/09/19 15:39:18 $ by: $Author: danny $
+ James build file $Revision: 1.106 $  Committed on $Date: 2002/09/22 10:01:09 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -362,7 +362,6 @@ Legal:
         <!-- Make sar file-->
         <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml" environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
             <lib dir="${build.lib}/">
-	            <exclude name="mailet.jar"/>
                 <include name="*.jar"/>
             </lib>
             <lib dir="lib">
@@ -370,6 +369,9 @@ Legal:
                 <include name="jakarta-oro-2.0.1.jar"/>
                 <include name="mm.mysql-2.0.14.jar"/>
                 <include name="mm.mysql.LICENCE"/>
+                <include name="avalon-framework-20020713.jar"/>
+                <include name="cornerstone.jar"/>
+                <include name="excalibur-datasource-1.0.jar"/>
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
