@@ -9,7 +9,11 @@ package org.apache.james.transport;
 
 import java.util.*;
 import javax.mail.*;
-import org.apache.avalon.*;
+import org.apache.avalon.Component;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
+
 import org.apache.mailet.*;
 import org.apache.james.core.*;
 

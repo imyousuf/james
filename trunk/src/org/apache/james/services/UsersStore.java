@@ -8,11 +8,14 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.services.Service;
+import org.apache.phoenix.Service;
 
 
 /**
- * Interface for a Repository to store Mails.
+ * Interface for Phoenix blocks to access a store of Users. A UserStore
+ * contains one or more UserRepositories. Multiple UserRepositories may or may
+ * not have overlapping membership. 
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>

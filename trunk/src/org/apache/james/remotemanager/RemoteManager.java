@@ -9,7 +9,9 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.cornerstone.services.Scheduler;
+import org.apache.cornerstone.services.SocketServer;
+
 import org.apache.james.*;
 import org.apache.james.services.*;
 import org.apache.log.LogKit;
@@ -59,9 +61,9 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
     public void init() throws Exception {
 
         logger.info("RemoteManager init...");
-        scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+        scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
 	mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(4554);
         InetAddress bind = null;
         try {

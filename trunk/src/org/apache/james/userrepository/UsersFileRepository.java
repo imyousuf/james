@@ -10,10 +10,10 @@ package org.apache.james.usersrepository;
 
 import java.util.*;
 import java.io.*;
-//import org.apache.avalon.blocks.*;
+
 import org.apache.avalon.*;
-import org.apache.avalon.services.Store;
-import org.apache.avalon.util.*;
+import org.apache.cornerstone.services.Store;
+import org.apache.avalon.util.Lock;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
@@ -63,7 +63,7 @@ public class UsersFileRepository implements UsersRepository, Loggable, Component
 
     public void compose(ComponentManager compMgr) {
 	try {
-	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
 		= new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");

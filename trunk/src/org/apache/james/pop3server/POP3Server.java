@@ -12,8 +12,9 @@ import java.net.*;
 import java.util.Date;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
-import org.apache.avalon.util.lang.*;
+import org.apache.avalon.util.lang.ThreadManager;
+import org.apache.avalon.util.thread.ThreadPool;
+import org.apache.cornerstone.services.SocketServer;
 
 import org.apache.james.*;
 import org.apache.james.util.InternetPrintWriter;
@@ -24,12 +25,12 @@ import org.apache.log.Logger;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class POP3Server implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
+public class POP3Server implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private WorkerPool workerPool;
+    private ThreadPool threadPool;
     private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
 
     public void configure(Configuration conf) throws ConfigurationException {
@@ -49,8 +50,8 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
 
         logger.info("POP3Server init...");
 	
-	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
-        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+	threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(110);
         InetAddress bind = null;
         try {
@@ -82,7 +83,7 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
             handler.compose(compMgr);
             handler.init();
             handler.parseRequest(s);
-            workerPool.execute((Runnable) handler);
+            threadPool.execute((Runnable) handler);
         } catch (Exception e) {
             logger.error("Cannot parse request on socket " + s + " : "
 			 + e.getMessage());

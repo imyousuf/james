@@ -8,18 +8,18 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.services.*;
-import org.apache.avalon.*;
-//import org.apache.avalon.utils.*;
 import java.util.Iterator;
-//import java.io.*;
+
 
 /**
- * Interface for a Repository to store users.
+ * Interface for a repository of users. A repository represents a logical
+ * grouping of users, typically by common purpose. E.g. the users served by an
+ * email server or the members of a mailing list.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface UsersRepository extends Service {
+public interface UsersRepository {
 
     public final static String USER = "USER";
 

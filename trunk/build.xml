@@ -11,7 +11,7 @@ Authors:
 
 
 Legal:
-  Copyright (c) 1999 The Apache Software Foundation. All Rights Reserved.
+  Copyright (c) 1999-2001 The Apache Software Foundation. All Rights Reserved.
 
 ===============================================================================
 
@@ -48,13 +48,13 @@ All these package are in current distribution.
   <property name="build.compiler" value="classic"/>
   <property name="debug" value="off"/>
   <property name="optimize" value="on"/>
-  <property name="deprecation" value="off"/>
+  <property name="deprecation" value="on"/>
 
   <!-- The properties in the init section should not normally be changed
 -->
   <target name="init">
 
-    <property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
+    <property name="classpath" value="./lib/avalonapi.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
 
     <property name="src.dir" value="./src"/>
     <property name="conf.dir" value="./conf"/>
@@ -70,7 +70,7 @@ All these package are in current distribution.
 
     <property name="constants.file" value="org/apache/james/Constants.java"/>
     <property name="conf.file" value="james.conf.xml"/>
-    <property name="blockdefs.file" value="blockdefs.properties"/>
+    <property name="server.file" value="james.server.xml"/>
 
     <property name="dist.dir" value="./dist"/>
     <property name="dist.name" value="${name}-${version}"/>
@@ -94,7 +94,7 @@ All these package are in current distribution.
     <echo message=" available targets are:"/>
     <echo message=""/>
     <echo message="   block-archive  --> generates the James.bar file (default)"/>
-    <echo message="   auxiliary-jars  --> generates the mailet.jar and the simple-server-demo.bar"/>
+    <echo message="   auxiliary-jars  --> generates the mailet.jar"/>
     <echo message="   compile  --> compiles the source code"/>
     <echo message="   dist     --> generates the JAMES distribution"/>
     <echo message="   clean    --> cleans up the directory"/>
@@ -137,7 +137,7 @@ All these package are in current distribution.
       <fileset dir="${src.dir}" excludes="**/CVS/**,*.xml"/>
     </copy>
 
-    <copy file="${lib.dir}/avalon-core-blocks.bar" tofile="${build.lib}/avalon-core-blocks.bar"/>
+    <copy file="${lib.dir}/cornerstone.bar" tofile="${build.lib}/cornerstone.bar"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -204,6 +204,10 @@ All these package are in current distribution.
         <include name="james.conf.xml"/>
       </fileset>
 
+      <fileset dir="${conf.dir}" fullpath="conf/server.xml">
+        <include name="james.server.xml"/>
+      </fileset>
+
     </jar>
 
   </target>
@@ -226,7 +230,7 @@ All these package are in current distribution.
     <copy todir="${dist.dir}/docs">
       <fileset dir="./docs/"/>
     </copy>
-    <copy file="${build.lib}/${name}.sar" tofile="${dist.dir}/bin/blocks/${name}.sar"/>
+    <copy file="${build.lib}/${name}.sar" tofile="${dist.dir}/apps/${name}.sar"/>
 
     <copy file="./lib/avalon-engine.jar" tofile="${dist.dir}/bin/avalon-engine.jar"/>
     <copy file="./lib/avalon-loader.jar" tofile="${dist.dir}/bin/avalon-loader.jar"/>

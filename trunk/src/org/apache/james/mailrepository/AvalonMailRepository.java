@@ -14,9 +14,10 @@ import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
 import org.apache.avalon.util.Lock;
 import org.apache.avalon.util.LockException;
+import org.apache.cornerstone.services.Store;
+
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
@@ -70,7 +71,7 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
 
     public void compose(ComponentManager compMgr) {
 	try {
-	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
 		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");

@@ -14,7 +14,8 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.mailet.*;
-import org.apache.avalon.*;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
 
 /**
  *

@@ -12,8 +12,10 @@ import java.net.*;
 import java.util.Date;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.cornerstone.services.SocketServer;
 import org.apache.avalon.util.lang.*;
+import org.apache.avalon.util.thread.ThreadPool;
+
 import org.apache.james.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -27,12 +29,12 @@ import org.apache.log.Logger;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class IMAPServer implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
+public class IMAPServer implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private WorkerPool workerPool;
+    private ThreadPool threadPool;
     private Logger logger =  LogKit.getLoggerFor("james.IMAPServer");
 
     public void configure(Configuration conf) throws ConfigurationException {
@@ -51,8 +53,8 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
 
         logger.info("IMAPServer init...");
 
-	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
-        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+	threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(143);
 
         InetAddress bind = null;
@@ -79,13 +81,13 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
 
         try {
             ConnectionHandler handler = new SingleThreadedConnectionHandler();
-	    handler.setLogger(logger);
+	    ((Loggable)handler).setLogger(logger);
             handler.configure(conf.getChild("imaphandler"));
             handler.contextualize(context);
             handler.compose(compMgr);
             handler.init();
             handler.parseRequest(s);
-            workerPool.execute((Runnable) handler);
+            threadPool.execute((Runnable) handler);
         } catch (Exception e) {
             logger.error("IMAPServer: Cannot parse request on socket " + s + " : " + e.getMessage());
         }

@@ -8,9 +8,7 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.services.*;
 import java.util.Iterator;
-
 import org.apache.james.core.*;
 
 
@@ -20,7 +18,7 @@ import org.apache.james.core.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface MailRepository extends Service {
+public interface MailRepository {
 
     /**
      * Define a MAIL repository. MAILS are stored in the specified

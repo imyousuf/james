@@ -5,9 +5,9 @@ import java.io.*;
 import org.apache.james.core.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.Store;
-import org.apache.avalon.blocks.*;
-//import org.apache.avalon.utils.*;
+import org.apache.cornerstone.services.Store;
+//import org.apache.avalon.blocks.*;
+
 
 public class FileMimeMessageInputStream extends JamesMimeMessageInputStream {
     //Define how to get to the data

@@ -13,7 +13,7 @@ import java.net.*;
 import java.util.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
+//import org.apache.avalon.blocks.*;
 import org.apache.mailet.Mail;
 import org.apache.james.transport.Resources;
 import org.apache.log.LogKit;

@@ -11,8 +11,9 @@ package org.apache.james.smtpserver;
 import java.net.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
-import org.apache.avalon.util.lang.*;
+import org.apache.avalon.util.lang.ThreadManager;
+import org.apache.avalon.util.thread.ThreadPool;
+import org.apache.cornerstone.services.SocketServer;
 
 import org.apache.james.*;
 import org.apache.log.LogKit;
@@ -23,13 +24,13 @@ import org.apache.log.Logger;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
+public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
     private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
-    private WorkerPool workerPool;
+    private ThreadPool threadPool;
  
     
     public void configure(Configuration conf) throws ConfigurationException{
@@ -47,9 +48,8 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
     public void init() throws Exception {
 
         logger.info("SMTPServer init...");
-	//int threadPool = conf.getChild("ThreadPoolSize").getVaueAsInt();
-	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
-        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+	threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(25);
         InetAddress bind = null;
         try {
@@ -72,7 +72,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             smtpHandler.compose(compMgr);
             smtpHandler.init();
             smtpHandler.parseRequest(s);
-            workerPool.execute((Runnable)smtpHandler);
+            threadPool.execute((Runnable)smtpHandler);
             logger.debug("Executing handler.");
         } catch (Exception e) {
             logger.error("Cannot parse request on socket " + s + " : "

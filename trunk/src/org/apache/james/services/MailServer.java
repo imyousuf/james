@@ -11,16 +11,18 @@ package org.apache.james.services;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 import java.util.Collection;
+
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-//import org.apache.avalon.*;
-//import org.apache.james.*;
-//import org.apache.james.services.MailRepository;
+
 import java.io.InputStream;
-import org.apache.avalon.services.Service;
+import org.apache.phoenix.Service;
 
 /**
+ * The interface for Phoenix blocks to the James MailServer
+ *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
 
 public interface MailServer extends Service {

@@ -11,14 +11,15 @@ package org.apache.james.transport;
 import java.io.*;
 import java.util.*;
 import javax.mail.*;
-import org.apache.avalon.*;
 
-//import org.apache.avalon.utils.*;
+import org.apache.avalon.*;
+import org.apache.log.Logger;
+
 import org.apache.james.*;
 import org.apache.james.core.*;
-import org.apache.james.mailrepository.*;
+//import org.apache.james.mailrepository.*;
 import org.apache.james.services.SpoolRepository;
-import org.apache.log.Logger;
+
 import org.apache.mailet.*;
 
 /**

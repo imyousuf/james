@@ -8,7 +8,7 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.services.Store;
+import org.apache.cornerstone.services.Store;
 
 
 /**
