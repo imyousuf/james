@@ -220,8 +220,20 @@ class NNTPArticleImpl implements NNTPArticle {
             String msgId = hdr.getHeader("Message-Id",null);
             String references = hdr.getHeader("References",null);
             long byteCount = articleFile.length();
-            // TODO: Address the line count issue.
-            long lineCount = -1;
+
+            // get line count, if not set, count the lines
+            String lineCount = hdr.getHeader("Lines",null);
+            if (lineCount == null) {
+                BufferedReader rdr = new BufferedReader(new FileReader(fileStream.getFD()));
+                int lines = 0;
+                while (rdr.readLine() != null) {
+                    lines++;
+                }
+
+                lineCount = Integer.toString(lines);
+                rdr.close();
+            }
+
             StringBuffer line=new StringBuffer(256)
                 .append(getArticleNumber())    .append("\t")
                 .append(cleanHeader(subject))    .append("\t")
