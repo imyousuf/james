@@ -47,7 +47,7 @@ public class MailImpl implements Mail {
     }
 
     public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
-    throws MessagingException {
+            throws MessagingException {
         this(name, sender, recipients);
         MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
         MimeMessageWrapper wrapper = new MimeMessageWrapper(source);
@@ -139,13 +139,20 @@ public class MailImpl implements Mail {
         Enumeration e = message.getAllHeaders();
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
-         }
+        }
         return size;
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
-            sender = new MailAddress((String) in.readObject());
+            Object obj = in.readObject();
+            if (obj == null) {
+                sender = null;
+            } else if (obj instanceof String) {
+                sender = new MailAddress((String)obj);
+            } else if (obj instanceof MailAddress) {
+                sender = (MailAddress)obj;
+            }
         } catch (ParseException pe) {
             throw new IOException("Error parsing sender address: " + pe.getMessage());
         }
@@ -201,7 +208,7 @@ public class MailImpl implements Mail {
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         //System.err.println("saving object");
         lastUpdated = new Date();
-        out.writeObject(sender.toString());
+        out.writeObject(sender);
         out.writeObject(recipients);
         out.writeObject(state);
         out.writeObject(errorMessage);
