@@ -72,6 +72,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.mailet.Datasource;
 
 
 /**
@@ -97,14 +98,15 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.22 $
+ * @version CVS $Revision: 1.23 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,
                Runnable,
                Disposable,
-               DataSourceComponent {
+               DataSourceComponent,
+               Datasource {
     // The limit that an active connection can be running
     public static final long ACTIVE_CONN_TIME_LIMIT = 60000; // (one minute)
     // How long before you kill off a connection due to inactivity
