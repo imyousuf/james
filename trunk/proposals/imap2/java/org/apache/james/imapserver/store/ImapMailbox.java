@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.store;
 
-import org.apache.james.services.MailRepository;
+import org.apache.mailet.MailRepository;
 import org.apache.james.core.MailImpl;
 
 import javax.mail.internet.MimeMessage;
@@ -24,7 +24,7 @@ import java.util.Collection;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public interface ImapMailbox
 {

@@ -8,8 +8,8 @@
 package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 import org.apache.james.imapserver.store.ImapMailbox;
 
 /**
@@ -19,7 +19,7 @@ import org.apache.james.imapserver.store.ImapMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface ImapSession
 {

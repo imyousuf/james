@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 import org.apache.james.imapserver.store.ImapStore;
 import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.ImapMailbox;
@@ -35,7 +35,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
