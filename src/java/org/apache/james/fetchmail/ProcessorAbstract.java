@@ -203,6 +203,15 @@ abstract public class ProcessorAbstract
     {
         return getAccount().getRecipient();
     }
+    
+    /**
+     * Method getRemoteReceivedHeaderIndex.
+     * @return int
+     */
+    protected int getRemoteReceivedHeaderIndex()
+    {
+        return getConfiguration().getRemoteReceivedHeaderIndex();    
+    }
 
 
     /**

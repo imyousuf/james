@@ -143,7 +143,9 @@ public class StoreProcessor extends ProcessorAbstract
         }
         catch (MessagingException ex)
         {
-            getLogger().error(ex.getMessage());
+            getLogger().error(
+                "A MessagingException has terminated processing of this Folder",
+                ex);
         }
         finally
         {
@@ -154,7 +156,9 @@ public class StoreProcessor extends ProcessorAbstract
             }
             catch (MessagingException ex)
             {
-                getLogger().error(ex.getMessage());
+                getLogger().error(
+                    "A MessagingException occured while closing the Store",
+                    ex);
             }
             logMessageBuffer =
                 new StringBuffer("Finished fetching mail from server '");

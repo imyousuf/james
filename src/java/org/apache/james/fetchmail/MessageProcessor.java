@@ -58,9 +58,13 @@
  
 package org.apache.james.fetchmail;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import javax.mail.Address;
 import javax.mail.Flags;
@@ -70,6 +74,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.core.MailImpl;
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -192,10 +197,32 @@ public class MessageProcessor extends ProcessorAbstract
      */ 
     private boolean fieldUserUndefined = false;
     
+    
+    /**
+     * Field names for an RFC2822 compliant RECEIVED Header
+     */
+    static final private String fieldRFC2822RECEIVEDHeaderFields =
+        "from by via with id for ;";
+    
     /**
      * Recipient is blacklisted
      */ 
     private boolean fieldBlacklistedRecipient = false;
+    
+    /**
+     * The RFC2822 compliant "Received : from" domain
+     */
+    private String fieldRemoteDomain;
+    
+    /**
+     * The remote address derived from the remote domain
+     */
+    private String fieldRemoteAddress;
+    
+    /**
+     * The remote host name derived from the remote domain
+     */
+    private String fieldRemoteHostName;           
     
     /**
      * Constructor for MessageProcessor.
@@ -229,12 +256,15 @@ public class MessageProcessor extends ProcessorAbstract
      * @see org.apache.james.fetchmail.ProcessorAbstract#process()
      */
     public void process() throws MessagingException
-    {      
+    {
         // Log delivery attempt
-        StringBuffer logMessageBuffer =
-            new StringBuffer("Attempting delivery of message with id. ");
-        logMessageBuffer.append(getMessageIn().getMessageID());
-        getLogger().info(logMessageBuffer.toString());
+        if (getLogger().isDebugEnabled())
+        {
+            StringBuffer logMessageBuffer =
+                new StringBuffer("Attempting delivery of message with id. ");
+            logMessageBuffer.append(getMessageIn().getMessageID());
+            getLogger().debug(logMessageBuffer.toString());
+        }
 
         // Determine the intended recipient
         MailAddress intendedRecipient = getIntendedRecipient();
@@ -250,20 +280,25 @@ public class MessageProcessor extends ProcessorAbstract
                     .contains(messageID))
                 {
                     getDeferredRecipientNotFoundMessageIDs().add(messageID);
-                    StringBuffer messageBuffer =
-                        new StringBuffer("Deferred processing of message for which the intended recipient could not be found. Message ID: ");
-                    messageBuffer.append(messageID);
-                    getLogger().info(messageBuffer.toString());
+                    if (getLogger().isDebugEnabled())
+                    {
+                        StringBuffer messageBuffer =
+                            new StringBuffer("Deferred processing of message for which the intended recipient could not be found. Message ID: ");
+                        messageBuffer.append(messageID);
+                        getLogger().debug(messageBuffer.toString());
+                    }
                     return;
-
                 }
                 else
                 {
                     getDeferredRecipientNotFoundMessageIDs().remove(messageID);
-                    StringBuffer messageBuffer =
-                        new StringBuffer("Processing deferred message for which the intended recipient could not be found. Message ID: ");
-                    messageBuffer.append(messageID);
-                    getLogger().info(messageBuffer.toString());
+                    if (getLogger().isDebugEnabled())
+                    {
+                        StringBuffer messageBuffer =
+                            new StringBuffer("Processing deferred message for which the intended recipient could not be found. Message ID: ");
+                        messageBuffer.append(messageID);
+                        getLogger().debug(messageBuffer.toString());
+                    }
                 }
             }
 
@@ -275,39 +310,44 @@ public class MessageProcessor extends ProcessorAbstract
             intendedRecipient = getRecipient();
             StringBuffer messageBuffer =
                 new StringBuffer("Intended recipient not found. Using configured recipient as new envelope recipient - ");
-            messageBuffer.append(intendedRecipient.toString());
-            getLogger().info(messageBuffer.toString());
+            messageBuffer.append(intendedRecipient);
+            messageBuffer.append('.');            
+            logStatusInfo(messageBuffer.toString());
         }
 
         // Set the filter states
+        setBlacklistedRecipient(isBlacklistedRecipient(intendedRecipient));
         setRemoteRecipient(!isLocalServer(intendedRecipient));
         setUserUndefined(!isLocalRecipient(intendedRecipient));
-        setBlacklistedRecipient(isBlacklistedRecipient(intendedRecipient));
 
         // Check recipient against blacklist / whitelist
         // Return if rejected
-        if (isRejectRemoteRecipient() & isRemoteRecipient())
-        {
-            rejectRemoteRecipient(intendedRecipient);
-            return;
-        }
-
-        if (isRejectUserUndefined() & isUserUndefined())
-        {
-            rejectUserUndefined(intendedRecipient);
-            return;
-        }
-
-        if (isRejectBlacklisted() & isBlacklistedRecipient())
+        if (isRejectBlacklisted() && isBlacklistedRecipient())
         {
             rejectBlacklistedRecipient(intendedRecipient);
             return;
         }
 
+        if (isRejectRemoteRecipient() && isRemoteRecipient())
+        {
+            rejectRemoteRecipient(intendedRecipient);
+            return;
+        }
+
+        if (isRejectUserUndefined() && isUserUndefined())
+        {
+            rejectUserUndefined(intendedRecipient);
+            return;
+        }
+
         // Create the mail
-        // If any of the addresses are malformed, we will get a
-        // ParseException. In which case, we log the problem and
-        // return. The message will be left unaltered on the server.
+        // If any of the mail addresses are malformed, we will get a
+        // ParseException. 
+        // If the IP address and host name for the remote domain cannot
+        // be found, we will get an UnknownHostException.
+        // In both cases, we log the problem and
+        // return. The message disposition is defined by the
+        // <undeliverable> attributes.
         Mail mail = null;
         try
         {
@@ -315,13 +355,25 @@ public class MessageProcessor extends ProcessorAbstract
         }
         catch (ParseException ex)
         {
-            handleParseException(ex, intendedRecipient);
+            handleParseException(ex);
+            return;
+        }
+        catch (UnknownHostException ex)
+        {
+            handleUnknownHostException(ex);
             return;
         }
 
         createMailAttributes(mail);
 
-        // OK, lets try and send that mail  
+        // If this mail is bouncing move it to the ERROR repository
+        if (isBouncing())
+        {
+            handleBouncing(mail);
+            return;
+        }
+
+        // OK, lets send that mail!
         sendMail(mail);
     }
 
@@ -342,8 +394,9 @@ public class MessageProcessor extends ProcessorAbstract
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for remote recipient: ");
-        messageBuffer.append(recipient.toString());
-        getLogger().info(messageBuffer.toString());
+        messageBuffer.append(recipient);
+        messageBuffer.append('.');          
+        logStatusInfo(messageBuffer.toString());
 
         return;
     }
@@ -364,8 +417,9 @@ public class MessageProcessor extends ProcessorAbstract
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for blacklisted recipient: ");
-        messageBuffer.append(recipient.toString());
-        getLogger().info(messageBuffer.toString());
+        messageBuffer.append(recipient);
+        messageBuffer.append('.');        
+        logStatusInfo(messageBuffer.toString());
 
         return;
     }
@@ -384,16 +438,16 @@ public class MessageProcessor extends ProcessorAbstract
             setMessageSeen();
 
         StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail for which a sole intended recipient could not be found. Message ID: ");
-        messageBuffer.append(getMessageIn().getMessageID());
-        messageBuffer.append(", recipients: ");
+            new StringBuffer("Rejected mail for which a sole intended recipient could not be found.");
+        messageBuffer.append(" Recipients: ");
         Address[] allRecipients = getMessageIn().getAllRecipients();
         for (int i = 0; i < allRecipients.length; i++)
         {
-            messageBuffer.append(allRecipients[i].toString());
+            messageBuffer.append(allRecipients[i]);
             messageBuffer.append(' ');
         }
-        getLogger().info(messageBuffer.toString());
+        messageBuffer.append('.');          
+        logStatusInfo(messageBuffer.toString());
         return;
     }
     
@@ -414,8 +468,9 @@ public class MessageProcessor extends ProcessorAbstract
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for undefined user: ");
-        messageBuffer.append(recipient.toString());
-        getLogger().info(messageBuffer.toString());
+        messageBuffer.append(recipient);
+        messageBuffer.append('.');          
+        logStatusInfo(messageBuffer.toString());
 
         return;
     }   
@@ -449,15 +504,37 @@ public class MessageProcessor extends ProcessorAbstract
      * @throws MessagingException
      */
     protected Mail createMail(MimeMessage message, MailAddress recipient)
-        throws MessagingException
+        throws MessagingException, UnknownHostException
     {
         Collection recipients = new ArrayList(1);
         recipients.add(recipient);
-        return new MailImpl(
-            getServer().getId(),
-            getSender(),
-            recipients,
-            message);
+        MailImpl mail =
+            new MailImpl(getServer().getId(), getSender(), recipients, message);
+        mail.setRemoteAddr(getRemoteAddress());
+        mail.setRemoteHost(getRemoteHostName());
+
+        if (getLogger().isDebugEnabled())
+        {
+            StringBuffer messageBuffer =
+                new StringBuffer("Created mail with name: ");
+            messageBuffer.append(mail.getName());
+            messageBuffer.append(", sender: ");
+            messageBuffer.append(mail.getSender());
+            messageBuffer.append(", recipients: ");
+            Iterator recipientIterator = mail.getRecipients().iterator();
+            while (recipientIterator.hasNext())
+            {
+                messageBuffer.append(recipientIterator.next());
+                messageBuffer.append(' ');
+            }
+            messageBuffer.append(", remote address: ");
+            messageBuffer.append(mail.getRemoteAddr());
+            messageBuffer.append(", remote host name: ");
+            messageBuffer.append(mail.getRemoteHost());
+            messageBuffer.append('.');
+            getLogger().debug(messageBuffer.toString());
+        }
+        return mail;
     }
 
     /**
@@ -487,32 +564,114 @@ public class MessageProcessor extends ProcessorAbstract
     }
     
     /**
-     * Method handleBouncing sets the Mail state to ERROR.
+     * <p>Method computeRemoteDomain answers a <code>String</code> that is the
+     * RFC2822 compliant "Received : from" domain extracted from the message
+     * being processed.</p>
+     * 
+     * <p>Normally this is the domain that sent the message to the host for the
+     * message store as reported by the second "received" header. The index of
+     * the header to use is specified by the configuration parameter
+     * <code>RemoteReceivedHeaderIndex</code>. If a header at this index does
+     * not exist, the domain of the successively closer "received" headers
+     * is tried until they are exhausted, then "localhost" is used.</p>
+     * 
+     * @return String
+     */
+    protected String computeRemoteDomain() throws MessagingException
+    {
+        String[] headers = getMessageIn().getHeader(RFC2822Headers.RECEIVED);
+        StringBuffer domainBuffer = new StringBuffer();
+
+        // If there are RECEIVED headers and the index to begin at is greater
+        // than -1, try and extract the domain
+        if (headers.length > 0 && getRemoteReceivedHeaderIndex() > -1)
+        {
+            final String headerTokens = " \n\r";
+
+            // Search the headers for a domain
+            for (int headerIndex =
+                headers.length > getRemoteReceivedHeaderIndex()
+                    ? getRemoteReceivedHeaderIndex()
+                    : headers.length - 1;
+                headerIndex >= 0 && domainBuffer.length() == 0;
+                headerIndex--)
+            {
+                // Find the "from" token
+                StringTokenizer tokenizer =
+                    new StringTokenizer(headers[headerIndex], headerTokens);
+                boolean inFrom = false;
+                while (!inFrom && tokenizer.hasMoreTokens())
+                    inFrom = tokenizer.nextToken().equals("from");
+
+                // Add subsequent tokens to the domain buffer until another 
+                // field is encountered or there are no more tokens
+                while (inFrom && tokenizer.hasMoreTokens())
+                {
+                    String token = tokenizer.nextToken();
+                    if (inFrom =
+                        getRFC2822RECEIVEDHeaderFields().indexOf(token) == -1)
+                    {
+                        domainBuffer.append(token);
+                        domainBuffer.append(' ');
+                    }
+                }
+            }
+        }
+
+        // Default is "localhost"
+        if (domainBuffer.length() == 0)
+            domainBuffer.append("localhost");
+
+        return domainBuffer.toString().trim();
+    }    
+    
+    /**
+     * Method handleBouncing sets the Mail state to ERROR and delete from
+     * the message store.
      * 
      * @param mail
      */
-    protected void handleBouncing(Mail mail)
+    protected void handleBouncing(Mail mail) throws MessagingException
     {
         mail.setState(Mail.ERROR);
+        setMessageDeleted();
+
         mail.setErrorMessage(
             "This mail from FetchMail task "
                 + getFetchTaskName()
                 + " seems to be bouncing!");
-        getLogger().error(
-            "A message from FetchMail task "
-                + getFetchTaskName()
-                + " seems to be bouncing! Moved to Error repository");
+        logStatusError("Message is bouncing! Deleted from message store and moved to the Error repository.");
     }
     
     /**
      * Method handleParseException.
      * @param ex
-     * @param intendedRecipient
      * @throws MessagingException
      */
-    protected void handleParseException(
-        ParseException ex,
-        MailAddress intendedRecipient)
+    protected void handleParseException(ParseException ex)
+        throws MessagingException
+    {
+        // Update the flags of the received message
+        if (!isLeaveUndeliverable())
+            setMessageDeleted();
+        if (isMarkUndeliverableSeen())
+            setMessageSeen();
+        logStatusWarn("Message could not be delivered due to an error parsing a mail address.");
+        if (getLogger().isDebugEnabled())
+        {
+            StringBuffer messageBuffer =
+                new StringBuffer("UNDELIVERABLE Message ID: ");
+            messageBuffer.append(getMessageIn().getMessageID());
+            getLogger().debug(messageBuffer.toString(), ex);
+        }
+    }
+    
+    /**
+     * Method handleUnknownHostException.
+     * @param ex
+     * @throws MessagingException
+     */
+    protected void handleUnknownHostException(UnknownHostException ex)
         throws MessagingException
     {
         // Update the flags of the received message
@@ -522,18 +681,15 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkUndeliverableSeen())
             setMessageSeen();
 
-        getLogger().error(
-            getFetchTaskName()
-                + " Message could not be processed due to an error parsing the addresses."
-                + " Subject: "
-                + getMessageIn().getSubject()
-                + " From: "
-                + getMessageIn().getFrom()[0].toString()
-                + " To: "
-                + intendedRecipient.toString());
-        getLogger().debug(ex.toString());
-        //      ex.printStackTrace();
-    }
+        logStatusWarn("Message could not be delivered due to an error determining the remote domain.");
+        if (getLogger().isDebugEnabled())
+        {
+            StringBuffer messageBuffer =
+                new StringBuffer("UNDELIVERABLE Message ID: ");
+            messageBuffer.append(getMessageIn().getMessageID());
+            getLogger().debug(messageBuffer.toString(), ex);
+        }
+    }    
     
     /**
      * Method isLocalRecipient.
@@ -601,18 +757,8 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected void sendMail(Mail mail) throws MessagingException
     {
-        // If this mail is bouncing move it to the ERROR repository
-        //     else
-        // Send the mail
-        if (isBouncing())
-            handleBouncing(mail);
-        else
-        {
-            getServer().sendMail(mail);
-            getLogger().info(
-                "Spooled message to " + mail.getRecipients().toString());
-            getLogger().debug("Sent message " + mail.getMessage().toString());
-        }
+        // send the mail
+        getServer().sendMail(mail);
 
         // Update the flags of the received message
         if (!isLeave())
@@ -620,6 +766,18 @@ public class MessageProcessor extends ProcessorAbstract
 
         if (isMarkSeen())
             setMessageSeen();
+
+        // Log the status
+        StringBuffer messageBuffer =
+            new StringBuffer("Spooled message to recipients: ");
+        Iterator recipientIterator = mail.getRecipients().iterator();
+        while (recipientIterator.hasNext())
+        {
+            messageBuffer.append(recipientIterator.next());
+            messageBuffer.append(' ');
+        }
+        messageBuffer.append('.');
+        logStatusInfo(messageBuffer.toString());
     }   
 
 
@@ -634,7 +792,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @return String
      */
 
-    protected String getEnvelopeRecipient(MimeMessage msg)
+    protected String getEnvelopeRecipient(MimeMessage msg) throws MessagingException
     {
         try
         {
@@ -697,7 +855,7 @@ public class MessageProcessor extends ProcessorAbstract
         }
         catch (MessagingException me)
         {
-            getLogger().warn("No Received headers found");
+            logStatusWarn("No Received headers found.");
         }
         return null;
     }
@@ -715,9 +873,10 @@ public class MessageProcessor extends ProcessorAbstract
         if (isIgnoreRecipientHeader())
         {
             StringBuffer messageBuffer =
-                new StringBuffer("Ignoring recipient header. Using configured recipient as new envelope recipient - ");
-            messageBuffer.append(getRecipient().toString());
-            getLogger().info(messageBuffer.toString());
+                new StringBuffer("Ignoring recipient header. Using configured recipient as new envelope recipient: ");
+            messageBuffer.append(getRecipient());
+            messageBuffer.append('.');            
+            logStatusInfo(messageBuffer.toString());
             return getRecipient();
         }
 
@@ -728,9 +887,10 @@ public class MessageProcessor extends ProcessorAbstract
         {
             MailAddress recipient = new MailAddress(targetRecipient);
             StringBuffer messageBuffer =
-                new StringBuffer("Using original envelope recipient as new envelope recipient - ");
-            messageBuffer.append(recipient.toString());
-            getLogger().info(messageBuffer.toString());
+                new StringBuffer("Using original envelope recipient as new envelope recipient: ");
+            messageBuffer.append(recipient);
+            messageBuffer.append('.');              
+            logStatusInfo(messageBuffer.toString());
             return recipient;
         }
 
@@ -744,9 +904,10 @@ public class MessageProcessor extends ProcessorAbstract
             MailAddress recipient =
                 new MailAddress((InternetAddress) allRecipients[0]);
             StringBuffer messageBuffer =
-                new StringBuffer("Using sole recipient header address as new envelope recipient - ");
-            messageBuffer.append(recipient.toString());
-            getLogger().info(messageBuffer.toString());
+                new StringBuffer("Using sole recipient header address as new envelope recipient: ");
+            messageBuffer.append(recipient);
+            messageBuffer.append('.');              
+            logStatusInfo(messageBuffer.toString());
             return recipient;
         }
 
@@ -791,6 +952,55 @@ public class MessageProcessor extends ProcessorAbstract
     }
     
     /**
+     * Log the status of the current message as INFO.
+     * @param detailMsg
+     */
+    protected void logStatusInfo(String detailMsg) throws MessagingException
+    {
+        getLogger().info(getStatusReport(detailMsg).toString());
+    }
+
+    /**
+     * Log the status the current message as WARN.
+     * @param detailMsg
+     */
+    protected void logStatusWarn(String detailMsg) throws MessagingException
+    {
+        getLogger().warn(getStatusReport(detailMsg).toString());
+    }
+    
+    /**
+     * Log the status the current message as ERROR.
+     * @param detailMsg
+     */
+    protected void logStatusError(String detailMsg) throws MessagingException
+    {
+        getLogger().error(getStatusReport(detailMsg).toString());
+    }    
+
+    /**
+     * Answer a <code>StringBuffer</code> containing a message reflecting
+     * the current status of the message being processed.
+     * 
+     * @param detailMsg
+     * @return StringBuffer
+     */
+    protected StringBuffer getStatusReport(String detailMsg) throws MessagingException
+    {
+        StringBuffer messageBuffer = new StringBuffer(detailMsg);
+        if (detailMsg.length() > 0)
+            messageBuffer.append(' ');
+        messageBuffer.append("Message ID: ");
+        messageBuffer.append(getMessageIn().getMessageID());
+        messageBuffer.append(". Flags: Seen = ");
+        messageBuffer.append(new Boolean(isMessageSeen()));
+        messageBuffer.append(", Delete = ");
+        messageBuffer.append(new Boolean(isMessageDeleted()));
+        messageBuffer.append('.');
+        return messageBuffer;
+    }    
+    
+    /**
      * Returns the userUndefined.
      * @return boolean
      */
@@ -800,13 +1010,31 @@ public class MessageProcessor extends ProcessorAbstract
     }
     
     /**
+     * Is the DELETED flag set?
+     * @throws MessagingException
+     */
+    protected boolean isMessageDeleted() throws MessagingException
+    {
+       return getMessageIn().isSet(Flags.Flag.DELETED);
+    }
+    
+    /**
+     * Is the SEEN flag set?
+     * @throws MessagingException
+     */
+    protected boolean isMessageSeen() throws MessagingException
+    {
+       return getMessageIn().isSet(Flags.Flag.SEEN);
+    }    
+    
+    /**
      * Set the DELETED flag.
      * @throws MessagingException
      */
     protected void setMessageDeleted() throws MessagingException
     {
             getMessageIn().setFlag(Flags.Flag.DELETED, true);
-    }
+    }    
     
     /*    /**
      * Set the SEEN flag.
@@ -837,13 +1065,8 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected void handleMarkSeenNotPermanent() throws MessagingException
     {
-        StringBuffer messageBuffer = new StringBuffer("Marking message ID: ");
-        messageBuffer.append(getMessageIn().getMessageID());
-        messageBuffer.append(
-            " as SEEN, but the folder does not support a permanent SEEN flag.");
-        getLogger().warn(messageBuffer.toString());
-        
         getMessageIn().setFlag(Flags.Flag.SEEN, true);
+        logStatusWarn("Message marked as SEEN, but the folder does not support a permanent SEEN flag.");
     }            
 
     /**
@@ -931,6 +1154,191 @@ public class MessageProcessor extends ProcessorAbstract
     protected void setRecipientNotFound(boolean recipientNotFound)
     {
         fieldRecipientNotFound = recipientNotFound;
+    }
+
+    /**
+     * Returns the remoteDomain, lazily initialised as required.
+     * @return String
+     */
+    protected String getRemoteDomain() throws MessagingException
+    {
+        String remoteDomain;
+        if (null == (remoteDomain = getRemoteDomainBasic()))
+        {
+            updateRemoteDomain();
+            return getRemoteDomain();
+        }    
+        return remoteDomain;
+    }
+    
+    /**
+     * Returns the remoteDomain.
+     * @return String
+     */
+    private String getRemoteDomainBasic()
+    {
+        return fieldRemoteDomain;
+    }    
+
+    /**
+     * Sets the remoteDomain.
+     * @param remoteDomain The remoteDomain to set
+     */
+    protected void setRemoteDomain(String remoteDomain)
+    {
+        fieldRemoteDomain = remoteDomain;
+    }
+    
+    /**
+     * Updates the remoteDomain.
+     */
+    protected void updateRemoteDomain() throws MessagingException
+    {
+        setRemoteDomain(computeRemoteDomain());
+    }
+    
+    /**
+     * Answer the IP Address of the remote server for the message being 
+     * processed.
+     * @return String
+     * @throws MessagingException
+     * @throws UnknownHostException
+     */
+    protected String computeRemoteAddress()
+        throws MessagingException, UnknownHostException
+    {
+        String domain = getRemoteDomain();
+        String address = null;
+        String validatedAddress = null;
+        int ipAddressStart = domain.indexOf('[');
+        int ipAddressEnd = -1;
+        if (ipAddressStart > -1)
+            ipAddressEnd = domain.indexOf(']', ipAddressStart);
+        if (ipAddressEnd > -1)
+            address = domain.substring(ipAddressStart + 1, ipAddressEnd);
+        else
+        {
+            int hostNameEnd = domain.indexOf(' ');
+            if (hostNameEnd == -1)
+                hostNameEnd = domain.length();
+            address = domain.substring(0, hostNameEnd);
+        }
+        validatedAddress = InetAddress.getByName(address).getHostAddress();
+
+        return validatedAddress;
+    }
+
+    /**
+     * Answer the Canonical host name of the remote server for the message 
+     * being processed.
+     * @return String
+     * @throws MessagingException
+     * @throws UnknownHostException
+     */
+    protected String computeRemoteHostName()
+        throws MessagingException, UnknownHostException
+    {
+        // These shenanigans are required to get the fully qualified
+        // hostname prior to JDK 1.4 in which get getCanonicalHostName()
+        // does the job for us
+        InetAddress addr1 = InetAddress.getByName(getRemoteAddress());
+        InetAddress addr2 = addr1.getByName(addr1.getHostAddress());
+        return addr2.getHostName();
+    }        
+
+    /**
+     * Returns the remoteAddress, lazily initialised as required.
+     * @return String
+     */
+    protected String getRemoteAddress()
+        throws MessagingException, UnknownHostException
+    {
+        String remoteAddress;
+        if (null == (remoteAddress = getRemoteAddressBasic()))
+        {
+            updateRemoteAddress();
+            return getRemoteAddress();
+        }
+        return remoteAddress;
+    }
+    
+    /**
+     * Returns the remoteAddress.
+     * @return String
+     */
+    private String getRemoteAddressBasic()
+    {
+        return fieldRemoteAddress;
+    }    
+
+    /**
+     * Returns the remoteHostName, lazily initialised as required.
+     * @return String
+     */
+    protected String getRemoteHostName()
+        throws MessagingException, UnknownHostException
+    {
+        String remoteHostName;
+        if (null == (remoteHostName = getRemoteHostNameBasic()))
+        {
+            updateRemoteHostName();
+            return getRemoteHostName();
+        }
+        return remoteHostName;
+    }
+    
+    /**
+     * Returns the remoteHostName.
+     * @return String
+     */
+    private String getRemoteHostNameBasic()
+    {
+        return fieldRemoteHostName;
+    }    
+
+    /**
+     * Sets the remoteAddress.
+     * @param remoteAddress The remoteAddress to set
+     */
+    protected void setRemoteAddress(String remoteAddress)
+    {
+        fieldRemoteAddress = remoteAddress;
+    }
+    
+    /**
+     * Updates the remoteAddress.
+     */
+    protected void updateRemoteAddress()
+        throws MessagingException, UnknownHostException
+    {
+        setRemoteAddress(computeRemoteAddress());
+    }    
+
+    /**
+     * Sets the remoteHostName.
+     * @param remoteHostName The remoteHostName to set
+     */
+    protected void setRemoteHostName(String remoteHostName)
+    {
+        fieldRemoteHostName = remoteHostName;
+    }
+    
+    /**
+     * Updates the remoteHostName.
+     */
+    protected void updateRemoteHostName()
+        throws MessagingException, UnknownHostException
+    {
+        setRemoteHostName(computeRemoteHostName());
+    }    
+
+    /**
+     * Returns the rFC2822RECEIVEDHeaderFields.
+     * @return String
+     */
+    public static String getRFC2822RECEIVEDHeaderFields()
+    {
+        return fieldRFC2822RECEIVEDHeaderFields;
     }
 
 }

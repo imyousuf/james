@@ -256,6 +256,12 @@ class ParsedConfiguration
     private boolean fieldRejectUserUndefined;
     
     /**
+     * The index of the received header to use to compute the remote address
+     * and remote host name for a message. This is 0 based and defaults to -1.
+     */
+    private int fieldRemoteReceivedHeaderIndex;    
+    
+    /**
      * Reject messages for which a recipient could not be determined.
      */
     private boolean fieldRejectRecipientNotFound;
@@ -324,7 +330,7 @@ class ParsedConfiguration
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     protected void configure(Configuration conf) throws ConfigurationException
-    {   
+    {
         setHost(conf.getChild("host").getValue());
 
         setFetchTaskName(conf.getAttribute("name"));
@@ -335,11 +341,13 @@ class ParsedConfiguration
 
         Configuration recipientNotFound = conf.getChild("recipientnotfound");
         setDeferRecipientNotFound(
-            recipientNotFound.getAttributeAsBoolean("defer"));         
+            recipientNotFound.getAttributeAsBoolean("defer"));
         setRejectRecipientNotFound(
-            recipientNotFound.getAttributeAsBoolean("reject"));     
-        setLeaveRecipientNotFound(recipientNotFound.getAttributeAsBoolean("leaveonserver"));
-        setMarkRecipientNotFoundSeen(recipientNotFound.getAttributeAsBoolean("markseen"));          
+            recipientNotFound.getAttributeAsBoolean("reject"));
+        setLeaveRecipientNotFound(
+            recipientNotFound.getAttributeAsBoolean("leaveonserver"));
+        setMarkRecipientNotFoundSeen(
+            recipientNotFound.getAttributeAsBoolean("markseen"));
 
         Configuration defaultDomainName = conf.getChild("defaultdomain", false);
         if (null != defaultDomainName)
@@ -361,8 +369,7 @@ class ParsedConfiguration
 
         Configuration blacklist = conf.getChild("blacklist");
         setBlacklist(blacklist.getValue(""));
-        setRejectBlacklisted(
-            blacklist.getAttributeAsBoolean("reject"));     
+        setRejectBlacklisted(blacklist.getAttributeAsBoolean("reject"));
         setLeaveBlacklisted(blacklist.getAttributeAsBoolean("leaveonserver"));
         setMarkBlacklistedSeen(blacklist.getAttributeAsBoolean("markseen"));
 
@@ -372,12 +379,15 @@ class ParsedConfiguration
             userundefined.getAttributeAsBoolean("leaveonserver"));
         setMarkUserUndefinedSeen(
             userundefined.getAttributeAsBoolean("markseen"));
-            
-        Configuration undeliverable = conf.getChild("undeliverable");      
+
+        Configuration undeliverable = conf.getChild("undeliverable");
         setLeaveUndeliverable(
             undeliverable.getAttributeAsBoolean("leaveonserver"));
         setMarkUndeliverableSeen(
-            undeliverable.getAttributeAsBoolean("markseen"));                       
+            undeliverable.getAttributeAsBoolean("markseen"));
+
+        setRemoteReceivedHeaderIndex(
+            conf.getChild("remoteReceivedHeaderIndex").getValueAsInteger(-1));
 
         if (getLogger().isDebugEnabled())
         {
@@ -972,6 +982,24 @@ protected void setLocalUsers(UsersRepository localUsers)
     protected void setDeferRecipientNotFound(boolean deferRecipientNotFound)
     {
         fieldDeferRecipientNotFound = deferRecipientNotFound;
+    }
+
+    /**
+     * Returns the remoteReceivedHeaderIndex.
+     * @return int
+     */
+    public int getRemoteReceivedHeaderIndex()
+    {
+        return fieldRemoteReceivedHeaderIndex;
+    }
+
+    /**
+     * Sets the remoteReceivedHeaderIndex.
+     * @param remoteReceivedHeaderIndex The remoteReceivedHeaderIndex to set
+     */
+    protected void setRemoteReceivedHeaderIndex(int remoteReceivedHeaderIndex)
+    {
+        fieldRemoteReceivedHeaderIndex = remoteReceivedHeaderIndex;
     }
 
 }

@@ -144,18 +144,18 @@ public class FolderProcessor extends ProcessorAbstract
                     catch (MessagingException mex)
                     {
                         StringBuffer logMessageBuffer =
-                            new StringBuffer("Exception processing message ID: ");
+                            new StringBuffer("MessagingException processing message ID: ");
                         logMessageBuffer.append(message.getMessageID());
-                        logMessageBuffer.append(" - ");
-                        logMessageBuffer.append(mex.toString());
-                        getLogger().error(logMessageBuffer.toString());
+                        getLogger().error(logMessageBuffer.toString(), mex);
                     }
                 }
             }
         }
         catch (MessagingException mex)
         {
-            getLogger().error(mex.toString());
+            getLogger().error(
+                "A MessagingException has terminated fetching messages for this folder",
+                mex);
         }
         finally
         {
@@ -184,7 +184,9 @@ public class FolderProcessor extends ProcessorAbstract
         }
         catch (MessagingException mex)
         {
-            getLogger().error(mex.toString());
+            getLogger().error(
+                "A MessagingException has terminated recursing through sub-folders",
+                mex);
         }
 
         return;

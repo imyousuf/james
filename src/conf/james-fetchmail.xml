@@ -68,6 +68,19 @@
             <!-- How frequently this host is checked - in milliseconds. 600000 is every ten minutes -->
             <interval>600000</interval>
             
+            <!-- The zero based index of the RECEIVED Header used to compute the remote address and remote host name -->
+            <!-- of the MTA that delivered a fetched message. -->
+            <!-- Typically, the first (index = 0) RECEIVED Header is for the local MTA that delivers mail to the message store -->
+            <!-- and the second RECEIVED Header (index = 1) is the remote domain delivering mail to the MTA, so the second -->
+            <!-- RECEIVED Header is the one to use. -->
+            <!-- Some configurations will differ. Look at the RECEIVED Headers and set the index to point to the first -->
+            <!-- remote MTA. -->
+            <!-- Matchers such as InSpammerBlacklist use the remote address and/or remote host name to identify illegitimate -->
+            <!-- remote MTAs. -->
+            <!-- This tag is optional. If omitted, it will default to an index of -1, which is interpreted as use 127.0.0.1 for the -->
+            <!-- remote address and use 'localhost' for the remote host name. Both are almost always considered legitimate. -->
+            <remoteReceivedHeaderIndex>1</RemoteReceivedHeaderIndex>
+            
             <!-- name of the javamail provider you wish to use -->
             <!-- (pop3, imap, etc. -->
             <javaMailProviderName>pop3</javaMailProviderName>
