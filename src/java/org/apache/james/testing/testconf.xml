@@ -1,0 +1,68 @@
+<!-- test configuration file -->
+<testsuite>
+<test name="pop3test" async="true" repetition="5" class="org.apache.james.testing.POP3Test">
+  <host>localhost</host>
+  <username>harmeet</username>
+  <password>harmeet</password>
+
+  <!-- call these test methods -->
+  <testsequence showStat="true">
+    <testmethod>login</testmethod>
+    <testmethod>fetchMsgsInfo</testmethod>
+    <testmethod>fetchMsgs</testmethod>
+    <testmethod>logout</testmethod>
+  </testsequence>
+</test>
+<test name="pop3test" async="true" repetition="5" class="org.apache.james.testing.POP3Test">
+  <host>localhost</host>
+  <username>user1</username>
+  <password>user1</password>
+
+  <!-- call these test methods -->
+  <testsequence showStat="true">
+    <testmethod>login</testmethod>
+    <testmethod>fetchMsgsInfo</testmethod>
+    <testmethod>fetchMsgs</testmethod>
+    <testmethod>logout</testmethod>
+  </testsequence>
+</test>
+<test name="pop3test" async="true" repetition="5" class="org.apache.james.testing.POP3Test">
+  <host>localhost</host>
+  <username>user2</username>
+  <password>user2</password>
+
+  <!-- call these test methods -->
+  <testsequence showStat="true">
+    <testmethod>login</testmethod>
+    <testmethod>fetchMsgsInfo</testmethod>
+    <testmethod>fetchMsgs</testmethod>
+    <testmethod>logout</testmethod>
+  </testsequence>
+</test>
+<test name="pop3test" async="true" repetition="5" class="org.apache.james.testing.POP3Test">
+  <host>localhost</host>
+  <username>user3</username>
+  <password>user3</password>
+
+  <!-- call these test methods -->
+  <testsequence showStat="true">
+    <testmethod>login</testmethod>
+    <testmethod>fetchMsgsInfo</testmethod>
+    <testmethod>fetchMsgs</testmethod>
+    <testmethod>logout</testmethod>
+  </testsequence>
+</test>
+<test name="pop3test" async="true" repetition="5" class="org.apache.james.testing.POP3Test">
+  <host>localhost</host>
+  <username>user4</username>
+  <password>user4</password>
+
+  <!-- call these test methods -->
+  <testsequence showStat="true">
+    <testmethod>login</testmethod>
+    <testmethod>fetchMsgsInfo</testmethod>
+    <testmethod>fetchMsgs</testmethod>
+    <testmethod>logout</testmethod>
+  </testsequence>
+</test>
+</testsuite>
