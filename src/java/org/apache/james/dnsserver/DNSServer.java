@@ -263,7 +263,7 @@ public class DNSServer
      * @param name the name of the host to be looked up
      * @param type the type of record desired
      */
-    public Record[] lookup(String name, short type) {
+    public Record[] lookup(String name, int type) {
         return rawDNSLookup(name,false,type);
     }
 
@@ -274,7 +274,7 @@ public class DNSServer
      * @param querysent whether the query has already been sent to the DNS servers
      * @param type the type of record desired
      */
-    private Record[] rawDNSLookup(String namestr, boolean querysent, short type) {
+    private Record[] rawDNSLookup(String namestr, boolean querysent, int type) {
         Name name = null;
         try {
             name = Name.fromString(namestr, Name.root);
@@ -283,7 +283,7 @@ public class DNSServer
             getLogger().error("Couldn't parse name " + namestr, tpe);
             return null;
         }
-        short dclass = DClass.IN;
+        int dclass = DClass.IN;
 
         SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
         if (cached.isSuccessful()) {
@@ -317,7 +317,7 @@ public class DNSServer
                 return null;
             }
 
-            short rcode = response.getHeader().getRcode();
+            int rcode = response.getHeader().getRcode();
             if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
                 cached = cache.addMessage(response);
                 if (cached != null && cached.isSuccessful()) {
