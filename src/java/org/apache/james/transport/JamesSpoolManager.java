@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.29 $
+ * @version This is $Revision: 1.30 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

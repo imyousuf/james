@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ import org.apache.mailet.MailRepository;
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
  *
- * @version This is $Revision: 1.14 $
+ * @version This is $Revision: 1.15 $
  */
 public class ToRepository extends GenericMailet {
 

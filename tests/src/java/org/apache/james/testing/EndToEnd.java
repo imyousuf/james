@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ import examples.IOUtil;
  * A class to do end to end load SMTP testing on James.
  *
  *
- * $Id: EndToEnd.java,v 1.7 2003/03/08 20:47:58 noel Exp $
+ * $Id: EndToEnd.java,v 1.8 2003/03/08 21:13:48 noel Exp $
  */
 public class EndToEnd extends TestCase {
 

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.51 $
+ * @version This is $Revision: 1.52 $
 
  */
 public class James

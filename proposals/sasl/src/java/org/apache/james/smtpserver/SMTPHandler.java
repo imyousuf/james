@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +94,8 @@ import javax.security.sasl.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2003/03/08 20:48:07 $ by: $Author: noel $
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2003/03/08 21:14:00 $ by: $Author: noel $
  */
 public class SMTPHandler
     extends BaseConnectionHandler

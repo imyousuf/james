@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import javax.mail.internet.MimeUtility;
  * Computes and verifies digests of files and strings
  *
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class DigestUtil {
 

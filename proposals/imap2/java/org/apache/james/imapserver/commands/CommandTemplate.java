@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
