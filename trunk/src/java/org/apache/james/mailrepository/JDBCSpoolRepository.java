@@ -8,6 +8,7 @@
 package org.apache.james.mailrepository;
 
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
 
 import java.sql.Connection;
@@ -162,6 +163,17 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             }
 
         }
+    }
+
+    /**
+     * Needs to override this method and reset the time to load to zero.
+     * This will force a reload of the pending messages queue once that
+     * is empty... a message that gets added will sit here until that queue
+     * time has passed and the list is then reloaded.
+     */
+    public void store(MailImpl mc) {
+        pendingMessagesLoadTime = 0;
+        super.store(mc);
     }
 
     /**
