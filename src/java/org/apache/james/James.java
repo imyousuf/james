@@ -123,7 +123,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.52 $
+ * @version This is $Revision: 1.53 $
 
  */
 public class James
@@ -620,7 +620,7 @@ public class James
                     .append("Mail")
                     .append(System.currentTimeMillis())
                     .append("-")
-                    .append(count++);
+                    .append(localcount);
         return idBuffer.toString();
     }
 
