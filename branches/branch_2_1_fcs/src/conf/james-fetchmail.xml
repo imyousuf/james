@@ -73,7 +73,17 @@
             <javaMailProviderName>pop3</javaMailProviderName>
 
             <!-- name of the folder to open -->
-            <javaMailFolderName>INBOX</javaMailFolderName>        
+            <javaMailFolderName>INBOX</javaMailFolderName>
+            
+            <!-- Properties to be applied to the JavaMail Session. -->
+            <!-- Properties are specific to the selected JavaMail provider. -->
+            <!-- Any number may be specified. -->
+            <javaMailProperties>
+                <!-- Set the connection timeout to 3 minutes -->
+                <property name="mail.pop3.connectiontimeout" value="180000"/>
+                <!-- Set the I/O timeout to 3 minutes -->                
+                <property name="mail.pop3.timeout" value="180000"/>                
+            </javaMailProperties>            
 
             <!-- Retrieve both old (seen) and new messages from mailserver.  The default -->
             <!-- is to fetch only messages the server has not marked as seen -->

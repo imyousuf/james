@@ -59,12 +59,15 @@ package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.mail.MessagingException;
+import javax.mail.Session;
 
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -74,8 +77,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
@@ -109,12 +112,7 @@ import org.apache.james.services.UsersRepository;
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target
 {
     /**
-     * Enter description here
-     * 
-     * Creation Date: 29-Aug-03
-     * @author sbrewin
-     * 
-     * Copyright 2003, Synergy Systems Limited
+     * Key fields for DynamicAccounts.
      */
     private class DynamicAccountKey
     {
@@ -399,6 +397,12 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     private List fieldStaticAccounts;
     
     /**
+     * The JavaMail Session for this fetch task.
+     */ 
+
+    private Session fieldSession;
+    
+    /**
      * The Dynamic Accounts for this task.
      * These are setup each time the fetchtask is run.
      */
@@ -433,6 +437,10 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
+        // Set any Session parameters passed in the Configuration
+        setSessionParameters(configuration);
+
+        // Create the ParsedConfiguration used in the delegation chain
         ParsedConfiguration parsedConfiguration =
             new ParsedConfiguration(
                 configuration,
@@ -440,7 +448,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 getServer(),
                 getLocalUsers());
         setConfiguration(parsedConfiguration);
-
+        
+        // Setup the Accounts
         Configuration[] allAccounts = configuration.getChildren("accounts");
         if (allAccounts.length < 1)
             throw new ConfigurationException("Missing <accounts> section.");
@@ -506,6 +515,26 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             setFetching(true);
             getLogger().info("Fetcher starting fetches");
 
+            // if debugging, list the JavaMail property key/value pairs
+            // for this Session
+            if (getLogger().isDebugEnabled())
+            {
+                getLogger().debug("Session properties:");
+                Properties properties = getSession().getProperties();
+                Enumeration e = properties.keys();
+                while (e.hasMoreElements())
+                {
+                    String key = (String) e.nextElement();
+                    String val = (String) properties.get(key);
+                    if (val.length() > 40)
+                    {
+                        val = val.substring(0, 37) + "...";
+                    }
+                    getLogger().debug(key + "=" + val);
+
+                }
+            }
+
             // Update the dynamic accounts,
             // merge with the static accounts and
             // sort the accounts so they are in the order
@@ -517,22 +546,23 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             mergedAccounts.addAll(getDynamicAccounts().values());
             mergedAccounts.addAll(getStaticAccounts());
             Collections.sort(mergedAccounts);
-            
+
             StringBuffer logMessage = new StringBuffer(64);
             logMessage.append("Processing ");
             logMessage.append(getStaticAccounts().size());
             logMessage.append(" static accounts and ");
             logMessage.append(getDynamicAccounts().size());
             logMessage.append(" dynamic accounts.");
-            getLogger().info(logMessage.toString());            
-            
+            getLogger().info(logMessage.toString());
+
             // Fetch each account
             Iterator accounts = mergedAccounts.iterator();
             while (accounts.hasNext())
             {
                 try
                 {
-                    new StoreProcessor((Account) accounts.next()).process();
+                    new StoreProcessor((Account) accounts.next(), getSession())
+                        .process();
                 }
                 catch (MessagingException ex)
                 {
@@ -882,5 +912,90 @@ protected void setLocalUsers(UsersRepository localUsers)
     {
         fieldParsedDynamicAccountParameters = parsedDynamicAccountParameters;
     }
+
+    /**
+     * Returns the session, lazily initialized if required.
+     * @return Session
+     */
+    protected Session getSession()
+    {
+        Session session = null;
+        if (null == (session = getSessionBasic()))
+        {
+            updateSession();
+            return getSession();
+        }    
+        return session;
+    }
+    
+    /**
+     * Returns the session.
+     * @return Session
+     */
+    private Session getSessionBasic()
+    {
+        return fieldSession;
+    }    
+
+    /**
+     * Answers a new Session.
+     * @return Session
+     */
+    protected Session computeSession()
+    {
+        return Session.getInstance(System.getProperties());
+    }
+    
+    /**
+     * Updates the current Session.
+     */
+    protected void updateSession()
+    {
+        setSession(computeSession());
+    }    
+
+    /**
+     * Sets the session.
+     * @param session The session to set
+     */
+    protected void setSession(Session session)
+    {
+        fieldSession = session;
+    }
+    
+    
+    /**
+     * Propogate any Session parameters in the configuration to the Session.
+     * @param configuration The configuration containing the parameters
+     * @throws ConfigurationException
+     */
+    protected void setSessionParameters(Configuration configuration)
+        throws ConfigurationException
+    {
+        Configuration javaMailProperties =
+            configuration.getChild("javaMailProperties", false);
+        if (null != javaMailProperties)
+        {
+            Properties properties = getSession().getProperties();
+            Configuration[] allProperties =
+                javaMailProperties.getChildren("property");
+            for (int i = 0; i < allProperties.length; i++)
+            {
+                properties.setProperty(
+                    allProperties[i].getAttribute("name"),
+                    allProperties[i].getAttribute("value"));
+                if (getLogger().isDebugEnabled())
+                {
+                    StringBuffer messageBuffer =
+                        new StringBuffer("Set property name: ");
+                    messageBuffer.append(allProperties[i].getAttribute("name"));
+                    messageBuffer.append(" to: ");
+                    messageBuffer.append(
+                        allProperties[i].getAttribute("value"));
+                    getLogger().debug(messageBuffer.toString());
+                }
+            }
+        }
+    }    
 
 }
