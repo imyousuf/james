@@ -41,8 +41,8 @@ import org.apache.mailet.*;
  * @version 0.9.1
  */
 public class SizeLimitedSMTPHandler
-    extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
+    extends BaseConnectionHandler
+    implements ConnectionHandler, Composable, Configurable, Target {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -71,19 +71,12 @@ public class SizeLimitedSMTPHandler
     private TimeScheduler scheduler;
     private MailServer mailServer;
 
-    private String servername;
     private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
 
     private Hashtable state     = new Hashtable();
     private Random random       = new Random();
-    private int timeout;
     private long maxmessagesize;
-
-    public void  contextualize( final Context context ) 
-        throws ContextException {
-        servername = (String)context.get( Constants.HELO_NAME );
-    }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -124,7 +117,7 @@ public class SizeLimitedSMTPHandler
             remoteIP = socket.getInetAddress ().getHostAddress ();
             smtpID = Math.abs(random.nextInt() % 1024) + "";
             state.clear();
-            state.put(SERVER_NAME, this.servername );
+            state.put(SERVER_NAME, this.helloName );
             state.put(SERVER_TYPE, this.softwaretype );
             state.put(REMOTE_NAME, remoteHost);
             state.put(REMOTE_IP, remoteIP);
@@ -145,7 +138,7 @@ public class SizeLimitedSMTPHandler
 
             final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
             scheduler.addTrigger( this.toString(), trigger, this );
-            out.println("220 " + this.servername + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
+            out.println("220 " + this.helloName + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
 
             while  (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());
@@ -342,7 +335,7 @@ public class SizeLimitedSMTPHandler
                     }
 
                     String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
-                        + "])\r\n          by " + this.servername + " ("
+                        + "])\r\n          by " + this.helloName + " ("
                         + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
                     if (((Collection)state.get(RCPT_VECTOR)).size () == 1) {
                         //Only indicate a recipient if they're the only recipient
@@ -353,7 +346,7 @@ public class SizeLimitedSMTPHandler
                     received += ";\r\n          " + RFC822DateFormat.toString (new Date ());
                     headers.addHeader ("Received", received);
 
-                    // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
+                    // headers.setReceivedStamp("Unknown", (String) helloName.elementAt(0));
                     ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
                     MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
                     //call mail.getSize() to force the message to be
@@ -407,7 +400,7 @@ public class SizeLimitedSMTPHandler
 
     private void resetState() {
         state.clear();
-        state.put(SERVER_NAME, this.servername );
+        state.put(SERVER_NAME, this.helloName );
         state.put(SERVER_TYPE, this.softwaretype );
         state.put(REMOTE_NAME, remoteHost);
         state.put(REMOTE_IP, remoteIP);

@@ -13,7 +13,7 @@ package org.apache.james;
  */
 public class Constants {
 
-    public static final String SOFTWARE_VERSION = "@@version@@";
+    public static final String SOFTWARE_VERSION = "1.2.2alpha";
 
     public static final String SOFTWARE_NAME = "JAMES Mail Server";
 

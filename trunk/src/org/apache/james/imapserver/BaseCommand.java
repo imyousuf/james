@@ -16,6 +16,7 @@ import javax.mail.internet.InternetHeaders;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+import org.apache.james.BaseConnectionHandler;
 import org.apache.james.core.EnhancedMimeMessage;
 
 
@@ -28,7 +29,7 @@ import org.apache.james.core.EnhancedMimeMessage;
  */
 
 public abstract class BaseCommand
-    extends AbstractLoggable {
+    extends BaseConnectionHandler {
 
     //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
