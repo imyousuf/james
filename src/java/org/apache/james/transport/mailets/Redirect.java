@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.StringTokenizer;
@@ -23,7 +24,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.util.RFC822Date;
+import org.apache.james.util.RFC822DateFormat;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -189,29 +190,31 @@ import org.apache.mailet.MailAddress;
  *
  */
 public class Redirect extends GenericMailet {
-    private static int ALL                 = 3;
-    private static int BODY                = 2;
-    private static int HEADS               = 1;
-    private static int MESSAGE             = 5;
-    private static int NONE                = 4;
-    private static int UNALTERED           = 0;
+    private static final int UNALTERED           = 0;
+    private static final int HEADS               = 1;
+    private static final int BODY                = 2;
+    private static final int ALL                 = 3;
+    private static final int NONE                = 4;
+    private static final int MESSAGE             = 5;
     private InternetAddress[] apparentlyTo;
     private String messageText;
     private Collection recipients;
     private MailAddress replyTo;
     private MailAddress sender;
 
+    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
+
     /**
-*     returns one of these values to indicate how to attach the original message
-*<ul>
-*    <li>BODY : original message body is attached as plain text to the new message</li>
-*    <li>HEADS : original message headers are attached as plain text to the new message</li>
-*    <li>ALL : original is attached as plain text with all headers</li>
-*    <li>MESSAGE : original message is attached as type message/rfc822, a complete mail message.</li>
-*    <li>NONE : original is not attached</li>
-*</ul>
-*
-*/
+     *     returns one of these values to indicate how to attach the original message
+     *<ul>
+     *    <li>BODY : original message body is attached as plain text to the new message</li>
+     *    <li>HEADS : original message headers are attached as plain text to the new message</li>
+     *    <li>ALL : original is attached as plain text with all headers</li>
+     *    <li>MESSAGE : original message is attached as type message/rfc822, a complete mail message.</li>
+     *    <li>NONE : original is not attached</li>
+     *</ul>
+     *
+     */
     public int getAttachmentType() {
         if(getInitParameter("attachment") == null) {
             return NONE;
@@ -356,7 +359,7 @@ public class Redirect extends GenericMailet {
         if(getInitParameter("prefix") == null) {
             return "";
         } else {
-            return getInitParameter("prefix");
+            return getInitParameter("prefix") + " ";
         }
     }
 
@@ -407,8 +410,14 @@ public class Redirect extends GenericMailet {
             messageText  = getMessage();
             recipients   = getRecipients();
             apparentlyTo = getTo();
-            log("static, sender=" + sender + ", replyTo=" + replyTo + ", message=" + messageText +
-                " ");
+            StringBuffer logBuffer = new StringBuffer("static, sender=");
+            logBuffer.append(sender);
+            logBuffer.append(", replyTo=");
+            logBuffer.append(replyTo);
+            logBuffer.append(", message=");
+            logBuffer.append(messageText);
+            logBuffer.append(" ");
+            log(logBuffer.toString());
         }
     }
 
@@ -436,23 +445,26 @@ public class Redirect extends GenericMailet {
             PrintWriter out   = new PrintWriter(sout, true);
             Enumeration heads = message.getAllHeaderLines();
             String head       = "";
+            StringBuffer headBuffer = new StringBuffer();
             while(heads.hasMoreElements()) {
-                head += (heads.nextElement().toString() + "\n");
+                headBuffer.append(heads.nextElement().toString());
+                headBuffer.append("\n");
             }
+            head = headBuffer.toString();
             boolean all = false;
             if(messageText != null) {
                 out.println(messageText);
             }
             switch(getInLineType()) {
-                case 3: //ALL:
+                case ALL: //ALL:
                     all = true;
-                case 1: //HEADS:
+                case HEADS: //HEADS:
                     out.println("Message Headers:");
                     out.println(head);
                     if(!all) {
                         break;
                     }
-                case 2: //BODY:
+                case BODY: //BODY:
                     out.println("Message:");
                     try {
                         out.println(message.getContent().toString());
@@ -461,7 +473,7 @@ public class Redirect extends GenericMailet {
                     }
                     break;
                 default:
-                case 4: //NONE:
+                case NONE: //NONE:
                     break;
             }
             MimeMultipart multipart = new MimeMultipart();
@@ -473,20 +485,23 @@ public class Redirect extends GenericMailet {
             if(getAttachmentType() != NONE) {
                 part = new MimeBodyPart();
                 switch(getAttachmentType()) {
-                    case 1: //HEADS:
+                    case HEADS: //HEADS:
                         part.setText(head);
                         break;
-                    case 2: //BODY:
+                    case BODY: //BODY:
                         try {
                             part.setText(message.getContent().toString());
                         } catch(Exception e) {
                             part.setText("body unavailable");
                         }
                         break;
-                    case 3: //ALL:
-                        part.setText(head + "\n\n" + message.toString());
+                    case ALL: //ALL:
+                        StringBuffer textBuffer = new StringBuffer(head);
+                        textBuffer.append("\n\n");
+                        textBuffer.append(message.toString());
+                        part.setText(textBuffer.toString());
                         break;
-                    case 5: //MESSAGE:
+                    case MESSAGE: //MESSAGE:
                         part.setContent(message, "message/rfc822");
                         break;
                 }
@@ -502,7 +517,7 @@ public class Redirect extends GenericMailet {
         //Set additional headers
         reply.setSubject(getSubjectPrefix() + message.getSubject());
         if(reply.getHeader("Date") == null) {
-            reply.setHeader("Date", new RFC822Date().toString());
+            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
         }
         reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
         if(replyTo != null) {
@@ -512,6 +527,7 @@ public class Redirect extends GenericMailet {
         }
         if(sender == null) {
             reply.setHeader("From", message.getHeader("From", ","));
+            sender = new MailAddress(((InternetAddress)message.getFrom()[0]).getAddress());
         } else {
             reply.setFrom(sender.toInternetAddress());
         }
@@ -529,23 +545,23 @@ public class Redirect extends GenericMailet {
         int code;
         param = param.toLowerCase();
         if(param.compareTo("unaltered") == 0) {
-            return 0;
+            return UNALTERED;
         }
         if(param.compareTo("heads") == 0) {
-            return 1;
+            return HEADS;
         }
         if(param.compareTo("body") == 0) {
-            return 2;
+            return BODY;
         }
         if(param.compareTo("all") == 0) {
-            return 3;
+            return ALL;
         }
         if(param.compareTo("none") == 0) {
-            return 4;
+            return NONE;
         }
         if(param.compareTo("message") == 0) {
-            return 5;
+            return MESSAGE;
         }
-        return 4;
+        return NONE;
     }
 }

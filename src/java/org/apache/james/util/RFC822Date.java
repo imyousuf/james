@@ -7,8 +7,6 @@
  */
 package org.apache.james.util;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,22 +23,23 @@ import java.util.TimeZone;
  * example - convert to timezone: String yourdate = new RFC822Date("3 Oct 2001 08:32:44 -0000", "GMT+02:00").toString()<br>
  * example - convert to local timezone: String mydate = new RFC822Date("3 Oct 2001 08:32:44 -0000").toString()<br>
  * @author Danny Angus (danny) <Danny@thought.co.uk><br>
+ * @author Peter M. Goldstein <farsight@alum.mit.edu><br>
+ *
+ * @deprecated Use java.util.Date in combination with org.apache.james.util.RFC822DateFormat.
  */
 public class RFC822Date {
-    private static DateFormat df;
+    private static SimpleDateFormat df;
     private static SimpleDateFormat dx;
     private static SimpleDateFormat dy;
     private static SimpleDateFormat dz;
-    private static DecimalFormat tz;
-    private TimeZone defaultTZ;
     private Date d;
+    private RFC822DateFormat rfc822Format = new RFC822DateFormat();
    
     static {
         df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.US);
         dx = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss zzzzz", Locale.US);
         dy = new SimpleDateFormat("EE d MMM yyyy HH:mm:ss zzzzz", Locale.US);
 	  	dz = new SimpleDateFormat("d MMM yyyy HH:mm:ss zzzzz", Locale.US);
-	  	tz = new DecimalFormat("00"); 
 	  }   
    
    /**
@@ -48,9 +47,8 @@ public class RFC822Date {
 	* using this machines system timezone<br>
 	* 
 	*/
-public RFC822Date(){
+    public RFC822Date(){
     	d = new Date();
-    	defaultTZ = TimeZone.getDefault();
     }
     
    /**
@@ -58,9 +56,8 @@ public RFC822Date(){
 	* and this machines system timezone<br>
 	* @param da java.util.Date, A date object
 	*/
-    public RFC822Date(Date da){
+    public RFC822Date(Date da) {
     	d = da;
-    	defaultTZ = TimeZone.getDefault();
     }
     
    /**
@@ -77,7 +74,6 @@ public RFC822Date(){
 	*/
     public RFC822Date(Date da, String useTZ){
     	d = da;
-    	defaultTZ = TimeZone.getTimeZone(useTZ);
     }
 
 	/**
@@ -89,7 +85,6 @@ public RFC822Date(){
 	*/
 	public RFC822Date(String rfcdate) {
 		setDate(rfcdate);
-		defaultTZ = TimeZone.getDefault();
 	}
 	/**
 	* creates object from 
@@ -100,7 +95,7 @@ public RFC822Date(){
 	*/	
 	public RFC822Date(String rfcdate, String useTZ)  {
 		setDate(rfcdate);
-		defaultTZ = TimeZone.getTimeZone(useTZ);
+		setTimeZone(useTZ);
 	}	
 
     public void setDate(Date da){
@@ -116,17 +111,21 @@ public RFC822Date(){
  * @param rfcdate java.lang.String - date in RFC822 format
  */
     public void setDate(String rfcdate)  {
-    	String exceptions;
-    	int exceptionoff;
-		try{
-			d= dx.parse(rfcdate);
-		}catch(ParseException  e){
-			try{
-				d= dz.parse(rfcdate);
-			}catch(ParseException  f){
-				try{
-					d= dy.parse(rfcdate);
-				}catch(ParseException  g){
+		try {
+			synchronized (dx) {
+			    d= dx.parse(rfcdate);
+			}
+		} catch(ParseException e) {
+			try {
+				synchronized (dz) {
+					d= dz.parse(rfcdate);
+				}
+			} catch(ParseException f) {
+				try {
+					synchronized (dy) {
+						d = dy.parse(rfcdate);
+					}
+				} catch(ParseException g) {
 					d = new Date();
 				}
 			}
@@ -135,12 +134,12 @@ public RFC822Date(){
     	
     }
  
-    public void setTimeZone(TimeZone useTZ){
-    	defaultTZ = useTZ;
+    public void setTimeZone(TimeZone useTZ) {
+        rfc822Format.setTimeZone(useTZ);
     }
     
-    public void setTimeZone(String useTZ){
-    	defaultTZ = TimeZone.getTimeZone(useTZ);
+    public void setTimeZone(String useTZ) {
+    	setTimeZone(TimeZone.getTimeZone(useTZ));
     }
     
 
@@ -148,7 +147,7 @@ public RFC822Date(){
      * returns the java.util.Date object this RFC822Date represents.
      * @return java.util.Date - the java.util.Date object this RFC822Date represents.
      */
-    public Date getDate(){
+    public Date getDate() {
     	return d;
     }
 
@@ -158,21 +157,7 @@ public RFC822Date(){
      * @return java.lang.String - date as a string formated for RFC822 compliance
      * 
      */
-    public  String toString() {
-        StringBuffer sb = new StringBuffer(df.format(d));
-        sb.append(' ');
-        int min = defaultTZ.getRawOffset() / 1000 / 60;
-        if (defaultTZ.useDaylightTime() && defaultTZ.inDaylightTime(d)) {
-            min += 60;
-        }
-        if (min >= 0) {
-            sb.append('+');
-        } else {
-            sb.append('-');
-        }
-        min = Math.abs(min);
-        sb.append(tz.format(min / 60));
-        sb.append(tz.format(min % 60));
-        return sb.toString();
+    public String toString() {
+        return rfc822Format.format(d);
     }
 }

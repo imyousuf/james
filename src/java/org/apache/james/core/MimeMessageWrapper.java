@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.apache.james.util.RFC822DateFormat;
+
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
  * object when needed.  Also tracks if changes were made to reduce
@@ -42,7 +44,7 @@ public class MimeMessageWrapper extends MimeMessage {
     /**
      * How to format a mail date
      */
-    MailDateFormat mailDateFormat = new MailDateFormat();
+    RFC822DateFormat mailDateFormat = new RFC822DateFormat();
 
     public MimeMessageWrapper(MimeMessageSource source) {
         super(javax.mail.Session.getDefaultInstance(System.getProperties(), null));
@@ -346,10 +348,7 @@ public class MimeMessageWrapper extends MimeMessage {
         String header = getHeader("Date", null);
         if(header != null) {
             try {
-                synchronized(mailDateFormat) {
-                    Date date = mailDateFormat.parse(header);
-                    return date;
-                }
+                return mailDateFormat.parse(header);
             } catch(ParseException _ex) {
                 return null;
             }

@@ -7,60 +7,39 @@
  */
 package org.apache.james.util;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import javax.mail.internet.MailDateFormat;
 
 /**
- * I suppose I could access some of the special messages within Sun's implementation of the JavaMail
- * API, but I've always been told not to do that.  This class has one static method that takes a
- * java.util.Date object and returns a nicely formatted String version of this, formatted as per the
- * RFC822 mail date format.
+ * A thread safe wrapper for the <code>javax.mail.internet.MailDateFormat</code> class.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
-public class RFC822DateFormat {
-    private static DateFormat df;
-    private static DecimalFormat tz;
-    private static TimeZone defaultTZ;
+public class RFC822DateFormat extends SynchronizedDateFormat {
+    private static RFC822DateFormat instance; 
 
     static {
-        df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.ENGLISH);
-        tz = new DecimalFormat("00");
-        defaultTZ = TimeZone.getDefault();
+        instance = new RFC822DateFormat();
     }
 
     /**
-     * SimpleDateFormat will handle most of this for us, but the
-     * timezone won't match, so we do that manually
+     * This static method allows us to format RFC822 dates without
+     * explicitly instantiating an RFC822DateFormat object.
      *
      * @return java.lang.String
      * @param d Date
+     *
+     * @deprecated This method is not necessary and is preserved for API
+     *             backwards compatibility.  Users of this class should
+     *             instantiate an instance and use it as they would any
+     *             other DateFormat object.
      */
     public static String toString(Date d) {
-        StringBuffer sb = new StringBuffer(df.format(d));
+        return instance.format(d);
+    }
 
-        sb.append(' ');
-
-        int min = TimeZone.getDefault().getRawOffset() / 1000 / 60;
-
-        if (defaultTZ.useDaylightTime() && defaultTZ.inDaylightTime(d)) {
-            min += 60;
-        }
-
-        if (min >= 0) {
-            sb.append('+');
-        } else {
-            sb.append('-');
-        }
-
-        min = Math.abs(min);
-
-        sb.append(tz.format(min / 60));
-        sb.append(tz.format(min % 60));
-
-        return sb.toString();
+    public RFC822DateFormat() {
+        super(new MailDateFormat());
     }
 }

@@ -21,6 +21,9 @@ import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
+import org.apache.james.util.RFC977DateFormat;
+import org.apache.james.util.RFC2980DateFormat;
+import org.apache.james.util.SimplifiedDateFormat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,13 +32,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * The NNTP protocol is defined by RFC 977.
- * This implementation is based on IETF draft 13, posted on 2nd April '2001.
- * URL: http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-13.txt
+ * This implementation is based on IETF draft 15, posted on 15th July '2002
+ * URL: http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-15.txt
  *
  * Common NNTP extensions are in RFC 2980.
  *
@@ -239,9 +241,9 @@ public class NNTPHandler extends BaseConnectionHandler
     private void doNEWGROUPS(StringTokenizer tok) {
         // see section 11.3
         // there seeem to be few differences.
-        // draft-ietf-nntpext-base-13.txt mentions 231 in section 11.3.1, 
+        // draft-ietf-nntpext-base-15.txt mentions 231 in section 11.3.1, 
         // but examples have response code 230. rfc977 has 231 response code.
-        // both draft-ietf-nntpext-base-13.txt and rfc977 have only group names 
+        // both draft-ietf-nntpext-base-15.txt and rfc977 have only group names 
         // in response lines, but INN sends 
         // '<group name> <last article> <first article> <posting allowed>'
         // NOTE: following INN over either document.
@@ -265,9 +267,11 @@ public class NNTPHandler extends BaseConnectionHandler
         String time = tok.nextToken();
         boolean  utc = ( tok.hasMoreTokens() );
         Date d = new Date();
-        DateFormat df = ( date.length() == 8 ) ? DF_DATEFROM_LONG : DF_DATEFROM_SHORT;
         try {
-            Date dt = df.parse(date+" "+time);
+            StringBuffer dateStringBuffer = new StringBuffer(date);
+            dateStringBuffer.append(" ");
+            dateStringBuffer.append(time);
+            Date dt = DF_RFC977.parse(dateStringBuffer.toString());
             if ( utc )
                 dt = new Date(dt.getTime()+UTC_OFFSET);
             return dt;
@@ -282,17 +286,16 @@ public class NNTPHandler extends BaseConnectionHandler
     }
 
     // used to calculate DATE from - see 11.3
-    public static final DateFormat DF_DATEFROM_LONG = new SimpleDateFormat("yyyyMMdd HHmmss");
-    public static final DateFormat DF_DATEFROM_SHORT = new SimpleDateFormat("yyMMdd HHmmss");
+    public static final SimplifiedDateFormat DF_RFC977 = new RFC977DateFormat();
 
     // Date format for the DATE keyword - see 11.1.1
-    public static final DateFormat DF_DATE = new SimpleDateFormat("yyyyMMddHHmmss");
+    public static final SimplifiedDateFormat DF_RFC2980 = new RFC2980DateFormat();
     public static final long UTC_OFFSET = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
     private void doDATE() {
         //Calendar c = Calendar.getInstance();
         //long UTC_OFFSET = c.get(c.ZONE_OFFSET) + c.get(c.DST_OFFSET);
         Date dt = new Date(System.currentTimeMillis()-UTC_OFFSET);
-        String dtStr = DF_DATE.format(new Date(dt.getTime() - UTC_OFFSET));
+        String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
         writer.println("111 "+dtStr);
     }
     private void doQUIT() {
