@@ -79,8 +79,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
 
 import org.apache.mailet.GenericMailet;
