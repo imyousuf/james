@@ -68,7 +68,7 @@ import java.util.Iterator;
 /**
  * Implements the configuration object for a Mailet.
  *
- * <P>CVS $Id: MailetConfigImpl.java,v 1.8 2003/06/17 16:03:14 noel Exp $</P>
+ * <P>CVS $Id: MailetConfigImpl.java,v 1.9 2003/06/24 19:40:53 serge Exp $</P>
  * @version 2.2.0
  */
 public class MailetConfigImpl implements MailetConfig {
@@ -94,7 +94,8 @@ public class MailetConfigImpl implements MailetConfig {
     /**
      * No argument constructor for this object.
      */
-    public MailetConfigImpl() {}
+    public MailetConfigImpl() {
+    }
 
     /**
      * Get the value of an parameter stored in this MailetConfig.  Multi-valued
@@ -108,9 +109,8 @@ public class MailetConfigImpl implements MailetConfig {
         try {
             String result = null;
 
-            final Configuration[] values = configuration.getChildren( name );
-            for ( int i = 0; i < values.length; i++ )
-            {
+            final Configuration[] values = configuration.getChildren(name);
+            for ( int i = 0; i < values.length; i++ ) {
                 if (result == null) {
                     result = "";
                 } else {
@@ -130,11 +130,28 @@ public class MailetConfigImpl implements MailetConfig {
     /**
      * Returns an iterator over the set of configuration parameter names.
      *
-     * @throws UnsupportedOperationException in all cases, as this is not implemented
+     * @return an iterator over the set of configuration parameter names.
      */
     public Iterator getInitParameterNames() {
-        throw new UnsupportedOperationException("Not yet implemented");
-        //return params.keySet().iterator();
+        return new Iterator () {
+            Configuration[] children;
+            int count = 0;
+            {
+                children = configuration.getChildren();
+            }
+
+            public boolean hasNext() {
+                return count < children.length;
+            }
+
+            public Object next() {
+                return children[count++].getName();
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException ("remove not supported");
+            }
+        };
     }
 
     /**
