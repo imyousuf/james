@@ -85,7 +85,7 @@ import javax.mail.internet.*;
  *    &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.2 $ $Date: 2003/07/07 22:52:45 $
+ * @version CVS $Revision: 1.3 $ $Date: 2003/07/12 06:45:18 $
  * @since 2.2.0
  */
 public class CompareNumericHeaderValue extends GenericMatcher {
@@ -144,7 +144,7 @@ public class CompareNumericHeaderValue extends GenericMatcher {
         if (st.hasMoreTokens()) {
             String headerValueString = st.nextToken().trim();
             try {
-                headerValue = Double.valueof(headerValueString);
+                headerValue = Double.valueOf(headerValueString);
             }
             catch (NumberFormatException nfe) {
                 throw new MessagingException("Bad header comparison value: \""
