@@ -188,9 +188,17 @@ public class MailAddress implements java.io.Serializable {
             return toString().equals(obj.toString());
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
-            return getUser().equals(addr.getUser()) && getHost().toLowerCase().equals(addr.getHost().toLowerCase());
+            return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost().toLowerCase());
         }
         return false;
+    }
+
+    /**
+     *
+     * @author Stuart Roebuck <sr@adolos.com>
+     */
+    public int hashCode() {
+        return toString().toLowerCase().hashCode();
     }
 
     private String parseQuotedLocalPart(String address) throws ParseException {
