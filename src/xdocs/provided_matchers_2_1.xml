@@ -19,6 +19,13 @@ Matchers and use them in the James SpoolManager can be found <a href="spoolmanag
 <p>Description: This matcher is the trivial one - it matches all mails being processed.  All recipients are returned.</p>
 <p>Configuration string: None.</p>
 </subsection>
+<subsection name="AttachmentFileNameIs">
+<p>Description: It can be used to refuse emails with SCR, PIF, EXE etc. attachments.
+It matches mails that has a file attachment with a file name meeting one of the supplied filters.
+All recipients are returned.</p>
+<p>Configuration string: A comma or space delimited list of file names. 
+File names may start with a wildcard '*'. Example: *.scr,*.bat,*.pif,*.pi,*.com,*.exe</p>
+</subsection>
 <subsection name="CommandForListserv">
 <p>Description: The CommandForListserv matcher is used as a simple filter to recognize emails that are list server 
 commands.  It will match any email addressed to the list server host, as well as any email that is addressed
