@@ -1,4 +1,4 @@
 @echo off
 echo Avalon runner
-set LOCAL_CLASSPATH=Loader.jar;../lib/ApacheJava.jar;../lib/AvalonInterfaces.jar;../lib/xerces_1_0_1.jar
+set LOCAL_CLASSPATH=Loader.jar;../lib/ApacheJava.jar;../lib/AvalonInterfaces.jar;../lib/xerces_1_0_1.jar;../lib/mail.jar;../lib/activation.jar
 java -cp "%CLASSPATH%;%LOCAL_CLASSPATH%" org.apache.avalon.loader.Main
