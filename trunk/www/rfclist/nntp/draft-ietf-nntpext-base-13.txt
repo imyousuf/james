@@ -3145,7 +3145,7 @@
 
            [1] Kantor, B and P. Lapsley, "Network News Transfer Protocol", 
             RFC-977, U.C. San Diego and U.C. Berkeley.
-	   [2] Yergeau, F., "UTF-8, a transformation format of ISO 10646", 
+       [2] Yergeau, F., "UTF-8, a transformation format of ISO 10646", 
             RFC 2279, Alis Technologies. 
            [3] Coded Character Set-7-bit American Standard Code for 
             Information Interchange, ANSI x3.4-1986. 
