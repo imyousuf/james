@@ -349,7 +349,6 @@ public class ServerConnection extends AbstractLogEnabled
         private Thread clientSocketThread;
 
         public ClientConnectionRunner() {
-            System.out.println("Creating ClientConnectionRunner");
         }
 
         /**
