@@ -11,7 +11,7 @@ package org.apache.james.transport.matchers;
 import org.apache.mail.*;
 import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
-import org.apache.java.util.*;
+import org.apache.avalon.utils.*;
 import java.util.*;
 
 /**

@@ -33,14 +33,14 @@ All theese package are in current distribution.
 <project default="package" basedir=".">
   <target name="init">
 	<property name="name" value="JAMES"/>
-	<property name="version" value="1.0b4"/>
+	<property name="version" value="1.1b1"/>
 	<property name="year" value="1999-2000"/>
 
 	<property name="build.compiler" value="classic"/>
 	<property name="debug" value="off"/>
 	<property name="optimize" value="on"/>
 	<property name="deprecation" value="off"/>
-	<property name="classpath" value="./lib/AvalonInterfaces.jar;./lib/ApacheJava.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces_1_1_1.jar;./lib/dnsjava.jar"/>
+	<property name="classpath" value="./lib/AvalonAware.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces_1_1_1.jar;./lib/dnsjava.jar"/>
 
 	<property name="src.dir" value="./src"/>
 	<property name="dtd.dir" value="./dtd"/>
@@ -145,8 +145,7 @@ All theese package are in current distribution.
     <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/blocks/${name}.jar"/>
 
     <copyfile src="./lib/Avalon.jar" dest="${dist.dir}/bin/blocks/Avalon.jar"/>
-    <copyfile src="./lib/AvalonInterfaces.jar" dest="${dist.dir}/lib/AvalonInterfaces.jar"/>
-    <copyfile src="./lib/ApacheJava.jar" dest="${dist.dir}/lib/ApacheJava.jar"/>
+    <copyfile src="./lib/AvalonAware.jar" dest="${dist.dir}/lib/AvalonAware.jar"/>
     <copyfile src="./lib/Loader.jar" dest="${dist.dir}/bin/Loader.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail_1_1_3.jar" dest="${dist.dir}/lib/mail_1_1_3.jar"/>

@@ -12,9 +12,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.apache.java.lang.*;
 import org.apache.avalon.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.mail.Mail;
 
 import org.apache.james.transport.*;
@@ -78,10 +77,10 @@ public class James implements MailServer, Block {
         context.put(Constants.SERVER_NAMES, serverNames);
         context.put(Constants.HELO_NAME, serverNames.iterator().next());
             // Get postmaster
-        String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
+        String postmaster = conf.getConfiguration("postmaster").getValue("root@localhost");
         context.put(Constants.POSTMASTER, postmaster);
             // Get the LocalInbox repository
-        String inboxRepository = conf.getConfiguration("inboxRepository", "file://../mail/inbox/").getValue();
+        String inboxRepository = conf.getConfiguration("inboxRepository").getValue("file://../mail/inbox/");
         try {
             this.localInbox = (MailRepository) store.getPrivateRepository(inboxRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
@@ -92,7 +91,7 @@ public class James implements MailServer, Block {
             // Add this to comp
         comp.put(Interfaces.MAIL_SERVER, this);
 
-        String spoolRepository = conf.getConfiguration("spoolRepository", "file://../mail/spool/").getValue();
+        String spoolRepository = conf.getConfiguration("spoolRepository").getValue("file://../mail/spool/");
         try {
             this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
@@ -144,7 +143,7 @@ public class James implements MailServer, Block {
             throw e;
         }
 
-        int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
+        int threads = conf.getConfiguration("spoolmanagerthreads").getValueAsInt(1);
         while (threads-- > 0) {
             try {
                 JamesSpoolManager spoolMgr = new JamesSpoolManager();

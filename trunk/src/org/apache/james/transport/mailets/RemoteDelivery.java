@@ -12,10 +12,10 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.mail.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.james.transport.*;
 
 import javax.mail.URLName;
@@ -52,8 +52,8 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 		ComponentManager comp = context.getComponentManager();
 		Configuration conf = context.getConfiguration();
 		logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-		delayTime = conf.getConfiguration("delayTime", "21600000").getValueAsLong(); // default is 6*60*60*1000 mills
-		maxRetries = conf.getConfiguration("maxRetries", "5").getValueAsInt(); // default is 5 retries
+		delayTime = conf.getConfiguration("delayTime").getValueAsLong(21600000); // default is 6*60*60*1000 mills
+		maxRetries = conf.getConfiguration("maxRetries").getValueAsInt(5); // default is 5 retries
 		timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
 
 		    // Instantiate the SmartTransport
@@ -62,12 +62,12 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 			Configuration c = (Configuration)e.nextElement ();
 			servers.append (c.getValue () + " ");
 		}
-		boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
+		boolean authoritative = conf.getConfiguration("authoritative").getValueAsBoolean(false);
 		transport = new SmartTransport (servers.toString(), authoritative);
 
             // Instanziate the a MailRepository for delayed mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
-        String delayedPath = conf.getConfiguration("delayed", "../var/mail/delayed").getValue();
+        String delayedPath = conf.getConfiguration("delayed").getValue("../var/mail/delayed");
 		delayed = (MailRepository) store.getPrivateRepository(delayedPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
 
 		postmaster = new InternetAddress((String) getContext().get(Resources.POSTMASTER));

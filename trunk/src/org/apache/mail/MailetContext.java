@@ -8,7 +8,7 @@
 
 package org.apache.mail;
 
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 
 /**
  * Draft of a Mailetcontext inteface. The implementation provides APIs to the 

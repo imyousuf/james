@@ -8,7 +8,7 @@
 
 package org.apache.mail;
 
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 
 /**
  * Draft of a Mailet inteface. The <code>service</code> perform all needed work

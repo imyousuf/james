@@ -46,6 +46,7 @@
 
             <pop3Server>
                 <port>110</port>
+<!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
                 <pop3handler>
                     <connectiontimeout> 120000 </connectiontimeout>
                 </pop3handler>
@@ -53,6 +54,7 @@
 
             <smtpServer>
                 <port>25</port>
+<!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
                 <smtphandler>
                     <connectiontimeout> 360000 </connectiontimeout>
                 </smtphandler>
@@ -60,6 +62,7 @@
 
             <remoteManager>
                 <port>4555</port>
+                <bind> 192.168.1.3 </bind>
                 <administrator_accounts>
                     <account login="root" password="root"/>
                 </administrator_accounts>
@@ -84,14 +87,20 @@
                         <forwardto> root@localhost </forwardto>
                     </mailet>
                     <mailet match="RecipientIs=james-on@localhost" class="PicoListManager">
+                        <subscribe> james-on </subscribe>
+                        <unsubscribe> james-off </unsubscribe>
                         <listName> james </listName>
                     </mailet>
                     <mailet match="RecipientIs=james-off@localhost" class="PicoListManager">
+                        <subscribe> james-on </subscribe>
+                        <unsubscribe> james-off </unsubscribe>
                         <listName> james </listName>
                     </mailet>
                     <mailet match="RecipientIs=james@localhost" class="PicoListserv">
+                        <membersonly> false </membersonly>
+                        <attachmentsallowed> true </attachmentsallowed>
+                        <replytolist> true </replytolist>
                         <listName> james </listName>
-                        <subject> James </subject>
                     </mailet>
                     <mailet match="All" class="ToProcessor">
                         <processor> transport </processor>
@@ -107,10 +116,12 @@
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
                         <DNSservers>
-                            <server> 192.168.1.1 </server>
+                            <server>  </server>
                         </DNSservers>
                         <authoritative>false</authoritative>
                         <delayed> file://../var/mail/delayed/ </delayed>
+                        <delayTime> 21600000 </delayTime>
+                        <maxRetries> 5 </maxRetries>
                     </mailet>
                 </processor>
             </spoolmanager>

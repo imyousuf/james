@@ -12,10 +12,10 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 import org.apache.mail.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.james.*;
-import org.apache.java.lang.*;
-import org.apache.java.io.CharTerminatedInputStream;
+import org.apache.avalon.*;
+import org.apache.avalon.utils.io.CharTerminatedInputStream;
 import javax.mail.*;
 import javax.mail.internet.*;
 
@@ -115,7 +115,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
-            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
+            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout").getValueAsLong(120000));
             out.println("220 " + this.servername + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
 
             while  (parseCommand(in.readLine())) {

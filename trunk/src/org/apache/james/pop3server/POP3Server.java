@@ -8,9 +8,9 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.java.lang.*;
-import org.apache.avalon.interfaces.*;
-import org.apache.java.util.*;
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
+import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import java.net.*;
 import java.util.Date;
@@ -45,7 +45,16 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
         logger.log("POP3Server init...", "POP3", logger.INFO);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
-        socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
+        int port = conf.getConfiguration("port").getValueAsInt(110);
+        InetAddress bind = null;
+        try {
+            String bindTo = conf.getConfiguration("bind").getValue();
+            if (bindTo.length() > 0) {
+                bind = InetAddress.getByName(bindTo);
+            }
+        } catch (ConfigurationException e) {
+        }
+        socketServer.openListener("POP3Listener", SocketServer.DEFAULT, port, bind, this);
         logger.log("POP3Server ...init end", "POP3", logger.INFO);
     }
 

@@ -11,10 +11,10 @@ package org.apache.james.transport.mailets;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.usermanager.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
 import org.apache.james.transport.*;
 
@@ -25,7 +25,6 @@ import org.apache.james.transport.*;
  * Sample configuration:
  * <pre>
  * <mailet match="RecipientIs=test@glissando.lokitech.com" class="MiniListserv">
- *     <subject>Test</subject>
  *     <membersonly>true</membersonly>
  *     <attachmentsallowed>false</attachmentsallowed>
  *     <replytolist>true</replytolist>
@@ -50,8 +49,8 @@ public class PicoListManager extends AbstractMailet {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         Configuration conf = context.getConfiguration();
         listName = conf.getConfiguration("listName").getValue();
-        subscribe = conf.getConfiguration("subscribe", listName + "-on").getValue();
-        unsubscribe = conf.getConfiguration("unsubscribe", listName + "-off").getValue();
+        subscribe = conf.getConfiguration("subscribe").getValue(listName + "-on");
+        unsubscribe = conf.getConfiguration("unsubscribe").getValue(listName + "-off");
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         members = (UsersRepository) manager.getUserRepository("list-" + listName);
         transport = (Mailet) context.get("transport");

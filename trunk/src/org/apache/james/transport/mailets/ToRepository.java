@@ -11,9 +11,9 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.transport.*;
 import java.util.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.james.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
 
 /**
@@ -36,7 +36,7 @@ public class ToRepository extends AbstractMailet {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         Configuration conf = context.getConfiguration();
         repositoryPath = conf.getConfiguration("repositoryPath").getValue();
-        passThrough = conf.getConfiguration("passThrough", "false").getValueAsBoolean();
+        passThrough = conf.getConfiguration("passThrough").getValueAsBoolean(false);
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         repository = (MailRepository) store.getPrivateRepository(repositoryPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
     }

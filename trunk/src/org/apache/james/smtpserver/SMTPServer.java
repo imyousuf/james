@@ -8,9 +8,8 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
-import org.apache.java.lang.*;
 import org.apache.james.*;
 import java.net.*;
 
@@ -44,7 +43,16 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
         logger.log("SMTPServer init...", "SMTP", logger.INFO);
         threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
-        socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
+        int port = conf.getConfiguration("port").getValueAsInt(25);
+        InetAddress bind = null;
+        try {
+            String bindTo = conf.getConfiguration("bind").getValue();
+            if (bindTo.length() > 0) {
+                bind = InetAddress.getByName(bindTo);
+            }
+        } catch (ConfigurationException e) {
+        }
+        socketServer.openListener("SMTPListener", SocketServer.DEFAULT, port, bind, this);
         logger.log("SMTPServer ...init end", "SMTP", logger.INFO);
     }
 

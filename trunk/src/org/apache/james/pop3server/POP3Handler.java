@@ -13,10 +13,10 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.mail.Mail;
-import org.apache.avalon.interfaces.*;
-import org.apache.java.util.*;
+import org.apache.avalon.blocks.*;
+import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
@@ -104,7 +104,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     public void run() {
     	
         try {
-            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
+            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout").getValueAsLong(120000));
             state = AUTHENTICATION_READY;
             user = "unknown";
             out.println("+OK. " + this.servername + " POP3 server (" + this.softwaretype + ") ready ");

@@ -10,7 +10,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.mail.*;
 import org.apache.james.transport.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import java.util.*;
 
 /**

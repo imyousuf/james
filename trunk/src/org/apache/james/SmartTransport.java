@@ -4,7 +4,7 @@ import java.net.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.xbill.DNS.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import java.util.*;
 
 /**

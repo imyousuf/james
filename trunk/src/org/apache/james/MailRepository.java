@@ -8,9 +8,9 @@
 
 package org.apache.james;
 
-import org.apache.avalon.interfaces.*;
-import org.apache.java.lang.*;
-import org.apache.java.util.*;
+import org.apache.avalon.blocks.*;
+import org.apache.avalon.*;
+import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
 import org.apache.mail.Mail;

@@ -11,10 +11,10 @@ package org.apache.james.transport.mailets;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.java.lang.*;
+import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.usermanager.*;
-import org.apache.avalon.interfaces.*;
+import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
 import org.apache.james.transport.*;
 
@@ -40,9 +40,9 @@ public class PicoListserv extends AbstractMailet {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         Configuration conf = context.getConfiguration();
         listName = conf.getConfiguration ("listName").getValue();
-        membersOnly = conf.getConfiguration("membersonly", "false").getValueAsBoolean();
-        attachmentsAllowed = conf.getConfiguration("attachmentsallowed", "true").getValueAsBoolean ();
-        replyToList = conf.getConfiguration("replytolist", "true").getValueAsBoolean ();
+        membersOnly = conf.getConfiguration("membersonly").getValueAsBoolean(false);
+        attachmentsAllowed = conf.getConfiguration("attachmentsallowed").getValueAsBoolean(true);
+        replyToList = conf.getConfiguration("replytolist").getValueAsBoolean(true);
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         members = (UsersRepository) manager.getUserRepository("list-" + listName);
         transport = (Mailet) context.get("transport");
