@@ -63,12 +63,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.HashMap;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -130,10 +132,15 @@ public class MailImpl implements Disposable, Mail {
      */
     private Date lastUpdated = new Date();
     /**
+     * Attributes added to this MailImpl instance
+     */
+    private HashMap attributes;
+    /**
      * A constructor that creates a new, uninitialized MailImpl
      */
     public MailImpl() {
         setState(Mail.DEFAULT);
+        attributes = new HashMap();
     }
     /**
      * A constructor that creates a MailImpl with the specified name,
@@ -516,7 +523,15 @@ public class MailImpl implements Disposable, Mail {
         name = (String) in.readObject();
         remoteHost = (String) in.readObject();
         remoteAddr = (String) in.readObject();
+        Object o = in.readObject();
+        //this check is done to be backwards compatible with mail repositories
+        if (o instanceof Date) {
+            setLastUpdated ((Date)o);
+            attributes = new HashMap();
+        } else {
+            attributes = (HashMap)o;
         setLastUpdated((Date) in.readObject());
+    }
     }
     /**
      * Write the MailImpl to an <code>ObjectOutputStream</code>.
@@ -534,6 +549,7 @@ public class MailImpl implements Disposable, Mail {
         out.writeObject(name);
         out.writeObject(remoteHost);
         out.writeObject(remoteAddr);
+        out.writeObject(attributes);
         out.writeObject(lastUpdated);
     }
 
@@ -552,4 +568,28 @@ public class MailImpl implements Disposable, Mail {
         }
     }
 
+    /**
+     * @see org.apache.mailet.Mail#getAttribute(String)
+     */
+    public Serializable getAttribute(String key) {
+        return (Serializable)attributes.get(key);
+    }
+    /**
+     * @see org.apache.mailet.Mail#setAttribute(String,Serializable)
+     */
+    public Serializable setAttribute(String key, Serializable object) {
+        return (Serializable)attributes.put(key, object);
+    }
+    /**
+     * @see org.apache.mailet.Mail#removeAttribute(String)
+     */
+    public Serializable removeAttribute(String key) {
+        return (Serializable)attributes.remove(key);
+    }
+    /**
+     * @see org.apache.mailet.Mail#getAttributeNames()
+     */
+    public Iterator getAttributeNames() {
+        return attributes.keySet().iterator();
+    }
 }
