@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.91 $  Committed on $Date: 2002/04/18 19:13:09 $ by: $Author: serge $
+ James build file $Revision: 1.92 $  Committed on $Date: 2002/05/16 23:48:50 $ by: $Author: hammant $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -29,7 +29,7 @@ Legal:
 
   <property name="name" value="james"/>
   <property name="Name" value="James"/>
-  <property name="version" value="2.0a3-cvs"/>
+  <property name="version" value="2.0a4"/>
   <property name="year" value="1999-2002"/>
 
   <!-- There should be no need to override default compiler but need to change
@@ -99,22 +99,12 @@ Legal:
   <property name="site.dir" value="../xml-site/sources/james"/>
   <property name="site.docs" value="../xml-site/targets/james"/>
 
-
-
   <!--
        ===================================================================
        Set the classpath
        ===================================================================
   -->
   <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
-  <property name="framework.jar" value="${lib.dir}/avalon-framework-20011115.jar"/>
-  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20011120.jar"/>
-  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20011122.jar"/>
-  <property name="logkit.jar" value="${lib.dir}/logkit-1.0.jar"/>
-  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20011230.bar"/>
-  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20011230.jar"/>
-  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20011230.jar"/>
-  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20011230.jar"/>
   <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20011230.jar"/>
 
   <!--
@@ -132,21 +122,24 @@ Legal:
     <fileset dir="${lib.dir}">
       <include name="*.jar" />
       <exclude name="xerces.jar"/>
-      <exclude name="framework.jar"/>
-      <exclude name="excalibur.jar"/>
-      <exclude name="scratchpad.jar"/>
-      <exclude name="logkit.jar"/>
-      <exclude name="phoenix.client.jar"/>
+    </fileset>
+    <fileset dir="phoenix-bin/lib">
+      <include name="*.jar" />    
     </fileset>
     <pathelement path="${build.classes}" />
   </path>
+
+  <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
+    <classpath refid="project.class.path" />
+  </taskdef>
+
 
   <!--
        ===================================================================
                                   Main target
        ===================================================================
   -->
-  <target name="main" depends="dist-lite" />
+  <target name="main" depends="sar" />
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -162,7 +155,6 @@ Legal:
     <echo message="   block-archive  --> generates the James.bar file (default)"/>
     <echo message="   auxiliary-jars --> generates the mailet.jar"/>
     <echo message="   compile        --> compiles the source code"/>
-    <echo message="   dist-lite      --> generates the JAMES distribution, unpacked"/>
     <echo message="   dist           --> generates the JAMES distribution, packed"/>
     <echo message="   clean          --> cleans up the directory"/>
     <echo message="   docs           --> created the documentaion for James"/>
@@ -283,7 +275,7 @@ Legal:
 
     <mkdir dir="${build.lib}"/>
 
-    <jar jarfile="${build.lib}/${name}.bar"
+    <jar jarfile="${build.lib}/${name}.jar"
          basedir="${build.classes}"
          manifest="${src.dir}/Manifest.mf">
        <include name="org/apache/james/**"/>
@@ -307,99 +299,158 @@ Legal:
   -->
   <target name="sar" depends="block-archive,auxiliary-jars">
 
-    <jar jarfile="${build.lib}/${name}.sar">
+    <sar sarfile="${build.lib}/${name}.sar"
+         config="src/conf/james-config.xml"
+         environment="src/conf/james-server.xml"
+         assembly="src/conf/james-assembly.xml" >
 
-      <zipfileset dir="${lib.dir}/" prefix="blocks/">
-        <include name="*.bar"/>
-      </zipfileset>
-
-      <zipfileset dir="${build.lib}/" prefix="blocks/">
-        <include name="*.bar"/>
-      </zipfileset>
-
-      <zipfileset dir="${build.lib}" prefix="lib">
+      <lib dir="${build.lib}/">
         <include name="*.jar"/>
-      </zipfileset>
+      </lib>      
 
-      <zipfileset dir="${lib.dir}/" prefix="lib">
+      <lib dir="lib">
+        <include name="cornerstone.jar"/>
         <include name="dnsjava-1.2.3.jar"/>
         <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
         <include name="jakarta-oro-2.0.1.jar"/>
-      </zipfileset>
-
-      <zipfileset dir="${conf.dir}" fullpath="conf/config.xml">
-        <include name="james-config.xml"/>
-      </zipfileset>
-
-      <zipfileset dir="${conf.dir}" fullpath="conf/assembly.xml">
-        <include name="james-assembly.xml"/>
-      </zipfileset>
-
-      <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
-        <include name="james-server.xml"/>
-      </zipfileset>
+      </lib>
 
       <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
         <include name="sqlResources.xml"/>
       </zipfileset>
-
-    </jar>
+      
+    </sar>
 
   </target>
 
-  <!-- =================================================================== -->
-  <!-- Creates the unpacked binary distribution                            -->
-  <!-- =================================================================== -->
-
-  <target name="dist-lite" depends="sar">
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir}/bin"/>
-    <mkdir dir="${dist.dir}/ext"/>
-
-    <delete dir="${dist.dir}/apps/${name}"/>
-    <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
-
-    <copy file="${phoenix-engine.jar}" tofile="${dist.dir}/bin/phoenix-engine.jar"/>
-    <copy file="${phoenix-loader.jar}" tofile="${dist.dir}/bin/phoenix-loader.jar"/>
-
-    <copy file="${phoenix.client.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${framework.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${excalibur.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${scratchpad.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${avalon-jmx.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${logkit.jar}" todir="${dist.dir}/lib"/>
-    <copy file="${lib.dir}/mysql-2.0.4.jar" todir="${dist.dir}/lib"/>
-
-    <copy todir="${dist.dir}/lib">
-      <fileset dir="lib">
-        <include name="jmxri.jar"/>
-        <include name="jmxtools.jar"/>
-        <include name="xerces.jar"/>
-      </fileset>
-    </copy>
-
-    <copy file="${scripts.dir}/run.bat" tofile="${dist.dir}/bin/run.bat"/>
-    <copy file="${scripts.dir}/run.sh" tofile="${dist.dir}/bin/run.sh"/>
-    <copy file="${conf.dir}/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
-    <copy todir="${dist.dir}/conf">
-      <fileset dir="${conf.dir}">
-        <include name="inet*"/>
-        <include name="*.properties"/>
-      </fileset>
-    </copy>
-
-    <copy file="README" tofile="${dist.dir}/README"/>
-    <replace file="${dist.dir}/README" token="@@version@@" value="${version}"/>
-    <copy file="LICENSE.txt" tofile="${dist.dir}/LICENSE"/>
-    <copy file="build.xml" tofile="${dist.dir}/build.xml"/>
-
-    <chmod dir="${dist.dir}" perm="go-rwx" />
-    <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
-    <fixcrlf srcdir="${dist.dir}" eol="crlf" includes="**/*.bat" />
-    <fixcrlf srcdir="${dist.dir}" eol="lf" includes="**/*.sh" />
+  <target name="install" depends="sar" description="Installs into local Phoenix">
+    <echo message="Installing to phoenix-bin/apps" />
+    <copy file="${build.lib}/${name}.sar" todir="phoenix-bin/apps" />
+    <delete dir="phoenix-bin/apps/${name}" />
   </target>
+
+  <!-- Completely build all dists -->
+  <target name="dist2" depends="install" description="Generates JAMES downloadables">
+    
+    <mkdir dir="dist"/>
+    
+    
+    <!-- Without Phoenix -->
+    
+
+    <zip zipfile="dist/${name}-${version}-src.zip">
+      <fileset dir=".">
+        <include name="src/**"/>
+        <include name="lib/**"/>
+        <include name="proposals/**"/>        
+        <include name="www/**"/>
+        <include name="tools/**"/>
+        <include name="*.xml"/>
+        <include name="*.txt"/>
+        <include name="README"/>
+        <include name="KEYS"/>
+        <include name="build.*"/>
+      </fileset>         
+    </zip>         
+
+    <tar longfile="gnu" tarfile="dist/${name}-${version}-src.tar" >
+      <tarfileset dir="." username="${name}" group="${name}">
+        <include name="src/**"/>
+        <include name="lib/**"/>
+        <include name="proposals/**"/>        
+        <include name="www/**"/>
+        <include name="tools/**"/>
+        <include name="*.xml"/>
+        <include name="*.txt"/>
+        <include name="README"/>
+        <include name="KEYS"/>
+        <include name="build.*"/>
+      </tarfileset>
+    </tar>
+
+    <gzip zipfile="dist/${name}-${version}-src.tar.gz"
+          src="dist/${name}-${version}-src.tar"/>
+    <delete file="dist/${name}-${version}-src.tar"/>
+    
+    <!-- With Phoenix -->
+    
+
+    <zip zipfile="dist/${name}-with-phoenix-${version}-src.zip">
+      <fileset dir=".">
+        <include name="phoenix-bin/bin/**"/>
+        <include name="phoenix-bin/conf/**"/>
+        <include name="phoenix-bin/ext/**"/>
+        <include name="phoenix-bin/lib/**"/>
+        <include name="*.txt"/>
+        <include name="*.xml"/>
+        <include name="KEYS"/>
+        <include name="README"/>
+        <include name="build.*"/>
+        <include name="lib/**"/>
+        <include name="proposals/**"/>
+        <include name="src/**"/>
+        <include name="tools/**"/>
+        <include name="www/**"/>
+
+      </fileset>         
+    </zip>         
+
+    <tar longfile="gnu" tarfile="dist/${name}-with-phoenix-${version}-src.tar" >
+      <tarfileset dir="." username="${name}" group="${name}">
+        <include name="phoenix-bin/bin/**"/>
+        <include name="phoenix-bin/conf/**"/>
+        <include name="phoenix-bin/ext/**"/>
+        <include name="phoenix-bin/lib/**"/>      
+        <include name="*.txt"/>
+        <include name="*.xml"/>
+        <include name="KEYS"/>
+        <include name="README"/>
+        <include name="build.*"/>
+        <include name="lib/**"/>
+        <include name="proposals/**"/>
+        <include name="src/**"/>
+        <include name="tools/**"/>
+        <include name="www/**"/>
+      </tarfileset>
+    </tar>
+
+    <gzip zipfile="dist/${name}-with-phoenix-${version}-src.tar.gz"
+          src="dist/${name}-with-phoenix-${version}-src.tar"/>
+    <delete file="dist/${name}-with-phoenix-${version}-src.tar"/>   
+    
+    <zip zipfile="dist/${name}-binary-${version}.zip">
+      <fileset dir=".">
+        <include name="phoenix-bin/bin/*"/>
+        <include name="phoenix-bin/ext/*"/>
+        <include name="phoenix-bin/lib/*"/>
+        <include name="phoenix-bin/apps/${name}.sar"/>
+        <exclude name="phoenix-bin/logs/**"/>
+        <include name="release-notes.txt"/>
+        <include name="LICENSE.txt"/>
+      </fileset>
+    </zip>         
+
+    <tar longfile="gnu" tarfile="dist/${name}-binary-${version}.tar" >
+      <tarfileset dir="." username="${name}" group="${name}">
+        <include name="phoenix-bin/bin/*"/>
+        <include name="phoenix-bin/ext/*"/>
+        <include name="phoenix-bin/lib/*"/>
+        <include name="phoenix-bin/apps/${name}.sar"/>
+        <exclude name="phoenix-bin/logs/**"/>
+        <include name="release-notes.txt"/>
+        <include name="LICENSE.txt"/>
+      </tarfileset>
+    </tar>
+
+    <gzip zipfile="dist/${name}-binary-${version}.tar.gz"
+          src="dist/${name}-binary-${version}.tar"/>
+    <delete file="dist/${name}-binary-${version}.tar"/>        
+    
+    <copy file="${build.lib}/${name}.sar" todir="dist" />
+    
+  </target>  
 
 
   <!-- =================================================================== -->
@@ -599,6 +650,8 @@ Legal:
        ===================================================================
   -->
 
+  <target name="dist-lite"/>
+  
   <target name="dist" depends="dist-lite, docs">
 
     <mkdir dir="${dist.docs}"/>
