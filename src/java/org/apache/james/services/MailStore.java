@@ -23,12 +23,15 @@ import org.apache.avalon.cornerstone.services.store.Store;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2001/09/06 13:19:32 $ by: $Author: donaldp $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2002/08/16 22:00:07 $ by: $Author: pgoldstein $ 
  */
 public interface MailStore 
     extends Store {
 
+    /**
+     * The component role used by components implementing this service
+     */
     String ROLE = "org.apache.james.services.MailStore";
 
     // MailRepository getInbox(String user);

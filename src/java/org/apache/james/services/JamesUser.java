@@ -14,20 +14,25 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/16 22:00:07 $
+ * $Revision: 1.3 $
  */
 
 public interface JamesUser extends User {
 
     /**
-     * Change password to pass. Return true if uccessful.
+     * Change password to pass. Return true if successful.
+     *
+     * @param pass the new password
+     * @return true if successful, false otherwise
      */
     boolean setPassword(String pass);
 
     /**
      * Indicate if mail for this user should be forwarded to some other mail
      * server.
+     *
+     * @param forward whether email for this user should be forwarded
      */
     void setForwarding(boolean forward);
 
@@ -37,8 +42,10 @@ public interface JamesUser extends User {
     boolean getForwarding();
 
     /**
-     * Set destination for forwading mail
-     * Should we use a MailAddress?
+     * <p>Set destination for forwading mail</p>
+     * <p>TODO: Should we use a MailAddress?</p>
+     *
+     * @param address the forwarding address for this user
      */
     boolean setForwardingDestination(MailAddress address);
 
@@ -54,7 +61,7 @@ public interface JamesUser extends User {
     void setAliasing(boolean alias);
 
     /**
-     * Return true if emails should be dlivered locally to an alias.
+     * Return true if emails should be delivered locally to an alias.
      */
     boolean getAliasing();
 

@@ -12,19 +12,24 @@ package org.apache.james.services;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/16 22:00:07 $
+ * $Revision: 1.4 $
  */
 
 public interface User {
 
     /**
      * Return the user name of this user
+     *
+     * @return the user name for this user
      */
     String getUserName();
 
     /**
      * Return true if pass matches password of this user.
+     *
+     * @param pass the password to test
+     * @return whether the password being tested is valid
      */
     boolean verifyPassword(String pass);
 
