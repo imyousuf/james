@@ -81,29 +81,32 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
- * <P>Sends a notification message to the sender of a message.</P>
+ * <P>Generates a response to the Return-Path address, or the
+ * address of the message's sender if the Return-Path is not
+ * available. Note that this is different than a mail-client's
+ * reply, which would use the Reply-To or From header.</P>
+ * <P>Bounced messages are attached in their entirety (headers and
+ * content) and the resulting MIME part type is "message/rfc822".<BR>
+ * The Return-Path header of the response is set to "null" ("<>"),
+ * meaning that no reply should be sent.</P>
  * <P>A sender of the notification message can optionally be specified.
  * If one is not specified, the postmaster's address will be used.<BR>
- * The "To:" header of the notification message can be set to "unaltered";
- * if missing will be set to the sender of the notified message.<BR>
  * A notice text can be specified, and in such case will be inserted into the 
  * notification inline text.<BR>
  * If the notified message has an "error message" set, it will be inserted into the 
  * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
  * is set to true, such error message will be attached to the notification message.<BR>
- * The notified messages are attached in their entirety (headers and
- * content) and the resulting MIME part type is "message/rfc822".</P>
  * <P>passThrough is <B>true</B>.</P>
  *
  * <P>Sample configuration:</P>
  * <PRE><CODE>
- * &lt;mailet match="All" class="NotifySender">
+ * &lt;mailet match="All" class="NotifyPostmaster">
  *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
- *   &lt;to&gt;<I>unaltered (optional, defaults to sender)</I>&lt;/to&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
@@ -115,8 +118,8 @@ import java.util.Iterator;
  *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
  *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
  *   &lt;passThrough&gt;true&lt;/passThrough&gt;
- *   &lt;to&gt;<I>unaltered or sender&lt</I>;/to&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
+ *   &lt;returnPath&gt;null&lt;/returnPath&gt;
  *   &lt;inline&gt;none&lt;/inline&gt;
  *   &lt;attachment&gt;message&lt;/attachment&gt;
  *   &lt;isReply&gt;true&lt;/isReply&gt;
@@ -125,7 +128,7 @@ import java.util.Iterator;
  * </CODE></PRE>
  *
  */
-public class NotifySender extends AbstractNotify {
+public class Bounce extends AbstractNotify {
     
     /**
      * Return a string describing this mailet.
@@ -133,44 +136,64 @@ public class NotifySender extends AbstractNotify {
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
-        return "NotifySender Mailet";
+        return "Bounce Mailet";
     }
-    
+
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
     
     /**
-     * @return SENDER, indicating the sender of the current mail
+     * @return SpecialAddress.RETURN_PATH
      */
     protected Collection getRecipients() {
         Collection newRecipients = new HashSet();
-        newRecipients.add(SpecialAddress.SENDER);
+        newRecipients.add(SpecialAddress.RETURN_PATH);
         return newRecipients;
+    }
+        
+    /**
+     * @return SpecialAddress.RETURN_PATH
+     */
+    protected InternetAddress[] getTo() {
+        InternetAddress[] apparentlyTo = new InternetAddress[1];
+        apparentlyTo[0] = SpecialAddress.RETURN_PATH.toInternetAddress();
+        return apparentlyTo;
     }
     
     /**
-     * @return UNALTERED if specified or SENDER if missing
+     * @return NULL (the meaning of bounce)
      */
-    protected InternetAddress[] getTo() throws MessagingException {
-        String addressList = getInitParameter("to");
-        InternetAddress[] iaarray = new InternetAddress[1];
-        iaarray[0] = SpecialAddress.SENDER.toInternetAddress();
-        if (addressList != null) {
-            MailAddress specialAddress = getSpecialAddress(addressList,
-                                            new String[] {"sender", "unaltered"});
-            if (specialAddress != null) {
-                iaarray[0] = specialAddress.toInternetAddress();
-            } else {
-                log("\"to\" parameter ignored, set to sender");
-            }
-        }
-        return iaarray;
+    protected MailAddress getReturnPath() {
+        return SpecialAddress.NULL;
     }
     
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
+    
+    /**
+     * Service does the hard work,and redirects the originalMail in the form specified.
+     * Checks that the original return path is not empty,
+     * and then calls super.service(originalMail), otherwise just returns.
+     *
+     * @param originalMail the mail to process and redirect
+     * @throws MessagingException if a problem arises formulating the redirected mail
+     */
+    public void service(Mail originalMail) throws MessagingException {
+        MailAddress returnAddress = getExistingReturnPath(originalMail);
+        if (returnAddress == SpecialAddress.NULL) {
+            if (isDebug)
+                log("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
+            return;
+        } else if (returnAddress == SpecialAddress.SENDER) {
+            log("WARNING: Mail to be bounced does not contain a Return-Path header.");
+        } else {
+            if (isDebug)
+                log("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnAddress);
+        }
+        super.service(originalMail);
+    }
     
 }
 
