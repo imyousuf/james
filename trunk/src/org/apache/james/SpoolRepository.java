@@ -31,14 +31,20 @@ public interface SpoolRepository extends MailRepository {
      */
     public final static String SPOOL = "SPOOL";
 
-
-    /** Returns the key for an arbitrarily selected mail deposited in this Repository. 
+    /**
+     * Returns the key for an arbitrarily selected mail deposited in this Repository.
      * Useage: SpoolManager calls accept() to see if there are any unprocessed mails in the spool repository.
      */
-
     public String accept();
 
-
+    /**
+     * Returns the key for an arbitrarily select mail depository in this Repositry that
+     * is either ready immediately for delivery, or is younger than it's last_updated plus
+     * the number of failed attempts times the delay time.
+     * Useage: RemoteDeliverySpool calls accept() with some delay and should block until an
+     * unprocessed mail is available.
+     */
+    public String accept(long delay);
 }
 
-    
+
