@@ -32,19 +32,26 @@ public interface MailRepository extends Store.Repository {
     public final static String MAIL = "MAIL";
 
 
-    /** Stores a message in this repository. Shouldn't this return the key under which it is stored? */
+    /**
+     * Stores a message in this repository. Shouldn't this return the key
+     * under which it is stored?
+     */
     public void store(MailImpl mc) ;
-      
-    /** Retrieves a message given a key. At the moment, keys can be obtained  from list() in superinterface Store.Repository */
-    public MailImpl retrieve(String key);
-    
-    /** Removes a specified message */
-    public void remove(MailImpl mail); 
 
-    /** Removes a message identifed by key. */
+    /**
+     * Retrieves a message given a key. At the moment, keys can be obtained
+     * from list() in superinterface Store.Repository
+     */
+    public MailImpl retrieve(String key);
+
+    /**
+     * Removes a specified message
+     */
+    public void remove(MailImpl mail);
+
+    /**
+     * Removes a message identifed by key.
+     */
     public void remove(String key) ;
 
-
 }
-
-    
