@@ -46,7 +46,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  *
  */
 public class RemoteManagerHandler
@@ -247,8 +247,10 @@ public class RemoteManagerHandler
                     getLogger().info( message );
                 }
                 out.println("Login id:");
+                out.flush();
                 login = in.readLine().trim();
                 out.println("Password:");
+                out.flush();
                 password = in.readLine().trim();
             } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
@@ -258,6 +260,7 @@ public class RemoteManagerHandler
                         .append(login)
                         .append(". HELP for a list of commands");
             out.println( messageBuffer.toString() );
+            out.flush();
             if (getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                     new StringBuffer(128)
