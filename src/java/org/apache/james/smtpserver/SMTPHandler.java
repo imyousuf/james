@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.32 $
+ * @version This is $Revision: 1.33 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -456,7 +456,6 @@ public class SMTPHandler
      */
     final void writeLoggedResponse(String responseString) {
         out.println(responseString);
-        out.flush();
         logResponseString(responseString);
     }
 
