@@ -28,7 +28,7 @@ import javax.mail.internet.*;
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
  * store it in the "delayed" Repository and set an Alarm. After "delayTime" the
- * Alarm will wake the servlet that will try to send it again. After "maxRetyes"
+ * Alarm will wake the servlet that will try to send it again. After "maxRetries"
  * the mail will be considered underiverable and will be returned to sender.
  *
  * Note: Many FIXME on the air.
@@ -40,7 +40,7 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 	private MailRepository delayed;
 	private TimeServer timeServer;
 	private long delayTime;
-	private int maxRetyes;
+	private int maxRetries;
 	private MailServer mailServer;
 	private Logger logger;
 
@@ -53,9 +53,9 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 		Configuration conf = context.getConfiguration();
 		logger = (Logger) comp.getComponent(Interfaces.LOGGER);
 		delayTime = conf.getConfiguration("delayTime", "21600000").getValueAsLong(); // default is 6*60*60*1000 mills
-		maxRetyes = conf.getConfiguration("maxRetyes", "5").getValueAsInt(); // default is 5 retries
+		maxRetries = conf.getConfiguration("maxRetries", "5").getValueAsInt(); // default is 5 retries
 		timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-		
+
 		    // Instantiate the SmartTransport
 		StringBuffer servers = new StringBuffer ();
 		for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
@@ -64,15 +64,15 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 		}
 		boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
 		transport = new SmartTransport (servers.toString(), authoritative);
-        
+
             // Instanziate the a MailRepository for delayed mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         String delayedPath = conf.getConfiguration("delayed", "../var/mail/delayed").getValue();
 		delayed = (MailRepository) store.getPrivateRepository(delayedPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
-		
+
 		postmaster = new InternetAddress((String) getContext().get(Resources.POSTMASTER));
         mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-		
+
 		int i = 0;
 		for (Enumeration e = delayed.list(); e.hasMoreElements(); ) {
 			String key = (String) e.nextElement();
@@ -101,9 +101,9 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 			for (Enumeration e = recipients.elements(); e.hasMoreElements(); j++) {
 				addr[j] = new InternetAddress((String) e.nextElement());
 			}
-			
+
 			transport.sendMessage (message, addr);
-			logger.log("Mail sent"); 
+			logger.log("Mail sent");
 			//We've succeeded somehow!!!  Cheers!
 			return;
 		} catch (Exception ex) {
@@ -113,54 +113,56 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 			//possibilities
 
 			//Unable to deliver message after numerous tries... fail accordingly
-//			ex.printStackTrace();
+			ex.printStackTrace();
 			failMessage (mail, "Delivery failure: " + ex.toString ());
 		}
 	}
-	
+
 	public void destroy() {
 	}
-/**
- * Insert the method's description here.
- * Creation date: (2/25/00 1:14:18 AM)
- * @param mail org.apache.mail.Mail
- * @param reason java.lang.String
- */
-private void failMessage(Mail mail, String reason) {
-	logger.log("Exception delivering mail: " + reason);
-	if (!mail.getState().equals(Mail.ERROR)) {
-		mail.setState(Mail.ERROR);
-		mail.setErrorMessage("1");
-	}
-	int retries = Integer.parseInt(mail.getErrorMessage());
-	if (retries > maxRetyes) {
-		logger.log("Sending back message " + mail.getName () + " after " + retries + " retries");
-		//logger.log("Sending back message " + mail.getMessage ().getMessageID () + " after " + retries + " retries");
-		try {
-			//FIXME: need much better logging of why this message failed, including the
-			//original message as an attachment.  q.q.v. old james stuff.
-			MimeMessage reply = (MimeMessage) (mail.getMessage()).reply(false);
-			reply.setSubject("Unable to deliver this message to recipients: " + reason);
-			Vector recipients = new Vector ();
-			recipients.addElement (mail.getSender ());
-			InternetAddress addr[] = {new InternetAddress(mail.getSender())};
-			reply.setRecipients(Message.RecipientType.TO, addr);
-			reply.setFrom(postmaster);
 
-			mailServer.sendMail (postmaster.toString (), recipients, reply);
-		} catch (Exception ignore) {
-			// FIXME: cannot destroy mails... what should we do here ?
-			logger.log("Unable to reply. Destroying message");
-			//This should go to straight to the postmaster... but I'm sleepy
-		}
-	} else {
-	    mail.setName(mail.getName() + retries);
-		logger.log("Storing message " + mail.getName () + " into delayed after " + retries + " retries");
-		mail.setErrorMessage("" + ++retries);
-		delayed.store(mail);
-		timeServer.setAlarm(mail.getName (), this, delayTime);
-	}
-}
+    /**
+     * Insert the method's description here.
+     * Creation date: (2/25/00 1:14:18 AM)
+     * @param mail org.apache.mail.Mail
+     * @param reason java.lang.String
+     */
+    private void failMessage(Mail mail, String reason) {
+        logger.log("Exception delivering mail: " + reason);
+        if (!mail.getState().equals(Mail.ERROR)) {
+            mail.setState(Mail.ERROR);
+            mail.setErrorMessage("1");
+        }
+        int retries = Integer.parseInt(mail.getErrorMessage());
+        if (retries > maxRetries) {
+            logger.log("Sending back message " + mail.getName () + " after " + retries + " retries");
+            //logger.log("Sending back message " + mail.getMessage ().getMessageID () + " after " + retries + " retries");
+            try {
+                //FIXME: need much better logging of why this message failed, including the
+                //original message as an attachment.  q.q.v. old james stuff.
+                MimeMessage reply = (MimeMessage) (mail.getMessage()).reply(false);
+                reply.setSubject("Unable to deliver this message to recipients: " + reason);
+                Vector recipients = new Vector ();
+                recipients.addElement (mail.getSender ());
+                InternetAddress addr[] = {new InternetAddress(mail.getSender())};
+                reply.setRecipients(Message.RecipientType.TO, addr);
+                reply.setFrom(postmaster);
+
+                mailServer.sendMail (postmaster.toString (), recipients, reply);
+            } catch (Exception ignore) {
+                // FIXME: cannot destroy mails... what should we do here ?
+                logger.log("Unable to reply. Destroying message");
+                //This should go to straight to the postmaster... but I'm sleepy
+            }
+        } else {
+            mail.setName(mail.getName() + retries);
+            logger.log("Storing message " + mail.getName () + " into delayed after " + retries + " retries");
+            mail.setErrorMessage("" + ++retries);
+            delayed.store(mail);
+            timeServer.setAlarm(mail.getName (), this, delayTime);
+        }
+    }
+
 	public String getMailetInfo() {
 		return "RemoteDelivery Mailet";
 	}
@@ -190,7 +192,7 @@ private void failMessage(Mail mail, String reason) {
 			}
 			temp.addElement (target);
 		}
-		
+
 		//We have the recipients organized into distinct servers... put them into the
 		//delivery store organized like this... this is ultra inefficient I think...
 
