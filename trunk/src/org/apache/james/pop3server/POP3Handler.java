@@ -22,6 +22,7 @@ import org.apache.james.core.*;
 import org.apache.james.mailrepository.*;
 import org.apache.james.transport.*;
 import org.apache.james.userrepository.*;
+import org.apache.james.util.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
@@ -95,7 +96,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             this.socket = socket;
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outs = socket.getOutputStream();
-            out = new PrintWriter(outs, true);
+            out = new InternetPrintWriter(outs, true);
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
