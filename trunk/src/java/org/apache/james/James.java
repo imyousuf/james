@@ -119,7 +119,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.58 $
+ * @version This is $Revision: 1.59 $
 
  */
 public class James
@@ -325,7 +325,7 @@ public class James
         context.put(Constants.SERVER_NAMES, this.serverNames);
         attributes.put(Constants.SERVER_NAMES, this.serverNames);
         // Get postmaster
-        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster");
+        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster").toLowerCase(Locale.US);
         // if there is no @domain part, then add the first one from the
         // list of supported domains that isn't localhost.  If that
         // doesn't work, use the hostname, even if it is localhost.
