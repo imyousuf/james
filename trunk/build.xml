@@ -326,6 +326,7 @@ Legal:
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
         <include name="jakarta-oro-2.0.1.jar"/>
+        <include name="mysql-2.0.4.jar"/>
       </zipfileset>
 
       <zipfileset dir="${build.conf}" fullpath="conf/config.xml">
@@ -685,6 +686,19 @@ Legal:
   -->
   <target name="distributions" depends="dist, src-dist">
 
+  </target>
+
+  <!-- 
+       ===================================================================
+                 Unit test targets
+       ===================================================================
+  -->
+  <target name="testUserRepos">
+    <junit printsummary="yes">
+      <classpath refid="project.class.path"/>
+      <formatter type="plain" usefile="no"/>
+      <test name="org.apache.james.testing.TestUsersJDBCRepository"/>
+    </junit>
   </target>
 
 </project>

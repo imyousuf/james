@@ -20,8 +20,8 @@ import org.apache.james.services.User;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/07 10:39:46 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/10 13:19:57 $
+ * $Revision: 1.4 $
  */
 
 public class DefaultUser implements User, Serializable {
@@ -105,6 +105,12 @@ public class DefaultUser implements User, Serializable {
 	return hashedPassword;
     }
 
+    /**
+     * Method to access the hashing algorithm of the password.
+     */
+    protected String getHashAlgorithm() {
+        return algorithm;
+    }
 
 
 }
