@@ -121,7 +121,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             if (addr.length > 0) {
                 //Lookup the possible targets
-                for (Iterator i = getMailetContext().getMailServers(host).iterator(); i.hasNext();) {
+		Iterator i = getMailetContext().getMailServers(host).iterator();
+		if (! i.hasNext()) {
+		    log("No mail servers found for: " + host);
+		}
+                while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
                         log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
@@ -163,7 +167,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                     */
                     }
-                }
+                }// end while
                 //If we encountered an exception while looping through, send the last exception we got
                 if (e != null) {
                     throw e;

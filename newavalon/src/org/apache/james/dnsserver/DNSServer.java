@@ -53,7 +53,8 @@ public class DNSServer implements Component, Configurable, Contextualizable {
 
             // Get this servers that this block will use for lookups
         Collection servers = new Vector();
-        for (Iterator it = conf.getChildren("servers.server"); it.hasNext(); ) {
+	Configuration serversConf = conf.getChild("servers");
+        for (Iterator it = serversConf.getChildren("server"); it.hasNext(); ) {
             servers.add(((Configuration) it.next()).getValue());
         }
         if (servers.isEmpty()) {
