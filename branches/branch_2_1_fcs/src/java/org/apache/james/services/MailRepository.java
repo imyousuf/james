@@ -113,9 +113,9 @@ public interface MailRepository {
     void remove(MailImpl mail) throws MessagingException;
 
     /**
-     * Remove the messages in the collection mails from the repository
+     * Remove an Collection of mails from the repository
      *
-     * @param mails
+     * @param mails The Collection of <code>MailImpl</code>'s to delete
      * @since 2.2.0
      */
      void remove(Collection mails) throws MessagingException;
