@@ -52,7 +52,7 @@
        for the Apache JServ servlet engine, Apache James has a careful,
        security-oriented, full multi-threaded design, to allow performance,
        scalability and mission-critical use.</p>
-    <p>anything else you may want if you help us writing it :-)</p>
+    <p>Anything else you may want if you help us write it :-)</p>
 </section>
 <section name="Feature Status">
     <table>

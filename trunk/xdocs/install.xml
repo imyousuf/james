@@ -81,7 +81,7 @@
     Since at the beginning James is empty, it will not have any local users
     registered.
     To register a local user open a telnet session with localhost on port 4555,
-    log in as root ("root[enter]  <password-you-set-in-conf.xml>[enter]") and
+    log in as root ("root[enter]  &lt;password-you-set-in-conf.xml&gt;[enter]") and
     type "help" for a list of available commands in the "JAMES remote
     administrator tool". It is really a basic set but should allow you to test
     installation.

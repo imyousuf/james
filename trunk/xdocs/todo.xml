@@ -28,7 +28,7 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
 <p>Make James stoppable (elegantly)</p>
 <p>Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.</p>
 <p>Add #news namespace to IMAP system</p>
-<p>Revisit UserRepository - after doing IMAP List & Subscribe</p>
+<p>Revisit UserRepository - after doing IMAP List &amp; Subscribe</p>
 <p>Make James reconfigurable/contextualizable/composable.</p>
 <p>Reinject error/spam mails incorrecty handled.</p>
 <p>Add needed functions to RemoteManager, Including Stop and ReConfigure, Reinject mail, Store RemoteManger password securely.</p>
