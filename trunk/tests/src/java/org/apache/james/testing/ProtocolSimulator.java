@@ -1,64 +1,24 @@
-/* ====================================================================
- * The Apache Software License, Version 1.1
- *
- * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
- * reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
- *
- * 4. The names "Apache", "Jakarta", "JAMES" and "Apache Software Foundation"
- *    must not be used to endorse or promote products derived from this
- *    software without prior written permission. For written
- *    permission, please contact apache@apache.org.
- *
- * 5. Products derived from this software may not be called "Apache",
- *    nor may "Apache" appear in their name, without prior written
- *    permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- *
- * Portions of this software are based upon public domain software
- * originally written at the National Center for Supercomputing Applications,
- * University of Illinois, Urbana-Champaign.
- */
+/***********************************************************************
+ * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * All rights reserved.                                                *
+ * ------------------------------------------------------------------- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you *
+ * may not use this file except in compliance with the License. You    *
+ * may obtain a copy of the License at:                                *
+ *                                                                     *
+ *     http://www.apache.org/licenses/LICENSE-2.0                      *
+ *                                                                     *
+ * Unless required by applicable law or agreed to in writing, software *
+ * distributed under the License is distributed on an "AS IS" BASIS,   *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     *
+ * implied.  See the License for the specific language governing       *
+ * permissions and limitations under the License.                      *
+ ***********************************************************************/
 
 package org.apache.james.testing;
 
-import java.io.BufferedOutputStream;
+
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -73,7 +33,8 @@ import java.util.List;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.oro.text.perl.Perl5Util;
 
-/**
+
+/**
  * <pre>
  * Simulates protocol sessions. Connects to a protocol server. Test
  * reads template and sends data or reads data from server and
@@ -114,8 +75,10 @@ public class ProtocolSimulator {
      */
     public static void main(String[] args) throws Exception {
         ProtocolSimulatorOptions params = ProtocolSimulatorOptions.getOptions(args);
-        if (params == null) {
-            return;        }
+
+        if (params == null) {
+            return;
+        }
         new ProtocolSimulator(params).start();
     }
 
@@ -146,7 +109,8 @@ public class ProtocolSimulator {
 
         // create protocol simulation commands and fire simulation.
         Command simulation = getSimulationCmd(params.template);
-        runSimulation(simulation);
+
+        runSimulation(simulation);
     }
 
     // ---- methods to fire off simulation ---------
@@ -157,13 +121,16 @@ public class ProtocolSimulator {
     private void runSimulation(final Command simulation)
             throws InterruptedException {
         Thread[] t = new Thread[params.workers];
-        for (int i = 0; i < t.length; i++) {
+
+        for (int i = 0; i < t.length; i++) {
             final int workerID = i;
-            t[i] = new Thread("protocol-simulator-" + workerID) {
+
+            t[i] = new Thread("protocol-simulator-" + workerID) {
                 public void run() {
                     try {
                         for (int i = 0; i < params.iterations; i++) {
-                            runSingleSimulation(simulation);                        }
+                            runSingleSimulation(simulation);
+                        }
                     } catch (Throwable t) {
                         System.out.println("Terminating " + workerID + " Reason=" + t.toString());
                         t.printStackTrace();
@@ -172,9 +139,11 @@ public class ProtocolSimulator {
             };
         }
         for (int i = 0; i < t.length; i++) {
-            t[i].start();        }
+            t[i].start();
+        }
         for (int i = 0; i < t.length; i++) {
-            t[i].join();        }
+            t[i].join();
+        }
     }
 
     /**
@@ -182,16 +151,21 @@ public class ProtocolSimulator {
      */
     private void runSingleSimulation(Command simulation) throws Throwable {
         Socket sock = null;
-        try {
+
+        try {
             sock = new Socket(params.host, params.port);
             InputStream inp = sock.getInputStream();
             OutputStream out = sock.getOutputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inp));
             PrintWriter writer = new InternetPrintWriter(new BufferedOutputStream(out), true);
-            simulation.execute(reader, writer);
+
+            simulation.execute(reader, writer);
         } finally {
             if (sock != null) {
-                try {                    sock.close();                } catch (Throwable t) {}            }
+                try {
+                    sock.close();
+                } catch (Throwable t) {}
+            }
         }
     }
 
@@ -203,11 +177,14 @@ public class ProtocolSimulator {
     private Command getSimulationCmd(String template)
             throws IOException {
         BufferedReader templateReader = new BufferedReader(new FileReader(template));
-        try {
+
+        try {
             return getSimulationCmd(templateReader);
         } finally {
             // try your best to cleanup.
-            try {                templateReader.close();            } catch (Throwable t) {}
+            try {
+                templateReader.close();
+            } catch (Throwable t) {}
         }
     }
 
@@ -218,21 +195,27 @@ public class ProtocolSimulator {
             throws IOException {
         // convert template lines into Protocol interaction commands.
         final List list = new ArrayList();
-        while (true) {
+
+        while (true) {
             final String templateLine = templateReader.readLine();
-            if (templateLine == null) {
-                break;            }
+
+            if (templateLine == null) {
+                break;
+            }
             // ignore empty lines.
             if (templateLine.trim().length() == 0) {
-                list.add(new NOOPCmd());            } else if (templateLine.startsWith(COMMENT_TAG)) {
-                list.add(new NOOPCmd());            } else if (templateLine.startsWith(CLIENT_TAG)) {
+                list.add(new NOOPCmd());
+            } else if (templateLine.startsWith(COMMENT_TAG)) {
+                list.add(new NOOPCmd());
+            } else if (templateLine.startsWith(CLIENT_TAG)) {
                 list.add(new Command() {
                     // just send the client data
                     public void execute(BufferedReader reader, PrintWriter writer)
                             throws Throwable {
                         writer.println(templateLine.substring(CLIENT_TAG_LEN));
                     }
-                }                );
+                }
+                );
             } else if (templateLine.startsWith(SERVER_TAG)) {
                 list.add(new Command() {
                     // read server line and validate
@@ -240,15 +223,19 @@ public class ProtocolSimulator {
                             throws Throwable {
                         String line = reader.readLine();
                         String pattern = templateLine.substring(SERVER_TAG_LEN);
-                        System.out.println(pattern + ":" + line);
+
+                        System.out.println(pattern + ":" + line);
                         pattern = "m/" + pattern + "/";
                         if (line == null || !perl.match(pattern, line)) {
                             throw new IOException
-                                    ("Protocol Failure: got=[" + line + "] expected=[" + templateLine + "]");                        }
+                                    ("Protocol Failure: got=[" + line + "] expected=[" + templateLine + "]");
+                        }
                     }
-                }                );
+                }
+                );
             } else {
-                throw new IOException("Invalid template line: " + templateLine);            }
+                throw new IOException("Invalid template line: " + templateLine);
+            }
         }
 
         // aggregate all commands into a single simulation command
@@ -257,7 +244,8 @@ public class ProtocolSimulator {
                     throws Throwable {
                 for (int i = 0; i < list.size(); i++) {
                     Command cmd = (Command) list.get(i);
-                    try {
+
+                    try {
                         cmd.execute(reader, writer);
                     } catch (Throwable t) {
                         System.out.println("Failed on line: " + i);
@@ -266,7 +254,8 @@ public class ProtocolSimulator {
                 }
             }
         };
-        return simulation;
+
+        return simulation;
     }
 
     // ----- helper abstractions -------
@@ -275,7 +264,8 @@ public class ProtocolSimulator {
      * represents a single protocol interaction
      */
     private interface Command {
-        /**
+
+        /**
          * do something. Either write to or read from and validate
          * @param reader Input from protocol server
          * @param writer Output to protocol Server
@@ -283,7 +273,8 @@ public class ProtocolSimulator {
         public abstract void execute(BufferedReader reader, PrintWriter writer) throws Throwable;
     }
 
-    /**
+
+    /**
      * do nothing
      */
     private static class NOOPCmd implements Command {
