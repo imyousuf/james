@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -48,7 +48,7 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.37 $ $Date: 2004/01/30 02:22:11 $
+ * @version CVS $Revision: 1.38 $ $Date: 2004/02/21 23:15:31 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
