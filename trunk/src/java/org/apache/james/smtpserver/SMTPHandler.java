@@ -42,12 +42,12 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.util.Base64;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
@@ -59,7 +59,7 @@ import org.apache.mailet.MailAddress;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.37 $
+ * @version This is $Revision: 1.38 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
