@@ -185,17 +185,23 @@ public class MailAddress implements java.io.Serializable {
         if (obj == null) {
             return false;
         } else if (obj instanceof String) {
-            return toString().equals(obj.toString());
+            return toString().equalsIgnoreCase(obj.toString());
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
-            return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost().toLowerCase());
+            return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost());
         }
         return false;
     }
 
     /**
+     * Return a hashCode for this object which should be identical for addresses
+     * which are equivalent.  This is implemented by obtaining the default
+     * hashcode of the String representation of the MailAddress.  Without this
+     * explicit definition, the default hashCode will create different hashcodes
+     * for separate object instances.
      *
-     * @author Stuart Roebuck <sr@adolos.com>
+     * @returns the hashcode.
+     * @author Stuart Roebuck <stuart.roebuck@adolos.com>
      */
     public int hashCode() {
         return toString().toLowerCase().hashCode();
