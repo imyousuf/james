@@ -73,16 +73,6 @@
     </threads>
 
     <policy>
-
-<!--      
-      <keystore name="foo-keystore" 
-                location="file:${app.home}${/}conf${/}keystore" 
-                type="JKS" /> 
-
-      <grant signed-by="Fred" code-base="file:${app.home}/blocks/*" key-store="foo-keystore">
-        <permission class="java.io.FilePermission" target="/tmp/*" action="read,write" />
-      </grant>
- -->
       <grant code-base="file:${app.home}${/}blocks${/}*">
         <permission class="java.security.AllPermission" />
       </grant>
