@@ -23,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -200,7 +201,7 @@ class NNTPSpooler extends AbstractLogEnabled
          * if it loses it tries to lock and process the next article.
          */
         public void run() {
-            getLogger().debug("in spool thread");
+            getLogger().debug(Thread.currentThread().getName() + " is the NNTP spooler thread.");
             try {
                 while ( Thread.currentThread().interrupted() == false ) {
                     String[] list = spoolPath.list();
@@ -218,7 +219,9 @@ class NNTPSpooler extends AbstractLogEnabled
                                 lock.unlock(list[i]);
                             }
                         }
+                        list[i] = null;
                     }
+                    list = null;
                     // this is good for other non idle threads
                     try {
                         Thread.currentThread().sleep(threadIdleTime);
@@ -249,23 +252,34 @@ class NNTPSpooler extends AbstractLogEnabled
             // TODO: Why is this a block?
             {   // Get the message for copying to destination groups.
                 FileInputStream fin = new FileInputStream(spoolFile);
-                msg = new MimeMessage(null,fin);
-                fin.close();
+                try {
+                    msg = new MimeMessage(null,fin);
+                } finally {
+                    try {
+                        fin.close();
+                    } catch (IOException _) { /* ignore close error */ }
+                }
 
                 // ensure no duplicates exist.
                 String[] idheader = msg.getHeader("Message-Id");
                 articleID = ((idheader != null && (idheader.length > 0))? idheader[0] : null);
                 if ((articleID != null) && ( articleIDRepo.isExists(articleID))) {
                     getLogger().debug("Message already exists: "+articleID);
-                    spoolFile.delete();
+                    if (spoolFile.delete() == false)
+                        getLogger().error("Could not delete duplicate message from spool: " + spoolFile.getAbsolutePath());
                     return;
                 }
                 if ( articleID == null ) {
                     articleID = articleIDRepo.generateArticleID();
                     msg.setHeader("Message-Id", articleID);
                     FileOutputStream fout = new FileOutputStream(spoolFile);
-                    msg.writeTo(fout);
-                    fout.close();
+                    try {
+                        msg.writeTo(fout);
+                    } finally {
+                        try {
+                            fout.close();
+                        } catch (IOException _) { /* ignore close error */ }
+                    }
                 }
             }
 
@@ -281,8 +295,14 @@ class NNTPSpooler extends AbstractLogEnabled
                     }
 
                     FileInputStream newsStream = new FileInputStream(spoolFile);
-                    NNTPArticle article = group.addArticle(newsStream);
-                    prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                    try {
+                        NNTPArticle article = group.addArticle(newsStream);
+                        prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                    } finally {
+                        try {
+                            newsStream.close();
+                        } catch (IOException _) { /* ignore close error */ }
+                    }
                 }
             }
             articleIDRepo.addArticle(articleID,prop);

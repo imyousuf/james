@@ -290,7 +290,7 @@ public class NNTPHandler
      */
     void idleClose() {
         if (getLogger() != null) {
-            getLogger().error("Remote Manager Connection has idled out.");
+            getLogger().error("NNTP Connection has idled out.");
         }
         try {
             if (socket != null) {
@@ -332,16 +332,16 @@ public class NNTPHandler
             if ( theConfigData.getNNTPRepository().isReadOnly() ) {
                 StringBuffer respBuffer =
                     new StringBuffer(128)
-                        .append("201 ")
-                        .append(theConfigData.getHelloName())
-                        .append(" NNTP Service Ready, posting prohibited");
+                    .append("201 ")
+                    .append(theConfigData.getHelloName())
+                    .append(" NNTP Service Ready, posting prohibited");
                 writeLoggedFlushedResponse(respBuffer.toString());
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(128)
-                            .append("200 ")
-                            .append(theConfigData.getHelloName())
-                            .append(" NNTP Service Ready, posting permitted");
+                    .append("200 ")
+                    .append(theConfigData.getHelloName())
+                    .append(" NNTP Service Ready, posting permitted");
                 writeLoggedFlushedResponse(respBuffer.toString());
             }
 
@@ -353,7 +353,12 @@ public class NNTPHandler
 
             getLogger().info("Connection closed");
         } catch (Exception e) {
-            doQUIT(null);
+            // unexpected error. try to send quit msg.
+            // this may fail if socket has been closed by peer.
+            try {
+                doQUIT(null);
+            } catch(Throwable t) { }
+
             getLogger().error( "Exception during connection:" + e.getMessage(), e );
         } finally {
             resetHandler();
@@ -513,10 +518,10 @@ public class NNTPHandler
         if (getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
-                    .append("Received unknown command ")
-                    .append(command)
-                    .append(" with argument ")
-                    .append(argument);
+                .append("Received unknown command ")
+                .append(command)
+                .append(" with argument ")
+                .append(argument);
             getLogger().debug(logBuffer.toString());
         }
         writeLoggedFlushedResponse("500 Unknown command");
@@ -593,10 +598,28 @@ public class NNTPHandler
      * an argument.
      *
      * @param argument the argument passed in with the NEWNEWS command.
-     *                 Should be a date.
+     *                 Should be NEWNEWS newsgroups date time [GMT] [<distribution>]
+     *                 see RFC 977 #3.8, RFC 2980 #4.5.
      */
     private void doNEWNEWS(String argument) {
-        // see section 11.4
+
+        String wildmat = "*";
+        if (argument != null) {
+            int spaceIndex = argument.indexOf(" ");
+            if (spaceIndex >= 0) {
+                wildmat = argument.substring(0, spaceIndex);
+                argument = argument.substring(spaceIndex + 1);
+            } else {
+                getLogger().error("NEWNEWS had an invalid argument");
+                writeLoggedFlushedResponse("501 Syntax error");
+                return;
+            }
+        } else {
+            getLogger().error("NEWNEWS had a null argument");
+            writeLoggedFlushedResponse("501 Syntax error");
+            return;
+        }
+
         Date theDate = null;
         try {
             theDate = getDateFrom(argument);
@@ -605,15 +628,20 @@ public class NNTPHandler
             writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
-        Iterator iter = theConfigData.getNNTPRepository().getArticlesSince(theDate);
+
         writeLoggedFlushedResponse("230 list of new articles by message-id follows");
-        while ( iter.hasNext() ) {
-            StringBuffer iterBuffer =
-                new StringBuffer(64)
+
+        Iterator groups = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
+        while (groups.hasNext() ) {
+            Iterator articles = ((NNTPGroup)(groups.next())).getArticlesSince(theDate);
+            while ( articles.hasNext() ) {
+                StringBuffer iterBuffer =
+                    new StringBuffer(64)
                     .append("<")
-                    .append(((NNTPArticle)iter.next()).getUniqueID())
+                    .append(((NNTPArticle)articles.next()).getUniqueID())
                     .append(">");
-            writeLoggedResponse(iterBuffer.toString());
+                writeLoggedResponse(iterBuffer.toString());
+            }
         }
         writeLoggedFlushedResponse(".");
     }
@@ -649,13 +677,13 @@ public class NNTPHandler
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
             StringBuffer iterBuffer =
                 new StringBuffer(128)
-                    .append(currentGroup.getName())
-                    .append(" ")
-                    .append(currentGroup.getLastArticleNumber())
-                    .append(" ")
-                    .append(currentGroup.getFirstArticleNumber())
-                    .append(" ")
-                    .append((currentGroup.isPostAllowed()?"y":"n"));
+                .append(currentGroup.getName())
+                .append(" ")
+                .append(currentGroup.getLastArticleNumber())
+                .append(" ")
+                .append(currentGroup.getFirstArticleNumber())
+                .append(" ")
+                .append((currentGroup.isPostAllowed()?"y":"n"));
             writeLoggedResponse(iterBuffer.toString());
         }
         writeLoggedFlushedResponse(".");
@@ -811,8 +839,8 @@ public class NNTPHandler
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
-                            .append("223 0 ")
-                            .append(param);
+                    .append("223 0 ")
+                    .append(param);
                 writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
@@ -844,10 +872,10 @@ public class NNTPHandler
                     }
                     StringBuffer respBuffer =
                         new StringBuffer(128)
-                                .append("223 ")
-                                .append(article.getArticleNumber())
-                                .append(" ")
-                                .append(articleID);
+                        .append("223 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(articleID);
                     writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
@@ -874,8 +902,8 @@ public class NNTPHandler
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
-                            .append("222 0 ")
-                            .append(param);
+                    .append("222 0 ")
+                    .append(param);
                 writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
@@ -907,10 +935,10 @@ public class NNTPHandler
                     }
                     StringBuffer respBuffer =
                         new StringBuffer(128)
-                                .append("222 ")
-                                .append(article.getArticleNumber())
-                                .append(" ")
-                                .append(articleID);
+                        .append("222 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(articleID);
                     writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
@@ -941,8 +969,8 @@ public class NNTPHandler
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
-                            .append("221 0 ")
-                            .append(param);
+                    .append("221 0 ")
+                    .append(param);
                 writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
@@ -974,10 +1002,10 @@ public class NNTPHandler
                     }
                     StringBuffer respBuffer =
                         new StringBuffer(128)
-                                .append("221 ")
-                                .append(article.getArticleNumber())
-                                .append(" ")
-                                .append(articleID);
+                        .append("221 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(articleID);
                     writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
@@ -1008,8 +1036,8 @@ public class NNTPHandler
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
-                            .append("220 0 ")
-                            .append(param);
+                    .append("220 0 ")
+                    .append(param);
                 writeLoggedResponse(respBuffer.toString());
             }
         } else {
@@ -1041,10 +1069,10 @@ public class NNTPHandler
                     }
                     StringBuffer respBuffer =
                         new StringBuffer(128)
-                                .append("220 ")
-                                .append(article.getArticleNumber())
-                                .append(" ")
-                                .append(articleID);
+                        .append("220 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(articleID);
                     writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
@@ -1075,10 +1103,10 @@ public class NNTPHandler
             NNTPArticle article = group.getArticle(currentArticleNumber);
             StringBuffer respBuffer =
                 new StringBuffer(64)
-                        .append("223 ")
-                        .append(article.getArticleNumber())
-                        .append(" ")
-                        .append(article.getUniqueID());
+                .append("223 ")
+                .append(article.getArticleNumber())
+                .append(" ")
+                .append(article.getUniqueID());
             writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
@@ -1104,10 +1132,10 @@ public class NNTPHandler
             NNTPArticle article = group.getArticle(currentArticleNumber);
             StringBuffer respBuffer =
                 new StringBuffer(64)
-                        .append("223 ")
-                        .append(article.getArticleNumber())
-                        .append(" ")
-                        .append(article.getUniqueID());
+                .append("223 ")
+                .append(article.getArticleNumber())
+                .append(" ")
+                .append(article.getUniqueID());
             writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
@@ -1147,15 +1175,15 @@ public class NNTPHandler
             }
             StringBuffer respBuffer =
                 new StringBuffer(128)
-                        .append("211 ")
-                        .append(articleCount)
-                        .append(" ")
-                        .append(lowWaterMark)
-                        .append(" ")
-                        .append(highWaterMark)
-                        .append(" ")
-                        .append(group.getName())
-                        .append(" group selected");
+                .append("211 ")
+                .append(articleCount)
+                .append(" ")
+                .append(lowWaterMark)
+                .append(" ")
+                .append(highWaterMark)
+                .append(" ")
+                .append(group.getName())
+                .append(" group selected");
             writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
@@ -1183,7 +1211,7 @@ public class NNTPHandler
     private void doMODEREADER(String argument) {
         // 7.2
         writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
-                       ? "201 Posting Not Permitted" : "200 Posting Permitted");
+                                   ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
 
     /**
@@ -1304,9 +1332,9 @@ public class NNTPHandler
                 }
                 StringBuffer hdrBuffer =
                     new StringBuffer(128)
-                            .append(article[i].getArticleNumber())
-                            .append(" ")
-                            .append(val);
+                    .append(article[i].getArticleNumber())
+                    .append(" ")
+                    .append(val);
                 writeLoggedResponse(hdrBuffer.toString());
             }
             writeLoggedFlushedResponse(".");
@@ -1387,9 +1415,9 @@ public class NNTPHandler
         try {
             StringBuffer dateStringBuffer =
                 new StringBuffer(64)
-                    .append(date)
-                    .append(" ")
-                    .append(time);
+                .append(date)
+                .append(" ")
+                .append(time);
             Date dt = DF_RFC977.parse(dateStringBuffer.toString());
             if ( utc ) {
                 dt = new Date(dt.getTime()+UTC_OFFSET);
@@ -1398,12 +1426,12 @@ public class NNTPHandler
         } catch ( ParseException pe ) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
-                    .append("Date extraction failed: ")
-                    .append(date)
-                    .append(",")
-                    .append(time)
-                    .append(",")
-                    .append(utc);
+                .append("Date extraction failed: ")
+                .append(date)
+                .append(",")
+                .append(time)
+                .append(",")
+                .append(utc);
             throw new NNTPException(exceptionBuffer.toString());
         }
     }
@@ -1506,7 +1534,7 @@ public class NNTPHandler
         } else {
             return false;
         }
-   }
+    }
 
     /**
      * This method logs at a "DEBUG" level the response string that
