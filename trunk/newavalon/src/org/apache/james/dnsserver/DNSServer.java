@@ -29,7 +29,7 @@ public class DNSServer implements Component, Configurable, Contextualizable {
 
     private DefaultComponentManager compMgr;
     private Configuration conf;
-    private Logger logger =  LogKit.getLoggerFor("DnsServer");
+    private Logger logger =  LogKit.getLoggerFor("james.DnsServer");
     //    private ThreadManager threadManager;
     //   private Store store;
     private Resolver resolver;

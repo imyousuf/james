@@ -55,7 +55,7 @@ public class James extends AbstractBlock implements  Block, Configurable, Compos
     private DefaultContext context;
     private Configuration conf;
 
-    private Logger mailetLogger = LogKit.getLoggerFor("Mailets");
+    private Logger mailetLogger = LogKit.getLoggerFor("james.Mailets");
     private WorkerPool workerPool;
     private MailStore mailstore;
     private UsersStore usersStore;

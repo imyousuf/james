@@ -67,7 +67,7 @@ public class File_Persistent_Stream_Repository
         catch( final IOException ioe )
         {
             final String message = "Exception caught while retrieving a stream ";
-            LOGGER.warn( message, ioe );
+            m_logger.warn( message, ioe );
             throw new RuntimeException( message+ ": " + ioe );
         }
     }
@@ -104,7 +104,7 @@ public class File_Persistent_Stream_Repository
         catch( final IOException ioe )
         {
             final String message = "Exception caught while storing a stream ";
-            LOGGER.warn( message, ioe );
+            m_logger.warn( message, ioe );
             throw new RuntimeException( message+ ": " + ioe );
         }
     }
@@ -135,7 +135,7 @@ public class File_Persistent_Stream_Repository
         catch( final IOException ioe )
         {
             final String message = "Error closing open input streams";
-            LOGGER.warn( message, ioe );
+            m_logger.warn( message, ioe );
             throw new RuntimeException( message+ ": " + ioe );
         }
 
@@ -167,7 +167,7 @@ public class File_Persistent_Stream_Repository
         catch( final IOException ioe )
         {
             final String message = "Error closing open output streams";
-            LOGGER.warn( message, ioe );
+            m_logger.warn( message, ioe );
             throw new RuntimeException( message+ ": " + ioe );
         }
 

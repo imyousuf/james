@@ -39,7 +39,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger =  LogKit.getLoggerFor("POP3Server");
+    private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
     private MailServer mailServer;
     private MailRepository userInbox;
     private UsersRepository users;

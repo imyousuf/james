@@ -29,7 +29,7 @@ import org.apache.log.Logger;
  */
 public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initializable {
 
-    private Logger logger  = LogKit.getLoggerFor("UsersStore");
+    //private Logger logger  = LogKit.getLoggerFor("UsersStore");
     private HashMap repositories;
   
     
@@ -45,6 +45,9 @@ public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initi
 	    String repName = repConf.getAttribute("name");
 	    String repClass = repConf.getAttribute("class");
 	    UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
+	    if (rep instanceof Loggable) {
+		((Loggable) rep).setLogger(m_logger);
+	    }
 	    if (rep instanceof Configurable) {
 		((Configurable) rep).configure(repConf);
 	    }

@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import org.apache.avalon.ComponentManager;
 import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Initializable;
 import org.apache.avalon.blocks.AbstractBlock;
 import org.apache.avalon.services.Store;
 import org.apache.avalon.util.io.ResettableFileInputStream;
@@ -34,10 +35,9 @@ import org.apache.log.Logger;
  */
 public abstract class AbstractFileRepository 
     extends AbstractBlock  
-    implements Store.Repository
+    implements Store.Repository, Initializable
 {
-    protected static final boolean      DEBUG          = false;
-    protected static final Logger       LOGGER         = LogKit.getLoggerFor("MailStore");
+    protected static final boolean      DEBUG          = true;
 
     protected static final String       HANDLED_URL    = "file://";
     protected static final char         HEX_DIGITS[]   = 
@@ -56,7 +56,7 @@ public abstract class AbstractFileRepository
     public void init() 
         throws Exception
     {
-        LOGGER.info( "Init " + getClass().getName() + " Store" );
+        m_logger.info( "Init " + getClass().getName() + " Store" );
 
         if( null == m_destination ) 
 	{
@@ -76,7 +76,7 @@ public abstract class AbstractFileRepository
         m_path = m_destination.substring( HANDLED_URL.length() );
         new File( m_path ).mkdirs();
 
-	LOGGER.info( getClass().getName() + " opened in " + m_destination );
+	m_logger.info( getClass().getName() + " opened in " + m_destination );
     }
 
     protected void setDestination( final String destination )
@@ -102,7 +102,7 @@ public abstract class AbstractFileRepository
 	}
 	try { child.compose( m_componentManager ); }
 	catch (final ComponentManagerException cme) {
-	    LOGGER.warn("Unable to compose child repository: " + cme);
+	    m_logger.warn("Unable to compose child repository: " + cme);
 	    return null;
 	}
         child.setDestination( m_destination + File.pathSeparatorChar + 
@@ -118,7 +118,7 @@ public abstract class AbstractFileRepository
 
         if( DEBUG ) 
 	{
-	    LOGGER.debug( "Child repository of " + m_name + " created in " + 
+	    m_logger.debug( "Child repository of " + m_name + " created in " + 
 			  m_destination + File.pathSeparatorChar + 
 			  childName + File.pathSeparator );
 	}
@@ -153,7 +153,7 @@ public abstract class AbstractFileRepository
 	{
 	    final File file = getFile( key );
 	    file.delete();
-	    if( DEBUG ) LOGGER.debug( "removed key " + key );
+	    if( DEBUG ) m_logger.debug( "removed key " + key );
 	} 
         catch( final Exception e )
 	{
@@ -170,7 +170,7 @@ public abstract class AbstractFileRepository
         try
 	{
 	    final File file = getFile( key );
-	    if( DEBUG ) LOGGER.debug( "checking key " + key );
+	    if( DEBUG ) m_logger.debug( "checking key " + key );
 	    return file.exists();
 	} 
         catch( final Exception e )

@@ -30,7 +30,7 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     private Configuration conf;
     private ComponentManager compMgr;
     private WorkerPool workerPool;
-    private Logger logger =  LogKit.getLoggerFor("POP3Server");
+    private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;

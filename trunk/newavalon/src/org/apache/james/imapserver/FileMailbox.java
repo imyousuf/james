@@ -117,7 +117,7 @@ public class FileMailbox implements ACLMailbox, Serializable {
     private transient Context context;
     private transient Configuration conf;
     private transient ComponentManager compMgr;
-    private transient Logger logger = LogKit.getLoggerFor("MailRepository");
+    private transient Logger logger = LogKit.getLoggerFor("james.MailRepository");
     private transient UsersRepository localUsers;
     private transient HashSet listeners;
 

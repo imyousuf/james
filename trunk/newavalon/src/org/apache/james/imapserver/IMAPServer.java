@@ -34,7 +34,7 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
     private Configuration conf;
     private ComponentManager compMgr;
     private WorkerPool workerPool;
-    private Logger logger =  LogKit.getLoggerFor("IMAPServer");
+    private Logger logger =  LogKit.getLoggerFor("james.IMAPServer");
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;

@@ -31,7 +31,7 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
 
     private ComponentManager compMgr;
     private Configuration conf;
-    private Logger logger =  LogKit.getLoggerFor("RemoteManager");
+    private Logger logger =  LogKit.getLoggerFor("james.RemoteManager");
     private UsersRepository users;
     private Scheduler scheduler;
     private MailServer mailServer;
