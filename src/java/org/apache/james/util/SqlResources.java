@@ -79,7 +79,6 @@ import java.util.Map;
  * database products, by detecting product information from the
  * jdbc DatabaseMetaData object.
  * 
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class SqlResources
 {
@@ -87,6 +86,11 @@ public class SqlResources
      * A map of statement types to SQL statements
      */
     private Map m_sql = new HashMap();
+
+    /**
+     * A set of all used String values
+     */
+    static private Map stringTable = java.util.Collections.synchronizedMap(new HashMap());
 
     /**
      * A Perl5 regexp matching helper class
@@ -126,6 +130,7 @@ public class SqlResources
         String dbProduct = null;
         if ( dbMatcherElement != null ) {
             dbProduct = matchDbConnection(conn, dbMatcherElement);
+            m_perl5Util = null;     // release the PERL matcher!
         }
 
         // Now get the section defining sql for the repository required.
@@ -217,6 +222,15 @@ public class SqlResources
                             .append(paramName)
                             .append("}");
                 sqlString = substituteSubString(sqlString, replaceBuffer.toString(), paramValue);
+            }
+
+            // See if we already have registered a string of this value
+            String shared = (String) stringTable.get(sqlString);
+            // If not, register it -- we will use it next time
+            if (shared == null) {
+                stringTable.put(sqlString, sqlString);
+            } else {
+                sqlString = shared;
             }
 
             // Add to the sqlMap - either the "default" or the "product" map
