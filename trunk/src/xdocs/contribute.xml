@@ -25,8 +25,10 @@
 		<section name="Code Patches">
 		<p>
 			Patches should be submitted to the developers mailing list.<br/>
-			<b>Always</b> use diff -u to generate patches, and make sure it conforms 
-			to the code standards, otherwise it may be ignored.<br/>
+			<b>Always</b> use diff -u to generate patches, make sure you are patching the latest cvs (the HEAD).<br/>
+			Make your patch from the jakarta-james directory and make sure it conforms 
+			to the code standards, otherwise it may be ignored. Its is OK to make a single patch covering several 
+			files, but please only one issue at a time.<br/>
 			Prefix the mail subject with [PATCH]<br/>
 			Briefly outline the reason for your patch, 
 			the solution your patch implements, why a patch is 
@@ -47,6 +49,7 @@
 			your intentions, as above, so that your code can be reviewed easily, and a 
 			note of any relevant bug numbers.<br/>
 			New files must contain a refrence to the Apache licence, copy the header from an existing file.<br/>
+			It also helps if you send your files in an archive (tar, zip) which preserves directories, make it from the jakarta-james directory so we can un-tar your files into the right place.
 		</p>
 		</section>
 	
