@@ -145,10 +145,14 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
                 out.println("usage: adduser [username] [password]");
                 return true;
             }
-            userManager.addUser(user, passwd);
-            out.println("User " + user + " added");
+            if (userManager.contains(user)) {
+                out.println("user " + user + " already exist");
+            } else {
+                userManager.addUser(user, passwd);
+                out.println("User " + user + " added");
+                logger.log("User " + user + " added", "RemoteAdmin", logger.INFO);
+            }
             out.flush();
-            logger.log("User " + user + " added", "RemoteAdmin", logger.INFO);
         } else if (command.equalsIgnoreCase("DELUSER")) {
             String user = argument;
             if (user.equals("")) {
@@ -164,9 +168,20 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             out.println("User " + user + " deleted");
             logger.log("User " + user + " deleted", "RemoteAdmin", logger.INFO);
         } else if (command.equalsIgnoreCase("LISTUSERS")) {
-            out.println("Existing accounts:");
+            out.println("Existing accounts " + userManager.countUsers());
             for (Enumeration e = userManager.list(); e.hasMoreElements();) {
                 out.println("user: " + (String) e.nextElement());
+            }
+        } else if (command.equalsIgnoreCase("VERIFY")) {
+            String user = argument;
+            if (user.equals("")) {
+                out.println("usage: verify [username]");
+                return true;
+            }
+            if (userManager.contains(user)) {
+                out.println("User " + user + " exist");
+            } else {
+                out.println("User " + user + " does not exist");
             }
         } else if (command.equalsIgnoreCase("HELP")) {
             out.println("Currently implemented commans:");
