@@ -320,7 +320,7 @@ public class DNSServer
             short rcode = response.getHeader().getRcode();
             if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
                 cached = cache.addMessage(response);
-                if (cached != null) {
+                if (cached != null && cached.isSuccessful()) {
                     return processSetResponse(cached);
                 }
             }
