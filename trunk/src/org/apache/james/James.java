@@ -25,6 +25,7 @@ import org.apache.james.remotemanager.*;
 import org.apache.james.usermanager.*;
 
 import javax.mail.internet.*;
+import javax.mail.Address;
 import javax.mail.Session;
 import javax.mail.MessagingException;
 
@@ -67,50 +68,50 @@ public class James implements MailServer, Block, MailetContext {
 
         context = new SimpleContext();
 
-	try {
+    try {
                 hostName = InetAddress.getLocalHost().getHostName();
-	} catch  (UnknownHostException ue) {
-		hostName = "localhost";
-	}
-	logger.log("Local host is: " + hostName, "JamesSystem", logger.INFO);
+    } catch  (UnknownHostException ue) {
+        hostName = "localhost";
+    }
+    logger.log("Local host is: " + hostName, "JamesSystem", logger.INFO);
 
 
-	helloName = null;
-	Configuration helloConf = conf.getConfiguration("helloName");
-	if (helloConf.getAttribute("autodetect").equals("TRUE")) {
-	    helloName = hostName;
-	} else {
-	    helloName = helloConf.getValue();
-	    if (helloName == null || helloName.trim().equals("") ) 
-		helloName = "localhost";
-	}
-	logger.log("Hello Name is: " + helloName, "JamesSystem", logger.INFO);
+    helloName = null;
+    Configuration helloConf = conf.getConfiguration("helloName");
+    if (helloConf.getAttribute("autodetect").equals("TRUE")) {
+        helloName = hostName;
+    } else {
+        helloName = helloConf.getValue();
+        if (helloName == null || helloName.trim().equals("") )
+        helloName = "localhost";
+    }
+    logger.log("Hello Name is: " + helloName, "JamesSystem", logger.INFO);
         context.put(Constants.HELO_NAME, helloName);
 
-	// Get this domains and hosts served by this instance
+    // Get this domains and hosts served by this instance
         serverNames = new Vector();
-	Configuration serverConf = conf.getConfiguration("servernames");
-	if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
-	    serverNames.add(hostName);
-	}
+    Configuration serverConf = conf.getConfiguration("servernames");
+    if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
+        serverNames.add(hostName);
+    }
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
             serverNames.add(((Configuration) e.nextElement()).getValue());
         }
         if (serverNames.isEmpty()) {
-	    throw new ConfigurationException ("Fatal configuration error: no servernames specified!", conf);
+        throw new ConfigurationException ("Fatal configuration error: no servernames specified!", conf);
         }
-      
+
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
             logger.log("Handling mail for: " + i.next(), "JamesSystem", logger.INFO);
         }
         context.put(Constants.SERVER_NAMES, serverNames);
 
-	
-	// Get postmaster
+
+    // Get postmaster
         String postmaster = conf.getConfiguration("postmaster").getValue("root@localhost");
         context.put(Constants.POSTMASTER, new MailAddress(postmaster));
 
-	// Get the LocalInbox repository
+    // Get the LocalInbox repository
         String inboxRepository = conf.getConfiguration("inboxRepository").getValue("file://../mail/inbox/");
         try {
             this.localInbox = (MailRepository) store.getPrivateRepository(inboxRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
@@ -214,9 +215,19 @@ public class James implements MailServer, Block, MailetContext {
         logger.log("JAMES ...init end", "JamesSystem", logger.INFO);
     }
 
+    public void sendMail(MimeMessage message) throws MessagingException {
+        MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
+        Collection recipients = new Vector();
+        Address addresses[] = message.getAllRecipients();
+        for (int i = 0; i < addresses.length; i++) {
+            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+        }
+        sendMail(sender, recipients, message);
+    }
+
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
     throws MessagingException {
-//FIX ME!!! we should validate here MimeMessage.
+//FIX ME!!! we should validate here MimeMessage.  - why? (SK)
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
@@ -312,12 +323,39 @@ public class James implements MailServer, Block, MailetContext {
         return names.iterator();
     }
 
-    public void bounce(Mail mail, String message) {
+    public void bounce(Mail mail, String message) throws MessagingException {
         bounce(mail, message, getPostmaster().toString());
     }
 
-    public void bounce(Mail mail, String message, String bouncer) {
-        throw new RuntimeException("Not yet implemented");
+    public void bounce(Mail mail, String message, String bouncer) throws MessagingException {
+        MimeMessage orig = mail.getMessage();
+        //Create the reply message
+        MimeMessage reply = (MimeMessage) orig.reply(false);
+        //Create the list of recipients in our MailAddress format
+        Collection recipients = new Vector();
+        Address addresses[] = reply.getAllRecipients();
+        for (int i = 0; i < addresses.length; i++) {
+            recipients.add(new MailAddress((InternetAddress)addresses[i]));
+        }
+        //Change the sender...
+        reply.setFrom(new InternetAddress(bouncer));
+        try {
+            //Create the message body
+            MimeMultipart multipart = new MimeMultipart();
+            //Add message as the first mime body part
+            MimeBodyPart part = new MimeBodyPart();
+            part.setContent(message, "text/plain");
+            multipart.addBodyPart(part);
+            //Add the original message as the second mime body part
+            part = new MimeBodyPart();
+            part.setContent(orig.getContent(), orig.getContentType());
+            multipart.addBodyPart(part);
+            reply.setContent(multipart);
+        } catch (IOException ioe) {
+            throw new MessagingException("Unable to create multipart body");
+        }
+        //Send it off...
+        sendMail(new MailAddress(bouncer), recipients, reply);
     }
 
     public Collection getLocalUsers() {
@@ -362,6 +400,7 @@ public class James implements MailServer, Block, MailetContext {
     }
 
     public void log(String message, Throwable t) {
+        System.err.println(message);
         t.printStackTrace(); //DEBUG
         logger.log(message + ": " + t.getMessage(), "Mailets", logger.INFO);
     }
