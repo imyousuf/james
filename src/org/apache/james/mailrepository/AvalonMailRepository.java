@@ -10,23 +10,23 @@ package org.apache.james.mailrepository;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
-import org.apache.james.util.Lock;
-import org.apache.james.util.LockException;
+import org.apache.avalon.logger.AbstractLoggable;
+import org.apache.cornerstone.services.store.ObjectRepository;
 import org.apache.cornerstone.services.store.Store;
 import org.apache.cornerstone.services.store.StreamRepository;
-import org.apache.cornerstone.services.store.ObjectRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
+import org.apache.james.util.Lock;
+import org.apache.james.util.LockException;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -36,14 +36,14 @@ import org.apache.james.services.MailStore;
  *              type="MAIL"
  *              model="SYNCHRONOUS"/>
  * Requires a logger called MailRepository.
- * 
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonMailRepository 
+public class AvalonMailRepository
     extends AbstractLoggable
-    implements MailRepository, Component, Configurable, Composer {
+    implements MailRepository, Component, Configurable, Composable {
 
     protected Lock lock;
     private static final String TYPE = "MAIL";
@@ -57,22 +57,22 @@ public class AvalonMailRepository
         destination = conf.getAttribute("destinationURL");
         String checkType = conf.getAttribute("type");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-            getLogger().warn( "Attempt to configure AvalonMailRepository as " + 
+            getLogger().warn( "Attempt to configure AvalonMailRepository as " +
                               checkType);
             throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
         }
         // ignore model
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException {
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
         try {
             store = (Store)componentManager.
                 lookup( "org.apache.cornerstone.services.store.Store" );
 
             //prepare Configurations for object and stream repositories
             DefaultConfiguration objectConfiguration
-                = new DefaultConfiguration( "repository", 
+                = new DefaultConfiguration( "repository",
                                             "generated:AvalonFileRepository.compose()" );
 
             objectConfiguration.addAttribute("destinationURL", destination);
@@ -80,20 +80,20 @@ public class AvalonMailRepository
             objectConfiguration.addAttribute("model", "SYNCHRONOUS");
 
             DefaultConfiguration streamConfiguration
-                = new DefaultConfiguration( "repository", 
+                = new DefaultConfiguration( "repository",
                                             "generated:AvalonFileRepository.compose()" );
 
             streamConfiguration.addAttribute( "destinationURL", destination );
             streamConfiguration.addAttribute( "type", "STREAM" );
             streamConfiguration.addAttribute( "model", "SYNCHRONOUS" );
-            
+
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
-            throw new ComponentManagerException( message, e );
+            throw new ComponentException( message, e );
         }
     }
 

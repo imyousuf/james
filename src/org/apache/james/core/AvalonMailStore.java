@@ -11,17 +11,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentNotAccessibleException;
-import org.apache.avalon.ComponentNotFoundException;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.log.LogKit;
@@ -32,9 +32,9 @@ import org.apache.phoenix.Block;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonMailStore 
-    extends AbstractLoggable 
-    implements Block, Composer, Configurable, MailStore, Initializable {
+public class AvalonMailStore
+    extends AbstractLoggable
+    implements Block, Composable, Configurable, MailStore, Initializable {
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;
@@ -45,7 +45,7 @@ public class AvalonMailStore
     protected ComponentManager       componentManager;
 
     public void compose( final ComponentManager componentManager )
-        throws ComponentManagerException
+        throws ComponentException
     {
         this.componentManager = componentManager;
     }
@@ -55,10 +55,10 @@ public class AvalonMailStore
     {
         this.configuration = configuration;
     }
-    
-    public void init() 
+
+    public void init()
         throws Exception {
-    
+
         getLogger().info("JamesMailStore init...");
         repositories = new HashMap();
         models = new HashMap();
@@ -71,9 +71,9 @@ public class AvalonMailStore
         }
         getLogger().info("James RepositoryManager ...init");
     }
-    
+
     public void registerRepository(Configuration repConf)
-            throws ConfigurationException {
+        throws ConfigurationException {
         String className = repConf.getAttribute("class");
         getLogger().info("Registering Repository " + className);
         Configuration[] protocols
@@ -104,22 +104,22 @@ public class AvalonMailStore
     {
     }
 
-    public Component select(Object hint) throws ComponentNotFoundException,
-        ComponentNotAccessibleException {
-        
+    public Component select(Object hint) throws ComponentException,
+    ComponentException {
+
         Configuration repConf = null;
         try {
             repConf = (Configuration) hint;
         } catch (ClassCastException cce) {
-            throw new ComponentNotAccessibleException("hint is of the wrong type. Must be a Configuration", cce);
+            throw new ComponentException("hint is of the wrong type. Must be a Configuration", cce);
         }
         URL destination = null;
         try {
             destination = new URL(repConf.getAttribute("destinationURL"));
         } catch (ConfigurationException ce) {
-            throw new ComponentNotAccessibleException("Malformed configuration has no destinationURL attribute", ce);
+            throw new ComponentException("Malformed configuration has no destinationURL attribute", ce);
         } catch (MalformedURLException mue) {
-            throw new ComponentNotAccessibleException("destination is malformed. Must be a valid URL", mue);
+            throw new ComponentException("destination is malformed. Must be a valid URL", mue);
         }
 
         try
@@ -132,13 +132,13 @@ public class AvalonMailStore
                 if (models.get(repID).equals(model)) {
                     return (Component)reply;
                 } else {
-                    throw new ComponentNotFoundException("There is already another repository with the same destination and type but with different model");
+                    throw new ComponentException("There is already another repository with the same destination and type but with different model");
                 }
             } else {
                 String protocol = destination.getProtocol();
                 String repClass = (String) classes.get( protocol + type + model );
 
-                getLogger().debug( "Need instance of " + repClass + 
+                getLogger().debug( "Need instance of " + repClass +
                                    " to handle: " + protocol + type + model );
 
                 try {
@@ -146,8 +146,8 @@ public class AvalonMailStore
                     if (reply instanceof Configurable) {
                         ((Configurable) reply).configure(repConf);
                     }
-                    if (reply instanceof Composer) {
-                        ((Composer) reply).compose( componentManager );
+                    if (reply instanceof Composable) {
+                        ((Composable) reply).compose( componentManager );
                     }
 /*                if (reply instanceof Contextualizable) {
                   ((Contextualizable) reply).contextualize(context);
@@ -157,22 +157,22 @@ public class AvalonMailStore
                     }
                     repositories.put(repID, reply);
                     models.put(repID, model);
-                    getLogger().info( "New instance of " + repClass + 
+                    getLogger().info( "New instance of " + repClass +
                                       " created for " + destination );
                     return (Component)reply;
                 } catch (Exception e) {
                     getLogger().warn( "Exception while creating repository:" +
                                       e.getMessage(), e );
 
-                    throw new 
-                        ComponentNotAccessibleException( "Cannot find or init repository", e );
+                    throw new
+                        ComponentException( "Cannot find or init repository", e );
                 }
             }
         } catch( final ConfigurationException ce ) {
-            throw new ComponentNotAccessibleException( "Malformed configuration", ce );
+            throw new ComponentException( "Malformed configuration", ce );
         }
     }
-        
+
     public static final String getName() {
         return REPOSITORY_NAME + id++;
     }

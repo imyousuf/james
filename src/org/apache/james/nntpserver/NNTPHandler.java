@@ -24,21 +24,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.Initializable;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.excalibur.collections.ListUtils;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
 import org.apache.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.excalibur.collections.ListUtils;
 import org.apache.james.Constants;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
@@ -59,7 +59,7 @@ import org.apache.james.services.UsersStore;
  * @author Harmeet <hbedi@apache.org>
  */
 public class NNTPHandler extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target {
+    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
 
     // timeout controllers
     private TimeScheduler scheduler;
@@ -95,8 +95,8 @@ public class NNTPHandler extends AbstractLoggable
         authState = new AuthState(authRequired,users);
     }
 
-    public void compose( final ComponentManager componentManager ) 
-        throws ComponentManagerException 
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException
     {
         //System.out.println(getClass().getName()+": compose - "+authRequired);
         UsersStore usersStore = (UsersStore)componentManager.
@@ -169,7 +169,7 @@ public class NNTPHandler extends AbstractLoggable
         return allowed;
     }
     private boolean parseCommand(String commandRaw) {
-        if (commandRaw == null) 
+        if (commandRaw == null)
             return false;
         getLogger().info("Command received: " + commandRaw);
         //System.out.println("NNTPHandler> "+commandRaw);
@@ -180,15 +180,15 @@ public class NNTPHandler extends AbstractLoggable
         final String command = tokens.nextToken();
 
         //System.out.println("allowed="+isAllowed(command)+","+authState.isAuthenticated());
-        if ( isAllowed(command) == false ) 
+        if ( isAllowed(command) == false )
             return true;
-        if ( command.equalsIgnoreCase("MODE") && tokens.hasMoreTokens() && 
+        if ( command.equalsIgnoreCase("MODE") && tokens.hasMoreTokens() &&
              tokens.nextToken().equalsIgnoreCase("READER") )
             doMODEREADER();
-        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() && 
+        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() &&
                   tokens.nextToken().equalsIgnoreCase("EXTENSIONS") )
             doLISTEXTENSIONS();
-        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() && 
+        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() &&
                   tokens.nextToken().equalsIgnoreCase("OVERVIEW.FMT") )
             doLISTOVERVIEWFMT();
         else if ( command.equalsIgnoreCase("GROUP") )
@@ -239,7 +239,7 @@ public class NNTPHandler extends AbstractLoggable
     }
 
     // implements only the originnal AUTHINFO
-    // for simple and generic AUTHINFO, 501 is sent back. This is as 
+    // for simple and generic AUTHINFO, 501 is sent back. This is as
     // per article 3.1.3 of RFC 2980
     private void doAUTHINFO(StringTokenizer tok) {
         String command = tok.nextToken();
@@ -269,8 +269,8 @@ public class NNTPHandler extends AbstractLoggable
             writer.println(((NNTPGroup)iter.next()).getName());
         writer.println(".");
     }
-    // returns the date from @param input. 
-    // The input tokens are assumed to be in format date time [GMT|UTC] . 
+    // returns the date from @param input.
+    // The input tokens are assumed to be in format date time [GMT|UTC] .
     // 'date' is in format [XX]YYMMDD. 'time' is in format 'HHMMSS'
     // NOTE: This routine would do with some format checks.
     private Date getDateFrom(StringTokenizer tok) {
@@ -280,20 +280,20 @@ public class NNTPHandler extends AbstractLoggable
         Date d = new Date();
         DateFormat df = ( date.length() == 8 ) ? DF_DATEFROM_LONG : DF_DATEFROM_SHORT;
         try {
-        Date dt = df.parse(date+" "+time);
-        if ( utc )
-            dt = new Date(dt.getTime()+UTC_OFFSET);
-        return dt;
+            Date dt = df.parse(date+" "+time);
+            if ( utc )
+                dt = new Date(dt.getTime()+UTC_OFFSET);
+            return dt;
         } catch ( ParseException pe ) {
             throw new NNTPException("date extraction failed: "+date+","+time+","+utc);
         }
     }
-    
+
     private void doHELP() {
         writer.println("100 Help text follows");
         writer.println(".");
     }
-    
+
     // used to calculate DATE from - see 11.3
     public static final DateFormat DF_DATEFROM_LONG = new SimpleDateFormat("yyyyMMdd HHmmss");
     public static final DateFormat DF_DATEFROM_SHORT = new SimpleDateFormat("yyMMdd HHmmss");
@@ -445,7 +445,7 @@ public class NNTPHandler extends AbstractLoggable
                            group.getFirstArticleNumber()+" "+
                            group.getLastArticleNumber()+" "+
                            group.getName()+" group selected");
-            
+
     }
     private void doLISTEXTENSIONS() {
         // 8.1.1
@@ -461,7 +461,7 @@ public class NNTPHandler extends AbstractLoggable
 
     private void doMODEREADER() {
         // 7.2
-        writer.println(repo.isReadOnly() 
+        writer.println(repo.isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
 
@@ -479,7 +479,7 @@ public class NNTPHandler extends AbstractLoggable
         }
         if ( group != null ) {
             writer.println("211 list of article numbers follow");
-            
+
             for (Iterator iter = group.getArticles();iter.hasNext();) {
                 NNTPArticle article = (NNTPArticle)iter.next();
                 writer.println(article.getArticleNumber());
@@ -524,16 +524,16 @@ public class NNTPHandler extends AbstractLoggable
         }
     }
     // returns the list of articles that match the range.
-    // @return null indicates insufficient information to 
+    // @return null indicates insufficient information to
     // fetch the list of articles
     private NNTPArticle[] getRange(String range) {
         // check for msg id
         if ( range != null && range.startsWith("<") ) {
             NNTPArticle article = repo.getArticleFromID(range);
-            return ( article == null ) 
+            return ( article == null )
                 ? new NNTPArticle[0] : new NNTPArticle[] { article };
         }
-        
+
         if ( group == null )
             return null;
         if ( range == null )

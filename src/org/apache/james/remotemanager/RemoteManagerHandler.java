@@ -7,25 +7,25 @@
  */
 package org.apache.james.remotemanager;
 
-import org.apache.james.Constants;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.cornerstone.services.connection.ConnectionHandler;
-import org.apache.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.cornerstone.services.scheduler.Target;
+import org.apache.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.james.Constants;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -38,9 +38,9 @@ import org.apache.james.services.UsersRepository;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  *
  */
-public class RemoteManagerHandler 
+public class RemoteManagerHandler
     extends AbstractLoggable
-    implements ConnectionHandler, Composer, Configurable, Target {
+    implements ConnectionHandler, Composable, Configurable, Target {
 
     private UsersStore usersStore;
     private UsersRepository users;
@@ -62,13 +62,13 @@ public class RemoteManagerHandler
         final Configuration[] accounts = admin.getChildren( "account" );
         for ( int i = 0; i < accounts.length; i++ )
         {
-            admaccount.put( accounts[ i ].getAttribute( "login" ), 
+            admaccount.put( accounts[ i ].getAttribute( "login" ),
                             accounts[ i ].getAttribute( "password" ) );
         }
     }
 
     public void compose( final ComponentManager componentManager )
-        throws ComponentManagerException {
+        throws ComponentException {
 
         scheduler = (TimeScheduler)componentManager.
             lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
@@ -87,15 +87,15 @@ public class RemoteManagerHandler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( final Socket connection ) 
+    public void handleConnection( final Socket connection )
         throws IOException {
 
         /*
-        if( admaccount.isEmpty() ) {
-            getLogger().warn("No Administrative account defined");
-            getLogger().warn("RemoteManager failed to be handled");
-            return;
-        } 
+          if( admaccount.isEmpty() ) {
+          getLogger().warn("No Administrative account defined");
+          getLogger().warn("RemoteManager failed to be handled");
+          return;
+          }
         */
 
         final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
@@ -136,7 +136,7 @@ public class RemoteManagerHandler
         } catch ( final IOException e ) {
             out.println("Error. Closing connection");
             out.flush();
-            getLogger().error( "Exception during connection from " + remoteHost + 
+            getLogger().error( "Exception during connection from " + remoteHost +
                                " (" + remoteIP + ")");
         }
 

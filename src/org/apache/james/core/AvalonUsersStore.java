@@ -11,15 +11,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.component.Component;
+import org.apache.avalon.component.ComponentException;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.phoenix.Block;
@@ -28,9 +28,9 @@ import org.apache.phoenix.Block;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonUsersStore 
-    extends AbstractLoggable 
-    implements Block, Composer, Configurable, UsersStore, Initializable {
+public class AvalonUsersStore
+    extends AbstractLoggable
+    implements Block, Composable, Configurable, UsersStore, Initializable {
 
     private HashMap repositories;
     protected Configuration          configuration;
@@ -42,16 +42,16 @@ public class AvalonUsersStore
     }
 
     public void compose( final ComponentManager componentManager )
-        throws ComponentManagerException {
+        throws ComponentException {
         this.componentManager = componentManager;
     }
-      
-    public void init() 
+
+    public void init()
         throws Exception {
 
         getLogger().info("AvalonUsersStore init...");
         repositories = new HashMap();
-     
+
         Configuration[] repConfs = configuration.getChildren("repository");
         for ( int i = 0; i < repConfs.length; i++ )
         {
@@ -63,8 +63,8 @@ public class AvalonUsersStore
 
             setupLogger((Component)rep);
 
-            if (rep instanceof Composer) {
-                ((Composer) rep).compose( componentManager );
+            if (rep instanceof Composable) {
+                ((Composable) rep).compose( componentManager );
             }
 
             if (rep instanceof Configurable) {
@@ -83,7 +83,7 @@ public class AvalonUsersStore
         }
         getLogger().info("AvalonUsersStore ...init");
     }
-    
+
 
     public UsersRepository getRepository(String request) {
         UsersRepository response = (UsersRepository) repositories.get(request);

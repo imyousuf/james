@@ -1,25 +1,21 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport;
 
 import java.io.*;
 import java.util.*;
 import javax.mail.*;
-
-import org.apache.avalon.*;
-import org.apache.log.Logger;
-
+import org.apache.avalon.logger.Loggable;
+import org.apache.avalon.Initializable;
 import org.apache.james.*;
 import org.apache.james.core.*;
-//import org.apache.james.mailrepository.*;
 import org.apache.james.services.SpoolRepository;
-
+import org.apache.log.Logger;
 import org.apache.mailet.*;
 
 /**
@@ -38,7 +34,9 @@ import org.apache.mailet.*;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor implements Loggable, Initializable {
+public class LinearProcessor 
+    implements Loggable, Initializable {
+
     private final static boolean DEBUG_PRINT_PIPE = false;
 
     private List mailets;
@@ -75,7 +73,7 @@ public class LinearProcessor implements Loggable, Initializable {
     }
 
 
-   public synchronized void service(MailImpl mail) throws MessagingException {
+    public synchronized void service(MailImpl mail) throws MessagingException {
         //make sure we have the array built
         if (unprocessed == null) {
             //Need to construct that object
@@ -110,23 +108,23 @@ public class LinearProcessor implements Loggable, Initializable {
                     unprocessed[i].remove(mail);
                     break;
                 }
-	    }
+            }
 
             //See if we didn't find any messages to process
             if (mail == null) {
                 //We're done
                 return;
             }
-    
 
-           //Call the matcher and find what recipients match
+
+            //Call the matcher and find what recipients match
             Collection recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
             try {
                 recipients = matcher.match(mail);
                 if (recipients == null) {
-                  //In case the matcher returned null, create an empty Vector
-                   recipients = new Vector();
+                    //In case the matcher returned null, create an empty Vector
+                    recipients = new Vector();
                 }
                 //Make sure all the objects are MailAddress objects
                 verifyMailAddresses(recipients);
@@ -165,7 +163,7 @@ public class LinearProcessor implements Loggable, Initializable {
 
             //See if the state was changed by the mailet
             if (!mail.getState().equals(originalState)) {
-		logger.debug("State changed by: " + mailet.getMailetInfo());
+                logger.debug("State changed by: " + mailet.getMailetInfo());
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(mail.GHOST)) {
                     //let this instance die...
@@ -184,12 +182,12 @@ public class LinearProcessor implements Loggable, Initializable {
             } else {
                 //Ok, we made it through with the same state... move it to the next
                 //  spot in the array
-		logger.debug("State not changed by: " + mailet.getMailetInfo());
+                logger.debug("State not changed by: " + mailet.getMailetInfo());
                 unprocessed[i + 1].add(mail);
-	    }
-	    
-	}
-   }
+            }
+
+        }
+    }
 
     /**
      * Create a unique new primary key name

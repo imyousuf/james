@@ -12,10 +12,10 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.Context;
+import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
@@ -44,7 +44,7 @@ import org.apache.mailet.Mail;
  * <br>      \Unmarked      The mailbox does not contain any additional
  * messages since the last time the mailbox was selected.
  *
- * <p>Message related flags. 
+ * <p>Message related flags.
  * <br>The flags allowed per message are specific to each mailbox.
  * <br>The minimum list (rfc2060 system flags) is:
  * <br> \Seen       Message has been read
@@ -82,11 +82,11 @@ import org.apache.mailet.Mail;
  * <p> Deserialization. On recover from disc, configure, compose,
  * contextualize and reInit must be called before object is ready for use.
  *
- * Reference: RFC 2060 
+ * Reference: RFC 2060
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public class FileMailbox 
+public class FileMailbox
     implements ACLMailbox, Serializable {
 
     public static final String MAILBOX_FILE_NAME = "mailbox.mbr";
@@ -158,7 +158,7 @@ public class FileMailbox
     public void contextualize(Context context) {
         this.context = context;
     }
-    
+
     public void compose(ComponentManager comp) {
         compMgr = comp;
     }
@@ -174,7 +174,7 @@ public class FileMailbox
         if (absName != null && (absName.length() > 0)) {
             absoluteName = absName;
         } else {
-            throw new RuntimeException("Incorrect absoluteName argument for a" 
+            throw new RuntimeException("Incorrect absoluteName argument for a"
                                        + " FileMailbox constructor.");
         }
         if (initialAdminUser != null && (initialAdminUser.length() > 0)) {
@@ -190,7 +190,7 @@ public class FileMailbox
     public void init() throws Exception {
         uidValidity = 1;
         highestUID = 0;
-        mailboxSize = 0; 
+        mailboxSize = 0;
         inferiorsAllowed = true;
         marked = false;
         notSelectableByAnyone = false;
@@ -239,8 +239,8 @@ public class FileMailbox
         } else {
             logger.error("FileMailbox init error: unknown namespace - "
                          + absoluteName);
-            throw new RuntimeException("Unknown namespace for absoluteName" 
-                                       +" argument for a FileMailbox" 
+            throw new RuntimeException("Unknown namespace for absoluteName"
+                                       +" argument for a FileMailbox"
                                        +" constructor." + absoluteName);
         }
         //Check for writable directory
@@ -259,7 +259,7 @@ public class FileMailbox
     /**
      * Re-initialises mailbox after reading from file-system. Cannot assume that this is the same instance of James that wrote it.
      *
-     * <p> Contract is that re-init must be called after configure, contextualize, compose. 
+     * <p> Contract is that re-init must be called after configure, contextualize, compose.
      */
     public void reInit() throws Exception {
         listeners = new HashSet();
@@ -427,8 +427,8 @@ public class FileMailbox
         return recentMessages.size();
     }
 
-    /** 
-     * Indicates the oldest unseen message for the specified user. 
+    /**
+     * Indicates the oldest unseen message for the specified user.
      *
      * @returns int Message Sequence Number of first message without \Seen
      * flag set for this User.  0 means no unseen messages in this mailbox.
@@ -459,9 +459,9 @@ public class FileMailbox
     public  synchronized  int getExists() {
         return sequence.size();
     }
-    
-    /** 
-     * Indicates the number of  unseen messages for the specified user. 
+
+    /**
+     * Indicates the number of  unseen messages for the specified user.
      *
      * @returns int number of messages without \Seen flag set for this User.
      */
@@ -486,7 +486,7 @@ public class FileMailbox
             return sequence.size();
         }
     }
-    
+
     /** Mailbox Events are used to inform registered listeners of events in the Mailbox.
      * E.g. if mail is delivered to an Inbox or if another user appends/ deletes a message.
      */
@@ -500,7 +500,7 @@ public class FileMailbox
     }
 
     /**
-     * Mark this mailbox as not selectable by anyone. 
+     * Mark this mailbox as not selectable by anyone.
      * Example folders at the roots of hierarchies, e. #mail for each user.
      *
      * @param state true if folder is not selectable by anyone
@@ -569,7 +569,7 @@ public class FileMailbox
 
         boolean change;
         boolean[] rights = new boolean[NUMBER_OF_RIGHTS];
-          
+
         if (mods[0] == ADD_RIGHTS) {
             change = true;
             System.arraycopy(existingRights, 0, rights, 0,
@@ -698,7 +698,7 @@ public class FileMailbox
             throw new AccessControlException(DENY_ACCESS);
         } else if (!getter.equals(identity) && gettersRights[ADMIN] == false) {
             throw new AuthorizationException(DENY_AUTH + getter);
-        }        
+        }
         boolean[] rights = (boolean[]) acl.get(identity);
         if (rights == null) {
             return null;
@@ -747,7 +747,7 @@ public class FileMailbox
             }
             response.append("> ");
         }
-         
+
         return response.toString();
     }
 
@@ -898,7 +898,7 @@ public class FileMailbox
         throws AccessControlException {
         return (!notSelectableByAnyone && hasReadRights(username));
     }
-  
+
     /**
      * Indicates if specified user can change any flag on a permanent basis,
      * except for \Recent which can never be changed by a user.
@@ -910,7 +910,7 @@ public class FileMailbox
         throws AccessControlException {
         // relies on implementation that each right implies those
         // before it in list:  l,r,s,w,i,p,c,d,a
-        return hasDeleteRights(username); 
+        return hasDeleteRights(username);
     }
 
     /**
@@ -976,12 +976,12 @@ public class FileMailbox
      */
     public synchronized boolean store(MimeMessage message, String username)
         throws AccessControlException, AuthorizationException,
-        IllegalArgumentException {
+               IllegalArgumentException {
 
         if (message == null || username == null) {
             logger.error("Null argument received in store.");
             throw new IllegalArgumentException("Null argument received in store.");
-        } 
+        }
         if (!hasInsertRights(username)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to insert.");
         }
@@ -999,7 +999,7 @@ public class FileMailbox
 
     /**
      * Stores a message in this mailbox, using passed MessageAttributes and
-     * Flags. User must have insert rights. 
+     * Flags. User must have insert rights.
      * <br>Current implementation requires MessageAttributs to be of
      * class SimpleMessageAttributes
      *
@@ -1015,7 +1015,7 @@ public class FileMailbox
     public boolean store(MimeMessage message, String username,
                          MessageAttributes msgAttrs, Flags flags)
         throws AccessControlException, AuthorizationException,
-        IllegalArgumentException {
+               IllegalArgumentException {
 
         if (msgAttrs == null || message == null || username == null) {
             logger.error("Null argument received in store.");
@@ -1024,9 +1024,9 @@ public class FileMailbox
         if (! (msgAttrs instanceof SimpleMessageAttributes)) {
             logger.error("Wrong class for Attributes");
             throw new IllegalArgumentException("Wrong class for Attributes");
-        } 
+        }
         SimpleMessageAttributes attrs = (SimpleMessageAttributes)msgAttrs;
-        
+
         int newUID = ++highestUID;
         attrs.setUID(newUID);
         sequence.add(new Integer(newUID));
@@ -1082,7 +1082,7 @@ public class FileMailbox
     /**
      * Retrieves a message given a message sequence number.
      *
-     * @param msn the message sequence number 
+     * @param msn the message sequence number
      * @param username String represnting user
      * @returns an  EnhancedMimeMessage object containing the message, null if no message with
      * the given msn.
@@ -1153,7 +1153,7 @@ public class FileMailbox
     /**
      * Marks a message for deletion given a message sequence number.
      *
-     * @param msn the message sequence number 
+     * @param msn the message sequence number
      * @param username String represnting user
      * @returns boolean true if successful.
      * @throws AccessControlException if user does not have read rights for
@@ -1301,7 +1301,7 @@ public class FileMailbox
                 }
             }
             logger.info("MessageAttributes for " + uid + " written in " + absoluteName);
-            
+
             return true;
         } else {
             return false;
@@ -1370,7 +1370,7 @@ public class FileMailbox
      */
     public synchronized  boolean setFlags(int msn, String user, String request)
         throws AccessControlException, AuthorizationException,
-        IllegalArgumentException {
+               IllegalArgumentException {
         if (!hasKeepSeenRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to store any flags.");
         }
@@ -1396,7 +1396,7 @@ public class FileMailbox
      */
     public synchronized boolean setFlagsUID(int uid, String user, String request)
         throws AccessControlException, AuthorizationException,
-        IllegalArgumentException {
+               IllegalArgumentException {
         if (!hasKeepSeenRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to store any flags.");
         }
@@ -1404,7 +1404,7 @@ public class FileMailbox
             throw new AuthorizationException("Not authorized to delete.");
         }
         if (sequence.contains(new Integer(uid))) {
-          
+
             Flags flags = readFlags(uid);
             boolean wasRecent = flags.isRecent();
             boolean wasDeleted = flags.isDeleted();
@@ -1438,7 +1438,7 @@ public class FileMailbox
         } else {
             return false;
         }
-        
+
     }
 
     private int findOldestUnseen(String user, int previousOld)
@@ -1544,7 +1544,7 @@ public class FileMailbox
         }
         for (int i = 0; i < sequence.size(); i++) {
             System.err.println("Message with msn " + i + " has uid " + sequence.get(i));
-        }        
+        }
         return true;
     }
 
@@ -1678,5 +1678,5 @@ public class FileMailbox
     }
 }
 
- 
+
 

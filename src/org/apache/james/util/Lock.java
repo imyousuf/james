@@ -36,7 +36,7 @@ public class Lock
     public boolean lock( final Object key )
     {
         Object theLock;
-        
+
         synchronized( this )
         {
             theLock = locks.get( key );
@@ -45,11 +45,11 @@ public class Lock
             {
                 locks.put( key, getCallerId() );
                 return true;
-            } 
+            }
             else if( getCallerId() == theLock )
             {
                 return true;
-            } 
+            }
             else
             {
                 return false;
@@ -57,7 +57,7 @@ public class Lock
         }
     }
 
-    public boolean unlock( final Object key ) 
+    public boolean unlock( final Object key )
     {
         Object theLock;
         synchronized( this )
@@ -67,12 +67,12 @@ public class Lock
             if( null == theLock )
             {
                 return true;
-            } 
+            }
             else if( getCallerId() == theLock )
             {
                 locks.remove( key );
                 return true;
-            } 
+            }
             else
             {
                 return false;
@@ -80,7 +80,7 @@ public class Lock
         }
     }
 
-    private Object getCallerId() 
+    private Object getCallerId()
     {
         return Thread.currentThread();
     }

@@ -11,18 +11,18 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.DefaultComponentManager;
-import org.apache.avalon.DefaultContext;
 import org.apache.avalon.Initializable;
 import org.apache.avalon.Stoppable;
+import org.apache.avalon.component.ComponentManager;
+import org.apache.avalon.component.Composable;
+import org.apache.avalon.component.DefaultComponentManager;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.context.Context;
+import org.apache.avalon.context.Contextualizable;
+import org.apache.avalon.context.DefaultContext;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
@@ -32,9 +32,9 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class JamesSpoolManager 
+public class JamesSpoolManager
     extends AbstractLoggable
-    implements Composer, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
+    implements Composable, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
 
     private DefaultComponentManager compMgr;
     //using implementation as we need put method.
@@ -69,7 +69,7 @@ public class JamesSpoolManager
             compMgr.put(Resources.MAILET_LOADER, mailetLoader);
             compMgr.put(Resources.MATCH_LOADER, matchLoader);
         } catch (ConfigurationException ce) {
-            final String message = 
+            final String message =
                 "Unable to configure mailet/matcher Loaders: " + ce.getMessage();
             getLogger().error( message, ce );
             throw new RuntimeException( message );
@@ -94,7 +94,7 @@ public class JamesSpoolManager
                 //  to the top
                 if (processorName.equals("root")) {
                     Matcher matcher = matchLoader.getMatcher("All", mailetcontext);
-                    Mailet mailet = 
+                    Mailet mailet =
                         mailetLoader.getMailet("PostmasterAlias", mailetcontext, null);
                     processor.add(matcher, mailet);
                 }

@@ -9,18 +9,18 @@ package org.apache.james.nntpserver.repository;
 
 import java.io.*;
 import org.apache.avalon.Initializable;
-import org.apache.avalon.Loggable;
-import org.apache.log.Logger;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.logger.Loggable;
 import org.apache.james.nntpserver.NNTPException;
+import org.apache.log.Logger;
 
 // processes entries and sends to appropriate groups.
 // eats up inappropriate entries.
 public class NNTPUtil {
-    static File getDirectory(Configuration configuration,String child) 
-        throws ConfigurationException 
+    static File getDirectory(Configuration configuration,String child)
+        throws ConfigurationException
     {
         String str = configuration.getChild(child).getValue();
         File f = new File(str);
@@ -31,14 +31,14 @@ public class NNTPUtil {
         return f;
     }
     public static Object createInstance(Configuration configuration,Logger logger,
-                                        String clsName) throws ConfigurationException 
+                                        String clsName) throws ConfigurationException
     {
         try { clsName = configuration.getAttribute("class");
         } catch(ConfigurationException ce) { }
         try {
             Object obj = Class.forName(clsName).newInstance();
             if ( obj instanceof Loggable )
-            ((Loggable)obj).setLogger( logger );
+                ((Loggable)obj).setLogger( logger );
             if ( obj instanceof Configurable )
                 ((Configurable)obj).configure(configuration.getChild("configuration"));
             return obj;

@@ -7,21 +7,21 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import java.io.*;
+import java.util.*;
 import org.apache.avalon.Initializable;
-import org.apache.avalon.Component;
+import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.AbstractLoggable;
-import java.util.*;
-import java.io.*;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.excalibur.io.AndFileFilter;
 import org.apache.excalibur.io.DirectoryFileFilter;
-import org.apache.oro.io.GlobFilenameFilter;
-import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.nntpserver.DateSinceFileFilter;
+import org.apache.james.nntpserver.NNTPException;
+import org.apache.oro.io.GlobFilenameFilter;
 
-public class NNTPRepositoryImpl extends AbstractLoggable 
+public class NNTPRepositoryImpl extends AbstractLoggable
     implements NNTPRepository, Configurable, Initializable, Component
 {
     private boolean readOnly;
@@ -55,7 +55,7 @@ public class NNTPRepositoryImpl extends AbstractLoggable
         if ( configuration != null ) {
             Configuration[] children = configuration.getChildren("newsgroup");
             if ( children != null )
-                for ( int i = 0 ; i < children.length ; i++ ) 
+                for ( int i = 0 ; i < children.length ; i++ )
                     addGroupsList.add(children[i].getValue());
         }
         addGroups = (String[])addGroupsList.toArray(new String[0]);
@@ -76,7 +76,7 @@ public class NNTPRepositoryImpl extends AbstractLoggable
         if ( articleIDPath.exists() == false )
             articleIDPath.mkdirs();
         if ( spool instanceof Initializable )
-                ((Initializable)spool).init();
+            ((Initializable)spool).init();
         getLogger().debug("repository initialization done");
     }
     public boolean isReadOnly() {

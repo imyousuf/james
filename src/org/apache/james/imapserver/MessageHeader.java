@@ -16,7 +16,6 @@ import java.io.Serializable;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-
 public class MessageHeader implements Serializable {
     public static final String CRLF =  "\r\n";
     public static final String CRLFHTAB =  "\r\n\t";

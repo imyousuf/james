@@ -27,7 +27,7 @@ public class RFC822DateFormat {
     private static DecimalFormat tz;
 
     /**
-     * SimpleDateFormat will handle most of this for us, but the 
+     * SimpleDateFormat will handle most of this for us, but the
      * timezone won't match, so we do that manually
      *
      * @return java.lang.String

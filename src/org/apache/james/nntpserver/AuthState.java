@@ -7,10 +7,10 @@
  */
 package org.apache.james.nntpserver;
 
-import java.io.PrintWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -18,7 +18,7 @@ import org.apache.james.services.UsersRepository;
  * @author  Harmeet
  *
  * implements the authentication state. Should this be moved to a more common place ??
- * Should there be an authenication service, that manufactures and hands to the different 
+ * Should there be an authenication service, that manufactures and hands to the different
  * protocol servers AuthState objects.
  */
 public class AuthState {

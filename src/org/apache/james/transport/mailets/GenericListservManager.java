@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport.mailets;
 
 import java.io.*;
@@ -32,7 +31,7 @@ public abstract class GenericListservManager extends GenericMailet {
      */
     public abstract boolean removeAddress(MailAddress address);
 
-    
+
     /**
      * Indicates whether an address already exists on the listserv. Returns
      * whether the address exists.
@@ -54,7 +53,7 @@ public abstract class GenericListservManager extends GenericMailet {
                 if (removeAddress(mail.getSender())) {
                     getMailetContext().bounce(mail, "Successfully removed from listserv.");
                 } else {
-                getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
+                    getMailetContext().bounce(mail, "You are not subscribed to this listserv.");
                 }
             } else {
                 getMailetContext().bounce(mail, "Unable to remove you from listserv for some reason");
@@ -71,7 +70,7 @@ public abstract class GenericListservManager extends GenericMailet {
             }
         } else {
             getMailetContext().bounce(mail, "Could not understand the command you sent to this listserv manager.\r\n"
-                    + "Valid commands are <listserv>-on@domain.com and <listserv>-off@domain.com");
+                                      + "Valid commands are <listserv>-on@domain.com and <listserv>-off@domain.com");
         }
         //Kill the command message
         mail.setState(Mail.GHOST);

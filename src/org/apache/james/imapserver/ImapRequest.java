@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-
 /**
  * An single client request to an IMAP server, with necessary details for
  * command processing

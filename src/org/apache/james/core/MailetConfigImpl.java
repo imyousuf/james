@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.core;
 
 import java.io.*;
@@ -13,9 +12,9 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.mailet.*;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.mailet.*;
 
 /**
  *
@@ -34,25 +33,25 @@ public class MailetConfigImpl implements MailetConfig {
     }
 
     public String getInitParameter(String name) {
-	try {
-	    String result = null;
+        try {
+            String result = null;
 
             final Configuration[] values = configuration.getChildren( name );
             for ( int i = 0; i < values.length; i++ )
             {
-		if (result == null) {
-		    result = "";
-		} else {
-		    result += ",";
-		}
-		Configuration conf = values[i];
-		result += conf.getValue();
-	    }
-	    return result;
-	    //return params.getProperty(name);
-	} catch (ConfigurationException ce) {
-	    throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
-	}
+                if (result == null) {
+                    result = "";
+                } else {
+                    result += ",";
+                }
+                Configuration conf = values[i];
+                result += conf.getValue();
+            }
+            return result;
+            //return params.getProperty(name);
+        } catch (ConfigurationException ce) {
+            throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
+        }
 
     }
 

@@ -1,23 +1,23 @@
-/*****************************************************************************
-  UsersTownRepository
-*****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.userrepository;
 
+import com.workingdogs.town.*;
 import java.io.*;
 import java.util.*;
-
-import org.apache.avalon.Loggable;
+import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Component;
+import org.apache.avalon.logger.Loggable;
+import org.apache.james.services.UsersRepository;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-
-import org.apache.james.services.UsersRepository;
-
-import com.workingdogs.town.*;
 
 /**
  * Implementation of a Repository to store users in database.
@@ -41,19 +41,17 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
     }
 
     public void setLogger(final Logger a_Logger) {
-	logger = a_Logger;
+        logger = a_Logger;
     }
 
     public void configure(Configuration conf) throws ConfigurationException {
-	//  destination = conf.getChild("destination").getAttribute("URL");
-	//  repositoryName = destination.substring(destination.indexOf("//") + 2);
-	conndefinition= conf.getChild("conn").getValue();
-	tableName = conf.getChild("table").getValue("Users");
+        //  destination = conf.getChild("destination").getAttribute("URL");
+        //  repositoryName = destination.substring(destination.indexOf("//") + 2);
+        conndefinition= conf.getChild("conn").getValue();
+        tableName = conf.getChild("table").getValue("Users");
 
     }
 
- 
-	
     // Methods from interface Repository
 
     public synchronized void addUser(String strUserName, Object attributes) {
@@ -69,7 +67,7 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
                 user.save();
             } else {
                 // file://User already exists: reject add
-                logger.warn("User "+strUserName+" already exists."); 
+                logger.warn("User "+strUserName+" already exists.");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,14 +142,14 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
     }
 
     public int countUsers() {
-    try {
-        TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-        int nSize = MRUser.size();
-        return (int) nSize;
-    } catch (Exception e) {
-        e.printStackTrace();
-        throw new RuntimeException("Exception caught while testing UserName: " + e.getMessage());
-    }
+        try {
+            TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
+            int nSize = MRUser.size();
+            return (int) nSize;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Exception caught while testing UserName: " + e.getMessage());
+        }
     }
 
     public Iterator list() {
@@ -169,5 +167,4 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
         }
         return list.iterator();
     }
-
 }

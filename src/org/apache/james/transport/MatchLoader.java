@@ -1,21 +1,20 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.transport;
 
 import java.util.*;
 import javax.mail.*;
-import org.apache.mailet.*;
-import org.apache.james.core.*;
-import org.apache.avalon.Component;
+import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-
+import org.apache.james.core.*;
+import org.apache.mailet.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -42,7 +41,7 @@ public class MatchLoader implements Component, Configurable {
     }
 
     public Matcher getMatcher(String matchName, MailetContext context)
-	throws MessagingException {
+        throws MessagingException {
         try {
             String condition = (String) null;
             int i = matchName.indexOf('=');

@@ -7,7 +7,7 @@
  */
 package org.apache.james.util;
 
-public class LockException extends RuntimeException 
+public class LockException extends RuntimeException
 {
     public LockException(String msg) {
         super(msg);

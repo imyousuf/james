@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.core.EnhancedMimeMessage;
@@ -27,10 +27,10 @@ import org.apache.james.core.EnhancedMimeMessage;
  * @version 0.1 on 17 Jan 2001
  */
 
-public abstract class BaseCommand 
+public abstract class BaseCommand
     extends AbstractLoggable {
 
-    //mainly to switch on stack traces and catch responses;  
+    //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
 
     /**
@@ -48,7 +48,7 @@ public abstract class BaseCommand
             throw new IllegalArgumentException("Null argument");
         } else if (rawSet.equals("")) {
             getLogger().debug("Empty argument in decodeSet");
-            throw new IllegalArgumentException("Empty string argument"); 
+            throw new IllegalArgumentException("Empty string argument");
         }
         getLogger().debug(" decodeSet called for: " + rawSet);
         List response = new ArrayList();
@@ -58,7 +58,7 @@ public abstract class BaseCommand
             if (checkColon == -1) {
                 Integer seqNum = new Integer(rawSet.trim());
                 if (seqNum.intValue() < 1) {
-                    throw new IllegalArgumentException("Not a positive integer"); 
+                    throw new IllegalArgumentException("Not a positive integer");
                 } else {
                     response.add(seqNum);
                 }
@@ -75,7 +75,7 @@ public abstract class BaseCommand
                     last = lastNum.intValue();
                 }
                 if (first < 1 || last < 1) {
-                    throw new IllegalArgumentException("Not a positive integer"); 
+                    throw new IllegalArgumentException("Not a positive integer");
                 } else if (first < last) {
                     response.add(firstNum);
                     for (int i = (first + 1); i < last; i++) {
@@ -85,10 +85,10 @@ public abstract class BaseCommand
                 } else if (first == last) {
                     response.add(firstNum);
                 } else {
-                    throw new IllegalArgumentException("Not an increasing range"); 
+                    throw new IllegalArgumentException("Not an increasing range");
                 }
             }
-  
+
         } else {
             try {
                 String firstRawSet = rawSet.substring(0, checkComma);
@@ -120,7 +120,7 @@ public abstract class BaseCommand
             throw new IllegalArgumentException("Null argument");
         } else if (rawSet.equals("")) {
             getLogger().debug("Empty argument in decodeSet");
-            throw new IllegalArgumentException("Empty string argument"); 
+            throw new IllegalArgumentException("Empty string argument");
         }
         getLogger().debug(" decodeUIDSet called for: " + rawSet);
         Iterator it = uidsList.iterator();
@@ -134,7 +134,7 @@ public abstract class BaseCommand
             if (checkColon == -1) {
                 Integer seqNum = new Integer(rawSet.trim());
                 if (seqNum.intValue() < 1) {
-                    throw new IllegalArgumentException("Not a positive integer"); 
+                    throw new IllegalArgumentException("Not a positive integer");
                 } else {
                     response.add(seqNum);
                 }
@@ -151,7 +151,7 @@ public abstract class BaseCommand
                 int last;
                 last = lastNum.intValue();
                 if (first < 1 || last < 1) {
-                    throw new IllegalArgumentException("Not a positive integer"); 
+                    throw new IllegalArgumentException("Not a positive integer");
                 } else if (first < last) {
                     response.add(firstNum);
                     Collection uids;
@@ -167,15 +167,15 @@ public abstract class BaseCommand
                         }
                     }
                     response.add(lastNum);
-                    
+
                 } else if (first == last) {
                     response.add(firstNum);
                 } else {
-                    throw new IllegalArgumentException("Not an increasing range"); 
+                    throw new IllegalArgumentException("Not an increasing range");
                 }
 
             }
-            
+
         } else {
             try {
                 String firstRawSet = rawSet.substring(0, checkComma);

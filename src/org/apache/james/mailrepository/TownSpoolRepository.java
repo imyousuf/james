@@ -21,16 +21,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.mail.internet.MimeMessage;
-import org.apache.avalon.AbstractLoggable;
-import org.apache.avalon.Component;
+import org.apache.avalon.component.Component;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.james.util.Lock;
-import org.apache.james.util.LockException;
+import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.james.core.JamesMimeMessage;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.util.Lock;
+import org.apache.james.util.LockException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -49,7 +49,7 @@ import org.apache.mailet.MailAddress;
  * <br>Model is currently not used and may be dropped
  * <br>conn is the location of the ...(Serge)
  * <br>table is the name of the table in the Database to be used
- * 
+ *
  * <p>Requires a logger called MailRepository.
  *
  * @version 1.0.0, 24/04/1999
@@ -58,7 +58,7 @@ import org.apache.mailet.MailAddress;
 public class TownSpoolRepository
     extends AbstractLoggable
     implements SpoolRepository, Component, Configurable {
-  
+
     private Lock lock;
     private String destination;
     private String repositoryName;
@@ -71,7 +71,7 @@ public class TownSpoolRepository
         repositoryName = destination.substring(destination.indexOf("//") + 2);
         String checkType = conf.getAttribute("type");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-            final String message = 
+            final String message =
                 "Attempt to configure TownSpoolRepository as " + checkType;
             getLogger().warn( message );
             throw new ConfigurationException( message );
