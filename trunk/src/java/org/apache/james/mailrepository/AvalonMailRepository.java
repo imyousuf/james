@@ -12,7 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
@@ -57,7 +61,7 @@ public class AvalonMailRepository
     private ObjectRepository or;
     private MailStore mailstore;
     private String destination;
-
+    private Set keys;
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
@@ -70,7 +74,6 @@ public class AvalonMailRepository
         }
         // ignore model
     }
-
 
     public void compose( final ComponentManager componentManager )
             throws ComponentException {
@@ -101,6 +104,40 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
+            keys = Collections.synchronizedSet(new HashSet());
+
+
+            //Finds non-matching pairs and deletes the extra files
+            HashSet streamKeys = new HashSet();
+            for (Iterator i = sr.list(); i.hasNext(); ) {
+                streamKeys.add(i.next());
+            }
+            HashSet objectKeys = new HashSet();
+            for (Iterator i = or.list(); i.hasNext(); ) {
+                objectKeys.add(i.next());
+            }
+
+            Collection strandedStreams = (Collection)streamKeys.clone();
+            strandedStreams.removeAll(objectKeys);
+            for (Iterator i = strandedStreams.iterator(); i.hasNext(); ) {
+                String key = (String)i.next();
+                remove(key);
+            }
+
+            Collection strandedObjects = (Collection)objectKeys.clone();
+            strandedObjects.removeAll(streamKeys);
+            for (Iterator i = strandedObjects.iterator(); i.hasNext(); ) {
+                String key = (String)i.next();
+                remove(key);
+            }
+
+            //Next get a list from the object repository
+            //  and use that for the list of keys
+            keys.clear();
+            for (Iterator i = or.list(); i.hasNext(); ) {
+                keys.add(i.next());
+            }
+
             getLogger().debug(this.getClass().getName() + " created in " + destination);
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
@@ -109,35 +146,62 @@ public class AvalonMailRepository
         }
     }
 
-    public synchronized boolean unlock(String key) {
+    public boolean unlock(String key) {
         if (lock.unlock(key)) {
-            notifyAll();
+            synchronized (this) {
+                notifyAll();
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    public synchronized boolean lock(String key) {
+    public boolean lock(String key) {
         if (lock.lock(key)) {
-            notifyAll();
+            synchronized (this) {
+                notifyAll();
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    public synchronized void store(MailImpl mc) {
+    public void store(MailImpl mc) {
         try {
             String key = mc.getName();
-            OutputStream out = sr.put(key);
-            mc.writeMessageTo(out);
-            out.close();
-            or.put(key, mc);
-        if(DEEP_DEBUG) getLogger().debug("Mail " + key + " stored." );
-            notifyAll();
+            //Remember whether this key was locked
+            boolean wasLocked = lock.isLocked(key);
+
+            if (!wasLocked) {
+                //If it wasn't locked, we want a lock during the store
+                lock.lock(key);
+            }
+            try {
+                if (!keys.contains(key)) {
+                    keys.add(key);
+                }
+                OutputStream out = sr.put(key);
+                mc.writeMessageTo(out);
+                out.close();
+                or.put(key, mc);
+            } finally {
+                if (!wasLocked) {
+                    //If it wasn't locked, we need to now unlock
+                    lock.unlock(key);
+                }
+            }
+
+            if(DEEP_DEBUG) {
+                getLogger().debug("Mail " + key + " stored." );
+            }
+
+            synchronized (this) {
+                notifyAll();
+            }
         } catch (Exception e) {
-        getLogger().error("Exception storing mail: " + e);
+            getLogger().error("Exception storing mail: " + e);
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing Message Container: " + e);
         }
@@ -148,24 +212,19 @@ public class AvalonMailRepository
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
-            MailImpl mc = (MailImpl) or.get(key);
+            MailImpl mc = null;
+            try {
+                mc = (MailImpl) or.get(key);
+            } catch (RuntimeException re) {
+                getLogger().error("Exception retrieving mail: " + re + ", so we're deleting it... good ridance!");
+                remove(key);
+                return null;
+            }
             MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, key);
             mc.setMessage(new MimeMessageWrapper(source));
 
             return mc;
         } catch (Exception me) {
-            if (me instanceof IOException) {
-				getLogger().error("IOException retrieving mail: " + me + ", so we're deleting it... good ridance!");
-				remove(key);
-				return null;
-			}
-			/*
-            if (me instanceof FileNotFoundException ||
-            	me instanceof EOFException) {
-                remove(key);
-                return null;
-            }
-            */
             getLogger().error("Exception retrieving mail: " + me);
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
@@ -178,6 +237,7 @@ public class AvalonMailRepository
     public void remove(String key) {
         if (lock(key)) {
             try {
+                keys.remove(key);
                 sr.remove(key);
                 or.remove(key);
             } finally {
@@ -189,6 +249,6 @@ public class AvalonMailRepository
     }
 
     public Iterator list() {
-        return or.list();
+        return keys.iterator();
     }
 }
