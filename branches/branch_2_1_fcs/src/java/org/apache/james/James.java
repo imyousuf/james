@@ -18,7 +18,11 @@
 package org.apache.james;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.*;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -60,7 +64,7 @@ import java.util.*;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.35.4.14 $
+ * @version This is $Revision: 1.35.4.15 $
 
  */
 public class James
