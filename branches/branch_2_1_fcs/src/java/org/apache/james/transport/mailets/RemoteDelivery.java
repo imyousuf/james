@@ -88,7 +88,7 @@ import org.apache.oro.text.regex.MatchResult;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.18 $ $Date: 2004/03/22 22:04:18 $
+ * @version CVS $Revision: 1.33.4.19 $ $Date: 2004/03/26 04:44:36 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -263,7 +263,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             
         } catch (Exception e) {
             log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
-            e.printStackTrace();
         }
         try {
             if (getInitParameter("timeout") != null) {
@@ -622,7 +621,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
      * @param mail org.apache.james.core.MailImpl
-     * @param exception java.lang.Exception
+     * @param exception javax.mail.MessagingException
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
@@ -1113,8 +1112,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     final String nextGateway = server;
                     final String nextGatewayPort = port;
                     try {
+                        final InetAddress[] ips = InetAddress.getAllByName(nextGateway);
                         addresses = new Iterator() {
-                            private InetAddress[] ipAddresses = InetAddress.getAllByName(nextGateway);
+                            private InetAddress[] ipAddresses = ips;
                             int i = 0;
 
                             public boolean hasNext() {
