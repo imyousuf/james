@@ -114,7 +114,7 @@ import org.apache.mailet.SpoolRepository;
  * as well as other places.
  *
  *
- * This is $Revision: 1.49 $
+ * This is $Revision: 1.50 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -334,6 +334,17 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                       .append(outgoingMailServer);
                     log(logMessageBuffer.toString());
                     return true;
+                } catch (SendFailedException sfe) {
+                    if (sfe.getValidSentAddresses() == null
+                          || sfe.getValidSentAddresses().length < 1) {
+                        if (isDebug) log("Send failed, continuing with any other servers");
+                        lastError = sfe;
+                        continue;
+                    } else {
+                        // If any mail was sent then the outgoing
+                        // server config must be ok, therefore rethrow
+                        throw sfe;
+                    }
                 } catch (MessagingException me) {
                     //MessagingException are horribly difficult to figure out what actually happened.
                     StringBuffer exceptionBuffer =
@@ -698,9 +709,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * measure, I'm inserting this philosophically unsatisfactory
          * fix.
          */
-        try {
-            Thread.sleep(5000);
-        } catch (Exception ignored) {} // wait for James to finish initializing
+        long stop = System.currentTimeMillis() + 60000;
+        while ((getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME) == null)
+               && stop > System.currentTimeMillis()) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception ignored) {} // wait for James to finish initializing
+        }
 
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
