@@ -21,7 +21,7 @@ public class TestSelected
     public void setUp() throws Exception
     {
         super.setUp();
-        addTestFile( "SelectInbox.test" );
+        addTestFile( "SelectInbox.test", preElements );
     }
 
     public static Test suite() throws Exception

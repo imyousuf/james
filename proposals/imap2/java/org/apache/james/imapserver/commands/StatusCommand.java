@@ -19,7 +19,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class StatusCommand extends CommandTemplate
 {
@@ -84,6 +84,11 @@ class StatusCommand extends CommandTemplate
             buffer.append( mailbox.getUnseenCount() );
             buffer.append( SP );
         }
+        if ( buffer.charAt( buffer.length() - 1 ) == ' ' ) {
+            buffer.setLength( buffer.length() - 1 );
+        }
+        buffer.append(')');
+        response.commandResponse( this, buffer.toString());
 
         session.unsolicitedResponses( response );
         response.commandComplete( this );
@@ -104,9 +109,47 @@ class StatusCommand extends CommandTemplate
     private class StatusCommandParser extends CommandParser
     {
         StatusDataItems statusDataItems( ImapRequestLineReader request )
+                throws ProtocolException
         {
-            // TODO: implement.
-            return new StatusDataItems();
+            StatusDataItems items = new StatusDataItems();
+
+            request.nextWordChar();
+            consumeChar( request, '(' );
+            CharacterValidator validator = new NoopCharValidator();
+            String nextWord = consumeWord( request, validator );
+            while ( ! nextWord.endsWith(")" ) ) {
+                addItem( nextWord, items );
+                nextWord = consumeWord( request, validator );
+            }
+            // Got the closing ")", may be attached to a word.
+            if ( nextWord.length() > 1 ) {
+                addItem( nextWord.substring(0, nextWord.length() - 1 ), items );
+            }
+
+            return items;
+        }
+
+        private void addItem( String nextWord, StatusDataItems items )
+                throws ProtocolException
+        {
+            if ( nextWord.equals( MESSAGES ) ) {
+                items.messages = true;
+            }
+            else if ( nextWord.equals( RECENT ) ) {
+                items.recent = true;
+            }
+            else if ( nextWord.equals( UIDNEXT ) ) {
+                items.uidNext = true;
+            }
+            else if ( nextWord.equals( UIDVALIDITY ) ) {
+                items.uidValidity = true;
+            }
+            else if ( nextWord.equals( UNSEEN ) ) {
+                items.unseen = true;
+            }
+            else {
+                throw new ProtocolException( "Unknown status item: '" + nextWord + "'" );
+            }
         }
     }
 

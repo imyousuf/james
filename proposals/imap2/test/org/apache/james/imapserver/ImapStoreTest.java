@@ -7,9 +7,9 @@
  */
 package org.apache.james.imapserver;
 
+import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.ImapStore;
 import org.apache.james.imapserver.store.InMemoryStore;
-import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
 import junit.framework.TestCase;
@@ -25,7 +25,7 @@ import java.util.Collection;
  *   - 
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ImapStoreTest extends TestCase
         implements ImapConstants

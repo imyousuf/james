@@ -1,17 +1,9 @@
 package org.apache.james.smtpserver;
 
-import junit.framework.TestCase;
+import org.apache.james.test.SimpleFileProtocolTest;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import java.net.Socket;
-import java.io.*;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.apache.james.test.SimpleFileProtocolTest;
 
 
 public class TestSMTP
@@ -20,8 +12,6 @@ public class TestSMTP
     public TestSMTP( String name )
     {
         super( name );
-        _port = 25;
-        _timeout = 0;
     }
 
     public static Test suite() throws Exception

@@ -7,16 +7,15 @@
  */
 package org.apache.james.test;
 
-import org.apache.tools.ant.BuildException;
+import org.apache.avalon.framework.CascadingRuntimeException;
+import org.apache.avalon.framework.parameters.Parameterizable;
+import org.apache.avalon.framework.parameters.Parameters;
+import org.apache.avalon.phoenix.components.embeddor.SingleAppEmbeddor;
 import org.apache.tools.ant.AntClassLoader;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.apache.tools.ant.types.CommandlineJava;
-import org.apache.avalon.framework.parameters.Parameters;
-import org.apache.avalon.framework.parameters.Parameterizable;
-import org.apache.avalon.framework.ExceptionUtil;
-import org.apache.avalon.framework.CascadingRuntimeException;
-import org.apache.avalon.phoenix.components.embeddor.SingleAppEmbeddor;
 
 /**
  * An attempt at a task which can launch James from Ant, and shut it down again.

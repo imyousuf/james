@@ -7,16 +7,16 @@
  */
 package org.apache.james.imapserver;
 
-import javax.mail.internet.InternetAddress;
 
 public interface IMAPTest
 {
-    public int PORT = 143;
-    public String HOST = "localhost";
+    int PORT = 143;
+    String HOST = "localhost";
 
-    public String USER = "imapuser";
-    public String PASSWORD = "password";
-    public String FROM_ADDRESS = "sender@localhost";
-    public String TO_ADDRESS = USER + "@" + HOST;
-    
+    String USER = "imapuser";
+    String PASSWORD = "password";
+    String FROM_ADDRESS = "sender@localhost";
+    String TO_ADDRESS = USER + "@" + HOST;
+
+    int TIMEOUT = 30000;
 }

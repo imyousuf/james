@@ -19,7 +19,7 @@ import org.apache.james.imapserver.store.ImapMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ImapSession
 {
@@ -49,12 +49,6 @@ public interface ImapSession
      * @return The UsersRepository for this session.
      */
     UsersRepository getUsers();
-
-    /**
-     * Provides a security logger for auditing logins.
-     * @return The security logger.
-     */
-    Logger getSecurityLogger();
 
     /**
      * @return The hostname of the connected client.

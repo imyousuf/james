@@ -18,6 +18,7 @@ public interface ImapConstants
 
     String SP = " ";
     String VERSION = "IMAP4rev1";
+    String CAPABILITIES = "LITERAL+";
 
     String USER_NAMESPACE = "#mail";
 

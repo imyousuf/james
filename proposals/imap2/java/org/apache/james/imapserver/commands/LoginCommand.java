@@ -18,7 +18,7 @@ import org.apache.james.services.User;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class LoginCommand extends NonAuthenticatedStateCommand
 {
@@ -40,16 +40,9 @@ class LoginCommand extends NonAuthenticatedStateCommand
             session.setAuthenticated( user );
             response.commandComplete( this );
 
-            // Log the login.
-            session.getSecurityLogger().info( "Login successful for " + user.getUserName() +
-                                              " from  " + session.getClientHostname() +
-                                              "(" + session.getClientIP() + ")" );
         }
         else {
             response.commandFailed( this, "Invalid login/password" );
-            session.getSecurityLogger().error( "Login failed for " + userid +
-                                               " from " + session.getClientHostname() +
-                                               "(" + session.getClientIP() + ")" );
         }
     }
 

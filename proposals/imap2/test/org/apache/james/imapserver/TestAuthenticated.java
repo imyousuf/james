@@ -7,19 +7,10 @@
  */
 package org.apache.james.imapserver;
 
-import junit.framework.TestCase;
+import org.apache.james.test.SimpleFileProtocolTest;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import java.net.Socket;
-import java.io.*;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.apache.james.test.SimpleFileProtocolTest;
-import org.apache.james.remotemanager.UserManagementTest;
 
 public class TestAuthenticated
         extends SimpleFileProtocolTest implements IMAPTest
@@ -27,20 +18,19 @@ public class TestAuthenticated
     public TestAuthenticated( String name )
     {
         super( name );
-        _port = 143;
     }
 
     public void setUp() throws Exception
     {
         super.setUp();
-        addTestFile( "Welcome.test", _preElements );
+        addTestFile( "Welcome.test", preElements );
         addLogin( USER, PASSWORD );
     }
 
     protected void addLogin( String username, String password )
     {
-        _testElements.add( new ClientRequest( "a001 LOGIN " + username + " " + password ) );
-        _testElements.add( new ServerResponse( "a001 OK LOGIN completed" ));
+        testElements.CL( "a001 LOGIN " + username + " " + password );
+        testElements.SL( "a001 OK LOGIN completed" );
     }
 
     public static Test suite() throws Exception
@@ -57,10 +47,10 @@ public class TestAuthenticated
         suite.addTest( new TestAuthenticated( "SelectEmpty" ) );
         suite.addTest( new TestAuthenticated( "ListNamespace" ) );
         suite.addTest( new TestAuthenticated( "ListMailboxes" ) );
+        suite.addTest( new TestAuthenticated( "Status" ) );
+//        suite.addTest( new TestAuthenticated( "StringArgs" ) );
 
-//        suite.addTest( new TestAuthenticated( "Subscribe" ) );
-//        suite.addTest( new TestAuthenticated( "Subscribe2" ) );
-
+        // Run delete last, because many of the tests depend on created mailboxes.
         suite.addTest( new TestAuthenticated( "Delete" ) );
 
         return suite;
