@@ -29,7 +29,7 @@ import examples.IOUtil;
  *
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: EndToEnd.java,v 1.2 2002/10/14 06:44:22 pgoldstein Exp $
+ * $Id: EndToEnd.java,v 1.3 2002/10/14 16:14:54 danny Exp $
  */
 public class EndToEnd extends TestCase {
 
@@ -105,24 +105,36 @@ public class EndToEnd extends TestCase {
         try {
             client.setDefaultTimeout(500);
             client.connect("127.0.0.1", 4555);
-            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            OutputStream oo = client.getOutputStream();
-            out = new OutputStreamWriter(oo);
-            print(in, System.out);
-            for (int i = 0; i < script1.length; i++) {
-                out.write(script1[i] + "\n");
-                System.out.println(" " + script1[i] + " \n");
-                out.flush();
-                print(in, System.out);
-            }
-            mailTest();
+            runTelnetScript(client, script1);
             client.disconnect();
+            SMTPTest();
+            POP3Test();
+            client.connect("127.0.0.1", 4555);
+            runTelnetScript(client, script2);
+            client.disconnect();
+                        
+            
         } catch (SocketException e) {
             e.printStackTrace();
             assertTrue(false);
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
+        }
+    }
+
+    private void runTelnetScript(TelnetClient client, String[] script) throws IOException {
+        BufferedReader in;
+        OutputStreamWriter out;
+        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        OutputStream oo = client.getOutputStream();
+        out = new OutputStreamWriter(oo);
+        print(in, System.out);
+        for (int i = 0; i < script.length; i++) {
+            out.write(script[i] + "\n");
+            System.out.println(" " + script[i] + " \n");
+            out.flush();
+            print(in, System.out);
         }
     }
 
@@ -153,10 +165,10 @@ public class EndToEnd extends TestCase {
     }
 
     /**
-     * Carries out the "mail" aspects of the tests, spawning the appropriate
+     * Carries out theSMTPmail" aspects of the tests, spawning the appropriate
      * worker threads.
      */
-    private void mailTest() {
+    private void SMTPTest() {
         start = new Date();
         StringBuffer mail1 = new StringBuffer();
         mail1.append(
@@ -181,7 +193,16 @@ public class EndToEnd extends TestCase {
             // TODO: Shouldn't this busy loop be replaced with an
             //       appropriate timed wait?
         }
-        try {
+        
+        long time = (new Date()).getTime() - start.getTime();
+        System.err.println("time total " + (int) time);
+    }
+
+    /**
+     *  End to end test of POP3 functionality.
+     */
+    private void POP3Test() {
+       try {
             POP3Client pclient = new POP3Client();
             pclient.connect("127.0.0.1", 110);
             System.out.println(pclient.getReplyString());
@@ -193,13 +214,14 @@ public class EndToEnd extends TestCase {
             pclient.disconnect();
             System.out.println(pclient.getReplyString());
         } catch (SocketException e) {
-            //TODO: This should be recorded
+            e.printStackTrace();
+            assertTrue(false);
         } catch (IOException e) {
-            //TODO: This should be recorded
+            e.printStackTrace();
+            assertTrue(false);
         }
-        long time = (new Date()).getTime() - start.getTime();
-        System.err.println("time total " + (int) time);
     }
+
 
     /**
      * Record that a particular worker thread has finished.
