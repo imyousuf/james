@@ -457,13 +457,9 @@
             <br>
             &lt;mailet match="RecipientIs=root@localhost"
             class="Forward"&gt;</br>
-      <strong>Note!</strong> - There is a new mailet named Redirect that will replace
-      this and other mailets.  No documentation is available yet.
       <blockquote>
        <br>
               &lt;forwardto&gt; green@blue.org &lt;/forwardto&gt;
-       </br>
-       <br>
               &lt;forwardto&gt; red@yellow.com &lt;/forwardto&gt;
        </br>
       </blockquote>
@@ -525,13 +521,10 @@
     </blockquote>
 
     <b>RemoteDelivery</b>
-    <blockquote>
-        Realy mails to remote hosts. "delayTime" is the time in mills the
-        mailet will wait
-        before retrying sending a mail which fail at first time.
-        "maxRetries" is the number of
-        retries before sending back to sender the mail.
-        <br>
+    
+ Relay mails to remote hosts. "delayTime" is the time in mills the 
+  mailet will wait before retrying sending a mail which fail at first time. "maxRetries" 
+  is the number of retries before sending back to sender the mail. <br>
           &lt;mailet match="!RecipientIsLocal" class="RemoteDelivery"&gt;
         </br>
       <blockquote>
@@ -542,9 +535,163 @@
             &lt;maxRetries&gt; 5 &lt;/maxRetries&gt;
         </br>
       </blockquote>
-            &lt;/mailet&gt;
-    </blockquote>
-
+            
+  <p>&lt;/mailet&gt; </p>
+   
+    <b>Redirect</b>
+  <dl>  <dt>A mailet providing configurable redirection services<br></br>
+      This mailet can produce listserver, forward and notify behaviour, with the 
+      original message intact, attached, appended or left out altogether.<br></br>
+      This built in functionality is controlled by the configuration as laid out 
+      below.</dt>
+  </dl>
+  <p>However it is also designed to be easily subclassed to make authoring redirection 
+    mailets simple. <br></br>
+    By extending it and overriding one or more of its methods new behaviour can 
+    be quickly created without the author having to address any other issue than 
+    the relevant one. For more information see the javadocs</p>
+  <p>The configuration parameters are:</p>
+  <table  border="1" >
+  <tr>
+            <th>param</th>
+            <th>desc</th>
+            
+        </tr>
+    <tr> 
+      <td>&lt;recipients&gt;</td>
+      <td>A comma delimited list of email addresses for recipients of this message, 
+        it will use the &quot;to&quot; list if not specified. These addresses 
+        will only appear in the To: header if no &quot;to&quot; list is supplied.</td>
+    </tr>
+    <tr> 
+      <td>&lt;to&gt;</td>
+      <td>A comma delimited list of addresses to appear in the To: header, the 
+        email will only be delivered to these addresses if they are in the recipients 
+        list.<br>
+        </br>
+        The recipients list will be used if this is not supplied</td>
+    </tr>
+    <tr> 
+      <td>&lt;sender&gt;</td>
+      <td>A single email address to appear in the From: header <br>
+        </br>
+        It can include constants &quot;sender&quot; and &quot;postmaster&quot;</td>
+    </tr>
+    <tr> 
+      <td>&lt;message&gt;</td>
+      <td>A text message to be the body of the email. Can be omitted.</td>
+    </tr>
+    <tr> 
+      <td>&lt;inline&gt;</td>
+      <td> 
+        <p>One of the following items:</p>
+        <ul>
+          <li>unaltered     The original message is the new 
+            message, for forwarding/aliasing</li>
+          <li>heads          The 
+            headers of the original message are appended to the message</li>
+          <li>body           The 
+            body of the original is appended to the new message</li>
+          <li>all               Both 
+            headers and body are appended</li>
+          <li>none           Neither 
+            body nor headers are appended</li>
+        </ul>
+      </td>
+    </tr>
+    <tr> 
+      <td>&lt;attachment&gt;</td>
+      <td> 
+        <p>One of the following items:</p>
+        <ul>
+          <li>heads      The headers of the original 
+            are attached as text</li>
+          <li>body       The body of the original 
+            is attached as text</li>
+          <li>all           Both 
+            headers and body are attached as a single text file</li>
+          <li>none       Nothing is attached</li>
+          <li>message  The original message is attached as type message/rfc822, 
+            this means that it can, in many cases, be opened, resent, fw'd, replied 
+            to etc by email client software.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr> 
+      <td>&lt;passThrough&gt;</td>
+      <td>TRUE or FALSE, if true the original message continues in the mailet 
+        processor after this mailet is finished. False causes the original to 
+        be stopped.</td>
+    </tr>
+    <tr> 
+      <td>&lt;attachError&gt;</td>
+      <td>TRUE or FALSE, if true any error message available to the mailet is 
+        appended to the message body (except in the case of inline == unaltered)</td>
+    </tr>
+    <tr> 
+      <td>&lt;replyto&gt;</td>
+      <td>A single email address to appear in the Rely-To: header, can also be 
+        &quot;sender&quot; or &quot;postmaster&quot;, this header is not set if 
+        this is omited.</td>
+    </tr>
+    <tr> 
+      <td>&lt;prefix&gt;</td>
+      <td>An optional subject prefix prepended to the original message subject, 
+        for example..<br>
+        </br>
+        Undeliverable mail:</td>
+    </tr>
+    <tr> 
+      <td>&lt;static&gt;</td>
+      <td> 
+        <p>TRUE or FALSE, if this is true it hints to the mailet that none of 
+          the parameters are set dynamically, and therefore they can be set once 
+          in the init method.<br></br>
+          False tells the mailet to call all the &quot;getters&quot; for every 
+          mail processed.</p>
+        <p>This defaults to false.<br></br>
+          It should be TRUE in all cases, except where one of the getter methods 
+          has been overriden to provide dynamic values, such as a listserve which 
+          might override getRecipients() to get a list from a users repository.</p>
+      </td>
+    </tr>
+  </table>
+<table border="1">
+  <tr><th>
+  <p>Example, creates a distribution list:</p></th></tr><tr><td>
+  <p> &lt;mailet match=&quot;RecipientIs=test@localhost&quot; class=&quot;Redirect&quot;&gt;<br></br>
+    &lt;recipients&gt;x@localhost, y@localhost, z@localhost&lt;/recipients&gt;<br></br>
+    &lt;to&gt;list@localhost&lt;/to&gt;<br></br>
+    &lt;sender&gt;owner@localhost&lt;/sender&gt;<br></br>
+    &lt;message&gt;sent on from James&lt;/message&gt;<br></br>
+    &lt;inline&gt;unaltered&lt;/inline&gt;<br></br>
+    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<br></br>
+    &lt;replyto&gt;postmaster&lt;/replyto&gt;<br></br>
+    &lt;prefix&gt;[test mailing]&lt;/prefix&gt;<br></br>
+    &lt;static&gt;TRUE&lt;/static&gt;<br></br>
+    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<br></br>
+    &lt;/mailet&gt;<br></br>
+  </p></td></tr></table>
+<table border="1">
+  <tr><th>
+  
+  <p>and this sends a spam notification to the postmaster <br></br>with the original message 
+    attached as a message, and a subject prefix:</p></th></tr><tr><td>
+  <p> &lt;mailet match=&quot;All&quot; class=&quot;Redirect&quot;&gt;<br></br>
+    &lt;recipients&gt;x@localhost&lt;/recipients&gt;<br></br>
+    &lt;sender&gt;postmaster&lt;/sender&gt;<br></br>
+    &lt;message&gt;Message marked as spam:<br></br>
+    &lt;/message&gt;<br></br>
+    &lt;inline&gt;heads&lt;/inline&gt;<br></br>
+    &lt;attachment&gt;message&lt;/attachment&gt;<br></br>
+    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<br></br>
+    &lt;attachError&gt;TRUE&lt;/attachError&gt;<br></br>
+    &lt;replyto&gt;postmaster&lt;/replyto&gt;<br></br>
+    &lt;prefix&gt;[spam notification]&lt;/prefix&gt;<br></br>
+    &lt;static&gt;TRUE&lt;/static&gt;<br></br>
+    &lt;passThrough&gt;FALSE&lt;/passThrough&gt;<br></br>
+    &lt;/mailet&gt;</p>
+</td></tr></table>
   </subsection>
 </section>
 
