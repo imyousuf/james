@@ -236,7 +236,7 @@ public class MailAddress implements java.io.Serializable {
                 pos++;
                 //<x> ::= any one of the 128 ASCII characters (no exceptions)
                 char x = address.charAt(pos);
-                if (x < 0 || x > 128) {
+                if (x < 0 || x > 127) {
                     throw new ParseException("Invalid \\ syntaxed character at position " + (pos + 1));
                 }
                 resultSB.append(x);
@@ -267,7 +267,7 @@ public class MailAddress implements java.io.Serializable {
                 pos++;
                 //<x> ::= any one of the 128 ASCII characters (no exceptions)
                 char x = address.charAt(pos);
-                if (x < 0 || x > 128) {
+                if (x < 0 || x > 127) {
                     throw new ParseException("Invalid \\ syntaxed character at position " + (pos + 1));
                 }
                 resultSB.append(x);
@@ -289,7 +289,7 @@ public class MailAddress implements java.io.Serializable {
                 //    127)
                 //<SP> ::= the space character (ASCII code 32)
                 char c = address.charAt(pos);
-                if (c <= 31 || c == 127 || c == ' ') {
+                if (c <= 31 || c >= 127 || c == ' ') {
                     throw new ParseException("Invalid character in local-part (user account) at position " + (pos + 1));
                 }
                 for (int i = 0; i < SPECIAL.length; i++) {
