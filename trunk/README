@@ -178,6 +178,10 @@ Step 5: configuration.
 
   For legal and licensing issues, please look in the legal section of
   the documentation or read the LICENSE file.
+  
+  A licence covering the use of mm.mysql JDBC drivers will be unpacked into ./apps/james/SAR-INF/lib
+  
+  
 
   Thanks.
 
