@@ -23,32 +23,34 @@ import org.apache.mailet.Mail;
  *              type="MAIL"
  *              model="SYNCHRONOUS"/>
  * Requires a logger called MailRepository.
- * 
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonSpoolRepository 
-    extends AvalonMailRepository 
+public class AvalonSpoolRepository
+    extends AvalonMailRepository
     implements SpoolRepository {
 
     public synchronized String accept() {
-	if (DEEP_DEBUG) getLogger().debug("Method accept() called");
+    	if (DEEP_DEBUG) {
+            getLogger().debug("Method accept() called");
+        }
         while (true) {
             for(Iterator it = list(); it.hasNext(); ) {
-                
+
                 String s = it.next().toString();
-		if (DEEP_DEBUG) getLogger().debug("Found item " + s
+        		if (DEEP_DEBUG) {
+                    getLogger().debug("Found item " + s
                                                   + " in spool.");
-                if (lock.lock(s)) {
-		    if (DEEP_DEBUG) getLogger().debug("accept() has locked: "
+                }
+                if (lock(s)) {
+		            if (DEEP_DEBUG) {
+                        getLogger().debug("accept() has locked: "
                                                       + s);
+                    }
                     return s;
                 }
-                //  Object o = it.next();
-                //if (lock.lock(o)) {
-                //  return o.toString();
-                //}
             }
             try {
                 wait();
@@ -58,16 +60,22 @@ public class AvalonSpoolRepository
     }
 
     public synchronized String accept(long delay) {
-	if (DEEP_DEBUG) getLogger().debug("Method accept(delay) called");
+	    if (DEEP_DEBUG) {
+            getLogger().debug("Method accept(delay) called");
+        }
         while (true) {
             long youngest = 0;
             for (Iterator it = list(); it.hasNext(); ) {
                 String s = it.next().toString();
-		if (DEEP_DEBUG) getLogger().debug("Found item " + s
+		        if (DEEP_DEBUG) {
+                    getLogger().debug("Found item " + s
                                                   + " in spool.");
-                if (lock.lock(s)) {
-		    if (DEEP_DEBUG) getLogger().debug("accept(delay) has"
+                }
+                if (lock(s)) {
+		            if (DEEP_DEBUG) {
+                        getLogger().debug("accept(delay) has"
                                                       + " locked: "  + s);
+                    }
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.
                     MailImpl mail = retrieve(s);
