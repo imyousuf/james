@@ -2,11 +2,15 @@
 <!--
                                 README!
 
-    This configuration file is designed to run without alteration, for simple tests.
-    It assumes you have a DNS server on localhost and assigns a root pasword of root.
+    This configuration file is designed to run without alteration, for simple
+    tests.
+    It assumes you have a DNS server on localhost and assigns a root pasword
+    of root.
 
-    For production use, or in case the defaults do not suit you, the items you are most
-    likely to need to change are preceeded by a CHECKME! or CONFIRM? comment in the left
+    For production use, or in case the defaults do not suit you, the items
+    you are most likely to need to change are preceeded by a
+    CHECKME! or
+    CONFIRM? comment in the left
     margin.
 
 -->
@@ -17,15 +21,17 @@
   <!-- The James block  -->
   <block class="org.apache.james.James" name="James" >
 
-    <!-- Specify which components will provide the services required by this block. The roles are
-    specified in the code and the .xinfo file. The names here must match the names specified for
-    a Block in this xml file.   -->
+    <!-- Specify which components will provide the services required by this
+    block. The roles are specified in the code and the .xinfo file. The names
+    here must match the names specified for  a Block in this xml file.   -->
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="sockets" role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-             role="org.apache.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler" role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
 
     <!-- Configuration section begins here -->
     <!-- Note trailing file searator in destinationURL for repositories -->
@@ -42,13 +48,16 @@
       <helloName autodetect="TRUE">myMailServer</helloName>
 
 <!-- CONFIRM? -->
-      <!-- servernames identifies the DNS namespace served by this instance of James.
+      <!-- servernames identifies the DNS namespace served by this instance
+      of James.
       If autodetect is TRUE, James wil attempt to discover its own name AND use
       any specified servernames.  If autodetect is FALSE, James will use only
       the specified servernames.  By default, the servername 'localhost' is
       specified. This can be removed, if required. -->
       <servernames autodetect="TRUE">
-        <!--<servername>To override autodetected server names uncomment this.</servername>-->
+        <!--
+        <servername>To override autodetected server names
+                    uncomment this.  </servername>-->
         <servername>localhost</servername>
       </servernames>
 
@@ -57,14 +66,14 @@
       <services SMTP="TRUE" POP3="TRUE" IMAP="FALSE"/>
 
       <!-- Set the type of permanent mailfolders to be used.
-      If IMAP service is to be provided, storage must be 'IMAP'; if only POP3 service is
-      being provided then use must be 'basic' (default) . At some stage POP3 will, 
-      hopefully, be able to use IMAP storage as well.  This choice is
-      irrelevant if the only service provided is SMTP. -->
+      If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
+      service is being provided then use must be 'basic' (default) . At some
+      stage POP3 will, hopefully, be able to use IMAP storage as well.  This
+      choice is irrelevant if the only service provided is SMTP. -->
       <storage>basic</storage>
 
-      <!-- If storage is set to IMAP, systemClass and hostClass must point to the
-      appropriate classes. -->
+      <!-- If storage is set to IMAP, systemClass and hostClass must point to
+      the appropriate classes. -->
       <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
                  hostClass="org.apache.james.imapserver.JamesHost"/>
       <imapHost>
@@ -77,8 +86,9 @@
         </namespaces>
       </imapHost> 
 
-      <!-- The spool repository is a singular location where incoming mails are 
-      temporarily stored before being processed. (ex. file://c:/james/spool/) -->
+      <!-- The spool repository is a singular location where incoming mails
+      are temporarily stored before being processed.
+     (ex. file://c:/james/spool/) -->
       <spoolRepository>
         <repository destinationURL="file://var/mail/spool/"
                     type="SPOOL"
@@ -118,13 +128,16 @@
 
       <smtpServer>
         <port>25</port>
-        <!--<bind></bind> uncomment this if you want to bind to a specific inetaddress -->
-        <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+        <!--<bind></bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
         <smtphandler>
           <connectiontimeout>360000</connectiontimeout>
-          <!-- This sets the maximum allowed message size  for the smtphandler in KBytes.
+          <!-- This sets the maximum allowed message size for the smtphandler
+          in KBytes.
           The value defaults to 0, which means no limit.
-          <maxmessagesize>2000</maxmessagesize>
+          <maxmessagesize>0</maxmessagesize>
            -->
         </smtphandler>
       </smtpServer>
@@ -132,9 +145,12 @@
       <pop3Server>
         <port>110</port>
         <!-- <port>995</port> -->
-        <!-- port 995 is the well-known/IANA registered port for POP3S ie over SSL/TLS -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+        <!-- port 995 is the well-known/IANA registered port for POP3S
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
         <pop3handler>
           <connectiontimeout>120000</connectiontimeout>
         </pop3handler>
@@ -143,9 +159,11 @@
       <imapServer>
         <port>143</port>
         <!-- <port>995</port> -->
-        <!-- port 995 is the well-known/IANA registered port for POP3S ie over SSL/TLS -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+        <!-- need to check what if any IMAP over SSL uses -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
         <imaphandler>
           <connectiontimeout>1800000</connectiontimeout>
         </imaphandler>
@@ -154,12 +172,16 @@
 <!-- CHECKME! Change the default password! -->
       <remoteManager>
         <port>4555</port>
-        <!-- <bind>  </bind> uncomment this if you want to bind to a specific inetaddress -->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+        <!-- <bind>  </bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
         <administrator_accounts>
-          <!-- FILL ME!!!!!!  You must provide a password for youradministrator 
-          accounts (cannot be blank) -->
+
+          <!-- FILL ME!!!!!!  You must provide a password for your
+          administrator accounts (cannot be blank) -->
           <account login="root" password="root"/>
+
         </administrator_accounts>
         <connectiontimeout> 60000 </connectiontimeout>
       </remoteManager>
@@ -183,7 +205,8 @@
           <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
         </matcherpackages>
 
-        <!-- Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
+        <!-- Processor CONFIGURATION SAMPLE:
+             root is the first processor all mails enter -->
         <processor name="root">
           <!-- Checks that the MAIL FROM command was for a valid domain. 
           Important for spam prevention. -->
@@ -197,17 +220,20 @@
           </mailet>
           
           <!-- Check for delivery from a known spam server -->
-          <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor">
+          <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org"
+                  class="ToProcessor">
             <processor> spam </processor>
             <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
           </mailet>
 
-          <mailet match="InSpammerBlacklist=dialups.mail-abuse.org" class="ToProcessor">
+          <mailet match="InSpammerBlacklist=dialups.mail-abuse.org"
+                  class="ToProcessor">
             <processor> spam </processor>
             <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
           </mailet>
 
-          <mailet match="InSpammerBlacklist=relays.mail-abuse.org" class="ToProcessor">
+          <mailet match="InSpammerBlacklist=relays.mail-abuse.org"
+                  class="ToProcessor">
             <processor> spam </processor>
             <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
           </mailet>
@@ -217,7 +243,8 @@
           </mailet>
 
           <!-- Sample listserv wrapping a local avalon list of users. -->
-          <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
+          <mailet match="CommandForListserv=james@localhost"
+                  class="AvalonListservManager">
             <membersPath> file://var/users/list-james </membersPath>
           </mailet>
 
@@ -228,8 +255,8 @@
             <membersPath>file://var/users/list-james</membersPath>
           </mailet>
 
-          <!-- Sends remaining mails to the transport processor for either local 
-          or remote delivery -->
+          <!-- Sends remaining mails to the transport processor for either
+          local or remote delivery -->
           <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
           </mailet>
@@ -245,13 +272,14 @@
             <passThrough> true </passThrough>
           </mailet>
 
-          <!-- If you want to notify the sender their message was marked as spam, uncomment this
+          <!-- If you want to notify the sender their message was marked as
+          spam, uncomment this
           <mailet match="All" class="NotifySender">
           </mailet> 
           -->
 
-          <!-- If you want to notify the postmaster that a message was marked as 
-          spam, uncomment this
+          <!-- If you want to notify the postmaster that a message was marked
+          as spam, uncomment this
           <mailet match="All" class="NotifyPostmaster">
           </mailet> 
           -->
@@ -264,8 +292,8 @@
           <mailet match="RecipientIsLocal" class="LocalDelivery">
           </mailet>
 
-          <!-- If the host is handled by this server and it did not get locally delivered,
-          this is an invalid recipient -->
+          <!-- If the host is handled by this server and it did not get
+          locally delivered,  this is an invalid recipient -->
           <mailet match="HostIsLocal" class="ToProcessor">
             <processor>error</processor>
           </mailet>
@@ -275,8 +303,9 @@
     e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
 -->
 
-          <!-- This matcher-mailet pair can prevent relaying... if you change this, 
-          you risk making your mail server an open relay point for spammers .
+          <!-- This matcher-mailet pair can prevent relaying... if you change
+          this,  you risk making your mail server an open relay point for
+          spammers .
           NOTE 1: the order of matcher-mailets is important: it must come after 
           valid local recipients have been dealt with but before any attempt is 
           made to delivery the mail remotely.
@@ -285,8 +314,10 @@
             <processor> spam </processor>
           </mailet>
 
-          <!-- Attempt remote delivery using the specified repository for the spool,
-          using delay time to retry delivery and the maximum number of retries -->
+          <!-- Attempt remote delivery using the specified repository for the
+          spool,
+          using delay time to retry delivery and the maximum number of
+          retries -->
           <mailet match="All" class="RemoteDelivery">
             <outgoing> file://var/mail/outgoing/ </outgoing>
             <!-- <outgoing> town://mail-outgoing </outgoing>-->
@@ -295,11 +326,12 @@
           </mailet>
         </processor>
 
-        <!--  Processor CONFIGURATION SAMPLE: spam is where messages detected as relaying or
-        other problems will get sent.  You can either log these, bounce these, or just 
-        ignore them. -->
+        <!--  Processor CONFIGURATION SAMPLE: spam is where messages detected
+        as relaying or other problems will get sent.  You can either log these,
+        bounce these, or just ignore them. -->
         <processor name="spam">
-          <!-- If you wanted, you could just destroy messages, uncomment this matcher/mailet
+          <!-- If you wanted, you could just destroy messages, uncomment this
+          matcher/mailet
           <mailet match="All" class="Null">
           </mailet> 
           -->
@@ -310,8 +342,8 @@
           </mailet> 
           -->
 
-          <!-- If you want to notify the postmaster that a message was marked as 
-          spam, uncomment this
+          <!-- If you want to notify the postmaster that a message was marked
+          as  spam, uncomment this
           <mailet match="All" class="NotifyPostmaster">
           </mailet> 
           -->
@@ -328,11 +360,13 @@
 
   <!-- The High Level Storage block -->
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
-    <provide name="objectstorage" role="org.apache.cornerstone.services.store.Store"/> 
+    <provide name="objectstorage"
+             role="org.apache.cornerstone.services.store.Store"/> 
 
     <configuration>
       <repositories>
-        <repository class="org.apache.james.mailrepository.AvalonMailRepository">
+        <repository
+            class="org.apache.james.mailrepository.AvalonMailRepository">
           <protocols>
             <protocol>file</protocol>
           </protocols>
@@ -345,7 +379,8 @@
             <model>CACHE</model>
           </models>
         </repository>
-        <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
+        <repository
+            class="org.apache.james.mailrepository.AvalonSpoolRepository">
           <protocols>
             <protocol>file</protocol>
           </protocols>
@@ -359,7 +394,8 @@
           </models>
         </repository>
 
-        <repository class="org.apache.james.mailrepository.TownSpoolRepository">
+        <repository
+            class="org.apache.james.mailrepository.TownSpoolRepository">
           <protocols>
             <protocol>town</protocol>
           </protocols>
@@ -381,9 +417,11 @@
   <block class="org.apache.james.core.AvalonUsersStore" name="users-store" >
 
     <!-- Configure file based user store here, defaults should be fine -->
-    <provide name="objectstorage" role="org.apache.cornerstone.services.store.Store"/>
+    <provide name="objectstorage"
+             role="org.apache.cornerstone.services.store.Store"/>
 
-    <!-- We need to make template configurations for LDAP and RDBMS user stores -->
+    <!-- We need to make template configurations for LDAP and RDBMS user
+    stores -->
     <configuration>
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
@@ -406,8 +444,10 @@
     </configuration>
   </block>
       
+
   <!-- Configuration for Cornerstone Blocks only after here
-       Should not need changing, unless you want secure sockets (TLS) -->
+       NOTHING BELOW THIS SHOULD NEED CHANGING,
+       (unless you want secure sockets (TLS)) -->
 
   <!-- The Storage block -->
   <block class="org.apache.cornerstone.blocks.masterstore.RepositoryManager" 
@@ -452,7 +492,8 @@
   </block>
 
   <!-- The Socket Manager block -->
-  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager" name="sockets" >
+  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager"
+         name="sockets" >
     <configuration>
       <server-sockets>
         <factory name="plain"
