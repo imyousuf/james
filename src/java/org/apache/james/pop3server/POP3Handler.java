@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.collections.ListUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
