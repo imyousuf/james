@@ -14,8 +14,8 @@ package org.apache.james;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.5 $
- * Committed on $Date: 2002/08/18 07:32:38 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.6 $
+ * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $ 
  */
 public class Constants {
 
@@ -34,6 +34,12 @@ public class Constants {
      * serviced by this James instance in the context.
      */
     public static final String SERVER_NAMES = "SERVER_NAMES";
+
+    /**
+     * Context key used to store the Mailet/SMTP "hello name" for this
+     * James instance in the context.
+     */
+    public static final String HELLO_NAME = "HELLO_NAME";
 
     /**
      * Context key used to store the postmaster address for
