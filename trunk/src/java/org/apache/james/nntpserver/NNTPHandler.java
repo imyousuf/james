@@ -1160,10 +1160,6 @@ public class NNTPHandler
      */
     private void doMODEREADER(String argument) {
         // 7.2
-        if ( argument != null ) {
-            writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
-            return;
-        }
         writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
