@@ -58,12 +58,11 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
 import java.util.Collection;
 import java.util.StringTokenizer;
+
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
 
 /**
  * <P>Matches mails that are sent by an SMTP authenticated user present in a supplied list.</P>
@@ -73,7 +72,7 @@ import java.util.StringTokenizer;
  * &lt;mailet match=&quot;SMTPAuthUserIs=&lt;list-of-user-names&gt;&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.2 $ $Date: 2003/07/22 22:21:22 $
+ * @version CVS $Revision: 1.3 $ $Date: 2003/10/23 01:53:21 $
  * @since 2.2.0
  */
 public class SMTPAuthUserIs extends GenericMatcher {

@@ -58,18 +58,18 @@
  
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.Mail;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.Locale;
+
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
 
 
 /**
@@ -79,7 +79,7 @@ import java.util.Locale;
  * <P>File name masks may start with a wildcard '*'.</P>
  * <P>Multiple file name masks can be specified, e.g.: '*.scr,*.bat'.</P>
  *
- * @version CVS $Revision: 1.4 $ $Date: 2003/06/20 11:55:47 $
+ * @version CVS $Revision: 1.5 $ $Date: 2003/10/23 01:53:21 $
  * @since 2.2.0
  */
 public class AttachmentFileNameIs extends GenericMatcher {

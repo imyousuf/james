@@ -58,10 +58,9 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
 import java.util.Collection;
+
+import org.apache.mailet.Mail;
 
 /**
  * Checks the IP address of the sending server against a comma-
