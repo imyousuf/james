@@ -86,6 +86,10 @@ class NNTPArticleImpl implements NNTPArticle {
             reader = new BufferedReader(new FileReader(articleFile));
             String line = null;
             while ( ( line = reader.readLine() ) != null ) {
+                // add extra dot if line starts with '.'
+                // '.' indicates end of article.
+                if ( line.startsWith(".") )
+                    prt.print(".");
                 prt.println(line);
             }
         } catch(IOException ex) {
