@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.134 $  Committed on $Date: 2003/07/26 00:17:21 $ by: $Author: noel $
+ James build file $Revision: 1.135 $  Committed on $Date: 2003/08/24 13:51:12 $ by: $Author: mcconnell $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -48,6 +48,7 @@ Legal:
       <pathelement location="${dns.jar}"/>
       <pathelement location="${commons-net.jar}"/>
       <pathelement location="${commons-collections.jar}"/>
+      <pathelement location="${commons-dbcp.jar}"/>
       <pathelement location="${jakarta-oro.jar}"/>
       <pathelement location="${avalon-framework.jar}"/>
       <pathelement location="${excalibur-threadcontext.jar}"/>
@@ -56,12 +57,18 @@ Legal:
       <pathelement location="${excalibur-thread.jar}"/>
       <pathelement location="${excalibur-datasource.jar}"/>
       <pathelement location="${excalibur-io.jar}"/>
-      <pathelement location="${cornerstone-threads.jar}"/>
-      <pathelement location="${cornerstone-connection.jar}"/>
-      <pathelement location="${cornerstone-store.jar}"/>
-      <pathelement location="${cornerstone-scheduler.jar}"/>
-      <pathelement location="${cornerstone-sockets.jar}"/>
-      <pathelement location="${cornerstone-datasources.jar}"/>
+      <pathelement location="${cornerstone-threads-api.jar}"/>
+      <pathelement location="${cornerstone-threads-impl.jar}"/>
+      <pathelement location="${cornerstone-connection-api.jar}"/>
+      <pathelement location="${cornerstone-connection-impl.jar}"/>
+      <pathelement location="${cornerstone-store-api.jar}"/>
+      <pathelement location="${cornerstone-store-impl.jar}"/>
+      <pathelement location="${cornerstone-scheduler-api.jar}"/>
+      <pathelement location="${cornerstone-scheduler-impl.jar}"/>
+      <pathelement location="${cornerstone-sockets-api.jar}"/>
+      <pathelement location="${cornerstone-sockets-impl.jar}"/>
+      <pathelement location="${cornerstone-datasources-api.jar}"/>
+      <pathelement location="${cornerstone-datasources-impl.jar}"/>
       <pathelement location="${javax-mail.jar}"/>
       <pathelement location="${javax-activation.jar}"/>
       <pathelement path="${java.class.path}" />
@@ -385,14 +392,14 @@ Legal:
       <echo message="Making Mailet API Jar (mailet-api-${mailet-api-version}.jar)"/>
       <jar jarfile="${build.lib}/mailet-api-${mailet-api-version}.jar" 
                basedir="${build.classes}" 
-               includes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User"/>
+               includes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
 
       <!-- Make mailet implementation jar-->
       <echo message="Making Mailet Jar (mailet-${mailet-version}.jar)"/>
       <jar jarfile="${build.lib}/mailet-${mailet-version}.jar" 
                basedir="${build.classes}" 
                includes="org/apache/mailet/**"
-               excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User"/>
+               excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
 
       <!-- Make james jar-->
       <echo message="Making James Jar (james-${version}.jar)"/>
@@ -433,15 +440,21 @@ Legal:
           <include name="commons-net-1.0.0-dev.jar"/>
         </lib>
         <lib dir="lib/candidates">
-          <!--<include name="excalibur-thread-1.1.jar"/>-->
+          <include name="excalibur-thread-1.1.1.jar"/> <!-- check -->
           <include name="excalibur-pool-1.2.jar"/>
           <include name="commons-collections-2.1.jar"/>
-          <include name="cornerstone-threads-1.0.jar"/>
-          <include name="cornerstone-connection-1.0.jar"/>
-          <include name="cornerstone-store-1.0.jar"/>
-          <include name="cornerstone-scheduler-1.0.jar"/>
-          <include name="cornerstone-sockets-1.0.jar"/>
-          <include name="cornerstone-datasources-1.0.jar"/>
+          <include name="cornerstone-threads-api-1.0.jar"/>
+          <include name="cornerstone-threads-impl-1.0.jar"/>
+          <include name="cornerstone-connection-api-1.0.jar"/>
+          <include name="cornerstone-connection-impl-1.0.jar"/>
+          <include name="cornerstone-store-api-1.0.jar"/>
+          <include name="cornerstone-store-impl-1.0.jar"/>
+          <include name="cornerstone-scheduler-api-1.0.jar"/>
+          <include name="cornerstone-scheduler-impl-1.0.jar"/>
+          <include name="cornerstone-sockets-api-1.0.jar"/>
+          <include name="cornerstone-sockets-impl-1.0.jar"/>
+          <include name="cornerstone-datasources-api-1.0.jar"/>
+          <include name="cornerstone-datasources-impl-1.0.jar"/>
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
