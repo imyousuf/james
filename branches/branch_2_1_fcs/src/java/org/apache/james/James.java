@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.8 $
+ * @version This is $Revision: 1.35.4.9 $
 
  */
 public class James
@@ -419,11 +419,13 @@ public class James
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
         Collection recipients = new HashSet();
         Address addresses[] = message.getAllRecipients();
-        for (int i = 0; i < addresses.length; i++) {
-            // Javamail treats the "newsgroups:" header field as a
-            // recipient, so we want to filter those out.
-            if ( addresses[i] instanceof InternetAddress ) {
-                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+        if (addresses != null) {
+            for (int i = 0; i < addresses.length; i++) {
+                // Javamail treats the "newsgroups:" header field as a
+                // recipient, so we want to filter those out.
+                if ( addresses[i] instanceof InternetAddress ) {
+                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
+                }
             }
         }
         sendMail(sender, recipients, message);
@@ -706,11 +708,13 @@ public class James
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
-        for (int i = 0; i < addresses.length; i++) {
-            // Javamail treats the "newsgroups:" header field as a
-            // recipient, so we want to filter those out.
-            if ( addresses[i] instanceof InternetAddress ) {
-                recipients.add(new MailAddress((InternetAddress)addresses[i]));
+        if (addresses != null) {
+            for (int i = 0; i < addresses.length; i++) {
+                // Javamail treats the "newsgroups:" header field as a
+                // recipient, so we want to filter those out.
+                if ( addresses[i] instanceof InternetAddress ) {
+                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
+                }
             }
         }
         //Change the sender...
