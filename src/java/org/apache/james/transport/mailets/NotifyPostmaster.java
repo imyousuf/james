@@ -140,27 +140,28 @@ public class NotifyPostmaster extends GenericMailet {
         while (rcptTo.hasNext()) {
             out.println("           " + rcptTo.next());
         }
-        Address[] rcpts = message.getFrom();
-        if (rcpts != null) {
+        String[] addresses = null;
+        addresses = message.getHeader(RFC2822Headers.FROM);
+        if (addresses != null) {
             out.print("  From: ");
-            for (int i = 0; i < rcpts.length; i++) {
-                out.print(rcpts[i] + " ");
+            for (int i = 0; i < addresses.length; i++) {
+                out.print(addresses[i] + " ");
             }
             out.println();
         }
-        rcpts = message.getRecipients(Message.RecipientType.TO);
-        if (rcpts != null) {
+        addresses = message.getHeader(RFC2822Headers.TO);
+        if (addresses != null) {
             out.print("  To: ");
-            for (int i = 0; i < rcpts.length; i++) {
-                out.print(rcpts[i] + " ");
+            for (int i = 0; i < addresses.length; i++) {
+                out.print(addresses[i] + " ");
             }
             out.println();
         }
-        rcpts = message.getRecipients(Message.RecipientType.CC);
-        if (rcpts != null) {
+        addresses = message.getHeader(RFC2822Headers.CC);
+        if (addresses != null) {
             out.print("  CC: ");
-            for (int i = 0; i < rcpts.length; i++) {
-                out.print(rcpts[i] + " ");
+            for (int i = 0; i < addresses.length; i++) {
+                out.print(addresses[i] + " ");
             }
             out.println();
         }
@@ -204,14 +205,14 @@ public class NotifyPostmaster extends GenericMailet {
         recipients.add(getMailetContext().getPostmaster());
 
         //Set additional headers
-        if (reply.getHeader(RFC2822Headers.DATE)==null){
+        if (reply.getHeader(RFC2822Headers.DATE)==null) {
             reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
         String subject = message.getSubject();
         if (subject == null) {
             subject = "";
         }
-        if (subject.indexOf("Re:") == 0){
+        if (subject.indexOf("Re:") == 0) {
             reply.setSubject(subject);
         } else {
             reply.setSubject("Re:" + subject);
