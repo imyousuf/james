@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.14 $
-    Committed on $Date: 2001/09/27 21:11:40 $ by: $Author: serge $
+    This is $Revision: 1.15 $
+    Committed on $Date: 2001/09/28 20:39:51 $ by: $Author: danny $
 -->
 <config>
 
@@ -459,7 +459,7 @@
             <type>MAIL</type>
           </types>
           <config>
-            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <sqlFile>file://conf/sqlResources.xml</sqlFile>
           </config>
         </repository>
         <repository
@@ -471,7 +471,7 @@
             <type>SPOOL</type>
           </types>
           <config>
-            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <sqlFile>file://conf/sqlResources.xml</sqlFile>
           </config>
         </repository>
         <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
@@ -484,7 +484,7 @@
             <type>MAIL</type>
           </types>
           <config>
-            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <sqlFile>file://conf/sqlResources.xml</sqlFile>
             <filestore>file://var/dbmail</filestore>
           </config>
         </repository>
@@ -497,7 +497,7 @@
             <type>SPOOL</type>
           </types>
           <config>
-            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <sqlFile>file://conf/sqlResources.xml</sqlFile>
             <filestore>file://var/dbmail</filestore>
           </config>
         </repository>
@@ -568,14 +568,14 @@
       <!--       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.JamesUsersJdbcRepository"
                   destinationURL="db://maildb/users">
-          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
       -->
       <!-- The list used by the default ListServ mailet -->
       <!--      <repository name="list-james"
                   class="org.apache.james.userrepository.ListUsersJdbcRepository"
                   destinationURL="db://maildb/lists/list-james">
-          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
       -->
 
@@ -585,7 +585,7 @@
       <!--     <repository name="list-test"
                   class="org.apache.james.userrepository.ListUsersJdbcRepository"
                   destinationURL="db://maildb/lists">
-          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
       -->
       <!-- An example UserRepository for DefaultUser implementations. -->
@@ -593,7 +593,7 @@
       <!--      <repository name="default-users"
                   class="org.apache.james.userrepository.DefaultUsersJdbcRepository"
                   destinationURL="db://maildb/DefaultUsers">
-          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
       -->
   </users-store>
