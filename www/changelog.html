@@ -62,13 +62,13 @@
 <a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
+<a href="./design_objectives.html">Design objectives</a>
+</li>
+<li>
 <a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
-<a href="./mailet/index.html">Mailet API</a>
-</li>
-<li>
-<a href="./james_and_sendmail.html">James and sendmail</a>
+<a href="./mailet/index.html">Mailet Javadocs</a>
 </li>
 <li>
 <a href="./rfclist.html">Useful RFCs</a>
@@ -111,7 +111,7 @@
 </p>
 <ul>
 <li>
-<a href="http://www.terra-intl.com/jakarta/james/">Japanese (web)</a>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
 </li>
 </ul>
 <p>
@@ -122,10 +122,10 @@
 <a href="http://jakarta.apache.org/index.html">Jakarta</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/ant/index.html">Ant</a>
+<a href="http://ant.apache.org/index.html">Ant</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/avalon/index.html">Avalon</a>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
 </li>
 </ul>
 <p>
@@ -175,7 +175,7 @@
 </table>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
 <tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Version%202.1.3"><strong>Version 2.1.3</strong></a></font></td>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Version%202.2.0"><strong>Version 2.2.0</strong></a></font></td>
 </tr>
 <tr>
 <td>
@@ -192,6 +192,32 @@
 <li>[SS4] (code) return an unmodifiable Collection from findMXRecords()</li>
 
 <li>[SS4] (code) Added some more logging to DNS service</li>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Version%202.1.3"><strong>Version 2.1.3</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Expected release March 2003</p>
+
+<li>[NjB] (code) Fixed stream handling in MimeMessageWrapper to address a JavaMail issue introduced in v2.1.2</li>
+
+<li>[NjB] (code) Fixes to AddFooter for text/html parts</li>
+
+<li>[MI,PG,NjB] (code) Fixes to AddFooter for MimeMultipart messages</li>
+
+<li>[NjB] (code) Changed ExtraDotOutputStream to enforce RFC 2821 #2.3.7</li>
+
+<li>[NjB] (code) Corrected allowable characters for localpart of address</li>
+
+<li>[NjB] (update) Removed generated files from source distributions</li>
 
 </blockquote>
 </td>
@@ -227,33 +253,35 @@
 
 <p>Released 11 February 2003</p>
 
-<li> [KL] (code) SMTP AUTH compatibility change</li>
+<li>[KL] (code) SMTP AUTH compatibility change</li>
 
-<li> [NjB] (code) Changed MimeMessageWrapper to use the raw stream when possible</li>
+<li>[NjB] (code) Changed MimeMessageWrapper to use the raw stream when possible</li>
 
-<li> [NjB] (code) Fixed synchronization bug in AvalonMailRepository</li>
+<li>[NjB] (code) Fixed synchronization bug in AvalonMailRepository</li>
 
-<li> [NjB] (update) Updated Avalon LogKit</li>
+<li>[NjB] (update) Updated Avalon LogKit</li>
 
-<li> [NjB] (code) Infinite loops are interruptable</li>
+<li>[NjB] (code) Infinite loops are interruptable</li>
 
-<li> [HB, NjB] (code) Fixed NNTP crossposting</li>
+<li>[HB, NjB] (code) Fixed NNTP crossposting</li>
 
-<li> [NjB] (code) Fixed synchronizaion bug in file repository</li>
+<li>[NjB] (code) Fixed synchronizaion bug in file repository</li>
 
-<li> [NjB] (code) Enabled log rotation</li>
+<li>[NjB] (code) Enabled log rotation</li>
 
-<li> [NjB] (doc) Fixed broken links</li>
+<li>[NjB] (doc) Fixed broken links</li>
 
-<li> [DA, NjB]  (update) Updated JavaMail and JAF</li>
+<li>[DA, NjB]  (update) Updated JavaMail and JAF</li>
 
-<li> [NjB] (code) Updated sqlResources.xml for PostgreSQL with patch from simon </li>
+<li>[NjB] (code) Updated sqlResources.xml for PostgreSQL with patch from simon </li>
 
-<li> [NjB] (code) Reorder primary key for JDBCMailRepository? to optimize queries using just the repository name.</li>
+<li>[NjB] (code) Reorder primary key for JDBCMailRepository? to optimize queries using just the repository name.</li>
 
 <li>[PG,HB]  (code) NNTP dot stuffing fix</li>
 
 <li>[PG]  (code) NNTP OVER/XOVER fix</li>
+
+<li>[NjB] (code) Experimental RegexMatcher classes</li>
 
 </blockquote>
 </td>
