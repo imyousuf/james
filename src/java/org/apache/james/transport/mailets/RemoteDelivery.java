@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.15 $
- * Committed on $Date: 2002/04/17 04:21:03 $ by: $Author: serge $
+ * This is $Revision: 1.16 $
+ * Committed on $Date: 2002/04/17 14:07:45 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -153,7 +153,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 targetServers = getMailetContext().getMailServers(host);
                 if (targetServers.size() == 0) {
                     log("No mail server found for: " + host);
-                    return failMessage(mail, new MessagingException("No route found to " + host), true);
+                    return failMessage(mail, new MessagingException("There are no DNS entries for the hostname " + host + ".  I cannot determine where to send this message."), true);
                 }
             } else {
                 targetServers = new Vector();
@@ -179,10 +179,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             props.put("mail.smtp.user", mail.getSender().toString());
                             props.put("mail.smtp.from", mail.getSender().toString());
                         }
-                        Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
-                        if (servernames.size() > 0) {
-                            props.put("mail.smtp.localhost", (String) servernames.iterator().next());
-                        }
 
                         //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
@@ -196,8 +192,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         transport.close();
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return true;
-                    } catch (SendFailedException sfe) {
-                        throw sfe;
                     } catch (MessagingException me) {
                         //MessagingException are horribly difficult to figure out what actually happened.
                         log("Exception delivering message (" + mail.getName() + ") - " + me.getMessage());
@@ -209,14 +203,22 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             //If it's an IO exception with no nested exception, it's probably
                             //  some socket or weird IO related problem.
                             permanent = false;
-                        } else if (me.getMessage().startsWith("Could not connect to SMTP host")) {
-                            //This is not a permanent exception because
-                            permanent = false;
+                        }
+                        if (me instanceof SendFailedException) {
+                            SendFailedException sfe = (SendFailedException) me;
+                            //This means there was a partial delivery to certain recipients, so
+                            //  whatever caused this exception must have been a permanent error no
+                            //  matter what type of exception this was.
+                            if (sfe.getValidSentAddresses() != null && sfe.getValidSentAddresses().length > 0) {
+                                permanent = true;
+                            }
                         }
                         //Now take action based on whether this was a permanent or temporary action
                         if (permanent) {
                             //If it's permanent, fail immediately.
-                            return failMessage(mail, me, true);
+                            //Note that this has changed as we have all our logic in the outer block
+                            //  for what should happen when we have a delivery failure.
+                            throw me;
                         } else {
                             //Record what the last error is and continue the loop in case
                             //  there are other servers we could try.
@@ -405,6 +407,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.ehlo", "false");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
+        //Set the hostname we'll use as this server
+        Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
+        if (servernames.size() > 0) {
+            props.put("mail.smtp.localhost", (String) servernames.iterator().next());
+        }
 
         //If there's a gateway port, we can just set it here
         if (gatewayPort != null) {
