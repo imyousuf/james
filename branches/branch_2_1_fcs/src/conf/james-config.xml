@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.20 $ Committed on $Date: 2003/11/16 21:47:24 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.21 $ Committed on $Date: 2004/03/21 06:42:48 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -160,6 +160,25 @@
 
          <!-- Important check to avoid looping -->
          <mailet match="RelayLimit=30" class="Null"/>
+
+         <!--
+         <mailet match="All" class="XMLVirtualUserTable">
+            <!- 1:1 mapping ->
+            <mapping>morgoth@middle-earth=sauron@mordor</mapping>
+            <!- 1:n mapping ->
+            <mapping>istari@middle-earth=saruman@isengard;radigast;gandalf</mapping>
+            <!- DSN mapping ->
+            <mapping>boromir@osgilliath=error:550 Requested action not taken: no such user here</mapping>
+            <!- regex based mapping ->
+            <mapping>*@osgilliath=regex:(.*)@osgilliath:${1}@minas-tirith</mapping>
+            <!- both standard and regex mapping ->
+            <mapping>ring@*=onering@mordor;regex:ring@(.*):ring@${1}</mapping>
+            <!- conditional regex mapping example ->
+            <mapping>*@listserver=regex:(.*)-on@listserver:${1}-subscribe@listserver;
+                                  regex:(.*)-off@listserver:${1}-unsubscribe@listserver
+            </mapping>
+         </mailet>
+         -->
 
          <!-- White List:
               If you use block lists, you will probably want to check
