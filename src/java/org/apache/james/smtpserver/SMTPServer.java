@@ -10,9 +10,14 @@ package org.apache.james.smtpserver;
 import org.apache.avalon.cornerstone.services.connection.AbstractService;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.component.Component;
+
+import org.apache.mailet.MailetContext;
+import org.apache.james.Constants;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,13 +32,38 @@ import java.net.UnknownHostException;
  * @author  Matthew Pangaro <mattp@lokitech.com>
  * @author  <a href="mailto:donaldp@apache.org">Peter Donald</a>
  */
+
+/*
+ * IMPORTANT: SMTPServer extends AbstractService.  If you implement ANY
+ * lifecycle methods, you MUST call super.<method> as well.
+ */
+
 public class SMTPServer
     extends AbstractService implements Component {
+
+    /**
+     * The mailet context - we access it here to set the hello name for the Mailet API
+     */
+    MailetContext mailetcontext;
 
     protected ConnectionHandlerFactory createFactory()
     {
         return new DefaultHandlerFactory( SMTPHandler.class );
     }
+
+     /**
+      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+      * The instance uses the specified <code>ComponentManager</code> to 
+      * acquire the components it needs for execution.
+      *
+      * @param componentManager The <code>ComponentManager</code> which this
+      *                <code>Composable</code> uses.
+      * @throws ComponentException if an error occurs
+      */
+     public void compose(final ComponentManager componentManager) throws ComponentException {
+         super.compose(componentManager);
+         mailetcontext = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
+     }
 
     /**
      * Pass the <code>Configuration</code> to the instance.
@@ -64,7 +94,11 @@ public class SMTPServer
             m_serverSocketType = "ssl";
         }
 
-       super.configure( configuration.getChild( "handler" ) );
+        super.configure( configuration.getChild( "handler" ) );
+
+        // make our "helloName" available through the MailetContext
+        String helloName = SMTPHandler.configHelloName(configuration.getChild( "handler" ));
+        mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
     }
 
     /**

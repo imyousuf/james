@@ -36,6 +36,30 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
     protected String helloName;
 
     /**
+     * Get the hello name for this server
+     *
+     * @param configuration a configuration object containing server name configuration info
+     * @return the hello name for this server
+     */
+    public static String configHelloName(final Configuration configuration)
+        throws ConfigurationException {
+        String hostName = null;
+
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch  (UnknownHostException ue) {
+            // Default to localhost if we can't get the local host name.
+            hostName = "localhost";
+        }
+
+        Configuration helloConf = configuration.getChild("helloName");
+        boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
+
+        return autodetect ? hostName : helloConf.getValue("localhost");
+    }
+
+
+    /**
      * Pass the <code>Configuration</code> to the instance.
      *
      * @param configuration the class configurations.
@@ -45,19 +69,7 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
         throws ConfigurationException {
 
         timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 1800000 );
-        String hostName = null;
-        try {
-            hostName = InetAddress.getLocalHost().getHostName();
-        } catch  (UnknownHostException ue) {
-            hostName = "localhost";
-        }
-
-        Configuration helloConf = configuration.getChild("helloName");
-        boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
-        if (autodetect)
-            helloName = hostName;
-        else
-            helloName = helloConf.getValue("localhost");
+        helloName = configHelloName(configuration);
         getLogger().info("Hello Name is: " + helloName);
     }
 

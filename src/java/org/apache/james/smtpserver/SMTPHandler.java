@@ -10,7 +10,6 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
@@ -26,7 +25,6 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.*;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetContext;
 import javax.mail.MessagingException;
 import java.io.*;
 import java.net.Socket;
@@ -43,12 +41,12 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * This is $Revision: 1.24 $
- * Committed on $Date: 2002/09/11 07:30:41 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.25 $
+ * Committed on $Date: 2002/09/14 07:25:00 $ by: $Author: pgoldstein $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Initializable, Target {
+    implements ConnectionHandler, Composable, Configurable, Target {
 
     /**
      * SMTP Server identification string used in SMTP headers
@@ -127,11 +125,6 @@ public class SMTPHandler
 
     private MailServer mailServer;      // The internal mail server service
 
-    /**
-     * The system-wide component manager
-     */
-    private ComponentManager componentManager;
-
     private HashMap state = new HashMap();  // The hash map that holds variables for the SMTP
                                             // session in progress.
 
@@ -152,7 +145,6 @@ public class SMTPHandler
         UsersStore usersStore =
             (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
         users = usersStore.getRepository("LocalUsers");
-        this.componentManager = componentManager;
      }
 
     /**
@@ -173,19 +165,6 @@ public class SMTPHandler
         }
         //how many bytes to read before updating the timer that data is being transfered
         lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
-    }
-
-    /**
-     * Initialize the component. In the SMTPHandler this looks up the mailet
-     * context and sets the appropriate value for the hello name.
-     *
-     * @throws Exception if an error occurs
-     */
-    public void initialize() throws Exception {
-        // make our "helloName" available through the MailetContext
-        MailetContext mailetcontext
-                = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
-        mailetcontext.setAttribute(Constants.HELLO_NAME, this.helloName);
     }
 
     /**
@@ -663,33 +642,72 @@ public class SMTPHandler
         } else {
             String sender = argument1.trim();
             int lastChar = sender.lastIndexOf('>');
-            if (sender.length() > lastChar + 1) {
-                //handle a SIZE=### command if it's sent
-                String cmdString = sender.substring(lastChar + 1).trim();
-                if (cmdString.toUpperCase(Locale.US).startsWith("SIZE")) {
-                    try {
-                        int size =
-                            Integer.parseInt(cmdString.substring(cmdString.indexOf('=') + 1));
-                        if (maxmessagesize > 0 && size > maxmessagesize) {
+            // Check to see if any options are present and, if so, whether they are correctly formatted
+            // (separated from the closing angle bracket by a ' ').
+            if ((lastChar > 0) && (sender.length() > lastChar + 2) && (sender.charAt(lastChar + 1) == ' ')) {
+                String mailOptionString = sender.substring(lastChar + 2);
 
+                // Remove the options from the sender
+                sender = sender.substring(0, lastChar + 1);
+
+                StringTokenizer optionTokenizer = new StringTokenizer(mailOptionString, " ");
+                while (optionTokenizer.hasMoreElements()) {
+                    String mailOption = optionTokenizer.nextToken();
+                    int equalIndex = mailOptionString.indexOf('=');
+                    String mailOptionName = mailOption;
+                    String mailOptionValue = "";
+                    if (equalIndex > 0) {
+                        mailOptionName = mailOption.substring(0, (equalIndex - 1)).toUpperCase(Locale.US);
+                        mailOptionValue = mailOption.substring(equalIndex + 1);
+                    }
+
+                    // Handle the SIZE extension keyword
+
+                    // TODO: Encapsulate option logic in a method
+                    if (mailOptionName.startsWith("SIZE")) {
+                        int size = 0;
+                        try {
+                            size = Integer.parseInt(mailOptionValue);
+                        } catch (NumberFormatException pe) {
+                            // This is a malformed option value.  We ignore it
+                            // and proceed to the next option.
+                            continue;
+                        }
+                        if (getLogger().isDebugEnabled()) {
+                            StringBuffer debugBuffer = 
+                                new StringBuffer(128)
+                                    .append("MAIL command option SIZE received with value ")
+                                    .append(size)
+                                    .append(".");
+                            getLogger().debug(debugBuffer.toString());
+                        }
+                        if ((maxmessagesize > 0) && (size > maxmessagesize)) {
+                            // Let the client know that the size limit has been hit.
                             responseString = "552 Message size exceeds fixed maximum message size";
-                            //let the client know that the size limit has been hit.
                             out.println(responseString);
-
+                            out.flush();
+    
                             logResponseString(responseString);
                             getLogger().error(responseString);
                             return;
                         } else {
-                            //put the message size in the message state so it can be used
-                            //  later to restrict messages for user quotas, etc.
+                            // put the message size in the message state so it can be used
+                            // later to restrict messages for user quotas, etc.
                             state.put(MESG_SIZE, new Integer(size));
                         }
-                    } catch (Exception e) {
-                        // TODO: Comment what specific exceptions this is handling
+                    } else {
+                        // Unexpected option attached to the Mail command
+                        if (getLogger().isDebugEnabled()) {
+                            StringBuffer debugBuffer = 
+                                new StringBuffer(128)
+                                    .append("MAIL command had unrecognized/unexpected option ")
+                                    .append(mailOptionName)
+                                    .append(" with value ")
+                                    .append(mailOptionValue);
+                            getLogger().debug(debugBuffer.toString());
+                        }
                     }
                 }
-                //cut off the extra bit in the sender string
-                sender = sender.substring(0, lastChar + 1);
             }
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
                 responseString = "501 Syntax error in parameters or arguments";
@@ -768,9 +786,41 @@ public class SMTPHandler
                 rcptColl = new Vector();
             }
             String recipient = argument1.trim();
+            int lastChar = recipient.lastIndexOf('>');
+            // Check to see if any options are present and, if so, whether they are correctly formatted
+            // (separated from the closing angle bracket by a ' ').
+            if ((lastChar > 0) && (recipient.length() > lastChar + 2) && (recipient.charAt(lastChar + 1) == ' ')) {
+                String rcptOptionString = recipient.substring(lastChar + 2);
+
+                // Remove the options from the recipient
+                recipient = recipient.substring(0, lastChar + 1);
+
+                StringTokenizer optionTokenizer = new StringTokenizer(rcptOptionString, " ");
+                while (optionTokenizer.hasMoreElements()) {
+                    String rcptOption = optionTokenizer.nextToken();
+                    int equalIndex = rcptOptionString.indexOf('=');
+                    String rcptOptionName = rcptOption;
+                    String rcptOptionValue = "";
+                    if (equalIndex > 0) {
+                        rcptOptionName = rcptOption.substring(0, (equalIndex - 1)).toUpperCase(Locale.US);
+                        rcptOptionValue = rcptOption.substring(equalIndex + 1);
+                    }
+                    // Unexpected option attached to the RCPT command
+                    if (getLogger().isDebugEnabled()) {
+                        StringBuffer debugBuffer = 
+                            new StringBuffer(128)
+                                .append("RCPT command had unrecognized/unexpected option ")
+                                .append(rcptOptionName)
+                                .append(" with value ")
+                                .append(rcptOptionValue);
+                        getLogger().debug(debugBuffer.toString());
+                    }
+                }
+            }
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                 responseString = "501 Syntax error in parameters or arguments";
                 out.println(responseString);
+                out.flush();
                 logResponseString(responseString);
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer = 
@@ -950,15 +1000,15 @@ public class SMTPHandler
                 MailHeaders headers = new MailHeaders(msgIn);
                 // if headers do not contains minimum REQUIRED headers fields,
                 // add them
-                if (!headers.isSet("Date")) {
-                    headers.setHeader("Date", rfc822DateFormat.format(new Date()));
+                if (!headers.isSet(RFC2822Headers.DATE)) {
+                    headers.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
                 }
-                if (!headers.isSet("From") && state.get(SENDER) != null) {
-                    headers.setHeader("From", state.get(SENDER).toString());
+                if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
+                    headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
                 }
                 //Determine the Return-Path
-                String returnPath = headers.getHeader("Return-Path", "\r\n");
-                headers.removeHeader("Return-Path");
+                String returnPath = headers.getHeader(RFC2822Headers.RETURN_PATH, "\r\n");
+                headers.removeHeader(RFC2822Headers.RETURN_PATH);
                 if (returnPath == null) {
                     if (state.get(SENDER) == null) {
                         returnPath = "<>";
@@ -976,11 +1026,11 @@ public class SMTPHandler
                 Enumeration headerLines = headers.getAllHeaderLines();
                 headers = new MailHeaders();
                 //Put the Return-Path first
-                headers.addHeaderLine("Return-Path" + ": " + returnPath);
+                headers.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + returnPath);
                 //Put our Received header next
                 StringBuffer headerLineBuffer = 
                     new StringBuffer(128)
-                            .append("Received" + ": from ")
+                            .append(RFC2822Headers.RECEIVED + ": from ")
                             .append(state.get(REMOTE_NAME))
                             .append(" ([")
                             .append(state.get(REMOTE_IP))
