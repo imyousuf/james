@@ -14,6 +14,8 @@ import java.util.*;
 import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.arch.*;
+import javax.mail.*;
+import javax.mail.internet.*;
 
 /**
  * This handles an individual incoming message.  It handles regular SMTP
@@ -47,10 +49,9 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
     private ComponentManager comp;
     private Configuration conf;
-    private MessageSpool spool;    
     private Logger logger;
-    private IdProvider idp;
     private TimeServer timeServer;
+    private MailServer mailServer;
 
     private String servername;
     private String postmaster;
@@ -68,8 +69,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        spool = (MessageSpool) comp.getComponent("spool");
-        idp = (IdProvider) comp.getComponent("idprovider");
+        mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         state = new Hashtable();
 
@@ -159,8 +159,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
         }
-
-        logger.log("Command=" + command + " argument=" + argument + " argument1=" + argument1, "SMTPServer", logger.DEBUG);
             // HELO Command
         if (command.equalsIgnoreCase("HELO")) {
             if (state.containsKey(CURRENT_HELO_MODE)) {
@@ -234,14 +232,10 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 return true;
             } else {
                 out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
-                String messageId = idp.getMessageId();
-                OutputStream mout = spool.addMessage(messageId, (String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR));
-                for (SMTPInputStream min = new SMTPInputStream(socketIn); !min.hasReachedEnd(); mout.write(min.read()));
-                mout.flush();
-                mout.close();
-                spool.free(messageId);
+                MimeMessage msg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), new SMTPInputStream(socketIn));
+                mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), msg);
                 resetState();
-                out.println("250 Message received: " + messageId);
+                out.println("250 Message received");
                 return true;
             }
         } else if (command.equalsIgnoreCase("QUIT")) {

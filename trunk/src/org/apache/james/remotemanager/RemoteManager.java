@@ -24,7 +24,7 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteManager implements SocketHandler, Block, TimeServer.Bell {
+public class RemoteManager implements Block, SocketServer.SocketHandler, TimeServer.Bell {
 
     private ComponentManager comp;
     private Configuration conf;
@@ -56,6 +56,8 @@ public class RemoteManager implements SocketHandler, Block, TimeServer.Bell {
         logger.log("RemoteManager init...", "RemoteManager", logger.INFO);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
+        SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
+        socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, conf.getConfiguration("port", "4554").getValueAsInt(), this);
         admaccount = new Hashtable();
         for (Enumeration e = conf.getConfigurations("AdministratorAccounts.Account"); e.hasMoreElements();) {
             Configuration c = (Configuration) e.nextElement();

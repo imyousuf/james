@@ -100,7 +100,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
             state = AUTHENTICATION_READY;
             user = "unknown";
-            out.println("+OK" + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
+            out.println("+OK " + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
             while (parseCommand(in.readLine())) {
                 timeServer.resetAlarm(this.toString());
             }
