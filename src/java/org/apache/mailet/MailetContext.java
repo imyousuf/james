@@ -260,7 +260,7 @@ public interface MailetContext {
      * found for domainName, the Iterator returned will be empty and the
      * first call to hasNext() will return false.
      *
-     * @since Mailet API v3.0-unstable
+     * @since Mailet API v2.2.0a16-unstable
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
      */
