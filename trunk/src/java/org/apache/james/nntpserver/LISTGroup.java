@@ -7,8 +7,9 @@
  */
 package org.apache.james.nntpserver;
 
-import java.io.PrintWriter;
 import org.apache.james.nntpserver.repository.NNTPGroup;
+
+import java.io.PrintWriter;
 
 /**
  * formatted Group Information. 

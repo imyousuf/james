@@ -7,16 +7,9 @@
  */
 package org.apache.james.mailrepository;
 
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import org.apache.avalon.cornerstone.services.store.ObjectRepository;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
@@ -27,14 +20,14 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.cornerstone.services.store.ObjectRepository;
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
+
+import java.io.OutputStream;
+import java.util.*;
 
 /**
  * Implementation of a MailRepository on a FileSystem.

@@ -8,14 +8,8 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.AccessControlException;
 import org.apache.james.imapserver.*;
-
-import java.util.List;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 abstract class CommandTemplate 
         extends AbstractLogEnabled implements ImapCommand, ImapConstants

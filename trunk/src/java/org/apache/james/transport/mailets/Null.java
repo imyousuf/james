@@ -7,7 +7,8 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /**
  * Simpliest Mailet which destroy any incoming messages.

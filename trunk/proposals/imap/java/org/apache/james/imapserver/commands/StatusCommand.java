@@ -10,12 +10,12 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.AccessControlException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.MailboxException;
 import org.apache.james.imapserver.ImapSessionState;
+import org.apache.james.imapserver.MailboxException;
 
-import java.util.StringTokenizer;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 class StatusCommand extends AuthenticatedSelectedStateCommand
 {

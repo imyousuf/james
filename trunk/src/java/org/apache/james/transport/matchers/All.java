@@ -7,8 +7,10 @@
  */
 package org.apache.james.transport.matchers;
 
-import java.util.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+
+import java.util.Collection;
 
 /**
  * @version 1.0.0, 24/04/1999

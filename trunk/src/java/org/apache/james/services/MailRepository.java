@@ -7,8 +7,9 @@
  */
 package org.apache.james.services;
 
-import java.util.Iterator;
 import org.apache.james.core.MailImpl;
+
+import java.util.Iterator;
 
 /**
  * Interface for a Repository to store Mails.

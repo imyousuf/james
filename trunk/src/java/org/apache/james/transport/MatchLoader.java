@@ -7,14 +7,17 @@
  */
 package org.apache.james.transport;
 
-import java.util.*;
-import javax.mail.*;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.core.*;
-import org.apache.mailet.*;
+import org.apache.james.core.MatcherConfigImpl;
+import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
+
+import javax.mail.MessagingException;
+import java.util.Vector;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>

@@ -7,19 +7,18 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
-
 import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.james.Constants;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+import java.sql.*;
+import java.util.Collection;
+import java.util.Vector;
 
 /**
  * Rewrites recipient addresses based on a database table.  The connection

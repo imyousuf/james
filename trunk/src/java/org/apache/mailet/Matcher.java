@@ -7,7 +7,7 @@
  */
 package org.apache.mailet;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
  * This interface define the behaviour of the message "routing" inside

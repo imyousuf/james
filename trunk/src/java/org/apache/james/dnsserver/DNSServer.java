@@ -7,36 +7,17 @@
  */
 package org.apache.james.dnsserver;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Vector;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
-import org.apache.james.transport.Resources;
-import org.xbill.DNS.Cache;
-import org.xbill.DNS.Credibility;
-import org.xbill.DNS.DClass;
-import org.xbill.DNS.ExtendedResolver;
-import org.xbill.DNS.Header;
-import org.xbill.DNS.MXRecord;
-import org.xbill.DNS.Message;
-import org.xbill.DNS.Name;
-import org.xbill.DNS.RRset;
-import org.xbill.DNS.Rcode;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.Resolver;
-import org.xbill.DNS.SetResponse;
-import org.xbill.DNS.Type;
+import org.xbill.DNS.*;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * @version 1.0.0, 18/06/2000

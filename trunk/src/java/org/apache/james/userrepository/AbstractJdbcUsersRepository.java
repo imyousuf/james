@@ -7,22 +7,27 @@
  */
 package org.apache.james.userrepository;
 
-import org.apache.james.services.*;
-import org.apache.james.util.SqlResources;
-import org.apache.mailet.MailAddress;
-import org.apache.avalon.framework.*;
-import org.apache.avalon.framework.activity.*;
-import org.apache.avalon.framework.component.*;
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.context.*;
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.excalibur.datasource.*;
 import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.CascadingRuntimeException;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.phoenix.BlockContext;
+import org.apache.james.services.User;
+import org.apache.james.util.SqlResources;
 
+import java.io.File;
 import java.sql.*;
 import java.util.*;
-import java.io.File;
 
 /**
  * An abstract base class for creating UserRepository implementation

@@ -7,14 +7,14 @@
  */
 package org.apache.james.nntpserver;
 
-import java.net.InetAddress;
-import java.io.PrintStream;
-import java.net.UnknownHostException;
 import org.apache.avalon.cornerstone.services.connection.AbstractService;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * NNTP Server Protocol Handler

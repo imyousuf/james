@@ -7,9 +7,10 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.james.nntpserver.NNTPException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import org.apache.james.nntpserver.NNTPException;
 
 /**
  * reads and translates client data. After this translation, 

@@ -7,8 +7,9 @@
  */
 package org.apache.james.userrepository;
 
-import java.io.File;
-import java.util.Iterator;
+import org.apache.avalon.cornerstone.services.store.ObjectRepository;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.excalibur.concurrent.Lock;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
@@ -19,11 +20,11 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.cornerstone.services.store.ObjectRepository;
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.excalibur.concurrent.Lock;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
+
+import java.io.File;
+import java.util.Iterator;
 
 /**
  * Implementation of a Repository to store users on the File System.
@@ -38,8 +39,8 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/17 06:09:02 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
+ * $Revision: 1.5 $
  */
 public class UsersFileRepository
     extends AbstractLogEnabled

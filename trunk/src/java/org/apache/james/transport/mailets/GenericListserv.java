@@ -7,11 +7,17 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Vector;
 
 /**
  * An abstract implementation of a listserv.  The underlying implementation must define

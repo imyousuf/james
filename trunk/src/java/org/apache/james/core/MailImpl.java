@@ -7,12 +7,19 @@
  */
 package org.apache.james.core;
 
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
 import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
 
 /**
  * Wrap a MimeMessage adding routing informations (from SMTP) and same simple API.

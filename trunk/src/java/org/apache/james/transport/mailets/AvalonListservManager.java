@@ -7,16 +7,12 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.james.*;
+import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.transport.*;
-import org.apache.mailet.*;
+import org.apache.mailet.MailAddress;
 
 /**
  * Adds or removes an email address to a listserv.
@@ -27,8 +23,8 @@ import org.apache.mailet.*;
  * <br>&lt;/mailet&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.2 $
- * Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
+ * @version This is $Revision: 1.3 $
+ * Committed on $Date: 2002/01/18 02:48:38 $ by: $Author: darrell $ 
  */
 public class AvalonListservManager extends GenericListservManager {
 

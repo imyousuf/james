@@ -7,9 +7,13 @@
  */
 package org.apache.james.userrepository;
 
-import java.util.*;
-import org.apache.james.services.*;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A partial implementation of a Repository to store users.

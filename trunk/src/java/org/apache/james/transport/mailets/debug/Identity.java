@@ -7,7 +7,8 @@
  */
 package org.apache.james.transport.mailets.debug;
 
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /**
  * Opposite of Null Mailet. It let any incoming mail untouched. Used only for

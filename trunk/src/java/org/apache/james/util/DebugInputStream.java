@@ -7,7 +7,8 @@
  */
 package org.apache.james.util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DebugInputStream extends InputStream {
     InputStream in = null;

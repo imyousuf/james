@@ -7,9 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.internet.MimeMessage;
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -19,8 +17,13 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.james.util.Lock;
+
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 /**
  * Processes entries and sends to appropriate groups.

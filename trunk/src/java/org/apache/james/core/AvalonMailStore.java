@@ -7,12 +7,8 @@
  */
 package org.apache.james.core;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
@@ -25,11 +21,12 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.avalon.phoenix.Block;
+
+import java.util.HashMap;
 
 /**
  * Provides Registry of mail repositories. A mail repository is uniquely

@@ -7,9 +7,15 @@
  */
 package org.apache.james.testing;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Vector;
 
 /**
  * Creates numerous threads

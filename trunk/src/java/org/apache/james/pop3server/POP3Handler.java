@@ -7,44 +7,32 @@
  */
 package org.apache.james.pop3server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import javax.mail.MessagingException;
-import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.avalon.excalibur.collections.ListUtils;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.excalibur.collections.ListUtils;
+import org.apache.james.BaseConnectionHandler;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.BaseConnectionHandler;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.SchedulerNotifyOutputStream;
 import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import java.io.*;
+import java.net.Socket;
+import java.util.*;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>

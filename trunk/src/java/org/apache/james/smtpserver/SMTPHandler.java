@@ -7,33 +7,31 @@
  */
 package org.apache.james.smtpserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.james.*;
-import org.apache.james.core.*;
+import org.apache.james.BaseConnectionHandler;
+import org.apache.james.Constants;
+import org.apache.james.core.MailHeaders;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.*;
-import org.apache.mailet.*;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.MessagingException;
+import java.io.*;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.*;
 
 /**
  * This handles an individual incoming message.  It handles regular SMTP
@@ -44,8 +42,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.14 $
- * Committed on $Date: 2002/01/17 06:09:02 $ by: $Author: darrell $
+ * This is $Revision: 1.15 $
+ * Committed on $Date: 2002/01/18 02:48:37 $ by: $Author: darrell $
  */
 public class SMTPHandler
     extends BaseConnectionHandler

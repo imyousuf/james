@@ -9,11 +9,11 @@ package org.apache.james.util;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.text.ParseException;
 
 /**
  * A utility class to allow creation of RFC822 date strings from Dates 

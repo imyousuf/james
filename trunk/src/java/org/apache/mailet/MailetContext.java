@@ -7,9 +7,10 @@
  */
 package org.apache.mailet;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Defines a set of methods that a mailet or matcher uses to communicate

@@ -7,7 +7,7 @@
  */
 package org.apache.mailet;
 
-import java.util.*;
+import java.util.Iterator;
 
 /**
  * A mailet configuration object used by a mailet container used to pass information

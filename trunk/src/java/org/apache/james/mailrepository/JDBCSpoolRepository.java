@@ -7,34 +7,14 @@
  */
 package org.apache.james.mailrepository;
 
+import org.apache.james.services.SpoolRepository;
+import org.apache.mailet.Mail;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.StringTokenizer;
-import javax.mail.internet.MimeMessage;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.SpoolRepository;
-import org.apache.james.util.Lock;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 
 /**
  * Implementation of a SpoolRepository on a database.

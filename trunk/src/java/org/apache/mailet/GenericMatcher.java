@@ -7,8 +7,8 @@
  */
 package org.apache.mailet;
 
-import java.util.*;
-import javax.mail.*;
+import javax.mail.MessagingException;
+import java.util.Collection;
 
 /**
  * GenericMatcher implements the Matcher and MatcherConfig interfaces.

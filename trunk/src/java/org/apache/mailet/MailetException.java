@@ -7,7 +7,7 @@
  */
 package org.apache.mailet;
 
-import javax.mail.*;
+import javax.mail.MessagingException;
 
 /**
  * Defines a general exception a mailet can throw when it encounters difficulty.

@@ -8,11 +8,10 @@
 package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.imapserver.commands.ImapCommand;
+import org.apache.james.services.UsersRepository;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;

@@ -7,39 +7,41 @@
  */
 package org.apache.james;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.component.*;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.excalibur.thread.ThreadPool;
-import org.apache.james.core.*;
-import org.apache.james.services.*;
-import org.apache.james.transport.*;
-import org.apache.james.userrepository.DefaultJamesUser;
-import org.apache.james.util.RFC822DateFormat;
-import org.apache.log.Priority;
-import org.apache.mailet.*;
 import org.apache.avalon.phoenix.Block;
 import org.apache.avalon.phoenix.BlockContext;
+import org.apache.james.core.MailHeaders;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.*;
+import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
+
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -52,8 +54,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.16 $
- * Committed on $Date: 2002/01/17 06:09:01 $ by: $Author: darrell $
+ * This is $Revision: 1.17 $
+ * Committed on $Date: 2002/01/18 02:48:35 $ by: $Author: darrell $
  */
 public class James
     extends AbstractLogEnabled

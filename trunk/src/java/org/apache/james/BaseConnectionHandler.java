@@ -7,34 +7,13 @@
  */
 package org.apache.james;
 
-import java.io.*;
-import java.net.*;
-import java.text.*;
-import java.util.*;
-import javax.mail.internet.*;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthenticationException;
-import org.apache.james.AuthorizationException;
-import org.apache.james.Constants;
-import org.apache.james.services.*;
-import org.apache.james.util.InternetPrintWriter;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Different connection handlers extend this class

@@ -7,10 +7,11 @@
  */
 package org.apache.james.imapserver;
 
+import org.apache.james.core.MimeMessageSource;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.james.core.MimeMessageSource;
 
 public class MimeMessageFileSource extends MimeMessageSource {
 

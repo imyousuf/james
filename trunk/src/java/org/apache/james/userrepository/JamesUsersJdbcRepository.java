@@ -10,8 +10,8 @@ package org.apache.james.userrepository;
 import org.apache.james.services.User;
 import org.apache.mailet.MailAddress;
 
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**

@@ -7,9 +7,9 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.*;
 
-/** 
+
+/**
  * Read and translates client data.
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>

@@ -7,7 +7,7 @@
  */
 package org.apache.james.smtpserver;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
   * This exceptions is used to indicate when a new MimeMessage has exceeded

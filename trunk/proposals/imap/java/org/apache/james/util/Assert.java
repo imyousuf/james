@@ -1,6 +1,6 @@
 package org.apache.james.util;
 
-import org.apache.avalon.framework.CascadingRuntimeException;
+
 
 /**
  * A set of debugging utilities.

@@ -7,26 +7,27 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.SendFailedException;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.*;
-import org.apache.james.core.*;
+import org.apache.james.Constants;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.transport.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.util.*;
 
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
@@ -44,8 +45,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.12 $
- * Committed on $Date: 2001/12/07 23:28:34 $ by: $Author: serge $
+ * This is $Revision: 1.13 $
+ * Committed on $Date: 2002/01/18 02:48:38 $ by: $Author: darrell $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 

@@ -7,20 +7,19 @@
  */
 package org.apache.james.util;
 
+import javax.mail.internet.MimeUtility;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import javax.mail.internet.MimeUtility;
+import java.io.InputStreamReader;
 
 
 /**
  * Simple Base64 string decoding function
  * @author Jason Borden <jborden@javasense.com>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2001/06/25 18:13:27 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2002/01/18 02:48:39 $ by: $Author: darrell $ 
  */
 
 public class Base64 {
