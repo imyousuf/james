@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.35.4.3 $
+ * @version This is $Revision: 1.35.4.4 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -480,7 +480,11 @@ public class SMTPHandler
      * @throws IOException if an exception is generated reading in the input characters
      */
     final String readCommandLine() throws IOException {
-        return inReader.readLine().trim();
+        String commandLine = inReader.readLine();
+        if (commandLine != null) {
+            commandLine = commandLine.trim();
+        }
+        return commandLine;
     }
 
     /**
