@@ -72,9 +72,9 @@ public class SMTPServer
         super.dispose();
        
         // This is needed to make sure sockets are promptly closed on Windows 2000
-	    System.gc();
-	
-    	getLogger().info( "SMTPServer ...dispose end" );
+        System.gc();
+
+        getLogger().info( "SMTPServer ...dispose end" );
     }
 }
 

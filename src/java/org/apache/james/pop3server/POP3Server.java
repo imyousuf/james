@@ -62,11 +62,26 @@ public class POP3Server
                 .append("POP3Listener using ")
                 .append(m_serverSocketType)
                 .append(" on port ")
-                .append(m_port);
+                .append(m_port)
+                .append(" at ")
+                .append(m_bindTo);
         getLogger().info( logBuffer.toString() );
         super.initialize();
         getLogger().info( "POP3Server ...init end" );
         System.out.println("Started POP3 Server " + m_connectionName);
     }
+
+    public void dispose()
+    {
+        getLogger().info( "POP3Server dispose..." );
+        getLogger().info( "POP3Server dispose..." + m_connectionName);
+        super.dispose();
+
+        // This is needed to make sure sockets are promptly closed on Windows 2000
+        System.gc();
+
+        getLogger().info( "POP3Server ...dispose end" );
+    }
+
 }
 
