@@ -75,7 +75,7 @@ import org.apache.mailet.Mail;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.8.4.2 $
+ * @version This is $Revision: 1.8.4.3 $
  */
 public class ToRepository extends GenericMailet {
 
@@ -127,7 +127,7 @@ public class ToRepository extends GenericMailet {
      *
      * @param mail the mail to process
      */
-    public void service(Mail genericmail) {
+    public void service(Mail genericmail) throws javax.mail.MessagingException {
         MailImpl mail = (MailImpl)genericmail;
         StringBuffer logBuffer =
             new StringBuffer(160)

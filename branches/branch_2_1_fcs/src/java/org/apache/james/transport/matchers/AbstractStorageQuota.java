@@ -118,7 +118,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      *
      * @param recipient the recipient to check
      */    
-    protected long getUsed(MailAddress recipient, Mail _) {
+    protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
         long size = 0;
         MailRepository userInbox = mailServer.getUserInbox(recipient.getUser());
         for (Iterator it = userInbox.list(); it.hasNext(); ) {

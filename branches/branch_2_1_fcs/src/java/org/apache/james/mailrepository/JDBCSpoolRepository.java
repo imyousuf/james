@@ -253,7 +253,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * is empty... a message that gets added will sit here until that queue
      * time has passed and the list is then reloaded.
      */
-    public void store(MailImpl mc) {
+    public void store(MailImpl mc) throws javax.mail.MessagingException {
         pendingMessagesLoadTime = 0;
         super.store(mc);
     }

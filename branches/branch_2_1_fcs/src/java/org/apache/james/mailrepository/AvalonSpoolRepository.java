@@ -159,9 +159,15 @@ public class AvalonSpoolRepository
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.
 
+                    MailImpl mail = null;
+                    try {
+                        mail = retrieve(s);
+                    } catch (javax.mail.MessagingException e) {
+                        getLogger().error("Exception during retrieve -- skipping item " + s, e);
+                    }
                     // Retrieve can return null if the mail is no longer in the store.
+                    // Or it could have throw an exception, which would would have logged.
                     // In this case we simply continue to the next key
-                    MailImpl mail = retrieve(s);
                     if (mail == null) {
                         continue;
                     }
