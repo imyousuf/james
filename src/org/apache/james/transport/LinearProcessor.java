@@ -34,6 +34,7 @@ import org.apache.mailet.*;
  *  </processor>
  */
 public class LinearProcessor {
+    private final static boolean DEBUG_PRINT_PIPE = false;
 
     private List mailets;
     private List matchers;
@@ -58,12 +59,16 @@ public class LinearProcessor {
     }
 
     public void service(MailImpl mail) throws MessagingException {
-        logger.log("Processing mail " + mail.getName(), "Processor", logger.INFO);
+        if (DEBUG_PRINT_PIPE) {
+            logger.log("Processing mail " + mail.getName(), "Processor", logger.INFO);
+        }
         unprocessed.setSize(mailets.size() + 2);
         unprocessed.add(0, mail);
         printPipe(unprocessed);/*DEBUG*/
         for (int i = 0; true ; i++) {
-            logger.log("===== i = " + i + " =====", "Processor", logger.INFO);
+            if (DEBUG_PRINT_PIPE) {
+                logger.log("===== i = " + i + " =====", "Processor", logger.INFO);
+            }
             MailImpl next = (MailImpl) unprocessed.get(i);
             if (!isEmpty(next)) {
                 Collection rcpts = null;
@@ -105,7 +110,9 @@ public class LinearProcessor {
                 unprocessed.set(i, mailBucket[0]);
                 unprocessed.set(i + 1, mailBucket[1]);
 
-                logger.log("--- after split (" + i + ")---", "Processor", logger.INFO);
+                if (DEBUG_PRINT_PIPE) {
+                    logger.log("--- after split (" + i + ")---", "Processor", logger.INFO);
+                }
                 printPipe(unprocessed);/*DEBUG*/
             } else {
                 try {
@@ -128,11 +135,15 @@ public class LinearProcessor {
                     unprocessed.set(i + 1, next);
                 }
                 unprocessed.set(i, null);
-                logger.log("--- after service (" + i + ")---", "Processor", logger.INFO);
+                if (DEBUG_PRINT_PIPE) {
+                    logger.log("--- after service (" + i + ")---", "Processor", logger.INFO);
+                }
                 printPipe(unprocessed);/*DEBUG*/
             }
         }
-        logger.log("Mail " + mail.getName() + " processed", "Processor", logger.INFO);
+        if (DEBUG_PRINT_PIPE) {
+            logger.log("Mail " + mail.getName() + " processed", "Processor", logger.INFO);
+        }
     }
 
     private boolean isEmpty(Mail mail) {
@@ -170,6 +181,9 @@ public class LinearProcessor {
     }
 
     private void printPipe(List unprocessed) {
+        if (!DEBUG_PRINT_PIPE) {
+            return;
+        }
         int j = 0;
         for (Iterator i = unprocessed.iterator(); i.hasNext(); j++) {
             Mail m = (Mail) i.next();
