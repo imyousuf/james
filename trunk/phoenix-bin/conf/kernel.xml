@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<phoenix>
+    <embeddor role="org.apache.avalon.phoenix.interfaces.Embeddor"
+        class="org.apache.avalon.phoenix.components.embeddor.DefaultEmbeddor">
+
+        <component role="org.apache.avalon.phoenix.interfaces.Deployer"
+            class="org.apache.avalon.phoenix.components.deployer.DefaultDeployer"
+            logger="deployer"/>
+
+        <component role="org.apache.avalon.phoenix.interfaces.LogManager"
+            class="org.apache.avalon.phoenix.components.logger.DefaultLogManager"
+            logger="logs"/>
+
+        <component role="org.apache.avalon.phoenix.interfaces.Kernel"
+            class="org.apache.avalon.phoenix.components.kernel.DefaultKernel"
+            logger="kernel"/>
+
+        <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
+            class="org.apache.avalon.phoenix.components.manager.NoopSystemManager"
+            logger="manager"></component>
+
+        <!-- use this one if you need the DefaultManager
+        <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
+            class="org.apache.avalon.phoenix.components.manager.DefaultManager"
+            logger="manager" >
+        </component>
+        -->
+
+        <component role="org.apache.avalon.phoenix.interfaces.ConfigurationRepository"
+            class="org.apache.avalon.phoenix.components.configuration.DefaultConfigurationRepository"
+            logger="config"/>
+        <component role="org.apache.avalon.phoenix.interfaces.ClassLoaderManager"
+            class="org.apache.avalon.phoenix.components.classloader.DefaultClassLoaderManager"
+            logger="classes"/>
+        <component role="org.apache.avalon.excalibur.extension.PackageRepository"
+            class="org.apache.avalon.phoenix.components.extensions.DefaultExtensionManager"
+            logger="packages"/>
+<!--
+        <component role="org.apache.avalon.excalibur.extension.PackageRepository"
+            class="org.apache.avalon.excalibur.extension.NoopPackageRepository"
+            logger="packages"/>
+-->
+    </embeddor>
+</phoenix>
