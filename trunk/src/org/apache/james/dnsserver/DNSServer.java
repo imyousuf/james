@@ -11,8 +11,14 @@ package org.apache.james.dnsserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.apache.avalon.*;
 import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Component;
 import org.apache.james.transport.Resources;
 import org.apache.mailet.Mail;
 import org.xbill.DNS.*;
@@ -25,7 +31,6 @@ public class DNSServer
     extends AbstractLoggable
     implements Component, Configurable, Contextualizable, Initializable {
 
-    private DefaultComponentManager compMgr;
     private Configuration conf;
     private Resolver resolver;
     private Cache cache;
@@ -33,10 +38,6 @@ public class DNSServer
 
     public void configure(Configuration conf) throws ConfigurationException{
         this.conf = conf;
-    }
-
-    public void compose(ComponentManager comp) {
-        compMgr = new DefaultComponentManager(comp);
     }
 
     public void contextualize(Context context) {
@@ -49,8 +50,10 @@ public class DNSServer
         // Get this servers that this block will use for lookups
         Collection servers = new Vector();
         Configuration serversConf = conf.getChild("servers");
-        for (Iterator it = serversConf.getChildren("server"); it.hasNext(); ) {
-            servers.add(((Configuration) it.next()).getValue());
+        final Configuration[] serverConfs = serversConf.getChildren( "server" );
+        for ( int i = 0; i < serverConfs.length; i++ )
+        {
+            servers.add( serverConfs[i] );
         }
         if (servers.isEmpty()) {
             try {
@@ -71,9 +74,6 @@ public class DNSServer
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
         cache = new Cache ();
-
-        // Add this to comp
-        compMgr.put("DNS_SERVER", this);
 
         getLogger().info("DNSServer ...init end");
     }
