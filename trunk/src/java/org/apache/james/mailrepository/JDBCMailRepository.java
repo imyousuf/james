@@ -622,7 +622,7 @@ public class JDBCMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public MailImpl retrieve(String key) {
+    public Mail retrieve(String key) {
         if (DEEP_DEBUG) {
             System.err.println("retrieving " + key);
         }
@@ -704,7 +704,7 @@ public class JDBCMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(MailImpl mail) {
+    public void remove(Mail mail) {
         remove(mail.getName());
     }
 

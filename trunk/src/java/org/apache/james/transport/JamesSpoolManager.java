@@ -43,7 +43,7 @@ import org.apache.mailet.SpoolRepository;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.22 $
+ * @version This is $Revision: 1.23 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -302,7 +302,7 @@ public class JamesSpoolManager
         while(true) {
             try {
                 String key = spool.accept();
-                MailImpl mail = spool.retrieve(key);
+                Mail mail = spool.retrieve(key);
                 // Retrieve can return null if the mail is no longer on the spool
                 // (i.e. another thread has gotten to it first).
                 // In this case we simply continue to the next key
@@ -356,7 +356,7 @@ public class JamesSpoolManager
      *
      * @param mail the mail message to be processed
      */
-    protected void process(MailImpl mail) {
+    protected void process(Mail mail) {
         while (true) {
             String processorName = mail.getState();
             if (processorName.equals(Mail.GHOST)) {

@@ -74,7 +74,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.39 $
+ * @version This is $Revision: 1.40 $
 
  */
 public class James
@@ -462,12 +462,12 @@ public class James
      *                            on the spool
      */
     public void sendMail(Mail mail) throws MessagingException {
-        MailImpl mailimpl = (MailImpl)mail;
+
         try {
-            spool.store(mailimpl);
+            spool.store(mail);
         } catch (Exception e) {
             try {
-                spool.remove(mailimpl);
+                spool.remove(mail);
             } catch (Exception ignored) {
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
@@ -476,7 +476,7 @@ public class James
             StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Mail ")
-                        .append(mailimpl.getName())
+                        .append(mail.getName())
                         .append(" pushed in spool");
             getLogger().debug(logBuffer.toString());
         }

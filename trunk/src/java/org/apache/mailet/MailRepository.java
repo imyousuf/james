@@ -7,8 +7,6 @@
  */
 package org.apache.mailet;
 
-import org.apache.james.core.MailImpl;
-
 import java.util.Iterator;
 
 /**
@@ -49,14 +47,14 @@ public interface MailRepository {
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    MailImpl retrieve(String key);
+    Mail retrieve(String key);
 
     /**
      * Removes a specified message
      *
      * @param mail the message to be removed from the repository
      */
-    void remove(MailImpl mail);
+    void remove(Mail mail);
 
     /**
      * Removes a message identified by key.

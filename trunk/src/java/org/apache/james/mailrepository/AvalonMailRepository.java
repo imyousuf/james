@@ -318,14 +318,14 @@ public class AvalonMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public MailImpl retrieve(String key) {
+    public Mail retrieve(String key) {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
-            MailImpl mc = null;
+            Mail mc = null;
             try {
-                mc = (MailImpl) or.get(key);
+                mc = (Mail) or.get(key);
             } catch (RuntimeException re) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
@@ -351,7 +351,7 @@ public class AvalonMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(MailImpl mail) {
+    public void remove(Mail mail) {
         remove(mail.getName());
     }
 
