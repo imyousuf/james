@@ -9,13 +9,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.TestCommandsInAuthenticatedState;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
  * @author <a href="mailto:ddeboer@thoughtworks.com">Darrell DeBoer</a>
- * @version $Id: TestConcurrentSessions.java,v 1.2 2003/11/30 07:03:48 darrell Exp $
+ * @version $Id: TestConcurrentSessions.java,v 1.3 2003/12/29 06:54:48 darrell Exp $
  */
 public class TestConcurrentSessions extends TestCommandsInAuthenticatedState {
     public TestConcurrentSessions(String fileName) {
@@ -29,9 +28,11 @@ public class TestConcurrentSessions extends TestCommandsInAuthenticatedState {
     {
         TestSuite suite = new TestSuite();
         // Not valid in this state
-        suite.addTest( new TestConcurrentSessions( "concurrent/FetchResponse" ) );
-        suite.addTest( new TestConcurrentSessions( "concurrent/ExistsResponse" ) );
-        suite.addTest( new TestConcurrentSessions( "concurrent/ExpungeResponse" ) );
+//        suite.addTest( new TestConcurrentSessions( "concurrent/FetchResponse" ) );
+//        suite.addTest( new TestConcurrentSessions( "concurrent/ExistsResponse" ) );
+//        suite.addTest( new TestConcurrentSessions( "concurrent/ExpungeResponse" ) );
+//        suite.addTest( new TestConcurrentSessions( "concurrent/RenameSelected" ) );
+        suite.addTest( new TestConcurrentSessions( "concurrent/DeleteSelected" ) );
 
         return suite;
     }

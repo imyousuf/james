@@ -71,5 +71,5 @@ public interface ImapTest
     String FROM_ADDRESS = "sender@localhost";
     String TO_ADDRESS = USER + "@" + HOST;
 
-    int TIMEOUT = 30000;
+    int TIMEOUT = 10000;
 }

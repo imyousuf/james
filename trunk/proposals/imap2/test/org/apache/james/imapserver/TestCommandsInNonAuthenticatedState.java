@@ -58,10 +58,9 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.james.test.SimpleFileProtocolTest;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.james.test.SimpleFileProtocolTest;
 
 /**
  * Runs tests for commands valid in the NON_AUTHENTICATED state.

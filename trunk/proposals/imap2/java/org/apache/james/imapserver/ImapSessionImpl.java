@@ -72,7 +72,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
@@ -110,13 +110,13 @@ public final class ImapSessionImpl implements ImapSession
         unsolicitedResponses(request, false);
     }
 
-    public void unsolicitedResponses( ImapResponse request, boolean omitExpunged ) throws MailboxException {
+    public void unsolicitedResponses( ImapResponse response, boolean omitExpunged ) throws MailboxException {
         ImapSessionMailbox selected = getSelected();
         if (selected != null) {
             // New message response
             if (selected.isSizeChanged()) {
-                request.existsResponse(selected.getMessageCount());
-                request.recentResponse(selected.getRecentCount(true));
+                response.existsResponse(selected.getMessageCount());
+                response.recentResponse(selected.getRecentCount(true));
                 selected.setSizeChanged(false);
             }
 
@@ -134,7 +134,7 @@ public final class ImapSessionImpl implements ImapSession
                     out.append(" UID ");
                     out.append(entry.getUid());
                 }
-                request.fetchResponse(msn, out.toString());
+                response.fetchResponse(msn, out.toString());
 
             }
 
@@ -143,10 +143,14 @@ public final class ImapSessionImpl implements ImapSession
                 int[] expunged = selected.getExpunged();
                 for (int i = 0; i < expunged.length; i++) {
                     int msn = expunged[i];
-                    request.expungeResponse(msn);
+                    response.expungeResponse(msn);
                 }
             }
         }
+    }
+    
+    public void closeConnection(String byeMessage) {
+        handler.forceConnectionClose(byeMessage);
     }
 
     public void closeConnection()
@@ -183,13 +187,16 @@ public final class ImapSessionImpl implements ImapSession
     public void deselect()
     {
         this.state = ImapSessionState.AUTHENTICATED;
-        // TODO is there more to do here, to cleanup the mailbox.
-        this.selectedMailbox = null;
+        if (selectedMailbox != null) {
+            // TODO is there more to do here, to cleanup the mailbox.
+            selectedMailbox.removeListener(selectedMailbox);
+            this.selectedMailbox = null;
+        }
     }
 
     public void setSelected( ImapMailbox mailbox, boolean readOnly )
     {
-        ImapSessionMailbox sessionMailbox = new ImapSessionMailbox(mailbox, readOnly);
+        ImapSessionMailbox sessionMailbox = new ImapSessionMailbox(mailbox, this, readOnly);
         this.state = ImapSessionState.SELECTED;
         this.selectedMailbox = sessionMailbox;
     }

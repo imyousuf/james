@@ -65,15 +65,15 @@ import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
-import javax.mail.search.SearchTerm;
 import javax.mail.Message;
+import javax.mail.search.SearchTerm;
 
 /**
  * Handles processeing for the SEARCH imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 {

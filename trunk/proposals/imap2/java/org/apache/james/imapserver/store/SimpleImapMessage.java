@@ -60,9 +60,9 @@ package org.apache.james.imapserver.store;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
-import javax.mail.internet.MimeMessage;
-import javax.mail.MessagingException;
 import javax.mail.Flags;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.util.Date;
 
 /**
@@ -71,7 +71,7 @@ import java.util.Date;
  * way of handling *all* messages needs to be available for James (maybe MailImpl?)
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class SimpleImapMessage
         extends AbstractLogEnabled implements ImapMessage

@@ -59,8 +59,8 @@
 package org.apache.james.imapserver.store;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;

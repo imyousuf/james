@@ -62,15 +62,16 @@ import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the DELETE imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class DeleteCommand extends AuthenticatedStateCommand
 {
@@ -86,7 +87,12 @@ class DeleteCommand extends AuthenticatedStateCommand
 
         String mailboxName = parser.mailbox( request );
         parser.endLine( request );
-
+        
+        ImapMailbox mailbox = getMailbox(mailboxName, session, true);
+        if (session.getSelected() != null &&
+                mailbox.getFullName().equals(session.getSelected().getFullName())) {
+            session.deselect();
+        }
         session.getHost().deleteMailbox( session.getUser(), mailboxName );
 
         session.unsolicitedResponses( response );

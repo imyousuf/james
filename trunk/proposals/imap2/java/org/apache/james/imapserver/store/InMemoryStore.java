@@ -58,6 +58,14 @@
 
 package org.apache.james.imapserver.store;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.core.MailImpl;
+import org.apache.james.imapserver.ImapConstants;
+
+import javax.mail.Flags;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.search.SearchTerm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,22 +75,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.mail.Flags;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.search.SearchTerm;
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailImpl;
-import org.apache.james.imapserver.ImapConstants;
-
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
  * and development. Note: this implementation does not persist *anything* to disk.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled
@@ -372,6 +371,17 @@ public class InMemoryStore
                 }
             }
             throw new MailboxException( "No such message." );
+        }
+
+        public void signalDeletion() {
+            // Notify all the listeners of the new message
+            synchronized (_mailboxListeners) {
+                for (int j = 0; j < _mailboxListeners.size(); j++) {
+                    MailboxListener listener = (MailboxListener) _mailboxListeners.get(j);
+                    listener.mailboxDeleted();
+                }
+            }
+
         }
 
         public boolean isSelectable()

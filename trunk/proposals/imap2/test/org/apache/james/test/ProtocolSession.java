@@ -61,8 +61,8 @@ package org.apache.james.test;
 import org.apache.oro.text.perl.Perl5Util;
 
 import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -74,7 +74,7 @@ import java.util.List;
  * so that we can nest and reuse sessions.
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class ProtocolSession
 {

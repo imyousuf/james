@@ -68,14 +68,13 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class LogoutCommand extends CommandTemplate
 {
     public static final String NAME = "LOGOUT";
     public static final String ARGS = null;
-    public static final String BYE_MESSAGE = BYE + SP + VERSION + SP +
-            "Server logging out";
+    public static final String BYE_MESSAGE = VERSION + SP + "Server logging out";
 
     /** @see CommandTemplate#doProcess */
     protected void doProcess( ImapRequestLineReader request,
@@ -84,9 +83,8 @@ class LogoutCommand extends CommandTemplate
     {
         parser.endLine( request );
 
-        response.untaggedResponse( BYE_MESSAGE );
+        response.byeResponse( BYE_MESSAGE );
         response.commandComplete( this );
-
         session.closeConnection();
     }
 

@@ -58,6 +58,8 @@
 
 package org.apache.james;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.MailImpl;
 import org.apache.james.imapserver.ImapHost;
 import org.apache.james.imapserver.store.ImapMailbox;
@@ -65,8 +67,6 @@ import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.services.JamesUser;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.MailAddress;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.service.ServiceManager;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -79,7 +79,7 @@ import javax.mail.internet.MimeMessage;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.4 $
+ * @version This is $Revision: 1.5 $
 
  */
 public class JamesImap extends James

@@ -70,7 +70,7 @@ import org.apache.mailet.UsersRepository;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface ImapSession
 {
@@ -79,12 +79,14 @@ public interface ImapSession
      * responses when the selected mailbox is modified by another user.
      * @param response The response to write to
      */
-    public void unsolicitedResponses( ImapResponse response ) throws MailboxException;
+    void unsolicitedResponses( ImapResponse response ) throws MailboxException;
 
     /**
      * Closes the connection for this session.
      */
-    public void closeConnection();
+    void closeConnection();
+
+    void closeConnection(String byeMessage);
 
     /**
      * Provides the Imap host for this server, which is used for all access to mail

@@ -58,13 +58,12 @@
 
 package org.apache.james.imapserver.store;
 
-import java.util.Date;
+import org.apache.james.core.MailImpl;
 
 import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
-
-import org.apache.james.core.MailImpl;
+import java.util.Date;
 
 /**
  * Represents a mailbox within an {@link org.apache.james.imapserver.store.ImapStore}.
@@ -75,7 +74,7 @@ import org.apache.james.core.MailImpl;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public interface ImapMailbox
 {
@@ -125,5 +124,7 @@ public interface ImapMailbox
     void replaceFlags(Flags flags, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException;
 
     int getMsn( long uid ) throws MailboxException;
+
+    void signalDeletion();
 
 }

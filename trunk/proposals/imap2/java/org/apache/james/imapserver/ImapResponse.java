@@ -63,8 +63,8 @@ import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.InternetPrintWriter;
 
 import javax.mail.Flags;
-import java.io.PrintWriter;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
 /**
  * Class providing methods to send response messages from the server
@@ -268,6 +268,10 @@ public class ImapResponse implements ImapConstants
         untagged();
         message( message );
         end();
+    }
+    
+    public void byeResponse( String message ) {
+        untaggedResponse(BYE + SP + message);
     }
 
     private void untagged()
