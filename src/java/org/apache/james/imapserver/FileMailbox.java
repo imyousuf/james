@@ -278,7 +278,7 @@ public class FileMailbox
      * This is really a stop rather than destroy.
      * Writes current mailbox object to disc.
      */
-    public void dispose() throws Exception {
+    public void dispose() {
         writeMailbox();
         logger.info("FileMailbox object destroyed: " + absoluteName);
     }
