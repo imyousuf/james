@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2001/06/25 18:13:19 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2001/08/01 04:00:31 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -112,7 +112,7 @@ public class SMTPHandler
             "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         UsersStore usersStore = (UsersStore)componentManager.lookup(
             "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");   
+        users = usersStore.getRepository("LocalUsers");
     }
 
     /**
@@ -235,7 +235,7 @@ public class SMTPHandler
         else if (command.equalsIgnoreCase("EHLO"))
             doEHLO(command,argument,argument1);
         else if (command.equalsIgnoreCase("AUTH"))
-            doAUTH(command,argument,argument1);        
+            doAUTH(command,argument,argument1);
         else if (command.equalsIgnoreCase("MAIL"))
             doMAIL(command,argument,argument1);
         else if (command.equalsIgnoreCase("RCPT"))
@@ -295,12 +295,12 @@ public class SMTPHandler
     private void doAUTH(String command,String argument,String argument1)
             throws Exception {
         if (state.containsKey(AUTH)) {
-            out.println("503 User has previously authenticated." 
+            out.println("503 User has previously authenticated."
                         + " Further authentication is not required!");
-            return;        
+            return;
         } else if (argument == null) {
             out.println("501 Usage: AUTH (authentication type) <challenge>");
-            return;        
+            return;
         } else if (argument.equalsIgnoreCase("PLAIN")) {
             String userpass, user, pass;
             StringTokenizer authTokenizer;
@@ -318,7 +318,7 @@ public class SMTPHandler
                 state.put(AUTH, user);
                 out.println("235 Authentication Successful");
                 getLogger().info("AUTH method PLAIN succeeded");
-            } else {                
+            } else {
                 out.println("535 Authentication Failed");
                 getLogger().error("AUTH method PLAIN failed");
             }
@@ -327,19 +327,19 @@ public class SMTPHandler
             String user, pass;
 
             if (argument1 == null) {
-                out.println("334 VXNlcm5hbWU6"); // base64 encoded "Username:" 
+                out.println("334 VXNlcm5hbWU6"); // base64 encoded "Username:"
                 user = in.readLine().trim();
             } else
                 user = argument1.trim();
             user = Base64.decodeAsString(user);
-            out.println("334 UGFzc3dvcmQ6"); // base64 encoded "Password:" 
+            out.println("334 UGFzc3dvcmQ6"); // base64 encoded "Password:"
             pass = Base64.decodeAsString(in.readLine().trim());
             //Authenticate user
             if (users.test(user, pass)) {
                 state.put(AUTH, user);
                 out.println("235 Authentication Successful");
                 getLogger().info("AUTH method LOGIN succeeded");
-            } else {                
+            } else {
                 out.println("535 Authentication Failed");
                 getLogger().error("AUTH method LOGIN failed");
             }
@@ -418,17 +418,17 @@ public class SMTPHandler
                 if (!state.containsKey(AUTH)) {
                     String toDomain
                          = recipient.substring(recipient.indexOf('@') + 1);
-                    
+
                     if (!mailServer.isLocalServer(toDomain)) {
                         out.println("530 Authentication Required");
                         getLogger().error(
                             "Authentication is required for mail request");
                         return;
                     }
-                } else {                    
+                } else {
                     // Identity verification checking
                     if (verifyIdentity) {
-                      String authUser = (String)state.get(AUTH);                                
+                      String authUser = (String)state.get(AUTH);
                       MailAddress senderAddress
                           = (MailAddress)state.get(SENDER);
                       boolean domainExists = false;
@@ -440,7 +440,7 @@ public class SMTPHandler
                             + " authenticated, however tried sending email as "
                             + senderAddress);
                         return;
-                      }                        
+                      }
                       if (!mailServer.isLocalServer(
                                        senderAddress.getHost())) {
                         out.println("503 Incorrect Authentication for Specified Email Address");
@@ -448,7 +448,7 @@ public class SMTPHandler
                             + " authenticated, however tried sending email as "
                             + senderAddress);
                             return;
-                        }                                                        
+                        }
                     }
                 }
             }
@@ -479,40 +479,64 @@ public class SMTPHandler
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
                 if (maxmessagesize > 0) {
-		    if (DEEP_DEBUG) {
-			getLogger().debug("Using SizeLimitedInputStream " 
-					  + " with max message size: "
-                                          + maxmessagesize);
-		    }
+                    if (DEEP_DEBUG) {
+                        getLogger().debug("Using SizeLimitedInputStream "
+                                  + " with max message size: "
+                                  + maxmessagesize);
+                    }
                     msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
                 }
                 MailHeaders headers = new MailHeaders(msgIn);
-                // if headers do not contains minimum REQUIRED headers fields
-		// add them
+
+                // if headers do not contains minimum REQUIRED headers fields,
+		        // add them
                 if (!headers.isSet("Date")) {
                     headers.setHeader("Date",
-                                      RFC822DateFormat.toString(new Date ()));
+                            RFC822DateFormat.toString(new Date()));
                 }
 
                 if (!headers.isSet("From")) {
                     headers.setHeader("From", state.get(SENDER).toString());
                 }
 
-                String received = "from " + state.get(REMOTE_NAME) + " (["
-                    + state.get(REMOTE_IP)
-                    + "])\r\n          by " + this.helloName + " ("
-                    + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
-                if (((Collection)state.get(RCPT_VECTOR)).size () == 1) {
+                //Determine the Return-Path
+                String returnPath = headers.getHeader("Return-Path", "\r\n");
+                headers.removeHeader("Return-Path");
+                if (returnPath == null) {
+                    returnPath = "<" + state.get(SENDER).toString() + ">";
+                }
+
+                //We will rebuild the header object to put Return-Path and our
+                //  Received message at the top
+                Enumeration headerLines = headers.getAllHeaderLines();
+
+                headers = new MailHeaders();
+                //Put the Return-Path first
+                headers.addHeaderLine("Return-Path: " + returnPath);
+                //Put our Received header next
+                headers.addHeaderLine("Received: from " + state.get(REMOTE_NAME)
+                        + " ([" + state.get(REMOTE_IP) + "])");
+                String temp = "          by " + this.helloName + " ("
+                        + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
+                if (((Collection)state.get(RCPT_VECTOR)).size() == 1) {
                     //Only indicate a recipient if they're the only recipient
                     //(prevents email address harvesting and large headers in
                     // bulk email)
-                    received += "\r\n          for <"
-                     + ((Vector)state.get(RCPT_VECTOR)).elementAt(0).toString()
-                     + ">";
+                    headers.addHeaderLine(temp);
+                    headers.addHeaderLine("          for <"
+                            + ((Vector)state.get(RCPT_VECTOR)).get(0).toString()
+                            + ">;");
+                } else {
+                    //Put the ; on the end of the 'by' line
+                    headers.addHeaderLine(temp + ";");
                 }
-                received += ";\r\n          "
-                         + RFC822DateFormat.toString (new Date ());
-                headers.addHeader ("Received", received);
+                headers.addHeaderLine("          "
+                        + RFC822DateFormat.toString(new Date()));
+
+                //Add all the original message headers back in next
+                while (headerLines.hasMoreElements()) {
+                    headers.addHeaderLine((String)headerLines.nextElement());
+                }
 
                 ByteArrayInputStream headersIn
                     = new ByteArrayInputStream(headers.toByteArray());
@@ -552,8 +576,8 @@ public class SMTPHandler
                     out.println("451 Error processing message: "
                                 + me.getMessage());
                     getLogger().error("Error processing message: "
-                                      + me.getMessage());
-		    me.printStackTrace();
+                                + me.getMessage());
+		            me.printStackTrace();
                 }
                 return;
             }
@@ -562,6 +586,7 @@ public class SMTPHandler
             out.println("250 Message received");
         }
     }
+
     private void doQUIT(String command,String argument,String argument1) {
         out.println("221 " + state.get(SERVER_NAME)
                     + " Service closing transmission channel");
