@@ -105,7 +105,7 @@
 	The Spoool Manager and James Block must point to the same repository
 	to add and process same messages. -->
       <spoolRepository>
-        <repository destinationURL="file://../../../store/mail/spool/"
+        <repository destinationURL="file://var/mail/spool/"
                     type="SPOOL"
                     model="SYNCHRONOUS">
         </repository>
