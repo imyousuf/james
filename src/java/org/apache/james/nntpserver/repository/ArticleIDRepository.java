@@ -7,6 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.james.util.Base64;
 
 import java.io.File;
@@ -86,9 +87,7 @@ public class ArticleIDRepository {
             fout = new FileOutputStream(getFileFromID(articleID));
             prop.store(fout,new Date().toString());
         } finally {
-            if (fout != null) {
-                fout.close();
-            }
+            IOUtil.shutdownStream(fout);
         }
     }
 
@@ -142,9 +141,7 @@ public class ArticleIDRepository {
             fin = new FileInputStream(f);
             prop.load(fin);
         } finally {
-            if (fin != null) {
-                fin.close();
-            }
+            IOUtil.shutdownStream(fin);
         }
         Enumeration enum = prop.keys();
         NNTPArticle article = null;

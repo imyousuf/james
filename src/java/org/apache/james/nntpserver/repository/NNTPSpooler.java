@@ -7,6 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -255,9 +256,7 @@ class NNTPSpooler extends AbstractLogEnabled
                 try {
                     msg = new MimeMessage(null,fin);
                 } finally {
-                    try {
-                        fin.close();
-                    } catch (IOException _) { /* ignore close error */ }
+                    IOUtil.shutdownStream(fin);
                 }
 
                 // ensure no duplicates exist.
@@ -276,9 +275,7 @@ class NNTPSpooler extends AbstractLogEnabled
                     try {
                         msg.writeTo(fout);
                     } finally {
-                        try {
-                            fout.close();
-                        } catch (IOException _) { /* ignore close error */ }
+                        IOUtil.shutdownStream(fout);
                     }
                 }
             }
@@ -299,9 +296,7 @@ class NNTPSpooler extends AbstractLogEnabled
                         NNTPArticle article = group.addArticle(newsStream);
                         prop.setProperty(group.getName(),article.getArticleNumber() + "");
                     } finally {
-                        try {
-                            newsStream.close();
-                        } catch (IOException _) { /* ignore close error */ }
+                        IOUtil.shutdownStream(newsStream);
                     }
                 }
             }

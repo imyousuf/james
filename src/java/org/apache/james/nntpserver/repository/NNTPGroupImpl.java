@@ -229,39 +229,8 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             IOUtil.copy(newsStream,fout);
             fout.flush();
         } finally {
-            try {
-                if (fout != null) {
-                    fout.close();
-                }
-            } catch (IOException ioe) {
-                // Ignore this exception so we don't
-                // trash any "real" exceptions
-            }
+            IOUtil.shutdownStream(fout);
         }
         return new NNTPArticleImpl(this, articleFile);
     }
-
-//     public NNTPArticle getArticleFromID(String id) {
-//         if ( id == null )
-//             return null;
-//         int idx = id.indexOf('@');
-//         if ( idx != -1 )
-//             id = id.substring(0,idx);
-//         File f = new File(root,id + ".id");
-//         if ( f.exists() == false )
-//             return null;
-//         try {
-//             FileInputStream fin = new FileInputStream(f);
-//             int count = fin.available();
-//             byte[] ba = new byte[count];
-//             fin.read(ba);
-//             fin.close();
-//             String str = new String(ba);
-//             int num = Integer.parseInt(str);
-//             return getArticle(num);
-//         } catch(IOException ioe) {
-//             throw new NNTPException("could not fectch article: "+id,ioe);
-//         }
-//     }
-
 }
