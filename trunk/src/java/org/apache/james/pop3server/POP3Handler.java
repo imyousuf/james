@@ -16,7 +16,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
@@ -25,6 +24,7 @@ import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
+import org.apache.mailet.UsersRepository;
 
 import javax.mail.MessagingException;
 import java.io.*;

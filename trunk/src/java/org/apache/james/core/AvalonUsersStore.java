@@ -19,8 +19,8 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.UsersRepository;
 
 import java.util.HashMap;
 import java.util.Iterator;

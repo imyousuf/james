@@ -9,8 +9,8 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import java.util.Iterator;
 import java.util.LinkedList;

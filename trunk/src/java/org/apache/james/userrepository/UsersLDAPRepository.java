@@ -19,8 +19,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import javax.naming.AuthenticationException;
 import javax.naming.NamingEnumeration;

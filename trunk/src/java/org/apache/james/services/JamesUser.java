@@ -7,6 +7,7 @@
  */
 package org.apache.james.services;
 
+import org.apache.mailet.*;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -14,7 +15,7 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 public interface JamesUser extends User {

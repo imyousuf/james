@@ -22,9 +22,9 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.james.context.AvalonContextUtilities;
-import org.apache.james.services.User;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.User;
 
 import java.io.File;
 import java.sql.*;

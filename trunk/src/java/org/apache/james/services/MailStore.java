@@ -8,7 +8,7 @@
 package org.apache.james.services;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.mailet.*;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Interface for an object which provides MailRepositories or SpoolRepositories
@@ -23,7 +23,7 @@ import org.apache.mailet.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.6 $
+ * @version This is $Revision: 1.7 $
  */
 public interface MailStore 
     extends Store {
