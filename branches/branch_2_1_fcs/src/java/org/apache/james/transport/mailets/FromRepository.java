@@ -81,7 +81,7 @@ import java.util.Iterator;
  *    &lt;delete [true|<b>false</b>] &lt;/delete&gt;
  * &lt;/mailet&gt;
  *
- * @version This is $Revision: 1.1.2.1 $
+ * @version This is $Revision: 1.1.2.2 $
  */
 public class FromRepository extends GenericMailet {
 
@@ -106,7 +106,7 @@ public class FromRepository extends GenericMailet {
     public void init() {
         repositoryPath = getInitParameter("repositoryPath");
         try {
-            delete = new Boolean(getInitParameter("delete")).booleanValue();
+            delete = (getInitParameter("delete") == null) ? true : new Boolean(getInitParameter("delete")).booleanValue();
         } catch (Exception e) {
             // Ignore exception, default to true
         }
@@ -154,6 +154,7 @@ public class FromRepository extends GenericMailet {
                     };
                     */
 
+                    mail.setAttribute("FromRepository", Boolean.TRUE);
                     getMailetContext().sendMail(mail);
                     if (delete) processed.add(key);
                 }
