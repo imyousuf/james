@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.89 $  Committed on $Date: 2002/02/04 15:31:19 $ by: $Author: danny $
+ James build file $Revision: 1.90 $  Committed on $Date: 2002/02/05 12:36:08 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -663,7 +663,7 @@ Legal:
 
     <zip zipfile="${name}-${version}-${DSTAMP}-src.zip" basedir="${src.dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}-${DSTAMP}-src.tar" basedir="${src.dist.dir}" includes="**"/>
-    <gzip zipfile="${name}-${version}-${DSTAMP}-src.tar.gz" src="${name}-${version}-${DSTAMP}.tar"/>
+    <gzip zipfile="${name}-${version}-${DSTAMP}-src.tar.gz" src="${name}-${version}-${DSTAMP}-src.tar"/>
 
   </target>
 
