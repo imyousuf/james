@@ -72,7 +72,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.48 $
+ * @version This is $Revision: 1.49 $
 
  */
 public class James
@@ -216,9 +216,12 @@ public class James
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public void initialize() throws Exception {
-
-        getLogger().info("JAMES init...");
+    public void initialize() throws Exception 
+    {
+        if( getLogger().isInfoEnabled() )
+        {
+            getLogger().info("JAMES init...");
+        }
 
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
@@ -252,7 +255,10 @@ public class James
 
         context = new DefaultContext();
         context.put("HostName", hostName);
-        getLogger().info("Local host is: " + hostName);
+        if( getLogger().isInfoEnabled() )
+        {
+            getLogger().info("Local host is: " + hostName);
+        }
 
         // Get the domains and hosts served by this instance
         serverNames = new HashSet();
@@ -293,7 +299,7 @@ public class James
 
         if (getLogger().isInfoEnabled()) {
             for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-                getLogger().info("Handling mail for: " + i.next());
+               getLogger().info("Handling mail for: " + i.next());
             }
         }
         context.put(Constants.SERVER_NAMES, this.serverNames);
@@ -369,7 +375,10 @@ public class James
         attributes.put("confDir", configDir.getCanonicalPath() );
 
         System.out.println(SOFTWARE_NAME_VERSION);
-        getLogger().info("JAMES ...init end");
+        if( getLogger().isInfoEnabled() )
+        {
+            getLogger().info("JAMES ...init end");
+        }
     }
 
     /**
