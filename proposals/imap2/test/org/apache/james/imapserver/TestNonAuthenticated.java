@@ -12,6 +12,10 @@ import org.apache.james.test.SimpleFileProtocolTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+/**
+ * Runs tests for commands valid in the NON_AUTHENTICATED state.
+ * A welcome message precedes the execution of the test elements.
+ */
 public class TestNonAuthenticated
         extends SimpleFileProtocolTest
 {
@@ -20,12 +24,19 @@ public class TestNonAuthenticated
         super( name );
     }
 
+    /**
+     * Adds a welcome message to the {@link #preElements}.
+     * @throws Exception
+     */
     public void setUp() throws Exception
     {
         super.setUp();
         addTestFile( "Welcome.test", preElements );
     }
 
+    /**
+     * Sets up tests valid in the non-authenticated state.
+     */ 
     public static Test suite() throws Exception
     {
         TestSuite suite = new TestSuite();

@@ -10,6 +10,10 @@ package org.apache.james.imapserver;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+/**
+ * Runs tests for commands valid in the AUTHENTICATED state. A login session
+ * and SelectInbox session precedes the execution of the test elements.
+ */
 public class TestSelected
         extends TestAuthenticated
 {
@@ -18,12 +22,21 @@ public class TestSelected
         super( name );
     }
 
+    /**
+     * Superclass sets up welcome message and login session in {@link #preElements}.
+     * A "SELECT INBOX" session is then added to these elements.
+     * @throws Exception
+     */
     public void setUp() throws Exception
     {
         super.setUp();
         addTestFile( "SelectInbox.test", preElements );
     }
 
+    /**
+     * Provides all tests which should be run in the selected state. Each test name
+     * corresponds to a protocol session file.
+     */
     public static Test suite() throws Exception
     {
         TestSuite suite = new TestSuite();

@@ -57,7 +57,7 @@ public class UserManagementTest
     protected void deleteUser( String userName ) throws Exception
     {
         testElements.CL( "deluser " + userName );
-        testElements.SL( "User " + userName + " deleted" );
+        testElements.SL( "User " + userName + " deleted", "UserManagementTest.java:60" );
         runSessions();
     }
 }

@@ -20,7 +20,7 @@ import java.io.StringWriter;
  * TODO: atom, literal, other (not yet implemented) arguments
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class CommandParserTest
         extends TestCase
@@ -143,6 +143,12 @@ public class CommandParserTest
         assertEquals( "INBOX", parser.mailbox( request ));
     }
 
+    /**
+     * Builds and ImapRequestLineReader with the specified string, using {@link #writer}
+     * as the server writer for command continuation requests
+     * @param testRequest A string containing client requests.
+     * @return An initialised ImapRequestLineReader
+     */
     private ImapRequestLineReader getRequest( String testRequest )
     {
         BufferedReader reader = new BufferedReader( new StringReader( testRequest ) );

@@ -25,7 +25,7 @@ import java.util.Collection;
  *   - 
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ImapStoreTest extends TestCase
         implements ImapConstants
@@ -48,6 +48,9 @@ public class ImapStoreTest extends TestCase
         return new InMemoryStore();
     }
 
+    /**
+     * Tests creation of mailboxes in the Store.
+     */
     public void testCreate() throws Exception
     {
         // Get the user namespace.
@@ -77,6 +80,9 @@ public class ImapStoreTest extends TestCase
         catch ( MailboxException e ) {}
     }
 
+    /**
+     * Tests deletion of mailboxes from the store.
+     */
     public void testDelete() throws Exception
     {
         // Simple create/delete
@@ -108,6 +114,9 @@ public class ImapStoreTest extends TestCase
         assertNoMailbox( "one.two" );
     }
 
+    /**
+     * Tests the {@link ImapStore#listMailboxes} method.
+     */
     public void testListMailboxes() throws Exception
     {
         Collection coll;
@@ -151,6 +160,10 @@ public class ImapStoreTest extends TestCase
 
     }
 
+    /**
+     * Asserts that the supplied collection contains exactly the mailboxes in the
+     * array provided.
+     */
     private void assertContents( Collection coll, ImapMailbox[] imapMailboxes )
             throws Exception
     {
@@ -161,6 +174,11 @@ public class ImapStoreTest extends TestCase
         }
     }
 
+
+    /**
+     * Checks that a mailbox with the supplied name exists, and that its
+     * NoSelect flag matches that expected.
+     */
     private void assertMailbox( String name, boolean selectable )
     {
         ImapMailbox mailbox = imapStore.getMailbox( prefixUserNamespace( name ) );
@@ -178,6 +196,9 @@ public class ImapStoreTest extends TestCase
         }
     }
 
+    /**
+     * Asserts that a mailbox with the supplied name doesn't exist.
+     */
     private void assertNoMailbox( String name )
     {
         ImapMailbox mailbox = imapStore.getMailbox( prefixUserNamespace( name ));
@@ -185,29 +206,44 @@ public class ImapStoreTest extends TestCase
                     mailbox );
     }
 
+    /**
+     * Creates a mailbox with the specified name in the root user namespace.
+     */
     private ImapMailbox create( String name ) throws Exception
     {
         ImapMailbox root = imapStore.getMailbox( USER_NAMESPACE );
         return create( root, name );
     }
 
+    /**
+     * Creates a mailbox under the parent provided with the specified name.
+     */
     private ImapMailbox create( ImapMailbox parent, String name )
             throws MailboxException
     {
         return imapStore.createMailbox( parent, name, true );
     }
 
+    /**
+     * Deletes a mailbox from the store.
+     */
     private void delete( String name ) throws MailboxException
     {
         ImapMailbox mailbox = imapStore.getMailbox( prefixUserNamespace( name ) );
         imapStore.deleteMailbox( mailbox );
     }
 
+    /**
+     * Executes {@link ImapStore#listMailboxes} with the supplied pattern.
+     */
     private Collection list( String pattern ) throws MailboxException
     {
         return imapStore.listMailboxes( prefixUserNamespace( pattern ) );
     }
 
+    /**
+     * Prefixes a mailbox name with the "#mail" namespace.
+     */
     private String prefixUserNamespace( String name )
     {
         return USER_NAMESPACE + HIERARCHY_DELIMITER + name;
