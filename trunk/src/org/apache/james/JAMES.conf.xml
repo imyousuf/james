@@ -13,8 +13,9 @@
             </servernames>
 <!-- Place here the path where incoming mail are temporaly stored before beeing processed.
      (ex. file://c:/james/spool/) -->
-            <spoolRepository> file://../mail/spool/ </spoolRepository>
-            <mailboxName> localInbox </mailboxName>
+            <spoolRepository> file://../var/mail/spool/ </spoolRepository>
+
+            <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
 
             <pop3Server>
                 <port>110</port>
@@ -39,7 +40,7 @@
             </remoteManager>
 
             <usersManager>
-                <repository> file://../users/ </repository>
+                <repository> file://../var/users/ </repository>
             </usersManager>
 
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
@@ -55,7 +56,7 @@
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
                 </DNSservers>
                 <authoritative>false</authoritative>
-                <repository> file://../mail/delayed/ </repository>
+                <repository> file://../var/mail/delayed/ </repository>
             
 <!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
                 <servlets rootpath="org.apache.james.transport.servlet.">
@@ -72,7 +73,7 @@
 
 <!-- The last servlet in the pipe is the one managing errors -->
                     <servlet match="All" class="ToRepository">
-                        <repositoryPath> file://../mail/errors/ </repositoryPath>
+                        <repositoryPath> file://../var/mail/errors/ </repositoryPath>
                         <passThrought> false </passThrought>
                     </servlet>
 <!-- ++++++++++++ END OF MAIL SERVLET PIPE LINE +++++++++++++ -->
@@ -204,20 +205,7 @@
                     be defined public since none of these block has 'the right' to own 
                     Repository configurations. Place here any public Repository definition">
 
-                <repository name="localInbox" type="MAIL" model="SYNCHRONOUS"
-                        help="Fill element with path where processed message are
-                        stored. This public Repository is shared amongst the 
-                        MailServer and POP3Server.
-                        (ex. file://c:/archivio/store/james/localinbox/)">
-                    file://../mail/localinbox/
-                </repository>
-
-                <repository name="MailUsers" type="OBJECT" model="SYNCHRONOUS"
-                        help="Fill element with path where users data are stored.
-                        (ex. file://c:/archivio/store/james/users/)">
-                    file://../mail/users/
-                </repository>
-
+<!--            <repository name="MyRepository" type="OBJECT" model="SYNCHRONOUS"> file://../myfolder/ </repository> -->
             </publicrepositories>
         </block>
 
@@ -227,7 +215,7 @@
                help="Provides an simple interface to catch Socket events">
             <listenerDefinition help="These are default socket listener. An 
                     application can implement an use its own lstener to perform
-                    specific task (ex. MD5Listener etc.)" >
+                    specific task (ex. FirewalledListener etc.)" >
                 <listener type="DEFAULT" class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor">
                 </listener>
                 <listener type="IPFILTERING" class="org.apache.avalon.blocks.serversocket.AutenticatedServerSocketAcceptor">
