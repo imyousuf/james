@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.50 $ Committed on $Date: 2003/04/29 13:15:43 $ by: $Author: danny $ -->
+<!-- $Revision: 1.51 $ Committed on $Date: 2003/05/07 03:15:30 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -488,6 +488,8 @@
     <!-- The NNTP server is enabled by default -->
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
+    <!-- NNTP-specific: if you disable the NNTP Server, you should also set the nntp-repository's
+         threadCount to 0, otherwise there will be threads active and polling  -->
    <nntpserver enabled="true">
    <!-- THE NNTP PROTOCOL IS EXPERIMENTAL AND NOT AS WELL TESTED AS SMTP AND POP3 IN THIS RELEASE.
         The James project recommends that you check the James web site for updates to the NNTP
@@ -541,7 +543,7 @@
             <!-- The number of threads that process spooler related tasks. -->
             <threadCount>1</threadCount>
             <!-- The spool thread(s) should idle for some time, if it has nothing to do  -->
-            <threadIdleTime>1000</threadIdleTime>
+            <threadIdleTime>60000</threadIdleTime>
          </configuration>
       </spool>
    </nntp-repository>
