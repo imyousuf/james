@@ -32,7 +32,7 @@
 </section>
 
 <section name="Version 2.1.3">
-<p>Expected release May 12 2003</p>
+<p>Released 12 May 2003</p>
 <li>[NjB] (code) Fixed stream handling in MimeMessageWrapper to address a JavaMail issue introduced in v2.1.2</li>
 <li>[NjB] (code) Fixes to AddFooter for text/html parts</li>
 <li>[MI,PG,NjB] (code) Fixes to AddFooter for MimeMultipart messages</li>
@@ -45,7 +45,7 @@
 <li>[KS}  (code) Fixed NNTP authentication</li>
 <li>[HJ]  (code) Fixed bug 18726 (optional socket factory to specify outgoing bind address)</li>
 <li>[NjB] (code) Fixed bug 19418 (changed notify/wait code in spooler)</li>
-<li>[NjB] (code) Fixed bug 18307</li>
+<li>[NjB] (code) Fixed bug 18307 (NotifySender headers)</li>
 <li>[NjB] (code) Fixed bug with non-InternetAddress addresses  - courtesy of Steen Jansdal</li>
 <li>[NjB] (code) Fixed bug in NotifySender with complex MIME messages</li>
 <li>[SK, NjB] (code) Added Delivered-To header in LocalDelivery</li>
