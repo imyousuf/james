@@ -20,13 +20,27 @@ import java.util.Iterator;
  */
 public interface UsersStore 
 {
+    /**
+     * The component role used by components implementing this service
+     */
     String ROLE = "org.apache.james.services.UsersStore";
 
+    /** 
+     * Get the repository, if any, whose name corresponds to
+     * the argument parameter
+     *
+     * @param name the name of the desired repository
+     *
+     * @return the UsersRepository corresponding to the name parameter
+     */
     UsersRepository getRepository( String name );
 
     /** 
-     * @return repository names that could be resolved by 
-     * calling 'getRepository' method 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
      */
     Iterator getRepositoryNames();
 }

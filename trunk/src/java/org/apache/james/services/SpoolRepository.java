@@ -26,17 +26,21 @@ public interface SpoolRepository
 
     /**
      * Returns the key for an arbitrarily selected mail deposited in this Repository.
-     * Useage: SpoolManager calls accept() to see if there are any unprocessed 
+     * Usage: SpoolManager calls accept() to see if there are any unprocessed 
      * mails in the spool repository.
+     *
+     * @return the key for the mail
      */
     String accept();
 
     /**
-     * Returns the key for an arbitrarily select mail depository in this Repositry that
+     * Returns the key for an arbitrarily select mail deposited in this Repository that
      * is either ready immediately for delivery, or is younger than it's last_updated plus
      * the number of failed attempts times the delay time.
-     * Useage: RemoteDeliverySpool calls accept() with some delay and should block until an
+     * Usage: RemoteDeliverySpool calls accept() with some delay and should block until an
      * unprocessed mail is available.
+     *
+     * @return the key for the mail
      */
     String accept(long delay);
 }

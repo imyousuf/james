@@ -18,17 +18,22 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/16 22:00:07 $
+ * $Revision: 1.5 $
  */
 public interface UsersRepository {
 
+    /**
+     * The component role used by components implementing this service
+     */
     String ROLE = "org.apache.james.services.UsersRepository";
 
     String USER = "USER";
 
     /**
      * Adds a user to the repository with the specified User object.
+     *
+     * @param user the user to be added
      *
      * @return true if succesful, false otherwise
      * @since James 1.2.2
@@ -38,6 +43,9 @@ public interface UsersRepository {
     /**
      * Adds a user to the repository with the specified attributes.  In current
      * implementations, the Object attributes is generally a String password.
+     *
+     * @param name the name of the user to be added
+     * @param attributes see decription
      */
     void addUser(String name, Object attributes);
 
@@ -53,6 +61,9 @@ public interface UsersRepository {
      * Get the user object with the specified user name.  Return null if no
      * such user.
      *
+     * @param name the name of the user to retrieve
+     * @return the user being retrieved, null if the user doesn't exist
+     *
      * @since James 1.2.2
      */
     User getUserByName(String name);
@@ -61,6 +72,9 @@ public interface UsersRepository {
      * Get the user object with the specified user name. Match user naems on
      * a case insensitive basis.  Return null if no such user.
      *
+     * @param name the name of the user to retrieve
+     * @return the user being retrieved, null if the user doesn't exist
+     *
      * @since James 1.2.2
      */
     User getUserByNameCaseInsensitive(String name);
@@ -68,6 +82,9 @@ public interface UsersRepository {
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
      * basis. Returns null if no match.
+     *
+     * @param name the name to case-correct
+     * @return the case-correct name of the user, null if the user doesn't exist
      */
     String getRealName(String name);
 
@@ -81,17 +98,25 @@ public interface UsersRepository {
 
     /**
      * Removes a user from the repository
+     *
+     * @param name the user to remove from the repository
      */
     void removeUser(String name);
 
     /**
      * Returns whether or not this user is in the repository
+     *
+     * @param name the name to check in the repository
+     * @return whether the user is in the repository
      */
     boolean contains(String name);
 
     /**
      * Returns whether or not this user is in the repository. Names are
      * matched on a case insensitive basis.
+     *
+     * @param name the name to check in the repository
+     * @return whether the user is in the repository
      */
     boolean containsCaseInsensitive(String name);
 
@@ -108,12 +133,20 @@ public interface UsersRepository {
     /**
      * Test if user with name 'name' has password 'password'.
      *
+     * @param name the name of the user to be tested
+     * @param password the password to be tested
+     *
+     * @return true if the test is successful, false if the user
+     *              doesn't exist or if the password is incorrect
+     *
      * @since James 1.2.2
      */
     boolean test(String name, String password);
 
     /**
      * Returns a count of the users in the repository.
+     *
+     * @return the number of users in the repository
      */
     int countUsers();
 

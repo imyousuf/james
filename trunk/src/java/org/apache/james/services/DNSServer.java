@@ -8,30 +8,28 @@
 package org.apache.james.services;
 
 import java.util.Collection;
-//import org.xbill.DNS.Record;
 
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
  * It may be a good idea to make the interface more generic or expose 
  * commonly needed DNS methods.
+ *
  * @author  Harmeet <harmeet@kodemuse.com>
  */
 public interface DNSServer {
+
+    /**
+     * The component role used by components implementing this service
+     */
     String ROLE = "org.apache.james.services.DNSServer";
 
-    /** 
+    /**
+     * <p>Get a priority-sorted collection of DNS MX records for a given hostname</p>
+     *
+     * <p>TODO: Change this to a list, as not all collections are sortable</p>
+     *
+     * @param hostname the hostname to check
      * @return collection of strings representing MX record values. 
-     * The returned collection is sorted by priority.
      */
     Collection findMXRecords(String hostname);
-
-    /** @param name : query name, 
-     * @param type : Record type. @param type is expected to be one of the 
-     * types defined in org.xbill.DNS.Type
-     */
-    // I thought this was a good general method to expose :-)
-    // but it ties the interface to xbill library.:-(
-    // the interface should be neutral and implementation replaceable.
-    // one way is to have a DNSRecord abstraction...
-    //Record[] lookup(String name, short type);
 }
