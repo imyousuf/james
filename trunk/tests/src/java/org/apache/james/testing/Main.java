@@ -20,6 +20,14 @@ import java.lang.reflect.*;
  * - initiates tests, reports result.
  */
 public class Main {
+
+    /**
+     * Main method used to invoke tests.  Sole argument should be
+     * a configuration file with test suite configuration.
+     *
+     * @param args Sole argument should be a configuration file
+     *             with test suite configuration
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("Usage java org.apache.james.testing.Main <testconfigfile>");
 
@@ -38,11 +46,13 @@ public class Main {
             Class clazz = Class.forName(clsname);
             Constructor cstr = clazz.getConstructor(new Class[] { String.class });
             Test test = (Test)cstr.newInstance(new Object[] {name});
-            if ( test instanceof Configurable )
+            if ( test instanceof Configurable ) {
                 ((Configurable)test).configure(conf);
+            }
 
-            if (repetition > 1)
+            if (repetition > 1) {
                 test = new RepeatedTest(test,repetition);
+            }
 
             if ( async ) {
                 TestSuite ts = new ActiveTestSuite();

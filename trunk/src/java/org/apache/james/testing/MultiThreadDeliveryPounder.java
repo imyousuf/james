@@ -23,11 +23,29 @@ import java.util.Vector;
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MultiThreadDeliveryPounder extends Thread {
+
+    /**
+     * The number of loops to be executed by the thread.
+     */
     int loops = 0;
+
+    /**
+     * The user to whom emails will be sent.
+     */
     String user = null;
-    Properties prop = new Properties();
+
+    /**
+     * The prefix for the test message body.  The body will correspond
+     * to this string with a number appended.
+     */
     private static final String body = "Test message number: ";
 
+    /**
+     * Sole constructor for this class.
+     *
+     * @param loops the number of loops the thread should execute.
+     * @param user the user to whom the emails will be sent.
+     */
     public MultiThreadDeliveryPounder(int loops, String user) {
         this.loops = loops;
         this.user = user;
@@ -35,8 +53,12 @@ public class MultiThreadDeliveryPounder extends Thread {
         start();
     }
 
+    /**
+     * Executes a fixed number of loops, emailing the user each loop.
+     */
     public void run() {
         try {
+            Properties prop = new Properties();
             Session session = Session.getDefaultInstance(prop, null);
             // Transport transport = session.getTransport("smtp");
 
@@ -62,6 +84,14 @@ public class MultiThreadDeliveryPounder extends Thread {
         }
     }
 
+    /**
+     * Executes the test, creating a number of worker threads, each of whom 
+     * will loop a fixed number of times, sending emails to the specified user
+     * on each loop.
+     *
+     * @param args the number of threads, the number of loops to execute,
+     *             the user to whom to send.
+     */
     public static void main(String[] args) throws Throwable {
         if (args.length != 3) {
             System.err.println("Usage: ");

@@ -20,31 +20,61 @@ import java.util.Properties;
  */
 public class POP3Hammering {
 
+    /**
+     * The POP3 host to be tested.
+     */
     private String mailHost;
-    private String user;
-    private String password;
-    private Properties prop = new Properties();
 
+    /**
+     * The name of the user account being used to send and receive
+     * the test emails.
+     */
+    private String user;
+
+    /**
+     * The password of the user account being used to send the test emails.
+     */
+    private String password;
+
+
+    /**
+     * The prefix for the test message body.  The body will correspond
+     * to this string with a number appended.
+     */
     private static final String body = "Test message number: ";
 
-    private int iter;
+    /**
+     * The number of the current test mail.
+     */
+    private int mailNumber;
 
+    /**
+     * The sole constructor for this class.
+     *
+     * @param host the name of the mail host
+     * @param user the user name that will be both the sender and recipient of the mails.
+     * @param password the user password
+     */
     public POP3Hammering(String host, String user, String password) {
         this.mailHost = host;
         this.user = user;
         this.password = password;
-        iter = 0;
-        prop.put("java.smtp.host", mailHost);
+        mailNumber = 0;
     }
 
+    /**
+     * Sends a test mail to the user account.
+     */
     void sendMail() {
         try {
+            Properties prop = new Properties();
+            prop.put("java.smtp.host", mailHost);
             Session session = Session.getDefaultInstance(prop, null);
             // Transport transport = session.getTransport("smtp");
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(user + "@localhost"));
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user + "@localhost"));
-            msg.setContent(body + ++iter, "text/plain");
+            msg.setContent(body + ++mailNumber, "text/plain");
             Transport.send(msg);
             // transport.close();
             System.out.println("Sent message : " + msg.getContent() +
@@ -56,10 +86,17 @@ public class POP3Hammering {
         }
     }
 
+    /**
+     * Checks to see if an email has been received.
+     *
+     * @param delete whether the email is to be deleted.
+     */
     void receiveMail(boolean delete) {
         Store store = null;
         Folder folder = null;
         try {
+            Properties prop = new Properties();
+            prop.put("java.smtp.host", mailHost);
             Session session = Session.getDefaultInstance(prop, null);
             store = session.getStore("pop3");
             store.connect(mailHost, user, password);
@@ -109,6 +146,12 @@ public class POP3Hammering {
         }
     }
 
+    /**
+     * Executes the body of the test, sending two mails and checking
+     * the destination inbox to confirm that the mails were received.
+     *
+     * @param args the host name, user id, and password
+     */
     public static void main(String[] args) throws Throwable {
         POP3Hammering tester = new POP3Hammering(args[0], args[1], args[2]);
         tester.sendMail();
