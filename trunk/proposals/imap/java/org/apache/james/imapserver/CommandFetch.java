@@ -152,7 +152,6 @@ public class CommandFetch
         }
 
         fetchAttrs = convertMacroCommands( fetchAttrs );
-        System.out.println("Starting TRY");
         try {
             for (int i = 0; i < set.size(); i++) {
                 Integer uidObject = null;
@@ -179,10 +178,10 @@ public class CommandFetch
                     if (arg.equalsIgnoreCase("FLAGS")) {
                         if (flags == null) {
                             if (useUIDs) {
-                                System.out.println("TRIING UIDFLAGS"+uid);
+                                System.out.println("TRYING UIDFLAGS"+uid);
                                 flags = currentMailbox.getFlagsUID(uid, user);
                             } else {
-                                System.out.println("TRIING MSNFLAGS"+msn);
+                                System.out.println("TRYING MSNFLAGS"+msn);
                                 flags = currentMailbox.getFlags(msn, user);
                             }
                         }

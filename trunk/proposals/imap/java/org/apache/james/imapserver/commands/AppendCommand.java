@@ -160,7 +160,15 @@ class AppendCommand extends AuthenticatedSelectedStateCommand {
                 return true;
             }
             
-            MimeMessageInputStreamSource source = new MimeMessageInputStreamSource("Mail" + System.currentTimeMillis() + "-" + mailbox.getNextUID(), new ByteArrayInputStream(byteout.toByteArray()));
+            MimeMessageInputStreamSource source;
+            try {
+                source =
+                    new MimeMessageInputStreamSource("Mail" + System.currentTimeMillis() + "-" + mailbox.getNextUID(), 
+                                                     new ByteArrayInputStream(byteout.toByteArray()));
+            } catch (MessagingException me) {
+                me.printStackTrace();
+                return false;
+            }
             MimeMessageWrapper msg = new MimeMessageWrapper(source);
 
             try{
