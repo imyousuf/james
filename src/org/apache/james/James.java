@@ -1,26 +1,12 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james;
 
-import org.apache.avalon.Component;
-import org.apache.avalon.ComponentManager;
-import org.apache.avalon.ComponentManagerException;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Context;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.DefaultComponentManager;
-import org.apache.avalon.DefaultContext;
-import org.apache.avalon.Initializable;
-import org.apache.avalon.configuration.Configurable;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.configuration.DefaultConfiguration;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -29,7 +15,20 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
 import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Component;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
 import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.DefaultComponentManager;
+import org.apache.avalon.DefaultContext;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.dnsserver.*;
@@ -636,7 +635,6 @@ public class James
      * @param password String plaintext password
      * @returns boolean true if user added succesfully, else false.
      */
-
     public boolean addUser(String userName, String password) {
         localusers.addUser(userName, password);
         if (useIMAPstorage) {
