@@ -62,29 +62,31 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionMailbox;
 import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.SimpleImapMessage;
 
-import javax.mail.MessagingException;
 import javax.mail.Flags;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Handles processeing for the FETCH imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -113,10 +115,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         parser.endLine( request );
         
         if (useUids) {
-            fetch.addElement(FetchElement.UID);
+            fetch.uid = true;
         }
 
-        ImapMailbox mailbox = session.getSelected();
+        ImapSessionMailbox mailbox = session.getSelected();
         long[] uids = mailbox.getMessageUids();
         for ( int i = 0; i < uids.length; i++ ) {
             long uid = uids[i];
@@ -126,11 +128,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                  ( !useUids && includes( idSet, msn ) ) )
             {
                 SimpleImapMessage imapMessage = mailbox.getMessage( uid );
-                String msgData = outputMessage( fetch, imapMessage );
+                String msgData = outputMessage( fetch, imapMessage, mailbox, useUids );
                 response.fetchResponse( msn, msgData );
-                if (imapMessage.getFlags().contains(Flags.Flag.RECENT)) {
-                    mailbox.setFlags(new Flags(Flags.Flag.RECENT), false, uid, null, false);
-                }
             }
         }
 
@@ -139,73 +138,93 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         response.commandComplete( this );
     }
 
-    private String outputMessage( FetchRequest fetch, SimpleImapMessage message )
+    private String outputMessage( FetchRequest fetch, SimpleImapMessage message, 
+                                  ImapSessionMailbox mailbox, boolean useUids )
             throws MailboxException, ProtocolException
     {
-
+        // Check if this fetch will cause the "SEEN" flag to be set on this message
+        // If so, update the flags, and ensure that a flags response is included in the response.
+        boolean ensureFlagsResponse = false;
+        if (fetch.isSetSeen() && !message.getFlags().contains(Flags.Flag.SEEN)) {
+            mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, message.getUid(),
+                             mailbox, useUids);
+            message.getFlags().add(Flags.Flag.SEEN);
+            ensureFlagsResponse = true;
+        }
+        
         StringBuffer response = new StringBuffer();
         
-        List elements = fetch.getElements();
-        for ( int i = 0; i < elements.size(); i++ ) {
-            FetchElement fetchElement = ( FetchElement ) elements.get( i );
-            if ( i > 0 ) {
-                response.append( SP );
-            }
-            response.append( fetchElement.getResponseName() );
-            response.append( SP );
+        // FLAGS response
+        if (fetch.flags || ensureFlagsResponse) {
+            response.append(" FLAGS ");
+            response.append( MessageFlags.format(message.getFlags()) );
+        }
+        
+        // INTERNALDATE response
+        if (fetch.internalDate) {
+            response.append(" INTERNALDATE \"");
+            // TODO format properly
+            response.append( message.getAttributes().getInternalDateAsString() );
+            response.append ( "\"" );
+            
+        }
+        
+        // RFC822.SIZE response
+        if (fetch.size) {
+            response.append(" RFC822.SIZE ");
+            response.append(message.getAttributes().getSize());
+        }
+        
+        // ENVELOPE response
+        if (fetch.envelope) {
+            response.append(" ENVELOPE ");
+            response.append(message.getAttributes().getEnvelope());
+        }
+        
+        // BODY response
+        if (fetch.body) {
+            response.append(" BODY ");
+            response.append(message.getAttributes().getBodyStructure(false));
+        }
+        
+        // BODYSTRUCTURE response
+        if (fetch.bodyStructure) {
+            response.append(" BODYSTRUCTURE ");
+            response.append(message.getAttributes().getBodyStructure(true));
+        }
+        
+        // UID response
+        if (fetch.uid) {
+            response.append(" UID ");
+            response.append(message.getUid());
+        }
+        
+        // BODY part responses.
+        Collection elements = fetch.getBodyElements();
+        for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
+            BodyFetchElement fetchElement = (BodyFetchElement) iterator.next();
+            response.append(SP);
+            response.append(fetchElement.getResponseName());
+            response.append(SP);
 
-            if ( fetchElement == FetchElement.FLAGS ) {
-                Flags flags = message.getFlags();
-                response.append( MessageFlags.format(flags) );
-            }
-            else if ( fetchElement == FetchElement.INTERNALDATE ) {
-                // TODO format properly
-                String internalDate = message.getAttributes().getInternalDateAsString();
-                response.append( "\"" );
-                response.append( internalDate );
-                response.append ( "\"" );
-            }
-            else if ( fetchElement == FetchElement.RFC822_SIZE ) {
-                response.append( message.getAttributes().getSize() );
-            }
-            else if ( fetchElement == FetchElement.ENVELOPE ) {
-                response.append( message.getAttributes().getEnvelope() );
-            }
-            else if ( fetchElement == FetchElement.BODY ) {
-                response.append( message.getAttributes().getBodyStructure( false ) );
-            }
-            else if ( fetchElement == FetchElement.BODYSTRUCTURE ) {
-                response.append( message.getAttributes().getBodyStructure( true ) );
-            }
-            else if ( fetchElement == FetchElement.UID ) {
-                response.append( message.getUid() );
-            }
             // Various mechanisms for returning message body.
-            else if ( fetchElement instanceof BodyFetchElement ) {
-                BodyFetchElement bodyFetchElement = (BodyFetchElement)fetchElement;
-                String sectionSpecifier = bodyFetchElement.getParameters();
-                boolean peek = bodyFetchElement.isPeek();
+            String sectionSpecifier = fetchElement.getParameters();
 
-                MimeMessage mimeMessage = message.getMimeMessage();
-                try {
-                    handleBodyFetch( mimeMessage, sectionSpecifier, response );
-                }
-                catch ( MessagingException e ) {
-                    // TODO  chain exceptions
-                    throw new MailboxException( e.getMessage() );
-                }
-
-                if ( ! peek ) {
-                    message.getFlags().add(Flags.Flag.SEEN);
-                    // TODO need to store this change.
-                }
-            }
-            else {
-                throw new ProtocolException( "Invalid fetch attribute" );
+            MimeMessage mimeMessage = message.getMimeMessage();
+            try {
+                handleBodyFetch(mimeMessage, sectionSpecifier, response);
+            } catch (MessagingException e) {
+                // TODO  chain exceptions
+                throw new MailboxException(e.getMessage());
             }
         }
 
-        return response.toString();
+        if (response.length() > 0) {
+            // Remove the leading " ".
+            return response.substring(1);
+        } else {
+            return "";
+        }
     }
 
 
@@ -361,14 +380,13 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 throws ProtocolException
         {
             FetchRequest fetch = new FetchRequest();
-            CharacterValidator validator = new NoopCharValidator();
 
             char next = nextNonSpaceChar( request );
             consumeChar( request, '(' );
 
             next = nextNonSpaceChar( request );
             while ( next != ')' ) {
-                fetch.addElement( getNextElement( request ) );
+                addNextElement( request, fetch );
                 next = nextNonSpaceChar( request );
             }
 
@@ -377,83 +395,77 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             return fetch;
         }
 
-        private FetchElement getNextElement( ImapRequestLineReader request)
+        private void addNextElement( ImapRequestLineReader command, FetchRequest fetch)
                 throws ProtocolException
         {
-            char next = nextCharInLine( request );
+            char next = nextCharInLine( command );
                 StringBuffer element = new StringBuffer();
                 while ( next != ' ' && next != '[' && next != ')' ) {
                     element.append(next);
-                    request.consume();
-                    next = nextCharInLine( request );
+                    command.consume();
+                    next = nextCharInLine( command );
                 }
                 String name = element.toString();
                 // Simple elements with no '[]' parameters.
                 if ( next == ' ' || next == ')' ) {
                     if ( "FAST".equalsIgnoreCase( name ) ) {
-                        return FetchElement.FAST;
-                    }
-                    if ( "FULL".equalsIgnoreCase( name ) ) {
-                        return FetchElement.FULL;
-                    }
-                    if ( "ALL".equalsIgnoreCase( name ) ) {
-                        return FetchElement.ALL;
-                    }
-                    if ( "FLAGS".equalsIgnoreCase( name ) ) {
-                        return FetchElement.FLAGS;
-                    }
-                    if ( "RFC822.SIZE".equalsIgnoreCase( name ) ) {
-                        return FetchElement.RFC822_SIZE;
-                    }
-                    if ( "ENVELOPE".equalsIgnoreCase( name ) ) {
-                        return FetchElement.ENVELOPE;
-                    }
-                    if ( "INTERNALDATE".equalsIgnoreCase( name ) ) {
-                        return FetchElement.INTERNALDATE;
-                    }
-                    if ( "BODY".equalsIgnoreCase( name ) ) {
-                        return FetchElement.BODY;
-                    }
-                    if ( "BODYSTRUCTURE".equalsIgnoreCase( name ) ) {
-                        return FetchElement.BODYSTRUCTURE;
-                    }
-                    if ( "UID".equalsIgnoreCase( name ) ) {
-                        return FetchElement.UID;
-                    }
-                    if ( "RFC822".equalsIgnoreCase( name ) ) {
-                        return new BodyFetchElement( "RFC822", "", false );
-                    }
-                    if ( "RFC822.HEADER".equalsIgnoreCase( name ) ) {
-                        return new BodyFetchElement( "RFC822.HEADER", "HEADER", true );
-                    }
-                    if ( "RFC822.TEXT".equalsIgnoreCase( name ) ) {
-                        return new BodyFetchElement( "RFC822.TEXT", "TEXT", false );
-                    }
-                    else {
+                        fetch.flags = true;
+                        fetch.internalDate = true;
+                        fetch.size = true;
+                    } else if ("FULL".equalsIgnoreCase(name)) {
+                        fetch.flags = true;
+                        fetch.internalDate = true;
+                        fetch.size = true;
+                        fetch.envelope = true;
+                        fetch.body = true;
+                    } else if ("ALL".equalsIgnoreCase(name)) {
+                        fetch.flags = true;
+                        fetch.internalDate = true;
+                        fetch.size = true;
+                        fetch.envelope = true;
+                    } else if ("FLAGS".equalsIgnoreCase(name)) {
+                        fetch.flags = true;
+                    } else if ("RFC822.SIZE".equalsIgnoreCase(name)) {
+                        fetch.size = true;
+                    } else if ("ENVELOPE".equalsIgnoreCase(name)) {
+                        fetch.envelope = true;
+                    } else if ("INTERNALDATE".equalsIgnoreCase(name)) {
+                        fetch.internalDate = true;
+                    } else if ("BODY".equalsIgnoreCase(name)) {
+                        fetch.body = true;
+                    } else if ("BODYSTRUCTURE".equalsIgnoreCase(name)) {
+                        fetch.bodyStructure = true;
+                    } else if ("UID".equalsIgnoreCase(name)) {
+                        fetch.uid = true;
+                    } else if ("RFC822".equalsIgnoreCase(name)) {
+                        fetch.add(new BodyFetchElement("RFC822", ""), false);
+                    } else if ("RFC822.HEADER".equalsIgnoreCase(name)) {
+                        fetch.add(new BodyFetchElement("RFC822.HEADER", "HEADER"), true);
+                    } else if ("RFC822.TEXT".equalsIgnoreCase(name)) {
+                        fetch.add(new BodyFetchElement("RFC822.TEXT", "TEXT"), false);
+                    } else {
                         throw new ProtocolException( "Invalid fetch attribute: " + name );
                     }
                 }
                 else {
-                    consumeChar( request, '[' );
+                    consumeChar( command, '[' );
 
                     StringBuffer sectionIdentifier = new StringBuffer();
-                    next = nextCharInLine( request );
+                    next = nextCharInLine( command );
                     while ( next != ']' ) {
                         sectionIdentifier.append( next );
-                        request.consume();
-                        next = nextCharInLine(request);
+                        command.consume();
+                        next = nextCharInLine(command);
                     }
-                    consumeChar( request, ']' );
+                    consumeChar( command, ']' );
 
                     String parameter = sectionIdentifier.toString();
 
                     if ( "BODY".equalsIgnoreCase( name ) ) {
-                        return new BodyFetchElement( "BODY[" + parameter + "]", parameter, false );
-                    }
-                    if ( "BODY.PEEK".equalsIgnoreCase( name ) ) {
-                        return new BodyFetchElement( "BODY[" + parameter + "]", parameter, true );
-                    }
-                    else {
+                        fetch.add(new BodyFetchElement("BODY[" + parameter + "]", parameter), false);
+                    } else if ( "BODY.PEEK".equalsIgnoreCase( name ) ) {
+                        fetch.add(new BodyFetchElement("BODY[" + parameter + "]", parameter), true);
+                    } else {
                         throw new ProtocolException( "Invalid fetch attibute: " + name + "[]" );
                     }
                 }
@@ -482,75 +494,46 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 
     }
 
-
     private static class FetchRequest
     {
-        private ArrayList elements = new ArrayList();
-        List getElements() {
-            return Collections.unmodifiableList( elements );
+        boolean flags;
+        boolean uid;
+        boolean internalDate;
+        boolean size;
+        boolean envelope;
+        boolean body;
+        boolean bodyStructure;
+        
+        private boolean setSeen = false;
+        
+        private Set bodyElements = new HashSet();
+        
+        public Collection getBodyElements() {
+            return bodyElements;
         }
-        void addElement( FetchElement element )
+
+        public boolean isSetSeen() {
+            return setSeen;
+        }
+
+        public void add( BodyFetchElement element, boolean peek )
         {
-            if ( element == FetchElement.ALL ) {
-                elements.add( FetchElement.FLAGS );
-                elements.add( FetchElement.INTERNALDATE );
-                elements.add( FetchElement.RFC822_SIZE );
-                elements.add( FetchElement.ENVELOPE );
+            if (!peek) {
+                setSeen = true;
             }
-            else if ( element == FetchElement.FAST ) {
-                elements.add( FetchElement.FLAGS );
-                elements.add( FetchElement.INTERNALDATE );
-                elements.add( FetchElement.RFC822_SIZE );
-           }
-            else if ( element == FetchElement.FULL ) {
-                elements.add( FetchElement.FLAGS );
-                elements.add( FetchElement.INTERNALDATE );
-                elements.add( FetchElement.RFC822_SIZE );
-                elements.add( FetchElement.ENVELOPE );
-                elements.add( FetchElement.BODY );
-            }
-            else {
-                elements.add( element );
-            }
+            bodyElements.add(element);
         }
     }
 
-    private static class FetchElement
+    private class BodyFetchElement
     {
-        public static final FetchElement FLAGS = new FetchElement( "FLAGS" );
-        public static final FetchElement INTERNALDATE = new FetchElement( "INTERNALDATE" );
-        public static final FetchElement RFC822_SIZE= new FetchElement( "RFC822.SIZE" );
-        public static final FetchElement ENVELOPE = new FetchElement( "ENVELOPE" );
-        public static final FetchElement BODY = new FetchElement( "BODY" );
-        public static final FetchElement BODYSTRUCTURE = new FetchElement( "BODYSTRUCTURE" );
-        public static final FetchElement UID = new FetchElement( "UID" );
-
-        public static final FetchElement FAST = new FetchElement( "FAST" );
-        public static final FetchElement FULL = new FetchElement( "FULL" );
-        public static final FetchElement ALL = new FetchElement( "ALL" );
-
-        String name;
-
-        protected FetchElement( String name )
-        {
-            this.name = name;
-        }
-
-        public String getResponseName() {
-            return this.name;
-        }
-    }
-
-    private class BodyFetchElement extends FetchElement
-    {
-        private boolean peek;
+        private String name;
         private String sectionIdentifier;
 
-        public BodyFetchElement( String name, String sectionIdentifier, boolean peek )
+        public BodyFetchElement( String name, String sectionIdentifier)
         {
-            super( name );
+            this.name = name;
             this.sectionIdentifier = sectionIdentifier;
-            this.peek = peek;
         }
 
         public String getParameters()
@@ -558,9 +541,8 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             return this.sectionIdentifier;
         }
 
-        public boolean isPeek()
-        {
-            return this.peek;
+        public String getResponseName() {
+            return this.name;
         }
     }
 

@@ -5,6 +5,7 @@ Simple tests:
     (concurrent/ExistsResponse.test) - still need RECENT
 3 Expunge response when another session performs a EXPUNGE against the mailbox
 
+FETCH should set the /SEEN flag, and this should be propogated to other sessions.
 
 
 From RFC2180

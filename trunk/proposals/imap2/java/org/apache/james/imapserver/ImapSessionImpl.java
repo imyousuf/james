@@ -65,7 +65,6 @@ import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
 
 import javax.mail.Flags;
-import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
 
@@ -73,7 +72,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public final class ImapSessionImpl implements ImapSession
 {

@@ -162,7 +162,7 @@ Legal:
 
     <!-- Tests IMAP commands against a running instance of James -->
     <target name="testimap-commands" depends="compile">
-        <junit fork="yes">
+        <junit fork="yes" failureproperty="protocol-test.failed" >
             <classpath>
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
@@ -176,6 +176,8 @@ Legal:
             <test name="org.apache.james.imapserver.TestCompound"/>
             <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
         </junit>
+        
+        <fail message="One or more protocol tests failed" if="protocol-test.failed"/>
     </target>
     
     <target name="build-and-test">

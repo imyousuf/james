@@ -6,7 +6,7 @@ S: \* 3 FETCH \(UID .*\)
 S: f1 OK FETCH completed
 
 # Fetch 3 messages with BODY
-C: f1 FETCH 1:3 (BODY[HEADER.FIELDS (Subject)])
+C: f1 FETCH 1:3 (BODY.PEEK[HEADER.FIELDS (Subject)])
 S: \* 1 FETCH \(BODY\[HEADER\.FIELDS \(Subject\)\] \{20\}
 S: Subject\: Test 01
 S: 
