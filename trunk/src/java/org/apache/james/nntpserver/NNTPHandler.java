@@ -203,6 +203,11 @@ public class NNTPHandler
     private final static String AUTHINFO_PARAM_PASS = "PASS";
 
     /**
+     * The thread executing this handler 
+     */
+    private Thread handlerThread;
+
+    /**
      * The TCP/IP socket over which the POP3 interaction
      * is occurring
      */
@@ -301,6 +306,16 @@ public class NNTPHandler
             }
         } catch (Exception e) {
             // ignored
+        } finally {
+            socket = null;
+        }
+
+        synchronized (this) {
+            // Interrupt the thread to recover from internal hangs
+            if (handlerThread != null) {
+                handlerThread.interrupt();
+                handlerThread = null;
+            }
         }
     }
 
@@ -311,6 +326,9 @@ public class NNTPHandler
 
         try {
             this.socket = connection;
+            synchronized (this) {
+                handlerThread = Thread.currentThread();
+            }
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 1024);
             writer = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 1024), true);
         } catch (Exception e) {
@@ -387,6 +405,10 @@ public class NNTPHandler
             getLogger().warn("NNTPHandler: Unexpected exception occurred while closing socket: " + ioe);
         } finally {
             socket = null;
+        }
+
+        synchronized (this) {
+            handlerThread = null;
         }
 
         // Clear the selected group, article info

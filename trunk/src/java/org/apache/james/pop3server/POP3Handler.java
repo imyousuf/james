@@ -84,6 +84,11 @@ public class POP3Handler
     private MailRepository userInbox;
 
     /**
+     * The thread executing this handler 
+     */
+    private Thread handlerThread;
+
+    /**
      * The TCP/IP socket over which the POP3 interaction
      * is occurring
      */
@@ -176,7 +181,18 @@ public class POP3Handler
             }
         } catch (Exception e) {
             // ignored
+        } finally {
+            socket = null;
         }
+
+        synchronized (this) {
+            // Interrupt the thread to recover from internal hangs
+            if (handlerThread != null) {
+                handlerThread.interrupt();
+                handlerThread = null;
+            }
+        }
+
     }
 
     /**
@@ -190,6 +206,9 @@ public class POP3Handler
 
         try {
             this.socket = connection;
+            synchronized (this) {
+                handlerThread = Thread.currentThread();
+            }
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
             remoteIP = socket.getInetAddress().getHostAddress ();
             remoteHost = socket.getInetAddress().getHostName ();
@@ -320,6 +339,10 @@ public class POP3Handler
             // Ignored
         } finally {
             outs = null;
+        }
+
+        synchronized (this) {
+            handlerThread = null;
         }
 
         // Clear user data
@@ -453,9 +476,7 @@ public class POP3Handler
         } else {
             responseString = ERR_RESPONSE;
         }
-        out.println(responseString);
-        out.flush();
-        logResponseString(responseString);
+        writeLoggedFlushedResponse(responseString);
     }
 
     /**
@@ -478,20 +499,18 @@ public class POP3Handler
                             .append(user);
                 responseString = responseBuffer.toString();
                 state = TRANSACTION;
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
                 userInbox = theConfigData.getMailServer().getUserInbox(user);
                 stat();
             } else {
                 responseString = ERR_RESPONSE + " Authentication failed.";
                 state = AUTHENTICATION_READY;
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             }
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -524,17 +543,15 @@ public class POP3Handler
                             .append(" ")
                             .append(size);
                 responseString = responseBuffer.toString();
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE;
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             }
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -569,7 +586,7 @@ public class POP3Handler
                                 .append(" ")
                                 .append(size);
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                     count = 0;
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
                         MailImpl mc = (MailImpl) e.nextElement();
@@ -583,9 +600,10 @@ public class POP3Handler
                         }
                     }
                     out.println(".");
+                    out.flush();
                 } catch (MessagingException me) {
                     responseString = ERR_RESPONSE;
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 }
             } else {
                 int num = 0;
@@ -601,7 +619,7 @@ public class POP3Handler
                                     .append(" ")
                                     .append(mc.getMessageSize());
                         responseString = responseBuffer.toString();
-                        out.println(responseString);
+                        writeLoggedFlushedResponse(responseString);
                     } else {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -610,7 +628,7 @@ public class POP3Handler
                                     .append(num)
                                     .append(") does not exist.");
                         responseString = responseBuffer.toString();
-                        out.println(responseString);
+                        writeLoggedFlushedResponse(responseString);
                     }
                 } catch (ArrayIndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
@@ -620,7 +638,7 @@ public class POP3Handler
                                 .append(num)
                                 .append(") does not exist.");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 } catch (NumberFormatException nfe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -629,18 +647,16 @@ public class POP3Handler
                                 .append(argument)
                                 .append(" is not a valid number");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 } catch (MessagingException me) {
                     responseString = ERR_RESPONSE;
-                    out.println(responseString);
-                }
+                    writeLoggedFlushedResponse(responseString);
+               }
             }
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -656,7 +672,7 @@ public class POP3Handler
         if (state == TRANSACTION) {
             if (argument == null) {
                 responseString = OK_RESPONSE + " unique-id listing follows";
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
                 int count = 0;
                 for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
                     MailImpl mc = (MailImpl) e.nextElement();
@@ -670,6 +686,7 @@ public class POP3Handler
                     }
                 }
                 out.println(".");
+                out.flush();
             } else {
                 int num = 0;
                 try {
@@ -684,7 +701,7 @@ public class POP3Handler
                                     .append(" ")
                                     .append(mc.getName());
                         responseString = responseBuffer.toString();
-                        out.println(responseString);
+                        writeLoggedFlushedResponse(responseString);
                     } else {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -693,7 +710,7 @@ public class POP3Handler
                                     .append(num)
                                     .append(") does not exist.");
                         responseString = responseBuffer.toString();
-                        out.println(responseString);
+                        writeLoggedFlushedResponse(responseString);
                     }
                 } catch (ArrayIndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
@@ -703,7 +720,7 @@ public class POP3Handler
                                 .append(num)
                                 .append(") does not exist.");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 } catch (NumberFormatException nfe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -712,14 +729,12 @@ public class POP3Handler
                                 .append(argument)
                                 .append(" is not a valid number");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 }
             }
         } else {
-            out.println(ERR_RESPONSE);
+            writeLoggedFlushedResponse(ERR_RESPONSE);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -738,9 +753,7 @@ public class POP3Handler
         } else {
             responseString = ERR_RESPONSE;
         }
-        out.println(responseString);
-        out.flush();
-        logResponseString(responseString);
+        writeLoggedFlushedResponse(responseString);
     }
 
     /**
@@ -760,9 +773,7 @@ public class POP3Handler
                 num = Integer.parseInt(argument);
             } catch (Exception e) {
                 responseString = ERR_RESPONSE + " Usage: DELE [mail number]";
-                out.println(responseString);
-                out.flush();
-                logResponseString(responseString);
+                writeLoggedFlushedResponse(responseString);
                 return;
             }
             try {
@@ -775,10 +786,10 @@ public class POP3Handler
                                 .append(num)
                                 .append(") does not exist.");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 } else {
                     userMailbox.setElementAt(DELETED, num);
-                    out.println(OK_RESPONSE + " Message removed");
+                    writeLoggedFlushedResponse(OK_RESPONSE + " Message removed");
                 }
             } catch (ArrayIndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
@@ -788,14 +799,12 @@ public class POP3Handler
                             .append(num)
                             .append(") does not exist.");
                 responseString = responseBuffer.toString();
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             }
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -810,13 +819,11 @@ public class POP3Handler
         String responseString = null;
         if (state == TRANSACTION) {
             responseString = OK_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -836,9 +843,7 @@ public class POP3Handler
                 num = Integer.parseInt(argument.trim());
             } catch (Exception e) {
                 responseString = ERR_RESPONSE + " Usage: RETR [mail number]";
-                out.println(responseString);
-                logResponseString(responseString);
-                out.flush();
+                writeLoggedFlushedResponse(responseString);
                 return;
             }
             //?May be written as
@@ -847,8 +852,7 @@ public class POP3Handler
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
-                    out.println(responseString);
-                    out.flush();
+                    writeLoggedFlushedResponse(responseString);
                     OutputStream nouts =
                             new ExtraDotOutputStream(outs);
                     nouts = new BytesWrittenResetOutputStream(nouts,
@@ -857,6 +861,7 @@ public class POP3Handler
                     mc.writeMessageTo(nouts);
                     out.println();
                     out.println(".");
+                    out.flush();
                 } else {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -865,14 +870,14 @@ public class POP3Handler
                                 .append(num)
                                 .append(") deleted.");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 }
             } catch (IOException ioe) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             } catch (ArrayIndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
@@ -881,15 +886,13 @@ public class POP3Handler
                             .append(num)
                             .append(") does not exist.");
                 responseString = responseBuffer.toString();
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             }
             // -------------------------------------------?
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -914,21 +917,18 @@ public class POP3Handler
                 lines = Integer.parseInt(argument1);
             } catch (NumberFormatException nfe) {
                 responseString = ERR_RESPONSE + " Usage: TOP [mail number] [Line number]";
-                out.println(responseString);
-                out.flush();
-                logResponseString(responseString);
+                writeLoggedFlushedResponse(responseString);
                 return;
             }
             try {
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
-                    out.println(responseString);
-                    out.flush();
+                    writeLoggedFlushedResponse(responseString);
                     for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
                         out.println(e.nextElement());
                     }
-                    out.println("");
+                    out.println();
                     OutputStream nouts =
                             new ExtraDotOutputStream(outs);
                     nouts = new BytesWrittenResetOutputStream(nouts,
@@ -936,6 +936,7 @@ public class POP3Handler
                                                               theConfigData.getResetLength());
                     mc.writeContentTo(nouts, lines);
                     out.println(".");
+                    out.flush();
                 } else {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -944,14 +945,14 @@ public class POP3Handler
                                 .append(num)
                                 .append(") already deleted.");
                     responseString = responseBuffer.toString();
-                    out.println(responseString);
+                    writeLoggedFlushedResponse(responseString);
                 }
             } catch (IOException ioe) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             } catch (ArrayIndexOutOfBoundsException iob) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(64)
@@ -960,14 +961,12 @@ public class POP3Handler
                             .append(num)
                             .append(") does not exist.");
                 responseString = exceptionBuffer.toString();
-                out.println(responseString);
+                writeLoggedFlushedResponse(responseString);
             }
         } else {
             responseString = ERR_RESPONSE;
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -990,14 +989,12 @@ public class POP3Handler
                 userInbox.remove(mc.getName());
             }
             responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
         } catch (Exception ex) {
             responseString = ERR_RESPONSE + " Some deleted messages were not removed";
-            out.println(responseString);
+            writeLoggedFlushedResponse(responseString);
             getLogger().error("Some deleted messages were not removed: " + ex.getMessage());
         }
-        out.flush();
-        logResponseString(responseString);
     }
 
     /**
@@ -1009,10 +1006,7 @@ public class POP3Handler
      * @argument1 the second argument parsed by the parseCommand method
      */
     private void doUnknownCmd(String command,String argument,String argument1) {
-        String responseString = ERR_RESPONSE;
-        out.println(responseString);
-        out.flush();
-        logResponseString(responseString);
+        writeLoggedFlushedResponse(ERR_RESPONSE);
     }
 
     /**
@@ -1027,6 +1021,30 @@ public class POP3Handler
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Sent: " + responseString);
         }
+    }
+
+    /**
+     * Write and flush a response string.  The response is also logged.
+     * Should be used for the last line of a multi-line response or
+     * for a single line response.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedFlushedResponse(String responseString) {
+        out.println(responseString);
+        out.flush();
+        logResponseString(responseString);
+    }
+
+    /**
+     * Write a response string.  The response is also logged. 
+     * Used for multi-line responses.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedResponse(String responseString) {
+        out.println(responseString);
+        logResponseString(responseString);
     }
 
     /**

@@ -46,7 +46,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  *
  */
 public class RemoteManagerHandler
@@ -150,6 +150,11 @@ public class RemoteManagerHandler
     private PrintWriter out;
 
     /**
+     * The thread executing this handler 
+     */
+    private Thread handlerThread;
+
+    /**
      * The TCP/IP socket over which the RemoteManager interaction
      * is occurring
      */
@@ -210,6 +215,16 @@ public class RemoteManagerHandler
             }
         } catch (Exception e) {
             // ignored
+        } finally {
+            socket = null;
+        }
+
+        synchronized (this) {
+            // Interrupt the thread to recover from internal hangs
+            if (handlerThread != null) {
+                handlerThread.interrupt();
+                handlerThread = null;
+            }
         }
     }
 
@@ -222,6 +237,10 @@ public class RemoteManagerHandler
         socket = connection;
         String remoteIP = socket.getInetAddress().getHostAddress();
         String remoteHost = socket.getInetAddress().getHostName();
+
+        synchronized (this) {
+            handlerThread = Thread.currentThread();
+        }
 
         try {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
@@ -236,21 +255,18 @@ public class RemoteManagerHandler
                             .append(")");
                 getLogger().info( infoBuffer.toString() );
             }
-            out.println( "JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
-            out.println("Please enter your login and password");
+            writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
+            writeLoggedResponse("Please enter your login and password");
             String login = null;
             String password = null;
             do {
                 if (login != null) {
                     final String message = "Login failed for " + login;
-                    out.println( message );
-                    getLogger().info( message );
+                    writeLoggedFlushedResponse(message);
                 }
-                out.println("Login id:");
-                out.flush();
+                writeLoggedFlushedResponse("Login id:");
                 login = in.readLine().trim();
-                out.println("Password:");
-                out.flush();
+                writeLoggedFlushedResponse("Password:");
                 password = in.readLine().trim();
             } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
@@ -334,6 +350,10 @@ public class RemoteManagerHandler
             }
         } finally {
             socket = null;
+        }
+
+        synchronized (this) {
+            handlerThread = null;
         }
 
         // Reset user repository
@@ -548,9 +568,9 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doLISTUSERS(String argument) {
-        out.println("Existing accounts " + users.countUsers());
+        writeLoggedResponse("Existing accounts " + users.countUsers());
         for (Iterator it = users.list(); it.hasNext();) {
-           out.println("user: " + (String) it.next());
+           writeLoggedResponse("user: " + (String) it.next());
         }
         out.flush();
         return true;
@@ -563,8 +583,7 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doCOUNTUSERS(String argument) {
-        out.println("Existing accounts " + users.countUsers());
-        out.flush();
+        writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
         return true;
     }
 
@@ -788,14 +807,13 @@ public class RemoteManagerHandler
      */
     private boolean doUNSETFORWARDING(String argument) {
         if ((argument == null) || (argument.equals(""))) {
-            out.println("Usage: unsetforwarding [username]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: unsetforwarding [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            out.println("No such user " + username);
+            writeLoggedFlushedResponse("No such user " + username);
         } else if (user.getForwarding()){
             user.setForwarding(false);
             users.updateUser(user);
@@ -805,13 +823,10 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            out.println(response);
-            getLogger().info(response);
+            writeLoggedFlushedResponse(response);
         } else {
-            out.println("Forwarding not active for" + username);
-            getLogger().info("Forwarding not active for" + username);
+            writeLoggedFlushedResponse("Forwarding not active for" + username);
         }
-        out.flush();
         return true;
     }
 
@@ -823,14 +838,13 @@ public class RemoteManagerHandler
      */
     private boolean doUSER(String argument) {
         if (argument == null || argument.equals("")) {
-            out.println("Usage: user [repositoryName]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: user [repositoryName]");
             return true;
         }
         String repositoryName = argument.toLowerCase(Locale.US);
         UsersRepository repos = theConfigData.getUserStore().getRepository(repositoryName);
         if ( repos == null ) {
-            out.println("No such repository: " + repositoryName);
+            writeLoggedFlushedResponse("No such repository: " + repositoryName);
         } else {
             users = repos;
             StringBuffer responseBuffer =
@@ -838,14 +852,13 @@ public class RemoteManagerHandler
                         .append("Changed to repository '")
                         .append(repositoryName)
                         .append("'.");
-            out.println(responseBuffer.toString());
+            writeLoggedFlushedResponse(responseBuffer.toString());
             if ( repositoryName.equals("localusers") ) {
                 inLocalUsers = true;
             } else {
                 inLocalUsers = false;
             }
         }
-        out.flush();
         return true;
     }
 
@@ -856,8 +869,7 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doQUIT(String argument) {
-        out.println("Bye");
-        out.flush();
+        writeLoggedFlushedResponse("Bye");
         return false;
     }
 
@@ -868,8 +880,7 @@ public class RemoteManagerHandler
      * @param argument the argument passed in with the command
      */
     private boolean doSHUTDOWN(String argument) {
-        out.println("Shutting down, bye bye");
-        out.flush();
+        writeLoggedFlushedResponse("Shutting down, bye bye");
         System.exit(0);
         return false;
     }
@@ -881,9 +892,46 @@ public class RemoteManagerHandler
      * @param argument the unknown command
      */
     private boolean doUnknownCommand(String argument) {
-        out.println("Unknown command " + argument);
-        out.flush();
+        writeLoggedFlushedResponse("Unknown command " + argument);
         return true;
+    }
+
+    /**
+     * This method logs at a "DEBUG" level the response string that 
+     * was sent to the RemoteManager client.  The method is provided largely
+     * as syntactic sugar to neaten up the code base.  It is declared
+     * private and final to encourage compiler inlining.
+     *
+     * @param responseString the response string sent to the client
+     */
+    private final void logResponseString(String responseString) {
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Sent: " + responseString);
+        }
+    }
+
+    /**
+     * Write and flush a response string.  The response is also logged.
+     * Should be used for the last line of a multi-line response or
+     * for a single line response.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedFlushedResponse(String responseString) {
+        out.println(responseString);
+        out.flush();
+        logResponseString(responseString);
+    }
+
+    /**
+     * Write a response string.  The response is also logged. 
+     * Used for multi-line responses.
+     *
+     * @param responseString the response string sent to the client
+     */
+    final void writeLoggedResponse(String responseString) {
+        out.println(responseString);
+        logResponseString(responseString);
     }
 
     /**
