@@ -35,7 +35,7 @@ import org.apache.mailet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler implements Composer, Configurable, Stoppable, Scheduler.Target, Contextualizable {
+public class SMTPHandler implements Composer, Configurable, Runnable, Stoppable, Scheduler.Target, Contextualizable {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
