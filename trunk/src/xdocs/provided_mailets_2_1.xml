@@ -133,46 +133,49 @@ to "We were unable to deliver the attached message because of an error in the ma
 <p>Parameters: None.</p>
 </subsection>
 <subsection name="PostmasterAlias">
-<p>Description: Intercepts all mails addressed to postmaster@&lt;domain&gt; where &lt;domain&gt; is one 
-of the domains managed by this James server and substitutes the configured James postmaster address for 
+<p>Description: Intercepts all mails addressed to postmaster@&lt;domain&gt; where &lt;domain&gt; is one
+of the domains managed by this James server and substitutes the configured James postmaster address for
 the original recipient address.  This mailet is inserted automatically by James at the head of the root
 processor.</p>
 <p>Parameters: None.</p>
 </subsection>
+
 <subsection name="Redirect">
 <p>Description: A mailet providing powerful, configurable redirection services.<br/>
       This mailet can produce listserver, forward and notify behaviour, with the
       original message intact, attached, appended or left out altogether.<br/>
-      This built in functionality is controlled by the configuration as described <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
+      This built in functionality is controlled by the configuration as described
+      <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
 <p>It is also intended to be easily subclassed to make providing bespoke redirection
     mailets simple. <br/>
     By extending it and overriding one or more of its methods new behaviour can
     be quickly created without the author having to address any other issue than
-    the relevant one. For more information see the javadocs <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
-</p>
+    the relevant one. For more information see the javadocs
+    <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
 <p>Parameters: <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">See javadocs.</a></p>
 </subsection>
+
 <subsection name="RemoteDelivery">
 <p>Manages delivery of messages to recipients on remote SMTP hosts.</p>
 <p>Parameters:
 <ul>
-<li><strong>outgoing</strong> (required) - The URL for the repository that will hold messages being processed 
+<li><strong>outgoing</strong> (required) - The URL for the repository that will hold messages being processed
 by the RemoteDelivery Mailet.</li>
-<li><strong>delayTime</strong> (optional) - a non-negative Long value that is the time in 
+<li><strong>delayTime</strong> (optional) - a non-negative Long value that is the time in
 milliseconds between redelivery attempts for a particular mail.  Defaults to six hours.</li>
 <li><strong>maxRetries</strong> (optional) - a non-negative Integer value that is number of times
 the Mailet will attempt to deliver a particular mail.  Defaults to five.</li>
-<li><strong>timeout</strong> (optional) - The SMTP connection timeout for SMTP connections generated 
+<li><strong>timeout</strong> (optional) - The SMTP connection timeout for SMTP connections generated
 by this Mailet.  Defaults to 60 seconds.</li>
 <li><strong>deliveryThreads</strong> (optional) - The number of threads this Mailet will use to generate
 SMTP connections.</li>
-<li><strong>gateway</strong> (optional) - The host name of the SMTP server to be used as a gateway for 
-this server.  If this value is set, then all messages will be delivered to the gateway server, 
+<li><strong>gateway</strong> (optional) - The host name of the SMTP server to be used as a gateway for
+this server.  If this value is set, then all messages will be delivered to the gateway server,
 regardless of recipient address.  If this value is unset, delivery will occur to SMTP servers resolved
 by MX lookup.</li>
-<li><strong>gatewayPort</strong> (optional) - The port number of the SMTP server to be used as a gateway for 
+<li><strong>gatewayPort</strong> (optional) - The port number of the SMTP server to be used as a gateway for
 this server.  This value is required if gateway is set.</li>
-<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is 
+<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
 on.  Defaults to false.</li>
 </ul>
 </p>
@@ -187,8 +190,8 @@ on.  Defaults to false.</li>
 <ul>
 <li><strong>processor</strong> (required) - the name of the processor to which the message
 is to be redirected.</li>
-<li><strong>noticeText</strong> (optional) - a String value that, if present, 
-is set as the error message of the redirected message.  If this value is not 
+<li><strong>noticeText</strong> (optional) - a String value that, if present,
+is set as the error message of the redirected message.  If this value is not
 present, no error message is set.</li>
 </ul>
 </p>
@@ -199,18 +202,18 @@ present, no error message is set.</li>
 <ul>
 <li><strong>repositoryPath</strong> (required) - the URL of the repository to which the message
 is to be added.</li>
-<li><strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether 
+<li><strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether
 processing should continue on the message is on.  If false, the original message is GHOSTed.  Defaults to false.</li>
 </ul>
 </p>
 </subsection>
 <subsection name="UseHeaderRecipients">
-<p>Description: Ignores the recipients associated with the Mail interface.  Instead, it regenerates the 
-mail recipients from the MimeMessage headers (To, Cc, Bcc) and inserts a new message at the queue root 
+<p>Description: Ignores the recipients associated with the Mail interface.  Instead, it regenerates the
+mail recipients from the MimeMessage headers (To, Cc, Bcc) and inserts a new message at the queue root
 these new recipients.  The original message is GHOSTed.</p>
 <p>Parameters:
 <ul>
-<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is 
+<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
 on.  Defaults to false.</li>
 </ul>
 </p>
