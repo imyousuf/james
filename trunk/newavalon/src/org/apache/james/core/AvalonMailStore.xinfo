@@ -17,7 +17,7 @@
 
   <dependencies>
     <dependency>
-      <name>org.apache.avalon.services.Store</name>
+      <role>org.apache.avalon.services.Store</role>
       <service name="org.apache.avalon.services.Store" version="1.0"/>
     </dependency>
   </dependencies>

@@ -20,11 +20,11 @@
   <dependencies>
 
     <dependency>
-      <name>org.apache.james.services.MailStore</name>
+      <role>org.apache.james.services.MailStore</role>
       <service name="org.apache.james.services.MailStore" version="1.0"/>
     </dependency>
     <dependency>
-      <name>org.apache.james.services.UsersStore</name>
+      <role>org.apache.james.services.UsersStore</role>
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
 <!--
@@ -34,11 +34,11 @@
     </dependency>
 -->
     <dependency>
-      <name>org.apache.avalon.services.SocketServer</name>
+      <role>org.apache.avalon.services.SocketServer</role>
       <service name="org.apache.avalon.services.SocketServer" version="1.0"/>
     </dependency>
     <dependency>
-      <name>org.apache.avalon.services.Scheduler</name>
+      <role>org.apache.avalon.services.Scheduler</role>
       <service name="org.apache.avalon.services.Scheduler" version="1.0"/>
     </dependency>
   </dependencies>

@@ -6,9 +6,9 @@
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
+ Serge
+ Charles Benett (charles@benet1.demon.co.uk>
 
-Todo:
- - write the target rule that reacts on class presence.
 
 Legal:
   Copyright (c) 1999 The Apache Software Foundation. All Rights Reserved.
@@ -35,40 +35,43 @@ All these package are in current distribution.
 =========================================================================== -->
 
 <project default="block-archive" basedir=".">
-  <target name="init">
-	<property name="name" value="james"/>
-	<property name="version" value="1.2a1"/>
-	<property name="year" value="1999-2000"/>
 
-	<property name="build.compiler" value="classic"/>
-	<property name="debug" value="off"/>
-	<property name="optimize" value="on"/>
-	<property name="deprecation" value="off"/>
+  <!--
+    Give user a chance to override without editing this file
+    (and without typing -D each time he compiles it)
+  -->
+
+  <property name="name" value="james"/>
+  <property name="version" value="1.2a1"/>
+  <property name="year" value="1999-2000"/>
+
+  <property name="build.compiler" value="classic"/>
+  <property name="debug" value="off"/>
+  <property name="optimize" value="on"/>
+  <property name="deprecation" value="off"/>
+
+  <!-- The properties in the init section should not normally be changed 
+-->
+  <target name="init">
+	
 	<property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
 
 	<property name="src.dir" value="./src"/>
-	<property name="dtd.dir" value="./dtd"/>
-	<property name="docs.dir" value="./docs"/>
-	<property name="sheets.dir" value="./stylesheets"/>
-	<property name="images.dir" value="./resources"/>
-	<property name="samples.dir" value="./samples"/>
-	<property name="packages" value="org.apache.*"/>
-
-	<property name="sbk.docs" value="./build/sbkdocs"/>
-	<property name="style" value="../xml-site/style/"/>
-	<property name="doc.generator" value="org.apache.stylebook.StyleBook"/>
-
-	<property name="constants.file" value="org/apache/james/Constants.java"/>
 
 	<property name="build.dir" value="./build"/>
 	<property name="build.src" value="./build/src"/>
-	<property name="build.dest" value="./build/classes"/>
+	<property name="build.classes" value="./build/classes"/>
         <property name="build.docs" value="./build/docs"/>
         <property name="build.mailetdocs" value="./build/mailetdocs"/>
 	<property name="build.javadocs" value="./build/javadocs"/>
+	<property name="build.BARINF" value="./build/BAR-INF"/>
+
+	<property name="constants.file" value="org/apache/james/Constants.java"/>
+	<property name="conf.file" value="james.conf.xml"/>
+	<property name="blockdefs.file" value="blockdefs.properties"/>
 
 	<property name="dist.dir" value="./dist"/>
-
+        <property name="dist.name" value="${name}-${version}"/>
 	<property name="site.dir" value="../xml-site/sources/james"/>
 	<property name="site.docs" value="../xml-site/targets/james"/>
   </target>
@@ -111,10 +114,11 @@ All these package are in current distribution.
   <target name="prepare-src" depends="prepare">
     <!-- create directories -->
     <mkdir dir="${build.src}"/>
-    <mkdir dir="${build.dest}"/>
+    <mkdir dir="${build.classes}"/>
 
     <!-- copy src files -->
     <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**,*.xml"/>
+    <copydir src="conf" dest="${build.BARINF}" includes="${conf.file},${blockdefs.file}"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -124,31 +128,44 @@ All these package are in current distribution.
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src">
-    <javac srcdir="${build.src}" destdir="${build.dest}" classpath="${classpath}"
+    <javac srcdir="${build.src}" destdir="${build.classes}" classpath="${classpath}"
            debug="${debug}"
-           deprecation="on"/>
+           optimize="${optimize}"
+           deprecation="${deprecation}"/>
 
-    <copydir src="${build.src}" dest="${build.dest}">
+    <copydir src="${build.src}" dest="${build.classes}">
       <include name="**/*.properties"/>
       <include name="**/*.xinfo"/>
     </copydir>
-
+<!--
     <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml"
               dest="${build.dest}/conf/${name}.conf.xml"/>
+-->
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the JAMES.bar archive                                       -->
   <!-- =================================================================== -->
   <target name="block-archive" depends="compile">
-    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/avalon/demos/**,conf/*demo.conf.xml"/>
+    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.classes}">
+<!--
+     manifest="${build.src}/Manifest.mf">
+-->
+        <include name="org/**"/>
+
+      <fileset dir="${build.BARINF}" prefix="BAR-INF/">
+        <include name="${conf.file}"/>
+        <include name="${blockdefs.file}"/>
+      </fileset>
+  
+    </jar>
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the mailet.jar                                              -->
   <!-- =================================================================== -->
   <target name="auxiliary-jars" depends="compile">
-    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
+    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
   <!-- =================================================================== -->
