@@ -7,7 +7,7 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.RFC822Date;
+import org.apache.james.util.RFC822DateFormat;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -24,6 +24,7 @@ import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,6 +48,8 @@ public class NotifySender extends GenericMailet {
     MailAddress notifier = null;
     boolean attachStackTrace = false;
     String noticeText = null;
+
+    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     public void init() throws MessagingException {
         if (getInitParameter("sendingAddress") == null) {
@@ -160,7 +163,7 @@ public class NotifySender extends GenericMailet {
 
         //Set additional headers
         if (reply.getHeader("Date")==null){
-            reply.setHeader("Date",new RFC822Date().toString());
+            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
         }
         String subject = message.getSubject();
         if (subject == null) {
