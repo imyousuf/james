@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 
 /**
@@ -108,7 +109,13 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             //Nothing to do... sleep!
             try {
                 synchronized (this) {
-                    //System.err.println("waiting : " + WAIT_LIMIT / 1000 + " in " + repositoryName);
+                    //StringBuffer errorBuffer =
+                    //    new StringBuffer(128)
+                    //            .append("waiting : ")
+                    //            .append(WAIT_LIMIT/1000L)
+                    //            .append(" in ")
+                    //            .append(repositoryName);
+                    //System.err.println(errorBuffer.toString());
                     wait(WAIT_LIMIT);
                 }
             } catch (InterruptedException ignored) {
@@ -130,7 +137,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             while ((next = getNextPendingMessage()) != null) {
                 //Check whether this is time to expire
                 boolean shouldProcess = false;
-                if (next.state.equals(Mail.ERROR)) {
+                if (Mail.ERROR.equals(next.state)) {
                     //if it's an error message, test the time
                     long processingTime = delay + next.lastUpdated;
                     if (processingTime < System.currentTimeMillis()) {
@@ -156,8 +163,15 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             }
             try {
                 synchronized (this) {
-                    //System.err.println("waiting " + (sleepUntil - System.currentTimeMillis()) / 1000 + " in " + repositoryName);
-                    wait(sleepUntil - System.currentTimeMillis());
+                    long waitTime = sleepUntil - System.currentTimeMillis();
+                    //StringBuffer errorBuffer =
+                    //    new StringBuffer(128)
+                    //            .append("waiting ")
+                    //            .append((waitTime) / 1000L)
+                    //            .append(" in ")
+                    //            .append(repositoryName);
+                    //System.err.println(errorBuffer.toString());
+                    wait(waitTime);
                 }
             } catch (InterruptedException ignored) {
             }
@@ -231,18 +245,9 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 getLogger().error("Error retrieving pending messages", sqle);
                 pendingMessagesLoadTime = LOAD_TIME_MININUM * 10 + System.currentTimeMillis();
             } finally {
-                try {
-                    rsListMessages.close();
-                } catch (Exception e) {
-                }
-                try {
-                    listMessages.close();
-                } catch (Exception e) {
-                }
-                try {
-                    conn.close();
-                } catch (Exception e) {
-                }
+                theJDBCUtil.closeJDBCResultSet(rsListMessages);
+                theJDBCUtil.closeJDBCStatement(listMessages);
+                theJDBCUtil.closeJDBCConnection(conn);
             }
         }
     }

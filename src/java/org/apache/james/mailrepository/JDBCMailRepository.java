@@ -28,6 +28,7 @@ import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
+import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.MailAddress;
@@ -35,6 +36,7 @@ import org.apache.mailet.MailAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.*;
 import java.util.*;
@@ -84,6 +86,8 @@ public class JDBCMailRepository
     // Contains all of the sql strings for this component.
     protected SqlResources sqlQueries;
 
+    // The JDBCUtil helper class
+    protected JDBCUtil theJDBCUtil;
 
     public void contextualize(final Context context)
             throws ContextException {
@@ -91,10 +95,12 @@ public class JDBCMailRepository
     }
 
     public void configure(Configuration conf) throws ConfigurationException {
-        getLogger().debug(this.getClass().getName() + ".configure()");
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug(this.getClass().getName() + ".configure()");
+        }
 
         destination = conf.getAttribute("destinationURL");
-        // normalise the destination, to simplify processing.
+        // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
         }
@@ -116,9 +122,12 @@ public class JDBCMailRepository
 
         // Build SqlParameters and get datasource name from URL parameters
         if (urlParams.size() == 0) {
-            throw new ConfigurationException
-                ("Malformed destinationURL - Must be of the format '" +
-                 "db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed " + conf.getAttribute("destinationURL"));
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Malformed destinationURL - Must be of the format '")
+                        .append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ")
+                        .append(conf.getAttribute("destinationURL"));
+            throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {
             datasourceName = (String)urlParams.get(0);
@@ -136,8 +145,16 @@ public class JDBCMailRepository
             }
         }
 
-        getLogger().debug("Parsed URL: table = '" + tableName +
-                          "', repositoryName = '" + repositoryName + "'");
+        if (getLogger().isDebugEnabled()) {
+            StringBuffer logBuffer =
+                new StringBuffer(128)
+                        .append("Parsed URL: table = '")
+                        .append(tableName)
+                        .append("', repositoryName = '")
+                        .append(repositoryName)
+                        .append("'");
+            getLogger().debug(logBuffer.toString());
+        }
 
         filestore = conf.getChild("filestore").getValue(null);
         sqlFileName = conf.getChild("sqlFile").getValue();
@@ -149,9 +166,16 @@ public class JDBCMailRepository
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
-        getLogger().debug(this.getClass().getName() + ".compose()");
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            logBuffer =
+                new StringBuffer(64)
+                        .append(this.getClass().getName())
+                        .append(".compose()");
+            getLogger().debug(logBuffer.toString());
+        }
 
-        // Get the DataSourceSelector block
+        // Get the DataSourceSelector service
         datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
 
         try {
@@ -168,11 +192,20 @@ public class JDBCMailRepository
                 streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
                 sr = (StreamRepository) store.select(streamConfiguration);
 
-                getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
+                }
             }
 
             lock = new Lock();
-            getLogger().debug(this.getClass().getName() + " created according to " + destination);
+            if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(" created according to ")
+                            .append(destination);
+                getLogger().debug(logBuffer.toString());
+            }
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
@@ -191,13 +224,23 @@ public class JDBCMailRepository
      *
      */
     public void initialize() throws Exception {
-        getLogger().debug(this.getClass().getName() + ".initialize()");
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug(this.getClass().getName() + ".initialize()");
+        }
 
+        theJDBCUtil =
+            new JDBCUtil() {
+                protected void delegatedLog(String logString) {
+                    JDBCMailRepository.this.getLogger().warn("JDBCMailRepository: " + logString);
+                }
+            };
         // Get the data-source required.
         datasource = (DataSourceComponent)datasources.select(datasourceName);
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = datasource.getConnection();
+        PreparedStatement createStatement = null;
 
         try {
             // Initialise the sql strings.
@@ -210,9 +253,16 @@ public class JDBCMailRepository
 
             String resourceName = "org.apache.james.mailrepository.JDBCMailRepository";
 
-            getLogger().debug("Reading SQL resources from file: " +
-                              sqlFile.getAbsolutePath() + ", section " +
-                              this.getClass().getName() + ".");
+            if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append("Reading SQL resources from file: ")
+                            .append(sqlFile.getAbsolutePath())
+                            .append(", section ")
+                            .append(this.getClass().getName())
+                            .append(".");
+                getLogger().debug(logBuffer.toString());
+            }
 
             // Build the statement parameters
             Map sqlParameters = new HashMap();
@@ -231,34 +281,26 @@ public class JDBCMailRepository
             DatabaseMetaData dbMetaData = conn.getMetaData();
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! ( tableExists(dbMetaData, tableName) ||
-                    tableExists(dbMetaData, tableName.toUpperCase()) ||
-                    tableExists(dbMetaData, tableName.toLowerCase()) ))  {
+            if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
                 // Users table doesn't exist - create it.
-                PreparedStatement createStatement =
+                createStatement =
                     conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
                 createStatement.execute();
-                createStatement.close();
 
-                getLogger().info("JdbcMailRepository: Created table '" +
-                                 tableName + "'.");
+                if (getLogger().isInfoEnabled()) {
+                    logBuffer =
+                        new StringBuffer(64)
+                                .append("JdbcMailRepository: Created table '")
+                                .append(tableName)
+                                .append("'.");
+                    getLogger().info(logBuffer.toString());
+                }
             }
 
         } finally {
-            try {
-                conn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            theJDBCUtil.closeJDBCStatement(createStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
-    }
-
-    private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
-        throws SQLException {
-        ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
-        boolean found = rsTables.next();
-        rsTables.close();
-        return found;
     }
 
     public synchronized boolean unlock(String key) {
@@ -294,41 +336,55 @@ public class JDBCMailRepository
             //Begin a transaction
             conn.setAutoCommit(false);
 
-            PreparedStatement checkMessageExists =
-                conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
-            checkMessageExists.setString(1, mc.getName());
-            checkMessageExists.setString(2, repositoryName);
-            ResultSet rsExists = checkMessageExists.executeQuery();
-            boolean exists = rsExists.next() && rsExists.getInt(1) > 0;
-            rsExists.close();
-            checkMessageExists.close();
+            PreparedStatement checkMessageExists = null;
+            ResultSet rsExists = null;
+            boolean exists = false;
+            try {
+                checkMessageExists = 
+                    conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
+                checkMessageExists.setString(1, mc.getName());
+                checkMessageExists.setString(2, repositoryName);
+                rsExists = checkMessageExists.executeQuery();
+                exists = rsExists.next() && rsExists.getInt(1) > 0;
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(rsExists);
+                theJDBCUtil.closeJDBCStatement(checkMessageExists);
+            }
 
             if (exists) {
                 //Update the existing record
-                PreparedStatement updateMessage =
-                    conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
-                updateMessage.setString(1, mc.getState());
-                updateMessage.setString(2, mc.getErrorMessage());
-                if (mc.getSender() == null) {
-                    updateMessage.setNull(3, java.sql.Types.VARCHAR);
-                } else {
-                    updateMessage.setString(3, mc.getSender().toString());
-                }
-                StringBuffer recipients = new StringBuffer();
-                for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
-                    recipients.append(i.next().toString());
-                    if (i.hasNext()) {
-                        recipients.append("\r\n");
+                PreparedStatement updateMessage = null;
+
+                try {
+                    updateMessage =
+                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
+                    updateMessage.setString(1, mc.getState());
+                    updateMessage.setString(2, mc.getErrorMessage());
+                    if (mc.getSender() == null) {
+                        updateMessage.setNull(3, java.sql.Types.VARCHAR);
+                    } else {
+                        updateMessage.setString(3, mc.getSender().toString());
                     }
+                    StringBuffer recipients = new StringBuffer();
+                    for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                        recipients.append(i.next().toString());
+                        if (i.hasNext()) {
+                            recipients.append("\r\n");
+                        }
+                    }
+                    updateMessage.setString(4, recipients.toString());
+                    updateMessage.setString(5, mc.getRemoteHost());
+                    updateMessage.setString(6, mc.getRemoteAddr());
+                    updateMessage.setTimestamp(7, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
+                    updateMessage.setString(8, mc.getName());
+                    updateMessage.setString(9, repositoryName);
+                    updateMessage.execute();
+                } finally {
+                    Statement localUpdateMessage = updateMessage;
+                    // Clear reference to statement
+                    updateMessage = null;
+                    theJDBCUtil.closeJDBCStatement(localUpdateMessage);
                 }
-                updateMessage.setString(4, recipients.toString());
-                updateMessage.setString(5, mc.getRemoteHost());
-                updateMessage.setString(6, mc.getRemoteAddr());
-                updateMessage.setTimestamp(7, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
-                updateMessage.setString(8, mc.getName());
-                updateMessage.setString(9, repositoryName);
-                updateMessage.execute();
-                updateMessage.close();
 
                 //Determine whether the message body has changed, and possibly avoid
                 //  updating the database.
@@ -342,75 +398,87 @@ public class JDBCMailRepository
                 }
 
                 if (saveBody) {
-                    updateMessage =
-                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
-                    ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-                    OutputStream bodyOut = null;
-                    if (sr == null) {
-                        //If there is no filestore, use the byte array to store headers
-                        //  and the body
-                        bodyOut = headerOut;
-                    } else {
-                        //Store the body in the stream repository
-                        bodyOut = sr.put(mc.getName());
+                    try {
+                        updateMessage =
+                            conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
+                        ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
+                        OutputStream bodyOut = null;
+                        try {
+                            if (sr == null) {
+                                //If there is no filestore, use the byte array to store headers
+                                //  and the body
+                                bodyOut = headerOut;
+                            } else {
+                                //Store the body in the stream repository
+                                bodyOut = sr.put(mc.getName());
+                            }
+        
+                            //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
+                            MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
+        
+                            //Store the headers in the database
+                            updateMessage.setBytes(1, headerOut.toByteArray());
+                        } finally {
+                            closeOutputStreams(headerOut, bodyOut);
+                        }
+                        updateMessage.setString(2, mc.getName());
+                        updateMessage.setString(3, repositoryName);
+                        updateMessage.execute();
+                    } finally {
+                        theJDBCUtil.closeJDBCStatement(updateMessage);
                     }
-
-                    //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                    MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
-                    bodyOut.close();
-
-                    //Store the headers in the database
-                    updateMessage.setBytes(1, headerOut.toByteArray());
-                    updateMessage.setString(2, mc.getName());
-                    updateMessage.setString(3, repositoryName);
-                    updateMessage.execute();
-                    updateMessage.close();
                 }
             } else {
                 //Insert the record into the database
-                PreparedStatement insertMessage =
-                    conn.prepareStatement(sqlQueries.getSqlString("insertMessageSQL", true));
-                insertMessage.setString(1, mc.getName());
-                insertMessage.setString(2, repositoryName);
-                insertMessage.setString(3, mc.getState());
-                insertMessage.setString(4, mc.getErrorMessage());
-                if (mc.getSender() == null) {
-                    insertMessage.setNull(5, java.sql.Types.VARCHAR);
-                } else {
-                    insertMessage.setString(5, mc.getSender().toString());
-                }
-                StringBuffer recipients = new StringBuffer();
-                for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
-                    recipients.append(i.next().toString());
-                    if (i.hasNext()) {
-                        recipients.append("\r\n");
+                PreparedStatement insertMessage = null;
+                try {
+                    insertMessage =
+                        conn.prepareStatement(sqlQueries.getSqlString("insertMessageSQL", true));
+                    insertMessage.setString(1, mc.getName());
+                    insertMessage.setString(2, repositoryName);
+                    insertMessage.setString(3, mc.getState());
+                    insertMessage.setString(4, mc.getErrorMessage());
+                    if (mc.getSender() == null) {
+                        insertMessage.setNull(5, java.sql.Types.VARCHAR);
+                    } else {
+                        insertMessage.setString(5, mc.getSender().toString());
                     }
+                    StringBuffer recipients = new StringBuffer();
+                    for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                        recipients.append(i.next().toString());
+                        if (i.hasNext()) {
+                            recipients.append("\r\n");
+                        }
+                    }
+                    insertMessage.setString(6, recipients.toString());
+                    insertMessage.setString(7, mc.getRemoteHost());
+                    insertMessage.setString(8, mc.getRemoteAddr());
+                    insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
+                    MimeMessage messageBody = mc.getMessage();
+    
+                    ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
+                    OutputStream bodyOut = null;
+                    try {
+                        if (sr == null) {
+                            //If there is no sr, then use the same byte array to hold the headers
+                            //  and the body
+                            bodyOut = headerOut;
+                        } else {
+                            //Store the body in the file system.
+                            bodyOut = sr.put(mc.getName());
+                        }
+        
+                        //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
+                        MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
+                        insertMessage.setBytes(10, headerOut.toByteArray());
+                    } finally {
+                        closeOutputStreams(headerOut, bodyOut);
+                    }
+                    //Store the headers in the database
+                    insertMessage.execute();
+                } finally {
+                    theJDBCUtil.closeJDBCStatement(insertMessage);
                 }
-                insertMessage.setString(6, recipients.toString());
-                insertMessage.setString(7, mc.getRemoteHost());
-                insertMessage.setString(8, mc.getRemoteAddr());
-                insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
-                MimeMessage messageBody = mc.getMessage();
-
-                ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-                OutputStream bodyOut = null;
-                if (sr == null) {
-                    //If there is no sr, then use the same byte array to hold the headers
-                    //  and the body
-                    bodyOut = headerOut;
-                } else {
-                    //Store the body in the file system.
-                    bodyOut = sr.put(mc.getName());
-                }
-
-                //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
-                bodyOut.close();
-
-                //Store the headers in the database
-                insertMessage.setBytes(10, headerOut.toByteArray());
-                insertMessage.execute();
-                insertMessage.close();
             }
 
             conn.commit();
@@ -423,13 +491,7 @@ public class JDBCMailRepository
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing mail Container: " + e);
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException sqle) {
-                    //ignore
-                }
-            }
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -438,22 +500,30 @@ public class JDBCMailRepository
             System.err.println("retrieving " + key);
         }
         Connection conn = null;
+        PreparedStatement retrieveMessage = null;
+        ResultSet rsMessage = null;
         try {
             conn = datasource.getConnection();
             if (DEEP_DEBUG) {
                 System.err.println("got a conn " + key);
             }
 
-            PreparedStatement retrieveMessage =
+            retrieveMessage =
                 conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
             retrieveMessage.setString(1, key);
             retrieveMessage.setString(2, repositoryName);
-            ResultSet rsMessage = retrieveMessage.executeQuery();
+            rsMessage = retrieveMessage.executeQuery();
             if (DEEP_DEBUG) {
                 System.err.println("ran the query " + key);
             }
             if (!rsMessage.next()) {
-                throw new RuntimeException("Did not find a record " + key + " in " + repositoryName);
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(64)
+                            .append("Did not find a record ")
+                            .append(key)
+                            .append(" in ")
+                            .append(repositoryName);
+                throw new RuntimeException(exceptionBuffer.toString());
             }
             MailImpl mc = new MailImpl();
             mc.setName(key);
@@ -478,8 +548,6 @@ public class JDBCMailRepository
             MimeMessageJDBCSource source = new MimeMessageJDBCSource(this, key, sr);
             MimeMessageWrapper message = new MimeMessageWrapper(source);
             mc.setMessage(message);
-            rsMessage.close();
-            retrieveMessage.close();
             return mc;
         } catch (SQLException sqle) {
             synchronized (System.err) {
@@ -495,13 +563,9 @@ public class JDBCMailRepository
             me.printStackTrace();
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException sqle) {
-                    //ignore
-                }
-            }
+            theJDBCUtil.closeJDBCResultSet(rsMessage);
+            theJDBCUtil.closeJDBCStatement(retrieveMessage);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -513,14 +577,14 @@ public class JDBCMailRepository
         //System.err.println("removing " + key);
         if (lock(key)) {
             Connection conn = null;
+            PreparedStatement removeMessage = null;
             try {
                 conn = datasource.getConnection();
-                PreparedStatement removeMessage =
+                removeMessage =
                     conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
                 removeMessage.setString(1, key);
                 removeMessage.setString(2, repositoryName);
                 removeMessage.execute();
-                removeMessage.close();
 
                 if (sr != null) {
                     sr.remove(key);
@@ -528,13 +592,8 @@ public class JDBCMailRepository
             } catch (Exception me) {
                 throw new RuntimeException("Exception while removing mail: " + me.getMessage());
             } finally {
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException sqle) {
-                        //ignore
-                    }
-                }
+                theJDBCUtil.closeJDBCStatement(removeMessage);
+                theJDBCUtil.closeJDBCConnection(conn);
                 unlock(key);
             }
         }
@@ -543,31 +602,27 @@ public class JDBCMailRepository
     public Iterator list() {
         //System.err.println("listing messages");
         Connection conn = null;
+        PreparedStatement listMessages = null;
+        ResultSet rsListMessages = null;
         try {
             conn = datasource.getConnection();
-            PreparedStatement listMessages =
+            listMessages =
                 conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
             listMessages.setString(1, repositoryName);
-            ResultSet rsListMessages = listMessages.executeQuery();
+            rsListMessages = listMessages.executeQuery();
 
             List messageList = new ArrayList();
             while (rsListMessages.next()) {
                 messageList.add(rsListMessages.getString(1));
             }
-            rsListMessages.close();
-            listMessages.close();
             return messageList.iterator();
         } catch (Exception me) {
             me.printStackTrace();
             throw new RuntimeException("Exception while listing mail: " + me.getMessage());
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException sqle) {
-                    //ignore
-                }
-            }
+            theJDBCUtil.closeJDBCResultSet(rsListMessages);
+            theJDBCUtil.closeJDBCStatement(listMessages);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -579,7 +634,52 @@ public class JDBCMailRepository
         if (!(obj instanceof JDBCMailRepository)) {
             return false;
         }
+        // TODO: Figure out whether other instance variables should be part of
+        // the equals equation
         JDBCMailRepository repository = (JDBCMailRepository)obj;
-        return repository.tableName.equals(tableName) && repository.repositoryName.equals(repositoryName);
+        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) && 
+                ((repository.repositoryName == repositoryName) || ((repository.repositoryName != null) && repository.repositoryName.equals(repositoryName)));
+    }
+
+    /**
+     * Provide a hash code that is consistent with equals for this class
+     *
+     * @return the hash code
+     */
+     public int hashCode() {
+        int result = 17;
+        if (tableName != null) {
+            result = 37 * tableName.hashCode();
+        }
+        if (repositoryName != null) {
+            result = 37 * repositoryName.hashCode();
+        }
+        return result;
+     }
+
+    /**
+     * Closes output streams used to update message
+     * 
+     * @headerStream the stream containing header information - potentially the same
+     *               as the body stream
+     * @bodyStream the stream containing body information
+     */
+    private void closeOutputStreams(OutputStream headerStream, OutputStream bodyStream) {
+        try {
+            // If the header stream is not the same as the body stream,
+            // close the header stream here.
+            if ((headerStream != null) && (headerStream != bodyStream)) {
+                headerStream.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
+        }
+        try {
+            if (bodyStream != null) {
+                bodyStream.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
+        }
     }
 }

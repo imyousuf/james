@@ -9,6 +9,7 @@ package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.MimeMessageSource;
+import org.apache.james.util.JDBCUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * This class points to a specific message in a repository.  This will return an
@@ -33,6 +35,15 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
 
     String retrieveMessageBodySQL = null;
     String retrieveMessageBodySizeSQL = null;
+
+    // The JDBCUtil helper class
+    private static final JDBCUtil theJDBCUtil =
+            new JDBCUtil() {
+                protected void delegatedLog(String logString) {
+                    // No logging available at this point in the code.
+                    // Therefore this is a noop method.
+                }
+            };
 
     /**
      * Construct a MimeMessageSource based on a JDBC repository, a key, and a
@@ -58,7 +69,12 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     }
 
     public String getSourceId() {
-        return repository.repositoryName + "/" + key;
+        StringBuffer sourceIdBuffer =
+            new StringBuffer(128)
+                    .append(repository.repositoryName)
+                    .append("/")
+                    .append(key);
+        return sourceIdBuffer.toString();
     }
 
     /**
@@ -67,7 +83,9 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * a repository with the entire message in the database, which is how James 1.2 worked.
      */
     public synchronized InputStream getInputStream() throws IOException {
-        Connection conn =null;
+        Connection conn = null;
+        PreparedStatement retrieveMessageStream = null;
+        ResultSet rsRetrieveMessageStream = null;
         try {
             conn = repository.getConnection();
 
@@ -78,24 +96,20 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 start = System.currentTimeMillis();
                 System.out.println("starting");
             }
-            PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
+            retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
             retrieveMessageStream.setString(1, key);
             retrieveMessageStream.setString(2, repository.repositoryName);
-            ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
+            rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
 
             if (!rsRetrieveMessageStream.next()) {
                 throw new IOException("Could not find message");
             }
 
             headers = rsRetrieveMessageStream.getBytes(1);
-            rsRetrieveMessageStream.close();
-            retrieveMessageStream.close();
             if (DEEP_DEBUG) {
                 System.err.println("stopping");
                 System.err.println(System.currentTimeMillis() - start);
             }
-
-
 
             InputStream in = new ByteArrayInputStream(headers);
             try {
@@ -109,12 +123,11 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             return in;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
-        }finally {
-                try {
-                    conn.close();
-                } catch (Exception e) {
-                }
-            }
+        } finally {
+            theJDBCUtil.closeJDBCResultSet(rsRetrieveMessageStream);
+            theJDBCUtil.closeJDBCStatement(retrieveMessageStream);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
     }
 
     /**
@@ -126,47 +139,54 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             System.err.println("no SQL statement to find size");
             return super.getMessageSize();
         }
-Connection conn=null;
+        Connection conn = null;
+        PreparedStatement retrieveMessageSize = null;
+        ResultSet rsRetrieveMessageSize = null;
         try {
             conn = repository.getConnection();
 
-            PreparedStatement retrieveMessageSize = conn.prepareStatement(retrieveMessageBodySizeSQL);
+            retrieveMessageSize = conn.prepareStatement(retrieveMessageBodySizeSQL);
             retrieveMessageSize.setString(1, key);
             retrieveMessageSize.setString(2, repository.repositoryName);
-            ResultSet rsRetrieveMessageSize = retrieveMessageSize.executeQuery();
+            rsRetrieveMessageSize = retrieveMessageSize.executeQuery();
 
             if (!rsRetrieveMessageSize.next()) {
                 throw new IOException("Could not find message");
             }
 
             long size = rsRetrieveMessageSize.getLong(1);
-            rsRetrieveMessageSize.close();
-            retrieveMessageSize.close();
 
-
+            InputStream in = null;
             try {
                 if (sr != null) {
-                    InputStream in = sr.get(key);
+                    in = sr.get(key);
                     int len = 0;
                     byte[] block = new byte[1024];
                     while ((len = in.read(block)) > -1) {
                         size += len;
                     }
-                    in.close();
                 }
             } catch (Exception e) {
                 //ignore this... either sr is null, or the file does not exist
                 // or something else
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException ioe) {
+                    // Ignored - no access to logger at this point in the code
+                }
             }
+            
             return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
-        }finally {
-                try {
-                    conn.close();
-                } catch (Exception e) {
-                }
-            }
+        } finally {
+            theJDBCUtil.closeJDBCResultSet(rsRetrieveMessageSize);
+            theJDBCUtil.closeJDBCStatement(retrieveMessageSize);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
     }
 
     /**
@@ -174,9 +194,28 @@ Connection conn=null;
      */
     public boolean equals(Object obj) {
         if (obj instanceof MimeMessageJDBCSource) {
+            // TODO: Figure out whether other instance variables should be part of
+            // the equals equation
             MimeMessageJDBCSource source = (MimeMessageJDBCSource)obj;
-            return source.key.equals(key) && source.repository.equals(repository);
+            return ((source.key == key) || ((source.key != null) && source.key.equals(key))) &&
+                   ((source.repository == repository) || ((source.repository != null) && source.repository.equals(repository)));
         }
         return false;
     }
+
+    /**
+     * Provide a hash code that is consistent with equals for this class
+     *
+     * @return the hash code
+     */
+     public int hashCode() {
+        int result = 17;
+        if (key != null) {
+            result = 37 * key.hashCode();
+        }
+        if (repository != null) {
+            result = 37 * repository.hashCode();
+        }
+        return result;
+     }
 }
