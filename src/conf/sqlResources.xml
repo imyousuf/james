@@ -54,9 +54,9 @@
                 WHERE username = ?
     </sql>
     <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
-    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(250), useAlias SMALLINT, alias VARCHAR(250), PRIMARY KEY(username))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
     <!-- An example of a database-specific sql statement
-    <sql name="createTable" db="mssql">CREATE TABLE ${table} (uniqueId UNIQUEIDENTIFIER, username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(250), useAlias SMALLINT, alias VARCHAR(250), PRIMARY KEY(username))</sql>
+    <sql name="createTable" db="mssql">CREATE TABLE ${table} (uniqueId UNIQUEIDENTIFIER, username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
     -->
 </sqlDefs>
 
@@ -75,7 +75,7 @@
                 WHERE username = ?
     </sql>
     <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
-    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
 </sqlDefs>
 
 <!-- SQL statements for the ListUsersJdbcRepository
@@ -101,7 +101,7 @@
     <sql name="delete">DELETE FROM ${table}
                 WHERE listSubscriber = ? AND listName = '${key}'
     </sql>
-    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(50) NOT NULL, listSubscriber VARCHAR(50) NOT NULL)</sql>
+    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL)</sql>
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
@@ -118,47 +118,46 @@
     <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
-        	message_name varchar (200) NOT NULL,
-        	repository_name varchar (200) NOT NULL,
-        	message_state varchar (30) NOT NULL ,
-        	error_message varchar (200) NULL ,
-        	sender varchar (200) NULL ,
-        	recipients text NOT NULL ,
-        	remote_host varchar (100) NOT NULL ,
-        	remote_addr varchar (20) NOT NULL ,
-        	message_body longblob NOT NULL ,
-        	last_updated datetime NOT NULL,
-        	PRIMARY KEY (message_name, repository_name)
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body longblob NOT NULL ,
+            last_updated datetime NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
         CREATE TABLE [${table}] (
-        	[message_name] [varchar] (200) NOT NULL,
-        	[repository_name] [varchar] (200) NOT NULL,
-        	[message_state] [varchar] (30) NOT NULL ,
-        	[error_message] [varchar] (1000) NULL ,
-        	[sender] [varchar] (200) NULL ,
-        	[recipients] [text] NOT NULL ,
-        	[remote_host] [varchar] (100) NOT NULL ,
-        	[remote_addr] [varchar] (20) NOT NULL ,
-        	[message_body] [image] NOT NULL ,
-        	[last_updated] [datetime] NOT NULL
+            [message_name] [varchar] (200) NOT NULL,
+            [repository_name] [varchar] (255) NOT NULL,
+            [message_state] [varchar] (30) NOT NULL ,
+            [error_message] [varchar] (1000) NULL ,
+            [sender] [varchar] (255) NULL ,
+            [recipients] [text] NOT NULL ,
+            [remote_host] [varchar] (255) NOT NULL ,
+            [remote_addr] [varchar] (20) NOT NULL ,
+            [message_body] [image] NOT NULL ,
+            [last_updated] [datetime] NOT NULL
         )
-		ALTER TABLE [${table}] WITH NOCHECK ADD
-			CONSTRAINT [PK_${table}] PRIMARY KEY
-			(
-				[message_name],
-				[repository_name]
-			)
-
+        ALTER TABLE [${table}] WITH NOCHECK ADD
+            CONSTRAINT [PK_${table}] PRIMARY KEY
+            (
+                [message_name],
+                [repository_name]
+            )
     </sql>
-	<sql name="createTable" db="oracle">
+    <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
         message_name varchar2(200) NOT NULL ,
-        repository_name varchar2(200) NOT NULL ,
+        repository_name varchar2(255) NOT NULL ,
         message_state varchar2(30) NOT NULL ,
         error_message varchar2(200) NULL ,
-        sender varchar2(200) ,
+        sender varchar2(255) ,
         recipients varchar2(1000) NOT NULL ,
         remote_host varchar2(100) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
@@ -198,49 +197,48 @@
     <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
-        	message_name varchar (200) NOT NULL,
-        	repository_name varchar (200) NOT NULL,
-        	message_state varchar (30) NOT NULL ,
-        	error_message varchar (200) NULL ,
-        	sender varchar (200) NULL ,
-        	recipients text NOT NULL ,
-        	remote_host varchar (100) NOT NULL ,
-        	remote_addr varchar (20) NOT NULL ,
-        	message_body longblob NOT NULL ,
-        	last_updated datetime NOT NULL,
-        	PRIMARY KEY (message_name, repository_name)
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body longblob NOT NULL ,
+            last_updated datetime NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
         CREATE TABLE [${table}] (
-        	[message_name] [varchar] (200) NOT NULL,
-        	[repository_name] [varchar] (200) NOT NULL,
-        	[message_state] [varchar] (30) NOT NULL ,
-        	[error_message] [varchar] (1000) NULL ,
-        	[sender] [varchar] (200) NULL ,
-        	[recipients] [text] NOT NULL ,
-        	[remote_host] [varchar] (100) NOT NULL ,
-        	[remote_addr] [varchar] (20) NOT NULL ,
-        	[message_body] [image] NOT NULL ,
-        	[last_updated] [datetime] NOT NULL
+            [message_name] [varchar] (200) NOT NULL,
+            [repository_name] [varchar] (255) NOT NULL,
+            [message_state] [varchar] (30) NOT NULL ,
+            [error_message] [varchar] (1000) NULL ,
+            [sender] [varchar] (255) NULL ,
+            [recipients] [text] NOT NULL ,
+            [remote_host] [varchar] (255) NOT NULL ,
+            [remote_addr] [varchar] (20) NOT NULL ,
+            [message_body] [image] NOT NULL ,
+            [last_updated] [datetime] NOT NULL
         )
-		ALTER TABLE [${table}] WITH NOCHECK ADD
-			CONSTRAINT [PK_${table}] PRIMARY KEY
-			(
-				[message_name],
-				[repository_name]
-			)
-
+        ALTER TABLE [${table}] WITH NOCHECK ADD
+            CONSTRAINT [PK_${table}] PRIMARY KEY
+            (
+                [message_name],
+                [repository_name]
+            )
     </sql>
-	<sql name="createTable" db="oracle">
+    <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
         message_name varchar2(200) NOT NULL ,
-        repository_name varchar2(200) NOT NULL ,
+        repository_name varchar2(255) NOT NULL ,
         message_state varchar2(30) NOT NULL ,
         error_message varchar2(200) NULL ,
-        sender varchar2(200) NULL ,
+        sender varchar2(255) NULL ,
         recipients varchar2(1000) NOT NULL ,
-        remote_host varchar2(100) NOT NULL ,
+        remote_host varchar2(255) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
         last_updated date NOT NULL ,
@@ -248,20 +246,20 @@
         )
     </sql>
     <sql name="createTable" db="sapdb">
-		CREATE TABLE ${table} (
-			message_name varchar (200) NOT NULL,
-			repository_name varchar (200) NOT NULL,
-			message_state varchar (30) NOT NULL ,
-			error_message varchar (200) NULL ,
-			sender varchar (200) NULL ,
-			recipients long NOT NULL ,
-			remote_host varchar (100) NOT NULL ,
-			remote_addr varchar (20) NOT NULL ,
-			message_body long byte NOT NULL ,
-			last_updated date NOT NULL,
-			PRIMARY KEY (message_name, repository_name)
-		)
-	</sql>
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients long NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body long byte NOT NULL ,
+            last_updated date NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
 </sqlDefs>
 
 </sqlResources>
