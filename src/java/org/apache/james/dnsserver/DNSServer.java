@@ -285,30 +285,14 @@ public class DNSServer
         }
         short dclass = DClass.IN;
 
-        Record [] answers;
-        int answerCount = 0, n = 0;
-
         SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
         if (cached.isSuccessful()) {
             getLogger().debug(new StringBuffer(256)
                              .append("Retrieving MX record for ")
                              .append(name).append(" from cache")
                              .toString());
-            RRset [] rrsets = cached.answers();
-            answerCount = 0;
-            for (int i = 0; i < rrsets.length; i++) {
-                answerCount += rrsets[i].size();
-            }
 
-            answers = new Record[answerCount];
-
-            for (int i = 0; i < rrsets.length; i++) {
-                Iterator iter = rrsets[i].rrs();
-                while (iter.hasNext()) {
-                    Record r = (Record)iter.next();
-                    answers[n++] = r;
-                }
-            }
+            return processSetResponse(cached);
         }
         else if (cached.isNXDOMAIN() || cached.isNXRRSET()) {
             return null;
@@ -335,7 +319,10 @@ public class DNSServer
 
             short rcode = response.getHeader().getRcode();
             if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN) {
-                cache.addMessage(response);
+                cached = cache.addMessage(response);
+                if (cached != null) {
+                    return processSetResponse(cached);
+                }
             }
 
             if (rcode != Rcode.NOERROR) {
@@ -344,7 +331,27 @@ public class DNSServer
 
             return rawDNSLookup(namestr, true, type);
         }
+    }
+    
+    private Record[] processSetResponse(SetResponse sr) {
+        Record [] answers;
+        int answerCount = 0, n = 0;
 
+        RRset [] rrsets = sr.answers();
+        answerCount = 0;
+        for (int i = 0; i < rrsets.length; i++) {
+            answerCount += rrsets[i].size();
+        }
+
+        answers = new Record[answerCount];
+
+        for (int i = 0; i < rrsets.length; i++) {
+            Iterator iter = rrsets[i].rrs();
+            while (iter.hasNext()) {
+                Record r = (Record)iter.next();
+                answers[n++] = r;
+            }
+        }
         return answers;
     }
 
