@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.87 $  Committed on $Date: 2002/01/12 01:10:29 $ by: $Author: darrell $
+ James build file $Revision: 1.88 $  Committed on $Date: 2002/02/04 15:24:28 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -30,7 +30,7 @@ Legal:
   <property name="name" value="james"/>
   <property name="Name" value="James"/>
   <property name="version" value="2.0a2"/>
-  <property name="year" value="1999-2001"/>
+  <property name="year" value="1999-2002"/>
 
   <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
