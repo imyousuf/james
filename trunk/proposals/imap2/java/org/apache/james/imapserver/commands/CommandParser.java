@@ -9,6 +9,7 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.Assert;
 
@@ -21,7 +22,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class CommandParser
 {
@@ -79,6 +80,27 @@ public class CommandParser
                 else {
                     throw new ProtocolException( "Invalid nstring value: valid values are '\"...\"', '{12} CRLF *CHAR8', and 'NIL'." );
                 }
+        }
+    }
+
+    /**
+     * Reads a "mailbox" argument from the request. Not implemented *exactly* as per spec,
+     * since a quoted or literal "inbox" still yeilds "INBOX"
+     * (ie still case-insensitive if quoted or literal). I think this makes sense.
+     *
+     * mailbox         ::= "INBOX" / astring
+     *              ;; INBOX is case-insensitive.  All case variants of
+     *              ;; INBOX (e.g. "iNbOx") MUST be interpreted as INBOX
+     *              ;; not as an astring.
+     */
+    public String mailbox( ImapRequestLineReader request ) throws ProtocolException
+    {
+        String mailbox = astring( request );
+        if ( mailbox.equalsIgnoreCase( ImapConstants.INBOX_NAME ) ) {
+            return ImapConstants.INBOX_NAME;
+        }
+        else {
+            return mailbox;
         }
     }
 
@@ -171,15 +193,29 @@ public class CommandParser
 
         StringBuffer digits = new StringBuffer();
         char next = request.nextChar();
-        while ( next != '}' )
+        while ( next != '}' && next != '+' )
         {
             digits.append( next );
             request.consume();
             next = request.nextChar();
         }
+
+        // If the number is *not* suffixed with a '+', we *are* using a synchronized literal,
+        // and we need to send command continuation request before reading data.
+        boolean synchronizedLiteral = true;
+        // '+' indicates a non-synchronized literal (no command continuation request)
+        if ( next == '+' ) {
+            synchronizedLiteral = false;
+            consumeChar(request, '+' );
+        }
+
         // Consume the '}' and the newline
         consumeChar( request, '}' );
-        endLine( request );
+        consumeChar( request, '\n' );
+
+        if ( synchronizedLiteral ) {
+            request.commandContinuationRequest();
+        }
 
         int size = Integer.parseInt( digits.toString() );
         char[] buffer = new char[size];
@@ -196,7 +232,9 @@ public class CommandParser
             throws ProtocolException
     {
         char consumed = request.consume();
-        Assert.isTrue( Assert.ON && consumed == expected );
+        if ( consumed != expected ) {
+            throw new ProtocolException( "Expected:'" + expected + "' found:'" + consumed + "'" );
+        }
     }
 
     /**
@@ -311,6 +349,14 @@ public class CommandParser
          * @return <code>true</code> if chr is valid, <code>false</code> if not.
          */
         boolean isValid( char chr );
+    }
+
+    protected class NoopCharValidator implements CharacterValidator
+    {
+        public boolean isValid( char chr )
+        {
+            return true;
+        }
     }
 
     protected class ATOM_CHARValidator implements CharacterValidator

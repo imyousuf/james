@@ -1,0 +1,41 @@
+# The following tests check the parsing of string arguments of various formats.
+# The STATUS command is used for testing all types of string arguments.
+
+# The <mailbox> argument of the STATUS command is of type "mailbox", which
+# may be either (case-insensitive) "INBOX" or an "astring". "astring", in turn,
+# may be an "atom", a "quoted" string, or a "literal" ( format "{xxx[+]}\nXXXX" )
+
+# INBOX special case
+C: a001 STATUS INBOX (MESSAGES)
+S: \* STATUS INBOX \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+# Case-insensitive inbox
+C: a001 STATUS InBoX (MESSAGES)
+S: \* STATUS INBOX \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+# atom
+C: a001 STATUS test (MESSAGES)
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+# quoted
+C: a001 STATUS "test" (MESSAGES)
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+# non-synchronized literal
+C: a001 STATUS {4}
+S: +
+C: test (MESSAGES)
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+# synchronized literal
+C: a001 STATUS {4+}
+C: test (MESSAGES)
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+

@@ -7,16 +7,13 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.store.ImapStore;
-import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.services.User;
 import org.apache.james.userrepository.DefaultUser;
-import junit.framework.TestCase;
 
-import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * A test for implementations of the {@link ImapHost} interface.
@@ -31,7 +28,7 @@ import java.util.Collection;
  *  
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ImapHostTest extends TestCase
         implements ImapConstants

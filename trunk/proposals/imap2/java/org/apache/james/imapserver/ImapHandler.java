@@ -12,6 +12,7 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.commands.ImapCommandFactory;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.io.Reader;
 import java.net.Socket;
 
 /**
@@ -46,11 +49,8 @@ public class ImapHandler
 {
 
     private String softwaretype = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
-    private ImapResponse untaggedResponse;
-    private ImapRequestLineReader request;
-    private CommandParser parser = new CommandParser();
+    private ImapRequestHandler requestHandler = new ImapRequestHandler();
     private ImapSession session;
-    private ImapCommandFactory imapCommands = new ImapCommandFactory();
 
     /**
      * The per-service configuration data that applies to all handlers
@@ -97,7 +97,6 @@ public class ImapHandler
      * The watchdog target that idles out this handler.
      */
     private WatchdogTarget theWatchdogTarget = new IMAPWatchdogTarget();
-    private static final String REQUEST_SYNTAX = "Protocol Error: Was expecting <tag SPACE command [arguments]>";
 
     /**
      * Set the configuration data for the handler.
@@ -209,7 +208,7 @@ public class ImapHandler
         try {
             outs = new BufferedOutputStream( socket.getOutputStream(), 1024 );
             out = new InternetPrintWriter( outs, true );
-            untaggedResponse = new ImapResponse( out );
+            ImapResponse untaggedResponse = new ImapResponse( out );
 
             // Write welcome message
             StringBuffer responseBuffer =
@@ -220,11 +219,14 @@ public class ImapHandler
                     .append( " ready" );
             untaggedResponse.okResponse( null, responseBuffer.toString() );
 
-            request = new ImapRequestLineReader( in );
-            session = new ImapSessionImpl();
+            session = new ImapSessionImpl( theConfigData.getImapHost(),
+                                           theConfigData.getUsersRepository(),
+                                           this,
+                                           socket.getInetAddress().getHostName(),
+                                           socket.getInetAddress().getHostAddress());
 
             theWatchdog.start();
-            while ( parseCommand() ) {
+            while ( requestHandler.handleRequest( in, out, session ) ) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
@@ -265,7 +267,7 @@ public class ImapHandler
     /**
      * Resets the handler data to a basic state.
      */
-    private void resetHandler()
+    void resetHandler()
     {
 
         if ( theWatchdog != null ) {
@@ -364,63 +366,6 @@ public class ImapHandler
     }
 
     /**
-     * This method parses POP3 commands read off the wire in handleConnection.
-     * Actual processing of the command (possibly including additional back and
-     * forth communication with the client) is delegated to one of a number of
-     * command specific handler methods.  The primary purpose of this method is
-     * to parse the raw command string to determine exactly which handler should
-     * be called.  It returns true if expecting additional commands, false otherwise.
-     *
-     * @return whether additional commands are expected.
-     */
-    private boolean parseCommand() throws ProtocolException
-    {
-        try {
-            request.nextChar();
-        }
-        catch ( ProtocolException e ) {
-            return false;
-        }
-        ImapResponse response = new ImapResponse( out );
-        String tag = null;
-        String commandName = null;
-
-        try {
-            tag = parser.tag( request );
-        }
-        catch ( ProtocolException e ) {
-            response.badResponse( REQUEST_SYNTAX );
-            return true;
-        }
-
-        System.out.println( "Got <tag>: " + tag );
-        response.setTag( tag );
-        try {
-            commandName = parser.atom( request );
-        }
-        catch ( ProtocolException e ) {
-            response.commandError( REQUEST_SYNTAX );
-            return true;
-        }
-
-        System.out.println( "Got <command>: " + commandName );
-        ImapCommand command = imapCommands.getCommand( commandName );
-        if ( command == null )
-        {
-            response.commandError( "Invalid command.");
-            return true;
-        }
-
-        if ( !command.validForState( session.getState() ) ) {
-            response.commandFailed( command, "Command not valid in this state" );
-            return true;
-        }
-        
-        command.process( request, response, session );
-        return true;
-    }
-
-    /**
      * This method logs at a "DEBUG" level the response string that
      * was sent to the POP3 client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
@@ -480,87 +425,5 @@ public class ImapHandler
 
     }
 
-    private final class ImapSessionImpl implements ImapSession
-    {
-        private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
-        private User user = null;
-        private ImapMailbox selectedMailbox = null;
-        // TODO: Use a session-specific wrapper for user's view of mailbox
-        // this wrapper would provide access control and track if the mailbox
-        // is opened read-only.
-        private boolean selectedIsReadOnly = false;
-
-        public ImapHost getHost()
-        {
-            return theConfigData.getImapHost();
-        }
-
-        public void unsolicitedResponses( ImapResponse request )
-        {
-        }
-
-        public void closeConnection()
-        {
-            resetHandler();
-        }
-
-        public UsersRepository getUsers()
-        {
-            return theConfigData.getUsersRepository();
-        }
-
-        public Logger getSecurityLogger()
-        {
-            return getLogger();
-        }
-
-        public String getClientHostname()
-        {
-            return socket.getInetAddress().getHostName();
-        }
-
-        public String getClientIP()
-        {
-            return socket.getInetAddress().getHostAddress();
-        }
-
-        public void setAuthenticated( User user )
-        {
-            this.state = ImapSessionState.AUTHENTICATED;
-            this.user = user;
-        }
-
-        public User getUser()
-        {
-            return this.user;
-        }
-
-        public void deselect()
-        {
-            this.state = ImapSessionState.AUTHENTICATED;
-        }
-
-        public void setSelected( ImapMailbox mailbox, boolean readOnly )
-        {
-            this.state = ImapSessionState.SELECTED;
-            this.selectedMailbox = mailbox;
-            this.selectedIsReadOnly = readOnly;
-        }
-
-        public ImapMailbox getSelected()
-        {
-            return this.selectedMailbox;
-        }
-
-        public boolean selectedIsReadOnly()
-        {
-            return this.selectedIsReadOnly;
-        }
-
-        public ImapSessionState getState()
-        {
-            return this.state;
-        }
-    }
 }
 

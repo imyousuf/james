@@ -1,12 +1,29 @@
 package org.apache.james.test;
 
-import org.apache.oro.text.perl.Perl5Util;
+import org.apache.james.imapserver.IMAPTest;
+import org.apache.james.imapserver.ImapHandler;
+import org.apache.james.imapserver.ImapHost;
+import org.apache.james.imapserver.ImapRequestHandler;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionImpl;
+import org.apache.james.imapserver.JamesImapHost;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.userrepository.AbstractUsersRepository;
+import org.apache.james.userrepository.DefaultUser;
 
 import junit.framework.TestCase;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PipedReader;
+import java.io.PipedWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Abstract Protocol Test is the root of all of the James Imap Server test
@@ -19,26 +36,19 @@ import java.net.Socket;
  * @author Unattributed Original Authors
  * @author Andrew C. Oliver
  */
-public abstract class AbstractProtocolTest extends TestCase
+public abstract class AbstractProtocolTest
+        extends TestCase implements IMAPTest
 {
-    private Socket _socket;
-    private PrintWriter _out;
-    private BufferedReader _in;
-    protected String _host = "127.0.0.1";
+    protected ProtocolSession preElements = new ProtocolSession();
+    protected ProtocolSession testElements;
+    protected ProtocolSession postElements = new ProtocolSession();
 
-    protected int _port;
-    protected int _timeout = 0;
+    protected String host = HOST;
+    protected int port = PORT;
+    protected int timeout = TIMEOUT;
 
-    protected List _preElements = new ArrayList();
-    protected List _testElements = new ArrayList();
-    protected List _postElements = new ArrayList();
-
-    private static final Perl5Util perl = new Perl5Util();
-    private static final String CLIENT_TAG = "C: ";
-    private static final String SERVER_TAG = "S: ";
-    private static final String OPEN_UNORDERED_BLOCK_TAG = "SUB {";
-    private static final String CLOSE_UNORDERED_BLOCK_TAG = "}";
-    private static final String COMMENT_TAG = "#";
+    private static UsersRepository users;
+    private static ImapHost imapHost;
 
     public AbstractProtocolTest( String s )
     {
@@ -49,270 +59,141 @@ public abstract class AbstractProtocolTest extends TestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        _testElements.clear();
+        testElements = new ProtocolSession();
 
-        _socket = new Socket( _host, _port );
-        _socket.setSoTimeout( _timeout );
-        _out = new PrintWriter( _socket.getOutputStream(), true );
-        _in = new BufferedReader( new InputStreamReader( _socket.getInputStream() ) );
-    }
-
-    // comment in TestCase
-    protected void tearDown() throws Exception
-    {
-        _out.close();
-        _in.close();
-        _socket.close();
-        super.tearDown();
-    }
-
-    // comment in TestCase
-    protected void executeTests() throws Exception
-    {
-        executeTest( _preElements );
-        executeTest( _testElements );
-        executeTest( _postElements );
     }
 
     /**
-     * executes the test case as specified in the file.  Commands in
-     * CL: elements are sent to the server, and the SL: lines are verified
-     * against those returning from the server.  The order is important
-     * unless in a "SUB:" block in which case the order is not important and
-     * the test will pass if any line in the SUB: block matches.
+     * Uses a system property to determine whether to run tests locally, or against
+     * a remote server.
      */
-    protected void executeTest( List protocolLines ) throws Exception
+    protected void runSessions() throws Exception
     {
-        for ( Iterator iter = protocolLines.iterator(); iter.hasNext(); ) {
-            Object obj = iter.next();
-            if ( obj instanceof ProtocolElement ) {
-                ProtocolElement test = ( ProtocolElement ) obj;
-                test.testProtocol( _out, _in );
-            }
+        String runLocal = System.getProperty( "runTestsLocal", "true" );
+        boolean local = Boolean.valueOf( runLocal ).booleanValue();
+        if ( local ) {
+            runLocalProtocolSessions();
+        }
+        else {
+            runSocketProtocolSessions();
         }
     }
 
     /**
-     * adds a new Client request line to the test elements
+     * Runs the pre,test and post protocol sessions against a running instance of James,
+     * by communicating via a socket connection. After a request is sent, the server response
+     * is parsed to determine if the actual response matches that expected.
      */
-    protected void CL( String clientLine )
-    {
-        _testElements.add( new ClientRequest( clientLine ) );
-    }
-
-    /**
-     * adds a new Server Response line to the test elements
-     */
-    protected void SL( String serverLine )
-    {
-        _testElements.add( new ServerResponse( serverLine ) );
-    }
-
-    /**
-     * This Line is sent to the server (everything after "CL: ") in expectation
-     * that the server will respond.
-     */
-    protected class ClientRequest implements ProtocolElement
-    {
-        private String _msg;
-
-        public ClientRequest( String msg )
-        {
-            _msg = msg;
-        }
-
-        /**
-         * Sends the request to the server
-         */
-        public void testProtocol( PrintWriter out, BufferedReader in ) throws Exception
-        {
-            out.println( _msg );
-        }
-
-        /**
-         * This should NOT be called, CL is not blockable!  Runtime exception
-         * will be thrown.  Implemented because of "ProtocolElement"
-         */
-        public void testProtocolBlock( PrintWriter out, BufferedReader in, List list )
-                throws Exception
-        {
-            //out.println( _msg );
-            throw new RuntimeException( "Syntax error in test case, CL is not " +
-                                        "able to be used in a SUB: block" );
-        }
-    }
-
-    protected class ServerResponse implements ProtocolElement
-    {
-        private String expectedLine;
-        protected String location;
-
-        public ServerResponse( String expectedPattern, String location )
-        {
-            this.expectedLine = expectedPattern;
-            this.location = location;
-        }
-
-        public ServerResponse( String expectedPattern )
-        {
-            this( expectedPattern, "" );
-        }
-
-        public void testProtocol( PrintWriter out, BufferedReader in ) throws Exception
-        {
-            String testLine = readLine( in );
-            if ( ! match( expectedLine, testLine ) ) {
-                String errMsg = "\nLocation: " + location +
-                        "\nExcpected: " + expectedLine +
-                        "\nActual   : " + testLine;
-                fail( errMsg );
-            }
-        }
-
-        protected boolean match( String expected, String actual )
-        {
-            String pattern = "m/" + expected + "/";
-            return perl.match( pattern, actual );
-        }
-
-        /**
-         * Grabs a line from the server and throws an error message if it
-         * doesn't work out
-         * @param in BufferedReader for getting the server response
-         * @return String of the line from the server
-         */
-        protected String readLine( BufferedReader in ) throws Exception
-        {
-            try {
-                return in.readLine();
-            }
-            catch ( InterruptedIOException e ) {
-                String errMsg = "\nLocation: " + location +
-                        "\nExpected: " + expectedLine +
-                        "\nReason: Server Timeout.";
-                fail( errMsg );
-                return "";
-            }
-        }
-    }
-
-    private class UnorderedBlockResponse extends ServerResponse
-    {
-        private List expectedLines = new ArrayList();
-
-        public UnorderedBlockResponse( List expectedLines, String location )
-        {
-            super( "<Unordered Block>", location );
-            this.expectedLines = expectedLines;
-        }
-
-        public void testProtocol( PrintWriter out, BufferedReader in ) throws Exception
-        {
-            List testLines = new ArrayList( expectedLines );
-            while ( testLines.size() > 0 )
-            {
-                String actualLine = readLine( in );
-                boolean foundMatch = false;
-
-                for ( int i = 0; i < testLines.size(); i++ )
-                {
-                    String expected = (String)testLines.get( i );
-                    if ( match( expected, actualLine ))
-                    {
-                        foundMatch = true;
-                        testLines.remove( expected );
-                        break;
-                    }
-                }
-
-                if (! foundMatch )
-                {
-                    StringBuffer errMsg = new StringBuffer()
-                        .append( "\nLocation: " )
-                        .append( location )
-                        .append( "\nExpected one of: " );
-                    Iterator iter = expectedLines.iterator();
-                    while ( iter.hasNext() ) {
-                        errMsg.append( "\n    " );
-                        errMsg.append( iter.next() );
-                    }
-                    errMsg.append("\nActual: " )
-                          .append( actualLine );
-
-                    fail( errMsg.toString() );
-                }
-            }
-        }
-    }
-
-
-    protected interface ProtocolElement
-    {
-        void testProtocol( PrintWriter out, BufferedReader in ) throws Exception;
-    }
-
-    protected void addTestFile( String fileName ) throws Exception
-    {
-        addTestFile( fileName, _testElements );
-    }
-
-    protected void addTestFile( String fileName, List protocolLines ) throws Exception
-    {
-        // Need to find local resource.
-        InputStream is = this.getClass().getResourceAsStream( fileName );
-        if ( is == null ) {
-            throw new Exception( "Test Resource '" + fileName + "' not found." );
-        }
-
-        addProtocolLinesFromStream( is, protocolLines, fileName );
-    }
-
-    private void addProtocolLinesFromStream( InputStream is, List protocolElements, String fileName )
+    private void runSocketProtocolSessions()
             throws Exception
     {
-        BufferedReader reader = new BufferedReader( new InputStreamReader( is ) );
-        String next;
-        int lineNumber = 1;
-        while ( ( next = reader.readLine() ) != null ) {
-            String location = fileName + ":" + lineNumber;
-            if ( next.startsWith( CLIENT_TAG ) ) {
-                String clientMsg = next.substring( 3 );
-                protocolElements.add( new ClientRequest( clientMsg ) );
-            }
-            else if ( next.startsWith( SERVER_TAG ) ) {
-                String serverMsg = next.substring( 3 );
-                protocolElements.add( new ServerResponse( serverMsg, location ) );
-            }
-            else if ( next.startsWith( OPEN_UNORDERED_BLOCK_TAG ) ) {
-                List unorderedLines = new ArrayList( 5 );
-                next = reader.readLine();
+        Socket socket = new Socket( host, port );
+        socket.setSoTimeout( timeout );
 
-                while ( !next.startsWith( CLOSE_UNORDERED_BLOCK_TAG ) ) {
-                    if (! next.startsWith( SERVER_TAG ) ) {
-                        throw new Exception( "Only 'S: ' lines are permitted inside a 'SUB {' block.");
-                    }
-                    String serverMsg = next.substring( 3 );
-                    unorderedLines.add( serverMsg );
-                    next = reader.readLine();
-                    lineNumber++;
-                }
+        PrintWriter out = new PrintWriter( socket.getOutputStream(), true );
+        BufferedReader in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
+        try {
+             preElements.runSession( in, out );
+             testElements.runSession( in, out );
+             postElements.runSession( in, out );
+         }
+         catch ( InvalidServerResponseException e ) {
+             fail( e.getMessage() );
+         }
 
-                UnorderedBlockResponse blockResponse =
-                        new UnorderedBlockResponse( unorderedLines, location );
-                protocolElements.add( blockResponse );
-            }
-            else if ( next.startsWith( COMMENT_TAG )
-                    || next.trim().length() == 0 ) {
-                // ignore these lines.
-            }
-            else {
-                String prefix = next;
-                if ( next.length() > 3 ) {
-                    prefix = next.substring( 0, 3 );
-                }
-                throw new Exception( "Invalid line prefix: " + prefix );
-            }
-            lineNumber++;
+        out.close();
+        in.close();
+        socket.close();
+     }
+
+    /**
+     * Runs the pre,test and post protocol sessions against a local copy of the ImapServer.
+     * This does not require that James be running, and is useful for rapid development and
+     * debugging.
+     *
+     * Instead of sending requests to a socket, requests are written to a PipedWriter,
+     * which then provides a Reader which can be given to the ImapRequestHandler.
+     * Likewise, server responses are writter to a PipedWriter, and the associate reader
+     * is parsed to ensure that the responses match those expected.
+     */
+    private void runLocalProtocolSessions() throws Exception
+    {
+        // Read the client requests into a piped reader.
+        PipedReader clientPipeReader = new PipedReader();
+        PipedWriter clientPipeWriter = new PipedWriter( clientPipeReader );
+        PrintWriter clientOut = new PrintWriter( clientPipeWriter );
+        preElements.writeClient( clientOut );
+        testElements.writeClient( clientOut );
+        postElements.writeClient( clientOut );
+
+        clientPipeWriter.close();
+
+        BufferedReader clientIn = new BufferedReader( clientPipeReader );
+
+        PipedReader serverPipeReader = new PipedReader();
+        PipedWriter serverPipeWriter = new PipedWriter( serverPipeReader );
+        PrintWriter serverOut = new PrintWriter( serverPipeWriter );
+
+        serverOut.println( "* OK IMAP4rev1 Server XXX ready" );
+
+        ImapSession session = getImapSession();
+        ImapRequestHandler requestHandler = new ImapRequestHandler();
+        while( requestHandler.handleRequest( clientIn, serverOut, session ) ) {};
+
+        BufferedReader serverIn = new BufferedReader( serverPipeReader );
+        try {
+            preElements.testResponse(  serverIn );
+            testElements.testResponse(  serverIn );
+            postElements.testResponse(  serverIn );
+        }
+        catch ( InvalidServerResponseException e ) {
+            fail( e.getMessage() );
+        }
+    }
+
+    // TODO setup the session properly.
+    private ImapSession getImapSession() throws MailboxException
+    {
+        setUpEnvironment();
+        ImapSession session = new ImapSessionImpl( imapHost, users, new ImapHandler(), null, null );
+        return session;
+    }
+
+    private void setUpEnvironment() throws MailboxException
+    {
+        if ( users == null || imapHost == null ) {
+            users = new DummyUsersRepository();
+            DefaultUser user = new DefaultUser( USER, "SHA" );
+            user.setPassword( PASSWORD );
+            users.addUser( user );
+
+            imapHost = new JamesImapHost();
+            imapHost.createPrivateMailAccount( user );
+        }
+    }
+
+    private class DummyUsersRepository extends AbstractUsersRepository
+    {
+        private Map users = new HashMap();
+
+        protected Iterator listAllUsers()
+        {
+            return users.values().iterator();
+        }
+
+        protected void doAddUser( User user )
+        {
+            users.put( user.getUserName(), user );
+        }
+
+        protected void doRemoveUser( User user )
+        {
+            users.remove( user.getUserName());
+        }
+
+        protected void doUpdateUser( User user )
+        {
+            users.put( user.getUserName(), user );
         }
     }
 }

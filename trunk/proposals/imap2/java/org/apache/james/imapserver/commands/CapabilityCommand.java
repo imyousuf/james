@@ -17,14 +17,14 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class CapabilityCommand extends CommandTemplate
 {
     public static final String NAME = "CAPABILITY";
     public static final String ARGS = null;
 
-    public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION;
+    public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION + SP + CAPABILITIES;
 
     /** @see CommandTemplate#doProcess */
     protected void doProcess( ImapRequestLineReader request,
@@ -32,14 +32,10 @@ class CapabilityCommand extends CommandTemplate
                               ImapSession session )
             throws ProtocolException
     {
-        System.out.println( "About to do parser.endLine()" );
         parser.endLine( request );
-        System.out.println( "Completed parser.endLine()" );
         response.untaggedResponse( CAPABILITY_RESPONSE );
-        System.out.println( "Sent untagged response." );
         session.unsolicitedResponses( response );
         response.commandComplete( this );
-        System.out.println( "Sent capability response." );
     }
 
     /** @see ImapCommand#getName */

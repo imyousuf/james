@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class JamesImapHost
         implements ImapHost, ImapConstants
@@ -197,8 +197,8 @@ public class JamesImapHost
                                      boolean subscribedOnly )
             throws MailboxException
     {
-        System.out.println( "Listing for user: '" + user.getUserName() + "'" +
-                            " pattern:'" + mailboxPattern + "'" );
+//        System.out.println( "Listing for user: '" + user.getUserName() + "'" +
+//                            " pattern:'" + mailboxPattern + "'" );
 
         ArrayList mailboxes = new ArrayList();
         String qualifiedPattern = getQualifiedMailboxName( user, mailboxPattern );

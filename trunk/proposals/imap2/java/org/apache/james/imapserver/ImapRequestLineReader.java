@@ -11,6 +11,8 @@ package org.apache.james.imapserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
+import java.io.BufferedWriter;
 import java.util.StringTokenizer;
 
 /**
@@ -19,18 +21,20 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ImapRequestLineReader
 {
     private Reader reader;
+    private Writer writer;
 
     private boolean nextSeen = false;
     private char nextChar; // unknown
 
-    ImapRequestLineReader( Reader reader )
+    ImapRequestLineReader( Reader reader, Writer writer )
     {
         this.reader = reader;
+        this.writer = writer;
     }
 
     /**
@@ -50,8 +54,6 @@ public class ImapRequestLineReader
         }
 
         if ( next == '\r' || next == '\n' ) {
-            // Move to the next line, and throw exception.
-            eol();
             throw new ProtocolException( "Missing argument." );
         }
 
@@ -83,15 +85,16 @@ public class ImapRequestLineReader
 
             nextSeen = true;
             nextChar = ( char ) next;
+//            System.out.println( "Read '" + nextChar + "'" );
         }
         return nextChar;
     }
 
     /**
-     * Moves the request line reader to the next line, by consuming any
-     * trailing whitespace, and CRLF.
+     * Moves the request line reader to end of the line, checking that no non-space
+     * character are found.
      * @throws ProtocolException If more non-space tokens are found in this line,
-     *                           or the end-of-file is reached. All extra tokens are consumed regardless.
+     *                           or the end-of-file is reached.
      */
     public void eol() throws ProtocolException
     {
@@ -107,11 +110,6 @@ public class ImapRequestLineReader
         if ( next == '\r' ) {
             consume();
             next = nextChar();
-        }
-
-        // Need to consume until the end-of-line, regardless.
-        while ( consume() != '\n' ) {
-            // keep on consuming
         }
 
         // Check if we found extra characters.
@@ -151,5 +149,31 @@ public class ImapRequestLineReader
         catch ( IOException e ) {
             throw new ProtocolException( "Error reading from stream." );
         }
+    }
+
+    /**
+     * Sends a server command continuation request '+' back to the client,
+     * requesting more data to be sent.
+     */
+    public void commandContinuationRequest()
+            throws ProtocolException
+    {
+        try {
+            writer.write( "+\n" );
+        }
+        catch ( IOException e ) {
+            throw new ProtocolException("Unexpected exception in sending command continuation request.");
+        }
+    }
+
+    public void consumeLine()
+            throws ProtocolException
+    {
+        char next = nextChar();
+        while ( next != '\n' ) {
+            consume();
+            next = nextChar();
+        }
+        consume();
     }
 }

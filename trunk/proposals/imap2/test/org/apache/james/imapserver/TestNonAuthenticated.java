@@ -7,20 +7,10 @@
  */
 package org.apache.james.imapserver;
 
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-import junit.framework.Test;
-
-import java.net.Socket;
-import java.io.*;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.apache.james.test.SimpleFileProtocolTest;
-import org.apache.james.remotemanager.UserManagementTest;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class TestNonAuthenticated
         extends SimpleFileProtocolTest
@@ -28,13 +18,12 @@ public class TestNonAuthenticated
     public TestNonAuthenticated( String name )
     {
         super( name );
-        _port = 143;
     }
 
     public void setUp() throws Exception
     {
         super.setUp();
-        addTestFile( "Welcome.test", _preElements );
+        addTestFile( "Welcome.test", preElements );
     }
 
     public static Test suite() throws Exception

@@ -58,16 +58,18 @@ Legal:
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.test.classes" value="${build.dir}/test/classes"/>
 
+    <property name="xerces.jar" value="${lib.dir}/xerces-1.4.3.jar"/>
+
     <path id="test.class.path">
         <pathelement location="${build.classes}"/>
+        <pathelement location="${xerces.jar}"/>
+        <pathelement path="${java.class.path}"/>
         <fileset dir="${lib.dir}">
-            <include name="junit-3.7.jar"/>
-            <include name="mail_1_2.jar"/>
-            <include name="activation.jar"/>
-            <include name="jakarta-oro-2.0.1.jar"/>
+            <include name="*.jar"/>
+            <exclude name="xerces.jar"/>
         </fileset>
         <fileset dir="${phoenix.dir}/lib">
-            <include name="avalon-framework-4.1.3.jar"/>
+            <include name="*.jar"/>
         </fileset>
         <fileset dir="${phoenix.dir}/bin/lib">
             <include name="phoenix-engine.jar"/>
@@ -141,10 +143,13 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocal" value="true"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.imapserver.ImapHostTest"/>
             <test name="org.apache.james.imapserver.CommandParserTest"/>
             <test name="org.apache.james.imapserver.ImapStoreTest"/>
+            <test name="org.apache.james.imapserver.TestNonAuthenticated"/>
+            <test name="org.apache.james.imapserver.TestAuthenticated"/>
         </junit>
     </target>
 
@@ -161,8 +166,9 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
-            <test name="org.apache.james.imapserver.InitialUsers"/>
+            <test name="org.apache.james.remotemanager.InitialImapUsersTest"/>
             <test name="org.apache.james.imapserver.InitialMail"/>
         </junit>
     </target>
@@ -174,6 +180,7 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.imapserver.TestNonAuthenticated"/>
         </junit>
@@ -186,6 +193,7 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.imapserver.TestAuthenticated"/>
         </junit>
@@ -198,6 +206,7 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocal" value="false"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.imapserver.TestSelected"/>
         </junit>
@@ -209,6 +218,7 @@ Legal:
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
             </classpath>
+            <sysproperty key="runTestsLocall" value="false"/>
             <formatter type="plain" usefile="false"/>
             <test name="org.apache.james.remotemanager.TestRemoteManager"/>
         </junit>
