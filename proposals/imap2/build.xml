@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.5 $  Committed on $Date: 2003/01/27 13:03:10 $ by: $Author: darrell $
+ James build file $Revision: 1.6 $  Committed on $Date: 2003/01/28 12:55:22 $ by: $Author: darrell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -231,9 +231,6 @@ Legal:
             <exclude name="${constants.file}"/>
             <exclude name="${poolconn.file}"/>
             <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" unless="jndi.present"/>
-
-            <!-- These file(s) are in both the proposal and the main trunk. -->
-            <exclude name="org/apache/james/James.java"/>
         </javac>
 
           <!-- Copy .xinfo and .properties files from the core source, once again,
