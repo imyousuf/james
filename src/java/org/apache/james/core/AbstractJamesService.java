@@ -150,7 +150,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         port = conf.getChild("port").getValueAsInteger(getDefaultPort());
 
-        Configuration serverSocketTypeConf = conf.getChild("server-socket-type", false);
+        Configuration serverSocketTypeConf = conf.getChild("serverSocketType", false);
         String confSocketType = null;
         if (serverSocketTypeConf != null ) {
             confSocketType = serverSocketTypeConf.getValue();
@@ -170,7 +170,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
 
         StringBuffer infoBuffer;
-        threadGroup = conf.getChild("thread-group").getValue(null);
+        threadGroup = conf.getChild("threadGroup").getValue(null);
         if (threadGroup != null) {
             infoBuffer =
                 new StringBuffer(64)
@@ -239,7 +239,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         final String location = "generated:" + getServiceType();
 
         if (connectionManager instanceof SimpleConnectionManager) {
-            String connectionLimitString = conf.getChild("connection-limit").getValue(null);
+            String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
             if (connectionLimitString != null) {
                 try {
                     connectionLimit = new Integer(connectionLimitString);
