@@ -12,14 +12,14 @@
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 <section name="Version 2.1">
-<p>Expected release November 2002</p>
+<p>Expected release December 2002</p>
 <ul>
 <li>(PG) (code) Fixed platform-specific performance issue with the POP3 server delivery.</li>
 <li>(PG) (code) Fixed bug where RemoteDelivery did not iterate through all MX records on connect failure.</li>
 <li>(PG) (update) Updated James to use the Avalon Framework version 4.1.3.</li>
 <li>(PG) (update) Updated James to use Avalon Phoenix version 4.0.1.</li>
 <li>(PG) (doc) Added extensive commenting - specifically Javadoced the vast majority of methods.</li>
-<li>(PG) (code) Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.</li>
+<li>(PG,AI) (code) Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.</li>
 <li>(NjB) (code) Corrected JDBCMailRepository to obey stated contract.</li>
 <li>(NjB,PG) (code) Adjusted service handlers to flush socket output streams to ensure prompt client interactions.</li>
 <li>(PG) (code) Adjusted the NNTP server so that it better conforms to the NNTP specification (see bug #13564 for details).</li>
@@ -36,8 +36,10 @@
 <li>(DA,PG) (code) Added enabled/disabled switch to main server components.</li>
 <li>(DA) (code) Added new FetchPOP functionality, to allow James to consolidate mail from a number of POP3 servers in a single server.</li>
 <li>(DA) (doc) Added documentation to demonstrate how to configure James as a universal sendmail relay.</li>
+<li>(NjB) (code) Made subject prefix bracketing in GenericListserv configurable.</li>
 <li>(NjB) (code) Added the HasHeader matcher.</li>
 <li>(NjB) (code) Added the JDBCVirtualUserTable mailet.</li>
+<li>(NjB) (code) Enhanced the RemoteAddrInNetwork and RemoteAddrNotInNetwork to accept domain names.</li>
 <li>(PG) (update) Fixed the log configuration so that AM and PM entries are properly distinguishable by default.</li>
 <li>(NjB) (code) Added a configurable debug parameter to several mailets to allow a more granular control of debug logging.</li>
 <li>(NjB) (code) Added the Habeas warrant mailet and matcher.</li>
@@ -48,7 +50,10 @@
 <li>(PG) (code) Closed an open relay hole involving an empty Sender header.</li>
 <li>(PG) (code) Fixed Oracle specific bug that limited us to messages of 4K or less in the repository.</li>
 <li>(SS,NjB,PG) (code) Ensured that a number of database and I/O resources are properly closed under all conditions.</li>
+<li>(NjB) (code) Changed default column sizes for JDBC repositories to be RFC compliant.</li>
+<li>(NjB) (code) Fixed exception handling in JdbcDataSource when getConnection() fails.</li>
 <li>(PG) (code) Fixed NotifySender/NotifyPostmaster to be more robust against ill-formed headers in the email being forwarded.</li>
+<li>(SD,SS3) (code) Made a substantial performance enhancement to the LinearProcessor such that mail changes are not persisted to the store until necessary.  Also reduced synchronization scope.</li>
 <li>(PG) (code) Converted String concatenation to the use of StringBuffers throughout the code base.</li>
 <li>(PG) (code) Fixed date formatting to be thread safe.</li>
 <li>(NjB) (code) Fixed InSpammerBlacklist</li>
@@ -56,6 +61,7 @@
 <li>(NjB,SK) (update) Fixed MailImpl.duplicate to include remote addr, remote host, and last updated fields.</li>
 <li>(CB2) (update) Fixed NNTP server bug where the NEXT command was not being properly dispatched and handled.</li>
 <li>(SK) (update) Cleaned up error handling in LocalDelivery.</li>
+<li>(SS2) (code) Changed the default configuration so that log files are appending by default.</li>
 <li>(SS2) (update) Reported the lack of in.close in MimeMessageSource.getSize(), which was causing stranded file handles, especially during large POP3 sessions.</li>
 <li>(AI) (update) Matcher config implementation object now properly set with matcher name.</li>
 </ul>
@@ -199,7 +205,7 @@
 <p>Unknown release date</p>
 <ul>
 <li>(FB) (update) Based on much code from Serge Knystautas first implementation of JAMES on
-  	top of the Avalon framework.</li>
+    top of the Avalon framework.</li>
 </ul>
 </section>
 
