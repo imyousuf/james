@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.4 $  Committed on $Date: 2002/09/16 23:12:03 $ by: $Author: pgoldstein $
+ James build file $Revision: 1.5 $  Committed on $Date: 2002/09/24 04:17:15 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -62,7 +62,7 @@ Legal:
        Set the properties for intermediate directory
        ===================================================================
   -->
-    <property name="build.dir" value="${proposal.name}/build"/>
+    <property name="build.dir" value="${proposal.dir}/build"/>
     <property name="build.lib" value="${build.dir}/lib"/>
     <property name="build.src" value="${build.dir}/src"/>
     <property name="build.classes" value="${build.dir}/classes"/>
@@ -91,7 +91,7 @@ Legal:
        Set the properties for the distribution directories
        ===================================================================
   -->
-    <property name="dist.base" value="${proposal.name}/dist"/>
+    <property name="dist.base" value="${proposal.dir}/dist"/>
     <property name="dist.name" value="${name}-${version}"/>
     <property name="dist.dir" value="${dist.base}/${dist.name}"/>
 
@@ -168,7 +168,9 @@ Legal:
             </fileset>
         </copy>
         <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf"/>
+        <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf"/>
         <fixcrlf srcdir="${java.proposal.dir}" includes="**/*.java" eol="lf"/>
+        <fixcrlf srcdir="${conf.proposal.dir}" includes="**/*.xml" eol="lf"/>
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.sh" eol="lf"/>
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.bat" eol="crlf"/>
         <chmod perm="+x">
