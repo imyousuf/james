@@ -63,7 +63,8 @@ public class AvalonMailStore
         repositories = new HashMap();
         models = new HashMap();
         classes = new HashMap();
-        Configuration[] registeredClasses = configuration.getChild("repositories").getChildren("repository");
+        Configuration[] registeredClasses
+            = configuration.getChild("repositories").getChildren("repository");
         for ( int i = 0; i < registeredClasses.length; i++ )
         {
             registerRepository((Configuration) registeredClasses[i]);
@@ -71,23 +72,26 @@ public class AvalonMailStore
         getLogger().info("James RepositoryManager ...init");
     }
     
-    public void registerRepository(Configuration repConf) throws ConfigurationException {
+    public void registerRepository(Configuration repConf)
+            throws ConfigurationException {
         String className = repConf.getAttribute("class");
         getLogger().info("Registering Repository " + className);
-        Configuration[] protocols = repConf.getChild("protocols").getChildren("protocol");
+        Configuration[] protocols
+            = repConf.getChild("protocols").getChildren("protocol");
         Configuration[] types = repConf.getChild("types").getChildren("type");
-        Configuration[] models = repConf.getChild("models").getChildren("model");
+        Configuration[] models
+            = repConf.getChild("models").getChildren("model");
         for ( int i = 0; i < protocols.length; i++ )
         {
-            final String protocol = protocols[i].getValue();
+            String protocol = protocols[i].getValue();
 
             for ( int j = 0; j < types.length; j++ )
             {
-                final String type = types[i].getValue();
+                String type = types[j].getValue();
 
                 for ( int k = 0; k < models.length; k++ )
                 {
-                    final String model = models[i].getValue();
+                    String model = models[k].getValue();
 
                     classes.put(protocol + type + model, className);
                     getLogger().info("   for " + protocol + "," + type + "," + model);
