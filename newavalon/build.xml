@@ -25,7 +25,7 @@ based server framework. Components are organized into blocks, and one or more
 
 To compile and run James you need the avalon-loader.jar and avalon-engine.jar
  as well as the JAMES.bar. The default implementation of JAMES also uses the
- blocks from avalon-core-blocks.bar. 
+ blocks from avalon-core-blocks.bar.
 
 After that you'll need activation.jar and mail.jar from Sun. For optional TLS
  support, you will need the JSSE jars from Sun.
@@ -44,7 +44,7 @@ All these package are in current distribution.
 	<property name="debug" value="off"/>
 	<property name="optimize" value="on"/>
 	<property name="deprecation" value="off"/>
-	<property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
+	<property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
 
 	<property name="src.dir" value="./src"/>
 	<property name="dtd.dir" value="./dtd"/>
@@ -172,7 +172,7 @@ All these package are in current distribution.
     <copyfile src="./lib/avalon-loader.jar" dest="${dist.dir}/bin/avalon-loader.jar"/>
     <copyfile src="./lib/avalonapi.jar" dest="${dist.dir}/lib/avalonapi.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
-    <copyfile src="./lib/mail_1_1_3.jar" dest="${dist.dir}/lib/mail_1_1_3.jar"/>
+    <copyfile src="./lib/mail_1_2.jar" dest="${dist.dir}/lib/mail_1_2.jar"/>
     <copyfile src="./lib/xerces.jar" dest="${dist.dir}/lib/xerces.jar"/>
     <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
     <copyfile src="./lib/town.jar" dest="${dist.dir}/lib/town.jar"/>
