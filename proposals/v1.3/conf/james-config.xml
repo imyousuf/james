@@ -37,7 +37,8 @@
 
       <!-- Set whether user names are case sensitive or insensitive -->
       <!-- Set whether to enable local aliases -->
-      <usernames ignoreCase="TRUE" enableAliases="TRUE"/>
+      <usernames ignoreCase="TRUE" enableAliases="TRUE"
+                                   enableForwarding="TRUE"/>
 
 
       <!-- Set the type of permanent mailfolders to be used.

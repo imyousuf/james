@@ -10,6 +10,7 @@ package org.apache.james.remotemanager;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
@@ -29,6 +30,7 @@ import org.apache.james.services.User;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.MailAddress;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -41,8 +43,8 @@ import org.apache.james.services.UsersStore;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/21 15:56:53 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/22 12:03:14 $
+ * $Revision: 1.3 $
  *
  */
 public class RemoteManagerHandler
@@ -304,6 +306,49 @@ public class RemoteManagerHandler
 	    } else {
                 out.println("Error setting alias");
                 getLogger().info("Error setting alias");
+	    }
+            out.flush();
+	    return true;
+        } else if (command.equalsIgnoreCase("SETFORWARDING")) {
+	    if (argument == null || argument1 == null) {
+                out.println("usage: setforwarding [username] [emailaddress]");
+                return true;
+	    }
+            String username = argument;
+            String forward = argument1;
+            if (username.equals("") || forward.equals("")) {
+                out.println("usage: adduser [username] [emailaddress]");
+                return true;
+	    }
+	    // Verify user exists
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+	    // Veriy acceptable email address
+	    MailAddress forwardAddr;
+            try {
+                 forwardAddr = new MailAddress(forward);
+            } catch(ParseException pe) {
+		out.println("Parse exception with that email address: "
+                            + pe.getMessage());
+		out.println("Forwarding address not added for " + username);
+	        return true;
+	    }
+
+  	    boolean success;
+	    success = user.setForwardingDestination(forwardAddr);
+	    if (success){
+	        user.setForwarding(true);
+		users.updateUser(user);
+                out.println("Forwarding destination for " + username
+                             + " set to:" + forwardAddr.toString());
+                getLogger().info("Forwarding destination for " + username
+                                 + " set to:" + forwardAddr.toString());
+	    } else {
+                out.println("Error setting forwarding");
+                getLogger().info("Error setting forwarding");
 	    }
             out.flush();
 	    return true;

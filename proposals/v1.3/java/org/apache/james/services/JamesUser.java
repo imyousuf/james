@@ -7,13 +7,15 @@
  */
 package org.apache.james.services;
 
+import org.apache.mailet.MailAddress;
+
 /**
  * Interface for objects representing users of an email/ messaging system.
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:00:29 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/22 12:03:22 $
+ * $Revision: 1.2 $
  */
 
 public interface JamesUser extends User {
@@ -38,12 +40,12 @@ public interface JamesUser extends User {
      * Set destination for forwading mail
      * Should we use a MailAddress?
      */
-    boolean setForwardingDestination(String address);
+    boolean setForwardingDestination(MailAddress address);
 
     /**
      * Return the destination to which email should be forwarded
      */
-    String getForwardingDestination();
+    MailAddress getForwardingDestination();
 
     /**
      * Indicate if mail received for this user should be delivered locally to
