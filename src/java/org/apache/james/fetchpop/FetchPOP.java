@@ -81,7 +81,7 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it 
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.5.4.2 2003/03/08 21:54:03 noel Exp $
+ * <br>$Id: FetchPOP.java,v 1.5.4.3 2003/08/17 05:52:55 noel Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */
@@ -125,10 +125,10 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
             getLogger().debug("List:" + pop.getReplyString());
             Vector received = new Vector();
             for (int i = 0; i < messages.length; i++) {
-                InputStream in = new ReaderInputStream(pop.retrieveMessage(messages[i].number));
-                getLogger().debug("Retrieve:" + pop.getReplyString());
-                MimeMessage message = null;
                 try {
+                    InputStream in = new ReaderInputStream(pop.retrieveMessage(messages[i].number));
+                    getLogger().debug("Retrieve:" + pop.getReplyString());
+                    MimeMessage message = null;
                     message = new MimeMessage(null, in);
                     in.close();
                     message.addHeader("X-fetched-from", fetchTaskName);
@@ -152,15 +152,20 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
                     getLogger().debug("Delete:" + pop.getReplyString());
                 }
             }
-            pop.logout();
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("logout:" + pop.getReplyString());
-            }
-            pop.disconnect();
         } catch (SocketException e) {
             getLogger().error(e.getMessage());
         } catch (IOException e) {
             getLogger().error(e.getMessage());
+        } finally {
+            try {
+                pop.logout();
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("logout:" + pop.getReplyString());
+                }
+                pop.disconnect();
+            } catch (IOException e) {
+                getLogger().error(e.getMessage());
+            }
         }
     }
     /**
