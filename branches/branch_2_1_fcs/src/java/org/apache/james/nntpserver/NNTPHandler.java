@@ -361,10 +361,13 @@ public class NNTPHandler
 
             getLogger().info("Connection closed");
         } catch (Exception e) {
-            if (!(socket == null || socket.isClosed())) {
+            // unexpected error. try to send quit msg.
+            // this may fail if socket has been closed by peer.
+            try {
                 doQUIT(null);
-                getLogger().error( "Exception during connection:" + e.getMessage(), e );
-            }
+            } catch(Throwable t) { }
+
+            getLogger().error( "Exception during connection:" + e.getMessage(), e );
         } finally {
             resetHandler();
         }
