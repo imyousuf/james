@@ -61,19 +61,19 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
         return context;
     }
 
-    public abstract void init() throws Exception;
+    public void init() throws Exception {
+    }
     
-    public abstract MessageContainer service(MessageContainer mc);
+    public abstract Mail service(Mail mc);
     
-    public abstract void destroy();
+    public void destroy() {
+    }
     
     public void log(String msg) {
         logger.log(msg, "Mail Servlet", Logger.INFO);
     }
     
-    public String getServletInfo() {
-        return "Generic Mail Servlet";
-    }
+    public abstract String getServletInfo();
 }
 
     

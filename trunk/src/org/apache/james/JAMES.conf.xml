@@ -53,39 +53,27 @@
             <mailboxName> localInbox </mailboxName>
 <!-- The number of threads that spool and process messages from spoolRepository. -->
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
-<!-- ++++++++++++ MAIL SERVLET PIPE LINE +++++++++++++ -->
-<!-- Configure your mail Servlet processing pipe here. -->
             <spoolmanager>
                 <servlets rootpath="org.apache.james.james.servlet.">
+<!-- ++++++++++++ MAIL SERVLET PIPE LINE +++++++++++++ -->
+<!-- Configure your mail Servlet processing pipe here. -->
+<!-- Thise servlet acts as system servlet and provides local delivery -->
+                    <servlet match="RecipientIs=root@localhost" class="Forward">
+                        <forwardto> scoobie@localhost </forwardto>
+                        <forwardto> stefano@localhost </forwardto>
+                    </servlet>
 
 <!-- Thise servlet acts as system servlet and provides local delivery -->
                     <servlet match="RecipientIsLocal" class="LocalDelivery">
                     </servlet>
 
 <!-- These servlet act as system servlet and provides remote deliver -->
-                    <servlet match="!HostIsLocal" class="RemoteDelivery">
-                        <authoritative> true </authoritative>
-                        <DNSservers>
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- ____________ FILL ME _______________ place here your dns servers (ex. 212.216.176.33 etc.) -->
-                            <server>  </server>
-                            <server>  </server>
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-                        </DNSservers>
-<!-- Fill the repository path where to store temoporaly underiverable messages 
-    (ex. file://c:/archivio/store/james/delayed/) -->
-                        <repository> file://../mail/delayed/ </repository>
-<!-- Delay time before retying send mail. Default is 5 hour: 6*60*60*1000 -->
-                         <delayTime> 21600000 </delayTime>
-                         <maxRetyes>5</maxRetyes>
+                    <servlet match="!HostIsLocal" class="Null">
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
                     <servlet match="All" class="ToRepository">
-                        <repositoryPath help="Fill the repository path where error 
-                                are stored.(ex. (file://../mail/errors/)">
-                            file://../mail/errors/
-                        </repositoryPath>
+                        <repositoryPath> file://../mail/errors/ </repositoryPath>
                         <passThrought> false </passThrought>
                     </servlet>
 <!-- ++++++++++++ END OF MAIL SERVLET PIPE LINE +++++++++++++ -->
@@ -212,7 +200,7 @@
                     provides a powerful interface to store any kind of objects. Its
                     power resides in its pluggable pattern.">
             <repositoriesDefinition help="Here goes Repository definitions. If
-            an application needs its own Repository (see MessageContainerRepository
+            an application needs its own Repository (see MailRepository
             for JAMES), it will place here its definition. These are default
             Repository.">
                 <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS" 
@@ -221,9 +209,9 @@
                 <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.avalon.blocks.masterstore.StreamStore"/>
-                <repository type="MESSAGE_CONTAINER" model="SYNCHRONOUS, ASYNCHRONOUS"
+                <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.MessageContainerRepository"/>
+                    class="org.apache.james.MailRepository"/>
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
@@ -232,7 +220,7 @@
                     be defined public since none of these block has 'the right' to own 
                     Repository configurations. Place here any public Repository definition">
 
-                <repository name="localInbox" type="MESSAGE_CONTAINER" model="SYNCHRONOUS"
+                <repository name="localInbox" type="MAIL" model="SYNCHRONOUS"
                         help="Fill element with path where processed message are
                         stored. This public Repository is shared amongst the 
                         MailServer and POP3Server.

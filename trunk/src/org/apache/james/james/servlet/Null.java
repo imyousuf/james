@@ -17,17 +17,11 @@ import org.apache.mail.*;
  */
 public class Null extends GenericMailServlet {
 
-    public void init () {
+    public Mail service(Mail mail) {
+        log("Destroing mail " + mail.getName());
+        return (Mail) null;
     }
     
-    public MessageContainer service(MessageContainer mc) {
-        log("Destroing mail " + mc.getMessageId());
-        return (MessageContainer) null;
-    }
-    
-    public void destroy() {
-    }
-
     public String getServletInfo() {
         return "Null Mail Servlet";
     }

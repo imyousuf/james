@@ -17,17 +17,11 @@ import org.apache.mail.*;
  */
 public class Identity extends GenericMailServlet {
 
-    public void init () {
+    public Mail service(Mail mail) {
+        log("Untouching mail " + mail.getName());
+        return mail;
     }
     
-    public MessageContainer service(MessageContainer mc) {
-        log("Untouching mail " + mc.getMessageId());
-        return mc;
-    }
-    
-    public void destroy() {
-    }
-
     public String getServletInfo() {
         return "Identity Mail Servlet";
     }

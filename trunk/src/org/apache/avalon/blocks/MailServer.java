@@ -12,6 +12,7 @@ import javax.mail.internet.*;
 import java.util.*;
 import org.apache.arch.*;
 import org.apache.james.*;
+import java.io.*;
 
 /**
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -21,11 +22,11 @@ public interface MailServer {
 
     public void sendMail(String sender, Vector recipients, MimeMessage msg);
     
-    public void sendMail(String sender, Vector recipients, String body);
+    public void sendMail(String sender, Vector recipients, InputStream msg);
+    
+    public MailRepository getInbox();
 
-    public MessageContainerRepository getInbox();
-
-    public MessageContainerRepository getUserInbox(String userName);
+    public MailRepository getUserInbox(String userName);
 
     /* to be extended with methods like
 

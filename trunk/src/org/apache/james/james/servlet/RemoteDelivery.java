@@ -37,6 +37,13 @@ import org.xbill.DNS.*;
  */
 public class RemoteDelivery extends GenericMailServlet implements TimeServer.Bell {
 
+/*                           FIXME!!!!
+                            NOT WORKING
+Need new implementation using Mail, separate Transport outside....
+
+*/
+
+
 	private MessageContainerRepository delayed;
 	private Context context;
 	private Transport loopBack;

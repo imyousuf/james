@@ -8,7 +8,6 @@
 
 package org.apache.james.james.servlet;
 
-import java.io.*;
 import java.util.*;
 import org.apache.arch.*;
 import org.apache.james.*;
@@ -16,7 +15,7 @@ import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
 import org.apache.james.james.*;
 /**
- * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery 
+ * Receive  a Mail from JamesSpoolManager and takes care of delivery 
  * the message to local inboxs.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -28,45 +27,40 @@ public class LocalDelivery extends GenericMailServlet {
 
     public void init() 
     throws Exception {
-        ComponentManager comp = getComponentManager();
-        Context context = getContext();
-        inboxRootName = (String) context.get(Constants.INBOX_ROOT);
-        store = (Store) comp.getComponent(Interfaces.STORE);
+        store = (Store) getComponentManager().getComponent(Interfaces.STORE);
+        inboxRootName = (String) getContext().get(Constants.INBOX_ROOT);
     }
     
-    public MessageContainer service(MessageContainer mc) {
-        log("Locally delivering mail " + mc.getMessageId());
-        Vector recipients = mc.getRecipients();
+    public Mail service(Mail mail) {
+        log("Locally delivering mail " + mail.getName());
+        Vector recipients = mail.getRecipients();
         Vector errors = new Vector();
         for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
             String recipient = (String) e.nextElement();
             try {
-                log("Local delivery to " + getUser(recipient) + " (" + recipient + ")");
-                getUserInbox(getUser(recipient)).store(mc.getMessageId(), mc);
+                log("Local delivery to " + recipient);
+                getUserInbox(getUser(recipient)).store(mail);
             } catch (Exception ex) {
                 log("Exception while storing message to " + recipient + ": " + ex.getMessage());
                 errors.addElement(recipient);
             }
         }
         if (errors.isEmpty()) {
-            return (MessageContainer) null;
+            return (Mail) null;
         } else {
-            mc.setRecipients(errors);
-            mc.setState(MessageContainer.ERROR);
-            mc.setErrorMessage("Unable to delivery locally message");
-            return mc;
+            mail.setRecipients(errors);
+            mail.setState(Mail.ERROR);
+            mail.setErrorMessage("Unable to delivery locally message");
+            return mail;
         }
-    }
-
-    public void destroy() {
     }
 
     public String getServletInfo() {
         return "Local Delivery Mail Servlet";
     }
     
-    private MessageContainerRepository getUserInbox(String userName) {
-        return (MessageContainerRepository) store.getPublicRepository(inboxRootName + "." + userName);
+    private MailRepository getUserInbox(String userName) {
+        return (MailRepository) store.getPublicRepository(inboxRootName + "." + userName);
     }
 
     private String getUser(String recipient) {

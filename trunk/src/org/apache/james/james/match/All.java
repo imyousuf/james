@@ -8,19 +8,16 @@
 
 package org.apache.james.james.match;
 
-import javax.mail.internet.*;
-import javax.mail.Session;
-import org.apache.mail.MessageContainer;
+import org.apache.mail.Mail;
 import java.util.*;
-
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class All extends AbstractMatch {
 
-    public Vector match(MessageContainer mc, String condition) {
-        return mc.getRecipients();
+    public Vector match(Mail mail, String condition) {
+        return mail.getRecipients();
     }
 }
     

@@ -13,22 +13,22 @@ import org.apache.arch.*;
 import org.apache.java.util.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mail.MessageContainer;
+import org.apache.mail.Mail;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 /**
- * Implementation of a Repository to store MessageContainer.
+ * Implementation of a Repository to store Mails.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class MessageContainerRepository implements Store.Repository {
+public class MailRepository implements Store.Repository {
 
     /**
      * Define a STREAM repository. Streams are stored in the specified
      * destination.
      */
-    public final static String MESSAGE_CONTAINER = "MESSAGE_CONTAINER";
+    public final static String MAIL = "MAIL";
 
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;
@@ -39,7 +39,7 @@ public class MessageContainerRepository implements Store.Repository {
     private String model;
     private Lock lock;
 
-    public MessageContainerRepository() {
+    public MailRepository() {
     }
 
     public void setAttributes(String name, String destination, String type, String model) {
@@ -108,28 +108,22 @@ public class MessageContainerRepository implements Store.Repository {
         }
     }
 
-    public synchronized void store(String key, MessageContainer mc) {
+    public synchronized void store(Mail mc) {
         try {
-            OutputStream outStream = sr.store(key);
-            MimeMessage msg = mc.getMessage();
-            msg.writeTo(outStream);
-            mc.setMessage((MimeMessage) null);
+            String key = mc.getName();
+            OutputStream out = sr.store(key);
+            mc.writeMessageTo(out);
+            out.close();
             or.store(key, mc);
-            mc.setMessage(msg);
             notifyAll();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Exception caught while storing Message Container: " + e);
         }
     }
 
-    public synchronized void store(String key, String sender, Vector recipients, MimeMessage message) {
-        MessageContainer mc = new MessageContainer(sender, recipients, message);
-        mc.setMessageId(key);
-        this.store(key, mc);
-    }
-
-    public synchronized MessageContainer retrieve(String key) {
-        MessageContainer mc = (MessageContainer) or.get(key);
+    public synchronized Mail retrieve(String key) {
+        Mail mc = (Mail) or.get(key);
         try {
             mc.setMessage(sr.retrieve(key));
         } catch (MessagingException me) {
@@ -138,6 +132,10 @@ public class MessageContainerRepository implements Store.Repository {
         return mc;
     }
     
+    public synchronized void remove(Mail mail) {
+        remove(mail.getName());
+    }
+
     public synchronized void remove(String key) {
         lock(key);
         sr.remove(key);
