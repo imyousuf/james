@@ -6,16 +6,13 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.smtpserver;
-
-import org.apache.james.JamesConstants;
+package org.apache.james;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants extends JamesConstants {
+public class JamesConstants {
     
-    public static final String SOFTWARE_NAME = "JAMES SMTP Server";
-
+    public static final String SOFTWARE_VERSION = "@@version@@";
 }

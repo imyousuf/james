@@ -48,6 +48,20 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
         logger.log("Public Repository MailUsers opened", "POP3Server", logger.INFO);
         pop3CM = new SimpleComponentManager(comp);
         pop3CM.put("mailUsers", mailUsers);
+        String servername = "";
+        try {
+            servername = conf.getConfiguration("servername").getValue();
+        } catch (ConfigurationException ce) {
+        }
+        if (servername.equals("")) {
+            try {
+                servername = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException ue) {
+                servername = "localhost";
+            }
+        }
+        logger.log("Localhost name set to: " + servername, "POP3Server", logger.INFO);
+        pop3CM.put("servername", servername);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
         logger.log("POP3Server ...init end", "POP3Server", logger.INFO);

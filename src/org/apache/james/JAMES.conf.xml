@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <avalon>
     <blocks>
-<!--   !!!!!!!!!! Begin copy and paste !!!!!!!!!!  -->
-    
+
 <!-- JAMES POP3 server Blocks -->
 
         <block class="org.apache.james.pop3server.POP3Server"
@@ -12,13 +11,8 @@
                     under [mailboxName].[username]">
 
             <port>110</port>
+<!--        <servername> To override autodetected server name uncomment this. </servername> -->
             <pop3handler>
-
-                <servername>
-<!-- ________________ FILL ME ________________ -->
-<!-- Place your server name here. It is used for hello message.  -->
-                </servername>
-
                 <connectiontimeout help="After this time in milliseconds that no
                         command are received the connection will be closed">
                     120000 
@@ -39,13 +33,8 @@
                     delivered to the MailServer implementation">
 
             <port>25</port>
+<!--        <servername> To override autodetected server name uncomment this. </servername> -->
             <smtphandler>
-
-                <servername>
-<!-- ________________ FILL ME ________________ -->
-<!-- Place your server name here. It is used for hello message.  -->
-                </servername>
-
                 <connectiontimeout help="After this time in milliseconds that no
                         command are received the connection will be closed">
                     120000 
@@ -58,16 +47,11 @@
         <block class="org.apache.james.james.James"
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.MailServer">
-
-                <servername>
-<!-- ________________ FILL ME ________________ -->
-<!-- Place your server name here. It is used for hello message.  -->
-                </servername>
-
-            <spoolRepository> 
-<!-- ________________ FILL ME ________________ -->
-<!-- Place here the path where incoming mail are temporaly stored before 
-    beeing processed. (ex. file://c:/james/spool/) -->
+<!--        <servername> To override autodetected server name uncomment this. </servername> -->
+            <spoolRepository help="Place here the path where incoming mail are 
+                    temporaly stored before beeing processed. 
+                    (ex. file://c:/james/spool/)"> 
+                file://../mail/spool/
             </spoolRepository>
 
             <spoolmanagerthreads help="The number of threads that spool and 
@@ -75,32 +59,17 @@
                 1
             </spoolmanagerthreads>
             <spoolmanager>
-                <localhost> localhost </localhost>
-                <localhost> maggie </localhost>
-                <localhost> maggie.galaxus </localhost>
 
-<!-- ________________ ATTENTION ________________ -->
-<!-- Configure your mail Servlet processing pipe here. Take commented lines as 
-    example (commented lines are not necessary). -->
-
+<!-- Configure your mail Servlet processing pipe here. -->
                 <servlets rootpath="org.apache.james.james.servlet.">
-    <!-- EXAMPLE
-                    <servlet match="All" class="ToRepository">
-                        <repository> file://c:/archivio/store/james/maillog/ </repository>
-                        <passThrought> true </passThrought>
-                    </servlet>
-                    <servlet match="RecipientIs=root@localhost,admin@localhost | HostIs=systemy.it" class="Forward">
-                        <forwardto> scoobie@localhost </forwardto>
-                    </servlet>
-    EXAMPLE -->
 
-<!-- These servlet act as system servlet and provides local deliver -->
-
-<!-- ________________ FILL ME ________________ -->
-<!--  Fill the HostIs parameter to comma separated list of your server names 
-without spaces (ex. HostIs=maggie.galaxus,localhost) + + + + + + -->
-                    <servlet match="HostIs= " class="LocalDelivery">
-
+<!-- ____________ FILL ME _______________ -->
+<!-- These servlet act as system servlet and provides local deliver. 
+    If recipient is [user]@[host] where [host] match parameters for HostIs class,
+    mail is stored locally in a folder named [user]. Add any hostname you want
+    to be considered local in the parameter line separated by commas.
+    (ex. "HostIs=localhost,maggie.galaxus,maggie" -->
+                    <servlet match="HostIs=localhost" class="LocalDelivery">
                         <repository> localInbox </repository>
                     </servlet>
 
@@ -108,29 +77,28 @@ without spaces (ex. HostIs=maggie.galaxus,localhost) + + + + + + -->
                     <servlet match="All" class="RemoteDelivery">
 
                         <outgoingmailserver>  
-<!-- ________________ FILL ME ________________ -->
-<!--  Fill the outgoingmailserver with your default mail server (ex. mail.tin.it) -->
+<!-- ____________ FILL ME _______________ 
+    place here your default outgoing mail server 
+    (ex. mail.tin.it) -->
                         </outgoingmailserver>
 
-                        <repository>  
-<!-- ________________ FILL ME ________________ -->
-<!--  Fill the repository path where to store temoporaly underiverable messages 
-    (ex. file://c:/archivio/store/james/delayed/) -->
+                        <repository help="Fill the repository path where to 
+                                store temoporaly underiverable messages 
+                                (ex. file://c:/archivio/store/james/delayed/)">  
+                            file://../mail/delayed/
                         </repository>
-
-                        <delayTime>20000</delayTime>
+                        <delayTime help="Delay time before retying send mail.
+                                Default is 5 hour: 5*60*60*1000">
+                            18000000</delayTime>
                         <maxRetyes>5</maxRetyes>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
                     <servlet match="All" class="ToRepository">
-
-                        <repository>  
-<!-- ________________ FILL ME ________________ -->
-<!--  Fill the repository path where error are stored 
-    (ex. (file://c:/archivio/store/james/errors/) -->
+                        <repository help="Fill the repository path where error 
+                                are stored.(ex. (file://../mail/errors/)">
+                            file://../mail/errors/
                         </repository>
-
                         <passThrought> false </passThrought>
                     </servlet>
                 </servlets>
@@ -152,86 +120,161 @@ without spaces (ex. HostIs=maggie.galaxus,localhost) + + + + + + -->
                 </connectiontimeout>
         </block>
 
-<!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
+        <block class="org.apache.avalon.blocks.timeserver.TimeManager"
+                serverName="all"
+                implementedInterface="org.apache.avalon.blocks.TimeServer"
+                help="Provide a simple interface to catch time events">
+            <!-- No configurations needed for this block -->
+        </block>
 
-<!-- ________________ ATTENTION ________________ -->
-
-<!--  Add these lines to the Logger implementation under the avalon.conf.xml.
-    Copy each <channel> element under <channels> element in avalon.conf.xml and
-    each <writer> under <logwriters>. If you want you can change logfile 
-    destination. -->
+        <block class="org.apache.avalon.blocks.threadmanager.ThreadPool"
+                serverName="all"
+                implementedInterface="org.apache.avalon.blocks.ThreadManager"
+                help="Takes care of execution of any Runnable in Avalon providing
+                        a thread recycling capabilities">
+            <levelcontroller help="Sets the level controller class for the thread pool">
+                org.apache.java.recycle.GaussianController
+            </levelcontroller>
+            <capacity help="Sets thread pool initial capacity">
+                64
+            </capacity>
+        </block>
     
-        <block class="[...]"
+        <block class="org.apache.avalon.blocks.omero.Omero"
                serverName="all"
-               implementedInterface="org.apache.avalon.blocks.Logger">
-            <channels>
+               implementedInterface="org.apache.avalon.blocks.Logger"
+               help="Provides a pluggable logging system">
+            <timestamp>
+                <granularity help="Sets the timestamp time granularity in 
+                        milliseconds. If set to 0 means to use maximum time precision 
+                        else timestam is calculated every 'granularity' milliseconds">
+                    0
+                </granularity>
+                <format help="Define the format for the timestamp">
+                    yyyy.MM.dd hh:mm:ss SSS 
+                </format>
+            </timestamp>
+            <channels help="Every log call is performed througt a channel. 
+                    The proposed pattern is: each application (Block) should use its own
+                    channel to allow adminitrators to set what to log from that 
+                    application and where to place logs. So if you plug a new server 
+                    under Avalon you MUST place channel definition from that server
+                    configuration file hereafter">
+                <channel name="default"        loglevel="DEBUG"  logwriter="stdout"/>
+                <channel name="system"         loglevel="DEBUG"  logwriter="infofile"/>
+                <channel name="MasterStore"    loglevel="DEBUG"  logwriter="infofile"/>
+                <channel name="ThreadManager"  loglevel="DEBUG"  logwriter="infofile"/>
+                <channel name="TimeManager"    loglevel="DEBUG"  logwriter="infofile"/>
+                <channel name="SocketManager"  loglevel="DEBUG"  logwriter="infofile"/>
                 <channel name="RemoteManager"  loglevel="DEBUG"  logwriter="admin"/>
                 <channel name="POP3Server"     loglevel="DEBUG"  logwriter="popfile"/>
                 <channel name="SMTPServer"     loglevel="DEBUG"  logwriter="smtpfile"/>
                 <channel name="JAMES"          loglevel="DEBUG"  logwriter="jamesfile"/>
                 <channel name="Mail Servlet"   loglevel="DEBUG"  logwriter="jamesfile"/>
             </channels>
-            <logwriters>
+            <logwriters help="Each filtered channel goes to the specified logwriter.
+                    Place here any additionl logwriter definition needed">
                 <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination>
-                        file://./logs/jamesinfo.log
+                        file://../logs/jamesinfo.log
                     </destination>
                     <buffersize>2048</buffersize>
                     <sleep>5000</sleep>
                 </writer>
                 <writer name="smtpfile" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination>
-                        file://./logs/smtpinfo.log
+                        file://../logs/smtpinfo.log
                     </destination>
                     <buffersize>2048</buffersize>
                     <sleep>5000</sleep>
                 </writer>
                 <writer name="popfile" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination>
-                        file://./logs/popinfo.log
+                        file://../logs/popinfo.log
                     </destination>
                     <buffersize>2048</buffersize>
                     <sleep>5000</sleep>
                 </writer>
                 <writer name="admin" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination>
-                        file://./logs/admininfo.log
+                        file://../logs/admininfo.log
                     </destination>
                     <buffersize>2048</buffersize>
                     <sleep>5000</sleep>
                 </writer>
+                <writer name="stdout" class="org.apache.avalon.blocks.omero.StdoutWriter">
+                    <destination>
+                        stdout://
+                    </destination>
+                </writer>
+                <writer name="infofile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://../logs/info.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
             </logwriters>
         </block>
-
-<!-- ________________ ATTENTION ________________ -->
                 
-<!--  Add these lines to the Store implementation under the avalon.conf.xml.
-    Copy <repository type=...> under <repositoriesDefinition> and 
-    <repository name=... under <publicrepositories> -->
-        <block class="[...]"
-               serverName="all"
-               implementedInterface="org.apache.avalon.blocks.Store">
-            <repositoriesDefinition>
+        <block class="org.apache.avalon.blocks.masterstore.MasterStore"
+                serverName="all"
+                implementedInterface="org.apache.avalon.blocks.Store"
+                help="This is an imlpementation of the Store interface and 
+                    provides a powerful interface to store any kind of objects. Its
+                    power resides in its pluggable pattern.">
+            <repositoriesDefinition help="Here goes Repository definitions. If
+            an application needs its own Repository (see MessageContainerRepository
+            for JAMES), it will place here its definition. These are default
+            Repository.">
+                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS" 
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.PersistentStore"/>
+                <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.StreamStore"/>
                 <repository type="MESSAGE_CONTAINER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.MessageContainerRepository"/>
             </repositoriesDefinition>
-            <publicrepositories>
+            <publicrepositories help="When an application needs a Repository for
+                    its personal use it can just ask for a private Repository which will
+                    be available only to caller application. If, on the other side, it 
+                    needs to share that repository with other Block the Repository must 
+                    be defined public since none of these block has 'the right' to own 
+                    Repository configurations. Place here any public Repository definition">
 
-                <repository name="localInbox" type="MESSAGE_CONTAINER" model="SYNCHRONOUS">
-<!-- ________________ FILL ME ________________ -->
-<!-- Fill element with path where processed message are stored. This public 
-    Repository is shared amongst the MailServer and POP3Server.
-    (ex. file://c:/archivio/store/james/localinbox/) -->
+                <repository name="localInbox" type="MESSAGE_CONTAINER" model="SYNCHRONOUS"
+                        help="Fill element with path where processed message are
+                        stored. This public Repository is shared amongst the 
+                        MailServer and POP3Server.
+                        (ex. file://c:/archivio/store/james/localinbox/)">
+                    file://../mail/localinbox/
                 </repository>
 
-                <repository name="MailUsers" type="OBJECT" model="SYNCHRONOUS">
-<!-- ________________ FILL ME ________________ -->
-<!-- Fill element with path where users data are stored.
-    (ex. file://c:/archivio/store/james/users/) -->
+                <repository name="MailUsers" type="OBJECT" model="SYNCHRONOUS"
+                        help="Fill element with path where users data are stored.
+                        (ex. file://c:/archivio/store/james/users/)">
+                    file://../mail/users/
                 </repository>
 
             </publicrepositories>
         </block>
+
+        <block class="org.apache.avalon.blocks.serversocket.SocketManager"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.SocketServer"
+               help="Provides an simple interface to catch Socket events">
+            <listenerDefinition help="These are default socket listener. An 
+                    application can implement an use its own lstener to perform
+                    specific task (ex. MD5Listener etc.)" >
+                <listener type="DEFAULT" class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor">
+                </listener>
+                <listener type="IPFILTERING" class="org.apache.avalon.blocks.serversocket.AutenticatedServerSocketAcceptor">
+                    <denied></denied>
+                </listener>
+            </listenerDefinition>
+        </block>
+        
     </blocks>
 </avalon>

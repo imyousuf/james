@@ -46,7 +46,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String remoteIP;
     private String messageID;
 
-    private ComponentManager comp;
+    private SimpleComponentManager comp;
     private Configuration conf;
     private Logger logger;
     private TimeServer timeServer;
@@ -65,13 +65,12 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     }
     
     public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
+        this.comp = (SimpleComponentManager) comp;
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         state = new Hashtable();
-
-        servername = conf.getConfiguration("servername", "localhost").getValue();
+        this.servername = (String) this.comp.get("servername");
     }
 
     public void parseRequest(Socket socket) {
