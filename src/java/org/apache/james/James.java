@@ -53,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.25 $
- * Committed on $Date: 2002/08/15 07:07:21 $ by: $Author: hammant $
+ * This is $Revision: 1.26 $
+ * Committed on $Date: 2002/08/18 07:32:38 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -77,36 +77,83 @@ public class James
     private String inboxRootURL;
     private UsersRepository localusers;
     private Collection serverNames;
+
+    /**
+     * Whether to ignore case when looking up user names on this server
+     */
     private boolean ignoreCase;
+
+    /**
+     * Whether to enable aliasing for users on this server
+     */
     private boolean enableAliases;
+
+    /**
+     * Whether to enable forwarding for users on this server
+     */
     private boolean enableForwarding;
 
-    // this used to be long, but increment operations on long are not
-    // thread safe. Changed to int. 'int' should be ok, because id generation
-    // is based on System time and count
-    private static int count;
+    /**
+     * The number of mails generated.  Access needs to be synchronized for
+     * thread safety and to ensure that all threads see the latest value.
+     */
+    private static long count;
     private MailAddress postmaster;
     private Map mailboxes; //Not to be shared!
+
+    /**
+     * A hash table of server attributes
+     */
     private Hashtable attributes = new Hashtable();
 
+    /**
+     * The Avalon context used by the instance
+     */
     protected Context           myContext;
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(final Context context) {
         this.myContext = context;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf) {
         this.conf = conf;
     }
 
     /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
      *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
      */
     public void compose(ComponentManager comp) {
         compMgr = new DefaultComponentManager(comp);
         mailboxes = new HashMap(31);
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
 
         getLogger().info("JAMES init...");
@@ -319,6 +366,10 @@ public class James
     }
 
     public String getId() {
+        long localCount = -1;
+        synchronized (James.class) {
+            localCount = count++;
+        }
         StringBuffer idBuffer =
             new StringBuffer(64)
                     .append("Mail")

@@ -27,6 +27,12 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
     protected int timeout;
     protected String helloName;
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 

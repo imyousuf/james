@@ -14,26 +14,38 @@ package org.apache.james;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.4 $
- * Committed on $Date: 2001/09/25 04:51:19 $ by: $Author: donaldp $ 
+ * @version This is $Revision: 1.5 $
+ * Committed on $Date: 2002/08/18 07:32:38 $ by: $Author: pgoldstein $ 
  */
 public class Constants {
 
+    /**
+     * The version of James.
+     */
     public static final String SOFTWARE_VERSION = "@@VERSION@@";
 
+    /**
+     * The name of the software (i.e. James).
+     */
     public static final String SOFTWARE_NAME = "@@NAME@@";
 
+    /**
+     * Context key used to store the list of mail domains being
+     * serviced by this James instance in the context.
+     */
     public static final String SERVER_NAMES = "SERVER_NAMES";
 
-    public static final String SPOOL_REPOSITORY = "SPOOL_REPOSITORY";
-
-    public static final String LOCAL_USERS = "LOCAL_USERS";
-
+    /**
+     * Context key used to store the postmaster address for
+     * this James instance in the context.
+     */
     public static final String POSTMASTER = "POSTMASTER";
 
-    public static final int HEADERLIMIT = 2048;
-
+    /**
+     * Key used to store the component manager for
+     * this James instance in a way accessible by
+     * Avalon aware Mailets.
+     */
     public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
 
-    public static final String BUILD_DATE = "@@DATE@@";
 }
