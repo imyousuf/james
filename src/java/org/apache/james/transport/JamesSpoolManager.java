@@ -19,9 +19,6 @@ import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
@@ -41,42 +38,51 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.16 $
+ * @version This is $Revision: 1.17 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable, Initializable,
+    implements Composable, Configurable, Initializable,
                Runnable, Disposable, Component {
 
     /**
      * Whether 'deep debugging' is turned on.
-     *
-     * TODO: Shouldn't this be false by default?
      */
-    private final static boolean DEEP_DEBUG = true;
-
-    private DefaultComponentManager compMgr;
-    //using implementation as we need put method.
-    private Configuration conf;
-    private Context context;
-    private SpoolRepository spool;
-    private MailetContext mailetcontext;
-    private HashMap processors;
-    private int threads;
-    private ThreadPool workerPool;
-    private ThreadManager threadManager;
+    private final static boolean DEEP_DEBUG = false;
 
     /**
-     * Pass the Context to the component.
-     * This method is called after the setLogger()
-     * method and before any other method.
-     *
-     * @param context the context
-     * @throws ContextException if context is invalid
+     * System component manager
      */
-    public void contextualize(Context context) {
-        this.context = new DefaultContext( context );
-    }
+    private DefaultComponentManager compMgr;
+
+    /**
+     * The configuration object used by this spool manager.
+     */
+    private Configuration conf;
+
+    private SpoolRepository spool;
+
+    private MailetContext mailetContext;
+
+    /**
+     * The map of processor names to processors
+     */
+    private HashMap processors;
+
+    /**
+     * The number of threads used to move mail through the spool.
+     */
+    private int numThreads;
+
+    /**
+     * The ThreadPool containing the spool threads.
+     */
+    private ThreadPool workerPool;
+
+    /**
+     * The ThreadManager from which the thread pool is obtained.
+     */
+    private ThreadManager threadManager;
 
     /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
@@ -101,7 +107,7 @@ public class JamesSpoolManager
      */
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-        threads = conf.getChild("threads").getValueAsInteger(1);
+        numThreads = conf.getChild("threads").getValueAsInteger(1);
     }
 
     /**
@@ -130,7 +136,7 @@ public class JamesSpoolManager
             getLogger().debug("Got spool");
         }
 
-        mailetcontext
+        mailetContext
             = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
         MailetLoader mailetLoader = new MailetLoader();
         MatchLoader matchLoader = new MatchLoader();
@@ -169,9 +175,9 @@ public class JamesSpoolManager
                 //  mailet silently to the top
                 if (processorName.equals("root")) {
                     Matcher matcher = matchLoader.getMatcher("All",
-                                                             mailetcontext);
+                                                             mailetContext);
                     Mailet mailet = mailetLoader.getMailet("PostmasterAlias",
-                                                           mailetcontext, null);
+                                                           mailetContext, null);
                     processor.add(matcher, mailet);
                 }
 
@@ -189,7 +195,7 @@ public class JamesSpoolManager
                     Matcher matcher = null;
                     try {
                         matcher = matchLoader.getMatcher(matcherName,
-                                                         mailetcontext);
+                                                         mailetContext);
                         //The matcher itself should log that it's been inited.
                         if (getLogger().isInfoEnabled()) {
                             StringBuffer infoBuffer =
@@ -218,7 +224,7 @@ public class JamesSpoolManager
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName,
-                                                        mailetcontext, c);
+                                                        mailetContext, c);
                         if (getLogger().isInfoEnabled()) {
                             StringBuffer infoBuffer =
                                 new StringBuffer(64)
@@ -280,11 +286,11 @@ public class JamesSpoolManager
             StringBuffer infoBuffer =
                 new StringBuffer(64)
                     .append("Spooler Manager uses ")
-                    .append(threads)
+                    .append(numThreads)
                     .append(" Thread(s)");
             getLogger().info(infoBuffer.toString());
         }
-        for ( int i = 0 ; i < threads ; i++ )
+        for ( int i = 0 ; i < numThreads ; i++ )
             workerPool.execute(this);
     }
 
