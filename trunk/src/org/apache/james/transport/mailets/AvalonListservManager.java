@@ -13,8 +13,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
-import org.apache.james.usermanager.*;
-import org.apache.avalon.blocks.*;
+import org.apache.james.userrepository.*;
 import org.apache.mailet.*;
 import org.apache.james.transport.*;
 
@@ -24,7 +23,7 @@ import org.apache.james.transport.*;
  * Sample configuration:
  * <pre>
  * <mailet match="CommandForListserv=james@list.working-dogs.com" class="AvalonListservManager">
- *     <user_repository>james-listserv</user_repository>
+ *     <membersPath>file://../var/list-james</membersPath>
  * </mailet>
  * </pre>
  * @author  Serge Knystautas <sergek@lokitech.com>
@@ -35,8 +34,9 @@ public class AvalonListservManager extends GenericListservManager {
 
     public void init() {
         ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
-        members = (UsersRepository) manager.getUserRepository("list-" + getInitParameter("listName"));
+        org.apache.avalon.blocks.Store store = (org.apache.avalon.blocks.Store) comp.getComponent(org.apache.avalon.blocks.Interfaces.STORE);
+        String membersPath = getInitParameter("membersPath");
+        members = (UsersRepository) store.getPrivateRepository(membersPath, UsersRepository.USER, org.apache.avalon.blocks.Store.ASYNCHRONOUS);
     }
 
     public boolean addAddress(MailAddress address) {

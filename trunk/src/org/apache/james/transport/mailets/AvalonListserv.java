@@ -14,11 +14,11 @@ import javax.mail.internet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
-import org.apache.james.usermanager.*;
+import org.apache.james.userrepository.*;
 import org.apache.mailet.*;
 
 /**
- * <listName>
+ * <membersPath>
  * <membersonly>
  * <attachmentsallowed>
  * <replytolist>
@@ -29,12 +29,10 @@ public class AvalonListserv extends GenericListserv {
     protected boolean membersOnly = false;
     protected boolean attachmentsAllowed = true;
     protected boolean replyToList = true;
-    protected String listName = null;
     protected String subjectPrefix = null;
     private UsersRepository members;
 
     public void init() {
-        listName = getInitParameter("listName");
         try {
             membersOnly = new Boolean(getInitParameter("membersonly")).booleanValue();
         } catch (Exception e) {
@@ -50,8 +48,9 @@ public class AvalonListserv extends GenericListserv {
         subjectPrefix = getInitParameter("subjectprefix");
 
         ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
-        members = (UsersRepository) manager.getUserRepository("list-" + listName);
+        org.apache.avalon.blocks.Store store = (org.apache.avalon.blocks.Store) comp.getComponent(org.apache.avalon.blocks.Interfaces.STORE);
+        String membersPath = getInitParameter("membersPath");
+        members = (UsersRepository) store.getPrivateRepository(membersPath, UsersRepository.USER, org.apache.avalon.blocks.Store.ASYNCHRONOUS);
     }
 
     public Collection getMembers() throws ParseException {
@@ -76,11 +75,6 @@ public class AvalonListserv extends GenericListserv {
 
     public String getSubjectPrefix() {
         return subjectPrefix;
-    }
-
-    public MailAddress getListservAddress() throws ParseException {
-        Collection serverNames = (Collection) getMailetContext().getServerNames();
-        return new MailAddress(listName, serverNames.iterator().next().toString());
     }
 
     public String getMailetInfo() {

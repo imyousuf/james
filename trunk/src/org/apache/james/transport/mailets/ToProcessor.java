@@ -20,11 +20,11 @@ import javax.mail.*;
 public class ToProcessor extends GenericMailet {
     String processor;
 
-    public void init() throws MailetException {
+    public void init() {
         processor = getInitParameter("processor");
     }
 
-    public void service(Mail mail) throws MailetException, MessagingException {
+    public void service(Mail mail) throws MessagingException {
         log("Sending mail " + mail + " to " + processor);
         getMailetContext().sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage(), processor);
         mail.setState(Mail.GHOST);

@@ -35,16 +35,28 @@ public class TownAlias extends GenericMailet {
     private String targetColumn = null;
 
     public void init() {
-        String conndef = getInitParameter("conn");
-        String tableName = getInitParameter("table");
-        String sourceColumn = getInitParameter("sourceCol");
-        String targetColumn = getInitParameter("targetCol");
+        conndef = getInitParameter("conn");
+        tableName = getInitParameter("table");
+        sourceColumn = getInitParameter("sourceCol");
+        targetColumn = getInitParameter("targetCol");
     }
 
-    public void service(Mail mail) throws MailetException, MessagingException {
+    public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
+        String inClause = null;
+        for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            if (inClause == null) {
+                inClause = "'" + i.next().toString() + "'";
+            } else {
+                inClause += ",'" + i.next().toString() + "'";
+            }
+        }
+        if (inClause == null) {
+            return;
+        }
         try {
             TableDataSet tds = new TableDataSet(ConnDefinition.getInstance(conndef), tableName);
+            tds.setWhere(sourceColumn + " IN (" + inClause + ")");
             for (int i = 0; i < tds.size(); i++) {
                 Record rec = tds.getRecord(i);
                 MailAddress source = new MailAddress(rec.getAsString(sourceColumn));

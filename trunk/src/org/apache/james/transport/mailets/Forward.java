@@ -23,19 +23,15 @@ public class Forward extends GenericMailet {
 
     private Collection newRecipients;
 
-    public void init () throws MailetException {
+    public void init() throws MessagingException {
         newRecipients = new Vector();
         StringTokenizer st = new StringTokenizer(getMailetConfig().getInitParameter("forwardto"), ",", false);
-        try {
-            while (st.hasMoreTokens()) {
-                newRecipients.add(new MailAddress(st.nextToken()));
-            }
-        } catch (ParseException pe) {
-            throw new MailetException("Invalid mail address specified", pe);
+        while (st.hasMoreTokens()) {
+            newRecipients.add(new MailAddress(st.nextToken()));
         }
     }
 
-    public void service(Mail mail) throws MailetException, MessagingException {
+    public void service(Mail mail) throws MessagingException {
         getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
         mail.setState(Mail.GHOST);
     }

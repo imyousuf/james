@@ -9,11 +9,12 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.transport.*;
 import java.util.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.mailrepository.*;
+import org.apache.james.transport.*;
 import org.apache.avalon.blocks.*;
 import org.apache.mailet.*;
 
