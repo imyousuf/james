@@ -135,10 +135,6 @@ All these package are in current distribution.
 
     <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml"
               dest="${build.dest}/conf/${name}.conf.xml"/>
-    <copydir src="${src.dir}/org/apache/avalon/demos"
-              dest="${build.dest}/conf">
-       <include name="**/*.conf.xml"/>
-    </copydir>
   </target>
 
   <!-- =================================================================== -->
@@ -149,11 +145,10 @@ All these package are in current distribution.
   </target>
 
   <!-- =================================================================== -->
-  <!-- Creates the mailet.jar and the simpleserver-demo.bar                -->
+  <!-- Creates the mailet.jar                                              -->
   <!-- =================================================================== -->
   <target name="auxiliary-jars" depends="compile">
     <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
-    <jar jarfile="${build.dir}/simpleserver-demo.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/avalon/demos/*, conf/*demo.conf.xml"/>
   </target>
 
   <!-- =================================================================== -->
@@ -172,7 +167,6 @@ All these package are in current distribution.
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
     <copyfile src="${build.dir}/${name}.bar" dest="${dist.dir}/bin/blocks/${name}.bar"/>
-    <copyfile src="${build.dir}/simpleserver-demo.bar" dest="${dist.dir}/bin/blocks/simpleserver-demo.bar"/>
     <copyfile src="./lib/avalon-core-blocks.bar" dest="${dist.dir}/bin/blocks/avalon-core-blocks.bar"/>
     <copyfile src="./lib/avalon-engine.jar" dest="${dist.dir}/bin/avalon-engine.jar"/>
     <copyfile src="./lib/avalon-loader.jar" dest="${dist.dir}/bin/avalon-loader.jar"/>
@@ -222,7 +216,7 @@ All these package are in current distribution.
     <mkdir dir="${build.docs}"/>
     <javadoc sourcepath="${build.src}"
         destdir="${build.docs}"
-        packagenames="org.apache.avalon.blocks.*,org.apache.james.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.match.*,org.apache.james.transport.mailets.*,org.apache.james.usermanager.*,org.apache.mail.*,org.apache.mail.mailets.*"
+        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mail.mailets.*"
         classpath="${classpath}"
 	use="true"
         />
