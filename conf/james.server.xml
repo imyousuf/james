@@ -18,16 +18,16 @@
       <category name="james-storage" target="james-storage-target" priority="DEBUG" />
       <category name="mailstore" target="mailstore-target" priority="DEBUG" />
       <category name="users-store" target="userstore-target" priority="DEBUG" />
-      <category name="JAMES" target="james-core-target" priority="DEBUG" />
+      <category name="james" target="james-core-target" priority="DEBUG" />
       <category name="JamesCore" target="james-core-target" priority="DEBUG" />
       <category name="Mailets" target="mailets-target" priority="DEBUG" />
-      <category name="SMTPServer" target="smtpserver-target" priority="DEBUG" />
-      <category name="POP3Server" target="pop3server-target" priority="DEBUG" />
-      <category name="DnsServer" target="dnsserver-target" priority="DEBUG" />
-      <category name="RemoteManager" target="remotemanager-target" priority="DEBUG" />
-      <category name="SpoolManager" target="spoolmanager-target" priority="DEBUG" />
+      <category name="James.SMTPServer" target="smtpserver-target" priority="DEBUG" />
+      <category name="James.POP3Server" target="pop3server-target" priority="DEBUG" />
+      <category name="James.DnsServer" target="dnsserver-target" priority="DEBUG" />
+      <category name="James.RemoteManager" target="remotemanager-target" priority="DEBUG" />
+      <category name="James.SpoolManager" target="spoolmanager-target" priority="DEBUG" />
       <category name="MailRepository" target="mailrepository-target" priority="DEBUG" />
-      <category name="IMAPServer" target="imapserver-target" priority="DEBUG" />
+      <category name="James.IMAPServer" target="imapserver-target" priority="DEBUG" />
       <category name="Security" target="security-target" priority="DEBUG" />
       <category name="JamesHost" target="jameshost-target" priority="DEBUG" />
 
