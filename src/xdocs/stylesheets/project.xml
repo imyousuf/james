@@ -30,11 +30,11 @@
 <!--        <item name="Bundled Mailets"    href="/mailet_list.html"/> -->
         <item name="List Servers"   href="/listservs.html"/> 
         <item name="Bundled Matchers"   href="/matchers.html"/> 
-        <item name="Useful RFCs"   href="http://jakarta.apache.org/james/rfclist"/> 
+        <item name="Useful RFCs {web}"   href="http://jakarta.apache.org/james/rfclist"/> 
 
     </menu>
 
-    <menu name="Get Involved">
+    <menu name="Get Involved {web}">
         <item name="Overview"              href="/site/getinvolved.html"/>
         <item name="CVS Repositories"      href="/site/cvsindex.html"/>
         <item name="Mailing Lists"         href="/site/mail.html"/>

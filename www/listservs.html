@@ -14,7 +14,7 @@
                                                     <meta name="author" value="Serge Knystautas">
             <meta name="email" value="sergek@lokitech.com">
             
-            <title>The Jakarta James Site - Installation</title>
+            <title>The Jakarta James Site - James 1.2.1 - Mailets</title>
         </head>
 
         <body bgcolor="#ffffff" text="#000000" link="#525D76">        
@@ -116,31 +116,14 @@
                                                                     <table border="0" cellspacing="0" cellpadding="2" width="100%">
       <tr><td bgcolor="#525D76">
         <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Step 0: Building. (only necessary for daily snapshots)"><strong>Step 0: Building. (only necessary for daily snapshots)</strong></a>
+          <a name="Mailets"><strong>Mailets</strong></a>
         </font>
       </td></tr>
       <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
                                     <p>
-    If you have downloaded a regular distribution, you do not need to
-    build James.  Proceed directory to Step 1.
-  </p>
-                                                <p>
-    To compile James from sources you will need <a href="http://jakarta.apache.org/ant/">Ant</a>.
-    This is a Java-tailored, XML-configured, extensible build or make system.
-    We are currently using Ant 1.1, although documentation generation requires Ant 1.2.
-  </p>
-                                                <p>
-    If you have downloaded a daily snapshot, you need to build a
-    distribution.  James uses Ant (<a href="http://jakarta.apache.org/ant/">http://jakarta.apache.org/ant/</a>) to
-    compile and package its distribution.  Once you have installed Ant,
-    extracted the snapshot to your favorite folder, cd to that folder
-    and run the "dist" task by calling "ant dist".  This will create the
-    distribution in the "./dist" folder as well as create .tgz and .zip
-    copies of this folder.  This "./dist" folder is the distribution
-    folder used in Step 1 and beyond.  You may either cd to ./dist, or
-    you may copy and rename the dist folder to your new favorite folder.
+  Several mailets are included with James 1.2.1, they are described below.
   </p>
                             </blockquote>
         </p>
@@ -150,14 +133,39 @@
                                                 <table border="0" cellspacing="0" cellpadding="2" width="100%">
       <tr><td bgcolor="#525D76">
         <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Step 1: Installation."><strong>Step 1: Installation.</strong></a>
+          <a name="Avalon Listserv"><strong>Avalon Listserv</strong></a>
         </font>
       </td></tr>
       <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
                                     <p>
-    Download distibution. Extract all files in your favorite folder.
+    <b>An Avalon-based listserv.</b>
+    This uses settings specified in the JAMES.conf.xml file, and uses an
+Avalon UserRepository manager as the listserv members.
+  </p>
+                                                <p>
+    Required parameters:
+    <br>
+      &lt;members&gt; The URL to the Avalon UserRepository.
+    </br>
+    <br>
+      &lt;membersonly&gt; Either true or false. Indicates whether only
+      members of this listserv can send messages to it.
+    </br>
+    <br>
+      &lt;attachmentsallowed&gt; Either true or false. Indicates whether
+      you can send attachments to this listserv.
+    </br>
+    <br>
+      &lt;replytolist&gt; Either true or false. Indicates whether the Reply-To
+      header is set, which will direct replies to the list itself.
+    </br>
+    Optional parameters:
+    <br>
+      &lt;subjectprefix&gt; This text will be put in brackets at the beginning
+      of the subject of the message if specified.
+    </br>
   </p>
                             </blockquote>
         </p>
@@ -167,77 +175,21 @@
                                                 <table border="0" cellspacing="0" cellpadding="2" width="100%">
       <tr><td bgcolor="#525D76">
         <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Step 2: Configuration."><strong>Step 2: Configuration.</strong></a>
+          <a name="Avalon Listserv Manager"><strong>Avalon Listserv Manager</strong></a>
         </font>
       </td></tr>
       <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
                                     <p>
-    Read the short and snappy documentation at docs/index.html for a proper
-    overview of configuring the system.
+    <b>An Avalon-based listserv manager.</b>
+    Handles adding a removing members to the specified UserRepository.
   </p>
                                                 <p>
-    <b>Summary</b> (for impatient people)
-  </p>
-                                                <p>
-    M$ users should just run /bin/run.bat. Unix users will find run.sh
-    under the same folder. A JVM must be in the path.
-    Running [run* -help] will provide a simple command line help.
-  </p>
-                                                <p>
-    Most UNIX systems require superuser privileges to open sockets below 1024,
-    which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
-    These default ports can be changed in the conf.xml file. (Obviously, you
-    would then need to reconfigure your clients. This may not be an option if
-    you want to receive mail from external mailservers.)
-  </p>
-                                                <p>
-    The Avalon framework will unpack the neccessay configuration files and wait
-    for you to configure them. For basic use, you only need to set two items
-    in the JAMES.conf.xml file: a root password for the remote administration
-    facility and the IP address of a DNS server. Once you have edited the
-    configuration files, press 'Enter' on the terminal where Avalon is waiting.
-  </p>
-                            </blockquote>
-        </p>
-      </td></tr>
-      <tr><td><br/></td></tr>
-    </table>
-                                                <table border="0" cellspacing="0" cellpadding="2" width="100%">
-      <tr><td bgcolor="#525D76">
-        <font color="#ffffff" face="arial,helvetica,sanserif">
-          <a name="Step 4: Kickstart."><strong>Step 4: Kickstart.</strong></a>
-        </font>
-      </td></tr>
-      <tr><td><br/></td></tr>
-      <tr><td>
-        <blockquote>
-                                    <p>
-    Once started you'll see a message saying Avalon is running. This means that
-    Avalon has loaded JAMES and every other needed Block (see /logs/avalon.log)
-    and is now waiting for a socket request.
-    Since at the beginning James is empty, it will not have any local users
-    registered.
-    To register a local user open a telnet session with localhost on port 4555,
-    log in as root ("root[enter]  &lt;password-you-set-in-conf.xml&gt;[enter]") and
-    type "help" for a list of available commands in the "JAMES remote
-    administrator tool". It is really a basic set but should allow you to test
-    installation.
-  </p>
-                                                <p>
-    Once you have some local users registered, try sending mail to one of them
-    @localhost with SMTP (port 25) (assuming you have not changed the default
-    server names in the conf.xml file). You'll see the mail appear under
-    ../var/mail/localinbox/[user].
-    Try now to retrieve that mail using POP3 (port 110).
-    Trace out JAMES actions in /logs/*info.log.
-    Action that will be taken by JAMES on incoming mail are configurated in
-    the mailet pipe line (/conf/james.conf.xml). Look at it if you want to
-    understand what's happening.
-  </p>
-                                                <p>
-  Good luck :)
+    Required parameters:
+    <br>
+      &lt;members&gt;
+    </br>
   </p>
                             </blockquote>
         </p>
