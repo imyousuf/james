@@ -74,6 +74,80 @@ public abstract class GenericListserv extends GenericMailet {
     }
 
     /**
+     * This takes the subject string and reduces (normailzes) it.
+     * Multiple "Re:" entries are reduced to one, and capitalized.  The
+     * prefix is always moved/placed at the beginning of the line, and
+     * extra blanks are reduced, so that the output is always of the
+     * form:
+     *
+     * <prefix> + <one-optional-"Re:"> + <remaining subject>
+     *
+     * I have done extensive testing of this routine with a standalone
+     * driver, and am leaving the commented out debug messages so that
+     * when someone decides to enhance this method, it can be yanked it
+     * from this file, embedded it with a test driver, and the comments
+     * enabled.
+     */
+
+    static private String normalizeSubject(final String subj, final String prefix) {
+        // JDK IMPLEMENTATION NOTE!  When we require JDK 1.4+, all
+        // occurrences of subject.toString.().indexOf(...) can be
+        // replaced by subject.indexOf(...).
+
+        StringBuffer subject = new StringBuffer(subj);
+        int prefixLength = prefix.length();
+
+        // System.err.println("In:  " + subject);
+
+        // If the "prefix" is not at the beginning the subject line, remove it
+        int index = subject.toString().indexOf(prefix);
+        if (index != 0) {
+            // System.err.println("(p) index: " + index + ", subject: " + subject);
+            if (index > 0) {
+                subject.delete(index, index + prefixLength);
+            }
+            subject.insert(0, prefix); // insert prefix at the front
+        }
+
+        // Replace Re: with RE:
+        String match = "Re:";
+        index = subject.toString().indexOf(match, prefixLength);
+
+        while(index > -1) {
+            // System.err.println("(a) index: " + index + ", subject: " + subject);
+            subject.replace(index, index + match.length(), "RE:");
+            index = subject.toString().indexOf(match, prefixLength);
+            // System.err.println("(b) index: " + index + ", subject: " + subject);
+        }
+
+        // Reduce them to one at the beginning
+        match ="RE:";
+        int indexRE = subject.toString().indexOf(match, prefixLength) + match.length();
+        index = subject.toString().indexOf(match, indexRE);
+        while(index > 0) {
+            // System.err.println("(c) index: " + index + ", subject: " + subject);
+            subject.delete(index, index + match.length());
+            index = subject.toString().indexOf(match, indexRE);
+            // System.err.println("(d) index: " + index + ", subject: " + subject);
+        }
+
+        // Reduce blanks
+        match = "  ";
+        index = subject.toString().indexOf(match, prefixLength);
+        while(index > -1) {
+            // System.err.println("(e) index: " + index + ", subject: " + subject);
+            subject.replace(index, index + match.length(), " ");
+            index = subject.toString().indexOf(match, prefixLength);
+            // System.err.println("(f) index: " + index + ", subject: " + subject);
+        }
+
+
+        // System.err.println("Out: " + subject);
+
+        return subject.toString();
+    }
+
+    /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
      */
     public final void service(Mail mail) throws MessagingException {
@@ -131,31 +205,7 @@ public abstract class GenericListserv extends GenericMailet {
                 if (subj == null) {
                     subj = "";
                 }
-                //replace Re: with RE:
-                String re ="Re:";
-                int index = subj.indexOf(re);
-                while(index > -1){
-                    subj = subj.substring(0, index) + "RE:" + subj.substring(index + re.length() + 1);
-                    index = subj.indexOf(re);
-                }
-                //reduce them to one at the beginning
-                re ="RE:";
-                index = subj.indexOf(re,re.length());
-                while(index > 0){
-                    subj = subj.substring(0, index) + subj.substring(index + re.length() + 1);
-                    index = subj.indexOf(re,1);
-                }
-                //If the "prefix" is in the subject line, remove it and everything before it
-                index = subj.indexOf(prefix);
-                if (index > -1) {
-                    if (index == 0) {
-                        subj = prefix + subj.substring(index + prefix.length());
-                    } else {
-                        subj = prefix + subj.substring(0, index) + subj.substring(index + prefix.length());
-                    }
-                } else {
-                    subj = prefix + subj;
-                }
+                subj = normalizeSubject(subj, prefix);
                 message.setSubject(subj);
             }
 
