@@ -1,24 +1,19 @@
-/*--- formatted by Jindent 2.0b, (www.c-lab.de/~jindent) ---*/
-
+/*****************************************************************************
+ * Copyright (C) The Apache Software Foundation. All rights reserved.        *
+ * ------------------------------------------------------------------------- *
+ * This software is published under the terms of the Apache Software License *
+ * version 1.1, a copy of which has been included  with this distribution in *
+ * the LICENSE file.                                                         *
+ *****************************************************************************/
 package org.apache.james.smtpserver;
 
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
-import java.lang.reflect.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.activation.*;
 import org.apache.avalon.blocks.*;
-import java.net.*;
 import org.apache.james.*;
-import org.apache.java.util.*;
-import org.apache.java.lang.*;
-import org.apache.java.recycle.*;
-import org.apache.avalon.util.*;
-import org.apache.james.smtpserver.command.*;
-import org.apache.avalon.SimpleContext;
+import org.apache.arch.*;
 
 /**
  * This handles an individual incoming message.  It handles regular SMTP
@@ -27,96 +22,58 @@ import org.apache.avalon.SimpleContext;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler implements ProtocolHandler, Contextualizable, Stoppable, Recyclable {
+public class SMTPHandler implements Composer, Configurable, Stoppable {
 
+	public static String SERVER_NAME = "SERVER_NAME";
+	public static String POSTMASTER = "POSTMASTER";
+	public static String SERVER_TYPE = "SERVER_TYPE";
+	public static String REMOTE_NAME = "REMOTE_NAME";
+	public static String REMOTE_IP = "REMOTE_IP";
+	public static String NAME_GIVEN = "NAME_GIVEN";
+	public static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
+    public static String SENDER = "SENDER_ADDRESS";
+    public static String RCPT_VECTOR = "RCPT_VECTOR";
+    
     private Socket socket;
     private BufferedReader in;
     private InputStream socketIn;
     private PrintWriter out;
     private OutputStream r_out;
+
     private String remoteHost;
     private String remoteHostGiven;
     private String remoteIP;
     private String messageID;
 
+    private ComponentManager comp;
     private Configuration conf;
     private MessageSpool spool;    
     private Logger logger;
-    private ContextualizableContainer pool;
-
-    // Hashtable to store the command handlers
-    private Hashtable CmdManagers;
-    // State information
-    private Hashtable State;
+    private IdProvider idp;
 
     private String servername;
     private String postmaster;
     private String softwaretype;
-        
-    /**
-     * Constructor has no parameters to allow Class.forName() stuff.
-     */
-    public SMTPHandler() {}
+    
+    private Hashtable state;
 
-    /**
-     * This method fills needed parameters in handler to make it work.
-     */
-    public void init(Context context) throws Exception {
+    public SMTPHandler() {
+    }
 
-        this.conf = context.getConfiguration();
-        this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);
-        this.pool = (ContextualizableContainer) context.getImplementation("pool");
+    public void setConfiguration(Configuration conf) {
+        this.conf = conf;
+    }
+    
+    public void setComponentManager(ComponentManager comp) {
+        this.comp = comp;
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        spool = (MessageSpool) comp.getComponent("spool");
+        idp = (IdProvider) comp.getComponent("idprovider");
+        state = new Hashtable();
 
-        // Hashtable to store the state
-        State = new Hashtable();
-
-        // Hashtable to store command managers
-        CmdManagers = new Hashtable(8);
-
-        try {
-            this.servername = conf.getChild("servername").getValueAsString();
-        } catch (Exception ce) {
-            this.servername = java.net.InetAddress.getLocalHost().getHostName();
-        }
-                
-        try {
-            this.postmaster = conf.getChild("postmaster").getValueAsString();
-        } catch (Exception ce) {
-            this.postmaster = "postmaster@" + this.servername;
-        }
-                
-        String softwarename = null;
-        try {
-            softwarename = conf.getChild("softwarename").getValueAsString();
-        } catch (Exception ce) {
-            softwarename = "Apache James";
-        }
-                
-        String softwareversion = null;
-        try {
-            softwareversion = conf.getChild("softwareversion").getValueAsString();
-        } catch (Exception ce) {
-            softwareversion = "0.1";
-        }
-
-        this.softwaretype = softwarename + " v" + softwareversion;
-
-        Enumeration commandE = null;
-
-        for (commandE = conf.getChildren("command"); commandE.hasMoreElements();) {
-
-            Configuration node = (Configuration) commandE.nextElement();
-            String CmdName = node.getAttribute("name");					
-            logger.log("Initializing SMTP command processor for " + CmdName);
-
-            SimpleContext sc = new SimpleContext(node);
-            sc.put(Interfaces.LOGGER, logger);
-            sc.put("spool", (MessageSpool) context.getImplementation("spool") );
-            sc.put("messageid", (SMTPServer.MessageId) context.getImplementation("messageid") );
-
-            CmdManagers.put( CmdName, new SMTPCommandManager( sc ) );
-                    
-        }
+        servername = conf.getConfiguration("servername", "localhost").getValue();
+        postmaster = conf.getConfiguration("postmaster", "postmaster@" + servername).getValue();
+        softwaretype = "Apache James SMTP v @@version@@";
     }
 
     public void parseRequest(Socket socket) {
@@ -130,194 +87,165 @@ public class SMTPHandler implements ProtocolHandler, Contextualizable, Stoppable
     
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
-
+            state.put(REMOTE_NAME, remoteHost);
+            state.put(REMOTE_IP, remoteIP);
         } catch (Exception e) {
+            logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), "SMTPServer", logger.ERROR);
+            throw new RuntimeException("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
         }
 
         logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", "SMTPServer", logger.INFO);
     }
     
-    /**
-     * This method was created by a SmartGuide.
-     */
     public void run() {
         
-        // Reset state and make sure we are ready for new connection
-        resetState();
-                
         try {
-
-            this.State.put(REMOTE_NAME, remoteHost);
-            this.State.put(REMOTE_IP, remoteIP);
-
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
-            out.println("220 " + this.servername + " ESMTP server (" + this.softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
+            out.println("220 " + this.servername + " SMTP server (" + this.softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
             out.flush();
-                
-            // Now we sit and wait for responses.
 
-            String command;
-        String commandLine;
-        SOCKET: while ((commandLine = in.readLine()) != null) {
-                        
-                    logger.log("Command [" + commandLine + "]", logger.DEBUG);
-                            
-                    CommandHandlerResponse chr = null;
-                                
-                    try {
-                                
-                        commandLine = commandLine.trim().toUpperCase();
-                        int index = commandLine.indexOf(" ");
-                
-                        if ( index > 1 ) { // Make sure there is something in the command
-                            command = commandLine.substring(0, index).toUpperCase();
-                        } else {
-                            command = commandLine;
-                        }
+            for  (String commandLine = in.readLine();
+                commandLine != null && parseCommand(commandLine);
+                commandLine = in.readLine()) out.flush();
+            socket.close();
 
-                        CommandHandler ch = getCommandProcessors( command );
-                        if ( ch != null ) {
-                            System.out.println("Executing command handler for:" + commandLine);
-                            chr = ch.service(commandLine, this);									
-                        }
-                                
-                        if ( chr == null ) {
-                            // couldn't find a command processor to process this
-                            chr = new CommandHandlerResponse(500, "Command unrecognized: \"" + command + "\"");
-                        }
-                                
-                    } catch (	NullPointerException e ) {
-
-                        // null pointer thrown
-                        chr = new CommandHandlerResponse(500, "Command exception");
-                        e.printStackTrace( System.out );
-
-                    }	finally {
-                                
-                        // Send response to output
-                        chr.printResponse(out);
-
-                        if (chr.getExitStatus() == CommandHandlerResponse.EXIT ) {
-                            break SOCKET;									
-                        }		
-                            
-                    }
-                }
-                        
-        socket.close();
-                        
-       } catch (SocketException e) {
-        logger.log("Socket to " + remoteHost + " closed remotely.", logger.DEBUG);
-       } catch (InterruptedIOException e) {
-         logger.log("Socket to " + remoteHost + " timeout.", logger.DEBUG);
-       } catch (IOException e) {
-         logger.log("Exception handling socket to " + remoteHost + ":" + e.getMessage(), logger.DEBUG);
-       } catch (Exception e) {
-         logger.log("Exception opening socket: " + e.getMessage(), logger.DEBUG);
-             } finally {
+        } catch (SocketException e) {
+            logger.log("Socket to " + remoteHost + " closed remotely.", "SMTPServer", logger.DEBUG);
+        } catch (InterruptedIOException e) {
+            logger.log("Socket to " + remoteHost + " timeout.", "SMTPServer", logger.DEBUG);
+        } catch (IOException e) {
+            logger.log("Exception handling socket to " + remoteHost + ":" + e.getMessage(), "SMTPServer", logger.DEBUG);
+        } catch (Exception e) {
+            logger.log("Exception opening socket: " + e.getMessage(), "SMTPServer", logger.DEBUG);
+        } finally {
             try {
             socket.close();
-       } catch (IOException e) {
-        logger.log("Exception closing socket: " + e.getMessage(), logger.DEBUG);						
-             }
-      }
-                        System.out.println("done??");
+            } catch (IOException e) {
+                logger.log("Exception closing socket: " + e.getMessage(), "SMTPServer", logger.ERROR);
+            }
+        }
+    }
 
-        pool.recycle(this);
+    private boolean parseCommand(String commandLine)
+    throws Exception {
+            
+        String command;
+        String argument = (String) null;
+        int index = commandLine.indexOf(" ");
+        if (index != -1) {
+            command = commandLine.substring(0, index);
+            command = command.toUpperCase();
+            try {
+                argument = commandLine.substring(index + 1);
+                argument = argument.toUpperCase();
+            } catch (StringIndexOutOfBoundsException ignored) {
+            }
+        } else {
+            command = commandLine.toUpperCase();
+        }
+        
+        logger.log("Command=" + command + "  argument=" + argument, "SMTPServer", logger.DEBUG);
+            // HELO Command
+        if (command.equals("HELO")) {
+            if (state.containsKey(CURRENT_HELO_MODE)) {
+                out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
+                return true;
+            } else if (argument == null) {
+                out.println("501 domain address required: " + commandLine);
+                return true;
+            } else {
+                state.put(CURRENT_HELO_MODE, command);
+                state.put(NAME_GIVEN, argument);
+                out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + " (" + state.get(REMOTE_NAME) + " [" + state.get(REMOTE_IP) + "])");
+                return true;
+            }
+            // EHLO Command
+        } else if (command.equals("EHLO")) {
+            if (state.containsKey(CURRENT_HELO_MODE)) {
+                out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
+                return true;
+            } else if (argument == null) {
+                out.println("501 domain address required: " + commandLine);
+                return true;
+            } else {
+                state.put(CURRENT_HELO_MODE, command);
+                state.put(NAME_GIVEN, argument);
+                out.println("250 " + state.get(SERVER_NAME) + " Hello " + argument + " (" + state.get(REMOTE_NAME) + " [" + state.get(REMOTE_IP) + "])");
+                return true;
+            }
+            // MAIL Command
+        } else if (command.equals("MAIL")) {
+            if (state.containsKey(SENDER)) {
+                out.println("503 Sender already specified");
+                return true;
+            } else if (argument == null || !argument.startsWith("FROM:")) {
+                out.println("501 Usage: MAIL FROM:<sender>");
+                return true;
+            } else {
+                String sender = argument.substring(5).replace('<', ' ').replace('>', ' ').trim();
+                state.put(SENDER, sender);
+                out.println("250 Sender <" + sender + "> OK");
+                return true;
+            }
+            // RCPT Command
+        } else if (command.equals("RCPT")) {
+            if (!state.containsKey(SENDER)) {
+                out.println("503 Need MAIL before RCPT");
+                return true;
+            } else if (argument == null || !argument.startsWith("TO:")) {
+                out.println("501 Usage: RCPT TO:<recipient>");
+                return true;
+            } else {
+                Vector rcptVector = (Vector) state.get(RCPT_VECTOR);
+                if (rcptVector == null) rcptVector = new Vector();
+                String recipient = argument.substring(3).replace('<', ' ').replace('>', ' ').trim();
+                rcptVector.addElement(recipient);
+                state.put(RCPT_VECTOR, rcptVector);
+                out.println("250 Recipient <" + recipient + "> OK");
+                return true;
+            }
+            // NOP Command
+        } else if (command.equals("NOP")) {
+                out.println("250 OK");
+                return true;
+            // DATA Command
+        } else if (command.equals("DATA")) {
+            if (!state.containsKey(SENDER)) {
+                out.println("503 No sender specified");
+                return true;
+            } else if (!state.containsKey(RCPT_VECTOR)) {
+                out.println("503 No recipients specified");
+                return true;
+            } else {
+                out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
+                String messageId = idp.getMessageId();
+                OutputStream mout = spool.addMessage(messageId, (String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR));
+                for (SMTPInputStream min = new SMTPInputStream(socketIn); !min.hasReachedEnd(); mout.write(min.read()));
+                mout.flush();
+                mout.close();
+                spool.free(messageId);
+                resetState();
+                out.println("250 Message received: " + messageId);
+                return true;
+            }
+        } else if (command.equals("QUIT")) {
+            out.println("221 " + state.get(SERVER_NAME) + " Service closing transmission channel");
+            return false;
+        } else {
+            out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + commandLine);
+            return true;
+        }
+    }
+
+    private void resetState() {
+        state.clear();
+        state.put(SERVER_NAME, this.servername );
+        state.put(POSTMASTER, this.postmaster );
+        state.put(SERVER_TYPE, this.softwaretype );
     }
     
     public void stop() {
-            // todo
-    }
-
-        /**
-         * Cleans up the protocol handler
-         * @return void
-         */
-        public void destroy() {
-            for (Enumeration e = CmdManagers.elements() ; e.hasMoreElements();) {
-                ((CommandHandler) e.nextElement()).destroy();
-            }
-        }
-        
-        /**
-         * Returns a Vector of the CommandProcessors for this command
-         * @param java.lang.String command - the command that needs processing
-         * @return org.apache.james.smtpserver.CommandHandler
-         */
-        public CommandHandler getCommandProcessors(String command) {
-            if ( CmdManagers.containsKey(command) ) {
-                return (CommandHandler) CmdManagers.get( command );									
-            } else { return null; }
-        }
-
-        /**
-         * Gets the output stream for this socket
-         * @return java.io.PrintWriter
-         */
-        public PrintWriter getOut() {
-            return out;
-        }
-        
-        /**
-         * Gets the input stream for this socket
-         * @return java.io.BufferedReader
-         */
-        public BufferedReader getIn() {
-            return in;
-        }
-        
-        /**
-         * Returns the hashtable of the CommandProcessors
-         @ return java.util.Hashtable
-         */
-        public Hashtable getAllCommandProcessors() {
-            return CmdManagers;
-        }
-
-    /**
-         * Returns a hashtable used to store the state of the message delivery
-     * @return java.util.Hashtable
-     */
-    public Hashtable getState() {
-        return State;
-    }
-
-    /**
-         * Returns a hashtable used to store the state of the message delivery
-     * @param s java.util.Hashtable
-         * @return void
-     */
-    public void setState( Hashtable s ) {
-        State = s;
-    }
-
-    /**
-     * Resets the session to default state
-         * @return void
-     */
-        public void resetState()
-        {
-                this.State.clear(); // Erases all state entries
-                
-                this.State.put(SERVER_NAME, this.servername );
-                this.State.put(POSTMASTER, this.postmaster );
-                this.State.put(SERVER_TYPE, this.softwaretype );
-        }
-        
-    /**
-     * Cleans up this handler
-         * @return void
-     */
-        public void clean() {
-                this.socket = null;
-                resetState();				
     }
 }
-
-
-
-/*--- formatting done in "Sun Java Convention" style on 07-10-1999 ---*/
-

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<avalon>
+    <blocks>
+
+<!--   !!!!!!!!!! Begin copy and paste !!!!!!!!!!  -->
+    
+<!-- JAMES POP3 server Acceptor and ProtocolHandler Blocks -->
+
+        <block class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor"
+               serverName="James-POP3Server"
+               implementedInterface="org.apache.avalon.blocks.Acceptor">
+            <port>110</port>
+        </block>
+        
+        <block class="org.apache.james.pop3server.POP3Server"
+               serverName="James-POP3Server"
+               implementedInterface="org.apache.avalon.blocks.SocketHandler">
+
+            <pop3handler>
+                <servername> maggie </servername>
+                <postmaster> admin@localhost </postmaster>
+            </pop3handler>
+        </block>
+
+<!-- JAMES SMTP server Acceptor and ProtocolHandler Blocks -->
+
+        <block class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor"
+               serverName="James-SMTPServer"
+               implementedInterface="org.apache.avalon.blocks.Acceptor">
+            <port>25</port>
+        </block>
+        
+        <block class="org.apache.james.smtpserver.SMTPServer"
+               serverName="James-SMTPServer"
+               implementedInterface="org.apache.avalon.blocks.SocketHandler">
+
+            <smtphandler>
+                <servername> maggie </servername>
+                <postmaster> admin@localhost </postmaster>
+            </smtphandler>
+            <spoolmanagerthreads>
+                1
+            </spoolmanagerthreads>
+            <spool>
+            </spool>
+            <spoolmanager>
+                <remoteAgent>
+                </remoteAgent>
+                <localAgent>
+                    <localhost> localhost </localhost>
+                    <localhost> maggie </localhost>
+                </localAgent>
+            </spoolmanager>
+        </block>
+
+<!-- Acceptor and ProtocolHandler to manage JAMES users accounts -->
+
+        <block class="org.apache.avalon.blocks.serversocket.AutenticatedServerSocketAcceptor"
+               serverName="James-RemoteManager"
+               implementedInterface="org.apache.avalon.blocks.Acceptor">
+            <port>4554</port>
+            <IPFiltering>
+                <Allowed> 192.168.1.3 </Allowed>
+                <Allowed> 127.0.0.1   </Allowed>
+            </IPFiltering>
+        </block>
+    
+        <block class="org.apache.james.remotemanager.RemoteManager"
+               serverName="James-RemoteManager"
+               implementedInterface="org.apache.avalon.blocks.SocketHandler">
+           <AdministratorAccounts>
+                <Account login="root" password="pippo"/>
+                <Account login="scoobie" password="pippo"/>
+           </AdministratorAccounts>
+        </block>
+
+<!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
+
+<!--  !!!!!!!!!! Add theese lines into the Logger configuration !!!!!!!!!!  -->
+        <block class="..."
+               serverName="..."
+               implementedInterface="org.apache.avalon.blocks.Logger">
+            <channels>
+                <channel name="RemoteManager"   logwriter="infofile"/>
+                <channel name="POP3Server"      logwriter="infofile"/>
+                <channel name="SMTPServer"      logwriter="smtpfile"/>
+            </channels>
+        </block>
+
+    </blocks>
+</avalon>

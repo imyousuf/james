@@ -1,58 +1,65 @@
-/*--- formatted by Jindent 2.0b, (www.c-lab.de/~jindent) ---*/
+/*****************************************************************************
+ * Copyright (C) The Apache Software Foundation. All rights reserved.        *
+ * ------------------------------------------------------------------------- *
+ * This software is published under the terms of the Apache Software License *
+ * version 1.1, a copy of which has been included  with this distribution in *
+ * the LICENSE file.                                                         *
+ *****************************************************************************/
 
 package org.apache.james.smtpserver;
 
 import java.io.*;
 import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.avalon.blocks.Interfaces;
-import org.apache.avalon.blocks.Store;
-import org.apache.avalon.blocks.Logger;
+import org.apache.avalon.blocks.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
+import org.apache.arch.*;
 
 /**
+ * SMTPHandlers store incoming message here. When a message is closed (by the 
+ * SMTPHandler) it becomes avaiable for JamesSpoolMessage to be parsed.
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class MessageSpool implements Contextualizable {
+public class MessageSpool implements Component, Composer, Configurable, Service {
 
+    private ComponentManager comp;
     private Configuration conf;
-    private Context context;
-    private org.apache.avalon.blocks.Logger logger;
-    private org.apache.avalon.blocks.Store.ObjectRepository or;
-    private org.apache.avalon.blocks.Store.StreamRepository sr;
-    private org.apache.avalon.blocks.Store store;
-    private long timeout = 5000;
+    private Logger logger;
+    private Store store;
+    private Store.ObjectRepository or;
+    private Store.StreamRepository sr;
     private Lock lock;
     
     public MessageSpool() {
     }
 
-    public void init(Context context)
-    throws Exception {
+    public void setConfiguration(Configuration conf) {
+        this.conf = conf;
+    }
+    
+    public void setComponentManager(ComponentManager comp) {
+        this.comp = comp;
+    }
 
-        this.context = context;
-        this.conf = context.getConfiguration();
-	    this.store = (Store) context.getImplementation(Interfaces.STORE);
-        this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);;
-        String path = conf.getChild("repository").getValueAsString();
+	public void init() throws Exception {
+
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        logger.log("Mail Spool init....", "SMTPServer", logger.INFO);
+        store = (Store) comp.getComponent(Interfaces.STORE);
         try {
-            sr = (Store.StreamRepository) store.getNewPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS, path);
+            sr = (Store.StreamRepository) store.getPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS);
         } catch (Exception e) {
             logger.log("Exception in Stream Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
         try {
-            or = (Store.ObjectRepository) store.getNewPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS, path);
+            or = (Store.ObjectRepository) store.getPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS);
         } catch (Exception e) {
             logger.log("Exception in Persistent Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
-        logger.log("Mail Spool opened in " + path, "SMTPServer", logger.INFO);
-
-        this.timeout = conf.getChild("timeout").getValueAsLong();
+        logger.log("Mail Spool opened", "SMTPServer", logger.INFO);
         lock = new Lock();
     }
 
@@ -64,76 +71,59 @@ public class MessageSpool implements Contextualizable {
             while(e.hasMoreElements()) {
                 Object o = e.nextElement();
                 if (lock.lock(o)) {
-                    return new String(o.toString());
+                    return o.toString();
                 }
             }
             try {
-                wait(timeout);
+                wait();
             } catch (InterruptedException ignored) {
             }
         }
     }
 
-    public synchronized MessageContainer retrive(String key) {
+    public synchronized MessageContainer retrieve(String key) {
 
         if (!lock.lock(key)) {
-            return (MessageContainer) null;
+            throw new LockException("Record " + key + " locked");
         }
         MessageContainer mc = (MessageContainer) or.get(key);
-        mc.setBodyInputStream( sr.retrive(key) );
-        logger.log("Retriving: " + key, "SMTPServer", logger.DEBUG);
-        logger.log("  sender: " + mc.getSender(), "SMTPServer", logger.DEBUG);
-        for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
-            logger.log("  recipient: " + e.nextElement(), "SMTPServer", logger.DEBUG);
-        }
+        mc.setBodyInputStream(sr.retrieve(key));
         return mc;
     }
 
-    public synchronized boolean remove(String key) {
+    public synchronized void remove(String key) {
 
         if (!lock.canI(key)) {
-            return false;
+            throw new LockException("Record " + key + " locked");
         }
-        logger.log("removing: " + key, "SMTPServer", logger.DEBUG);
         or.remove(key);
         sr.remove(key);
         lock.unlock(key);
-        return true;
     }
 
     public synchronized OutputStream store(String key, MessageContainer mc) {
-        logger.log("Enter store " + key, "SMTPServer", Logger.INFO);
 
         if (!lock.lock(key)) {
-            return (OutputStream) null;
+            throw new LockException("Record " + key + " locked");
         }
-        logger.log("storing: " + key, "SMTPServer", logger.DEBUG);
-        logger.log("  sender: " + mc.getSender(), "SMTPServer", logger.DEBUG);
-        for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
-            logger.log("  recipient: " + e.nextElement(), "SMTPServer", logger.DEBUG);
-        }
-        logger.log("storing to object repository", "SMTPServer", logger.DEBUG);
         or.store(key, mc);
-        logger.log("storing to stream repository", "SMTPServer", logger.DEBUG);
-        OutputStream out = sr.store(key);
-        logger.log("storing OK", "SMTPServer", logger.DEBUG);
-        notifyAll();
-        return out;
+        return sr.store(key);
     }
 
-    public synchronized boolean free(Object key) {
+    public synchronized void free(Object key) {
 
         if (lock.unlock(key)) {
             notifyAll();
-            return true;
+        } else {
+            throw new LockException("Record " + key + " locked");
         }
-        return false;
     }
 
-    public MessageContainer addMessage(String key, String sender, Vector recipients) {
+    public OutputStream addMessage(String key, String sender, Vector recipients) {
+        
         MessageContainer mc = new MessageContainer(sender, recipients);
-        mc.setBodyOutputStream( store(key, mc) );
-        return mc;
+        mc.setMessageId(key);
+        return store(key, mc);
     }
     
     public void destroy() throws Exception {
