@@ -60,7 +60,7 @@
             <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
 
 <!-- Uncomment these (and remove the above ones) to store your messages in a database
-     You will probably also want to uncomment the repository entries below for error and delayed
+     You will probably also want to uncomment the repository entries below for error and outgoing
      messages.
             <spoolRepository> town://mainspool@file:///dev/james/dist/var/maildatabase </spoolRepository>
             <inboxRepository> town://inbox@file:///dev/james/dist/var/maildatabase </inboxRepository>
@@ -182,8 +182,8 @@
                         <processor>error</processor>
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
-                        <delayed> file://../var/mail/delayed/ </delayed>
-<!--                    <delayed> town://mail-delayed@file:///dev/james/dist/var/maildatabase </delayed>-->
+                        <outgoing> file://../var/mail/outgoing/ </outgoing>
+<!--                    <outgoing> town://mail-outgoing@file:///dev/james/dist/var/maildatabase </outgoing>-->
                         <delayTime> 21600000 </delayTime>
                         <maxRetries> 5 </maxRetries>
                     </mailet>
