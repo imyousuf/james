@@ -23,6 +23,7 @@ import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.james.Constants;
+import org.apache.james.BaseConnectionHandler;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -39,7 +40,7 @@ import org.apache.james.services.UsersStore;
  *
  */
 public class RemoteManagerHandler
-    extends AbstractLoggable
+    extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Target {
 
     private UsersStore usersStore;
@@ -51,7 +52,6 @@ public class RemoteManagerHandler
     private PrintWriter out;
     private HashMap admaccount = new HashMap();
     private Socket socket;
-    private int timeout;
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {

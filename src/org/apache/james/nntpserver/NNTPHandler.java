@@ -41,6 +41,7 @@ import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.excalibur.collections.ListUtils;
 import org.apache.james.Constants;
+import org.apache.james.BaseConnectionHandler;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
@@ -59,20 +60,16 @@ import org.apache.james.services.UsersStore;
  * @author Fedor Karpelevitch
  * @author Harmeet <hbedi@apache.org>
  */
-public class NNTPHandler extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
+public class NNTPHandler extends BaseConnectionHandler
+    implements ConnectionHandler, Composable, Configurable, Target {
 
     // timeout controllers
     private TimeScheduler scheduler;
-    private int timeout;
 
     // communciation.
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
-
-    // server greeting.
-    private String servername;
 
     // authentication.
     private AuthState authState;
@@ -83,18 +80,8 @@ public class NNTPHandler extends AbstractLoggable
     private NNTPGroup group;
     private NNTPRepository repo;
 
-    public void  contextualize( final Context context ) 
-        throws ContextException {
-        //System.out.println(getClass().getName()+": contextualize");
-        servername = (String)context.get( Constants.HELO_NAME );
-        if ( servername == null )
-            servername = "NNTPServer";
-    }
-
     public void configure( Configuration configuration ) throws ConfigurationException {
-        //System.out.println(getClass().getName()+": configure");
-        //NNTPUtil.show(configuration,System.out);
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
+        super.configure(configuration);
         authRequired=configuration.getChild("authRequired").getValueAsBoolean(false);
         authState = new AuthState(authRequired,users);
     }
@@ -132,7 +119,7 @@ public class NNTPHandler extends AbstractLoggable
             scheduler.addTrigger( this.toString(), trigger, this );
 
             // section 7.1
-            writer.println("200 "+servername+
+            writer.println("200 "+helloName+
                            (repo.isReadOnly()?" Posting Not Premitted":" Posting Permitted"));
 
             while (parseCommand(reader.readLine()))

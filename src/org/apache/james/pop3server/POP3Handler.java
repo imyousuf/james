@@ -41,6 +41,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.BaseConnectionHandler;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.mailet.Mail;
 
@@ -49,8 +50,8 @@ import org.apache.mailet.Mail;
  * @version 0.9
  */
 public class POP3Handler
-    extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composable, Configurable, Target {
+    extends BaseConnectionHandler
+    implements ConnectionHandler, Composable, Configurable, Target {
 
     private String softwaretype        = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
 
@@ -59,7 +60,6 @@ public class POP3Handler
     private MailRepository userInbox;
     private UsersRepository users;
     private TimeScheduler scheduler;
-    private int timeout;
 
     private Socket socket;
     private BufferedReader in;
@@ -67,7 +67,6 @@ public class POP3Handler
     private OutputStream outs;
     private String remoteHost;
     private String remoteIP;
-    private String servername;
     private int state;
     private String user;
     private Vector userMailbox = new Vector();
@@ -80,18 +79,6 @@ public class POP3Handler
 
     private final static String OK_RESPONSE = "+OK";
     private final static String ERR_RESPONSE = "-ERR";
-
-    public void  contextualize( final Context context ) 
-        throws ContextException {
-        servername = (String)context.get( Constants.HELO_NAME );
-        if ( servername == null )
-            servername = "POP3Server";
-    }
-
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
-    }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -134,7 +121,7 @@ public class POP3Handler
             scheduler.addTrigger( this.toString(), trigger, this );
             state = AUTHENTICATION_READY;
             user = "unknown";
-            out.println( OK_RESPONSE + " " + this.servername +
+            out.println( OK_RESPONSE + " " + this.helloName +
                          " POP3 server (" + this.softwaretype + ") ready " );
             while (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());

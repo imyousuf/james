@@ -47,7 +47,7 @@ import org.apache.log.Logger;
  */
 public class SingleThreadedConnectionHandler
     extends BaseCommand
-    implements ConnectionHandler, Contextualizable, Composable, Configurable,
+    implements ConnectionHandler, Composable, Configurable,
                Initializable, Disposable, Target, MailboxEventListener {
 
     //mainly to switch on stack traces and catch responses;
@@ -100,7 +100,6 @@ public class SingleThreadedConnectionHandler
     private MailServer mailServer;
     private UsersRepository users;
     private TimeScheduler scheduler;
-    private int timeout;
 
     private Socket socket;
     private BufferedReader in;
@@ -108,7 +107,6 @@ public class SingleThreadedConnectionHandler
     private OutputStream outs;
     private String remoteHost;
     private String remoteIP;
-    private String servername;
     private String softwaretype  = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
     private int state;
     private String user;
@@ -145,18 +143,6 @@ public class SingleThreadedConnectionHandler
             lookup("org.apache.james.imapserver.IMAPSystem");
         imapHost = (Host)componentManager.
             lookup("org.apache.james.imapserver.Host");
-    }
-
-    public void contextualize( final Context context )
-        throws ContextException {
-        servername = (String)context.get( Constants.HELO_NAME );
-        if ( servername == null )
-            servername = "IMAPServer";
-    }
-
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 1800000 );
     }
 
     public void initialize() throws Exception {
@@ -203,7 +189,7 @@ public class SingleThreadedConnectionHandler
             } else {
                 if (false) { // connection is pre-authenticated
                     out.println(UNTAGGED + SP + "PREAUTH" + SP + VERSION + SP
-                                + "server" + SP + this.servername + SP
+                                + "server" + SP + this.helloName + SP
                                 + "logged in as" + SP + user);
                     state = AUTHENTICATED;
                     user = "preauth user";
@@ -212,7 +198,7 @@ public class SingleThreadedConnectionHandler
                                         + ") received by SingleThreadedConnectionHandler");
                 } else {
                     out.println(UNTAGGED + SP + OK + SP + VERSION + SP
-                                + "server " + this.servername + SP + "ready.");
+                                + "server " + this.helloName + SP + "ready.");
                     state = NON_AUTHENTICATED;
                     user = "unknown";
                     securityLogger.info("Non-authenticated connection from  "
