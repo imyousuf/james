@@ -238,7 +238,7 @@ public class POP3Handler
         }
 
         try {
-            outs = socket.getOutputStream();
+            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
             out = new InternetPrintWriter(outs, true);
             state = AUTHENTICATION_READY;
             user = "unknown";
@@ -846,8 +846,6 @@ public class POP3Handler
                 writeLoggedFlushedResponse(responseString);
                 return;
             }
-            //?May be written as
-            //return parseCommand("TOP " + num + " " + Integer.MAX_VALUE);?
             try {
                 MailImpl mc = (MailImpl) userMailbox.elementAt(num);
                 if (mc != DELETED) {
@@ -859,6 +857,8 @@ public class POP3Handler
                                                               theWatchdog,
                                                               theConfigData.getResetLength());
                     mc.writeMessageTo(nouts);
+                    nouts.flush();
+                    // TODO: Is this an extra CRLF?
                     out.println();
                     out.println(".");
                     out.flush();
@@ -888,7 +888,6 @@ public class POP3Handler
                 responseString = responseBuffer.toString();
                 writeLoggedFlushedResponse(responseString);
             }
-            // -------------------------------------------?
         } else {
             responseString = ERR_RESPONSE;
             writeLoggedFlushedResponse(responseString);
@@ -935,6 +934,7 @@ public class POP3Handler
                                                               theWatchdog,
                                                               theConfigData.getResetLength());
                     mc.writeContentTo(nouts, lines);
+                    nouts.flush();
                     out.println(".");
                     out.flush();
                 } else {
