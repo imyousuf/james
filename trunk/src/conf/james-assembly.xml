@@ -72,8 +72,7 @@
 
   <!-- NNTP Server -->
   <block class="org.apache.james.nntpserver.NNTPServer" name="nntpserver" >
-    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
-    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="nntpauth" role="org.apache.james.nntpserver.AuthService"/>
     <provide name="sockets"
         role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -82,6 +81,11 @@
         role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="nntp-repository"
         role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+  </block>
+
+  <!-- NNTP Authentication Service -->
+  <block class="org.apache.james.nntpserver.AuthServiceImpl" name="nntpauth" >
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
   </block>
 
   <!-- NNTP Repository -->

@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.17 $
-    Committed on $Date: 2001/10/31 14:44:03 $ by: $Author: serge $
+    This is $Revision: 1.18 $
+    Committed on $Date: 2001/11/18 01:14:21 $ by: $Author: hbedi $
 -->
 <config>
 
@@ -324,10 +324,13 @@
           given OR 'localhost' -->
           <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>120000</connectiontimeout>
-	  <!-- make this true, if you want only authenticated users to access NNTP-->
-          <authRequired>false</authRequired>
         </handler>
   </nntpserver>
+
+  <nntpauth>
+     <!-- make this true, if you want only authenticated users to access NNTP-->
+     <authRequired>false</authRequired>
+  </nntpauth>
 
   <nntp-repository>
         <!-- make this true to disallow posting to all newsgroups-->
