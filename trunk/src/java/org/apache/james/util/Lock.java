@@ -12,76 +12,57 @@ import java.util.Hashtable;
 /**
  * @author Federico Barbieri <fede@apache.org>
  */
-public class Lock
-{
+public class Lock {
     private Hashtable locks = new Hashtable();
 
-    public boolean isLocked( final Object key )
-    {
+    public boolean isLocked(final Object key) {
         return (locks.get(key) != null);
     }
 
-    public boolean canI( final Object key )
-    {
+    public boolean canI(final Object key) {
         Object o = locks.get( key );
 
-        if( null == o || o == this.getCallerId() )
-        {
+        if (null == o || o == this.getCallerId()) {
             return true;
         }
 
         return false;
     }
 
-    public boolean lock( final Object key )
-    {
+    public boolean lock(final Object key) {
         Object theLock;
 
-        synchronized( this )
-        {
-            theLock = locks.get( key );
+        synchronized(this) {
+            theLock = locks.get(key);
 
-            if( null == theLock )
-            {
-                locks.put( key, getCallerId() );
+            if (null == theLock) {
+                locks.put(key, getCallerId());
                 return true;
-            }
-            else if( getCallerId() == theLock )
-            {
+            } else if (getCallerId() == theLock) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
     }
 
-    public boolean unlock( final Object key )
-    {
+    public boolean unlock(final Object key) {
         Object theLock;
-        synchronized( this )
-        {
-            theLock = locks.get( key );
+        synchronized (this) {
+            theLock = locks.get(key);
 
-            if( null == theLock )
-            {
+            if (null == theLock) {
                 return true;
-            }
-            else if( getCallerId() == theLock )
-            {
-                locks.remove( key );
+            } else if (getCallerId() == theLock) {
+                locks.remove(key);
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
     }
 
-    private Object getCallerId()
-    {
+    private Object getCallerId() {
         return Thread.currentThread();
     }
 }
