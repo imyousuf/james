@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.10 $  Committed on $Date: 2003/07/21 03:48:59 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.11 $  Committed on $Date: 2003/07/26 00:18:23 $ by: $Author: noel $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -422,7 +422,7 @@ Legal:
         <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
 
         <!-- Make mailet.jar-->
-        <jar jarfile="${build.lib}/mailet.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/>
+        <!-- jar jarfile="${build.lib}/mailet.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/ -->
         <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
     </target>
     <!--
