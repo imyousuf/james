@@ -12,6 +12,8 @@ import javax.mail.internet.InternetHeaders;
 import java.io.*;
 import java.util.Enumeration;
 
+import org.apache.james.util.RFC2822Headers;
+
 /**
  * This interface defines a container for mail headers. Each header must use
  * MIME format: <pre>name: value</pre>.
@@ -96,6 +98,6 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      * @return true if the headers are present, false otherwise
      */
     public boolean isValid() {
-        return (isSet("Date") && isSet("To") && isSet("From"));
+        return (isSet(RFC2822Headers.DATE) && isSet(RFC2822Headers.TO) && isSet(RFC2822Headers.FROM));
     }
 }

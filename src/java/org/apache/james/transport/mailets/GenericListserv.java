@@ -7,6 +7,7 @@
  */
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -98,7 +99,7 @@ public abstract class GenericListserv extends GenericMailet {
             //Create a copy of this message to send out
             MimeMessage message = new MimeMessage(mail.getMessage());
             //We need to remove this header from the copy we're sending around
-            message.removeHeader("Return-Path");
+            message.removeHeader(RFC2822Headers.RETURN_PATH);
 
             //Figure out the listserv address.
             MailAddress listservAddr = getListservAddress();
@@ -161,7 +162,7 @@ public abstract class GenericListserv extends GenericMailet {
 
             //If replies should go to this list, we need to set the header
             if (isReplyToList()) {
-                message.setHeader("Reply-To", listservAddr.toString());
+                message.setHeader(RFC2822Headers.REPLY_TO, listservAddr.toString());
             }
             //We're going to set this special header to avoid bounces
             //  getting sent back out to the list

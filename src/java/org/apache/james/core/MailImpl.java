@@ -7,6 +7,8 @@
  */
 package org.apache.james.core;
 
+import org.apache.james.util.RFC2822Headers;
+
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -399,7 +401,7 @@ public class MailImpl implements Mail {
         reply.setRecipients(Message.RecipientType.TO, addr);
         reply.setFrom(new InternetAddress(getRecipients().iterator().next().toString()));
         reply.setText(bounceText);
-        reply.setHeader("Message-Id", "replyTo-" + getName());
+        reply.setHeader(RFC2822Headers.MESSAGE_ID, "replyTo-" + getName());
 
         return new MailImpl("replyTo-" + getName(), new MailAddress(getRecipients().iterator().next().toString()), recipients, reply);
     }

@@ -28,6 +28,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
 
 import org.apache.mailet.GenericMailet;
@@ -529,7 +530,7 @@ public class Redirect extends GenericMailet {
                 multipart.addBodyPart(part);
             }
             reply.setContent(multipart);
-            reply.setHeader("Content-Type", multipart.getContentType());
+            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
         } else {
             // if we need the original, create a copy of this message to redirect
             reply = getPassThrough() ? new MimeMessage(message) : message;
@@ -537,8 +538,8 @@ public class Redirect extends GenericMailet {
         }
         //Set additional headers
         reply.setSubject(getSubjectPrefix() + message.getSubject());
-        if(reply.getHeader("Date") == null) {
-            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
+        if(reply.getHeader(RFC2822Headers.DATE) == null) {
+            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
         
         reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
@@ -549,7 +550,7 @@ public class Redirect extends GenericMailet {
             reply.setReplyTo(iart);
         }
         if(sender == null) {
-            reply.setHeader("From", message.getHeader("From", ","));
+            reply.setHeader(RFC2822Headers.FROM, message.getHeader(RFC2822Headers.FROM, ","));
             sender = new MailAddress(((InternetAddress)message.getFrom()[0]).getAddress());
         } else {
             reply.setFrom(sender.toInternetAddress());
