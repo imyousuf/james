@@ -1,30 +1,19 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.mailrepository;
 
-
-
-
-//import org.apache.avalon.services.*;
-import java.io.*;
-import java.util.*;
+import java.util.Iterator;
 import javax.mail.MessagingException;
-import javax.mail.internet.*;
-import org.apache.avalon.*;
-import org.apache.avalon.util.*;
-import org.apache.james.core.*;
+import org.apache.avalon.util.Lock;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-import org.apache.mailet.*;
-
+import org.apache.mailet.Mail;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -39,11 +28,9 @@ import org.apache.mailet.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonSpoolRepository extends AvalonMailRepository implements SpoolRepository {
-
-    public AvalonSpoolRepository() {
-        super();
-    }
+public class AvalonSpoolRepository 
+    extends AvalonMailRepository 
+    implements SpoolRepository {
 
     public synchronized String accept() {
 
@@ -105,5 +92,4 @@ public class AvalonSpoolRepository extends AvalonMailRepository implements Spool
             }
         }
     }
-
 }
