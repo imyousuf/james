@@ -33,6 +33,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
     private Logger logger;
     private UsersRepository userManager;
     private TimeServer timeServer;
+    private MailServer mailServer;
 
     private BufferedReader in;
     private InputStream socketIn;
@@ -54,6 +55,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("RemoteManager init...", "RemoteAdmin", logger.INFO);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
+	this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         int port = conf.getConfiguration("port").getValueAsInt(4554);
         InetAddress bind = null;
@@ -65,12 +67,12 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         } catch (ConfigurationException e) {
         }
 
-    String type = SocketServer.DEFAULT;
-    try {
-        if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-    } catch (ConfigurationException e) {
-    }
-    String typeMsg = "RemoteManager using " + type + " on port " + port;
+	String type = SocketServer.DEFAULT;
+	try {
+	    if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+	} catch (ConfigurationException e) {
+	}
+	String typeMsg = "RemoteManager using " + type + " on port " + port;
         logger.log(typeMsg, "RemoteAdmin", logger.INFO);
 
         socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
@@ -167,9 +169,13 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             if (userManager.contains(user)) {
                 out.println("user " + user + " already exist");
             } else {
-                userManager.addUser(user, passwd);
-                out.println("User " + user + " added");
-                logger.log("User " + user + " added", "RemoteAdmin", logger.INFO);
+                if(mailServer.addUser(user, passwd)) {
+		    out.println("User " + user + " added");
+		    logger.log("User " + user + " added", "RemoteAdmin", logger.INFO);
+		} else {
+		    out.println("Error adding user " + user);
+		    logger.log("Error adding user " + user, "RemoteAdmin", logger.INFO);
+		}
             }
             out.flush();
         } else if (command.equalsIgnoreCase("DELUSER")) {
