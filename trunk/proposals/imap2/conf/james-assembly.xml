@@ -175,7 +175,7 @@
 
   <!-- The DataSourceSelector block -->
   <block name="database-connections"
-         class="org.apache.avalon.cornerstone.blocks.datasource.DefaultDataSourceSelector" />
+         class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" />
 
   <!-- The ThreadManager block -->
   <block name="thread-manager"

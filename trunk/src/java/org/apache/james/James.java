@@ -72,7 +72,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.46 $
+ * @version This is $Revision: 1.47 $
 
  */
 public class James
@@ -199,7 +199,7 @@ public class James
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
+     * @see org.apache.avalon.framework.service.ServiceableServicable#service(ServiceManager)
      */
     public void service( ServiceManager comp) {
         compMgr = new DefaultServiceManager(comp);
