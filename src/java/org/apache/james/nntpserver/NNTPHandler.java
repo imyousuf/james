@@ -194,8 +194,8 @@ public class NNTPHandler extends BaseConnectionHandler
             doDATE();
         else if ( command.equalsIgnoreCase("HELP") )
             doHELP();
-        else if ( command.equalsIgnoreCase("NEWSGROUPS") )
-            doNEWSGROUPS(tokens);
+        else if ( command.equalsIgnoreCase("NEWGROUPS") )
+            doNEWGROUPS(tokens);
         else if ( command.equalsIgnoreCase("NEWNEWS") )
             doNEWNEWS(tokens);
         else if ( command.equalsIgnoreCase("LISTGROUP") )
@@ -235,13 +235,15 @@ public class NNTPHandler extends BaseConnectionHandler
     }
 
     private void doNEWNEWS(StringTokenizer tok) {
+        // see section 11.4
         writer.println("230 list of new articles by message-id follows");
         Iterator iter = repo.getArticlesSince(getDateFrom(tok));
         while ( iter.hasNext() )
             writer.println("<"+((NNTPArticle)iter.next()).getUniqueID()+">");
         writer.println(".");
     }
-    private void doNEWSGROUPS(StringTokenizer tok) {
+    private void doNEWGROUPS(StringTokenizer tok) {
+        // see section 11.3
         writer.println("230 list of new newsgroups follows");
         Iterator iter = repo.getGroupsSince(getDateFrom(tok));
         while ( iter.hasNext() )
