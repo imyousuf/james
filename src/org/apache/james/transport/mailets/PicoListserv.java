@@ -13,23 +13,24 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
-import org.apache.james.usermanager.*;
-//import org.apache.avalon.blocks.*;
-import org.apache.mailet.*;
 import org.apache.james.transport.*;
+import org.apache.james.usermanager.*;
+import org.apache.mailet.*;
 
 /**
  * <listName>
  * <membersonly>
  * <attachmentsallowed>
  * <replytolist>
+ * <subjectprefix>
  */
-public class PicoListserv extends GenericMailet {
+public class PicoListserv extends GenericListserv {
 
     protected boolean membersOnly = false;
     protected boolean attachmentsAllowed = true;
     protected boolean replyToList = true;
     protected String listName = null;
+    protected String subjectPrefix = null;
     private UsersRepository members;
 
     public void init() {
@@ -46,13 +47,14 @@ public class PicoListserv extends GenericMailet {
             replyToList = new Boolean(getInitParameter("replytolist")).booleanValue();
         } catch (Exception e) {
         }
+        subjectPrefix = getInitParameter("subjectprefix");
 
         ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         members = (UsersRepository) manager.getUserRepository("list-" + listName);
     }
 
-    protected Collection getMembers() throws MessagingException {
+    public Collection getMembers() throws ParseException {
         Collection reply = new Vector();
         for (Enumeration e = members.list(); e.hasMoreElements(); ) {
             reply.add(new MailAddress(e.nextElement().toString()));
@@ -60,26 +62,25 @@ public class PicoListserv extends GenericMailet {
         return reply;
     }
 
-    protected boolean isMembersOnly() {
+    public boolean isMembersOnly() {
         return membersOnly;
     }
 
-    protected boolean isAttachmentsAllowed() {
+    public boolean isAttachmentsAllowed() {
         return attachmentsAllowed;
     }
 
-    protected boolean isReplyToList() {
+    public boolean isReplyToList() {
         return replyToList;
     }
 
-    protected String getListservAddress() {
-        Collection serverNames = (Collection) getMailetContext().getServerNames();
-        return listName + "@" + serverNames.iterator().next();
+    public String getSubjectPrefix() {
+        return subjectPrefix;
     }
 
-    public void service(Mail mail) throws MailetException, MessagingException {
-        getMailetContext().sendMail(mail.getSender(), getMembers(), mail.getMessage());
-        mail.setState(Mail.GHOST);
+    public MailAddress getListservAddress() throws ParseException {
+        Collection serverNames = (Collection) getMailetContext().getServerNames();
+        return new MailAddress(listName, serverNames.iterator().next().toString());
     }
 
     public String getMailetInfo() {
