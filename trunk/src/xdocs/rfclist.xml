@@ -29,11 +29,12 @@
 <a href="rfclist/smtp/rfc2142.txt">RFC 2142: Mailbox Names For Common Services, Roles And Functions</a><br/>
 <a href="rfclist/smtp/rfc2197.txt">RFC 2197: SMTP Service Extension for Command Pipelining (elective)</a><br/>
 <a href="rfclist/smtp/rfc2554.txt">RFC 2554: SMTP Service Extension for Authentication</a><br/>
-<a href="rfclist/smtp/rfc2821.txt">RFC 2821: Simple Mail Transfer Protocol</a><br/>
+<a href="rfclist/smtp/rfc2821.txt">RFC 2821: Simple Mail Transfer Protocol (obsoletes RFC 821)</a><br/>
 </subsection>
 <subsection name="POP3 RFCs">
 <a href="rfclist/pop3/rfc1725.txt">RFC 1725: POP3 Protocol</a><br/>
 <a href="rfclist/pop3/rfc1734.txt">RFC 1734: POP3 AUTHentication command</a><br/>
+<a href="rfclist/pop3/rfc1939.txt">RFC 1939: POP3 Protocol (obsoletes RFC 1725)</a><br/>
 </subsection>
 <subsection name="IMAP RFCs">
 <a href="rfclist/imap4/rfc1731.txt">RFC 1731: IMAP4 Authentication Mechanisms</a><br/>
