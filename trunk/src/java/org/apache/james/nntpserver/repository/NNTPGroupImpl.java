@@ -20,8 +20,8 @@ package org.apache.james.nntpserver.repository;
 import org.apache.james.util.io.AndFileFilter;
 import org.apache.james.util.io.InvertedFileFilter;
 
-import org.apache.avalon.cornerstone.blocks.masterstore.ExtensionFileFilter;
-import org.apache.avalon.cornerstone.blocks.masterstore.IOUtil;
+import org.apache.james.util.io.ExtensionFileFilter;
+import org.apache.james.util.io.IOUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 

@@ -29,7 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
-import org.apache.avalon.cornerstone.blocks.masterstore.ClassLoaderObjectInputStream;
+import org.apache.james.util.io.ClassLoaderObjectInputStream;
 
 /**
  * This is a simple implementation of persistent object store using

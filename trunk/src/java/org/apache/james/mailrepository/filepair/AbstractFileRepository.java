@@ -34,7 +34,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.avalon.cornerstone.services.store.Repository;
-import org.apache.avalon.cornerstone.blocks.masterstore.ExtensionFileFilter;
+import org.apache.james.util.io.ExtensionFileFilter;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
