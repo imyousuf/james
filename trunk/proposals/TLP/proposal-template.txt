@@ -1,4 +1,3 @@
-
   WHEREAS, the Board of Directors deems it to be in
   the best interests of the Foundation and consistent with
   the Foundation's purpose to establish a Project Management
@@ -53,4 +52,3 @@
   RESOLVED, that all responsibility pertaining to the Jakarta
   James sub-project and encumbered upon the Jakarta PMC are
   hereafter discharged.
-
