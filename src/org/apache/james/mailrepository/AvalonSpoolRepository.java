@@ -9,7 +9,7 @@ package org.apache.james.mailrepository;
 
 import java.util.Iterator;
 import javax.mail.MessagingException;
-import org.apache.avalon.util.Lock;
+import org.apache.james.util.Lock;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
