@@ -373,12 +373,14 @@ public class DNSServer
             private Iterator addresses = null;
 
             public boolean hasNext() {
-                return mxHosts.hasNext();
-            }
-
-            public Object next() {
-                if (addresses == null || !addresses.hasNext())
-                {
+                /* Make sure that when next() is called, that we can
+                 * provide a HostAddress.  This means that we need to
+                 * have an inner iterator, and verify that it has
+                 * addresses.  We could, for example, run into a
+                 * situation where the next mxHost didn't have any valid
+                 * addresses.
+                 */
+                if ((addresses == null || !addresses.hasNext()) && mxHosts.hasNext()) do {
                     final String nextHostname = (String)mxHosts.next();
                     addresses = new Iterator() {
                         private Record[] aRecords = lookup(nextHostname, Type.A);
@@ -396,8 +398,13 @@ public class DNSServer
                             throw new UnsupportedOperationException ("remove not supported by this iterator");
                         }
                     };
-                }
-                return addresses.next();
+                } while (!addresses.hasNext() && mxHosts.hasNext());
+
+                return addresses != null && addresses.hasNext();
+            }
+
+            public Object next() {
+                return addresses != null ? addresses.next() : null;
             }
 
             public void remove() {
