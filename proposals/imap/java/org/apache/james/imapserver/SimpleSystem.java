@@ -13,7 +13,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.phoenix.Block;
-import org.apache.james.AuthenticationException;
+import org.apache.james.imapserver.AuthenticationException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -7,8 +7,8 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.AccessControlException;
+import org.apache.james.imapserver.AuthorizationException;
 
 import java.io.Serializable;
 import java.util.Set;

@@ -9,14 +9,14 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.AccessControlException;
+import org.apache.james.imapserver.AccessControlException;
 import org.apache.james.imapserver.ACLMailbox;
 import org.apache.james.imapserver.FileMailbox;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.Flags;
-import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.AuthorizationException;
 import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Date;
