@@ -14,8 +14,7 @@
     </menu>
 
     <menu name="Downloads">
-        <item name="Binaries"              href="http://jakarta.apache.org/site/binindex.cgi"/>
-        <item name="Source Code"           href="http://jakarta.apache.org/site/sourceindex.cgi"/>
+        <item name="Current Release(s)"              href="http://james.apache.org/download.cgi"/>
     </menu>
 
     <menu name="Documentation">
