@@ -74,6 +74,12 @@ public class NotifyPostmaster extends GenericMailet {
         if (message.getSentDate() != null) {
             out.println("  Sent date: " + message.getSentDate());
         }
+        out.println("  MAIL FROM: " + mail.getSender());
+        Iterator rcptTo = mail.getRecipients().iterator();
+        out.println("  RCPT TO: " + rcptTo.next());
+        while (rcptTo.hasNext()) {
+            out.println("           " + rcptTo.next());
+        }
         Address[] rcpts = message.getFrom();
         if (rcpts != null) {
             out.print("  From: ");
