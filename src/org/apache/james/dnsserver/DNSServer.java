@@ -16,6 +16,8 @@ import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
 import org.apache.mailet.Mail;
 import org.apache.james.transport.Resources;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
 
 import org.xbill.DNS.*;
 
@@ -25,35 +27,35 @@ import org.xbill.DNS.*;
  */
 public class DNSServer implements Component, Configurable, Contextualizable {
 
-    private SimpleComponentManager comp;
+    private DefaultComponentManager compMgr;
     private Configuration conf;
-    private Logger logger;
-    private ThreadManager threadManager;
-    private Store store;
+    private Logger logger =  LogKit.getLoggerFor("james.DnsServer");
+    //    private ThreadManager threadManager;
+    //   private Store store;
     private Resolver resolver;
     private Cache cache;
     private byte dnsCredibility;
 
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException{
         this.conf = conf;
     }
 
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = new SimpleComponentManager(comp);
+    public void compose(ComponentManager comp) {
+        compMgr = new DefaultComponentManager(comp);
     }
 
-    public void setContext(Context context) {
+    public void contextualize(Context context) {
     }
 
     public void init() throws Exception {
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("DNSServer init...", "DNS", logger.INFO);
+        logger.info("DNSServer init...");
 
             // Get this servers that this block will use for lookups
         Collection servers = new Vector();
-        for (Enumeration e = conf.getConfigurations("servers.server"); e.hasMoreElements(); ) {
-            servers.add(((Configuration) e.nextElement()).getValue());
+	Configuration serversConf = conf.getChild("servers");
+        for (Iterator it = serversConf.getChildren("server"); it.hasNext(); ) {
+            servers.add(((Configuration) it.next()).getValue());
         }
         if (servers.isEmpty()) {
             try {
@@ -63,9 +65,9 @@ public class DNSServer implements Component, Configurable, Contextualizable {
             }
         }
         for (Iterator i = servers.iterator(); i.hasNext(); ) {
-            logger.log("DNS Servers is: " + i.next(), "DNS", logger.INFO);
+            logger.info("DNS Servers is: " + i.next());
         }
-        boolean authoritative = conf.getConfiguration("authoritative").getValueAsBoolean(false);
+        boolean authoritative = conf.getChild("authoritative").getValueAsBoolean(false);
 
             //Create the extended resolver...
         String serversArray[] = (String[])servers.toArray(new String[0]);
@@ -76,9 +78,9 @@ public class DNSServer implements Component, Configurable, Contextualizable {
         cache = new Cache ();
 
             // Add this to comp
-        comp.put("DNS_SERVER", this);
+        compMgr.put("DNS_SERVER", this);
 
-        logger.log("DNSServer ...init end", "DNS", logger.INFO);
+        logger.info("DNSServer ...init end");
     }
 
     public Collection findMXRecords(String hostname) {

@@ -118,6 +118,14 @@ public class MailImpl implements Mail {
         return lastUpdated;
     }
 
+    private void parse(InputStream messageIn) throws MessagingException {
+        if (messageIn != null) {
+            message = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
+        } else {
+	    throw new MessagingException("Attempt to parse null input stream.");
+	}
+    }
+
     /**
      * <p>Return the size of the message including its headers.
      * MimeMessage.getSize() method only returns the size of the
@@ -138,9 +146,9 @@ public class MailImpl implements Mail {
         Enumeration e = message.getAllHeaders();
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
-        }
+         }
         return size;
-    }
+     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
@@ -197,8 +205,8 @@ public class MailImpl implements Mail {
         if (message != null) {
             message.writeTo(out);
         } else {
-            throw new MessagingException("No message set for this MailImpl.");
-        }
+	    throw new MessagingException("No message set for this MailImpl.");
+	}
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -232,7 +240,7 @@ public class MailImpl implements Mail {
     }
 
     public void writeContentTo(OutputStream out, int lines)
-            throws IOException, MessagingException {
+           throws IOException, MessagingException {
         String line;
         BufferedReader br;
         if(message != null) {
@@ -242,8 +250,8 @@ public class MailImpl implements Mail {
                 line += "\r\n";
                 out.write(line.getBytes());
             }
-        }  else {
-            throw new MessagingException("No message set for this MailImpl.");
-        }
+        } else {
+	    throw new MessagingException("No message set for this MailImpl.");
+	}
     }
 }

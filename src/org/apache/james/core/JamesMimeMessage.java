@@ -123,11 +123,27 @@ public class JamesMimeMessage extends MimeMessage {
         return message.getSize();
     }
 
+    /**
+     * Corrects JavaMail 1.1 version which always returns -1.
+     * Only corrected for content less than 5000 bytes,
+     * to avoid memory hogging.
+     */
     public int getLineCount() throws MessagingException {
         if (message == null) {
             loadMessage();
         }
-        return message.getLineCount();
+	int size = content.length; // size of byte array
+	int lineCount = 0;
+	if (size < 5000) {
+	    for (int i=0; i < size -1; i++) {
+		if (content[i] == '\r' && content[i+1] == '\n') {
+		    lineCount++;
+		}
+	    }
+	} else {
+	    lineCount = -1;
+	}
+        return lineCount;
     }
 
     public String getContentType() throws MessagingException {

@@ -8,36 +8,50 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.avalon.utils.*;
-import java.util.*;
 import java.io.*;
-import org.apache.mailet.*;
-import org.apache.james.core.*;
+import java.util.*;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.*;
+import org.apache.avalon.util.Lock;
+import org.apache.avalon.util.LockException;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
+import org.apache.mailet.*;
+import org.apache.james.core.*;
+import org.apache.james.services.SpoolRepository;
+
 import com.workingdogs.town.*;
 
 /**
  * Implementation of a SpoolRepository on a database.
  *
+ * <p>Requires a configuration element in the .conf.xml file of the form:
+ *  <br><repository destinationURL="town://path"
+ *  <br>            type="MAIL"
+ *  <br>            model="SYNCHRONOUS"/>
+ *  <br>            <conn>file:///dev/james/dist/var/maildatabase</conn>
+ *  <br>            <table>Message</table>
+ *  <br></repository>
+ * <p>destinationURL specifies..(Serge??)
+ * <br>Type can be SPOOL or MAIL
+ * <br>Model is currently not used and may be dropped
+ * <br>conn is the location of the ...(Serge)
+ * <br>table is the name of the table in the Database to be used
+ * 
+ * <p>Requires a logger called MailRepository.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class TownSpoolRepository implements SpoolRepository, Configurable {
-
-    /**
-     * Define a STREAM repository. Streams are stored in the specified
-     * destination.
-     */
-
-    private String prefix;
-    private String name;
-    private String type;
-    private String model;
+public class TownSpoolRepository implements SpoolRepository, Component, Configurable {
+  
     private Lock lock;
-
+    private Logger logger =  LogKit.getLoggerFor("james.MailRepository");
+    private String destination;
     private String repositoryName;
 
     private String conndefinition;
@@ -46,40 +60,18 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
     public TownSpoolRepository() {
     }
 
-    public void setAttributes(String name, String destination, String type, String model) {
-        this.name = name;
-        this.model = model;
-        this.type = type;
-
-        //need to parse the destination out to find the mail repository name
-        int slash = destination.indexOf("//");
-        prefix = destination.substring(0, slash + 2);
-        repositoryName = destination.substring(slash + 2);
-    }
-
-    public void setComponentManager(ComponentManager comp) {
-        lock = new Lock();
-    }
-
-    public void setConfiguration(Configuration conf) {
-        conndefinition = conf.getConfiguration("conn").getValue();
-        tableName = conf.getConfiguration("table").getValue();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getChildDestination(String childName) {
-        return prefix + repositoryName + "/" + childName;
+    public void configure(Configuration conf) throws ConfigurationException {
+	destination = conf.getAttribute("destinationURL");
+	repositoryName = destination.substring(destination.indexOf("//") + 2);
+	String checkType = conf.getAttribute("type");
+	if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
+	    logger.warn("Attempt to configure TownSpoolRepository as "
+			+ checkType);
+	    throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
+	}
+	// ignore model
+        conndefinition = conf.getChild("conn").getValue();
+        tableName = conf.getChild("table").getValue();
     }
 
     public synchronized void unlock(Object key) {
@@ -250,16 +242,16 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         unlock(key);
     }
 
-    public Enumeration list() {
+    public Iterator list() {
         try {
             QueryDataSet messages = new QueryDataSet(ConnDefinition.getInstance(conndefinition),
                     "SELECT message_name FROM " + tableName + " WHERE repository_name = '" + repositoryName + "' "
                     + "ORDER BY last_updated");
-            Vector messageList = new Vector(messages.size());
+            List messageList = new ArrayList(messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 messageList.add(messages.getRecord(i).getAsString("message_name"));
             }
-            return messageList.elements();
+            return messageList.iterator();
         } catch (Exception me) {
             me.printStackTrace();
             throw new RuntimeException("Exception while listing mail: " + me.getMessage());
@@ -268,8 +260,8 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
 
     public synchronized String accept() {
         while (true) {
-            for(Enumeration e = list(); e.hasMoreElements(); ) {
-                Object o = e.nextElement();
+            for(Iterator it = list(); it.hasNext(); ) {
+                Object o = it.next();
                 if (lock.lock(o)) {
                     return o.toString();
                 }
@@ -285,8 +277,8 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         while (true) {
             long youngest = 0;
             //Really unoptimized query here... should be much smart about this...
-            for (Enumeration e = list(); e.hasMoreElements(); ) {
-                String s = e.nextElement().toString();
+            for (Iterator it = list(); it.hasNext(); ) {
+                String s = it.next().toString();
                 if (lock.lock(s)) {
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.

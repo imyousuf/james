@@ -10,9 +10,9 @@ package org.apache.james;
 
 /**
  * This is a fake class to display an error message if you try to execute James
- * without having Avalon intalled.
+ * without having Avalon installed.
  *
- * @version 1.0.0 (CVS $Revision: 1.3 $ $Date: 2000/12/11 05:41:45 $)
+ * @version 1.0.0 (CVS $Revision: 1.4 $ $Date: 2001/01/09 12:21:21 $)
  * @author <a href="mailto:scoobie@pop.systemy.it">Federico Barbieri</a>
  */
 
