@@ -65,14 +65,15 @@ import java.util.Iterator;
 
 public class NetMatcher
 {
-    ArrayList networks;
+    private ArrayList networks;
 
     public void initInetNetworks(final Collection nets)
     {
         networks = new ArrayList();
         for (Iterator iter = nets.iterator(); iter.hasNext(); ) try
         {
-            networks.add(InetNetwork.getFromString((String) iter.next()));
+            InetNetwork net = InetNetwork.getFromString((String) iter.next());
+            if (!networks.contains(net)) networks.add(net);
         }
         catch (java.net.UnknownHostException uhe)
         {
@@ -85,7 +86,8 @@ public class NetMatcher
         networks = new ArrayList();
         for (int i = 0; i < nets.length; i++) try
         {
-            networks.add(InetNetwork.getFromString(nets[i]));
+            InetNetwork net = InetNetwork.getFromString(nets[i]);
+            if (!networks.contains(net)) networks.add(net);
         }
         catch (java.net.UnknownHostException uhe)
         {
@@ -140,6 +142,10 @@ public class NetMatcher
     {
         initInetNetworks(nets);
     }
+
+    public String toString() {
+        return networks.toString();
+    }
 }
 
 class InetNetwork
@@ -171,6 +177,17 @@ class InetNetwork
     public String toString()
     {
         return network.getHostAddress() + "/" + netmask.getHostAddress();
+    }
+
+    public int hashCode()
+    {
+        return maskIP(network, netmask).hashCode();
+    }
+
+    public boolean equals(Object obj)
+    {
+        return (obj != null) && (obj instanceof InetNetwork) &&
+                ((((InetNetwork)obj).network.equals(network)) && (((InetNetwork)obj).netmask.equals(netmask)));
     }
 
     public static InetNetwork getFromString(String netspec) throws java.net.UnknownHostException
