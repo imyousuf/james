@@ -46,7 +46,7 @@ public class AvalonMailRepository
     extends AbstractLoggable
     implements MailRepository, Component, Configurable, Composable {
 
-    protected Lock lock;
+    private Lock lock;
     protected static boolean DEEP_DEBUG = false;
     private static final String TYPE = "MAIL";
     private Store store;
@@ -93,7 +93,7 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
-	    getLogger().debug(this.getClass().getName() + " created in " + destination);
+	        getLogger().debug(this.getClass().getName() + " created in " + destination);
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -101,21 +101,21 @@ public class AvalonMailRepository
         }
     }
 
-    public synchronized void unlock(Object key) {
-
+    public synchronized boolean unlock(String key) {
         if (lock.unlock(key)) {
             notifyAll();
+            return true;
         } else {
-            throw new LockException("Your thread do not own the lock of record " + key);
+            return false;
         }
     }
 
-    public synchronized void lock(Object key) {
-
+    public synchronized boolean lock(String key) {
         if (lock.lock(key)) {
             notifyAll();
+            return true;
         } else {
-            throw new LockException("Record " + key + " already locked by another thread");
+            return false;
         }
     }
 
@@ -157,12 +157,13 @@ public class AvalonMailRepository
     }
 
     public void remove(String key) {
-        try {
-            lock( key);
-            sr.remove(key);
-            or.remove(key);
-        } finally {
-            unlock(key);
+        if (lock(key)) {
+            try {
+                sr.remove(key);
+                or.remove(key);
+            } finally {
+                unlock(key);
+            }
         }
     }
 

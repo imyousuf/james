@@ -69,7 +69,7 @@ public class JDBCMailRepository
     extends AbstractLoggable
     implements MailRepository, Component, Configurable, Composable {
 
-    protected Lock lock;
+    private Lock lock;
     protected String destination;
     protected String tableName;
     protected String repositoryName;
@@ -151,19 +151,21 @@ public class JDBCMailRepository
         }
     }
 
-    public synchronized void unlock(Object key) {
+    public synchronized boolean unlock(String key) {
         if (lock.unlock(key)) {
             notifyAll();
+            return true;
         } else {
-            throw new LockException("Your thread does not own the lock of record " + key);
+            return false;
         }
     }
 
-    public synchronized void lock(Object key) {
+    public synchronized boolean lock(String key) {
         if (lock.lock(key)) {
             notifyAll();
+            return true;
         } else {
-            throw new LockException("Record " + key + " already locked by another thread");
+            return false;
         }
     }
 
@@ -351,24 +353,24 @@ public class JDBCMailRepository
 
     public void remove(String key) {
         //System.err.println("removing " + key);
-        try {
-            lock(key);
+        if (lock(key)) {
+            try {
+                Connection conn = getConnection();
+                PreparedStatement removeMessage = conn.prepareStatement(sqlQueries.getProperty("removeMessageSQL"));
+                removeMessage.setString(1, key);
+                removeMessage.setString(2, repositoryName);
+                removeMessage.execute();
+                removeMessage.close();
+                conn.close();
 
-            Connection conn = getConnection();
-            PreparedStatement removeMessage = conn.prepareStatement(sqlQueries.getProperty("removeMessageSQL"));
-            removeMessage.setString(1, key);
-            removeMessage.setString(2, repositoryName);
-            removeMessage.execute();
-            removeMessage.close();
-            conn.close();
-
-            if (sr != null) {
-                sr.remove(key);
+                if (sr != null) {
+                    sr.remove(key);
+                }
+            } catch (Exception me) {
+                throw new RuntimeException("Exception while removing mail: " + me.getMessage());
+            } finally {
+                unlock(key);
             }
-        } catch (Exception me) {
-            throw new RuntimeException("Exception while removing mail: " + me.getMessage());
-        } finally {
-            unlock(key);
         }
     }
 

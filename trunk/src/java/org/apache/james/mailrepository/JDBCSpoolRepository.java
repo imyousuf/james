@@ -74,7 +74,7 @@ public class JDBCSpoolRepository
                 while (rsListMessages.next()) {
                     String message = rsListMessages.getString(1);
 
-                    if (lock.lock(message)) {
+                    if (lock(message)) {
                         rsListMessages.close();
                         listMessages.close();
                         conn.close();
@@ -123,7 +123,7 @@ public class JDBCSpoolRepository
                         process = true;
                     }
 
-                    if (process && lock.lock(message)) {
+                    if (process && lock(message)) {
                         rsListMessages.close();
                         listMessages.close();
                         conn.close();
