@@ -7,32 +7,27 @@
  */
 package org.apache.james.remotemanager;
 
+import java.util.HashMap;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.DefaultPool;
 import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
-
 import org.apache.james.core.AbstractJamesService;
-import org.apache.james.services.*;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
-import org.apache.mailet.*;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
+import org.apache.mailet.UsersRepository;
 
 /**
  * Provides a really rude network interface to administer James.

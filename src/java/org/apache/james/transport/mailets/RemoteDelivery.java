@@ -10,24 +10,39 @@ package org.apache.james.transport.mailets;
 //import org.apache.avalon.framework.component.ComponentException;
 //import org.apache.avalon.framework.component.ComponentManager;
 //import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.MailStore;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.SpoolRepository;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Vector;
 
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.*;
-import java.util.*;
+
+import org.apache.james.Constants;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailServer;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
@@ -53,7 +68,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.34 $
+ * This is $Revision: 1.35 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 

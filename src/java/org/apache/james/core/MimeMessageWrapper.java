@@ -7,20 +7,39 @@
  */
 package org.apache.james.core;
 
-import javax.activation.DataHandler;
-import javax.mail.*;
-import javax.mail.internet.*;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.SequenceInputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.activation.DataHandler;
+import javax.mail.Address;
+import javax.mail.Flags;
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import javax.mail.internet.NewsAddress;
+
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
-
-import org.apache.avalon.framework.activity.Disposable;
 
 
 /**

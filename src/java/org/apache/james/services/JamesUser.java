@@ -7,15 +7,15 @@
  */
 package org.apache.james.services;
 
-import org.apache.mailet.*;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.User;
 
 /**
  * Interface for objects representing users of an email/ messaging system.
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 public interface JamesUser extends User {

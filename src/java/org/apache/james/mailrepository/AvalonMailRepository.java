@@ -7,6 +7,13 @@
  */
 package org.apache.james.mailrepository;
 
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
@@ -25,9 +32,6 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
 import org.apache.mailet.MailRepository;
-
-import java.io.OutputStream;
-import java.util.*;
 
 /**
  * Implementation of a MailRepository on a FileSystem.

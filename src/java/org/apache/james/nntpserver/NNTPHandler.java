@@ -7,30 +7,6 @@
  */
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.nntpserver.repository.NNTPArticle;
-import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
-import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersStore;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.RFC977DateFormat;
-import org.apache.james.util.RFC2980DateFormat;
-import org.apache.james.util.SimplifiedDateFormat;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
-import org.apache.mailet.UsersRepository;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -38,9 +14,28 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.nntpserver.repository.NNTPArticle;
+import org.apache.james.nntpserver.repository.NNTPGroup;
+import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
+import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.RFC2980DateFormat;
+import org.apache.james.util.RFC977DateFormat;
+import org.apache.james.util.SimplifiedDateFormat;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
 
 /**
  * The NNTP protocol is defined by RFC 977.

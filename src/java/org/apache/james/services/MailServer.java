@@ -7,14 +7,15 @@
  */
 package org.apache.james.services;
 
-import org.apache.mailet.*;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+import java.io.InputStream;
+import java.util.Collection;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.InputStream;
-import java.util.Collection;
+
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailRepository;
 
 /**
  * The interface for Phoenix blocks to the James MailServer
@@ -22,7 +23,7 @@ import java.util.Collection;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.12 $
+ * @version This is $Revision: 1.13 $
  */
 public interface MailServer
 {

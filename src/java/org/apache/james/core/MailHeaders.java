@@ -7,10 +7,15 @@
  */
 package org.apache.james.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.Enumeration;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import java.io.*;
-import java.util.Enumeration;
 
 import org.apache.james.util.RFC2822Headers;
 

@@ -7,16 +7,29 @@
  */
 package org.apache.james.pop3server;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.mail.MessagingException;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.collections.ListUtils;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
@@ -24,12 +37,6 @@ import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
-import org.apache.mailet.UsersRepository;
-
-import javax.mail.MessagingException;
-import java.io.*;
-import java.net.Socket;
-import java.util.*;
 
 /**
  * The handler class for POP3 connections.

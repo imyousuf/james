@@ -7,10 +7,16 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import org.apache.james.nntpserver.NNTPException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.mail.internet.InternetHeaders;
-import java.io.*;
+
+import org.apache.james.nntpserver.NNTPException;
 
 /** 
  * Please see NNTPArticle for comments

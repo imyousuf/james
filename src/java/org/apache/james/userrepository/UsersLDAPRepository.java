@@ -7,6 +7,25 @@
  */
 package org.apache.james.userrepository;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -16,17 +35,10 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
-
-import javax.naming.AuthenticationException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.*;
-import java.util.*;
 
 /**
  * Implementation of a Repository to store users.

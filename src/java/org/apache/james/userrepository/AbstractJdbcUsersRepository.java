@@ -7,11 +7,23 @@
  */
 package org.apache.james.userrepository;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
@@ -25,10 +37,6 @@ import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
 import org.apache.mailet.User;
-
-import java.io.File;
-import java.sql.*;
-import java.util.*;
 
 /**
  * An abstract base class for creating UserRepository implementations

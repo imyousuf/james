@@ -7,22 +7,29 @@
  */
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.core.MailImpl;
-import org.apache.mailet.*;
-
-import javax.mail.MessagingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
-import java.util.Iterator;
+
+import javax.mail.MessagingException;
+
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.core.MailImpl;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Implements a processor for mails, directing the mail down
