@@ -7,15 +7,17 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+//import org.apache.avalon.framework.component.ComponentException;
+//import org.apache.avalon.framework.component.ComponentManager;
+//import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import javax.mail.MessagingException;
+
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailRepository;
 
 /**
  * Stores incoming Mail in the specified Repository.
@@ -24,7 +26,7 @@ import org.apache.mailet.Mail;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.8 $
+ * @version This is $Revision: 1.9 $
  */
 public class ToRepository extends GenericMailet {
 
@@ -55,19 +57,13 @@ public class ToRepository extends GenericMailet {
             // Ignore exception, default to false
         }
 
-        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-            DefaultConfiguration mailConf
-                = new DefaultConfiguration("repository", "generated:ToRepository");
-            mailConf.setAttribute("destinationURL", repositoryPath);
-            mailConf.setAttribute("type", "MAIL");
-            repository = (MailRepository) mailstore.select(mailConf);
-        } catch (ComponentException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+       
+            try {
+                repository = getMailetContext().getMailRepository(repositoryPath);
+            } catch (MessagingException e) {
+                log("Initialisation failed can't get repository "+repositoryPath);
+            }
+        
 
     }
 
