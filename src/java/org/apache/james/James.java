@@ -53,13 +53,13 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.24 $
- * Committed on $Date: 2002/08/08 00:47:45 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.25 $
+ * Committed on $Date: 2002/08/15 07:07:21 $ by: $Author: hammant $
 
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable,
+    implements Contextualizable, Composable, Configurable, JamesMBean,
                Initializable, MailServer, MailetContext, Component {
 
     private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
@@ -267,7 +267,7 @@ public class James
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
         if (getLogger().isInfoEnabled()) {
-            StringBuffer logBuffer = 
+            StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Mail ")
                         .append(mailimpl.getName())
@@ -319,7 +319,7 @@ public class James
     }
 
     public String getId() {
-        StringBuffer idBuffer = 
+        StringBuffer idBuffer =
             new StringBuffer(64)
                     .append("Mail")
                     .append(System.currentTimeMillis())
@@ -474,7 +474,7 @@ public class James
                     return;
                 } catch (MessagingException me) {
                     if (getLogger().isErrorEnabled()) {
-                        StringBuffer logBuffer = 
+                        StringBuffer logBuffer =
                             new StringBuffer(128)
                                     .append("Error forwarding mail to ")
                                     .append(forwardTo.toString())

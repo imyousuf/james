@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.101 $  Committed on $Date: 2002/08/13 05:43:02 $ by: $Author: hammant $
+ James build file $Revision: 1.102 $  Committed on $Date: 2002/08/15 07:07:21 $ by: $Author: hammant $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -208,6 +208,7 @@ Legal:
             <fileset dir="${java.dir}">
                 <include name="**/*.properties"/>
                 <include name="**/*.xinfo"/>
+                <include name="**/*.mxinfo"/>
             </fileset>
         </copy>
     </target>
