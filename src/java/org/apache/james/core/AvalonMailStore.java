@@ -20,6 +20,9 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
@@ -38,7 +41,7 @@ import org.apache.avalon.phoenix.Block;
  */
 public class AvalonMailStore
     extends AbstractLoggable
-    implements Block, Composable, Configurable, MailStore, Initializable {
+    implements Block, Contextualizable, Composable, Configurable, Initializable, MailStore {
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;
@@ -51,10 +54,16 @@ public class AvalonMailStore
     // map of [Repository Class]->default config for repository.
     private HashMap defaultConfigs;
 
+    protected Context                context;
     protected Configuration          configuration;
     protected ComponentManager       componentManager;
 
     private SpoolRepository inboundSpool;
+
+    public void contextualize(final Context context)
+            throws ContextException {
+        this.context = context;
+    }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException
@@ -189,11 +198,14 @@ public class AvalonMailStore
                    if (reply instanceof Loggable) {
 		       setupLogger(reply);
                     }
-                    if (reply instanceof Configurable) {
-                        ((Configurable) reply).configure(config);
+                    if (reply instanceof Contextualizable) {
+                        ((Contextualizable) reply).contextualize(context);
                     }
                     if (reply instanceof Composable) {
                         ((Composable) reply).compose( componentManager );
+                    }
+                    if (reply instanceof Configurable) {
+                        ((Configurable) reply).configure(config);
                     }
                     if (reply instanceof Initializable) {
                         ((Initializable) reply).initialize();

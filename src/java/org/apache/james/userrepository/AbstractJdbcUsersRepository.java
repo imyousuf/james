@@ -18,6 +18,7 @@ import org.apache.avalon.framework.context.*;
 import org.apache.avalon.framework.logger.*;
 import org.apache.avalon.excalibur.datasource.*;
 import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.phoenix.BlockContext;
 
 import java.sql.*;
 import java.util.*;
@@ -47,8 +48,9 @@ import java.io.File;
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
-    implements UsersRepository, Loggable, Component, Composable, Configurable, Initializable
+    implements UsersRepository, Loggable, Component, Contextualizable, Composable, Configurable, Initializable
 {
+    protected Context context;
     protected Map m_sqlParameters;
     private String m_sqlFileName;
     private String m_datasourceName;
@@ -70,6 +72,11 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     // Creates a single table with "username" the Primary Key.
     private String m_createUserTableSql;
 
+
+    public void contextualize(final Context context)
+            throws ContextException {
+        this.context = context;
+    }
 
     /**
      * Compose the repository with the DataSourceSelector component.
@@ -140,6 +147,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         
         // Get the SQL file location
         m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
+        if (!m_sqlFileName.startsWith("file://")) {
+            throw new ConfigurationException
+                ("Malformed sqlFile - Must be of the format \"file://<filename>\".");
+        }
 
         // Get other sql parameters from the configuration object,
         // if any.
@@ -174,7 +185,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             DatabaseMetaData dbMetaData = conn.getMetaData();
 
             // Initialise the sql strings.
-            java.io.File sqlFile = new java.io.File(m_sqlFileName);
+            String fileName = m_sqlFileName.substring("file://".length());
+            fileName = ((BlockContext)context).getBaseDirectory() +
+                        File.separator + fileName;
+            File sqlFile = (new File(fileName)).getCanonicalFile();
             
             getLogger().debug("Reading SQL resources from file: " + 
                               sqlFile.getAbsolutePath() + ", section " +
