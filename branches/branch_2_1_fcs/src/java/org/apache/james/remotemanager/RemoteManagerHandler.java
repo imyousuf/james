@@ -97,7 +97,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.21.4.3 $
+ * @version $Revision: 1.21.4.4 $
  *
  */
 public class RemoteManagerHandler
@@ -201,7 +201,7 @@ public class RemoteManagerHandler
     private PrintWriter out;
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
@@ -416,8 +416,8 @@ public class RemoteManagerHandler
     }
 
     /**
-     * <p>This method parses and processes RemoteManager commands read off the 
-     * wire in handleConnection.  It returns true if expecting additional 
+     * <p>This method parses and processes RemoteManager commands read off the
+     * wire in handleConnection.  It returns true if expecting additional
      * commands, false otherwise.</p>
      *
      * @param command the raw command string passed in over the socket
@@ -482,15 +482,13 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            out.println("Usage: adduser [username] [password]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
         if (username.equals("") || passwd.equals("")) {
-            out.println("Usage: adduser [username] [password]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
 
@@ -502,7 +500,7 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" already exists");
             String response = responseBuffer.toString();
-            out.println(response);
+            writeLoggedResponse(response);
         } else if ( inLocalUsers ) {
             // TODO: Why does the LocalUsers repository get treated differently?
             //       What exactly is the LocalUsers repository?
@@ -523,7 +521,7 @@ public class RemoteManagerHandler
             getLogger().info(response);
         } else {
             out.println("Error adding user " + username);
-            getLogger().info("Error adding user " + username);
+            getLogger().error("Error adding user " + username);
         }
         out.flush();
         return true;
@@ -541,20 +539,19 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            out.println("Usage: setpassword [username] [password]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: setpassword [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
 
         if (username.equals("") || passwd.equals("")) {
-            out.println("Usage: adduser [username] [password]");
+            writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         User user = users.getUserByName(username);
         if (user == null) {
-            out.println("No such user " + username);
+            writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         boolean success = user.setPassword(passwd);
@@ -570,7 +567,7 @@ public class RemoteManagerHandler
             getLogger().info(response);
         } else {
             out.println("Error resetting password");
-            getLogger().info("Error resetting password");
+            getLogger().error("Error resetting password");
         }
         out.flush();
         return true;
@@ -584,27 +581,43 @@ public class RemoteManagerHandler
      */
     private boolean doDELUSER(String argument) {
         String user = argument;
-        StringBuffer responseBuffer = new StringBuffer(128);
-        try {
-            if ((user == null) || (user.equals(""))) {
-                responseBuffer.append("Usage: deluser [username]");
-            } else if (!users.contains(user)) {
-                responseBuffer.append("User ").append(user).append(" doesn't exist");
-            } else {
-                users.removeUser(user);
-                responseBuffer.append("User ").append(user).append(" deleted");
-            }
-        }
-        catch (Exception e) {
-            responseBuffer.append("Error deleting user ").append(user).append(" : ").append(e.getMessage());
-        }
-        finally {
-            String response = responseBuffer.toString();
-            out.println(response);
-            out.flush();
-            getLogger().info(response);
+        if ((user == null) || (user.equals(""))) {
+            writeLoggedFlushedResponse("Usage: deluser [username]");
             return true;
         }
+        if (users.contains(user)) {
+            try {
+                users.removeUser(user);
+                StringBuffer responseBuffer =
+                                             new StringBuffer(64)
+                                             .append("User ")
+                                             .append(user)
+                                             .append(" deleted");
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
+            } catch (Exception e) {
+                StringBuffer exceptionBuffer =
+                                              new StringBuffer(128)
+                                              .append("Error deleting user ")
+                                              .append(user)
+                                              .append(" : ")
+                                              .append(e.getMessage());
+                String exception = exceptionBuffer.toString();
+                out.println(exception);
+                getLogger().error(exception);
+            }
+        } else {
+            StringBuffer responseBuffer =
+                                         new StringBuffer(64)
+                                         .append("User ")
+                                         .append(user)
+                                         .append(" doesn't exist");
+            String response = responseBuffer.toString();
+            out.println(response);
+        }
+        out.flush();
+        return true;
     }
 
     /**
@@ -641,8 +654,8 @@ public class RemoteManagerHandler
      */
     private boolean doVERIFY(String argument) {
         String user = argument;
-        if (user.equals("")) {
-            out.println("Usage: verify [username]");
+        if (user == null || user.equals("")) {
+            writeLoggedFlushedResponse("Usage: verify [username]");
             return true;
         }
         if (users.contains(user)) {
@@ -652,7 +665,7 @@ public class RemoteManagerHandler
                         .append(user)
                         .append(" exists");
             String response = responseBuffer.toString();
-            out.println(response);
+            writeLoggedResponse(response);
         } else {
             StringBuffer responseBuffer =
                 new StringBuffer(64)
@@ -660,7 +673,7 @@ public class RemoteManagerHandler
                         .append(user)
                         .append(" does not exist");
             String response = responseBuffer.toString();
-            out.println(response);
+            writeLoggedResponse(response);
         }
         out.flush();
         return true;
@@ -681,8 +694,8 @@ public class RemoteManagerHandler
         out.println("verify [username]                       verify if specified user exist");
         out.println("deluser [username]                      delete existing user");
         out.println("setpassword [username] [password]       sets a user's password");
-        out.println("setalias [alias] [user]                 locally forwards all email for 'alias' to 'user'");
-        out.println("unsetalias [alias]                      unsets an alias");
+        out.println("setalias [user] [alias]                 locally forwards all email for 'user' to 'alias'");
+        out.println("unsetalias [user]                       unsets an alias for 'user'");
         out.println("setforwarding [username] [emailaddress] forwards a user's email to another email address");
         out.println("unsetforwarding [username]              removes a forward");
         out.println("user [repositoryname]                   change to another user repository");
@@ -703,24 +716,23 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            out.println("Usage: setalias [username] [emailaddress]");
+            writeLoggedFlushedResponse("Usage: setalias [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String alias = argument.substring(breakIndex + 1);
         if (username.equals("") || alias.equals("")) {
-            out.println("Usage: setalias [username] [alias]");
+            writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
             return true;
         }
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            out.println("No such user " + username);
+            writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
         if (aliasUser == null) {
-            out.println("Alias unknown to server"
-                        + " - create that user first.");
+            writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
             return true;
         }
 
@@ -739,7 +751,7 @@ public class RemoteManagerHandler
             getLogger().info(response);
         } else {
             out.println("Error setting alias");
-            getLogger().info("Error setting alias");
+            getLogger().error("Error setting alias");
         }
         out.flush();
         return true;
@@ -756,24 +768,22 @@ public class RemoteManagerHandler
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            out.println("Usage: setforwarding [username] [emailaddress]");
+            writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String forward = argument.substring(breakIndex + 1);
         if (username.equals("") || forward.equals("")) {
-           out.println("Usage: setforwarding [username] [emailaddress]");
+           writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
            return true;
         }
         // Verify user exists
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            out.println("No such user " + username);
-            out.flush();
+            writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            out.println("Can't set forwarding for this user type.");
-            out.flush();
+            writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
         JamesUser user = (JamesUser)baseuser;
@@ -782,10 +792,8 @@ public class RemoteManagerHandler
         try {
              forwardAddr = new MailAddress(forward);
         } catch(ParseException pe) {
-            out.println("Parse exception with that email address: "
-                        + pe.getMessage());
-            out.println("Forwarding address not added for " + username);
-            out.flush();
+            writeLoggedResponse("Parse exception with that email address: " + pe.getMessage());
+            writeLoggedFlushedResponse("Forwarding address not added for " + username);
             return true;
         }
 
@@ -804,7 +812,7 @@ public class RemoteManagerHandler
             getLogger().info(response);
         } else {
             out.println("Error setting forwarding");
-            getLogger().info("Error setting forwarding");
+            getLogger().error("Error setting forwarding");
         }
         out.flush();
         return true;
@@ -818,14 +826,13 @@ public class RemoteManagerHandler
      */
     private boolean doUNSETALIAS(String argument) {
         if ((argument == null) || (argument.equals(""))) {
-            out.println("Usage: unsetalias [username]");
-            out.flush();
+            writeLoggedFlushedResponse("Usage: unsetalias [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            out.println("No such user " + username);
+            writeLoggedResponse("No such user " + username);
         } else if (user.getAliasing()){
             user.setAliasing(false);
             users.updateUser(user);
@@ -838,8 +845,7 @@ public class RemoteManagerHandler
             out.println(response);
             getLogger().info(response);
         } else {
-            out.println("Aliasing not active for" + username);
-            getLogger().info("Aliasing not active for" + username);
+            writeLoggedResponse("Aliasing not active for" + username);
         }
         out.flush();
         return true;
@@ -869,7 +875,9 @@ public class RemoteManagerHandler
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            writeLoggedFlushedResponse(response);
+            out.println(response);
+            out.flush();
+            getLogger().info(response);
         } else {
             writeLoggedFlushedResponse("Forwarding not active for" + username);
         }
@@ -943,7 +951,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the RemoteManager client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -970,7 +978,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client
@@ -994,8 +1002,5 @@ public class RemoteManagerHandler
         public void execute() {
             RemoteManagerHandler.this.idleClose();
         }
-
     }
-
 }
-
