@@ -8,6 +8,7 @@
 package org.apache.james.transport;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailImpl;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
+import java.util.Iterator;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -40,7 +42,7 @@ import java.util.Vector;
  */
 public class LinearProcessor 
     extends AbstractLogEnabled
-    implements Initializable {
+    implements Initializable, Disposable {
 
     private List mailets;
     private List matchers;
@@ -63,6 +65,15 @@ public class LinearProcessor
         random = new Random();
     }
 
+    // Shutdown mailets
+    public void dispose() {
+        Iterator it = mailets.iterator();
+        while (it.hasNext()) {
+            Mailet mailet = (Mailet)it.next();
+            getLogger().debug("Shutdown mailet " + mailet.getMailetInfo());
+            mailet.destroy();
+        }
+    }
 
     public void add(Matcher matcher, Mailet mailet) {
         matchers.add(matcher);

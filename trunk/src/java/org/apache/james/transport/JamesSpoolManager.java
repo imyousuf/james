@@ -30,13 +30,14 @@ import org.apache.mailet.*;
 
 import javax.mail.MessagingException;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.8 $
- * Committed on $Date: 2002/01/18 02:48:37 $ by: $Author: darrell $
+ * This is $Revision: 1.9 $
+ * Committed on $Date: 2002/03/01 15:58:40 $ by: $Author: danny $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -142,9 +143,9 @@ public class JamesSpoolManager
                                            + matcherName + ": " + ex.toString(), ex );
                         System.err.println("Unable to init mailet " + matcherName);
                         System.err.println("Check spool manager logs for more details.");
-                        //ex.printStackTrace();
-                        System.exit(1);
-                        //throw ex;
+                        ex.printStackTrace();
+                        //System.exit(1);
+                        throw ex;
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName,
@@ -157,9 +158,9 @@ public class JamesSpoolManager
                                           + mailetClassName + ": " + ex.getMessage());
                         System.err.println("Unable to init mailet " + mailetClassName);
                         System.err.println("Check spool manager logs for more details.");
-                        //ex.printStackTrace();
-                        System.exit(1);
-                        //throw ex;
+                        ex.printStackTrace();
+                        //System.exit(1);
+                        throw ex;
                     }
                     //Add this pair to the proces
                     processor.add(matcher, mailet);
@@ -263,5 +264,16 @@ public class JamesSpoolManager
         }
     }
 
-    public void dispose() {}
+    // Shutdown processors
+    public void dispose() {
+        getLogger().info("JamesSpoolManager dispose...");
+        Iterator it = processors.keySet().iterator();
+        while (it.hasNext()) {
+            String processorName = (String)it.next();
+            getLogger().debug("Processor " + processorName);
+            LinearProcessor processor = (LinearProcessor)processors.get(processorName);
+            processor.dispose();
+            processors.remove(processor);
+        }
+    }
 }

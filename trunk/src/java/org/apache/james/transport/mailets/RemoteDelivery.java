@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.13 $
- * Committed on $Date: 2002/01/18 02:48:38 $ by: $Author: darrell $
+ * This is $Revision: 1.14 $
+ * Committed on $Date: 2002/03/01 15:58:40 $ by: $Author: danny $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -306,6 +306,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             getMailetContext().bounce(mail, sout.toString());
         } catch (MessagingException me) {
             log("encountered unexpected messaging exception while bouncing message: " + me.getMessage());
+        } catch (Exception e) {
+            log("encountered unexpected exception while bouncing message: " + e.getMessage());
         }
     }
 
@@ -359,7 +361,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         mail.setState(Mail.GHOST);
     }
 
-    public void destroy() {
+    // Need to synchronize to get object monitor for notifyAll()
+    public synchronized void destroy() {
         //Wake up all threads from waiting for an accept
         notifyAll();
         for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
@@ -390,17 +393,24 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         while (!Thread.currentThread().interrupted()) {
             try {
                 String key = outgoing.accept(delayTime);
-                log(Thread.currentThread().getName() + " will process mail " + key);
-                MailImpl mail = outgoing.retrieve(key);
-                if (deliver(mail, session)) {
-                    //Message was successfully delivered/fully failed... delete it
-                    outgoing.remove(key);
-                } else {
-                    //Something happened that will delay delivery.  Store any updates
-                    outgoing.store(mail);
-                }
-                //Clear the object handle to make sure it recycles this object.
-                mail = null;
+		try {
+                   log(Thread.currentThread().getName() + " will process mail " + key);
+                   MailImpl mail = outgoing.retrieve(key);
+                   if (deliver(mail, session)) {
+                       //Message was successfully delivered/fully failed... delete it
+                       outgoing.remove(key);
+                   } else {
+                       //Something happened that will delay delivery.  Store any updates
+                       outgoing.store(mail);
+                   }
+                   //Clear the object handle to make sure it recycles this object.
+                   mail = null;
+                } catch (Exception e) {
+                    // Prevent unexpected exceptions from causing looping by removing
+                    // message from outgoing.
+		    outgoing.remove(key);
+		    throw e;
+		}
             } catch (Exception e) {
                 log("Exception caught in RemoteDelivery.run(): " + e);
             }
