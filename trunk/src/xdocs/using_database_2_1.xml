@@ -62,6 +62,45 @@ does try to keep sqlResources.xml updated, so if you do run into a
 special case, please let us know.</p>
 
 </subsection>
+
+<subsection name="An example">
+
+<p>The configuration file has commented out examples for MySQL and
+MSSQL data sources, and for each of the standard repositories.  For
+example, to use MySQL, you would uncomment and adjust the following
+data-source element.  You must create the database, in this case named
+<strong>mail</strong>, the user, and assign the user priviledges.
+James will automatically create the tables it needs.</p>
+
+<source>
+&lt;data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource"&gt;
+  &lt;driver&gt;org.gjt.mm.mysql.Driver&lt;/driver&gt;
+  &lt;dburl&gt;jdbc:mysql://127.0.0.1/mail&lt;/dburl&gt;
+  &lt;user&gt;username&lt;/user&gt;
+  &lt;password&gt;password&lt;/password&gt;
+  &lt;max&gt;20&lt;/max&gt;
+&lt;/data-source&gt;
+</source>
+
+<p>Once you have created the data-source element, you can use it else where in the configuration file.  For example, the following element tells James to use the maildb data-source and dbfile storage mechanism for the message spool:</p>
+
+<source>
+&lt;spoolRepository&gt;
+   &lt;repository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/&gt;
+&lt;/spoolRepository&gt;
+</source>
+
+<p>The following element tells James to store mailboxes in a the maildb data-source:</p>
+
+<source>
+&lt;inboxRepository&gt;
+   &lt;repository destinationURL="db://maildb/inbox/" type="MAIL"/&gt;
+&lt;/inboxRepository&gt;
+</source>
+
+<p>The configuration file contains further examples.</p>
+</subsection>
+
 <subsection name="Known Issues">
 <p>There are some vendor-specific subtleties in using databases with James that have been observed 
 by some users.  These issues (and methods to resolve them) are recorded on the 
