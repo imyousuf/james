@@ -9,10 +9,10 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -22,11 +22,11 @@ public class SenderIs extends GenericMatcher {
 
     private Collection senders;
 
-    public void init() {
-        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
-        senders = new Vector();
+    public void init() throws javax.mail.MessagingException {
+        StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
+        senders = new java.util.HashSet();
         while (st.hasMoreTokens()) {
-            senders.add(st.nextToken());
+            senders.add(new MailAddress(st.nextToken()));
         }
     }
 

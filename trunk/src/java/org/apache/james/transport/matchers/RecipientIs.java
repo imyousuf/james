@@ -10,8 +10,7 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 /**
@@ -21,11 +20,11 @@ import java.util.StringTokenizer;
  */
 public class RecipientIs extends GenericRecipientMatcher {
 
-    private Set recipients;
+    private Collection recipients;
 
     public void init() throws javax.mail.MessagingException {
         StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
-        recipients = new HashSet();
+        recipients = new java.util.HashSet();
         while (st.hasMoreTokens()) {
             recipients.add(new MailAddress(st.nextToken()));
         }
