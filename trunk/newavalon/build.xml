@@ -131,17 +131,19 @@ All theese package are in current distribution.
 
     <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml"
               dest="${build.dest}/conf/${name}.conf.xml"/>
-    <copyfile src="${src.dir}/org/apache/avalon/demo/demo.conf.xml"
-              dest="${build.dest}/conf/demo.conf.xml"/>
+    <copydir src="${src.dir}/org/apache/avalon/demos"
+              dest="${build.dest}/conf">
+       <include name="**/*.conf.xml"/>
+    </copydir>
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**,org/apache/avalon/demo/**,conf/demo.conf.xml"/>
+    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**,org/apache/avalon/demos/**,conf/*demo.conf.xml"/>
     <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
-    <jar jarfile="${build.dir}/demo.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/avalon/demo/*, conf/demo.conf.xml"/>
+    <jar jarfile="${build.dir}/simpleserver-demo.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/avalon/demos/*, conf/*demo.conf.xml"/>
   </target>
 
   <!-- =================================================================== -->
@@ -160,7 +162,7 @@ All theese package are in current distribution.
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
     <copyfile src="${build.dir}/${name}.bar" dest="${dist.dir}/bin/blocks/${name}.bar"/>
-    <copyfile src="${build.dir}/demo.bar" dest="${dist.dir}/bin/blocks/demo.bar"/>
+    <copyfile src="${build.dir}/simpleserver-demo.bar" dest="${dist.dir}/bin/blocks/simpleserver-demo.bar"/>
     <copyfile src="./lib/avalon-core-blocks.bar" dest="${dist.dir}/bin/blocks/avalon-core-blocks.bar"/>
     <copyfile src="./lib/avalon-engine.jar" dest="${dist.dir}/bin/avalon-engine.jar"/>
     <copyfile src="./lib/avalon-loader.jar" dest="${dist.dir}/bin/avalon-loader.jar"/>

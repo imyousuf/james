@@ -5,18 +5,18 @@
  * version 1.1, a copy of which has been included  with this distribution in
  * the LICENSE file.
  */
-package org.apache.avalon.demo;
+package org.apache.avalon.demos;
 
 
 import org.apache.avalon.services.Service;
 import org.apache.avalon.services.SocketServer.SocketHandler;
 
 /**
- * This is an empty service interface for demonstration blocks
+ * This is an empty service interface for the SimpleServer demo block
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public interface DemoService extends Service, SocketHandler {
+public interface SimpleService extends Service, SocketHandler {
  
 }
 

@@ -8,7 +8,7 @@
 <avalon-demo>
 
     <!-- The Storage block -->
-    <block class="org.apache.avalon.demo.Demo" 
+    <block class="org.apache.avalon.demos.SimpleServer" 
            name="demoblock" >
 
         <logger name="Demo" destinationURL="../logs/demo.log" priority="DEBUG"/>

@@ -12,7 +12,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.avalon.demo.DemoService" version="1.0" />
+    <service name="org.apache.avalon.demos.SimpleService" version="1.0" />
   </services>
 
   <dependancies>

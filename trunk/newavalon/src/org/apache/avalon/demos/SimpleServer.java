@@ -5,7 +5,7 @@
  * version 1.1, a copy of which has been included  with this distribution in
  * the LICENSE file.
  */
-package org.apache.avalon.demo;
+package org.apache.avalon.demos;
 
 
 import java.io.*;
@@ -33,7 +33,7 @@ import org.apache.avalon.services.*;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class Demo extends AbstractBlock implements DemoService {
+public class SimpleServer extends AbstractBlock implements SimpleService {
     protected final static boolean        LOG        = true;
     protected final static boolean        DEBUG      = LOG && false;
     protected Logger LOGGER = LOG ? LogKit.getLoggerFor("Demo") : null;
