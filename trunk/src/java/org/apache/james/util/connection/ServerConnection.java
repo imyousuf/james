@@ -315,7 +315,7 @@ public class ServerConnection extends AbstractLogEnabled
                 }
             } catch( IOException ioe ) {
                 getLogger().error( "Exception accepting connection", ioe );
-            } catch( Exception e ) {
+            } catch( Throwable e ) {
                 getLogger().error( "Exception executing client connection runner: " + e.getMessage(), e );
             }
         }
@@ -404,7 +404,7 @@ public class ServerConnection extends AbstractLogEnabled
                     getLogger().debug( message );
                 }
 
-            } catch( Exception e ) {
+            } catch( Throwable e ) {
                 getLogger().error( "Error handling connection", e );
             } finally {
 
