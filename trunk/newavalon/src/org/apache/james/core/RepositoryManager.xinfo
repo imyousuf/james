@@ -5,14 +5,14 @@
   <meta>
 
     <contributors>
-      <author name="Charles Benett" email="charles@benett1.demon.co.uk"/>
+      <author name="Federico Barbier" email="fede@apache.org"/>
     </contributors>
 
   </meta>
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.avalon.demos.SimpleService" version="1.0" />
+    <service name="org.apache.james.services.MailStore" version="1.0" />
   </services>
 
   <dependencies>
@@ -20,9 +20,6 @@
       <name>org.apache.avalon.services.Store</name>
       <service name="org.apache.avalon.services.Store" version="1.0"/>
     </dependency>
-    <dependency>
-      <name>org.apache.avalon.services.SocketServer</name>
-      <service name="org.apache.avalon.services.SocketServer" version="1.0"/>
-    </dependency>
   </dependencies>
+
 </blockinfo>

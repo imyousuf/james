@@ -54,7 +54,7 @@ public class UsersFileRepository implements UsersRepository, Configurable, Compo
     public void configure(Configuration conf) throws ConfigurationException {
 	destination = conf.getAttribute("destinationURL");
 	String checkType = conf.getAttribute("type");
-	if (checkType != TYPE) {
+	if (!checkType.equals(TYPE)) {
 	    logger.warn("Attempt to configure UsersFileRepository as "
 			+ checkType);
 	    throw new ConfigurationException("Attempt to configure UsersFileRepository as " + checkType);
@@ -68,7 +68,7 @@ public class UsersFileRepository implements UsersRepository, Configurable, Compo
 	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
-		= new DefaultConfiguration("repository");
+		= new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
 	    objConf.addAttribute("destinationURL", destination);
 	    objConf.addAttribute("type", "OBJECT");
 	    objConf.addAttribute("model", "SYNCHRONOUS");
@@ -88,7 +88,7 @@ public class UsersFileRepository implements UsersRepository, Configurable, Compo
     public Store.Repository getChildRepository(String childName) {
 	String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
 	//prepare Configurations for object and stream repositories
-	DefaultConfiguration childConf = new DefaultConfiguration("repository");
+	DefaultConfiguration childConf = new DefaultConfiguration("repository","generated:UsersFileRepository.getChildRepository()");
 	childConf.addAttribute("destinationURL", childDestination);
 	childConf.addAttribute("type", "USERS");
 	childConf.addAttribute("model", "SYNCHRONOUS");

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!-- ===========================================================================
+<!-- ==========================================================================
 
  James build file
 
@@ -13,26 +13,30 @@ Todo:
 Legal:
   Copyright (c) 1999 The Apache Software Foundation. All Rights Reserved.
 
-================================================================================
+===============================================================================
 
+                          Needed packages to run JAMES
+                          ============================
 
-                          Needed package to run JAMES
-                          ===========================
+JAMES is a mail server running on top of the Avalon. Avalon is a component-
+based server framework. Components are organized into blocks, and one or more
+ blocks are packaged in block archive files (*.bar). James is a single block in
+ its own archive.
 
-JAMES is a mail server running on top of the Avalon framework.
+To compile and run James you need the avalon-loader.jar and avalon-engine.jar
+ as well as the JAMES.bar. The default implementation of JAMES also uses the
+ blocks from avalon-core-blocks.bar. 
 
-To compile and run it you need the org.apache.avalon.blocks package and its needed packages.
-    JAMES uses from Avalon Blocks a Logger, a ThreadManager, a TimeServer, a SocketServer and a Store.
-    A default implementation of these Blocks are distributed in the Avalon jar file.
-After that you'll need activation.jar and mail.jar from Sun.
+After that you'll need activation.jar and mail.jar from Sun. For optional TLS
+ support, you will need the JSSE jars from Sun.
 
-All theese package are in current distribution.
+All these package are in current distribution.
 
-============================================================================ -->
+=========================================================================== -->
 
-<project default="package" basedir=".">
+<project default="block-archive" basedir=".">
   <target name="init">
-	<property name="name" value="JAMES"/>
+	<property name="name" value="james"/>
 	<property name="version" value="1.2a1"/>
 	<property name="year" value="1999-2000"/>
 
@@ -80,13 +84,13 @@ All theese package are in current distribution.
     <echo message=""/>
     <echo message=" available targets are:"/>
     <echo message=""/>
-    <echo message="   package  --> generates the mailet.jar and James.jar file (default)"/>
+    <echo message="   block-archive  --> generates the James.bar file (default)"/>
+    <echo message="   auxiliary-jars  --> generates the mailet.jar and the simple-server-demo.bar"/>
     <echo message="   compile  --> compiles the source code"/>
     <echo message="   dist     --> generates the JAMES distribution"/>
     <echo message="   clean    --> cleans up the directory"/>
     <echo message="   javadoc  --> creates the Javadoc"/>
     <echo message="   javadocmailet --> creates the Javadoc for the mailet API"/>
-    <echo message="   demo     --> creates the Demo bar"/>
     <echo message=""/>
     <echo message=" See the comments inside the build.xml file for more details."/>
     <echo message="-------------------------------------------------------------"/>
@@ -138,10 +142,16 @@ All theese package are in current distribution.
   </target>
 
   <!-- =================================================================== -->
-  <!-- Creates the class package                                           -->
+  <!-- Creates the JAMES.bar archive                                       -->
   <!-- =================================================================== -->
-  <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**,org/apache/avalon/demos/**,conf/*demo.conf.xml"/>
+  <target name="block-archive" depends="compile">
+    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/avalon/demos/**,conf/*demo.conf.xml"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the mailet.jar and the simpleserver-demo.bar                -->
+  <!-- =================================================================== -->
+  <target name="auxiliary-jars" depends="compile">
     <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
     <jar jarfile="${build.dir}/simpleserver-demo.bar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/avalon/demos/*, conf/*demo.conf.xml"/>
   </target>
@@ -149,8 +159,8 @@ All theese package are in current distribution.
   <!-- =================================================================== -->
   <!-- Creates the distribution                                            -->
   <!-- =================================================================== -->
-<!--  <target name="dist" depends="package, docs, javadocs"> -->
-  <target name="dist" depends="package">
+<!--  <target name="dist" depends="block-archive, auxiliary-jars, docs, javadocs"> -->
+  <target name="dist" depends="block-archive, auxiliary-jars">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
     <mkdir dir="${dist.dir}/bin/blocks"/>

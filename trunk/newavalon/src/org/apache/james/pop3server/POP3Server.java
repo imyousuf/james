@@ -32,7 +32,7 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     private WorkerPool workerPool;
     private Logger logger =  LogKit.getLoggerFor("POP3Server");
 
-    public void configure(Configuration conf) throws ConfigurationException{
+    public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
     }
     
@@ -62,12 +62,12 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
         }
 
 	String type = SocketServer.DEFAULT;
-	//This will throw exception when we next upgrade avalon libraries
-	//try {
+	
+	try {
 	    if (conf.getChild("useTLS").getValue().equals("TRUE"))
 		type = SocketServer.TLS;
-	    //} catch (ConfigurationException e) {
-	    //}
+	    } catch (ConfigurationException e) {
+	    }
 	logger.info("POP3Listener using " + type + " on port " + port);
 
         socketServer.openListener("POP3Listener", type, port, bind, this);

@@ -9,12 +9,9 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.*;
-//import org.apache.avalon.blocks.*;
 import org.apache.avalon.services.*;
 import org.apache.james.*;
 import org.apache.james.services.*;
-//import org.apache.james.transport.*;
-//import org.apache.james.userrepository.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 import java.net.*;
@@ -62,7 +59,7 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
     public void init() throws Exception {
 
         logger.info("RemoteManager init...");
-        scheduler = (Scheduler) compMgr.lookup("org.apache.james.services.Scheduler");
+        scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
 	mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(4554);
@@ -83,18 +80,21 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
 	
         logger.info("RemoteManager using " + type + " on port " + port);
 	
-        socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
-
+	Configuration adm = conf.getChild("administrator_accounts");
         admaccount = new HashMap();
-        for (Iterator it = conf.getChildren("administrator_accounts.account"); it.hasNext();) {
+        for (Iterator it = adm.getChildren("account"); it.hasNext();) {
             Configuration c = (Configuration) it.next();
             admaccount.put(c.getAttribute("login"), c.getAttribute("password"));
         }
         if (admaccount.isEmpty()) {
             logger.warn("No Administrative account defined");
-        }
-        users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-        logger.info("RemoteManager ...init end");
+	    logger.warn("RemoteManager failed to init");
+	    return;
+        } else {
+	    socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
+	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
+	    logger.info("RemoteManager ...init end");
+	}
     }
 
 
