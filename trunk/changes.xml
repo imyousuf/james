@@ -16,7 +16,13 @@
 	<person name="Harmeet Bedi" email="harmeet@kodemuse.com" id="HB"/>
 	<person name="Matthew Pangaro" email="mattp@lokitech.com" id="MP"/>
 	<person name="Jason Borden" email="jborden@javasense.com" id="JB"/>
+	<person name="Samuel Sadek" email="Samuel.Sadek@kpmg.co.uk" id="SS"/>
   </devs>
+<release version="snap">
+  <action dev="SS" type="update">
+  	Added support for Oracle database for mail and spool JDBC repositories.
+  </action>
+</release>
 
 <release version="2.0a1" date="30-Sep-2001">
   <action dev="CB,*" type="update">
@@ -24,6 +30,9 @@
   </action>
   <action dev="HB" type="code">
     Added NNTP service.
+  </action>
+  <action dev="SK" type="update">
+    Greatly improved multi-threading support for repositories and SMTP reception.
   </action>
   <action dev="JB" type="code">
     SMTP AUTH support
@@ -42,6 +51,12 @@
   </action>
   <action dev="CB" type="update">
     Rebuilt CVS tree after hack and moved src to src/java.
+  </action>
+  <action dev="DA" type="code">
+    New extensible, flexible Redirect mailet that handles notifications and forwarding.
+  </action>
+  <action dev="SK" type="code">
+    JDBC Alias mailet.
   </action>
   <action type="docs">
     Added a whole bunch of related RFCs to the webdocs.

@@ -152,7 +152,23 @@
 			)
 
     </sql>
-	<sql name="createTable" db="sapdb">
+	<sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(200) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(200) ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(100) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (message_name, repository_name)
+        )
+        TABLESPACE system
+    </sql>
+    <sql name="createTable" db="sapdb">
 		CREATE TABLE ${table} (
 			message_name varchar (200) NOT NULL,
 			repository_name varchar (200) NOT NULL,
@@ -216,7 +232,22 @@
 			)
 
     </sql>
-	<sql name="createTable" db="sapdb">
+	<sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(200) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(200) NULL ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(100) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
 		CREATE TABLE ${table} (
 			message_name varchar (200) NOT NULL,
 			repository_name varchar (200) NOT NULL,
