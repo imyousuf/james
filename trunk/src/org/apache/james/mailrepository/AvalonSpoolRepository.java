@@ -8,22 +8,22 @@
 
 package org.apache.james.mailrepository;
 
+
+
+
+//import org.apache.avalon.services.*;
 import java.io.*;
 import java.util.*;
-import javax.mail.internet.*;
 import javax.mail.MessagingException;
-
+import javax.mail.internet.*;
 import org.apache.avalon.*;
 import org.apache.avalon.util.*;
-//import org.apache.avalon.services.*;
-
+import org.apache.james.core.*;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-
 import org.apache.mailet.*;
-import org.apache.james.core.*;
-import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.MailStore;
 
 
 /**
@@ -41,25 +41,22 @@ import org.apache.james.services.MailStore;
  */
 public class AvalonSpoolRepository extends AvalonMailRepository implements SpoolRepository {
 
-
     public AvalonSpoolRepository() {
-	super();
+        super();
     }
-
- 
 
     public synchronized String accept() {
 
         while (true) {
             for(Iterator it = list(); it.hasNext(); ) {
-		
-		String s = it.next().toString();
+                
+                String s = it.next().toString();
                 if (lock.lock(s)) {
-		    return s;
-		}
-		//  Object o = it.next();
+                    return s;
+                }
+                //  Object o = it.next();
                 //if (lock.lock(o)) {
-		//  return o.toString();
+                //  return o.toString();
                 //}
             }
             try {

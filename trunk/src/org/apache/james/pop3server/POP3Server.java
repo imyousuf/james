@@ -10,28 +10,26 @@ package org.apache.james.pop3server;
 
 import java.net.*;
 import java.util.Date;
-
 import org.apache.avalon.*;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.util.lang.ThreadManager;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.cornerstone.services.SocketServer;
-
 import org.apache.james.*;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class POP3Server implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
+public class POP3Server 
+    extends AbstractLoggable
+    implements SocketServer.SocketHandler, Component, Configurable, Composer, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
     private ThreadPool threadPool;
-    private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -45,12 +43,11 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
         this.context = context;
     }
 
-
     public void init() throws Exception {
 
-        logger.info("POP3Server init...");
-	
-	threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        getLogger().info("POP3Server init...");
+        
+        threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(110);
         InetAddress bind = null;
@@ -62,16 +59,16 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
         } catch (ConfigurationException e) {
         }
 
-	String type = SocketServer.DEFAULT;
-	
-	try {
-	    if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+        String type = SocketServer.DEFAULT;
+        
+        try {
+            if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
         } catch (ConfigurationException e) {
         }
-	logger.info("POP3Listener using " + type + " on port " + port);
-
+        getLogger().info("POP3Listener using " + type + " on port " + port);
+        
         socketServer.openListener("POP3Listener", type, port, bind, this);
-        logger.info("POP3Server ...init end");
+        getLogger().info("POP3Server ...init end");
     }
 
     public void parseRequest(Socket s) {
@@ -85,8 +82,8 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
             handler.parseRequest(s);
             threadPool.execute((Runnable) handler);
         } catch (Exception e) {
-            logger.error("Cannot parse request on socket " + s + " : "
-			 + e.getMessage());
+            getLogger().error("Cannot parse request on socket " + s + " : "
+                              + e.getMessage());
         }
     }
 
