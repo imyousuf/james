@@ -40,7 +40,7 @@ All theese package are in current distribution.
 	<property name="debug" value="off"/>
 	<property name="optimize" value="on"/>
 	<property name="deprecation" value="off"/>
-	<property name="classpath" value="./lib/AvalonInterfaces.jar;./lib/ApacheJava.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
+	<property name="classpath" value="./lib/AvalonInterfaces.jar;./lib/ApacheJava.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces_1_1_1.jar;./lib/dnsjava.jar"/>
 
 	<property name="src.dir" value="./src"/>
 	<property name="dtd.dir" value="./dtd"/>
@@ -150,7 +150,7 @@ All theese package are in current distribution.
     <copyfile src="./lib/Loader.jar" dest="${dist.dir}/bin/Loader.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail_1_1_3.jar" dest="${dist.dir}/lib/mail_1_1_3.jar"/>
-    <copyfile src="./lib/xerces_1_0_1.jar" dest="${dist.dir}/lib/xerces_1_0_1.jar"/>
+    <copyfile src="./lib/xerces_1_1_1.jar" dest="${dist.dir}/lib/xerces_1_1_1.jar"/>
     <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
 
     <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
