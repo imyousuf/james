@@ -45,7 +45,7 @@ public class SimpleMessageAttributes implements MessageAttributes, Serializable 
     private final static String MESSAGE = "MESSAGE";
 
     //Only available in first incarnation of object
-    private transient Logger logger  = LogKit.getLoggerFor("JamesHost");
+    private transient Logger logger  = LogKit.getLoggerFor("james.JamesHost");
 
     private int uid;
     private int messageSequenceNumber;
@@ -83,7 +83,7 @@ public class SimpleMessageAttributes implements MessageAttributes, Serializable 
     }
 
     void reInit() {
-	logger = LogKit.getLoggerFor("JamesHost");
+	logger = LogKit.getLoggerFor("james.JamesHost");
     }
 
     void setAttributesFor(MimeMessage msg) throws MessagingException {

@@ -27,7 +27,7 @@ public class DefaultRecordRepository implements RecordRepository   {
  
     private String path;
     private File repository;
-    private Logger logger =  LogKit.getLoggerFor("mailstore");
+    private Logger logger =  LogKit.getLoggerFor("james.mailstore");
 
     public DefaultRecordRepository() {
     }
