@@ -85,6 +85,16 @@ class NNTPSpooler extends AbstractLogEnabled
 
         try {
             spoolPath = AvalonContextUtilities.getFile(context, spoolPathString);
+            if ( spoolPath.exists() == false ) {
+                spoolPath.mkdirs();
+            } else if (!(spoolPath.isDirectory())) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(128)
+                        .append("Spool directory is improperly configured.  The specified path ")
+                        .append(spoolPathString)
+                        .append(" is not a directory.");
+                throw new ConfigurationException(errorBuffer.toString());
+            }
         } catch (Exception e) {
             getLogger().fatalError(e.getMessage(), e);
             throw e;
@@ -132,9 +142,6 @@ class NNTPSpooler extends AbstractLogEnabled
      * @return the spool directory
      */
     File getSpoolPath() {
-        if ( spoolPath.exists() == false ) {
-            spoolPath.mkdirs();
-        }
         return spoolPath;
     }
 
