@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+import org.apache.mail.*;
 import org.apache.avalon.interfaces.*;
 import org.apache.james.*;
 import org.apache.java.lang.*;
@@ -35,7 +36,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
     public final static String SENDER = "SENDER_ADDRESS";
     public final static String RCPT_VECTOR = "RCPT_VECTOR";
-    private static final char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
+    public final static String SMTP_ID = "SMTP_ID";
+    public final static char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
 
     private Socket socket;
     private BufferedReader in;
@@ -46,6 +48,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String remoteHostGiven;
     private String remoteIP;
     private String messageID;
+    private String smtpID;
 
     private ComponentManager comp;
     private Configuration conf;
@@ -58,6 +61,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
     private Hashtable state;
+    private Random random;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -77,6 +81,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         servername = (String) context.get(Constants.HELO_NAME);
         state = new Hashtable();
+        random = new Random();
     }
 
     public void parseRequest(Socket socket) {
@@ -89,11 +94,13 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
+            smtpID = Math.abs(random.nextInt() % 1024) + "";
             state.clear();
             state.put(SERVER_NAME, this.servername );
             state.put(SERVER_TYPE, this.softwaretype );
             state.put(REMOTE_NAME, remoteHost);
             state.put(REMOTE_IP, remoteIP);
+            state.put(SMTP_ID, smtpID);
         } catch (Exception e) {
             logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), "SMTP", logger.ERROR);
             throw new RuntimeException("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
@@ -241,7 +248,41 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             } else {
                 out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
                 try {
-                    mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), new CharTerminatedInputStream(socketIn, SMTPTerminator));
+                    // parse headers
+                    InputStream msgIn = new CharTerminatedInputStream(socketIn, SMTPTerminator);
+                    MailHeaders headers = new MailHeaders(msgIn);
+                    // if headers do not contains minimum REQUIRED headers fields add them
+                    if (!headers.isSet("Date")) {
+                        headers.setHeader("Date", RFC822DateFormat.toString (new Date ()));
+                    }
+                    /*
+                    We no longer add To as this in practice is not set (from what I've seen)
+                    if (!headers.isSet("To")) {
+                        headers.setHeader("To", );
+                    }
+                    */
+                    if (!headers.isSet("From")) {
+                        headers.setHeader("From", (String)state.get(SENDER));
+                    }
+
+                    String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
+                        + "])\r\n          by " + this.servername + " ("
+                        + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
+                    if (((Vector)state.get(RCPT_VECTOR)).size () == 1) {
+                        //Only indicate a recipient if they're the only recipient
+                        //(prevents email address harvesting and large headers in bulk email)
+                        received += "\r\n          for <"
+                            + ((Vector)state.get(RCPT_VECTOR)).elementAt(0).toString() + ">";
+                    }
+                    received += ";\r\n          " + RFC822DateFormat.toString (new Date ());
+                    headers.addHeader ("Received", received);
+
+                    // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
+                    ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
+                    Mail mail = new Mail(mailServer.getId(), (String)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
+                    mail.setRemoteHost((String)state.get(REMOTE_NAME));
+                    mail.setRemoteAddr((String)state.get(REMOTE_IP));
+                    mailServer.sendMail(mail);
                 } catch (MessagingException me) {
                     out.println("451 Error processing message: " + me.getMessage());
                     logger.log("Error processing message: " + me.getMessage(), "SMTP", logger.ERROR);
@@ -265,6 +306,9 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         state.clear();
         state.put(SERVER_NAME, this.servername );
         state.put(SERVER_TYPE, this.softwaretype );
+        state.put(REMOTE_NAME, remoteHost);
+        state.put(REMOTE_IP, remoteIP);
+        state.put(SMTP_ID, smtpID);
     }
 
     public void stop() {

@@ -9,12 +9,13 @@
 package org.apache.mail;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
 /**
- * Wrap a MimeMessage adding routing informations (from SMTP) and same simple API. 
+ * Wrap a MimeMessage adding routing informations (from SMTP) and same simple API.
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
@@ -32,7 +33,8 @@ public class Mail implements Serializable, Cloneable {
 	private String sender;
 	private Vector recipients;
 	private String name;
-
+    private String remoteHost = "localhost";
+    private String remoteAddr = "127.0.0.1";
 
 	public Mail() {
 	    setState(DEFAULT);
@@ -52,7 +54,7 @@ public class Mail implements Serializable, Cloneable {
 		this(name, sender, recipients);
 		this.setMessage(message);
 	}
-	
+
 	public void clean() {
 		message = null;
 		messageIn = null;
@@ -74,16 +76,16 @@ public class Mail implements Serializable, Cloneable {
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	public MimeMessage getMessage() 
+	public MimeMessage getMessage()
 	throws MessagingException {
 		parse();
 		return message;
 	}
-	
+
 	public void setName(String name) {
 	    this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -96,7 +98,13 @@ public class Mail implements Serializable, Cloneable {
 	public String getState() {
 		return state;
 	}
-	public void parse() 
+    public String getRemoteHost() {
+        return remoteHost;
+    }
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+	public void parse()
 	throws MessagingException {
 		if (messageIn != null) {
 			message = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
@@ -110,6 +118,8 @@ public class Mail implements Serializable, Cloneable {
 		state = (String) in.readObject();
 		errorMessage = (String) in.readObject();
 		name = (String) in.readObject();
+        remoteHost = (String) in.readObject();
+        remoteAddr = (String) in.readObject();
 	}
 	public void setErrorMessage(String msg) {
 		this.errorMessage = msg;
@@ -132,12 +142,18 @@ public class Mail implements Serializable, Cloneable {
 	public void setState(String state) {
 		this.state = state;
 	}
+    public void setRemoteHost(String remoteHost) {
+        this.remoteHost = remoteHost;
+    }
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
 	public void writeMessageTo(OutputStream out)
 	throws IOException, MessagingException {
 		if (message != null) {
 			message.writeTo(out);
 		} else {
-// FIXME!!! need a smarter way to read many times the same stream!!!            
+// FIXME!!! need a smarter way to read many times the same stream!!!
 			messageIn.mark(Integer.MAX_VALUE);
 			for (int next; (next = messageIn.read()) != -1; out.write(next));
 			messageIn.reset();
@@ -151,9 +167,11 @@ public class Mail implements Serializable, Cloneable {
 		out.writeObject(state);
 		out.writeObject(errorMessage);
 		out.writeObject(name);
-		
+        out.writeObject(remoteHost);
+        out.writeObject(remoteAddr);
+
 	}
-	
+
     public static String getUser(String recipient) {
         return recipient.substring(0, recipient.indexOf("@"));
     }

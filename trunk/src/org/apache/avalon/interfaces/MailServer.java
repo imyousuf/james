@@ -5,12 +5,13 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
- 
+
 package org.apache.avalon.interfaces;
 
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 import java.util.*;
+import org.apache.mail.*;
 import org.apache.java.lang.*;
 import org.apache.james.*;
 import java.io.*;
@@ -23,9 +24,14 @@ public interface MailServer {
 
     public void sendMail(String sender, Vector recipients, MimeMessage msg)
     throws MessagingException;
-    
+
     public void sendMail(String sender, Vector recipients, InputStream msg)
     throws MessagingException;
-    
+
+    public void sendMail(Mail mail)
+    throws MessagingException;
+
     public MailRepository getUserInbox(String userName);
+
+    public String getId();
 }
