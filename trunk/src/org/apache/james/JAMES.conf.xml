@@ -92,12 +92,12 @@
                 <processor class="org.apache.james.transport.LinearProcessor">
                     <servlet match="All" class="Identity">
                     </servlet>
+                    <servlet match="HostIs=maggie,localhost,maggie.betaversion.org" class="Null">
+                    </servlet>
                     <servlet match="All" class="Null">
                     </servlet>
-                    <servlet match="All" class="ExceptionThrowingMailet">
-                    </servlet>
                 </processor>
-                <errorManager class="Identity">
+                <errorManager class="Null">
                 </errorManager>
             </spoolmanager>
         </block>
