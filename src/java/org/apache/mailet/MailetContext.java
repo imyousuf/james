@@ -234,6 +234,16 @@ public interface MailetContext {
     void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state)
         throws MessagingException;
     /**
+     * Send an outgoing message to the top of this mailet container's root queue.
+     * This is the equivalent of opening an SMTP session to localhost.
+     * The Mail object provides all envelope and content information
+     *
+     * @param mail - the message that is to sent
+     * @throws MessagingException - if the message fails to spool
+     */
+    void sendMail(Mail mail)
+            throws MessagingException;
+    /**
      * Binds an object to a given attribute name in this mailet context.  If the name
      * specified is already used for an attribute, this method will remove the old
      * attribute and bind the name to the new attribute.
