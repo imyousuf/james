@@ -130,6 +130,7 @@ public class SMTPHandler implements ProtocolHandler, Contextualizable, Stoppable
     
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
+
         } catch (Exception e) {
         }
 

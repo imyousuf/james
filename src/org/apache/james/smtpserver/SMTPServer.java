@@ -132,10 +132,11 @@ public class SMTPServer implements SocketHandler, Block {
     public void parseRequest(Socket s) {
 
         try {
+            logger.log("Retriving SMTPHandler form pool.", "SMTPServer", logger.DEBUG);
             Stoppable handler = (Stoppable) smtpHandlerPool.getRecyclable();
-logger.log("parsereq");
+            logger.log("SMTPHandler = " + handler, "SMTPServer", logger.DEBUG);
             ((SMTPHandler) handler).parseRequest(s);
-logger.log("parsereq2");
+            logger.log("Executing handler.", "SMTPServer", logger.DEBUG);
             threadManager.execute(handler);
         } catch (SecurityException e) {
             logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "SMTPServer", logger.ERROR);
