@@ -105,6 +105,8 @@
       <javac destdir="${classes.dir}" 
           debug="${debug}" optimize="${optimize}" deprecation="${deprecation}">
         <src path="${build.src.java.dir}"/>
+        <exclude name="${constants.filename}"/>
+        <exclude name="${poolconn.filename}"/>
         <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" 
           unless="jndi.present"/>
       </javac>
