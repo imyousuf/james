@@ -64,6 +64,7 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
@@ -76,6 +77,7 @@ import org.apache.oro.io.GlobFilenameFilter;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -83,15 +85,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * NNTP Repository implementation.
- *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPRepositoryImpl extends AbstractLogEnabled 
-    implements NNTPRepository, Contextualizable, Configurable, Initializable
-{
+    implements NNTPRepository, Contextualizable, Configurable, Initializable {
+
     /**
      * The context employed by this repository
      */
@@ -128,9 +129,9 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private ArticleIDRepository articleIDRepo;
 
     /**
-     * The list of groups stored in this repository
+     * A map to allow lookup of valid newsgroup names
      */
-    private String[] addGroups = null;
+    private HashMap groupNameMap = null;
 
     /**
      * The root path as a String.
@@ -186,22 +187,41 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     public void configure( Configuration aConfiguration ) throws ConfigurationException {
         configuration = aConfiguration;
         readOnly = configuration.getChild("readOnly").getValueAsBoolean(false);
+        articleIDDomainSuffix = configuration.getChild("articleIDDomainSuffix")
+            .getValue("foo.bar.sho.boo");
+        rootPathString = configuration.getChild("rootPath").getValue(null);
+        if (rootPathString == null) {
+            throw new ConfigurationException("Root path URL is required.");
+        }
+        tempPathString = configuration.getChild("tempPath").getValue(null);
+        if (tempPathString == null) {
+            throw new ConfigurationException("Temp path URL is required.");
+        }
+        articleIdPathString = configuration.getChild("articleIDPath").getValue(null);
+        if (articleIdPathString == null) {
+            throw new ConfigurationException("Article ID path URL is required.");
+        }
+        if (getLogger().isDebugEnabled()) {
+            if (readOnly) {
+                getLogger().debug("NNTP repository is read only.");
+            } else {
+                getLogger().debug("NNTP repository is writeable.");
+            }
+            getLogger().debug("NNTP repository root path URL is " + rootPathString);
+            getLogger().debug("NNTP repository temp path URL is " + tempPathString);
+            getLogger().debug("NNTP repository article ID path URL is " + articleIdPathString);
+        }
         Configuration newsgroupConfiguration = configuration.getChild("newsgroups");
-        List addGroupsList = new ArrayList();
-        if ( configuration != null ) {
+        groupNameMap = new HashMap();
+        if ( newsgroupConfiguration != null ) {
             Configuration[] children = newsgroupConfiguration.getChildren("newsgroup");
             if ( children != null ) {
                 for ( int i = 0 ; i < children.length ; i++ ) {
-                    addGroupsList.add(children[i].getValue());
+                    String groupName = children[i].getValue();
+                    groupNameMap.put(groupName, groupName);
                 }
             }
         }
-        articleIDDomainSuffix = configuration.getChild("articleIDDomainSuffix")
-            .getValue("foo.bar.sho.boo");
-        addGroups = (String[])addGroupsList.toArray(new String[0]);
-        rootPathString = configuration.getChild("rootPath").getValue();
-        tempPathString = configuration.getChild("tempPath").getValue();
-        articleIdPathString = configuration.getChild("articleIDPath").getValue();
         getLogger().debug("Repository configuration done");
     }
 
@@ -210,6 +230,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      */
     public void initialize() throws Exception {
 
+        getLogger().debug("Starting initialize");
         File articleIDPath = null;
 
         try {
@@ -246,15 +267,18 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             throw new ConfigurationException(errorBuffer.toString());
         }
 
-        for ( int i = 0 ; i < addGroups.length ; i++ ) {
-            File groupFile = new File(rootPath,addGroups[i]);
+        Set groups = groupNameMap.keySet();
+        Iterator groupIterator = groups.iterator();
+        while( groupIterator.hasNext() ) {
+            String groupName = (String)groupIterator.next();
+            File groupFile = new File(rootPath,groupName);
             if ( groupFile.exists() == false ) {
                 groupFile.mkdirs();
             } else if (!(groupFile.isDirectory())) {
                 StringBuffer errorBuffer =
                     new StringBuffer(128)
                         .append("A file exists in the NNTP root directory with the same name as a newsgroup.  File ")
-                        .append(addGroups[i])
+                        .append(groupName)
                         .append("in directory ")
                         .append(rootPathString)
                         .append(" is not a directory.");
@@ -286,14 +310,27 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroup(String)
      */
     public NNTPGroup getGroup(String groupName) {
+        if (groupNameMap.get(groupName) == null) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug(groupName + " is not a newsgroup hosted on this server.");
+            }
+            return null;
+        }
         File groupFile = new File(rootPath,groupName);
         NNTPGroup groupToReturn = null;
         synchronized(this) {
             groupToReturn = (NNTPGroup)repositoryGroups.get(groupName);
             if ((groupToReturn == null) && groupFile.exists() && groupFile.isDirectory() ) {
-                groupToReturn = new NNTPGroupImpl(groupFile);
-                ((NNTPGroupImpl)groupToReturn).enableLogging(getLogger());
-                repositoryGroups.put(groupName, groupToReturn);
+                try {
+                    groupToReturn = new NNTPGroupImpl(groupFile);
+                    ContainerUtil.enableLogging(groupToReturn, getLogger());
+                    ContainerUtil.contextualize(groupToReturn, context);
+                    ContainerUtil.initialize(groupToReturn);
+                    repositoryGroups.put(groupName, groupToReturn);
+                } catch (Exception e) {
+                    getLogger().error("Couldn't create group object.", e);
+                    groupToReturn = null;
+                }
             }
         }
         return groupToReturn;
@@ -309,34 +346,43 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             ex.printStackTrace();
             return null;
         }
-//         int idx = id.indexOf('@');
-//         String name = id.substring(0,idx);
-//         String groupname = id.substring(idx+1);
-//         NNTPGroup group = getGroup(groupname);
-//         return ( group == null ) ? null : group.getArticleFromID(name);
     }
 
     /**
-     * @see org.apache.james.nntpserver.repository.NNTPRepository#createArticle(NNTPLineReader)
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#createArticle(InputStream)
      */
-    public void createArticle(NNTPLineReader reader) {
+    public void createArticle(InputStream in) {
         StringBuffer fileBuffer =
             new StringBuffer(32)
                     .append(System.currentTimeMillis())
                     .append(".")
                     .append(Math.random());
         File f = new File(tempPath, fileBuffer.toString());
+        FileOutputStream fout = null;
         try {
-            FileOutputStream fout = new FileOutputStream(f);
-            PrintStream prt = new PrintStream(fout,true);
-            String line;
-            while ( ( line = reader.readLine() ) != null ) {
-                prt.println(line);
+            fout = new FileOutputStream(f);
+            byte[] readBuffer = new byte[1024];
+            int bytesRead = 0;
+            while ( ( bytesRead = in.read(readBuffer, 0, 1024) ) > 0 ) {
+                fout.write(readBuffer, 0, bytesRead);
             }
-            prt.close();
-            f.renameTo(new File(spool.getSpoolPath(),f.getName()));
+            fout.flush();
+            fout.close();
+            fout = null;
+            boolean renamed = f.renameTo(new File(spool.getSpoolPath(),f.getName()));
+            if (!renamed) {
+                throw new IOException("Could not create article on the spool.");
+            }
         } catch(IOException ex) {
             throw new NNTPException("create article failed",ex);
+        } finally {
+            if (fout != null) {
+                try {
+                    fout.close();
+                } catch (IOException ioe) {
+                    // Ignored
+                }
+            }
         }
     }
 
@@ -344,6 +390,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getMatchedGroups(String)
      */
     public Iterator getMatchedGroups(String wildmat) {
+        // TODO: Add filter for valid group names
         File[] f = rootPath.listFiles(new AndFileFilter
             (new DirectoryFileFilter(),new GlobFilenameFilter(wildmat)));
         return getGroups(f);
@@ -371,6 +418,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroupsSince(Date)
      */
     public Iterator getGroupsSince(Date dt) {
+        // TODO: Add filter for valid group names
         File[] f = rootPath.listFiles(new AndFileFilter
             (new DirectoryFileFilter(),new DateSinceFileFilter(dt.getTime())));
         return getGroups(f);
@@ -441,19 +489,11 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         }
         try {
             Object obj = getClass().getClassLoader().loadClass(className).newInstance();
-            // TODO: Need to support compose
-            if ( obj instanceof LogEnabled ) {
-                ((LogEnabled)obj).enableLogging( getLogger() );
-            }
-            if (obj instanceof Contextualizable) {
-                ((Contextualizable)obj).contextualize(context);
-            }
-            if ( obj instanceof Configurable ) {
-                ((Configurable)obj).configure(spoolerConfiguration.getChild("configuration"));
-            }
-            if ( obj instanceof Initializable ) {
-                ((Initializable)obj).initialize();
-            }
+            // TODO: Need to support service
+            ContainerUtil.enableLogging(obj, getLogger());
+            ContainerUtil.contextualize(obj, context);
+            ContainerUtil.configure(obj, spoolerConfiguration.getChild("configuration"));
+            ContainerUtil.initialize(obj);
             return (NNTPSpooler)obj;
         } catch(ClassCastException cce) {
             StringBuffer errorBuffer =

@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.35.4.8 $
+ * @version This is $Revision: 1.35.4.9 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -1246,7 +1246,7 @@ public class SMTPHandler
                     msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
                 }
                 // Removes the dot stuffing
-                msgIn = new SMTPInputStream(msgIn);
+                msgIn = new DotStuffingInputStream(msgIn);
                 // Parse out the message headers
                 MailHeaders headers = new MailHeaders(msgIn);
                 headers = processMailHeaders(headers);

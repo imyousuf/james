@@ -58,13 +58,12 @@
 
 package org.apache.james.nntpserver.repository;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Iterator;
 
 /**
  * Abstraction of entire NNTP Repository.
- *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPRepository {
 
@@ -88,10 +87,11 @@ public interface NNTPRepository {
 
     /**
      * Creates an article in the repository from the data in the reader.
+     * TODO: Change this to be more OO and pass in a MimeMessage
      *
-     * @param reader the reader that serves as a source for the article data
+     * @param in the InputStream that serves as a source for the message data.
      */
-    void createArticle(NNTPLineReader reader);
+    void createArticle(InputStream in);
 
     /**
      * Gets all groups that match the wildmat string

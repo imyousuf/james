@@ -58,12 +58,10 @@
 
 package org.apache.james.nntpserver.repository;
 
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
 /** 
  * Contract exposed by a NewsGroup Article
- *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPArticle {
 
@@ -91,30 +89,30 @@ public interface NNTPArticle {
     /**
      * Writes the whole article to a writer.
      *
-     * @param wrt the PrintWriter to which the article is written.
+     * @param wrt the OutputStream to which the article is written.
      */
-    void writeArticle(PrintWriter wrt);
+    void writeArticle(OutputStream wrt);
 
     /**
      * Writes the article headers to a writer.
      *
-     * @param wrt the PrintWriter to which the article is written.
+     * @param wrt the OutputStream to which the article is written.
      */
-    void writeHead(PrintWriter wrt);
+    void writeHead(OutputStream wrt);
 
     /**
      * Writes the article body to a writer.
      *
-     * @param wrt the PrintWriter to which the article is written.
+     * @param wrt the OutputStream to which the article is written.
      */
-    void writeBody(PrintWriter wrt);
+    void writeBody(OutputStream wrt);
 
     /**
      * Writes the article overview to a writer.
      *
-     * @param wrt the PrintWriter to which the article is written.
+     * @param wrt the OutputStream to which the article is written.
      */
-    void writeOverview(PrintWriter wrt);
+    void writeOverview(OutputStream wrt);
 
     /**
      * Gets the header with the specified headerName.  Returns null
