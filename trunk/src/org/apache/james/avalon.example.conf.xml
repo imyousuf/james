@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<avalon>
+    <ignoreWarning>
+        true
+    </ignoreWarning>
+
+    <blocks>
+<!--   !!!!!!!!!! Begin copy and paste !!!!!!!!!!  -->
+    
+<!-- JAMES POP3 server Blocks -->
+
+        <block class="org.apache.james.pop3server.POP3Server"
+               serverName="James"
+               implementedInterface="">
+
+            <port>110</port>
+            <pop3handler>
+                <servername> maggie </servername>
+                <postmaster> admin@localhost </postmaster>
+                <connectiontimeout> 120000 </connectiontimeout>
+            </pop3handler>
+        </block>
+
+<!-- JAMES SMTP server Blocks -->
+
+        <block class="org.apache.james.smtpserver.SMTPServer"
+               serverName="James"
+               implementedInterface="">
+
+            <port>25</port>
+            <smtphandler>
+                <servername> maggie </servername>
+                <postmaster> admin@localhost </postmaster>
+                <connectiontimeout> 240000 </connectiontimeout>
+            </smtphandler>
+        </block>
+
+<!-- JAMES MailServer Implementation -->
+
+        <block class="org.apache.james.james.James"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.MailServer">
+
+            <servername> maggie </servername>
+            <spoolmanagerthreads>
+                1
+            </spoolmanagerthreads>
+            <spoolRepository>
+                file://c:/archivio/store/james/smtpspool/
+            </spoolRepository>
+            <spoolmanager>
+                <localhost> localhost </localhost>
+                <localhost> maggie </localhost>
+                <localhost> maggie.galaxus </localhost>
+                <deliverserver>212.216.176.34</deliverserver>
+            </spoolmanager>
+        </block>
+<!-- Block to manage JAMES users accounts -->
+
+        <block class="org.apache.james.remotemanager.RemoteManager"
+               serverName="James"
+               implementedInterface="">
+            <port>4555</port>
+            <AdministratorAccounts>
+                <Account login="root" password="pippo"/>
+                <Account login="scoobie" password="pippo"/>
+            </AdministratorAccounts>
+            <connectiontimeout> 30000 </connectiontimeout>
+        </block>
+
+<!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
+
+        <block class="org.apache.avalon.blocks.timeserver.TimeManager"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.TimeServer">
+        </block>
+
+        <block class="org.apache.avalon.blocks.threadmanager.ThreadPool"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.ThreadManager">
+    
+            <levelcontroller>
+                org.apache.java.recycle.GaussianController
+            </levelcontroller>
+            <capacity>
+                64
+            </capacity>
+        </block>
+    
+        <block class="org.apache.avalon.blocks.omero.Omero"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.Logger">
+            <timestamp>
+                <granularity> 0 </granularity>
+                <format> yyyy.MM.dd hh:mm:ss SSS </format>
+            </timestamp>
+            <channels>
+                <channel name="default"         logwriter="stdout"/>
+                <channel name="system"          logwriter="infofile"/>
+                <channel name="MasterStore"     logwriter="infofile"/>
+                <channel name="ThreadManager"   logwriter="infofile"/>
+                <channel name="TimeManager"     logwriter="infofile"/>
+                <channel name="SocketManager"   logwriter="infofile"/>
+                <channel name="RemoteManager"   logwriter="admin"/>
+                <channel name="POP3Server"      logwriter="popfile"/>
+                <channel name="SMTPServer"      logwriter="smtpfile"/>
+                <channel name="JAMES"           logwriter="jamesfile"/>
+            </channels>
+            <logwriters>
+                <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/jamesinfo.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>5000</sleep>
+                </writer>
+                <writer name="smtpfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/smtpinfo.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>5000</sleep>
+                </writer>
+                <writer name="popfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/popinfo.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>5000</sleep>
+                </writer>
+                <writer name="admin" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/admininfo.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>5000</sleep>
+                </writer>
+                <writer name="stdout" class="org.apache.avalon.blocks.omero.StdoutWriter">
+                    <destination>
+                        stdout://
+                    </destination>
+                </writer>
+                <writer name="infofile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/info.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+            </logwriters>
+        </block>
+                
+        <block class="org.apache.avalon.blocks.masterstore.MasterStore"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.Store">
+            <repositoriesDefinition>
+                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS" 
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.PersistentStore"/>
+                <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.StreamStore"/>
+                <repository type="MESSAGE_CONTAINER" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.MessageContainerRepository"/>
+            </repositoriesDefinition>
+            <publicrepositories>
+                <repository name="localInbox" type="MESSAGE_CONTAINER" model="SYNCHRONOUS">
+                    file://c:/archivio/store/james/localinbox/
+                </repository>
+                <repository name="MailUsers" type="OBJECT" model="SYNCHRONOUS">
+                    file://c:/archivio/store/james/users/
+                </repository>
+            </publicrepositories>
+        </block>
+
+        <block class="org.apache.avalon.blocks.serversocket.SocketManager"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.SocketServer">
+            <listenerDefinition>
+                <listener type="DEFAULT" class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor">
+                </listener>
+                <listener type="IPFILTERING" class="org.apache.avalon.blocks.serversocket.AutenticatedServerSocketAcceptor">
+                    <denied></denied>
+                </listener>
+            </listenerDefinition>
+        </block>
+        
+    </blocks>
+</avalon>
