@@ -41,9 +41,10 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  * @author Jason Borden <jborden@javasense.com>
+ * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2001/06/14 13:05:03 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2001/06/19 16:00:45 $ by: $Author: charlesb $ 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -56,10 +57,12 @@ public class SMTPHandler
     public final static String NAME_GIVEN = "NAME_GIVEN";
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
     public final static String SENDER = "SENDER_ADDRESS";
+    public final static String MESG_FAILED = "MESG_FAILED";
     public final static String RCPT_VECTOR = "RCPT_VECTOR";
     public final static String SMTP_ID = "SMTP_ID";
     public final static String AUTH = "AUTHENTICATED";
     public final static char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
+    private final static boolean DEEP_DEBUG = true;
 
     private Socket socket;
     private DataInputStream in;
@@ -74,17 +77,17 @@ public class SMTPHandler
     private boolean authRequired = false;
     private boolean verifyIdentity = false;
 
-    private Configuration conf;
+    //    private Configuration conf;
     private TimeScheduler scheduler;
     private UsersRepository users;
     private MailServer mailServer;
-    private James parentJames;
 
     private String softwaretype = "JAMES SMTP Server "
                                    + Constants.SOFTWARE_VERSION;
     private static long count;
     private Hashtable state     = new Hashtable();
     private Random random       = new Random();
+    private long maxmessagesize = 0;
 
     public void configure ( Configuration configuration )
            throws ConfigurationException {
@@ -93,14 +96,19 @@ public class SMTPHandler
            = configuration.getChild("authRequired").getValueAsBoolean(false);
         verifyIdentity
            = configuration.getChild("verifyIdentity").getValueAsBoolean(false);
+        // get the message size limit from the conf file and multiply
+        // by 1024, to put it in bytes
+        maxmessagesize =
+            configuration.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
+        if (DEEP_DEBUG) {
+            getLogger().debug("Max message size is: " + maxmessagesize);
+        }
     }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
         mailServer = (MailServer)componentManager.lookup(
                                  "org.apache.james.services.MailServer");
-        parentJames = (James)componentManager.lookup(
-                             "org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.lookup(
             "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         UsersStore usersStore = (UsersStore)componentManager.lookup(
@@ -203,7 +211,9 @@ public class SMTPHandler
         throws Exception {
 
         if (command == null) return false;
-        getLogger().info("Command received: " + command);
+        if (state.get(MESG_FAILED) == null) {
+            getLogger().info("Command received: " + command);
+        }
         StringTokenizer commandLine
             = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
@@ -247,20 +257,38 @@ public class SMTPHandler
     private void doHELO(String command,String argument,String argument1) {
         if (state.containsKey(CURRENT_HELO_MODE)) {
             out.println("250 " + state.get(SERVER_NAME)
-                        + " Duplicate HELO/EHLO");
+                        + " Duplicate HELO");
         } else if (argument == null) {
             out.println("501 domain address required: " + command);
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-            out.println(((authRequired) ? "250-AUTH LOGIN PLAIN\r\n" : "")
-                        + "250 " + state.get(SERVER_NAME) + " Hello "
+            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
         }
     }
     private void doEHLO(String command,String argument,String argument1) {
-        doHELO(command,argument,argument1);
+        if (state.containsKey(CURRENT_HELO_MODE)) {
+            out.println("250 " + state.get(SERVER_NAME)
+                        + " Duplicate EHLO");
+        } else if (argument == null) {
+            out.println("501 domain address required: " + command);
+        } else {
+            state.put(CURRENT_HELO_MODE, command);
+            state.put(NAME_GIVEN, argument);
+            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
+                        + argument + " (" + state.get(REMOTE_NAME)
+                        + " [" + state.get(REMOTE_IP) + "])");
+	    if (maxmessagesize > 0) {
+	        //    out.println("250 SIZE " + maxmessagesize);
+            }
+	    if (authRequired) {
+	        out.println("250 AUTH LOGIN PLAIN");
+            }
+        }
+
+
     }
 
     private void doAUTH(String command,String argument,String argument1)
@@ -390,7 +418,7 @@ public class SMTPHandler
                     String toDomain
                          = recipient.substring(recipient.indexOf('@') + 1);
                     
-                    if (!parentJames.isLocalServer(toDomain)) {
+                    if (!mailServer.isLocalServer(toDomain)) {
                         out.println("530 Authentication Required");
                         getLogger().error(
                             "Authentication is required for mail request");
@@ -412,7 +440,7 @@ public class SMTPHandler
                             + senderAddress);
                         return;
                       }                        
-                      if (!parentJames.isLocalServer(
+                      if (!mailServer.isLocalServer(
                                        senderAddress.getHost())) {
                         out.println("503 Incorrect Authentication for Specified Email Address");
                         getLogger().error("User " + authUser
@@ -447,6 +475,16 @@ public class SMTPHandler
                 // parse headers
                 InputStream msgIn
                     = new CharTerminatedInputStream(in, SMTPTerminator);
+                // if the message size limit has been set, we'll
+                // wrap msgIn with a SizeLimitedInputStream
+                if (maxmessagesize > 0) {
+		    if (DEEP_DEBUG) {
+			getLogger().debug("Using SizeLimitedInputStream " 
+					  + " with max message size: "
+                                          + maxmessagesize);
+		    }
+                    msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
+                }
                 MailHeaders headers = new MailHeaders(msgIn);
                 // if headers do not contains minimum REQUIRED headers fields
 		// add them
@@ -481,14 +519,41 @@ public class SMTPHandler
                                     (MailAddress)state.get(SENDER),
                                     (Vector)state.get(RCPT_VECTOR),
                                     new SequenceInputStream(headersIn, msgIn));
+                // if the message size limit has been set, we'll
+                // call mail.getSize() to force the message to be
+                // loaded. Need to do this to limit the size
+                if (maxmessagesize > 0) {
+                    mail.getSize();
+                }
                 mail.setRemoteHost((String)state.get(REMOTE_NAME));
                 mail.setRemoteAddr((String)state.get(REMOTE_IP));
                 mailServer.sendMail(mail);
             } catch (MessagingException me) {
-                out.println("451 Error processing message: "
-                            + me.getMessage());
-                getLogger().error("Error processing message: "
-                                  + me.getMessage());
+                //Grab any exception attached to this one.
+                Exception e = me.getNextException();
+
+                //If there was an attached exception, and it's a
+                //MessageSizeException
+                if (e != null && e instanceof MessageSizeException) {
+                    getLogger().error("552 Error processing message: "
+                                      + e.getMessage());
+                    // Add an item to the state to suppress
+                    // logging of extra lines of data
+                    // that are sent after the size limit has
+                    // been hit.
+                    state.put(MESG_FAILED, Boolean.TRUE);
+
+                    //then let the client know that the size
+                    //limit has been hit.
+                    out.println("552 Error processing message: "
+                                + e.getMessage());
+                } else {
+                    out.println("451 Error processing message: "
+                                + me.getMessage());
+                    getLogger().error("Error processing message: "
+                                      + me.getMessage());
+		    me.printStackTrace();
+                }
                 return;
             }
             getLogger().info("Mail sent to Mail Server");
@@ -501,8 +566,12 @@ public class SMTPHandler
                     + " Service closing transmission channel");
     }
 
-    private void doUnknownCmd(String command,String argument,String argument1) {
-        out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " +
-                    command);
+    private void doUnknownCmd(String command,String argument,
+                              String argument1) {
+        if (state.get(MESG_FAILED) == null) {
+            out.println("500 " + state.get(SERVER_NAME)
+                        + " Syntax error, command unrecognized: " + command);
+        }
     }
+
 }
