@@ -14,8 +14,14 @@ import java.util.*;
 import javax.mail.*;
 
 /**
- * Checks the network IP address of the sending server against a comma-
- * delimited list of network addresses.
+ * Checks the IP address of the sending server against a comma-
+ * delimited list of IP addresses.
+ * <P>Networks should be indicated with a wildcard *, e.g. 192.168.*
+ * <br>Note: The wildcard can go at any level, the matcher will match if the
+ * sending host's IP address (as a String based on the octet representation)
+ * starts with the String indicated in the configuration file, excluding the
+ * wildcard.
+ * <p>Multiple addresses can be indicated, e.g: '127.0.0.1,192.168.*'
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  */

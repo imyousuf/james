@@ -265,7 +265,7 @@ All these package are in current distribution.
     <mkdir dir="${build.docs}"/>
     <javadoc sourcepath="${build.src}"
         destdir="${build.docs}"
-        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.imapserver.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mail.mailets.*"
+        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.imapserver.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mailet.*"
         classpath="${classpath}"
 	use="true"
         />
