@@ -110,7 +110,7 @@
         <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" 
           unless="jndi.present"/>
       </javac>
-      <copy todir="${build.classes}">
+      <copy todir="${classes.dir}">
         <fileset dir="${java.dir}">
           <include name="**/*.properties"/>
           <include name="**/*.xinfo"/>
