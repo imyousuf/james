@@ -81,10 +81,7 @@ import org.apache.james.services.UsersStore;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailetContext;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
