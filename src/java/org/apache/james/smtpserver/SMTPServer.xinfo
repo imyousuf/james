@@ -23,7 +23,7 @@
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager" 
+      <service name="org.apache.james.services.JamesConnectionManager" 
                version="1.0"/>
     </dependency>
     <dependency>
