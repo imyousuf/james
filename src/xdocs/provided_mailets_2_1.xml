@@ -69,6 +69,29 @@ for this list.</li>
 </ul>
 </p>
 </subsection>
+<subsection name="DSNBounce">
+<p>Sends Delivery Status Notification messages as described in
+RFC-3464.
+Usually used in concert with a bounceProcessor parameter on Remotedelivery, as
+RemoteDelivery sets the needed information (delivery-error attribute)
+on the failed mail prior to letting the mail be processed by the configured
+bounceProcessor. DSNBounce would then be configured into this
+bounceProcessor so it can process the original mail and send the
+notification. NOTE: at this time only error-bounces can be done.</p>
+<p>Parameters:
+<ul>
+<li><strong>sender</strong> (optional) - an address or postmaster or
+sender or unaltered, default=postmaster.</li>
+<li><strong>prefix</strong> (optional) - subject prefix prepended to
+the original message</li>
+<li><strong>attachment</strong> (optional) - message or none, default=message</li>
+<li><strong>messageString</strong> (optional) - the message sent in the bounce, the first occurrence of the pattern [machine] is replaced with the name of the executing machine, default=Hi. This is the James mail server at [machine] ... </li>
+<li><strong>passThrough</strong> (optional) - true or false, default=true </li>
+<li><strong>debug</strong> (optional) - a boolean value (true/false)
+indicating whether debugging is on.  Defaults to false.</li>
+</ul>
+</p>
+</subsection>
 <subsection name="Forward">
 <p>Description: This mailet forwards the message to a set of recipients.</p>
 <p>Parameters:

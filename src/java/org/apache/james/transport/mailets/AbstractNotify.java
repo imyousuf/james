@@ -75,7 +75,7 @@ import java.util.Iterator;
  * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.1.2.11 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.12 $ $Date: 2004/05/05 10:34:53 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -284,7 +284,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
         if (subject == null) {
             subject = "";
         }
-        if (subject.indexOf(subjectPrefix) == 0) {
+        if (subjectPrefix==null || subject.indexOf(subjectPrefix) == 0) {
             newMail.getMessage().setSubject(subject);
         } else {
             newMail.getMessage().setSubject(subjectPrefix + subject);
