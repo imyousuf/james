@@ -60,7 +60,7 @@ import org.apache.mailet.MailRepository;
  * Implementation of a MailRepository on a database.
  *
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br>&lt;repository destinationURL="db://<datasource>/<table_name>/&lt;repository_name&gt;"
+ *  <br>&lt;repository destinationURL="db://&lt;datasource&gt;/&lt;table_name&gt;/&lt;repository_name&gt;"
  *  <br>            type="MAIL"
  *  <br>            model="SYNCHRONOUS"/&gt;
  *  <br>&lt;/repository&gt;
@@ -755,7 +755,7 @@ public class JDBCMailRepository
             rsListMessages = listMessages.executeQuery();
 
             List messageList = new ArrayList();
-            while (rsListMessages.next()) {
+            while (rsListMessages.next() /* && !Thread.currentThread().isInterrupted() -- post 2.1 enable this (NjB) */) {
                 messageList.add(rsListMessages.getString(1));
             }
             return messageList.iterator();
