@@ -57,8 +57,8 @@
  */
 
 package org.apache.james.transport;
+import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -66,40 +66,19 @@ import org.apache.james.core.MatcherConfigImpl;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
-
-import javax.mail.MessagingException;
-import java.util.Vector;
-
 /**
  * Loads Matchers for use inside James.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class MatchLoader implements Component, Configurable {
-
-    /**
-     * The list of packages that may contain Mailets
-     */
-    private Vector matcherPackages;
-
-    /**
+public class MatchLoader extends Loader implements Configurable {
+        /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
-        matcherPackages = new Vector();
-        matcherPackages.addElement("");
-        final Configuration[] pkgConfs = conf.getChildren( "matcherpackage" );
-        for ( int i = 0; i < pkgConfs.length; i++ )
-        {
-            Configuration c = pkgConfs[i];
-            String packageName = c.getValue();
-            if (!packageName.endsWith(".")) {
-                packageName += ".";
-            }
-            matcherPackages.addElement(packageName);
-        }
+           getPackages(conf,MATCHER_PACKAGE);
+           configureMailetClassLoader();
     }
+
 
     /**
      * Get a new Matcher with the specified name acting
@@ -110,8 +89,7 @@ public class MatchLoader implements Component, Configurable {
      *                matcher
      * @throws MessagingException if an error occurs
      */
-    public Matcher getMatcher(String matchName, MailetContext context)
-        throws MessagingException {
+    public Matcher getMatcher(String matchName, MailetContext context) throws MessagingException {
         try {
             String condition = (String) null;
             int i = matchName.indexOf('=');
@@ -119,20 +97,14 @@ public class MatchLoader implements Component, Configurable {
                 condition = matchName.substring(i + 1);
                 matchName = matchName.substring(0, i);
             }
-            ClassLoader theClassLoader = null;
-            for (i = 0; i < matcherPackages.size(); i++) {
-                String className = (String)matcherPackages.elementAt(i) + matchName;
+            for (i = 0; i < packages.size(); i++) {
+                String className = (String) packages.elementAt(i) + matchName;
                 try {
                     MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(context);
-
-                    if (theClassLoader == null) {
-                        theClassLoader = this.getClass().getClassLoader();
-                    }
-
-                    Matcher matcher = (Matcher) theClassLoader.loadClass(className).newInstance();
+                    Matcher matcher = (Matcher) mailetClassLoader.loadClass(className).newInstance();
                     matcher.init(configImpl);
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {
@@ -141,19 +113,17 @@ public class MatchLoader implements Component, Configurable {
             }
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
-                        .append("Requested matcher not found: ")
-                        .append(matchName)
-                        .append(".  looked in ")
-                        .append(matcherPackages.toString());
+                    .append("Requested matcher not found: ")
+                    .append(matchName)
+                    .append(".  looked in ")
+                    .append(packages.toString());
             throw new ClassNotFoundException(exceptionBuffer.toString());
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
-                new StringBuffer(128)
-                        .append("Could not load matcher (")
-                        .append(matchName)
-                        .append(")");
+                new StringBuffer(128).append("Could not load matcher (").append(matchName).append(
+                    ")");
             throw new MailetException(exceptionBuffer.toString(), e);
         }
     }
