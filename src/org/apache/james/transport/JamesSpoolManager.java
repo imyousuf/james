@@ -21,7 +21,7 @@ import org.apache.james.transport.match.*;
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
- */ 
+ */
 public class JamesSpoolManager implements Component, Composer, Configurable, Stoppable, Service, Contextualizable {
 
     private SimpleComponentManager comp;
@@ -32,7 +32,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Vector servlets;
     private Vector servletMatchs;
     private String servletsRootPath;
-    
+
     private static final String OP_NOT = "!";
     private static final String OP_OR = "|";
     private static final String OP_AND = "&";
@@ -46,7 +46,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setContext(Context context) {
         this.context = context;
     }
@@ -55,26 +55,26 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         this.comp = new SimpleComponentManager(comp);
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
-		StringBuffer servers = new StringBuffer ();
-		for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
-			Configuration c = (Configuration)e.nextElement ();
-			servers.append (c.getValue () + " ");
-		}
-		boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
-		SmartTransport transport = new SmartTransport (servers.toString(), authoritative);
-		comp.put(Resources.TRANSPORT, transport);
+        StringBuffer servers = new StringBuffer ();
+        for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
+            Configuration c = (Configuration)e.nextElement ();
+            servers.append (c.getValue () + " ");
+        }
+        boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
+        SmartTransport transport = new SmartTransport (servers.toString(), authoritative);
+        comp.put(Resources.TRANSPORT, transport);
 
-		String delayedRepository = conf.getConfiguration("repository", "file://../tmp/").getValue();
-		Store store = (Store) comp.getComponent(Interfaces.STORE);
-		MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
-		comp.put(Resources.TMP_REPOSITORY, delayed);
-		
+        String delayedRepository = conf.getConfiguration("repository", "file://../tmp/").getValue();
+        Store store = (Store) comp.getComponent(Interfaces.STORE);
+        MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
+        comp.put(Resources.TMP_REPOSITORY, delayed);
+
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
         servletsRootPath = conf.getConfiguration("servlets").getAttribute("rootpath");
@@ -162,7 +162,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 /*DEBUG*/               printPipe(unprocessed);
                     }
                 }
-// ---- Reactor end ----                
+// ---- Reactor end ----
                 spool.remove(key);
                 logger.log("==== Removed from spool mail " + mc.getName() + " ====", "JAMES", logger.INFO);
             } catch (Exception e) {
@@ -200,7 +200,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             }
         }
     }
-    
+
     private Vector doubleMatch(Mail mc, String condition1, String operator, String condition2) {
         Vector r1 = singleMatch(mc, condition1);
         Vector r2 = singleMatch(mc, condition2);
@@ -210,7 +210,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             return VectorUtils.sum(r1, r2);
         }
     }
-    
+
     private Vector singleMatch(Mail mc, String conditions) {
         boolean opNot = conditions.startsWith(OP_NOT);
         if (opNot) {
@@ -220,7 +220,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         String param = "";
         int sep = conditions.indexOf("=");
         if (sep != -1) {
-            matchClass = "org.apache.james.james.match." + conditions.substring(0, sep);
+            matchClass = "org.apache.james.transport.match." + conditions.substring(0, sep);
             param = conditions.substring(sep + 1);
         }
         Match match = (Match) null;
@@ -240,16 +240,16 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         if (opNot) return VectorUtils.subtract(mc.getRecipients(), match.match(mc, param));
         else return match.match(mc, param);
     }
-    
+
     private boolean isEmpty(Mail mc) {
         if (mc == null) return true;
         else if (mc.getRecipients().isEmpty()) return true;
         else return false;
     }
-    
+
     public void stop() {
     }
-    
+
     public void destroy()
     throws Exception {
     }
@@ -267,7 +267,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         if (empty) return "Empty";
         else return buffer.toString();
     }
-    
+
     private void printPipe(Vector unprocessed) {
         for (int j = 0; j < unprocessed.size(); j++) {
             Mail m = (Mail) unprocessed.elementAt(j);
