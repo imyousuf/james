@@ -110,6 +110,18 @@
                         </mailet>
                     </mailets>
                 </processor>
+<!--        LinearProcessor CONFIGURATION SAMPLE
+                <processor class="org.apache.james.transport.LinearProcessor">
+                    <servlets>
+                        <servlet match="RecipientIsLocal" class="LocalDelivery">
+                        </servlet>
+                        <servlet match="All" class="RemoteDelivery">
+                            <delayTime>21600000</delayTime>
+                            <maxRetries>5</maxRetries>
+                        </servlet>
+                    </servlets>
+                </processor>
+-->
                 <errorManager class="org.apache.james.transport.servlet.Null">
                 </errorManager>
             </spoolmanager>
