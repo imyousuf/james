@@ -62,24 +62,67 @@ import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 
 /**
  * Checks whether this message has an attachment
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
+ * @version CVS $Revision: 1.2.4.3 $ $Date: 2003/06/20 11:59:25 $
  */
 public class HasAttachment extends GenericMatcher {
 
+    /** 
+     * Either every recipient is matching or neither of them.
+     * @throws MessagingException if no attachment is found and at least one exception was thrown
+     */
     public Collection match(Mail mail) throws MessagingException {
-        MimeMessage message = mail.getMessage();
-
-        if (message.getContentType() != null &&
-                message.getContentType().startsWith("multipart/mixed")) {
-            return mail.getRecipients();
-        } else {
-            return null;
+        
+        Exception anException = null;
+        
+        try {
+            MimeMessage message = mail.getMessage();
+            Object content;
+            
+            /**
+             * if there is an attachment and no inline text,
+             * the content type can be anything
+             */
+            if (message.getContentType() == null) {
+                return null;
+            }
+            
+            content = message.getContent();
+            if (content instanceof Multipart) {
+                Multipart multipart = (Multipart) content;
+                for (int i = 0; i < multipart.getCount(); i++) {
+                    try {
+                        Part part = multipart.getBodyPart(i);
+                        String fileName = part.getFileName();
+                        if (fileName != null) {
+                            return mail.getRecipients(); // file found
+                        }
+                    } catch (MessagingException e) {
+                        anException = e;
+                    } // ignore any messaging exception and process next bodypart
+                }
+            } else {
+                String fileName = message.getFileName();
+                if (fileName != null) {
+                    return mail.getRecipients(); // file found
+                }
+            }
+        } catch (Exception e) {
+            anException = e;
         }
+        
+        // if no attachment was found and at least one exception was catched rethrow it up
+        if (anException != null) {
+            throw new MessagingException("Malformed message", anException);
+        }
+        
+        return null; // no attachment found
     }
 }
