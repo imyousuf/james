@@ -12,7 +12,9 @@
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 <section name="Version 2.1.1">
-<p>Expected release January 2003</p>
+<p>Expected release February 2003</p>
+<li> [NjB] (update) Updated Avalon LogKit</li>
+<li> [NjB] (code) Infinite loops are interruptable</li>
 <li> [NjB] (code) Fixed synchronizaion bug in file repository</li>
 <li> [NjB] (code) Enabled log rotation</li>
 <li> [NjB] (doc) Fixed broken links</li>
