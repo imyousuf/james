@@ -26,8 +26,6 @@
         <log-target name="dnsserver-target" location="/logs/dnsserver.log"/>
         <category name="remotemanager" target="remotemanager-target" priority="DEBUG"/>
         <log-target name="remotemanager-target" location="/logs/remotemanager.log"/>
-        <category name="imapserver" target="imapserver-target" priority="DEBUG"/>
-        <log-target name="imapserver-target" location="/logs/imapserver.log"/>
         <category name="pop3server" target="pop3server-target" priority="DEBUG"/>
         <log-target name="pop3server-target" location="/logs/pop3server.log"/>
         <category name="smtpserver" target="smtpserver-target" priority="DEBUG"/>

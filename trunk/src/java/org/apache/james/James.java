@@ -31,7 +31,6 @@ import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.james.core.*;
-import org.apache.james.imapserver.*;
 import org.apache.james.services.*;
 import org.apache.james.transport.*;
 import org.apache.james.userrepository.DefaultJamesUser;
@@ -53,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.12 $
- * Committed on $Date: 2001/10/25 03:08:41 $ by: $Author: serge $
+ * This is $Revision: 1.13 $
+ * Committed on $Date: 2001/10/31 14:31:00 $ by: $Author: serge $
  */
 public class James
     extends AbstractLoggable
@@ -88,10 +87,6 @@ public class James
     private Map mailboxes; //Not to be shared!
     private Hashtable attributes = new Hashtable();
 
-    // IMAP related fields
-    private boolean useIMAPstorage = false;
-    private IMAPSystem imapSystem;
-    private Host imapHost;
     protected BlockContext           blockContext;
 
 
@@ -197,63 +192,16 @@ public class James
         compMgr.put( UsersRepository.ROLE, (Component)localusers);
         getLogger().info("Local users repository opened");
 
-        // Get storage system
-        if (conf.getChild("storage").getValue().equals("IMAP")) {
-            useIMAPstorage = true;
+        Configuration inboxConf = conf.getChild("inboxRepository");
+        Configuration inboxRepConf = inboxConf.getChild("repository");
+        try {
+            localInbox = (MailRepository) mailstore.select(inboxRepConf);
+        } catch (Exception e) {
+            getLogger().error("Cannot open private MailRepository");
+            throw e;
         }
+        inboxRootURL = inboxRepConf.getAttribute("destinationURL");
 
-        //IMAPServer instance is controlled via assembly.xml.
-        //Assumption is that assembly.xml will set the correct IMAP Store
-        //if IMAP is enabled.
-        //if (provideIMAP && (! useIMAPstorage)) {
-        //    throw new ConfigurationException ("Fatal configuration error: IMAP service requires IMAP storage ");
-        //}
-
-        // Get the LocalInbox repository
-        if (useIMAPstorage) {
-            Configuration imapSetup = conf.getChild("imapSetup");
-            String imapSystemClass = imapSetup.getAttribute("systemClass");
-            String imapHostClass = imapSetup.getAttribute("hostClass");
-
-            try {
-                // We will need to use a no-args constructor for flexibility
-                imapSystem = (IMAPSystem) Class.forName(imapSystemClass).newInstance();
-                //imapSystem = new SimpleSystem();
-                imapSystem.configure(conf.getChild("imapHost"));
-                imapSystem.contextualize(context);
-                imapSystem.compose(compMgr);
-                if (imapSystem instanceof Initializable) {
-                    ((Initializable)imapSystem).initialize();
-                }
-                compMgr.put( IMAPSystem.ROLE, (Component)imapSystem);
-                getLogger().info("Using SimpleSystem.");
-
-                imapHost = (Host) Class.forName(imapHostClass).newInstance();
-                //imapHost = new JamesHost();
-                setupLogger(imapHost, "IMAPhost");
-                imapHost.configure(conf.getChild("imapHost"));
-                imapHost.contextualize(context);
-                imapHost.compose(compMgr);
-                if (imapHost instanceof Initializable) {
-                    ((Initializable)imapHost).initialize();
-                }
-                compMgr.put( Host.ROLE, (Component)imapHost);
-                getLogger().info("Using: " + imapHostClass);
-            } catch (Exception e) {
-                getLogger().error("Exception in IMAP Storage init: " + e.getMessage());
-                throw e;
-            }
-        } else {
-            Configuration inboxConf = conf.getChild("inboxRepository");
-            Configuration inboxRepConf = inboxConf.getChild("repository");
-            try {
-                localInbox = (MailRepository) mailstore.select(inboxRepConf);
-            } catch (Exception e) {
-                getLogger().error("Cannot open private MailRepository");
-                throw e;
-            }
-            inboxRootURL = inboxRepConf.getAttribute("destinationURL");
-        }
         getLogger().info("Private Repository LocalInbox opened");
 
         // Add this to comp
@@ -480,34 +428,10 @@ public class James
             }
         }
 
-        if (useIMAPstorage) {
-            ACLMailbox mbox = null;
-            try {
-                String folderName = "#users." + username + ".INBOX";
-                getLogger().debug("Want to store to: " + folderName);
-                mbox = imapHost.getMailbox(MailServer.MDA, folderName);
-                if(mbox.store(message,MailServer.MDA)) {
-                    getLogger().info("Message " + message.getMessageID() +" stored in " + folderName);
-                } else {
-                    throw new RuntimeException("Failed to store mail: ");
-                }
-                imapHost.releaseMailbox(MailServer.MDA, mbox);
-                mbox = null;
-            } catch (Exception e) {
-                getLogger().error("Exception storing mail: " + e);
-                e.printStackTrace();
-                if (mbox != null) {
-                    imapHost.releaseMailbox(MailServer.MDA, mbox);
-                    mbox = null;
-                }
-                throw new RuntimeException("Exception storing mail: " + e);
-            }
-        } else {
-            Collection recipients = new HashSet();
-            recipients.add(recipient);
-            MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-            getUserInbox(username).store(mailImpl);
-        }
+        Collection recipients = new HashSet();
+        recipients.add(recipient);
+        MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
+        getUserInbox(username).store(mailImpl);
     }
 
     public int getMajorVersion() {
@@ -546,8 +470,6 @@ public class James
     /**
      * Adds a user to this mail server. Currently just adds user to a
      * UsersRepository.
-     * <p> As we move to IMAP support this will also create mailboxes and
-     * access control lists.
      *
      * @param userName String representing user name, that is the portion of
      * an email address before the '@<domain>'.
@@ -560,12 +482,6 @@ public class James
         user.setPassword(password);
         user.initialize();
         success = localusers.addUser(user);
-        if (useIMAPstorage && success) {
-            JamesHost jh = (JamesHost) imapHost;
-            if (jh.createPrivateMailAccount(userName)) {
-                getLogger().info("New MailAccount created for" + userName);
-            }
-        }
         return success;
     }
 }
