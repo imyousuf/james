@@ -152,11 +152,6 @@ public class ServerConnection extends AbstractLogEnabled
     private final ArrayList clientConnectionRunners = new ArrayList();
 
     /**
-     * The current number of open client connections.
-     */
-     private int openConnections = 0;
-
-    /**
      * The thread used to manage this server connection.
      */
     private Thread serverConnectionThread;
@@ -249,7 +244,6 @@ public class ServerConnection extends AbstractLogEnabled
                 runner = null;
             }
             clientConnectionRunners.clear();
-            openConnections = 0;
         }
 
         getLogger().debug("Cleaned up clients - " + this.toString());
@@ -266,9 +260,8 @@ public class ServerConnection extends AbstractLogEnabled
         synchronized (clientConnectionRunners) {
             ClientConnectionRunner clientConnectionRunner = (ClientConnectionRunner)runnerPool.get();
             clientConnectionRunners.add(clientConnectionRunner);
-            openConnections++;
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Adding one connection for a total of " + openConnections);
+                getLogger().debug("Adding one connection for a total of " + clientConnectionRunners.size());
             }
             return clientConnectionRunner;
         }
@@ -282,9 +275,8 @@ public class ServerConnection extends AbstractLogEnabled
     private void removeClientConnectionRunner(ClientConnectionRunner clientConnectionRunner) {
         synchronized (clientConnectionRunners) {
             if (clientConnectionRunners.remove(clientConnectionRunner)) {
-                openConnections--;
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Releasing one connection, leaving a total of " + openConnections);
+                    getLogger().debug("Releasing one connection, leaving a total of " + clientConnectionRunners.size());
                 }
                 runnerPool.put(clientConnectionRunner);
             }
@@ -336,9 +328,16 @@ public class ServerConnection extends AbstractLogEnabled
                 }
                 ClientConnectionRunner runner = null;
                 synchronized (clientConnectionRunners) {
-                    if ((maxOpenConn > 0) && (openConnections >= maxOpenConn)) {
+                    if ((maxOpenConn > 0) && (clientConnectionRunners.size() >= maxOpenConn)) {
                         if (getLogger().isWarnEnabled()) {
-                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + openConnections);
+                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
+                           if (getLogger().isWarnEnabled()) {
+                               Iterator runnerIterator = clientConnectionRunners.iterator();
+                               getLogger().info("Connections: ");
+                               while( runnerIterator.hasNext() ) {
+								   getLogger().info("    " + ((ClientConnectionRunner)runnerIterator.next()).toString());
+                               }
+                           }
                         }
                         try {
                             clientSocket.close();
@@ -359,7 +358,8 @@ public class ServerConnection extends AbstractLogEnabled
                     // This error indicates that the underlying thread pool
                     // is out of threads.  For robustness, we catch this and
                     // cleanup
-                    getLogger().error("Internal error - insufficient threads available to service request.", e);
+                    getLogger().error("Internal error - insufficient threads available to service request.  " +
+                                      Thread.activeCount() + " threads in service request pool.", e);
                     try {
                         clientSocket.close();
                     } catch (IOException ignored) {
@@ -399,6 +399,13 @@ public class ServerConnection extends AbstractLogEnabled
          * The thread of execution associated with this client connection.
          */
         private Thread clientSocketThread;
+
+        /**
+         * Returns string for diagnostic logging
+         */
+        public String toString() {
+            return getClass().getName() + " for " + clientSocket + " on " + clientSocketThread;
+        }
 
         public ClientConnectionRunner() {
         }
