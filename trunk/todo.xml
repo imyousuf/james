@@ -6,37 +6,88 @@
  <devs>
     <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
+    <person name="Charles Benett" email="charles@benett1.demon.co.uk" id="CB"/>
  </devs>
 
- <actions priority="high">
-  <action context="code">
-    Upgrade to Avalon 3.0
-  </action>
-  <action context="code">
-    Add support for DRAC login/relay allowing
-  </action>
- </actions>
+<!-- Actions are grouped by priority
+     Each action has:
+         a context, currently code or docs
+         a description
+        (optionally) an estimate of amount of work (small, some, lots)
+-->
 
- <actions priority="medium">
-  <action context="code">
-    Improve exception management in RemoteDelivery mailet.
-  </action>
-  <action context="code">
-    Add support for better mailet router/processing (maybe like RequestDispatcher)
-  </action>
-  <action context="code">
-    Add integration with MAPS and RBL and ORBS spam relay detection systems.
-  </action>
+  <actions priority="high">
+    <action context="code">
+      Make James stoppable (elegantly)
+    </action>
+    <action context="code">
+      Add support for DRAC login/relay allowing
+     (Status?? - CB)
+    </action>
+  </actions>
 
-  <action context="code">
-    Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
-  </action>
-  <action context="code">
-    Add needed functions to RemoteManager.
-  </action>
-  <action context="docs">
-   Write all documentation.
-  </action>
- </actions>
+  <actions priority="medium">
+    <action context="code">
+      Write an NNTP server
+      <work>lots</work>
+    </action>
+    <action context="code">
+      Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.
+      <work>lots</work>
+    </action>
+    <action context="code">
+      Add #news namespace to IMAP system
+      <work>some</work>
+    </action>
+    <action context="code">
+      Revisit UserRepository - after doing IMAP List & Subscribe
+      <work>some</work>
+    </action>
+    <action context="code">
+      Make James reconfigurable/contextualizable/composable.
+    </action>
+    <action context="code">
+      Reinject error/spam mails incorrecty handled.
+    </action>
+    <action context="code">
+      Add needed functions to RemoteManager.
+      Including Stop and ReConfigure.
+      (What else? - CB)
+      Reinject mail.
+      Store RemoteManger password securely.
+    </action>
+    <action context="code">
+      Improve exception management in RemoteDelivery mailet.
+      (Status?? - CB)
+    </action>
+    <action context="code">
+      Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern
+      <work>some</work>
+    </action>
+    <action context="code">
+       Add support for deployable message processing apps using Camelot pattern
+      <work>lots</work>
+    </action>
+
+    <action context="code">
+      Add integration with MAPS and RBL and ORBS spam relay detection systems.
+      (Status - isn't this done?? - CB)
+    </action>
+
+    <action context="code">
+      Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
+    </action>
+
+     <action context="docs">
+       Write all documentation.
+     </action>
+   </actions>
+
+  <actions priority="low">
+    <action context="code">
+      Review threadpooling - is it dynamic?
+    </action>
+  </actions>
+
 
 </todo>
