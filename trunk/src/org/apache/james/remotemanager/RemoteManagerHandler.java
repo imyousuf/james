@@ -71,7 +71,7 @@ public class RemoteManagerHandler
         throws ComponentException {
 
         scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
+            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
         usersStore = (UsersStore)componentManager.

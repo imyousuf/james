@@ -92,7 +92,7 @@ public class SMTPHandler
         throws ComponentException {
         mailServer = (MailServer)componentManager.lookup("org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.
-            lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
+            lookup("org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
     }
 
     /**

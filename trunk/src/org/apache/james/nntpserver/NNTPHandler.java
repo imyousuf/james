@@ -107,7 +107,7 @@ public class NNTPHandler extends AbstractLoggable
             lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");
         scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
+            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
         repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
     }

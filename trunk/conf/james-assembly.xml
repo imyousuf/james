@@ -12,11 +12,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-             role="org.apache.cornerstone.services.sockets.SocketManager"/>
+             role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-             role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-             role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
   <configuration>
 <!-- CHECKME! Set this to the right email address for error reports -->
       <postmaster> Postmaster@localhost </postmaster>
@@ -310,11 +310,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
   <configuration>
         <port>4555</port>
@@ -338,11 +338,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
   <configuration>
         <port>143</port>
@@ -363,11 +363,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
   <configuration>
         <port>110</port>
@@ -389,11 +389,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
   <configuration>
         <port>25</port>
@@ -417,11 +417,11 @@
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
-        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
-        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="scheduler"
-        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="nntp-repository"
         role="org.apache.james.nntpserver.repository.NNTPRepository"/>
   <configuration>
@@ -473,7 +473,7 @@
   <!-- The High Level Storage block -->
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
     <provide name="objectstorage"
-             role="org.apache.cornerstone.services.store.Store"/> 
+             role="org.apache.avalon.cornerstone.services.store.Store"/> 
   <configuration>
       <repositories>
         <repository
@@ -528,7 +528,7 @@
   <block class="org.apache.james.core.AvalonUsersStore" name="users-store" >
     <!-- Configure file based user store here, defaults should be fine -->
     <provide name="objectstorage"
-             role="org.apache.cornerstone.services.store.Store"/>
+             role="org.apache.avalon.cornerstone.services.store.Store"/>
   <configuration>
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
@@ -557,11 +557,11 @@
        (unless you want secure sockets (TLS)) -->
 
   <!-- The Storage block -->
-  <block class="org.apache.cornerstone.blocks.masterstore.RepositoryManager" 
+  <block class="org.apache.avalon.cornerstone.blocks.masterstore.RepositoryManager" 
          name="objectstorage">
   <configuration>
       <repositories>
-        <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
+        <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
         <protocols>
           <protocol>file</protocol>
         </protocols>
@@ -574,7 +574,7 @@
           <model>CACHE</model>
         </models>
       </repository>
-      <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
+      <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
         <protocols>
           <protocol>file</protocol>
         </protocols>
@@ -592,22 +592,22 @@
   </block>
 
   <!-- The Connection Manager block -->
-  <block class="org.apache.cornerstone.blocks.connection.DefaultConnectionManager" 
+  <block class="org.apache.avalon.cornerstone.blocks.connection.DefaultConnectionManager" 
            name="connections">
   <configuration>
   </configuration>
   </block>
 
   <!-- The Socket Manager block -->
-  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager"
+  <block class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager"
          name="sockets">
   <configuration>
       <server-sockets>
         <factory name="plain"
-                 class="org.apache.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
         <!--
         <factory name="ssl" 
-                 class="org.apache.cornerstone.blocks.sockets.TLSServerSocketFactory">
+                 class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
           <keystore>
             <file>conf/keystore</file> 
             <password>secret</password> 
@@ -622,13 +622,13 @@
 
       <client-sockets>
         <factory name="plain" 
-                 class="org.apache.cornerstone.blocks.sockets.DefaultSocketFactory" />
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory" />
       </client-sockets>
   </configuration>
   </block>
 
   <!-- The Time Manager block -->
-  <block class="org.apache.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
+  <block class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
          name="scheduler"/>
 
 </assembly>

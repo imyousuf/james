@@ -90,7 +90,7 @@ public class SizeLimitedSMTPHandler
         mailServer = (MailServer)componentManager.
             lookup("org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.
-            lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
+            lookup("org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
     }
 
     public void configure(Configuration conf) throws ConfigurationException {

@@ -140,7 +140,7 @@ public class SingleThreadedConnectionHandler
         users = (UsersRepository)componentManager.
             lookup("org.apache.james.services.UsersRepository");
         scheduler = (TimeScheduler)componentManager.
-            lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
+            lookup("org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         imapSystem = (IMAPSystem)componentManager.
             lookup("org.apache.james.imapserver.IMAPSystem");
         imapHost = (Host)componentManager.
