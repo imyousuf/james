@@ -101,7 +101,7 @@ public class POP3Handler
             lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");
         scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
+            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
     }
 
     /**

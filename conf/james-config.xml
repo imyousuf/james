@@ -483,7 +483,7 @@
   <!-- The Storage block -->
   <objectstorage>
       <repositories>
-        <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
+        <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
         <protocols>
           <protocol>file</protocol>
         </protocols>
@@ -496,7 +496,7 @@
           <model>CACHE</model>
         </models>
       </repository>
-      <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
+      <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
         <protocols>
           <protocol>file</protocol>
         </protocols>
@@ -516,10 +516,10 @@
   <sockets>
       <server-sockets>
         <factory name="plain"
-                 class="org.apache.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
         <!--
         <factory name="ssl" 
-                 class="org.apache.cornerstone.blocks.sockets.TLSServerSocketFactory">
+                 class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
           <keystore>
             <file>conf/keystore</file> 
             <password>secret</password> 
@@ -534,7 +534,7 @@
 
       <client-sockets>
         <factory name="plain" 
-                 class="org.apache.cornerstone.blocks.sockets.DefaultSocketFactory" />
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory" />
       </client-sockets>
   </sockets>
 

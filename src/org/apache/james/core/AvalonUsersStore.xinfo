@@ -17,8 +17,8 @@
 
   <dependencies>
     <dependency>
-      <role>org.apache.cornerstone.services.store.Store</role>
-      <service name="org.apache.cornerstone.services.store.Store" version="1.0"/>
+      <role>org.apache.avalon.cornerstone.services.store.Store</role>
+      <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
     </dependency>
   </dependencies>
 

@@ -62,7 +62,7 @@ public class UsersFileRepository
         throws ComponentException {
 
         store = (Store)componentManager.
-            lookup( "org.apache.cornerstone.services.store.Store" );
+            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
     }
 
     public void initialize()

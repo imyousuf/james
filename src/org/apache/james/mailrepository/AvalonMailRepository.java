@@ -68,7 +68,7 @@ public class AvalonMailRepository
         throws ComponentException {
         try {
             store = (Store)componentManager.
-                lookup( "org.apache.cornerstone.services.store.Store" );
+                lookup( "org.apache.avalon.cornerstone.services.store.Store" );
 
             //prepare Configurations for object and stream repositories
             DefaultConfiguration objectConfiguration
