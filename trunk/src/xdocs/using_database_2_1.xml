@@ -46,6 +46,21 @@ be used to specify the database connection in other parts of the config.xml file
 <li><strong>max</strong> - The maximum number of JDBC connections to be used concurrently by this data-source.</li>
 </ul>
 </p>
+
+<p>Generally, you simply configure these entries in the config.xml
+file, which are commented, in order to use a database with James.  You
+would then use the db: or dbfile: prefix instead of the file: prefix
+for a particular repository.  You are currently free to mix and match
+your use of these different storage types for different repositories.
+See <a href="repositories_2_1.html">Repository Configuration</a> for
+more details.</p>
+
+<p>If you are using a SQL database with unusual SQL commands, you may
+need to add special entries to the sqlResources.xml file, which tells
+James how to interact with different SQL databases.  The James team
+does try to keep sqlResources.xml updated, so if you do run into a
+special case, please let us know.</p>
+
 </subsection>
 <subsection name="Known Issues">
 <p>There are some vendor-specific subtleties in using databases with James that have been observed 
