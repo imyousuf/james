@@ -20,26 +20,12 @@ package org.apache.james.transport.mailets;
 import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
 
-import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -71,10 +57,14 @@ import java.io.*;
  *    <LI><CODE>&lt;maxPings&gt;</CODE>: the maximum number of connection retries during startup.
  *        If the value is <I>0</I> no startup test will be done.
  *        The default is <I>6</I>.</LI>
- *    <LI><CODE>&lt;pingIntervalMilli&gt;</CODE>: the interval between each connection retry during startup.
+ *    <LI><CODE>&lt;pingIntervalMilli&gt;</CODE>: the interval (in milliseconds)
+ *        between each connection retry during startup.
  *        The default is <I>30000</I> (30 seconds).</LI>
  *    <LI><CODE>&lt;streamBufferSize&gt;</CODE>: the BufferedOutputStream buffer size to use 
  *        writing to the <I>stream connection</I>. The default is <I>8192</I>.</LI>
+ *    <LI><CODE>&lt;connectionTimeoutMilli&gt;</CODE>: the connection timeout (in milliseconds)
+ *        when making the main connections (<I>not</I> for the initialization pings).
+ *        The default is <I>20000</I> (20 seconds).</LI>
  * </UL>
  * 
  * <P>The actions performed are as follows:</P>
@@ -185,6 +175,8 @@ public class ClamAVScan extends GenericMailet {
     
     private static final int DEFAULT_STREAM_BUFFER_SIZE = 8192;
     
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 20000;
+
     private static final String STREAM_PORT_STRING = "PORT ";
     
     private static final String FOUND_STRING = "FOUND";
@@ -234,6 +226,11 @@ public class ClamAVScan extends GenericMailet {
     private int nextAddressIndex;
 
     /**
+     * Holds value of property connectionTimeoutMilli.
+     */
+    private int connectionTimeoutMilli;
+
+    /**
      * Return a string describing this mailet.
      *
      * @return a string describing this mailet
@@ -251,7 +248,8 @@ public class ClamAVScan extends GenericMailet {
                     "port",
                     "maxPings",
                     "pingIntervalMilli",
-                    "streamBufferSize"
+                    "streamBufferSize",
+                    "connectionTimeoutMilli"
         };
         return allowedArray;
     }
@@ -434,6 +432,35 @@ public class ClamAVScan extends GenericMailet {
     }
     
     /**
+     * Initializer for property connectionTimeoutMilli.
+     */
+    protected void initConnectionTimeoutMilli() {
+        String connectionTimeoutMilliParam = getInitParameter("connectionTimeoutMilli");
+        setConnectionTimeoutMilli((connectionTimeoutMilliParam == null) ? DEFAULT_CONNECTION_TIMEOUT : Integer.parseInt(connectionTimeoutMilliParam));
+        if (isDebug()) {
+            log("connectionTimeoutMilli: " + getConnectionTimeoutMilli());
+        }
+    }
+
+    /**
+     * Getter for property connectionTimeoutMilli.
+     * @return Value of property connectionTimeoutMilli.
+     */
+    public int getConnectionTimeoutMilli() {
+
+        return this.connectionTimeoutMilli;
+    }
+
+    /**
+     * Setter for property connectionTimeoutMilli.
+     * @param connectionTimeoutMilli New value of property connectionTimeoutMilli.
+     */
+    public void setConnectionTimeoutMilli(int connectionTimeoutMilli) {
+
+        this.connectionTimeoutMilli = connectionTimeoutMilli;
+    }
+
+    /**
      * Indexed getter for property addresses.
      * @param index Index of the property.
      * @return Value of the property at <CODE>index</CODE>.
@@ -473,11 +500,19 @@ public class ClamAVScan extends GenericMailet {
         InetAddress address = getAddresses(nextAddressIndex);
         
         nextAddressIndex++;
-        if (nextAddressIndex >= getAddresses().length) {
+        if (nextAddressIndex >= getAddressesCount()) {
             nextAddressIndex = 0;
         }
         
         return address;
+    }
+
+    /**
+     * Getter for property addressesCount.
+     * @return Value of property addressesCount.
+     */
+    public int getAddressesCount() {
+        return getAddresses().length;
     }
 
     /**
@@ -490,25 +525,37 @@ public class ClamAVScan extends GenericMailet {
      */
     protected Socket getClamdSocket() throws MessagingException {
         
-        InetAddress firstAddress = getNextAddress();
+        InetAddress address = null;
         
-        InetAddress address = firstAddress;
-        do {
+        Socket socket = new Socket();
+        
+        Set usedAddresses = new HashSet(getAddressesCount());
+        for (;;) {
+            // this do-while loop is needed because other threads could in the meantime
+            // calling getNextAddress(), and because of that the current thread may skip
+            // some working address
+            do {
+                if (usedAddresses.size() >= getAddressesCount()) {
+                    String logText = "Unable to connect to CLAMD. All addresses failed.";
+                    log(logText + " Giving up.");
+                    throw new MessagingException(logText);
+                }
+                address = getNextAddress();
+            } while (!usedAddresses.add(address));
             try {
                 // get the socket
-                return new Socket(address, getPort());
+//                return new Socket(address, getPort());
+                SocketAddress socketAddress = new InetSocketAddress(address, getPort());
+                socket.connect(socketAddress, getConnectionTimeoutMilli());
+                return socket;
             } catch (IOException ioe) {
-                log("Exception caught acquiring main socket to CLAMD on " + address + " on port " + getPort() + ": " + ioe.getMessage());
+                log("Exception caught acquiring main socket to CLAMD on "
+                        + address + " on port " + getPort() + ": " + ioe.getMessage());
                 address = getNextAddress();
                 // retry
                 continue;
             }
-            
-        } while (address != firstAddress);
-        
-        String logText = "Unable to connect to CLAMD. All addresses failed.";
-        log(logText + " Giving up.");
-        throw new MessagingException(logText);
+        }
     }
     
     /**
@@ -530,6 +577,7 @@ public class ClamAVScan extends GenericMailet {
             initMaxPings();
             initPingIntervalMilli();
             initStreamBufferSize();
+            initConnectionTimeoutMilli();
             
             // If "maxPings is > ping the CLAMD server to check if it is up
             if (getMaxPings() > 0) {
@@ -750,8 +798,8 @@ public class ClamAVScan extends GenericMailet {
     
     protected void ping() throws Exception {
         
-        for (int i = 0; i < addresses.length; i++) {
-            ping(addresses[i]);
+        for (int i = 0; i < getAddressesCount(); i++) {
+            ping(getAddresses(i));
         }
     }
     
