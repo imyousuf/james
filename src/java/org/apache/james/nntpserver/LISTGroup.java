@@ -7,11 +7,16 @@
  */
 package org.apache.james.nntpserver;
 
-import java.io.*;
+import java.io.PrintWriter;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 
-// group information would be displayed differently depending on the 
-// LIST command paramter
+/**
+ * formatted Group Information. 
+ * Group information is displayed differently depending on the 
+ * LIST command parameter
+ *
+ * @author  Harmeet Bedi <harmeet@kodemuse.com>
+ */
 interface LISTGroup {
     void show(NNTPGroup group);
     class Factory {

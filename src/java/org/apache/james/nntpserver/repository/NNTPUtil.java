@@ -7,8 +7,8 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.*;
-import org.apache.avalon.framework.activity.Initializable;
+import java.io.File;
+import java.io.PrintStream;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -19,8 +19,13 @@ import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.log.Logger;
 
-// processes entries and sends to appropriate groups.
-// eats up inappropriate entries.
+/**
+ * Helper fuctions. 
+ * The function in this class are useful but may not have cohesion. 
+ * HB: Please revisit and cleanup
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 public class NNTPUtil {
     static File getDirectory(Context context, Configuration configuration, String child)
         throws ConfigurationException

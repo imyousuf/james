@@ -22,8 +22,12 @@ import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.james.util.Lock;
 
-// processes entries and sends to appropriate groups.
-// eats up inappropriate entries.
+/**
+ * Processes entries and sends to appropriate groups.
+ * Eats up inappropriate entries.
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 class NNTPSpooler extends AbstractLoggable 
         implements Contextualizable, Configurable, Initializable {
 

@@ -9,10 +9,15 @@ package org.apache.james.nntpserver.repository;
 
 import java.io.*;
 
-// this interface is used to read the data from client and stream it
-// into server repository
+/** 
+ * Read and translates client data.
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 public interface NNTPLineReader {
-    // reads a line of data.
-    // @return null indicates end of data
+    /** 
+     * reads a line of data.
+     * @return null indicates end of data
+     */
     String readLine();
 }

@@ -8,20 +8,18 @@
 package org.apache.james.nntpserver;
 
 import java.net.InetAddress;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.DefaultComponentManager;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.cornerstone.services.connection.AbstractService;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
- * @author Harmeet <hbedi@apache.org>
+ * NNTP Server Protocol Handler
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPServer extends AbstractService {
 

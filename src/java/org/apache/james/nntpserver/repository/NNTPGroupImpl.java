@@ -7,16 +7,22 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.avalon.excalibur.io.AndFileFilter;
 import org.apache.avalon.excalibur.io.ExtensionFileFilter;
 import org.apache.avalon.excalibur.io.InvertedFileFilter;
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 
-// group is reprensted by a directory.
-// articles are stored in files with the name of file == article number
+/**
+ * Group is represented by a directory.
+ * Articles are stored in files with the name of file == article number
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 class NNTPGroupImpl implements NNTPGroup {
     private final File root;
     private int currentArticle = -1;
