@@ -34,6 +34,7 @@ import org.apache.james.util.SqlResources;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -488,7 +489,9 @@ public class JDBCMailRepository
                             MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
         
                             //Store the headers in the database
-                            updateMessage.setBytes(1, headerOut.toByteArray());
+                            ByteArrayInputStream headerInputStream =
+                                new ByteArrayInputStream(headerOut.toByteArray());
+                            updateMessage.setBinaryStream(1, headerInputStream, headerOut.size());
                         } finally {
                             closeOutputStreams(headerOut, bodyOut);
                         }
@@ -541,7 +544,10 @@ public class JDBCMailRepository
         
                         //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
                         MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
-                        insertMessage.setBytes(10, headerOut.toByteArray());
+
+                        ByteArrayInputStream headerInputStream =
+                            new ByteArrayInputStream(headerOut.toByteArray());
+                        insertMessage.setBinaryStream(10, headerInputStream, headerOut.size());
                     } finally {
                         closeOutputStreams(headerOut, bodyOut);
                     }
