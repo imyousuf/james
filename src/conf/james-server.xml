@@ -56,6 +56,9 @@
       <category name="scheduler" log-level="DEBUG">
         <log-target id-ref="scheduler-target"/>
       </category>
+      <category name="fetchpop" log-level="INFO">
+        <log-target id-ref="fetchpop-target"/>
+      </category>      
     </categories>
 
     <targets>
@@ -139,6 +142,11 @@
         <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
+      <file id="fetchpop-target">
+        <filename>${app.home}/logs/fetchpop.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>      
     </targets>
   </logs>
 
