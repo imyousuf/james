@@ -80,7 +80,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public synchronized void addUser(String strUserName, Object attributes) {
         try {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            MRUser.setWhere("UserName = '" + strUserName+"'");
+            MRUser.setWhere("username = '" + strUserName+"'");
             Record user = null;
             if (MRUser.size() == 0) {
                 // file://Add new user
@@ -102,7 +102,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public synchronized Object getAttributes(String strUserName) {
         try {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            MRUser.setWhere("UserName = '" + strUserName+"'");
+            MRUser.setWhere("username = '" + strUserName+"'");
             if (MRUser.size() == 0) {
                 logger.log("User "+strUserName+" could not be found while fetching password.",
                 "UserManager", logger.WARNING);
@@ -119,7 +119,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public synchronized void removeUser(String strUserName) {
         try {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            MRUser.setWhere("UserName = '" + strUserName + "'");
+            MRUser.setWhere("username = '" + strUserName + "'");
             if (MRUser.size() == 0) {
                 // file://User doesn't exists: reject delete
                 logger.log("User: " + strUserName + " does not exist.  Cannot delete", "UserManager", logger.WARNING);
@@ -136,7 +136,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public boolean contains(String strUserName) {
         try {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            MRUser.setWhere("UserName = '" + strUserName + "'");
+            MRUser.setWhere("username = '" + strUserName + "'");
             if (MRUser.size() > 0) {
                 return true;   // User exists
             } else {
@@ -150,7 +150,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public boolean test(String strUserName, Object attributes) {
         try {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-            MRUser.setWhere("UserName = '" + strUserName + "'");
+            MRUser.setWhere("username = '" + strUserName + "'");
             if (MRUser.size() > 0) {
                 // UserName exists - check if the password is OK
                 Record user = MRUser.getRecord(0);
@@ -169,7 +169,6 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     public int countUsers() {
     try {
         TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
-        MRUser.setWhere("UserName = *");
         int nSize = MRUser.size();
         return (int) nSize;
     } catch (Exception e) {
@@ -182,10 +181,9 @@ public class UsersTownRepository implements UsersRepository, Configurable {
         Vector list = new Vector();
 
         try {
-            QueryDataSet users = new QueryDataSet(ConnDefinition.getInstance(conndefinition),
-            "SELECT * FROM " + tableName);
+            TableDataSet users = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             for (int i = 0; i < users.size(); i++) {
-                list.add(users.getRecord(i).getAsString("UserName"));
+                list.add(users.getRecord(i).getAsString("username"));
             }
         } catch (Exception e) {
             logger.log("Problem listing mailboxes. " + e ,"UserManager", logger.ERROR);
