@@ -27,7 +27,6 @@ import javax.mail.internet.*;
 public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell {
 
 	public final static String SERVER_NAME = "SERVER_NAME";
-	public final static String POSTMASTER = "POSTMASTER";
 	public final static String SERVER_TYPE = "SERVER_TYPE";
 	public final static String REMOTE_NAME = "REMOTE_NAME";
 	public final static String REMOTE_IP = "REMOTE_IP";
@@ -54,7 +53,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private MailServer mailServer;
 
     private String servername;
-    private String postmaster;
     private String softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     
     private Hashtable state;
@@ -74,7 +72,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
         state = new Hashtable();
 
         servername = conf.getConfiguration("servername", "localhost").getValue();
-        postmaster = conf.getConfiguration("postmaster", "postmaster@" + servername).getValue();
     }
 
     public void parseRequest(Socket socket) {
@@ -231,7 +228,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 return true;
             } else {
                 out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
-                MimeMessage msg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), new SMTPInputStream(socketIn));
+                Session session = Session.getDefaultInstance(System.getProperties(), null);
+                MimeMessage msg = new MimeMessage(session, new SMTPInputStream(socketIn));
                 mailServer.sendMail((String) state.get(SENDER), (Vector) state.get(RCPT_VECTOR), msg);
                 resetState();
                 out.println("250 Message received");
@@ -249,7 +247,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private void resetState() {
         state.clear();
         state.put(SERVER_NAME, this.servername );
-        state.put(POSTMASTER, this.postmaster );
         state.put(SERVER_TYPE, this.softwaretype );
     }
     

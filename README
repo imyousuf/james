@@ -14,64 +14,132 @@
   Development Status
   ------------------
   
-  Apache James is currently under development. There is no working distribution
-  or anything usable, yet. So, don't ask. This server will be heavily based on
-  shared packages used by every server application developed by the Java Apache
-  Project and we are currently trying to get those shared packages done 
-  (log system, XML configurations, abstract servlet engine, abstract protocol
-  handler, etc...) before start coding the server itself which should "glue"
-  together these packages.
+  Current release is under beta test. 
   
-  Planned Features
+  Current Features
   ----------------
 
-  These are some of the planned features:
+  These are some JAMES features:
   
-    o  complete portability:  Apache James will be a 100% pure Java application
+    o  complete portability:  Apache James is be a 100% pure Java application
        based on the Java 2 platform and on to of JavaMail extentions.
        
     o  protocol abstraction:  unlike other mail engines, protocols are seen only
        like "communication languages" ruling comunications between clients and
-       the server. Apache James will not be tied to any particular protocol but
-       will follow an abstracted server design (almost like JavaMail did on the
+       the server. Apache James is not be tied to any particular protocol but
+       follow an abstracted server design (almost like JavaMail did on the
        client side)
        
-    o  complete solution:  the mail system will be able to handle both mail
-       transport and storage in a single server application. Apache James will
-       work alone without the need or any other server or solution.
+    o  complete solution:  the mail system is able to handle both mail
+       transport and storage in a single server application. Apache James
+       works alone without the need or any other server or solution.
        
-    o  servlet support:  Apache James will be the first ever mail server with
-       MailServlet support. The Java Apache Project has submitted for review
-       (to JavaSoft) a proposal to enhance the Servlet platform to support 
-       other kinds of servers and servlet systems. Apache James will allow 
-       users and developers to write powerful mail system enhancements using the 
-       MailServlet framework we designed.
-       
-    o  resource abstraction:  like protocols, resources will be abstracted and,
+    o  servlet support:  Apache James supports MailServlet. This easy-to-write 
+       easy-to-use pattern allow to buid powerful mail system. Example can be a 
+       mail to fax Servlet, mail to phone, filters, translator, mailling list 
+       etc.
+    
+    o  resource abstraction:  like protocols, resources are abstracted and,
        working thru defined interfaces (JavaMail for transport, JDBC for storage,
        servlet engine abstraction for servlets), the server will be highly 
        modular and reuse solutions from other projects or applications.
        
     o  secure and multi-threaded design:  based on the technology developed for
-       the Apache JServ servlet engine, Apache James will have a careful, 
+       the Apache JServ servlet engine, Apache James has a careful, 
        security-oriented, full multi-threaded design, to allow performance, 
        scalability and mission-critical use.
        
+    o  Currently JAMES support SMTP, POP3 and a simple remote mailbox manager.
+       
+
+  Planned Features
+  ----------------
+
+    o  IMAP suppport.
+    
+    o  IMAP server side filtering.
+
+    o  Download remote inbox to your local inbox.
+    
+    o  More powerful remote admin protocol and tool.
+    
+    o  Extended set of Servlet to easily support most mail system request.
+    
     o  anything else you may want if you help us writing it :-)
        
 
-  Available resources
-  -------------------
+  Requirements
+  ------------
+
+  - James.jar (of course).
+  - javax package (activation.jar, mail.jar)
+  - Avalon server framework including:
+      Avalon.jar
+      Xerces.jar (or any other SAX capable XML Parser).
+
+  JAMES extended distribution (JAMES_x.zip) includes all of the above.
   
-  These are the currently available resources:
+  Basic distribution (JAMES_b.zip) includes only James.jar, activation.jar and 
+  mail.jar,
   
-    o  The Mail Servlet proposal submitted for review to the JavaSoft Servlet
-       API team (with MailServlet examples).
-       
-    o  The extended logging system
+  Miminum distribution (JAMES_m.zip) includes only James.jar.
+  
+  To recompile James from sources you should use org.apache.tools.ant and its 
+  needed packages (ant.jar, javac.jar, xml.jar).
+
+  Installation
+  ------------
+  
+Step 1: installation.
+
+  From CVS.
+    Download all CVS JAMEs tree. You should have Avalon already in the classpath
+    with other needed packages.
+    Run [ant package] using provided build.xml. Alternativly you can compile all
+    classes using javac and. It's equivalent.
+    Place James.jar in the classpath.
     
-    o  The XML configuration engine
+  From disrtibution.
+    Download needed distibution (extended, basic or minimum) depending on what 
+    you've already installed.
+    Place all jars in the classpath.
     
+
+Step 2: configuration.
+
+  The easy way.
+    In the extended distribution you'll find 3 configuration files:
+      avalon.conf.xml
+      JAMES.conf.xml
+      avalon-james.conf.xml
+    Forget first two files and backup them somewhere.
+    Edit avalon-james.conf.xml and fill it with needed configuration follwing
+    instructions inside (FILL ME etc.).
+    Rename the file to avalon.conf.xml (the default configuration file name for 
+    avalon) and place it in the same folder with Avalon.
+    
+  The "good" way.
+    Avalon is a server framework. It has its own configuration file that should
+    be extended adding any installed server confs. So you should merge 
+    avalon.conf.xml and JAMES.conf.xml in a single file. This means take each
+    element under JAMES.conf.xml and ADD it in the avalon.conf.xml in the same 
+    tree level it was. For example copy all <block> in JAMES conf file under 
+    <blocks> element and paste lines in avalon conf file under <blocks> element.
+    Take each <channel> element under <block ... Logger> <channels> and paste 
+    them in avalon under the <block> implementing the Logger interface under
+    <channels>. 
+    Last thing to paste is Repository definition and public Repository. Follow
+    the pattern described above. 
+    After that fill all element where required with needed informations.
+    
+Step 3: run.
+
+  Run [java -jar Avalon.jar]. 
+  Running [java -jar Avalon.jar -help] will provide a simple command line help.
+  
+  Good luck :)
+    
+
 
   Licensing and legal issues
   --------------------------

@@ -8,7 +8,7 @@
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
   </devs>
 
-<release version="2.1 dev" date="13-Feb-2000">
+<release version="2.1dev" date="13-Feb-2000">
   <action dev="FB" type="code">
     Add support for MailServlet.
   </action>

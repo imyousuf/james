@@ -41,11 +41,11 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private String remoteHost;
     private String remoteIP;
     private String servername;
-    private String postmaster;
     private String softwaretype;
     private int state;
     private String user;
     private Vector userMailbox;
+    private String mailboxName;
     private Vector backupUserMailbox;
     private static final MessageContainer DELETED = new MessageContainer();
     
@@ -78,7 +78,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.servername = conf.getConfiguration("servername", "localhost").getValue();
-        this.postmaster = conf.getConfiguration("postmaster", "postmaster@" + servername).getValue();
+        this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
         this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
         this.userMailbox = new Vector();
     }
@@ -403,7 +403,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private MessageContainerRepository getUserMailbox(String userName) {
 
         MessageContainerRepository userInbox = (MessageContainerRepository) null;
-        String repositoryName = "localInbox." + userName;
+        String repositoryName = mailboxName + userName;
         try {
             userInbox = (MessageContainerRepository) comp.getComponent(repositoryName);
         } catch (ComponentNotFoundException ex) {

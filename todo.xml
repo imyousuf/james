@@ -18,6 +18,9 @@
   <action context="code">
     Improve exception management in RemoteDerivery Servlet.
   </action>
+  <action context="code">
+    Add more match class to allow fine tuning of mail servlet processor pipe.
+  </action>
  </actions>
  
  <actions priority="medium">
