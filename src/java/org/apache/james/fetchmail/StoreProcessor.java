@@ -74,11 +74,11 @@ public class StoreProcessor extends ProcessorAbstract
 
     /**
      * Constructor for StoreProcessor.
-     * @param configuration
+     * @param account
      */
-    protected StoreProcessor(ParsedConfiguration configuration)
+    protected StoreProcessor(Account account)
     {
-        super(configuration);
+        super(account);
     }
 
     /**
@@ -95,7 +95,7 @@ public class StoreProcessor extends ProcessorAbstract
         Folder folder = null;
 
         StringBuffer logMessageBuffer =
-            new StringBuffer("Fetching mail from server '");
+            new StringBuffer("Starting fetching mail from server '");
         logMessageBuffer.append(getHost());
         logMessageBuffer.append("' for user '");
         logMessageBuffer.append(getUser());
@@ -126,7 +126,7 @@ public class StoreProcessor extends ProcessorAbstract
                 getLogger().error(getFetchTaskName() + " No default folder");
 
             // Process the Folder
-            new FolderProcessor(folder, getConfiguration()).process();
+            new FolderProcessor(folder, getAccount()).process();
 
         }
         catch (MessagingException ex)
@@ -144,7 +144,7 @@ public class StoreProcessor extends ProcessorAbstract
             {
                 getLogger().error(ex.getMessage());
             }
-            logMessageBuffer = new StringBuffer("Fetched mail from server '");
+            logMessageBuffer = new StringBuffer("Finished fetching mail from server '");
             logMessageBuffer.append(getHost());
             logMessageBuffer.append("' for user '");
             logMessageBuffer.append(getUser());

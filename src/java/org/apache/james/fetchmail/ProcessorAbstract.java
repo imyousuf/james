@@ -58,6 +58,7 @@
  
 package org.apache.james.fetchmail;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -76,10 +77,9 @@ import org.apache.james.services.UsersRepository;
  * <p>Typically, processors are chained. A Store processor delegates to a Folder
  * processor that delegates to a Message processor.</p>
  * 
- * <p><code>ProcessorAbstract</code> wraps a parsed and validated
- * configuration - 
- * see <code>org.apache.james.fetchmail.ParsedConfiguration</code>
- * - representing the environment in which the processor operates.</p>
+ * <p><code>ProcessorAbstract</code> wraps an Account - see 
+ * <code>org.apache.james.fetchmail.Account</code>
+ * - providing contextual information about the environment for the processor.</p>
  * 
  * <p>Creation Date: 27-May-03</p>
  * 
@@ -92,9 +92,9 @@ abstract public class ProcessorAbstract
     private String fieldAttributePrefix;
     
     /**
-     * The Configuration for this task
+     * The Account for this task
      */
-    private ParsedConfiguration fieldConfiguration; 
+    private Account fieldAccount;       
 
     /**
      * Constructor for ProcessorAbstract.
@@ -106,32 +106,13 @@ abstract public class ProcessorAbstract
     
     /**
      * Constructor for ProcessorAbstract.
-     * @param configuration The <code>ParsedConfiguration</code> to be used during this operation
+     * @param account The <code>Account</code> to be processed 
      */
-    protected ProcessorAbstract(ParsedConfiguration configuration)
+    protected ProcessorAbstract(Account account)
     {
         this();
-        setConfiguration(configuration);        
+        setAccount(account);        
     }   
-    
-    /**
-     * Returns the configuration.
-     * @return ParsedConfiguration
-     */
-    protected ParsedConfiguration getConfiguration()
-    {
-        return fieldConfiguration;
-    }
-
-
-    /**
-     * Sets the configuration.
-     * @param configuration The configuration to set
-     */
-    protected void setConfiguration(ParsedConfiguration configuration)
-    {
-        fieldConfiguration = configuration;
-    }
     
     /**
      * Returns the defaultDomainName.
@@ -141,6 +122,16 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().getDefaultDomainName();
     }
+    
+    /**
+     * Returns the message ids. of messages for which processing has been
+     * deferred as the recipient could not be found
+     * @return List
+     */
+    protected List getDeferredRecipientNotFoundMessageIDs()
+    {
+        return getAccount().getDeferredRecipientNotFoundMessageIDs();
+    }    
     
     /**
      * Returns the fetchTaskName.
@@ -200,7 +191,7 @@ abstract public class ProcessorAbstract
      */
     protected String getPassword()
     {
-        return getConfiguration().getPassword();
+        return getAccount().getPassword();
     }
 
 
@@ -210,7 +201,7 @@ abstract public class ProcessorAbstract
      */
     protected MailAddress getRecipient()
     {
-        return getConfiguration().getRecipient();
+        return getAccount().getRecipient();
     }
 
 
@@ -239,7 +230,7 @@ abstract public class ProcessorAbstract
      */
     protected String getUser()
     {
-        return getConfiguration().getUser();
+        return getAccount().getUser();
     }
 
 
@@ -254,12 +245,21 @@ abstract public class ProcessorAbstract
 
 
     /**
+     * Returns the isDeferRecipientNotFound.
+     * @return boolean
+     */
+    protected boolean isDeferRecipientNotFound()
+    {
+        return getConfiguration().isDeferRecipientNotFound();
+    }
+    
+    /**
      * Returns the ignoreOriginalRecipient.
      * @return boolean
      */
-    protected boolean isIgnorelRecipientHeader()
+    protected boolean isIgnoreRecipientHeader()
     {
-        return getConfiguration().isIgnoreRecipientHeader();
+        return getAccount().isIgnoreRecipientHeader();
     }
 
 
@@ -317,7 +317,7 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().isLeaveUndeliverable();
     }       
-    
+
     /**
      * Returns the RejectUserUndefinded.
      * @return boolean
@@ -328,7 +328,7 @@ abstract public class ProcessorAbstract
     }
     
     /**
-     * Returns the RejectUserUndefinded.
+     * Returns the RejectUserBlacklisted.
      * @return boolean
      */
     protected boolean isRejectBlacklisted()
@@ -343,12 +343,8 @@ abstract public class ProcessorAbstract
     protected boolean isRejectRemoteRecipient()
     {
         return getConfiguration().isRejectRemoteRecipient();
-    }   
-
-
+    }
     
-
-
     /**
      * Returns the markBlacklistedSeen.
      * @return boolean
@@ -410,12 +406,8 @@ abstract public class ProcessorAbstract
     protected boolean isMarkUndeliverableSeen()
     {
         return getConfiguration().isMarkUndeliverableSeen();
-    }       
-
-
+    }
     
-    
-
     /**
      * Answers true if the folder should be opened read only.
      * For this to be true... 
@@ -454,12 +446,15 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().getBlacklist();
     }
-
-
     
-
-
-    
+    /**
+     * Returns the <code>ParsedConfiguration</code> from the <code>Account</code>.
+     * @return ParsedConfiguration
+     */
+    protected ParsedConfiguration getConfiguration()
+    {
+        return getAccount().getParsedConfiguration();
+    }    
 
     /**
      * Returns a lazy initialised attributePrefix.
@@ -510,5 +505,23 @@ abstract public class ProcessorAbstract
     {
         setAttributePrefix(computeAttributePrefix());
     }    
+
+    /**
+     * Returns the account.
+     * @return Account
+     */
+    public Account getAccount()
+    {
+        return fieldAccount;
+    }
+
+    /**
+     * Sets the account.
+     * @param account The account to set
+     */
+    protected void setAccount(Account account)
+    {
+        fieldAccount = account;
+    }
 
 }

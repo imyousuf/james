@@ -200,23 +200,25 @@ public class MessageProcessor extends ProcessorAbstract
     /**
      * Constructor for MessageProcessor.
      * 
-     * @param configuration
+     * @param account
      */
-    private MessageProcessor(ParsedConfiguration configuration)
+    private MessageProcessor(Account account)
     {
-        super(configuration);
+        super(account);
     }
     
     /**
      * Constructor for MessageProcessor.
      * 
      * @param messageIn
-     * @param configuration
+     * @param account
      */
 
-    MessageProcessor(MimeMessage messageIn, ParsedConfiguration configuration)
+    MessageProcessor(
+        MimeMessage messageIn,
+         Account account)
     {
-        this(configuration);
+        this(account);
         setMessageIn(messageIn);
     }   
 
@@ -227,7 +229,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @see org.apache.james.fetchmail.ProcessorAbstract#process()
      */
     public void process() throws MessagingException
-    {
+    {      
         // Log delivery attempt
         StringBuffer logMessageBuffer =
             new StringBuffer("Attempting delivery of message with id. ");
@@ -240,6 +242,31 @@ public class MessageProcessor extends ProcessorAbstract
 
         if (isRecipientNotFound())
         {
+            if (isDeferRecipientNotFound())
+            {
+
+                String messageID = getMessageIn().getMessageID();
+                if (!getDeferredRecipientNotFoundMessageIDs()
+                    .contains(messageID))
+                {
+                    getDeferredRecipientNotFoundMessageIDs().add(messageID);
+                    StringBuffer messageBuffer =
+                        new StringBuffer("Deferred processing of message for which the intended recipient could not be found. Message ID: ");
+                    messageBuffer.append(messageID);
+                    getLogger().info(messageBuffer.toString());
+                    return;
+
+                }
+                else
+                {
+                    getDeferredRecipientNotFoundMessageIDs().remove(messageID);
+                    StringBuffer messageBuffer =
+                        new StringBuffer("Processing deferred message for which the intended recipient could not be found. Message ID: ");
+                    messageBuffer.append(messageID);
+                    getLogger().info(messageBuffer.toString());
+                }
+            }
+
             if (isRejectRecipientNotFound())
             {
                 rejectRecipientNotFound();
@@ -308,10 +335,10 @@ public class MessageProcessor extends ProcessorAbstract
     {
         // Update the flags of the received message
         if (!isLeaveRemoteRecipient())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
+            setMessageDeleted();
 
         if (isMarkRemoteRecipientSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+            setMessageSeen();
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for remote recipient: ");
@@ -320,7 +347,7 @@ public class MessageProcessor extends ProcessorAbstract
 
         return;
     }
-
+    
     /**
      * Method rejectBlacklistedRecipient.
      * @param recipient
@@ -331,10 +358,9 @@ public class MessageProcessor extends ProcessorAbstract
     {
         // Update the flags of the received message
         if (!isLeaveBlacklisted())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
-
+            setMessageDeleted();
         if (isMarkBlacklistedSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+            setMessageSeen();
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for blacklisted recipient: ");
@@ -352,19 +378,21 @@ public class MessageProcessor extends ProcessorAbstract
     {
         // Update the flags of the received message
         if (!isLeaveRecipientNotFound())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
+            setMessageDeleted();
 
         if (isMarkRecipientNotFoundSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+            setMessageSeen();
 
         StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail for which a sole intended recipient could not be found. Recipients: ");
+            new StringBuffer("Rejected mail for which a sole intended recipient could not be found. Message ID: ");
+        messageBuffer.append(getMessageIn().getMessageID());
+        messageBuffer.append(", recipients: ");
         Address[] allRecipients = getMessageIn().getAllRecipients();
         for (int i = 0; i < allRecipients.length; i++)
         {
             messageBuffer.append(allRecipients[i].toString());
             messageBuffer.append(' ');
-        }   
+        }
         getLogger().info(messageBuffer.toString());
         return;
     }
@@ -379,10 +407,10 @@ public class MessageProcessor extends ProcessorAbstract
     {
         // Update the flags of the received message
         if (!isLeaveUserUndefined())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
+            setMessageDeleted();
 
         if (isMarkUserUndefinedSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+            setMessageSeen();
 
         StringBuffer messageBuffer =
             new StringBuffer("Rejected mail intended for undefined user: ");
@@ -484,15 +512,16 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected void handleParseException(
         ParseException ex,
-        MailAddress intendedRecipient) throws MessagingException
+        MailAddress intendedRecipient)
+        throws MessagingException
     {
         // Update the flags of the received message
         if (!isLeaveUndeliverable())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
-    
+            setMessageDeleted();
+
         if (isMarkUndeliverableSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
-                    
+            setMessageSeen();
+
         getLogger().error(
             getFetchTaskName()
                 + " Message could not be processed due to an error parsing the addresses."
@@ -503,9 +532,9 @@ public class MessageProcessor extends ProcessorAbstract
                 + " To: "
                 + intendedRecipient.toString());
         getLogger().debug(ex.toString());
-//      ex.printStackTrace();
-    }       
-
+        //      ex.printStackTrace();
+    }
+    
     /**
      * Method isLocalRecipient.
      * @param recipient
@@ -587,10 +616,10 @@ public class MessageProcessor extends ProcessorAbstract
 
         // Update the flags of the received message
         if (!isLeave())
-            getMessageIn().setFlag(Flags.Flag.DELETED, true);
+            setMessageDeleted();
 
         if (isMarkSeen())
-            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+            setMessageSeen();
     }   
 
 
@@ -683,7 +712,7 @@ public class MessageProcessor extends ProcessorAbstract
     {
         // If the original recipient should be ignored, answer the 
         // hard-coded recipient
-        if (isIgnorelRecipientHeader())
+        if (isIgnoreRecipientHeader())
         {
             StringBuffer messageBuffer =
                 new StringBuffer("Ignoring recipient header. Using configured recipient as new envelope recipient - ");
@@ -750,7 +779,17 @@ public class MessageProcessor extends ProcessorAbstract
     {
         return fieldRemoteRecipient;
     }
-
+    
+    /**
+     * Returns <code>boolean</code> indicating if the message to be delivered
+     * was unprocessed in a previous delivery attempt.
+     * @return boolean
+     */
+    protected boolean isPreviouslyUnprocessed()
+    {
+        return true;
+    }
+    
     /**
      * Returns the userUndefined.
      * @return boolean
@@ -759,6 +798,53 @@ public class MessageProcessor extends ProcessorAbstract
     {
         return fieldUserUndefined;
     }
+    
+    /**
+     * Set the DELETED flag.
+     * @throws MessagingException
+     */
+    protected void setMessageDeleted() throws MessagingException
+    {
+            getMessageIn().setFlag(Flags.Flag.DELETED, true);
+    }
+    
+    /*    /**
+     * Set the SEEN flag.
+     * @throws MessagingException
+     */
+    protected void setMessageSeen() throws MessagingException
+    {
+        // If the Seen flag is not handled by the folder
+        // allow a handler to do whatever it deems necessary
+        if (!getMessageIn()
+            .getFolder()
+            .getPermanentFlags()
+            .contains(Flags.Flag.SEEN))
+            handleMarkSeenNotPermanent();
+        else
+            getMessageIn().setFlag(Flags.Flag.SEEN, true);
+    }
+    
+    /**
+     * <p>Handler for when the folder does not support the SEEN flag.
+     * The default behaviour implemented here is to log a warning and set the
+     * flag anyway.</p>
+     * 
+     * <p> Subclasses may choose to override this and implement their own
+     * solutions.</p>
+     *  
+     * @throws MessagingException
+     */
+    protected void handleMarkSeenNotPermanent() throws MessagingException
+    {
+        StringBuffer messageBuffer = new StringBuffer("Marking message ID: ");
+        messageBuffer.append(getMessageIn().getMessageID());
+        messageBuffer.append(
+            " as SEEN, but the folder does not support a permanent SEEN flag.");
+        getLogger().warn(messageBuffer.toString());
+        
+        getMessageIn().setFlag(Flags.Flag.SEEN, true);
+    }            
 
     /**
      * Returns the Blacklisted.

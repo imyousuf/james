@@ -81,15 +81,17 @@ public class FolderProcessor extends ProcessorAbstract
      * The fetched folder
      */ 
     private Folder fieldFolder;
+    
+    private Boolean fieldMarkSeenPermanent;
 
     /**
      * Constructor for FolderProcessor.
      * @param folder The folder to be fetched
-     * @param configuration The configuration parameters
+     * @param account The account being processed
      */
-    protected FolderProcessor(Folder folder, ParsedConfiguration configuration)
+    protected FolderProcessor(Folder folder, Account account)
     {
-        super(configuration);
+        super(account);
         setFolder(folder);
     }
     
@@ -129,13 +131,25 @@ public class FolderProcessor extends ProcessorAbstract
             // Process each message
             for (int i = 0; i < messagesIn.length; i++)
             {
-                if (isFetchAll() || !messagesIn[i].isSet(Flags.Flag.SEEN))
+                MimeMessage message = (MimeMessage) messagesIn[i];
+                if (isFetchAll() || !isSeen(message))
                 {
-                    new MessageProcessor(
-                        (MimeMessage) messagesIn[i],
-                        getConfiguration())
-                        .process();
-                    messagesProcessed++;
+                    try
+                    {
+                        new MessageProcessor(message, getAccount()).process();
+                        messagesProcessed++;
+                    }
+                    // Catch and report an exception but don't rethrow it, 
+                    // allowing subsequent messages to be processed.                    
+                    catch (MessagingException mex)
+                    {
+                        StringBuffer logMessageBuffer =
+                            new StringBuffer("Exception processing message ID: ");
+                        logMessageBuffer.append(message.getMessageID());
+                        logMessageBuffer.append(" - ");
+                        logMessageBuffer.append(mex.toString());
+                        getLogger().error(logMessageBuffer.toString());
+                    }
                 }
             }
         }
@@ -200,7 +214,7 @@ public class FolderProcessor extends ProcessorAbstract
 
             for (int i = 0; i < folders.length; i++)
             {
-                new FolderProcessor(folders[i], getConfiguration()).process();
+                new FolderProcessor(folders[i], getAccount()).process();
             }
 
         }
@@ -228,6 +242,50 @@ public class FolderProcessor extends ProcessorAbstract
     {
         return fieldFolder;
     }
+    
+    /**
+     * Answer if <code>aMessage</code> has been SEEN.
+     * @param aMessage
+     * @return boolean
+     * @throws MessagingException
+     */
+    protected boolean isSeen(MimeMessage aMessage) throws MessagingException
+    {
+        boolean isSeen = false;
+        if (isMarkSeenPermanent().booleanValue())
+            isSeen = aMessage.isSet(Flags.Flag.SEEN);
+        else
+            isSeen = handleMarkSeenNotPermanent(aMessage);
+        return isSeen;
+    }
+
+    /**
+     * Answer the result of computing markSeenPermanent.
+     * @return Boolean
+     */
+    protected Boolean computeMarkSeenPermanent()
+    {
+        return new Boolean(
+            getFolder().getPermanentFlags().contains(Flags.Flag.SEEN));
+    }
+
+    /**
+     * <p>Handler for when the folder does not support the SEEN flag.
+     * The default behaviour implemented here is to answer the value of the
+     * SEEN flag anyway.</p>
+     * 
+     * <p>Subclasses may choose to override this method and implement their own
+     *  solutions.</p>
+     *
+     * @param aMessage
+     * @return boolean 
+     * @throws MessagingException
+     */
+    protected boolean handleMarkSeenNotPermanent(MimeMessage aMessage)
+        throws MessagingException
+    {
+        return aMessage.isSet(Flags.Flag.SEEN);
+    }    
 
     /**
      * Sets the folder.
@@ -238,4 +296,45 @@ public class FolderProcessor extends ProcessorAbstract
         fieldFolder = folder;
     }
     
+    /**
+     * Returns the isMarkSeenPermanent.
+     * @return Boolean
+     */
+    protected Boolean isMarkSeenPermanent()
+    {
+        Boolean markSeenPermanent = null;
+        if (null == (markSeenPermanent = isMarkSeenPermanentBasic()))
+        {
+            updateMarkSeenPermanent();
+            return isMarkSeenPermanent();
+        }    
+        return markSeenPermanent;
+    }
+    
+    /**
+     * Returns the markSeenPermanent.
+     * @return Boolean
+     */
+    private Boolean isMarkSeenPermanentBasic()
+    {
+        return fieldMarkSeenPermanent;
+    }    
+
+    /**
+     * Sets the markSeenPermanent.
+     * @param markSeenPermanent The isMarkSeenPermanent to set
+     */
+    protected void setMarkSeenPermanent(Boolean markSeenPermanent)
+    {
+        fieldMarkSeenPermanent = markSeenPermanent;
+    }
+    
+    /**
+     * Updates the markSeenPermanent.
+     */
+    protected void updateMarkSeenPermanent()
+    {
+        setMarkSeenPermanent(computeMarkSeenPermanent());
+    }    
+
 }
