@@ -6,3 +6,4 @@ build
 velocity.log
 .classpath
 .project
+target
