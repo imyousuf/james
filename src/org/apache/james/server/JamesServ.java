@@ -11,6 +11,7 @@ import javax.mail.internet.*;
 import javax.activation.*;
 import org.apache.james.*;
 import org.apache.james.util.*;
+import org.apache.james.server.socket.SocketHandler;
 
 /**
  * <b>Run this class!!</b>
@@ -27,6 +28,8 @@ public class JamesServ {
     private JamesSpoolManager spoolMgr = null;
     protected static int mid = 0;
     private MessageSpool spool;
+
+		public static boolean DEBUG = true;
 
     /**
      * This method was created in VisualAge.
@@ -62,12 +65,13 @@ public class JamesServ {
             }
         }
 
-        // Create the message spooler
+				// Create the message spooler
         try {
-            spool = new MessageSpool();
+            spool = new org.apache.james.server.MessageSpool();
             spool.init(this, getBranchProperties(props, "spool."));
         } catch (Exception e) {
             logger.log("Exception in Message spool init: " + e.getMessage(), logger.ERROR_LEVEL);
+						e.printStackTrace();
             System.exit(1);
         }
         logger.log("Message spool instantiated.", logger.INFO_LEVEL);
@@ -155,13 +159,21 @@ public class JamesServ {
 
         for (int i = 1; i < Integer.parseInt(props.getProperty("listener.number", "1")) + 1; i++) {
             try {
-                if (props.getProperty("listener." + i).equals("true")) {
-                    SocketListener sl = new SocketListener();
-                    sl.init(this, getBranchProperties(props, "listener." + i + "."));
-                    new Thread(sl).start();
-                }
+							String slPrefix = "listener." + i + ".";
+							String slClass = slPrefix + "class";
+							
+							if ( props.getProperty(slClass) == null ) {
+								logger.log("No listeners class specified in configuration file for listener " + i);
+								System.exit(-1);	
+							} else {
+								SocketHandler sl = (SocketHandler) Class.forName( props.getProperty(slClass) ).newInstance();
+              	sl.init(this, this.getBranchProperties(props, slPrefix));
+                new Thread(sl).start();
+              }
             } catch (Exception e) {
+								e.printStackTrace();
                 logger.log("Exception starting listener(" + i + "): " + e.getMessage(), logger.ERROR_LEVEL);
+								System.exit(-1);	
             }
         }
     }

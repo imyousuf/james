@@ -19,17 +19,23 @@ public class MessageSpool implements Configurable {
     private Properties props;
     private JamesServ serv;
     private LoggerInterface logger;
-    private HashMap locks;
+    private Hashtable locks;
     private MultithreadedObjectStore mos;
     private long timeout = 10000;
 
     public void init(JamesServ serv, Properties props)
-    throws Exception {
-
-        this.serv = serv;
+    	throws Exception
+		{
+		
         this.props = props;
+        this.serv = serv;
         this.logger = serv.getLogger();
+				
+				if ( props.getProperty("timeout") == null ) {
+						throw new Exception("No message spool timeout specified");
+				}
         this.timeout = Long.parseLong(props.getProperty("timeout"));
+				
         try {
             mos = new MultithreadedObjectStore();
             mos.init(serv, serv.getBranchProperties(props, "multithreadedobjectstore."));
@@ -92,6 +98,9 @@ public class MessageSpool implements Configurable {
         notifyAll();
     }
 
+    public void addMessage(MimeMessage message, InternetAddress address[]) {
+		}
+		
     public void addMessage(MimeMessage message, DeliveryState state) {
 
         try {

@@ -7,7 +7,7 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.james.*;
-import org.apache.james.server.*;
+import org.apache.james.server.JamesServ;
 import org.apache.james.util.*;
 
 /**

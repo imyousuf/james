@@ -20,7 +20,7 @@ public class JamesServletConfig implements MailServletConfig {
     /**
      * JamesServletConfig constructor comment.
      */
-    protected JamesServletConfig(Properties props, String filename, MailServletContext context) {
+    public JamesServletConfig(Properties props, String filename, MailServletContext context) {
         this.props = props;
         this.context = context;
 

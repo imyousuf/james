@@ -19,6 +19,10 @@ public class JamesMailContext implements MailServletContext {
     private JamesServ server = null;
     protected Vector validNames = null;
 
+		public final static String SERVER_NAME = "server.name";
+		public final static String POSTMASTER = "postmaster";
+		public final static String SERVER_TYPE = "server.type";
+
     /**
      * JamesMailContext constructor comment.
      */
