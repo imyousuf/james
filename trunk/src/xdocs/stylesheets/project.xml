@@ -29,6 +29,8 @@
         <item name="Using JDBC"     href="/usingJDBC_v2.0.html"/>
         <item name="Using LDAP"     href="/usingLDAP_v1_2.html"/>
         <item name="Using TLS"     href="/usingTLS_v1_2.html"/>
+        <item name="James and sendmail"     href="/james_and_sendmail.html"/>
+
         <item name="Useful RFCs (web)"   href="http://jakarta.apache.org/james/rfclist"/>
     </menu>
     
