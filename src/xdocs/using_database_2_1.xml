@@ -53,24 +53,37 @@ would then use the db: or dbfile: prefix instead of the file: prefix
 for a particular repository.  You are currently free to mix and match
 your use of these different storage types for different repositories.
 See <a href="repositories_2_1.html">Repository Configuration</a> for
-more details.</p>
+more details.  A sample configuration is described below.</p>
 
-<p>If you are using a SQL database with unusual SQL commands, you may
-need to add special entries to the sqlResources.xml file, which tells
-James how to interact with different SQL databases.  The James team
+</subsection>
+<subsection name="SQL Statement Configuration">
+<p>The precise SQL statements used by James to modify and view data stored in the database are specified in
+an external configuration file.  The sqlResources.xml file 
+(which can be found in the apps/james/conf directory) is a sample configuration file that contains the SQL
+statements used by James.  The purpose of each of these statements, as well as the repository with which 
+they are associated, is documented in situ.</p>
+
+<p>If you are using a SQL database with unusual SQL commands or data types, you may
+need to add special entries to this file.  The James team
 does try to keep sqlResources.xml updated, so if you do run into a
 special case, please let us know.</p>
 
+<p>Also, if the database tables are not created a priori, but rather are to be created by James
+upon startup, special attention should be paid to the "create table" statements in this file.  Such
+statements tend to be both very database and very database instance specific.</p>
 </subsection>
+<subsection name="Sample James Configuration">
 
-<subsection name="An example">
-
-<p>The configuration file has commented out examples for MySQL and
+<p>The config.xml file has commented out examples for MySQL and
 MSSQL data sources, and for each of the standard repositories.  For
 example, to use MySQL, you would uncomment and adjust the following
-data-source element.  You must create the database, in this case named
-<strong>mail</strong>, the user, and assign the user priviledges.
-James will automatically create the tables it needs.</p>
+data-source element.</p>
+
+<p>You must create the database, in this case named
+<strong>mail</strong>, the user, and assign the user privileges.
+You may create the tables before running James or, if you so choose, James 
+will automatically create the tables it needs.  In the latter case the user 
+must have table creation privileges.</p>
 
 <source>
 &lt;data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource"&gt;
@@ -82,7 +95,9 @@ James will automatically create the tables it needs.</p>
 &lt;/data-source&gt;
 </source>
 
-<p>Once you have created the data-source element, you can use it else where in the configuration file.  For example, the following element tells James to use the maildb data-source and dbfile storage mechanism for the message spool:</p>
+<p>Once the data-source element has been created, it can be referenced elsewhere in the config.xml 
+file.  For example, the following element tells James to use the maildb data-source and dbfile 
+storage mechanism for the message spool:</p>
 
 <source>
 &lt;spoolRepository&gt;
@@ -100,7 +115,6 @@ James will automatically create the tables it needs.</p>
 
 <p>The configuration file contains further examples.</p>
 </subsection>
-
 <subsection name="Known Issues">
 <p>There are some vendor-specific subtleties in using databases with James that have been observed 
 by some users.  These issues (and methods to resolve them) are recorded on the 
