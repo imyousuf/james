@@ -108,7 +108,7 @@ public abstract class GenericListserv extends GenericMailet {
             if (getSubjectPrefix() != null) {
                 StringBuffer prefixBuffer =
                     new StringBuffer(64)
-                        .append("]")
+                        .append("[")
                         .append(getSubjectPrefix())
                         .append("]");
                 String prefix = prefixBuffer.toString();
