@@ -208,9 +208,9 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             new StringBuffer(128)
                 .append(getName())
                 .append(" ")
-                .append(getFirstArticleNumber())
-                .append(" ")
                 .append(getLastArticleNumber())
+                .append(" ")
+                .append(getFirstArticleNumber())
                 .append(" ")
                 .append((isPostAllowed() ? "y":"n"));
         return showBuffer.toString();
