@@ -17,7 +17,6 @@ import org.apache.avalon.ComponentManager;
 import org.apache.avalon.Composer;
 import org.apache.avalon.Context;
 import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Stoppable;
 import org.apache.avalon.Initializable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
