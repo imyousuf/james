@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.16 $
-    Committed on $Date: 2001/10/31 14:30:17 $ by: $Author: serge $
+    This is $Revision: 1.17 $
+    Committed on $Date: 2001/10/31 14:44:03 $ by: $Author: serge $
 -->
 <config>
 
@@ -75,10 +75,10 @@
 
         <!-- Set the packages from which to load mailets and matches -->
         <mailetpackages>
-          <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
+          <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
         </mailetpackages>
         <matcherpackages>
-          <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
+          <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
         </matcherpackages>
 
         <!-- Processor CONFIGURATION SAMPLE:
@@ -116,20 +116,6 @@
 
           <!-- Sample matching to kill a message (send to Null) -->
           <mailet match="RecipientIs=badboy@badhost" class="Null">
-          </mailet>
-
-          <!-- Sample listserv wrapping a local avalon list of users. -->
-          <mailet match="CommandForListserv=james@localhost"
-                  class="AvalonListservManager">
-            <repositoryName>list-james</repositoryName>
-          </mailet>
-
-          <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
-            <membersonly> false </membersonly>
-            <attachmentsallowed> true </attachmentsallowed>
-            <replytolist> true </replytolist>
-            <repositoryName>list-james</repositoryName>
-            <subjectprefix>JamesList</subjectprefix>
           </mailet>
 
           <!-- Sends remaining mails to the transport processor for either
@@ -556,7 +542,6 @@
             <user>username</user>
             <password>password</password>
         </data-source>
-        -->
         <data-source name="maildb"
                      class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
         	<driver>com.inet.tds.TdsDriver</driver>
@@ -564,6 +549,7 @@
         	<user>sa_james</user>
         	<password>blahblah</password>
         </data-source>
+        -->
     </data-sources>
   </database-connections>
 
