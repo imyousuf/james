@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
 
 /**
@@ -269,9 +270,9 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        Address from[] = getAddressHeader("From");
+        Address from[] = getAddressHeader(RFC2822Headers.FROM);
         if(from == null) {
-            from = getAddressHeader("Sender");
+            from = getAddressHeader(RFC2822Headers.SENDER);
         }
         return from;
     }
@@ -332,7 +333,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        Address replyTo[] = getAddressHeader("Reply-To");
+        Address replyTo[] = getAddressHeader(RFC2822Headers.REPLY_TO);
         if(replyTo == null) {
             replyTo = getFrom();
         }
@@ -343,7 +344,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        String subject = getHeader("Subject", null);
+        String subject = getHeader(RFC2822Headers.SUBJECT, null);
         if (subject == null) {
             return null;
         }
@@ -358,7 +359,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        String header = getHeader("Date", null);
+        String header = getHeader(RFC2822Headers.DATE, null);
         if(header != null) {
             try {
                 return mailDateFormat.parse(header);
@@ -443,7 +444,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        String value = getHeader("Content-Type", null);
+        String value = getHeader(RFC2822Headers.CONTENT_TYPE, null);
         if (value == null) {
             return "text/plain";
         } else {
@@ -504,7 +505,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (headers == null) {
             loadHeaders();
         }
-        return getHeader("Message-ID", null);
+        return getHeader(RFC2822Headers.MESSAGE_ID, null);
     }
 
     public String getFileName() throws MessagingException {

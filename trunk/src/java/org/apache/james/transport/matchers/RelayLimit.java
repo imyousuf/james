@@ -7,6 +7,7 @@
  */
 package org.apache.james.transport.matchers;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
@@ -33,7 +34,7 @@ public class RelayLimit extends GenericMatcher {
         int count = 0;
         for (Enumeration e = mm.getAllHeaders(); e.hasMoreElements();) {
             Header hdr = (Header)e.nextElement();
-            if (hdr.getName().equals("Received")) {
+            if (hdr.getName().equals(RFC2822Headers.RECEIVED)) {
                 count++;
             }
         }

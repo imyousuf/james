@@ -7,6 +7,7 @@
  */
 package org.apache.james.transport.matchers;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -27,18 +28,18 @@ import java.util.Collection;
 public class NESSpamCheck extends GenericMatcher {
 
     protected Perl5Matcher matcher;
-    protected Object patterns[][] = {{"Received", "GAA.*-0600.*EST"},
-            {"Received", "XAA.*-0700.*EDT"},
-            {"Received", "xxxxxxxxxxxxxxxxxxxxx"},
-            {"Received", "untrace?able"},
-            {"Received", "from (baby|bewellnet|kllklk) "},
-            {"To", "Friend@public\\.com"},
-            {"To", "user@the[-_]internet"},
-            {"Date", "/[0-9]+/.+[AP]M.+Time"},
-            {"Subject", "^\\(?ADV?[:;)]"},
-            {"Message-ID", "<>"},
-            {"Message-Id", "<>"},
-            {"Message-Id", "<(419\\.43|989\\.28)"},
+    protected Object patterns[][] = {{RFC2822Headers.RECEIVED, "GAA.*-0600.*EST"},
+            {RFC2822Headers.RECEIVED, "XAA.*-0700.*EDT"},
+            {RFC2822Headers.RECEIVED, "xxxxxxxxxxxxxxxxxxxxx"},
+            {RFC2822Headers.RECEIVED, "untrace?able"},
+            {RFC2822Headers.RECEIVED, "from (baby|bewellnet|kllklk) "},
+            {RFC2822Headers.TO, "Friend@public\\.com"},
+            {RFC2822Headers.TO, "user@the[-_]internet"},
+            {RFC2822Headers.DATE, "/[0-9]+/.+[AP]M.+Time"},
+            {RFC2822Headers.SUBJECT, "^\\(?ADV?[:;)]"},
+            {RFC2822Headers.MESSAGE_ID, "<>"},
+            {RFC2822Headers.MESSAGE_ID_VARIATION, "<>"},
+            {RFC2822Headers.MESSAGE_ID_VARIATION, "<(419\\.43|989\\.28)"},
             {"X-MimeOLE", "MimeOLE V[^0-9]"},
             //Added 20-Jun-1999.  Appears to be broken spamware.
             {"MIME-Version", "1.0From"},
@@ -58,8 +59,8 @@ public class NESSpamCheck extends GenericMatcher {
             {"X-See-Also", "0[A-Z0-9]+$"},
             //Updated 28-Apr-1999.  Check for "Sender", "Resent-From", or "Resent-By"
             // before "X-UIDL".  If found, then exit.
-            {"Sender", ".+"},
-            {"Resent-From", ".+"},
+            {RFC2822Headers.SENDER, ".+"},
+            {RFC2822Headers.RESENT_FROM, ".+"},
             {"Resent-By", ".+"},
             //Updated 19-May-1999.  Check for "X-Mozilla-Status" before "X-UIDL".
             {"X-Mozilla-Status", ".+"},
@@ -79,7 +80,7 @@ public class NESSpamCheck extends GenericMatcher {
             //Added 25-Oct-1999.  Check for X-Confirm-Reading-To.
             {"X-Confirm-Reading-To", ".+"},
             //Check for invalid Pegasus headers
-            {"Comments", "Authenticated sender"},
+            {RFC2822Headers.COMMENTS, "Authenticated sender"},
             {"X-PMFLAGS", ".*"},
             {"X-Pmflags", ".*"},
             {"X-pmrqc", ".*"},

@@ -22,6 +22,7 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -53,8 +54,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.30 $
- * Committed on $Date: 2002/09/11 08:31:07 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.31 $
+ * Committed on $Date: 2002/09/14 06:22:36 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -625,9 +626,9 @@ public class James
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
         //If there is a Return-Path header,
-        if (orig.getHeader("Return-Path") != null) {
+        if (orig.getHeader(RFC2822Headers.RETURN_PATH) != null) {
             //Return the message to that address, not to the Reply-To address
-            reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(orig.getHeader("Return-Path")[0]));
+            reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(orig.getHeader(RFC2822Headers.RETURN_PATH)[0]));
         }
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
@@ -643,17 +644,17 @@ public class James
             //Add message as the first mime body part
             MimeBodyPart part = new MimeBodyPart();
             part.setContent(message, "text/plain");
-            part.setHeader("Content-Type", "text/plain");
+            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
             multipart.addBodyPart(part);
 
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
             part.setContent(orig.getContent(), orig.getContentType());
-            part.setHeader("Content-Type", orig.getContentType());
+            part.setHeader(RFC2822Headers.CONTENT_TYPE, orig.getContentType());
             multipart.addBodyPart(part);
-            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
+            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
             reply.setContent(multipart);
-            reply.setHeader("Content-Type", multipart.getContentType());
+            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
         } catch (IOException ioe) {
             throw new MessagingException("Unable to create multipart body", ioe);
         }

@@ -7,6 +7,7 @@
  */
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -160,25 +161,25 @@ public class NotifySender extends GenericMailet {
             //Add message as the first mime body part
             MimeBodyPart part = new MimeBodyPart();
             part.setContent(sout.toString(), "text/plain");
-            part.setHeader("Content-Type", "text/plain");
+            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
             multipart.addBodyPart(part);
 
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
             part.setContent(message.getContent(), message.getContentType());
-            part.setHeader("Content-Type", message.getContentType());
+            part.setHeader(RFC2822Headers.CONTENT_TYPE, message.getContentType());
             multipart.addBodyPart(part);
 
             //if set, attach the full stack trace
             if (attachStackTrace && mail.getErrorMessage() != null) {
                 part = new MimeBodyPart();
                 part.setContent(mail.getErrorMessage(), "text/plain");
-                part.setHeader("Content-Type", "text/plain");
+                part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
                 multipart.addBodyPart(part);
             }
 
             reply.setContent(multipart);
-            reply.setHeader("Content-Type", multipart.getContentType());
+            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
         } catch (IOException ioe) {
             throw new MailetException("Unable to create multipart body");
         }
@@ -188,8 +189,8 @@ public class NotifySender extends GenericMailet {
         recipients.add(mail.getSender());
 
         //Set additional headers
-        if (reply.getHeader("Date")==null){
-            reply.setHeader("Date", rfc822DateFormat.format(new Date()));
+        if (reply.getHeader(RFC2822Headers.DATE)==null){
+            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
         String subject = message.getSubject();
         if (subject == null) {
@@ -200,7 +201,7 @@ public class NotifySender extends GenericMailet {
         } else {
             reply.setSubject("Re:" + subject);
         }
-        reply.setHeader("In-Reply-To", message.getMessageID());
+        reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
 
         //Send it off...
         getMailetContext().sendMail(notifier, recipients, reply);
