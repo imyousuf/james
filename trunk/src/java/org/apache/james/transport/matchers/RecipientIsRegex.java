@@ -63,18 +63,22 @@ import org.apache.mailet.MailAddress;
 
 import org.apache.oro.text.regex.*;
 
+import javax.mail.MessagingException;
+
 /**
- * Uses regular expression
+ * <P>Matches recipients whose address matches a regular expression.</P>
+ * <P>Is equivalent to the {@link SenderIsRegex} matcher but matching on the recipient.</P>
+ * <P>Configuration string: a regular expression.</P>
+ * <PRE><CODE>
+ * &lt;mailet match=&quot;RecipientIsRegex=&lt;regular-expression&gt;&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
+ * </CODE></PRE>
+ * <P>The example below will match any recipient in the format user@log.anything</P>
+ * <PRE><CODE>
+ * &lt;mailet match=&quot;RecipientIsRegex=(.*)@log\.(.*)&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
  *
- *<p>&lt;mailet match=&quot;RecipientMatch=&lt;regular-expression&gt;&quot;
-class=&quot;&lt;any-class&gt;&quot;&gt;</p>
- * <p>The example below will match any recipient in the format
-user@log.anything</p>
- * <p>&lt;mailet match=&quot;RecipientMatch=(.*)@log\.(.*)&quot;
-class=&quot;&lt;any-class&gt;&quot;&gt;<br>
- * &lt;/mailet&gt;<br>
- * </p>
- * @version 1.0.0, 27/06/2002
+ * @version CVS $Revision: 1.3 $ $Date: 2003/06/23 18:46:21 $
  */
 
 public class RecipientIsRegex extends GenericRecipientMatcher {
@@ -85,16 +89,22 @@ public class RecipientIsRegex extends GenericRecipientMatcher {
     Pattern pattern   = null;
 
     public void init() throws javax.mail.MessagingException {
+        String patternString = getCondition();
+        if (patternString == null) {
+            throw new MessagingException("Pattern is missing");
+        }
+        
+        patternString = patternString.trim();
         try {
-            pattern = compiler.compile( getCondition() );
-        } catch(MalformedPatternException e) {
-            e.printStackTrace();
+            pattern = compiler.compile(patternString);
+        } catch(MalformedPatternException mpe) {
+            throw new MessagingException("Malformed pattern: " + patternString, mpe);
         }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
         String myRecipient = recipient.toString();
-        if ( matcher.matches( myRecipient, pattern)  ){
+        if (matcher.matches(myRecipient, pattern)){
             return true;
         } else {
             return false;
