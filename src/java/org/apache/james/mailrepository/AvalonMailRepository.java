@@ -178,7 +178,7 @@ public class AvalonMailRepository
     }
 
     /**
-     * Releases a lock on a message identified the key
+     * Releases a lock on a message identified by a key
      *
      * @param key the key of the message to be unlocked
      *
@@ -207,7 +207,7 @@ public class AvalonMailRepository
     }
 
     /**
-     * Obtains a lock on a message identified by key
+     * Obtains a lock on a message identified by a key
      *
      * @param key the key of the message to be locked
      *
