@@ -9,7 +9,7 @@
 package org.apache.james.services;
 
 import org.apache.avalon.services.*;
-//import java.util.*;
+import java.util.Iterator;
 //import java.io.*;
 //import org.apache.mailet.*;
 import org.apache.james.core.*;
@@ -35,6 +35,14 @@ public interface MailRepository extends Store.Repository {
      * under which it is stored?
      */
     public void store(MailImpl mc) ;
+
+
+    /**
+     * List string keys of messages in repository.
+     *
+     */
+    public Iterator list();
+
 
     /**
      * Retrieves a message given a key. At the moment, keys can be obtained

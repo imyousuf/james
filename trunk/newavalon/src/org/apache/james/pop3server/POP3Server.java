@@ -6,32 +6,32 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.smtpserver;
+package org.apache.james.pop3server;
 
 import java.net.*;
+import java.util.Date;
 
 import org.apache.avalon.*;
 import org.apache.avalon.services.*;
 import org.apache.avalon.util.lang.*;
 
 import org.apache.james.*;
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
+public class POP3Server implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private Logger logger =  LogKit.getLoggerFor("SMTPServer");
     private WorkerPool workerPool;
- 
-    
+    private Logger logger =  LogKit.getLoggerFor("POP3Server");
+
     public void configure(Configuration conf) throws ConfigurationException{
         this.conf = conf;
     }
@@ -44,13 +44,14 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
         this.context = context;
     }
 
+
     public void init() throws Exception {
 
-        logger.info("SMTPServer init...");
-	//int threadPool = conf.getChild("ThreadPoolSize").getVaueAsInt();
+        logger.info("POP3Server init...");
+	// this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
 	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
-        int port = conf.getChild("port").getValueAsInt(25);
+        int port = conf.getChild("port").getValueAsInt(110);
         InetAddress bind = null;
         try {
             String bindTo = conf.getChild("bind").getValue();
@@ -59,25 +60,33 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             }
         } catch (ConfigurationException e) {
         }
-        socketServer.openListener("SMTPListener", SocketServer.DEFAULT, port, bind, this);
-        logger.info("SMTPServer ...init end");
+
+	String type = SocketServer.DEFAULT;
+	//This will throw exception when we next upgrade avalon libraries
+	//try {
+	    if (conf.getChild("useTLS").getValue().equals("TRUE"))
+		type = SocketServer.TLS;
+	    //} catch (ConfigurationException e) {
+	    //}
+	logger.info("POP3Listener using " + type + " on port " + port);
+
+        socketServer.openListener("POP3Listener", type, port, bind, this);
+        logger.info("POP3Server ...init end");
     }
 
     public void parseRequest(Socket s) {
 
         try {
-            SMTPHandler smtpHandler = new SMTPHandler();
-            smtpHandler.configure(conf.getChild("smtphandler"));
-            smtpHandler.contextualize(context);
-            smtpHandler.compose(compMgr);
-            smtpHandler.init();
-            smtpHandler.parseRequest(s);
-            workerPool.execute(smtpHandler);
-            logger.debug("Executing handler.");
+            POP3Handler handler = new POP3Handler();
+            handler.configure(conf.getChild("pop3handler"));
+            handler.contextualize(context);
+            handler.compose(compMgr);
+            handler.init();
+            handler.parseRequest(s);
+            workerPool.execute((Runnable) handler);
         } catch (Exception e) {
             logger.error("Cannot parse request on socket " + s + " : "
 			 + e.getMessage());
-            e.printStackTrace();
         }
     }
 
