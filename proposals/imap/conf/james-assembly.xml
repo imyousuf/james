@@ -84,6 +84,7 @@
 
   <!-- SMTP Server -->
   <block class="org.apache.james.smtpserver.SMTPServer" name="smtpserver" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"

@@ -1,64 +1,153 @@
 <?xml version="1.0"?>
-<!--
-                                README!
 
-    Basic config file that sets up context for server application.
-
--->
 <server>
+  <logs version="1.1">
+    <!-- see http://jakarta.apache.org/avalon/excalibur/logger/index.html -->
+    <factories>
+      <factory type="file" class="org.apache.avalon.excalibur.logger.factory.FileTargetFactory"/>
+    </factories>
 
-    <logs>
-     <!--  Specify the target for each category of logger listed below.
-           The name is the name in the code and should not be changed by assemblers, deployers or administrators.
-           The priority is the lowest priority of logging mesage recorded.
-      -->
+    <categories>
+      <category name="" log-level="DEBUG">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="James.Mailet" log-level="DEBUG">
+        <log-target id-ref="James-Mailet-target"/>
+      </category>
+      <category name="James" log-level="DEBUG">
+        <log-target id-ref="James-target"/>
+      </category>
+      <category name="spoolmanager" log-level="DEBUG">
+        <log-target id-ref="spoolmanager-target"/>
+      </category>
+      <category name="dnsserver" log-level="DEBUG">
+        <log-target id-ref="dnsserver-target"/>
+      </category>
+      <category name="remotemanager" log-level="DEBUG">
+        <log-target id-ref="remotemanager-target"/>
+      </category>
+      <category name="imapserver" log-level="DEBUG"/>
+        <log-target name="imapserver-target"/>
+      </category>
+      <category name="pop3server" log-level="DEBUG">
+        <log-target id-ref="pop3server-target"/>
+      </category>
+      <category name="smtpserver" log-level="DEBUG">
+        <log-target id-ref="smtpserver-target"/>
+      </category>
+      <category name="nntpserver" log-level="DEBUG">
+        <log-target id-ref="nntpserver-target"/>
+      </category>
+      <category name="nntp-repository" log-level="DEBUG">
+        <log-target id-ref="nntp-repository-target"/>
+      </category>
+      <category name="mailstore" log-level="DEBUG">
+        <log-target id-ref="mailstore-target"/>
+      </category>
+      <category name="users-store" log-level="DEBUG">
+        <log-target id-ref="users-store-target"/>
+      </category>
+      <category name="objectstorage" log-level="DEBUG">
+        <log-target id-ref="objectstorage-target"/>
+      </category>
+      <category name="connections" log-level="DEBUG">
+        <log-target id-ref="connections-target"/>
+      </category>
+      <category name="sockets" log-level="DEBUG">
+        <log-target id-ref="sockets-target"/>
+      </category>
+      <category name="scheduler" log-level="DEBUG">
+        <log-target id-ref="scheduler-target"/>
+      </category>
+    </categories>
 
-        <category name="" target="default" priority="DEBUG" />
-        <log-target name="default" location="/logs/James-default.log" />
-        <category name="James.Mailet" target="James-Mailet-target" priority="DEBUG" />
-        <log-target name="James-Mailet-target" location="/logs/James.Mailet.log" />
-
-        <category name="James" target="James-target" priority="DEBUG"/>
-        <log-target name="James-target" location="/logs/James.log"/>
-        <category name="spoolmanager" target="spoolmanager-target" priority="DEBUG"/>
-        <log-target name="spoolmanager-target" location="/logs/spoolmanager.log"/>
-        <category name="dnsserver" target="dnsserver-target" priority="DEBUG"/>
-        <log-target name="dnsserver-target" location="/logs/dnsserver.log"/>
-        <category name="remotemanager" target="remotemanager-target" priority="DEBUG"/>
-        <log-target name="remotemanager-target" location="/logs/remotemanager.log"/>
-        <category name="imapserver" target="imapserver-target" priority="DEBUG"/>
-        <log-target name="imapserver-target" location="/logs/imapserver.log"/>
-        <category name="pop3server" target="pop3server-target" priority="DEBUG"/>
-        <log-target name="pop3server-target" location="/logs/pop3server.log"/>
-        <category name="smtpserver" target="smtpserver-target" priority="DEBUG"/>
-        <log-target name="smtpserver-target" location="/logs/smtpserver.log"/>
-        <category name="nntpserver" target="nntpserver-target" priority="DEBUG"/>
-        <log-target name="nntpserver-target" location="/logs/nntpserver.log"/>
-        <category name="nntp-repository" target="nntp-repository-target" priority="DEBUG"/>
-        <log-target name="nntp-repository-target" location="/logs/nntp-repository.log"/>
-        <category name="mailstore" target="mailstore-target" priority="DEBUG"/>
-        <log-target name="mailstore-target" location="/logs/mailstore.log"/>
-        <category name="users-store" target="users-store-target" priority="DEBUG"/>
-        <log-target name="users-store-target" location="/logs/users-store.log"/>
-        <category name="objectstorage" target="objectstorage-target" priority="DEBUG"/>
-        <log-target name="objectstorage-target" location="/logs/objectstorage.log"/>
-        <category name="connections" target="connections-target" priority="DEBUG"/>
-        <log-target name="connections-target" location="/logs/connections.log"/>
-        <category name="sockets" target="sockets-target" priority="DEBUG"/>
-        <log-target name="sockets-target" location="/logs/sockets.log"/>
-        <category name="scheduler" target="scheduler-target" priority="DEBUG"/>
-        <log-target name="scheduler-target" location="/logs/scheduler.log"/>
-
-    </logs>
-
-    <policy>
-      <grant code-base="file:${app.home}${/}blocks${/}*">
-        <permission class="java.security.AllPermission" />
-      </grant>
-
-      <grant code-base="file:${app.home}${/}lib${/}*">
-        <permission class="java.security.AllPermission" />
-      </grant>
-    </policy>
+    <targets>
+      <file id="default">
+        <filename>${app.home}/logs/default.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="James-Mailet-target">
+        <filename>${app.home}/logs/mailet.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="James-target">
+        <filename>${app.home}/logs/james.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="spoolmanager-target">
+        <filename>${app.home}/logs/spoolmanager.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="dnsserver-target">
+        <filename>${app.home}/logs/dnsserver.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="remotemanager-target">
+        <filename>${app.home}/logs/remotemanager.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="imapserver-target">
+        <filename>${app.home}/logs/imapserver.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="pop3server-target">
+        <filename>${app.home}/logs/pop3server.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="smtpserver-target">
+        <filename>${app.home}/logs/smtpserver.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="nntpserver-target">
+        <filename>${app.home}/logs/nntpserver.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="nntp-repository-target">
+        <filename>${app.home}/logs/nntpstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="mailstore-target">
+        <filename>${app.home}/logs/mailstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="users-store-target">
+        <filename>${app.home}/logs/usersstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="objectstorage-target">
+        <filename>${app.home}/logs/objectstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="connections-target">
+        <filename>${app.home}/logs/connections.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="sockets-target">
+        <filename>${app.home}/logs/sockets.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+      <file id="scheduler-target">
+        <filename>${app.home}/logs/scheduler.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+      </file>
+    </targets>
+  </logs>
 
 </server>
