@@ -129,10 +129,10 @@ import java.util.Iterator;
  *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
- * <P><I>notice</I>, <I>senderAddress</I> and <I>attachStackTrace</I> can be used instead of
+ * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
  * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.19 $ $Date: 2003/06/27 14:25:47 $
+ * @version CVS $Revision: 1.20 $ $Date: 2003/06/30 09:41:03 $
  */
 public class NotifyPostmaster extends AbstractNotify {
 
@@ -156,6 +156,7 @@ public class NotifyPostmaster extends AbstractNotify {
             "attachment",
             "message",
             "notice",
+            "sender",
             "sendingAddress",
             "prefix",
             "attachError",

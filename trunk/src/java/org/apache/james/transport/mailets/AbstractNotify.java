@@ -116,7 +116,7 @@ import java.util.Iterator;
  * <P><I>notice</I>, <I>senderAddress</I> and <I>attachStackTrace</I> can be used instead of
  * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.7 $ $Date: 2003/06/27 14:25:46 $
+ * @version CVS $Revision: 1.8 $ $Date: 2003/06/30 09:41:03 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -258,10 +258,10 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return null
+     * @return {@link AbstractRedirect#getSender(Mail)}, meaning the new requested sender if any
      */
-    protected MailAddress getReturnPath() throws MessagingException {
-        return null;
+    protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
+        return getSender(originalMail);
     }
 
     /**
