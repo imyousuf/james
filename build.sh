@@ -6,10 +6,22 @@ echo "-------------------"
 
 CLASSPATH=lib/xerces.jar
 
-for i in ../jakarta-site2/lib/*.jar
+## Setup the Anakia stuff
+if [ -d ../jakarta-site2/lib ] ; then
+for i in ../jakarta-site2/lib/velocity*.jar
 do
     CLASSPATH=${CLASSPATH}:$i
 done
+for i in ../jakarta-site2/lib/jdom*.jar
+do
+    CLASSPATH=${CLASSPATH}:$i
+done
+for i in ../jakarta-site2/lib/xerces*.jar
+do
+    CLASSPATH=${CLASSPATH}:$i
+done
+echo "Jakarta-Site2 Module Found"
+fi
 
 export CLASSPATH
 
