@@ -84,6 +84,17 @@ abstract public class ProcessorAbstract
     }
     
     /**
+     * Returns the defaultLocalPart.
+     * 
+     * @return String
+     */
+    protected String getDefaultLocalPart()
+    {
+        // TODO Consider making this configurable
+        return "FETCHMAIL-SERVICE";
+    }    
+    
+    /**
      * Returns the message ids. of messages for which processing has been
      * deferred as the recipient could not be found
      * @return List

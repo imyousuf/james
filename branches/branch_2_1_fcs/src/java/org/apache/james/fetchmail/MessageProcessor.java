@@ -73,6 +73,15 @@ import org.apache.mailet.MailAddress;
  *      <dd>The recipient is on a remote host</dd>
  * <dt>org.apache.james.fetchmail.isUserUndefined</dt>
  *      <dd>The recipient is on a localhost but not defined to James</dd>
+ * <dt>org.apache.james.fetchmail.isDefaultSenderLocalPart</dt>
+ *      <dd>The local part of the sender address could not be obtained. The
+ *          default value has been used.</dd>
+ * <dt>org.apache.james.fetchmail.isDefaultSenderDomainPart</dt>
+ *      <dd>The domain part of the sender address could not be obtained. The
+ *          default value has been used.</dd>
+  * <dt>org.apache.james.fetchmail.isDefaultRemoteAddress</dt>
+ *      <dd>The remote address could not be determined. The default value
+ *      (localhost/127.0.0.1)has been used.</dd>
  * </dl>
  * 
  * <p>Configuration settings -
@@ -146,17 +155,21 @@ import org.apache.mailet.MailAddress;
  * when receiving mail from an upstream MTA.</p> 
  * 
  * <p>The only correction applied by <code>MessageProcessor</code> is to correct a
- * partial originator address. If the originator address has a valid user part
- * but no domain part, a domain part is added. The added domain is either the 
- * default domain specified in the configuration, or if not specified, the 
- * fully qualified name of the machine on which the fetch task is running.</p>
+ * missing or partial sender address. If the sender address can not be obtained,
+ * the default local part and default domain part is added. If the sender domain
+ * part is absent, the default domain part is added.</p>
+ * 
+ * <p>Mail with corrections applied to the sender address will most likely pass
+ * Matcher tests on the sender that they might otherwise fail. The 
+ * Mail Attributes <code>org.apache.james.fetchmail.isDefaultSenderLocalPart</code>
+ * and <code>org.apache.james.fetchmail.isDefaultSenderDomainPart</code> are added 
+ * to the injected mail to enable such mail to be detected and processed accordingly.
+ * </p>
  * 
  * <p>The status of messages on the server from which they were fetched that 
  * cannot be injected into the input spool due to non-correctable errors is 
  * determined by the undeliverable configuration options.</p>
  * 
- * <p>Creation Date: 27-May-03</p>
- *
  */
 public class MessageProcessor extends ProcessorAbstract
 {
@@ -212,7 +225,22 @@ public class MessageProcessor extends ProcessorAbstract
     /**
      * The remote host name derived from the remote domain
      */
-    private String fieldRemoteHostName;           
+    private String fieldRemoteHostName;
+    
+    /**
+     * The default sender local part has been used.
+     */  
+    private boolean fieldDefaultSenderLocalPart = false;
+
+    /**
+     * The default sender domain part has been used.
+     */     
+    private boolean fieldDefaultSenderDomainPart = false;
+    
+    /**
+     * The default remote address has been used.
+     */     
+    private boolean fieldDefaultRemoteAddress = false;        
     
     /**
      * Constructor for MessageProcessor.
@@ -602,11 +630,14 @@ public class MessageProcessor extends ProcessorAbstract
         {
             mail.setRemoteAddr("127.0.0.1");
             mail.setRemoteHost("localhost");
+            setDefaultRemoteAddress(true);          
+            logStatusInfo("Remote address could not be determined. Using localhost/127.0.0.1");             
         }
         else
         {
             mail.setRemoteAddr(getRemoteAddress());
             mail.setRemoteHost(getRemoteHostName());
+            setDefaultRemoteAddress(false);            
         }
 
         if (getLogger().isDebugEnabled())
@@ -635,22 +666,35 @@ public class MessageProcessor extends ProcessorAbstract
      
 
     /**
+     * <p>
      * Method getSender answers a <code>MailAddress</code> for the sender.
+     * When the sender local part and/or domain part can not be obtained
+     * from the mail, default values are used. The flags 
+     * 'defaultSenderLocalPart' and 'defaultSenderDomainPart' are set 
+     * accordingly.
+     * </p>
      * 
      * @return MailAddress
      * @throws MessagingException
      */
     protected MailAddress getSender() throws MessagingException
     {
-        String from = "FETCHMAIL-SERVICE";
+        String from = null;
+        InternetAddress internetAddress = null;
+                
         try {
             from = ((InternetAddress) getMessageIn().getFrom()[0]).getAddress().trim();
+            setDefaultSenderLocalPart(false);            
         }
         catch (Exception _) {
-            getLogger().info("Could not identify sender -- using default value");
+            from = getDefaultLocalPart();
+            setDefaultSenderLocalPart(true);
+            StringBuffer buffer = new StringBuffer(32);
+            buffer.append("Sender localpart is absent. Using default value (");
+            buffer.append(getDefaultLocalPart());
+            buffer.append(')');            
+            logStatusInfo(buffer.toString());            
         }
-
-        InternetAddress internetAddress = null;
 
         // Check for domain part, add default if missing
         if (from.indexOf('@') < 0)
@@ -659,9 +703,19 @@ public class MessageProcessor extends ProcessorAbstract
             fromBuffer.append('@');
             fromBuffer.append(getDefaultDomainName());
             internetAddress = new InternetAddress(fromBuffer.toString());
+            setDefaultSenderDomainPart(true);
+            
+            StringBuffer buffer = new StringBuffer(32);
+            buffer.append("Sender domain is absent. Using default value (");
+            buffer.append(getDefaultDomainName());
+            buffer.append(')');            
+            logStatusInfo(buffer.toString());             
         }
         else
+        {
             internetAddress = new InternetAddress(from);
+            setDefaultSenderDomainPart(false);            
+        }
 
         return new MailAddress(internetAddress);
     }
@@ -669,70 +723,100 @@ public class MessageProcessor extends ProcessorAbstract
     /**
      * <p>Method computeRemoteDomain answers a <code>String</code> that is the
      * RFC2822 compliant "Received : from" domain extracted from the message
-     * being processed.</p>
+     * being processed for the remote domain that sent the message.</p>
+     *
+     * <p>Often the remote domain is the domain that sent the message to the
+     * host of the message store, the second "received" header, which has an
+     * index of 1. Other times,  messages may be received by a edge mail server
+     * and relayed internally through one or more internal mail servers prior 
+     * to  arriving at the message store host. In these cases the index is 
+     * 1 + the number of internal servers through which a mail passes.
+     * </p>
+     * <p>The index of the header to use is specified by the configuration
+     * parameter <code>RemoteReceivedHeaderIndex</code>. This is set to
+     * point to the received header prior to the remote mail server, the one
+     * prior to the edge mail server.
+     * </p> 
+     * <p>"received" headers are searched starting at the specified index.
+     * If a domain in the "received" header is not found, successively closer 
+     * "received" headers are tried. If a domain is not found in this way, the
+     * local machine is used as the domain. Finally, if the local domain cannot
+     * be determined, the local address 127.0.0.1 is used.
+     * </p>
      * 
-     * <p>Normally this is the domain that sent the message to the host for the
-     * message store as reported by the second "received" header. The index of
-     * the header to use is specified by the configuration parameter
-     * <code>RemoteReceivedHeaderIndex</code>. If a header at this index does
-     * not exist, the domain of the successively closer "received" headers
-     * is tried until they are exhausted, then "localhost" is used.</p>
-     * 
-     * @return String
+     * @return String An RFC2822 compliant "Received : from" domain name
      */
     protected String computeRemoteDomain() throws MessagingException
     {
-        StringBuffer domainBuffer = new StringBuffer();        
-        String[] headers = null; 
+        StringBuffer domainBuffer = new StringBuffer();
+        String[] headers = null;
+
         if (getRemoteReceivedHeaderIndex() > -1)
-              getMessageIn().getHeader(RFC2822Headers.RECEIVED);
-              
-        if (null != headers)
+            headers = getMessageIn().getHeader(RFC2822Headers.RECEIVED);
+
+        // There are RECEIVED headers if the array is not null
+        // and its length at is greater than 0             
+        boolean hasHeaders = (null == headers ? false : headers.length > 0);
+
+        // If there are RECEIVED headers try and extract the domain
+        if (hasHeaders)
         {
-            // If there are RECEIVED headers and the index to begin at is greater
-            // than -1, try and extract the domain
-            if (headers.length > 0)
+            final String headerTokens = " \n\r";
+
+            // Search the headers for a domain
+            for (int headerIndex =
+                headers.length > getRemoteReceivedHeaderIndex()
+                    ? getRemoteReceivedHeaderIndex()
+                    : headers.length - 1;
+                headerIndex >= 0 && domainBuffer.length() == 0;
+                headerIndex--)
             {
-                final String headerTokens = " \n\r";
-
-                // Search the headers for a domain
-                for (int headerIndex =
-                    headers.length > getRemoteReceivedHeaderIndex()
-                        ? getRemoteReceivedHeaderIndex()
-                        : headers.length - 1;
-                    headerIndex >= 0 && domainBuffer.length() == 0;
-                    headerIndex--)
+                // Find the "from" token
+                StringTokenizer tokenizer =
+                    new StringTokenizer(headers[headerIndex], headerTokens);
+                boolean inFrom = false;
+                while (!inFrom && tokenizer.hasMoreTokens())
+                    inFrom = tokenizer.nextToken().equals("from");
+                // Add subsequent tokens to the domain buffer until another                  
+                // field is encountered or there are no more tokens
+                while (inFrom && tokenizer.hasMoreTokens())
                 {
-                    // Find the "from" token
-                    StringTokenizer tokenizer =
-                        new StringTokenizer(headers[headerIndex], headerTokens);
-                    boolean inFrom = false;
-                    while (!inFrom && tokenizer.hasMoreTokens())
-                        inFrom = tokenizer.nextToken().equals("from");
-
-                    // Add subsequent tokens to the domain buffer until another 
-                    // field is encountered or there are no more tokens
-                    while (inFrom && tokenizer.hasMoreTokens())
+                    String token = tokenizer.nextToken();
+                    if (inFrom =
+                        getRFC2822RECEIVEDHeaderFields().indexOf(token) == -1)
                     {
-                        String token = tokenizer.nextToken();
-                        if (inFrom =
-                            getRFC2822RECEIVEDHeaderFields().indexOf(token)
-                                == -1)
-                        {
-                            domainBuffer.append(token);
-                            domainBuffer.append(' ');
-                        }
+                        domainBuffer.append(token);
+                        domainBuffer.append(' ');
                     }
                 }
             }
         }
-
-        // Default is "localhost"
+        // If a domain was not found, the default is the local host and         
+        // if we cannot resolve this, the local address 127.0.0.1         
+        // Note that earlier versions of this code simply used 'localhost'         
+        // which works fine with java.net but is not resolved by dnsjava         
+        // which was introduced in v2.2.0. See Jira issue JAMES-302.          
         if (domainBuffer.length() == 0)
-            domainBuffer.append("localhost");
-
+        {
+            try
+            {
+                InetAddress addr1 = java.net.InetAddress.getLocalHost();
+                // These shenanigans are required to get the fully qualified                 
+                // hostname prior to JDK 1.4 in which getCanonicalHostName()                 
+                // does the job for us                 
+                InetAddress addr2 =
+                    java.net.InetAddress.getByName(addr1.getHostAddress());
+                InetAddress addr3 =
+                    java.net.InetAddress.getByName(addr2.getHostName());
+                domainBuffer.append(addr3.getHostName());
+            }
+            catch (UnknownHostException ue)
+            {
+                domainBuffer.append("[127.0.0.1]");
+            }
+        }
         return domainBuffer.toString().trim();
-    }    
+    }
     
     /**
      * Method handleBouncing sets the Mail state to ERROR and delete from
@@ -1247,7 +1331,22 @@ public class MessageProcessor extends ProcessorAbstract
         if (isRemoteReceivedHeaderInvalid().booleanValue())
             aMail.setAttribute(
                 getAttributePrefix() + "isRemoteReceivedHeaderInvalid",
-                null);                
+                null); 
+                
+        if (isDefaultSenderLocalPart())
+            aMail.setAttribute(
+                getAttributePrefix() + "isDefaultSenderLocalPart",
+                null);
+                
+        if (isDefaultSenderDomainPart())
+            aMail.setAttribute(
+                getAttributePrefix() + "isDefaultSenderDomainPart",
+                null);
+                
+        if (isDefaultRemoteAddress())
+            aMail.setAttribute(
+                getAttributePrefix() + "isDefaultRemoteAddress",
+                null);                                                                
     }
 
     /**
@@ -1592,5 +1691,59 @@ public class MessageProcessor extends ProcessorAbstract
     {
         setRemoteReceivedHeaderInvalid(computeRemoteReceivedHeaderInvalid());
     }    
+
+    /**
+     * Returns the defaultSenderDomainPart.
+     * @return boolean
+     */
+    protected boolean isDefaultSenderDomainPart()
+    {
+        return fieldDefaultSenderDomainPart;
+    }
+
+    /**
+     * Returns the defaultSenderLocalPart.
+     * @return boolean
+     */
+    protected boolean isDefaultSenderLocalPart()
+    {
+        return fieldDefaultSenderLocalPart;
+    }
+
+    /**
+     * Sets the defaultSenderDomainPart.
+     * @param defaultSenderDomainPart The defaultSenderDomainPart to set
+     */
+    protected void setDefaultSenderDomainPart(boolean defaultSenderDomainPart)
+    {
+        fieldDefaultSenderDomainPart = defaultSenderDomainPart;
+    }
+
+    /**
+     * Sets the defaultSenderLocalPart.
+     * @param defaultSenderLocalPart The defaultSenderLocalPart to set
+     */
+    protected void setDefaultSenderLocalPart(boolean defaultSenderLocalPart)
+    {
+        fieldDefaultSenderLocalPart = defaultSenderLocalPart;
+    }
+
+    /**
+     * Returns the defaultRemoteAddress.
+     * @return boolean
+     */
+    protected boolean isDefaultRemoteAddress()
+    {
+        return fieldDefaultRemoteAddress;
+    }
+
+    /**
+     * Sets the defaultRemoteAddress.
+     * @param defaultRemoteAddress The defaultRemoteAddress to set
+     */
+    protected void setDefaultRemoteAddress(boolean defaultRemoteAddress)
+    {
+        fieldDefaultRemoteAddress = defaultRemoteAddress;
+    }
 
 }
