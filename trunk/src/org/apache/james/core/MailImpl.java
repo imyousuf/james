@@ -22,6 +22,9 @@ import org.apache.mailet.*;
  * @version 0.9
  */
 public class MailImpl implements Mail {
+	//We hardcode the serialVersionUID so that from James 1.2 on,
+	//  MailImpl will be deserializable (so your mail doesn't get lost)
+	public static final long serialVersionUID = -4289663364703986260L;
 
     private String errorMessage;
     private String state;
