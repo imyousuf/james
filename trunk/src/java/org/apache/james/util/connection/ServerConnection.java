@@ -18,9 +18,16 @@ import java.util.List;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
+import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
+import org.apache.avalon.excalibur.pool.ObjectFactory;
+import org.apache.avalon.excalibur.pool.Pool;
+import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 
 
 /**
@@ -32,7 +39,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class ServerConnection extends AbstractLogEnabled
-    implements Component, Runnable {
+    implements Component, Initializable, Runnable {
 
     /**
      * This is a hack to deal with the fact that there appears to be
@@ -57,6 +64,16 @@ public class ServerConnection extends AbstractLogEnabled
      * handlers to manage client connections to this server socket
      */
     private ConnectionHandlerFactory handlerFactory;
+
+    /**
+     * The pool that produces ClientConnectionRunners
+     */
+    private Pool runnerPool;
+
+    /**
+     * The factory used to provide ClientConnectionRunner objects
+     */
+    private ObjectFactory theRunnerFactory = new ClientConnectionRunnerFactory();
 
     /**
      * The thread pool used to spawn individual threads used to manage each
@@ -88,7 +105,7 @@ public class ServerConnection extends AbstractLogEnabled
     /**
      * The thread used to manage this server connection.
      */
-    private Thread serverConnectionThread;    
+    private Thread serverConnectionThread;
 
     /**
      * The sole constructor for a ServerConnection.
@@ -111,6 +128,17 @@ public class ServerConnection extends AbstractLogEnabled
         connThreadPool = threadPool;
         socketTimeout = timeout;
         this.maxOpenConn = maxOpenConn;
+    }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+        runnerPool = new HardResourceLimitingPool(theRunnerFactory, 5, maxOpenConn);
+        if (runnerPool instanceof LogEnabled) {
+            ((LogEnabled)runnerPool).enableLogging(getLogger());
+        }
+        ((Initializable)runnerPool).initialize();
     }
 
     /**
@@ -151,14 +179,17 @@ public class ServerConnection extends AbstractLogEnabled
                     // Expected - just complete dispose()
                 }
             }
+            if (runnerPool instanceof Disposable) {
+                ((Disposable)runnerPool).dispose();
+            }
+            runnerPool = null;
         }
 
         getLogger().debug("Closed server connection - cleaning up clients - " + this.toString());
 
         synchronized (clientConnectionRunners) {
             Iterator runnerIterator = clientConnectionRunners.iterator();
-            while( runnerIterator.hasNext() )
-            {
+            while( runnerIterator.hasNext() ) {
                 ClientConnectionRunner runner = (ClientConnectionRunner)runnerIterator.next();
                 runner.dispose();
                 runner = null;
@@ -172,14 +203,20 @@ public class ServerConnection extends AbstractLogEnabled
     }
 
     /**
-     * Adds a ClientConnectionRunner to the set managed by this ServerConnection object.
+     * Returns a ClientConnectionRunner in the set managed by this ServerConnection object.
      *
      * @param clientConnectionRunner the ClientConnectionRunner to be added
      */
-    private void addClientConnectionRunner(ClientConnectionRunner clientConnectionRunner) {
+    private ClientConnectionRunner addClientConnectionRunner()
+            throws Exception {
         synchronized (clientConnectionRunners) {
+            ClientConnectionRunner clientConnectionRunner = (ClientConnectionRunner)runnerPool.get();
             clientConnectionRunners.add(clientConnectionRunner);
             openConnections++;
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Adding one connection for a total of " + openConnections);
+            }
+            return clientConnectionRunner;
         }
     }
 
@@ -190,8 +227,13 @@ public class ServerConnection extends AbstractLogEnabled
      */
     private void removeClientConnectionRunner(ClientConnectionRunner clientConnectionRunner) {
         synchronized (clientConnectionRunners) {
-            clientConnectionRunners.remove(clientConnectionRunner);
-            openConnections--;
+            if (clientConnectionRunners.remove(clientConnectionRunner)) {
+                openConnections--;
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Releasing one connection, leaving a total of " + openConnections);
+                }
+                runnerPool.put(clientConnectionRunner);
+            }
         }
     }
 
@@ -209,7 +251,16 @@ public class ServerConnection extends AbstractLogEnabled
         } catch (SocketException se) {
             // Ignored - for the moment
         }
-        while( null != serverConnectionThread && !serverConnectionThread.isInterrupted() ) {
+
+        if ((getLogger().isDebugEnabled()) && (serverConnectionThread != null)) {
+            StringBuffer debugBuffer =
+                new StringBuffer(128)
+                    .append(serverConnectionThread.getName())
+                    .append(" is listening on ")
+                    .append(serverSocket.toString());
+            getLogger().debug(debugBuffer.toString());
+        }
+        while( !Thread.currentThread().interrupted() && null != serverConnectionThread ) {
             try {
                 Socket clientSocket = null;
                 try {
@@ -233,7 +284,7 @@ public class ServerConnection extends AbstractLogEnabled
                 synchronized (clientConnectionRunners) {
                     if ((maxOpenConn > 0) && (openConnections >= maxOpenConn)) {
                         if (getLogger().isWarnEnabled()) {
-                            getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + openConnections);
+                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + openConnections);
                         }
                         try {
                             clientSocket.close();
@@ -243,20 +294,36 @@ public class ServerConnection extends AbstractLogEnabled
                         continue;
                     } else {
                         clientSocket.setSoTimeout(socketTimeout);
-                        runner =
-                            new ClientConnectionRunner(clientSocket, handlerFactory);
+                        runner = addClientConnectionRunner();
+                        runner.setSocket(clientSocket);
                     }
                 }
                 setupLogger( runner );
-                connThreadPool.execute( runner );
+                try {
+                    connThreadPool.execute( runner );
+                } catch (Exception e) {
+                    // This error indicates that the underlying thread pool
+                    // is out of threads.  For robustness, we catch this and
+                    // cleanup
+                    getLogger().error("Internal error - insufficient threads available to service request.", e);
+                    try {
+                        clientSocket.close();
+                    } catch (IOException ignored) {
+                        // We ignore this exception, as we already have an error condition.
+                    }
+                    // In this case, the thread will not remove the client connection runner,
+                    // so we must.
+                    removeClientConnectionRunner(runner);
+                }
             } catch( IOException ioe ) {
                 getLogger().error( "Exception accepting connection", ioe );
             } catch( Exception e ) {
-                getLogger().error( "Exception executing client connection runner: " + e.getMessage() );
+                getLogger().error( "Exception executing client connection runner: " + e.getMessage(), e );
             }
         }
         synchronized( this ) {
             serverConnectionThread = null;
+            Thread.currentThread().interrupted();
             notifyAll();
         }
     }
@@ -269,7 +336,7 @@ public class ServerConnection extends AbstractLogEnabled
      * @author Peter M. Goldstein <farsight@alum.mit.edu>
      */
     class ClientConnectionRunner extends AbstractLogEnabled
-        implements Runnable, Component  {
+        implements Component, Poolable, Runnable  {
 
         /**
          * The Socket that this client connection is using for transport.
@@ -281,25 +348,10 @@ public class ServerConnection extends AbstractLogEnabled
          */
         private Thread clientSocketThread;
 
-        /**
-         * The ConnectionHandlerFactory that generates a ConnectionHandler for
-         * this client connection.
-         */
-        private ConnectionHandlerFactory clientConnectionHandlerFactory;
-      
-        /**
-         * The constructor for a ClientConnectionRunner.
-         *
-         * @param socket the client socket associated with this ClientConnectionRunner
-         * @param handlerFactory the factory that generates ConnectionHandlers for this
-         *                       connection
-         */
-        public ClientConnectionRunner(Socket socket,
-                                      ConnectionHandlerFactory handlerFactory) {
-            clientSocket = socket;
-            clientConnectionHandlerFactory = handlerFactory;
+        public ClientConnectionRunner() {
+            System.out.println("Creating ClientConnectionRunner");
         }
-      
+
         /**
          * The dispose operation that terminates the runner.  Should only be
          * called by the ServerConnection that owns the ClientConnectionRunner
@@ -324,6 +376,15 @@ public class ServerConnection extends AbstractLogEnabled
         }
 
         /**
+         * Sets the socket for a ClientConnectionRunner.
+         *
+         * @param socket the client socket associated with this ClientConnectionRunner
+         */
+        public void setSocket(Socket socket) {
+            clientSocket = socket;
+        }
+
+        /**
          * Provides the body for the thread of execution dealing with a particular client
          * connection.  An appropriate ConnectionHandler is created, applied, executed, 
          * and released. 
@@ -332,9 +393,8 @@ public class ServerConnection extends AbstractLogEnabled
             ConnectionHandler handler = null;
             try {
                 clientSocketThread = Thread.currentThread();
-                ServerConnection.this.addClientConnectionRunner(this);
 
-                handler = clientConnectionHandlerFactory.createConnectionHandler();
+                handler = ServerConnection.this.handlerFactory.createConnectionHandler();
                 String connectionString = null;
                 if( getLogger().isDebugEnabled() ) {
                     connectionString = getConnectionString();
@@ -348,31 +408,41 @@ public class ServerConnection extends AbstractLogEnabled
                     String message = "Ending " + connectionString;
                     getLogger().debug( message );
                 }
+
             } catch( Exception e ) {
-                getLogger().warn( "Error handling connection", e );
+                getLogger().error( "Error handling connection", e );
             } finally {
-    
+
                 // Close the underlying socket
                 try {
-                    clientSocket.close();
+                    if (clientSocket != null) {
+                        clientSocket.close();
+                    }
                 } catch( IOException ioe ) {
                     getLogger().warn( "Error shutting down connection", ioe );
                 }
-    
-                // Release the handler and kill the reference to the handler factory
-                if (handler != null) {
-                    clientConnectionHandlerFactory.releaseConnectionHandler( handler );
-                    handler = null;
-                }
-                clientConnectionHandlerFactory = null;
 
-                // Remove this runner from the list of active connections.
-                ServerConnection.this.removeClientConnectionRunner(this);
+                clientSocket = null;
 
                 // Null out the thread, notify other threads to encourage
                 // a context switch
                 synchronized( this ) {
                     clientSocketThread = null;
+
+                    Thread.currentThread().interrupted();
+
+                    // Release the handler and kill the reference to the handler factory
+                    //
+                    // This needs to be done after the clientSocketThread is nulled out,
+                    // otherwise we could trash a reused ClientConnectionRunner
+                    if (handler != null) {
+                        ServerConnection.this.handlerFactory.releaseConnectionHandler( handler );
+                        handler = null;
+                    }
+
+                    // Remove this runner from the list of active connections.
+                    ServerConnection.this.removeClientConnectionRunner(this);
+
                     notifyAll();
                 }
             }
@@ -398,6 +468,34 @@ public class ServerConnection extends AbstractLogEnabled
                     .append(":")
                     .append(clientSocket.getPort());
             return connectionBuffer.toString();
+        }
+    }
+
+    /**
+     * The factory for producing handlers.
+     */
+    private class ClientConnectionRunnerFactory
+        implements ObjectFactory {
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+         */
+        public Object newInstance() throws Exception {
+            return new ClientConnectionRunner();
+        }
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
+         */
+        public Class getCreatedClass() {
+            return ClientConnectionRunner.class;
+        }
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         */
+        public void decommission( Object object ) throws Exception {
+            return;
         }
     }
 }
