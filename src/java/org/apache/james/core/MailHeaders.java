@@ -58,6 +58,8 @@
 
 package org.apache.james.core;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,15 +67,13 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Enumeration;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
-
 import org.apache.mailet.RFC2822Headers;
 
 /**
  * This interface defines a container for mail headers. Each header must use
  * MIME format: <pre>name: value</pre>.
  *
+ * @author Federico Barbieri <scoobie@systemy.it>
  */
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
 
@@ -99,30 +99,24 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
         super(in);
     }
 
-// TODO: Overloading error.  This is extremely dangerous, as the overloaded call
-//       does not behave like an overridden call.  Specifically, the choice of
-//       which method to invoke is made at compile time, not at runtime.
-//       Potentially very, very bad if the behaviors diverge.
-
-    /**
-     * Write the headers to an PrintStream
-     *
-     * @param writer the stream to which to write the headers
-     */
-    public void writeTo(PrintStream writer) {
-        for (Enumeration e = super.getAllHeaderLines(); e.hasMoreElements(); ) {
-            writer.println((String) e.nextElement());
-        }
-        writer.println("");
-    }
-
     /**
      * Write the headers to an output stream
      *
-     * @param out the stream to which to write the headers
+     * @param writer the stream to which to write the headers
      */
     public void writeTo(OutputStream out) {
-        writeTo(new PrintStream(out));
+        PrintStream pout;
+        if (out instanceof PrintStream) {
+            pout = (PrintStream)out;
+        } else {
+            pout = new PrintStream(out);
+        }
+        for (Enumeration e = super.getAllHeaderLines(); e.hasMoreElements(); ) {
+            pout.print((String) e.nextElement());
+            pout.print("\r\n");
+        }
+        // Print trailing CRLF
+        pout.print("\r\n");
     }
 
     /**
