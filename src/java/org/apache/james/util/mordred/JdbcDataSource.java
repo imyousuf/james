@@ -99,7 +99,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.18.4.2 $
+ * @version CVS $Revision: 1.18.4.3 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -432,7 +432,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     public void run() {
         try {
             while(reaperActive) {
-                for(int i = 0; i < pool.size(); i++) {
+                for(int i = 0; i < pool.size(); i++) try {
                     PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
                     long age            = System.currentTimeMillis() - entry.getLastActivity();
                     synchronized(entry) {
@@ -458,6 +458,16 @@ public class JdbcDataSource extends AbstractLogEnabled
                             finalizeEntry(entry);
                             continue;
                         }
+                    }
+                }
+                catch (Throwable ex)
+                {
+                    StringWriter sout = new StringWriter();
+                    PrintWriter pout = new PrintWriter(sout, true);
+                    pout.println("Reaper Error: ");
+                    ex.printStackTrace(pout);
+                    if (getLogger().isErrorEnabled()) {
+                        getLogger().error(sout.toString());
                     }
                 }
                 try {
