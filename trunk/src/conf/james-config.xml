@@ -35,6 +35,12 @@
         <servername>localhost</servername>
       </servernames>
 
+      <!-- Set whether user names are case sensitive or insensitive -->
+      <!-- Set whether to enable local aliases -->
+      <usernames ignoreCase="TRUE" enableAliases="TRUE"
+                                   enableForwarding="TRUE"/>
+
+
       <!-- Set the type of permanent mailfolders to be used.
       If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
       service is being provided then use must be 'basic' (default) . At some
@@ -482,6 +488,7 @@
        
   <!-- The User Storage block -->
   <users-store>
+      <!-- File-based user repository  -->
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/users/"/>
@@ -495,7 +502,60 @@
         <table>Users</table>
       </repository>
       -->
+      <!-- The following are examples of database connections which have been tested.
+           Theses should provided a guide to setting up other databases as well.
+           The driver.class and destination.URL properties are require,
+           but destination.user and destination.password are optional. -->
+      <!-- Mssql server with Inet Sprinta
+            <destination>
+                <driver class="com.inet.tds.TdsDriver"/>
+                <datasource>
+                    <dburl>jdbc:inetdae7:127.0.0.1?database=mail</dburl>
+                    <user>user</user>
+                    <password>password</password>
+                </datasource>
+            </destination>
+      </repository>
+      -->
       
+      <!-- MySQL server via ODBC
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersJDBCRepository">
+            <destination>
+                <driver class="sun.jdbc.odbc.JdbcOdbcDriver"/>
+                <datasource>
+                    <dburl>jdbc:odbc:mail-mysql</dburl>
+                </datasource>
+            </destination>
+      </repository>
+      -->
+      <!-- MySQL server via mm mysql driver
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersJDBCRepository">
+            <destination>
+                <driver class="org.gjt.mm.mysql.Driver"/>
+                <datasource>
+                    <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
+                    <user>user</user>
+                    <password>password</password>
+                </datasource>
+            </destination>
+      </repository>
+      -->
+      <!-- Oracle8i server via thin driver
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersJDBCRepository">
+            <destination>
+                <driver class="oracle.jdbc.driver.OracleDriver"/>
+                <datasource>
+                    <dburl>jdbc:oracle:thin:@127.0.0.1:1521:mail</dburl>
+                    <user>user</user>
+                    <password>password</password>
+                </datasource>
+            </destination>
+      </repository>
+      -->
+
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/lists/list-james/"/>

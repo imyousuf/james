@@ -10,6 +10,7 @@ package org.apache.james.remotemanager;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.mail.internet.ParseException;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
@@ -25,8 +26,11 @@ import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.james.Constants;
 import org.apache.james.BaseConnectionHandler;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.User;
+import org.apache.james.services.JamesUser;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.mailet.MailAddress;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -37,6 +41,10 @@ import org.apache.james.services.UsersStore;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ *
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:27 $
+ * $Revision: 1.2 $
  *
  */
 public class RemoteManagerHandler
@@ -172,10 +180,10 @@ public class RemoteManagerHandler
             argument1 = commandLine.nextToken();
         }
         if (command.equalsIgnoreCase("ADDUSER")) {
-            String user = argument;
+            String username = argument;
             String passwd = argument1;
             try {
-                if (user.equals("") || passwd.equals("")) {
+                if (username.equals("") || passwd.equals("")) {
                     out.println("usage: adduser [username] [password]");
                     return true;
                 }
@@ -183,18 +191,46 @@ public class RemoteManagerHandler
                 out.println("usage: adduser [username] [password]");
                 return true;
             }
-            if (users.contains(user)) {
-                out.println("user " + user + " already exist");
+            if (users.contains(username)) {
+                out.println("user " + username + " already exist");
             } else {
-                if(mailServer.addUser(user, passwd)) {
-                    out.println("User " + user + " added");
-                    getLogger().info("User " + user + " added");
+                if(mailServer.addUser(username, passwd)) {
+                    out.println("User " + username + " added");
+                    getLogger().info("User " + username + " added");
                 } else {
-                    out.println("Error adding user " + user);
-                    getLogger().info("Error adding user " + user);
+                    out.println("Error adding user " + username);
+                    getLogger().info("Error adding user " + username);
                 }
             }
             out.flush();
+        } else if (command.equalsIgnoreCase("SETPASSWORD")) {
+	    if (argument == null || argument1 == null) {
+                out.println("usage: setpassword [username] [password]");
+                return true;
+	    }
+            String username = argument;
+            String passwd = argument1;
+            if (username.equals("") || passwd.equals("")) {
+                out.println("usage: adduser [username] [password]");
+                return true;
+	    }
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+	    boolean success;
+	    success = user.setPassword(passwd);
+	    if (success){
+		users.updateUser(user);
+                out.println("Password for " + username + " reset");
+                getLogger().info("Password for " + username + " reset");
+	    } else {
+                out.println("Error resetting password");
+                getLogger().info("Error resetting password");
+	    }
+            out.flush();
+	    return true;
         } else if (command.equalsIgnoreCase("DELUSER")) {
             String user = argument;
             if (user.equals("")) {
@@ -237,6 +273,112 @@ public class RemoteManagerHandler
             out.println("verify [username]               verify if specified user exist");
             out.println("quit                            close connection");
             out.flush();
+        } else if (command.equalsIgnoreCase("SETALIAS")) {
+	    if (argument == null || argument1 == null) {
+                out.println("usage: setalias [username] [alias]");
+                return true;
+	    }
+            String username = argument;
+            String alias = argument1;
+            if (username.equals("") || alias.equals("")) {
+                out.println("usage: adduser [username] [alias]");
+                return true;
+	    }
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+	    JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+	    if (aliasUser == null) {
+		out.println("Alias unknown to server" 
+                            + " - create that user first.");
+		return true;
+	    }
+
+  	    boolean success;
+	    success = user.setAlias(alias);
+	    if (success){
+	        user.setAliasing(true);
+		users.updateUser(user);
+                out.println("Alias for " + username + " set to:" + alias);
+                getLogger().info("Alias for " + username + " set to:" + alias);
+	    } else {
+                out.println("Error setting alias");
+                getLogger().info("Error setting alias");
+	    }
+            out.flush();
+	    return true;
+        } else if (command.equalsIgnoreCase("SETFORWARDING")) {
+	    if (argument == null || argument1 == null) {
+                out.println("usage: setforwarding [username] [emailaddress]");
+                return true;
+	    }
+            String username = argument;
+            String forward = argument1;
+            if (username.equals("") || forward.equals("")) {
+                out.println("usage: adduser [username] [emailaddress]");
+                return true;
+	    }
+	    // Verify user exists
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+	    // Veriy acceptable email address
+	    MailAddress forwardAddr;
+            try {
+                 forwardAddr = new MailAddress(forward);
+            } catch(ParseException pe) {
+		out.println("Parse exception with that email address: "
+                            + pe.getMessage());
+		out.println("Forwarding address not added for " + username);
+	        return true;
+	    }
+
+  	    boolean success;
+	    success = user.setForwardingDestination(forwardAddr);
+	    if (success){
+	        user.setForwarding(true);
+		users.updateUser(user);
+                out.println("Forwarding destination for " + username
+                             + " set to:" + forwardAddr.toString());
+                getLogger().info("Forwarding destination for " + username
+                                 + " set to:" + forwardAddr.toString());
+	    } else {
+                out.println("Error setting forwarding");
+                getLogger().info("Error setting forwarding");
+	    }
+            out.flush();
+	    return true;
+        } else if (command.equalsIgnoreCase("UNSETALIAS")) {
+	    if (argument == null) {
+                out.println("usage: unsetalias [username]");
+                return true;
+	    }
+            String username = argument;
+            if (username.equals("")) {
+                out.println("usage: adduser [username]");
+                return true;
+	    }
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+
+	    if (user.getAliasing()){
+	        user.setAliasing(false);
+		users.updateUser(user);
+                out.println("Alias for " + username + " unset");
+                getLogger().info("Alias for " + username + " unset");
+	    } else {
+                out.println("Aliasing not active for" + username);
+                getLogger().info("Aliasing not active for" + username);
+	    }
+            out.flush();
+	    return true;
         } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("bye");
             return false;

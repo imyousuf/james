@@ -14,8 +14,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/22 12:03:22 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:32 $
+ * $Revision: 1.1 $
  */
 
 public interface JamesUser extends User {

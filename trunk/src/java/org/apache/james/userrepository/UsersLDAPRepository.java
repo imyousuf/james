@@ -22,11 +22,15 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Loggable;
 import org.apache.james.Constants;
+import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.log.Logger;
 
 /**
  * Implementation of a Repository to store users.
+ *
+ * This clas is a dummy for the proposal!
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Charles Bennett
  */
@@ -202,6 +206,34 @@ public class UsersLDAPRepository
 
 
     // Methods from interface UsersRepository --------------------------
+
+    public boolean addUser(User user) {
+	return false;
+    }
+
+    public  User getUserByName(String name) {
+	return new DefaultUser("dummy", "dummy");
+    }
+
+    public User getUserByNameCaseInsensitive(String name) {
+	return getUserByName(name);
+    }
+
+    public boolean containsCaseInsensitive(String name) {
+        return contains(name);
+    }
+
+    public String getRealName(String name) {
+	return null;
+    }
+
+    public boolean updateUser(User user) {
+	return false;
+    }
+
+    public boolean test(String name, String password) {
+	return false;
+    }
 
     /**
      * Adds userName to the MemberAttribute (specified in conf.xml) of this

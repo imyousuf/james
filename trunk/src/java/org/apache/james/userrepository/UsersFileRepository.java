@@ -23,6 +23,7 @@ import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.excalibur.concurrent.Lock;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.User;
 
 /**
  * Implementation of a Repository to store users on the File System.
@@ -35,12 +36,18 @@ import org.apache.james.services.UsersRepository;
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author Charles Benett <charles@benett1.demon.co.uk>
+ * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ *
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:35 $
+ * $Revision: 1.3 $
  */
 public class UsersFileRepository
     extends AbstractLoggable
     implements UsersRepository, Component, Configurable, Composable, Initializable {
+ 
+    protected static boolean DEEP_DEBUG = true;
 
+    /** @deprecated what was this for? */
     private static final String TYPE = "USERS";
 
     private Store store;
@@ -61,8 +68,16 @@ public class UsersFileRepository
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
 
-        store = (Store)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+	try {
+            store = (Store)componentManager.
+                lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+            lock = new Lock();
+
+        } catch (Exception e) {
+            final String message = "Failed to retrieve Store component:" + e.getMessage();
+            getLogger().error( message, e );
+            throw new ComponentException( message, e );
+        }
     }
 
     public void initialize()
@@ -79,9 +94,9 @@ public class UsersFileRepository
             objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
             or = (ObjectRepository)store.select( objectConfiguration );
-
+	    getLogger().debug(this.getClass().getName() + " created in " + destination);
         } catch (Exception e) {
-            getLogger().error("Failed to retrieve Store component:" + e.getMessage(), e );
+            getLogger().error("Failed to initialize repository:" + e.getMessage(), e );
             throw e;
         }
     }
@@ -90,20 +105,81 @@ public class UsersFileRepository
         return or.list();
     }
 
-    public synchronized void addUser(String name, Object attributes) {
+    public synchronized boolean addUser(User user) {
+	String username = user.getUserName();
+	if (contains(username)) {
+	    return false;
+	}
         try {
-            or.put(name, attributes);
+            or.put(username, user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
         }
+	return true;
     }
 
-    public synchronized Object getAttributes(String name) {
-        try {
-            return or.get(name);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception while retrieving user: " + e.getMessage());
+    public synchronized void addUser(String name, Object attributes) {
+	if (attributes instanceof String)
+        {
+	    User newbie = new DefaultUser(name, "SHA");
+            newbie.setPassword( (String) attributes);
+	    addUser(newbie);
+	}
+        else
+        {
+            throw new RuntimeException("Improper use of deprecated method" 
+                                       + " - use addUser(User user)");
         }
+    }
+
+    public synchronized User getUserByName(String name) {
+	if (contains(name)) {
+            try {
+                return (User)or.get(name);
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while retrieving user: "
+                                           + e.getMessage());
+            }
+	} else {
+	    return null;
+	}
+    }
+
+    public User getUserByNameCaseInsensitive(String name) {
+	String realName = getRealName(name);
+	if (realName == null ) {
+          throw new RuntimeException("No such user");
+	}
+	return getUserByName(realName);
+    }
+
+    public String getRealName(String name) {
+        Iterator it = list();
+	while (it.hasNext()) {
+	    String temp = (String) it.next();
+	    if (name.equalsIgnoreCase(temp)) {
+		return temp;
+	    }
+	}
+	return null;
+    }
+    public Object getAttributes(String name) {
+       
+        throw new RuntimeException("Improper use of deprecated method - read javadocs");
+        
+    }
+
+    public boolean updateUser(User user) {
+	String username = user.getUserName();
+	if (!contains(username)) {
+	    return false;
+	}
+        try {
+            or.put(username, user);
+        } catch (Exception e) {
+            throw new RuntimeException("Exception caught while storing user: " + e );
+        }
+	return true;
     }
 
     public synchronized void removeUser(String name) {
@@ -111,7 +187,17 @@ public class UsersFileRepository
     }
 
     public boolean contains(String name) {
-        return or.containsKey(name);
+	return or.containsKey(name);
+    }
+
+    public boolean containsCaseInsensitive(String name) {
+	Iterator it = list();
+	while (it.hasNext()) {
+	    if (name.equalsIgnoreCase((String)it.next())) {
+		return true;
+	    }
+	}
+	return false;
     }
 
     public boolean test(String name, Object attributes) {
@@ -120,6 +206,20 @@ public class UsersFileRepository
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean test(String name, String password) {
+	User user;
+	try {
+	    if (contains(name)) {
+	        user = (User) or.get(name);
+	    } else {
+               return false;
+	    }
+        } catch (Exception e) {
+            throw new RuntimeException("Exception retrieving User" + e);
+        }
+	return user.verifyPassword(password);
     }
 
     public int countUsers() {

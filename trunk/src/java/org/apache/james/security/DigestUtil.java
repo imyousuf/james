@@ -23,7 +23,7 @@ import javax.mail.internet.MimeUtility;
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/06 15:30:30 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:30 $
  * $Revision: 1.1 $
  */
 public class DigestUtil {
