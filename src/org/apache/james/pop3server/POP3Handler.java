@@ -39,6 +39,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.mailet.Mail;
 
@@ -92,8 +93,9 @@ public class POP3Handler
         throws ComponentManagerException {
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
-        users = (UsersRepository)componentManager.
-            lookup( "org.apache.james.services.UsersRepository" );
+        UsersStore usersStore = (UsersStore)componentManager.
+            lookup( "org.apache.james.services.UsersStore" );
+	users = usersStore.getRepository("LocalUsers");
         scheduler = (TimeScheduler)componentManager.
             lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
     }
