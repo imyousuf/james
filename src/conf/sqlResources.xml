@@ -225,7 +225,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
-            message_attributes longblob NOT NULL ,
+            message_attributes longblob NULL ,
             last_updated datetime NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -241,7 +241,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body varchar NOT NULL ,
-            message_attributes varchar NOT NULL ,
+            message_attributes varchar NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -257,7 +257,7 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
-            [message_attributes] [image] NOT NULL ,
+            [message_attributes] [image] NULL ,
             [last_updated] [datetime] NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -273,7 +273,7 @@
         remote_host varchar2(100) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
-        message_attributes long raw NOT NULL ,
+        message_attributes long raw NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (repository_name, message_name)
         )
@@ -290,7 +290,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body bytea NOT NULL ,
-            message_attributes bytea NOT NULL ,
+            message_attributes bytea NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -306,7 +306,7 @@
             remote_host varchar (100) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body long byte NOT NULL ,
-            message_attributes long byte NOT NULL ,
+            message_attributes long byte NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -380,7 +380,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body varchar NOT NULL ,
-            message_attributes varchar NOT NULL ,
+            message_attributes varchar NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -396,7 +396,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
-            message_attributes longblob NOT NULL ,
+            message_attributes longblob NULL ,
             last_updated datetime NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -412,7 +412,7 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
-            [message_attributes] [image] NOT NULL ,
+            [message_attributes] [image] NULL ,
             [last_updated] [datetime] NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -428,7 +428,7 @@
         remote_host varchar2(255) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
-        message_attributes long raw NOT NULL ,
+        message_attributes long raw NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (message_name, repository_name)
         )
@@ -444,7 +444,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body bytea NOT NULL ,
-            message_attributes bytea NOT NULL ,
+            message_attributes bytea NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -460,7 +460,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body long byte NOT NULL ,
-            message_attributes long byte NOT NULL ,
+            message_attributes long byte NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )

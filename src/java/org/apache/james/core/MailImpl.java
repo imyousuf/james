@@ -80,9 +80,16 @@ import java.util.Iterator;
 import java.util.HashMap;
 
 /**
- * Wraps a MimeMessage adding routing information (from SMTP) and some simple
- * API enhancements.
- * @version CVS $Revision: 1.17.4.3 $ $Date: 2003/07/15 10:12:44 $
+ * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
+ * API enhancements.</P>
+ * <P>From James version > 2.2.0a8 "mail attributes" have been added.
+ * Backward and forward compatibility is supported:
+ * messages stored in file repositories <I>without</I> attributes by James version <= 2.2.0a8
+ * will be processed by later versions as having an empty attributes hashmap;
+ * messages stored in file repositories <I>with</I> attributes by James version > 2.2.0a8
+ * will be processed by previous versions, ignoring the attributes.</P>
+ *
+ * @version CVS $Revision: 1.17.4.4 $ $Date: 2003/07/17 13:26:12 $
  */
 public class MailImpl implements Disposable, Mail {
     /**
@@ -519,14 +526,17 @@ public class MailImpl implements Disposable, Mail {
         name = (String) in.readObject();
         remoteHost = (String) in.readObject();
         remoteAddr = (String) in.readObject();
-        Object o = in.readObject();
-        //this check is done to be backwards compatible with mail repositories
-        if (o instanceof Date) {
-            setLastUpdated((Date)o);
-            attributes = new HashMap();
-        } else {
-            attributes = (HashMap)o;
-            setLastUpdated((Date) in.readObject());
+        setLastUpdated((Date) in.readObject());
+        // the following is under try/catch to be backwards compatible
+        // with messages created with James version <= 2.2.0a8
+        try {
+            attributes = (HashMap) in.readObject();
+        } catch (OptionalDataException ode) {
+            if (ode.eof) {
+                attributes = new HashMap();
+            } else {
+                throw ode;
+            }
         }
     }
     /**
@@ -545,8 +555,8 @@ public class MailImpl implements Disposable, Mail {
         out.writeObject(name);
         out.writeObject(remoteHost);
         out.writeObject(remoteAddr);
-        out.writeObject(attributes);
         out.writeObject(lastUpdated);
+        out.writeObject(attributes);
     }
 
     /**
@@ -569,6 +579,7 @@ public class MailImpl implements Disposable, Mail {
      * Note: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
      * @return Serializable of the entire attributes collection
+     * @since 2.2.0
      **/
     public HashMap getAttributesRaw ()
     {
@@ -581,6 +592,7 @@ public class MailImpl implements Disposable, Mail {
      * Note: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
      * @return Serializable of the entire attributes collection
+     * @since 2.2.0
      **/
     public void setAttributesRaw (HashMap attr)
     {
@@ -589,36 +601,42 @@ public class MailImpl implements Disposable, Mail {
 
     /**
      * @see org.apache.mailet.Mail#getAttribute(String)
+     * @since 2.2.0
      */
     public Serializable getAttribute(String key) {
         return (Serializable)attributes.get(key);
     }
     /**
      * @see org.apache.mailet.Mail#setAttribute(String,Serializable)
+     * @since 2.2.0
      */
     public Serializable setAttribute(String key, Serializable object) {
         return (Serializable)attributes.put(key, object);
     }
     /**
      * @see org.apache.mailet.Mail#removeAttribute(String)
+     * @since 2.2.0
      */
     public Serializable removeAttribute(String key) {
         return (Serializable)attributes.remove(key);
     }
     /**
      * @see org.apache.mailet.Mail#removeAllAttributes()
+     * @since 2.2.0
      */
     public void removeAllAttributes() {
         attributes.clear();
     }
     /**
      * @see org.apache.mailet.Mail#getAttributeNames()
+     * @since 2.2.0
      */
     public Iterator getAttributeNames() {
         return attributes.keySet().iterator();
     }
     /**
      * @see org.apache.mailet.Mail#hasAttributes()
+     * @since 2.2.0
      */
     public boolean hasAttributes() {
         return !attributes.isEmpty();
