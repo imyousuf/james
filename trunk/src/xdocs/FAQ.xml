@@ -6,7 +6,7 @@
    </properties>
    <body>
       <section name="This FAQ">
-         <P>This is a living document that provides answers to common questions about James, installation, configuration, admin and running not already answered in the documentation. Last Updated May 2002.</P>
+         <P>This is a living document that provides answers to common questions about James, installation, configuration, admin and running not already answered in the documentation. Last Updated August 2002.</P>
       </section>
       <section name="Questions">
          <p>
@@ -110,7 +110,22 @@
          </subsection>
          <a name="3"/>
          <subsection name="I can send messages to James, but nobody is receiving them.  What do I do?">
-            <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.<br/>Serge Knystautas</p>
+            <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.  Serge Knystautas</p>
+            <p>Additionally, check the RemoteAddrNotInNetwork matcher under&lt;processor name="transport"&gt;. By default it looks like this:</p>
+<source>
+&lt;mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor"&gt;
+    &lt;processor&gt; spam &lt;/processor&gt;
+&lt;/mailet&gt;
+</source>
+            <p>because most mail programs will use the external IP address (as opposed to 127.0.0.1) when processing mail, you need to add your internal network and/or your static IP address to this list.  You may also use a DNS domain name in this list.  The resulting entry would look something like this:</p>
+<source>
+&lt;mailet match="RemoteAddrNotInNetwork=127.0.0.1,192.168.1.*"
+        class="ToProcessor"&gt;
+    &lt;processor&gt; spam &lt;/processor&gt;
+&lt;/mailet&gt;
+</source>
+            <p>This tells the processor that anything not in this address list should go to the spam processor.</p>
+            <p>Please note that if you wish to configure James to allow users to send email from any domain or IP address you will need to disable this matcher.  In this situation you must use SMTP AUTH to ensure that your server does not act as an open relay.  For more on open relays, please see <a href="http://www.ordb.org">the Open Relay Database</a>.</p>
          </subsection>
          <a name="4"/>
          <subsection name="I can send people messages via James, but nobody can send me messages.  What do I do?">
@@ -185,7 +200,12 @@ see):</p>
 
   copy JavaService.exe %2\bin\James.exe > nul
   %2\bin\James.exe -install JamesMailServer
-  %1\jre\bin\%3\jvm.dll -Djava.ext.dirs=%2\lib -Djava.class.path=%CLASSPATH%;%2\bin\phoenix-loader.jar;%2\bin\phoenix-engine.jar -start org.apache.avalon.phoenix.launcher.Main -out %2\logs\stdout.log -err %2\logs\stderr.log
+  rem put the following command all on one line
+  %1\jre\bin\%3\jvm.dll -Djava.ext.dirs=%2\lib 
+      -Djava.class.path=%CLASSPATH%;%2\bin\phoenix-loader.jar;
+      %2\bin\phoenix-engine.jar 
+      -start org.apache.avalon.phoenix.launcher.Main 
+      -out %2\logs\stdout.log -err %2\logs\stderr.log
 
   goto eof
 
