@@ -325,7 +325,7 @@ public class AvalonMailRepository
                         out = sr.put(key);
                         mc.writeMessageTo(out);
                     } finally {
-                        out.close();
+                        if (out != null) out.close();
                     }
                 }
                 //Always save the header information
