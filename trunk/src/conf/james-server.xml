@@ -60,83 +60,83 @@
 
     <targets>
       <file id="default">
-        <filename>${app.home}/logs/James-default.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/default.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="James-Mailet-target">
-        <filename>${app.home}/logs/James.Mailet.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/mailet.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="James-target">
-        <filename>${app.home}/logs/James.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/james.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="spoolmanager-target">
         <filename>${app.home}/logs/spoolmanager.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="dnsserver-target">
         <filename>${app.home}/logs/dnsserver.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="remotemanager-target">
         <filename>${app.home}/logs/remotemanager.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="pop3server-target">
         <filename>${app.home}/logs/pop3server.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="smtpserver-target">
         <filename>${app.home}/logs/smtpserver.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="nntpserver-target">
         <filename>${app.home}/logs/nntpserver.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="nntp-repository-target">
-        <filename>${app.home}/logs/nntp-repository.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/nntpstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="mailstore-target">
         <filename>${app.home}/logs/mailstore.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="users-store-target">
-        <filename>${app.home}/logs/users-store.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/usersstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="objectstorage-target">
-        <filename>${app.home}/logs/objectstorage.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <filename>${app.home}/logs/objectstore.log</filename>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="connections-target">
         <filename>${app.home}/logs/connections.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="sockets-target">
         <filename>${app.home}/logs/sockets.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
       <file id="scheduler-target">
         <filename>${app.home}/logs/scheduler.log</filename>
-        <format>%5.5{priority} %{time} [%8.8{category}] (%{context}): %{message}\n%{throwable}</format>
+        <format>%{time:dd/MM/yy hh:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
       </file>
     </targets>
