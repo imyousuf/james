@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.13 $
- * Committed on $Date: 2001/10/31 14:31:00 $ by: $Author: serge $
+ * This is $Revision: 1.14 $
+ * Committed on $Date: 2001/11/01 17:44:26 $ by: $Author: serge $
  */
 public class James
     extends AbstractLoggable
@@ -286,7 +286,7 @@ public class James
         } else {
             // need mailbox object
             getLogger().info("Need inbox for " + userName );
-            String destination = inboxRootURL + userName + File.separator;;
+            String destination = inboxRootURL + userName + "/";
             DefaultConfiguration mboxConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
             mboxConf.setAttribute("destinationURL", destination);
@@ -295,6 +295,7 @@ public class James
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
+                e.printStackTrace();
                 getLogger().error("Cannot open user Mailbox" + e);
                 throw new RuntimeException("Error in getUserInbox." + e);
             }
