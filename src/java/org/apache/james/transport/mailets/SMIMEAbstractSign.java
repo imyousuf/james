@@ -76,7 +76,7 @@ import java.util.*;
  * see for example {@link SMIMESign}.
  * The default is to not have any explanation text.</li>
  * </ul>
- * @version CVS $Revision: 1.2 $ $Date: 2004/08/08 16:19:01 $
+ * @version CVS $Revision: 1.3 $ $Date: 2004/08/09 08:09:10 $
  * @since 2.2.1
  */
 public abstract class SMIMEAbstractSign extends GenericMailet {
@@ -229,9 +229,11 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
         setKeyHolder(new KeyHolder(keyStoreFileName, keyStorePassword, keyAlias, keyAliasPassword, keyStoreType));
         
         if (isDebug()) {
-            log("SubjectX500Principal Distinguished Name: " + getKeyHolder().getSignerDistinguishedName());
-//            log("SubjectX500Principal CN: " + getKeyHolder().getSignerCN());
-//            log("SubjectX500Principal Mail Address: " + getKeyHolder().getSignerMailAddress());
+            log("Subject Distinguished Name: " + getKeyHolder().getSignerDistinguishedName());
+        }
+        
+        if (getKeyHolder().getSignerAddress() == null) {
+            throw new MessagingException("Signer address missing in the certificate.");
         }
     }
     
