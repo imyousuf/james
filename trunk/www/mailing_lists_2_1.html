@@ -70,31 +70,16 @@
 <li>
 <a href="./james_and_sendmail.html">James and sendmail</a>
 </li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
 </ul>
 <p>
 <strong>Older Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./architecture_v2_0.html">Architecture (version 2.0)</a>
-</li>
-<li>
-<a href="./install.html">Install (version 2.0)</a>
-</li>
-<li>
-<a href="./configuration_v2_0.html">Configuration (version 2.0)</a>
-</li>
-<li>
-<a href="./usingJDBC_v2.0.html">Using JDBC (version 2.0)</a>
-</li>
-<li>
-<a href="./usingLDAP_v1_2.html">Using LDAP (version 1.2)</a>
-</li>
-<li>
-<a href="./usingTLS_v1_2.html">Using TLS (version 1.2)</a>
-</li>
-<li>
-<a href="http://jakarta.apache.org/james/rfclist">Useful RFCs (web)</a>
+<a href="./document_archive.html">James Document Archive</a>
 </li>
 </ul>
 <p>
@@ -183,7 +168,7 @@ of list subscribers.</p>
 
 
 <p>The mailets go into the processor chain (e.g., at the top of the
-<i>transport</i> processor, the last one goes into the
+<i>transport</i> processor), the repository goes into the
 &lt;users-store&gt; block.</p>
 
 
@@ -224,13 +209,13 @@ is used to match messages intended for the mailing list.</p>
 <tr>
 <td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
 <pre>
-  &lt;mailet match="CommandForListserv=<i>list-name</i>@<i>domain</i>"
+  &lt;mailet match="CommandForListserv=list-name@domain"
           class="AvalonListservManager"&gt;
-    &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
+    &lt;repositoryName&gt;list-name&lt;/repositoryName&gt;
   &lt;/mailet&gt;
 
-  &lt;mailet match="RecipientIs=<i>list-name</i>@<i>domain</i>" class="AvalonListserv"&gt;
-    &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
+  &lt;mailet match="RecipientIs=list-name@domain" class="AvalonListserv"&gt;
+    &lt;repositoryName&gt;list-name&lt;/repositoryName&gt;
     ... list options ...
   &lt;/mailet&gt;
 </pre>
@@ -280,9 +265,9 @@ the list subscriber.</p>
 <tr>
 <td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
 <pre>
-  &lt;repository name="<i>list-name</i>"
+  &lt;repository name="list-name"
                  class="org.apache.james.userrepository.ListUsersJdbcRepository"
-                 destinationURL="db://maildb/lists/<i>list-name</i>"&gt;
+                 destinationURL="db://maildb/lists/list-name"&gt;
     &lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
   &lt;/repository&gt;
 </pre>
@@ -310,9 +295,9 @@ will be addressed in a future version of James.]</p>
 <tr>
 <td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
 <pre>
-  &lt;repository name="<i>list-name</i>"
+  &lt;repository name="list-name"
                  class="org.apache.james.userrepository.UsersFileRepository"&gt;
-    &lt;destination URL="file://var/lists/<i>list-name</i>/" /&gt; 
+    &lt;destination URL="file://var/lists/list-name/" /&gt; 
   &lt;/repository&gt;
 </pre>
 </td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>

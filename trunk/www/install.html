@@ -1,7 +1,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache Jakarta James - Installation - Java Mail and News server, SMTP POP3 IMAP NNTP</title>
+<title>Apache Jakarta James - Installation - Java Mail and News server, SMTP POP3 NNTP</title>
 <meta value="Serge Knystautas" name="author">
 <meta value="sergek@lokitech.com" name="email">
 <meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
@@ -15,7 +15,7 @@
 <tr>
 <td colspan="2">
 <!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
-<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="JAMES - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -32,9 +32,6 @@
 <ul>
 <li>
 <a href="./index.html">Overview</a>
-</li>
-<li>
-<a href="./architecture_v2_0.html">Architecture</a>
 </li>
 <li>
 <a href="./FAQ.html">James FAQ</a>
@@ -60,35 +57,31 @@
 </li>
 </ul>
 <p>
-<strong>Documentation</strong>
+<strong>Current Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./install.html">Install</a>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
-<a href="./configuration_v2_0.html">Configuration</a>
-</li>
-<li>
-<a href="./javadocs/index.html">James API</a>
+<a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
 <a href="./mailet/index.html">Mailet API</a>
 </li>
 <li>
-<a href="./usingJDBC_v2.0.html">Using JDBC</a>
-</li>
-<li>
-<a href="./usingLDAP_v1_2.html">Using LDAP</a>
-</li>
-<li>
-<a href="./usingTLS_v1_2.html">Using TLS</a>
-</li>
-<li>
 <a href="./james_and_sendmail.html">James and sendmail</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/james/rfclist">Useful RFCs (web)</a>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
 </li>
 </ul>
 <p>
@@ -167,7 +160,7 @@
 <p> If you have downloaded a binary distribution, you do not need to build James. 
   Proceed directory to Step 1. </p>
 
-<p> To compile James from sources you need <a href="http://jakarta.apache.org/ant/">Ant</a>. 
+<p> To compile James from the source code you need <a href="http://jakarta.apache.org/ant/">Ant</a>. 
   This is a Java-tailored, XML-configured, extensible build or make system. We 
   are currently using Ant 1.4, which is included in the source distribution.</p>
 
@@ -188,7 +181,7 @@
 
 <p> 
 <strong>Warning!</strong> Any changes you've made in the 'dist' directory 
-  will be lost after a recompilation. If you are making changes to the config.xml 
+  will be lost after a recompilation. If you are making changes to the conf.xml 
   or other files, we recommend you backup and then change the copies in src to 
   avoid losing work. </p>
 
@@ -246,8 +239,8 @@
   </p>
   
 
-<p> The Avalon framework will unpack the neccessay configuration files you will 
-  need to start the server, wait until it is running stop it again (ctrl-c) and 
+<p> The Avalon framework will unpack the necessary configuration files you will 
+  need to start the server.  Wait until it is running, stop it again (ctrl-c), and 
   edit the configuration (thereafter *nix users can run the server in the background 
   using ./run.sh &amp;). For basic use, you only need to set two items in the 
   JAMES.conf.xml file: a root password for the remote administration facility 
@@ -286,8 +279,8 @@
     ../var/mail/localinbox/[user].
     Try now to retrieve that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
-    Action that will be taken by JAMES on incoming mail are configurated in
-    the mailet pipe line (/conf/james.conf.xml). Look at it if you want to
+    Actions that will be taken by JAMES on incoming mail are configured in
+    the mailet pipe line (/conf/JAMES.conf.xml). Look at it if you want to
     understand what's happening.
   </p>
   

@@ -4,6 +4,7 @@ org.apache.james.core
 org.apache.james.dnsserver
 org.apache.james.fetchpop
 org.apache.james.mailrepository
+org.apache.james.mailrepository.filepair
 org.apache.james.nntpserver
 org.apache.james.nntpserver.repository
 org.apache.james.pop3server

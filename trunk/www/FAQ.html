@@ -1,9 +1,12 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Jakarta James - Frequently Asked Questions</title>
-<meta value="Danny Angus" name="author">
-<meta value="danny@thought.co.uk" name="email">
+<title>Apache Jakarta James - Frequently Asked Questions - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta value="James Mail Server Project" name="author">
+<meta value="james-dev@jakarta.apache.org" name="email">
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
 <LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
 </head>
 <body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
@@ -12,7 +15,7 @@
 <tr>
 <td colspan="2">
 <!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
-<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="JAMES - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -29,9 +32,6 @@
 <ul>
 <li>
 <a href="./index.html">Overview</a>
-</li>
-<li>
-<a href="./architecture_v2_0.html">Architecture</a>
 </li>
 <li>
 <a href="./FAQ.html">James FAQ</a>
@@ -57,35 +57,31 @@
 </li>
 </ul>
 <p>
-<strong>Documentation</strong>
+<strong>Current Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./install.html">Install</a>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
-<a href="./configuration_v2_0.html">Configuration</a>
-</li>
-<li>
-<a href="./javadocs/index.html">James API</a>
+<a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
 <a href="./mailet/index.html">Mailet API</a>
 </li>
 <li>
-<a href="./usingJDBC_v2.0.html">Using JDBC</a>
-</li>
-<li>
-<a href="./usingLDAP_v1_2.html">Using LDAP</a>
-</li>
-<li>
-<a href="./usingTLS_v1_2.html">Using TLS</a>
-</li>
-<li>
 <a href="./james_and_sendmail.html">James and sendmail</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/james/rfclist">Useful RFCs (web)</a>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
 </li>
 </ul>
 <p>
@@ -181,7 +177,7 @@
                
 <li>
                   
-<a href="#1">Would you please teach me how to set up a mailing list</a>
+<a href="#1">How do I set up a mailing list</a>
                
 </li>
                
@@ -249,7 +245,7 @@
                   
 <a href="#12">How to remove unneeded services like NNTP, POP3?</a>
                
-</li>               
+</li>
                
 <li>
                   
@@ -301,7 +297,7 @@
 <td>
 <blockquote>
             
-<p>James currently (v2.0a3) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
+<p>James currently (v2.1) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
             
 <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
             
@@ -389,7 +385,7 @@
 </table>
 </div>
             
-<p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
+<p>Database users will also need to ensure that they have <a href="using_database_2_1.html">configured a data-source</a> named to match the destination URL</p>
             
 <p>Using the filesystem:-</p>
             
@@ -418,7 +414,7 @@
             
 <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
             
-<p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br>Danny Angus</p>
+<p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.</p>
          
 </blockquote>
 </td>
@@ -441,7 +437,7 @@
             
 <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.</p>
             
-<p>This also means that James will not verify addresses, but of course this means that valid addresses can't be harvested from James by spammers either.<br>Danny Angus</p>
+<p>This also means that James will not verify addresses, but of course this means that valid addresses can't be harvested from James by spammers either.</p>
          
 </blockquote>
 </td>
@@ -458,7 +454,7 @@
 <td>
 <blockquote>
             
-<p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.  Serge Knystautas</p>
+<p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.</p>
             
 <p>Additionally, check the RemoteAddrNotInNetwork matcher under&lt;processor name="transport"&gt;. By default it looks like this:</p>
 
@@ -525,14 +521,14 @@
 <blockquote>
             
 <p>You need to do one of two things:
-  <ol>
+               <ol>
                   
 <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
                   
 <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
                
 </ol>
-  Serge Knystautas</p>
+</p>
          
 </blockquote>
 </td>
@@ -549,9 +545,9 @@
 <td>
 <blockquote>
             
-<p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
+<p>First step is to look in the log directory at the mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James' attempt to delivery mail remotely.</p>
             
-<p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br>Serge Knystautas</p>
+<p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).</p>
          
 </blockquote>
 </td>
@@ -568,10 +564,7 @@
 <td>
 <blockquote>
             
-<p>Unfortunately IMAP support is currently stalled.  There is a proposal in CVS, but IMAP is a significantly more complex than other mail protocols, both from a protocol command support and in terms of complexity you need on the server.  If you are interested in taking the proverbial ball and running with it, we would all very much appreciated. (I personally am incredibly frustrated with an old Netscape Mail server, but I've sworn myself to upgrade only to James's IMAP once ready as incentive.)
-  <br>Serge Knystautas</p>
-            
-<p>An update to Serge's comment: the IMAP server has recently attracted new interest.  We are hopeful that we will be able to provide basic IMAP support in James 2.1<br>Peter M. Goldstein</p>
+<p>IMAP development had been stalled, but has recently attracted new activity.  IMAP support is scheduled for inclusion in James v3.  In the meantime, there is experimental code in the repository.  If you are interested in working on or trying the IMAP prototype code, join the james-dev mailing list and let us know.</p>
          
 </blockquote>
 </td>
@@ -588,12 +581,110 @@
 <td>
 <blockquote>
             
-<p>Virtual hosting is something the developers are still wrestling with.  The challenge is that POP3 does not support virtual hosting in that it does not have a command to indicate what domain the user is in.  What this means is the mail server needs to develop a 'mapping' or 'translation', e.g., 'user1@domaina.com' gets a username 'domaina.user1'.  This allows the mail server to have a single username namespace.  We have seen a few good proposals put forward, but nothing that seemed the clear solution as ideally we could have this part solve the next issue.</p>
+<p>James v2.1 includes a new mailet for database users, <a href="javadocs/org/apache/james/transport/mailets/JDBCVirtualUserTable.html">JDBCVirtualUserTable</a>, that mimics some of the sendmail capabilities of the same name.</p>
+
+
+<p>JDBCVirtualUserTable does not provide any administation tools.
+You'll have to create and maintain the database table yourself.  The
+standard configuration is as follows:</p>
+
+
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+CREATE TABLE VirtualUserTable
+(
+ user varchar(64) NOT NULL default '',
+ domain varchar(255) NOT NULL default '',
+ target_address varchar(255) NOT NULL default '',
+ PRIMARY KEY (user,domain)
+);
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+</table>
+</div>
+
+
+<p>The standard query used with VirtualUserTable is:</p>
+
+
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains
+where (VirtualUserTable.user like ? or VirtualUserTable.user like "\%")
+and (VirtualUserTable.domain like ?
+or (VirtualUserTable.domain like "\%" and VUTDomains.domain like ?))
+order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+</table>
+</div>
+
+
+<p>For a given [user, domain, domain] used with the query, this will
+match as follows (in precedence order):
+<ol>
+
+<li>user@domain    - explicit mapping for user@domain</li>
+
+<li>user@%         - catchall mapping for user anywhere</li>
+
+<li>%@domain       - catchall mapping for anyone at domain</li>
+
+<li>null           - no valid mapping</li>
+
+</ol>
+
+</p>
+
+
+<p>A sample mailet looks like:</p>
+
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+&lt;mailet match="All" class="JDBCVirtualUserTable"&gt;
+  &lt;table&gt;db://maildb/VirtualUserTable&lt;/table&gt;
+&lt;/mailet&gt;
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+</table>
+</div>
+
             
-<p>Beyond that, James needs to refine virtual hosting for mailet processing.  The mailet API has a Mail.getUser() method that no longer would be useable as a reliable indicator of whether they were in the local username namespace.  To date we are unclear of the best way to bring this translation into the mailet processing.  Similarly, it would be nice to support different mailet processing based on the domain, although this is somewhat feasible using the limited processing flow offered with a HostIs/ForwardTo combination.</p>
+<p>More generalized viirtual hosting is something the developers are still discussing.  One issue is that POP3 does not support virtual hosting in that it does not have a command to indicate what domain the user is in.  What this means is the mail server needs to support a 'mapping' or 'translation' convention, e.g., 'user1@domaina.com' gets a username 'domaina.user1'.  This allows the mail server to have a single username namespace.  We have seen a few good proposals put forward, but nothing that seemed the clear solution, as ideally we could have this part solve the next issue.</p>
             
-<p>This is one of the most requested feature, so hopefully this will be resolved soon.
-  <br>Serge Knystautas</p>
+<p>Beyond that, James needs to refine virtual hosting for mailet processing.  With the current user model, the mailet API has a Mail.getUser() method that no longer would be useable as a reliable indicator of whether they were in the local username namespace.  To date we are unclear of the best way to bring this translation into the mailet processing.  Similarly, it would be nice to support different mailet processing based on the domain, although this is somewhat feasible using the limited processing flow offered with a HostIs matcher.</p>
+            
+<p>Virtual hosting is one of the most requested features, and additional work is scheduled for the 3.0 release.</p>
          
 </blockquote>
 </td>
@@ -615,11 +706,10 @@
                   
 <li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
                   
-<li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
+<li>Instructions for including classes for custom mailets and matchers can be found <a href="custom_mailet_2_1.html">here</a> and <a href="custom_matcher_2_1.html">here</a> respectively..</li>
                
 </ul>
-  Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.
-  <br>Serge Knystautas</p>
+  Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.</p>
          
 </blockquote>
 </td>
@@ -651,8 +741,8 @@
 <li>Restart James.</li>
                
 </ol>
-  Daniel Herlemont
-  </p>
+            
+</p>
          
 </blockquote>
 </td>
@@ -688,7 +778,7 @@ see):</p>
   echo --------
   echo Usage:   %0 jdk_home james_home (classic/hotspot/server)
   echo NOTE:    You MAY NOT use spaces in the path names.
-  echo          JDK 1.3 does not come with hotpot server by default, you must
+  echo          JDK 1.3 does not come with hotspot server by default, you must
   echo          install this separately if you wish to use it.
   echo Example: %0 c:\progra~1\jdk c:\progra~1\james classic
   echo --------
@@ -719,7 +809,7 @@ see):</p>
 </div>
             
 <p>
-  I created another .bat file called UnistallJamesNTService containing the following 1 line:
+  Create another .bat file called UnistallJamesNTService containing the following 1 line:
   </p>
             
 <div align="left">
@@ -740,9 +830,8 @@ see):</p>
 </table>
 </div>
             
-<p>By copying the 2 above .bat files and the JavaService.exe (follow the download link  at http://www.alexandriasc.com/software/JavaService/index.html) to the [james]\bin folder, I am able to install and uninstall the JamesMailServer NT service!
-  <br>Taken from http://www.mail-archive.com/james-user@jakarta.apache.org/msg01389.html by Steve Belt
-  </p>
+<p>By copying the 2 above .bat files and the JavaService.exe (follow the download link  at http://www.alexandriasc.com/software/JavaService/index.html) to the [james]\bin folder, you should be able to install and uninstall the JamesMailServer NT service!
+  <br>Copied from <a href="http://www.mail-archive.com/james-user@jakarta.apache.org/msg01389.html">a message</a> from the james-user mailing list.</p>
          
 </blockquote>
 </td>
@@ -759,10 +848,7 @@ see):</p>
 <td>
 <blockquote>
             
-<p>Check the JavaMail docs... I don't think I would have designed it this way, but per the API, when you call MimeMessage.setContent(blah), you have to call saveChanges() to apply your changes.  James tries to automatically call this method so you don't have to, but in certain cases you'll still have to call saveChanges().
-  <br>
-  Serge Knystautas
-  </p>
+<p>Check the JavaMail docs.  Per the API, when you call MimeMessage.setContent(blah), you have to call saveChanges() to apply your changes.  James tries to automatically call this method so you don't have to, but in certain cases you'll still have to call saveChanges().</p>
          
 </blockquote>
 </td>
@@ -784,8 +870,8 @@ see):</p>
            
 <p>NNTP and other underlying services are called "blocks" in the
              Avalon Phoenix terminology. Blocks are specified in the
-             assembly.xml file which is under the apps/james/conf directory in
-             2.0a3 and apps\james\SAR-INF in 2.1. Note: this file is created
+             assembly.xml file which is located in the apps/james/SAR-INF directory (2.1)
+             or apps/james/conf directory (2.0a3). Note: this file is created
              during the first startup of James.</p>
            
 <p>There are dependencies between the blocks, which you can read from
@@ -801,8 +887,7 @@ see):</p>
              James. You must also remove all sections related to the removed
              blocks from the James configuration file - config.xml - otherwise
              you will get error messages, saying that there is no corresponding
-             block.<br>
-             Hontvari Jozsef</p>
+             block.</p>
          
 </blockquote>
 </td>
@@ -820,10 +905,7 @@ see):</p>
 <blockquote>
             
 <p>Read the "Contributors How To" <a href="contribute.html">here</a>
-            
-<br>
-  Danny Angus
-  </p>
+</p>
          
 </blockquote>
 </td>
@@ -841,10 +923,7 @@ see):</p>
 <blockquote>
             
 <p>Read the "sendmail How To" <a href="james_and_sendmail.html">here</a>
-            
-<br>
-  Danny Angus
-  </p>
+</p>
 
 </blockquote>
 </td>
@@ -867,7 +946,7 @@ see):</p>
 
 <p>To solve this you need to add <b>;SelectMethod=cursor</b> to the end of your dburl string. Your dburl string would then look something like this<br>&lt;dburl&gt;jdbc:microsoft:sqlserver://dbserver.host.name:1433;SelectMethod=cursor&lt;/dburl&gt;</p>
 
-<p>NOTE. some people have complained about performance when using this option, the alternative is a 3rd party JDBC driver but these are often not free.<br>Serge Sozonoff</p>
+<p>NOTE: some people have complained about performance when using this option, the alternative is a 3rd party JDBC driver but these are often not free.</p>
           
 </blockquote>
 </td>
@@ -902,7 +981,6 @@ see):</p>
             maximum message size, you need a 5MB max_packet size.  Or a 4MB
             max_packet_size allows only a 3.2MB max message.
             </p>
-<p>Noel Bergman</p>
           
 </blockquote>
 </td>

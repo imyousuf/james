@@ -1,9 +1,12 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Jakarta James - ChangeLog</title>
+<title>Apache Jakarta James - ChangeLog - Java Mail and News server, SMTP POP3 NNTP</title>
 <meta value="Serge Knystautas" name="author">
 <meta value="sergek@lokitech.com" name="email">
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
 <LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
 </head>
 <body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
@@ -12,7 +15,7 @@
 <tr>
 <td colspan="2">
 <!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
-<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="JAMES - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -29,9 +32,6 @@
 <ul>
 <li>
 <a href="./index.html">Overview</a>
-</li>
-<li>
-<a href="./architecture_v2_0.html">Architecture</a>
 </li>
 <li>
 <a href="./FAQ.html">James FAQ</a>
@@ -57,35 +57,31 @@
 </li>
 </ul>
 <p>
-<strong>Documentation</strong>
+<strong>Current Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./install.html">Install</a>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
-<a href="./configuration_v2_0.html">Configuration</a>
-</li>
-<li>
-<a href="./javadocs/index.html">James API</a>
+<a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
 <a href="./mailet/index.html">Mailet API</a>
 </li>
 <li>
-<a href="./usingJDBC_v2.0.html">Using JDBC</a>
-</li>
-<li>
-<a href="./usingLDAP_v1_2.html">Using LDAP</a>
-</li>
-<li>
-<a href="./usingTLS_v1_2.html">Using TLS</a>
-</li>
-<li>
 <a href="./james_and_sendmail.html">James and sendmail</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/james/rfclist">Useful RFCs (web)</a>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
 </li>
 </ul>
 <p>
@@ -161,9 +157,11 @@
 <td>
 <blockquote>
 
-<p>Expected release November 2002</p>
+<p>Expected release December 2002</p>
 
 <ul>
+
+<li>(AK) (doc) Added LDAP RFCs.</li>
 
 <li>(PG) (code) Fixed platform-specific performance issue with the POP3 server delivery.</li>
 
@@ -175,7 +173,7 @@
 
 <li>(PG) (doc) Added extensive commenting - specifically Javadoced the vast majority of methods.</li>
 
-<li>(PG) (code) Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.</li>
+<li>(PG,AI) (code) Added a James specific abstract Service implementation.  Unified configuration, logging, as well as enabling the use of thread pools and socket types on a per service basis.</li>
 
 <li>(NjB) (code) Corrected JDBCMailRepository to obey stated contract.</li>
 
@@ -209,9 +207,13 @@
 
 <li>(DA) (doc) Added documentation to demonstrate how to configure James as a universal sendmail relay.</li>
 
+<li>(NjB) (code) Made subject prefix bracketing in GenericListserv configurable.</li>
+
 <li>(NjB) (code) Added the HasHeader matcher.</li>
 
 <li>(NjB) (code) Added the JDBCVirtualUserTable mailet.</li>
+
+<li>(NjB) (code) Enhanced the RemoteAddrInNetwork and RemoteAddrNotInNetwork to accept domain names.</li>
 
 <li>(PG) (update) Fixed the log configuration so that AM and PM entries are properly distinguishable by default.</li>
 
@@ -233,7 +235,13 @@
 
 <li>(SS,NjB,PG) (code) Ensured that a number of database and I/O resources are properly closed under all conditions.</li>
 
+<li>(NjB) (code) Changed default column sizes for JDBC repositories to be RFC compliant.</li>
+
+<li>(NjB) (code) Fixed exception handling in JdbcDataSource when getConnection() fails.</li>
+
 <li>(PG) (code) Fixed NotifySender/NotifyPostmaster to be more robust against ill-formed headers in the email being forwarded.</li>
+
+<li>(SD,SS3) (code) Made a substantial performance enhancement to the LinearProcessor such that mail changes are not persisted to the store until necessary.  Also reduced synchronization scope.</li>
 
 <li>(PG) (code) Converted String concatenation to the use of StringBuffers throughout the code base.</li>
 
@@ -248,6 +256,8 @@
 <li>(CB2) (update) Fixed NNTP server bug where the NEXT command was not being properly dispatched and handled.</li>
 
 <li>(SK) (update) Cleaned up error handling in LocalDelivery.</li>
+
+<li>(SS2) (code) Changed the default configuration so that log files are appending by default.</li>
 
 <li>(SS2) (update) Reported the lack of in.close in MimeMessageSource.getSize(), which was causing stranded file handles, especially during large POP3 sessions.</li>
 
@@ -589,7 +599,7 @@
 <ul>
 
 <li>(FB) (update) Based on much code from Serge Knystautas first implementation of JAMES on
-  	top of the Avalon framework.</li>
+    top of the Avalon framework.</li>
 
 </ul>
 
