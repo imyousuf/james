@@ -30,7 +30,7 @@ import org.apache.james.util.RFC822Date;
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  * @author  Ivan Seskar <iseskar@upsideweb.com>
- * @author  Danny Angus <danny@thought.co.uk> 
+ * @author  Danny Angus <danny@thought.co.uk>
  */
 public class NotifyPostmaster extends GenericMailet {
     MailAddress notifier = null;
@@ -165,10 +165,14 @@ public class NotifyPostmaster extends GenericMailet {
         if (reply.getHeader("Date")==null){
             reply.setHeader("Date",new RFC822Date().toString());
         }
-        if(message.getSubject().indexOf("Re:")==0){
-            reply.setSubject(message.getSubject());
-        }else{
-            reply.setSubject("Re:" + message.getSubject());
+        String subject = message.getSubject();
+        if (subject == null) {
+            subject = "";
+        }
+        if (subject.indexOf("Re:") == 0){
+            reply.setSubject(subject);
+        } else {
+            reply.setSubject("Re:" + subject);
         }
         reply.setHeader("In-Reply-To", message.getMessageID());
 
