@@ -27,6 +27,7 @@ import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.FindServer;
+import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.MXRecord;
 import org.xbill.DNS.ARecord;
@@ -148,6 +149,7 @@ public class DNSServer
 
         try {
             resolver = new ExtendedResolver( serversArray );
+            Lookup.setDefaultResolver(resolver);
         } catch (UnknownHostException uhe) {
             getLogger().fatalError("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
             throw uhe;
