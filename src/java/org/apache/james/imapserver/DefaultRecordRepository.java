@@ -9,8 +9,8 @@ package org.apache.james.imapserver;
 
 import java.io.*;
 import java.util.*;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.AbstractLoggable;
+
 
 /**
  * Implementation of a RecordRepository on a FileSystem.
@@ -19,11 +19,12 @@ import org.apache.log.Logger;
  * @version 0.1 on 14 Dec 2000
  * @see RecordRepository
  */
-public class DefaultRecordRepository implements RecordRepository   {
+public class DefaultRecordRepository
+    extends AbstractLoggable
+    implements RecordRepository   {
  
     private String path;
     private File repository;
-    private Logger logger =  LogKit.getLoggerFor("james.mailstore");
 
     public void setPath(final String rootPath) {
         if (path != null) {
@@ -51,7 +52,7 @@ public class DefaultRecordRepository implements RecordRepository   {
             out = new ObjectOutputStream( new FileOutputStream(key) );
             out.writeObject(fr);
             out.close();
-            logger.info("Record stored for: " + fr.getAbsoluteName());
+            getLogger().info("Record stored for: " + fr.getAbsoluteName());
             notifyAll();
         } catch (Exception e) {
             if (out != null) {

@@ -77,17 +77,17 @@ public class AvalonMailRepository
                 = new DefaultConfiguration( "repository",
                                             "generated:AvalonFileRepository.compose()" );
 
-            objectConfiguration.addAttribute("destinationURL", destination);
-            objectConfiguration.addAttribute("type", "OBJECT");
-            objectConfiguration.addAttribute("model", "SYNCHRONOUS");
+            objectConfiguration.setAttribute("destinationURL", destination);
+            objectConfiguration.setAttribute("type", "OBJECT");
+            objectConfiguration.setAttribute("model", "SYNCHRONOUS");
 
             DefaultConfiguration streamConfiguration
                 = new DefaultConfiguration( "repository",
                                             "generated:AvalonFileRepository.compose()" );
 
-            streamConfiguration.addAttribute( "destinationURL", destination );
-            streamConfiguration.addAttribute( "type", "STREAM" );
-            streamConfiguration.addAttribute( "model", "SYNCHRONOUS" );
+            streamConfiguration.setAttribute( "destinationURL", destination );
+            streamConfiguration.setAttribute( "type", "STREAM" );
+            streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);

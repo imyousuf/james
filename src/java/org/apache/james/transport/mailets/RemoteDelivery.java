@@ -67,9 +67,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             DefaultConfiguration spoolConf
                 = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
-            spoolConf.addAttribute("destinationURL", outgoingPath);
-            spoolConf.addAttribute("type", "SPOOL");
-            spoolConf.addAttribute("model", "SYNCHRONOUS");
+            spoolConf.setAttribute("destinationURL", outgoingPath);
+            spoolConf.setAttribute("type", "SPOOL");
+            spoolConf.setAttribute("model", "SYNCHRONOUS");
 
             outgoing = (SpoolRepository) mailstore.select(spoolConf);
         } catch (ComponentException cnfe) {

@@ -18,11 +18,11 @@ import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.services.*;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
+
 
 /**
  * A single host that has an IMAP4rev1 messaging server.
@@ -41,12 +41,12 @@ import org.apache.log.Logger;
  * @see RecordRepository
  */
 public class JamesHost 
+    extends AbstractLoggable
     implements Host, Component, Initializable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private Logger logger  = LogKit.getLoggerFor("james.JamesHost");
     private String rootPath; // ends with File.seperator
     private File rootFolder;
     private IMAPSystem imapSystem;
@@ -110,14 +110,15 @@ public class JamesHost
     
     public void initialize() throws Exception {
 
-        logger.info("JamesHost init...");
+        getLogger().info("JamesHost init...");
         imapSystem = (IMAPSystem) compMgr.lookup("org.apache.james.imapserver.IMAPSystem");
         localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
         String recordRepDest
             = conf.getChild("recordRepository").getValue();
         recordRep = new DefaultRecordRepository();
+	setupLogger(recordRep, "recordRep");
         recordRep.setPath(recordRepDest);
-        logger.info("AvalonRecordRepository opened at " + recordRepDest);
+        getLogger().info("AvalonRecordRepository opened at " + recordRepDest);
         rootPath = conf.getChild("mailboxRepository").getValue();
         if (!rootPath.endsWith(File.separator)) {
             rootPath = rootPath + File.separator;
@@ -130,7 +131,7 @@ public class JamesHost
         } else if (!rootFolder.canWrite()) {
             throw new RuntimeException("Error: Cannot write to directory for MailboxRepository");
         }
-        logger.info("IMAP Mailbox Repository opened at " + rootPath);
+        getLogger().info("IMAP Mailbox Repository opened at " + rootPath);
         Configuration namespaces = conf.getChild("namespaces");
         namespaceToken = namespaces.getAttribute("token");
         privateNamespace
@@ -145,10 +146,10 @@ public class JamesHost
             = namespaces.getChild("sharedNamespace").getValue();
         sharedNamespaceSeparator
             = namespaces.getChild("sharedNamespace").getAttribute("separator");
-        logger.info("Handling mail for namespaces: "+ privateNamespace + ", " + otherUsersNamespace + ", " + sharedNamespace);
+        getLogger().info("Handling mail for namespaces: "+ privateNamespace + ", " + otherUsersNamespace + ", " + sharedNamespace);
         openMailboxes = new HashMap(31); // how big should this start?
         mailboxCounts = new HashMap(31);
-        logger.info("JamesHost ...init end");
+        getLogger().info("JamesHost ...init end");
     }
 
     /**
@@ -192,17 +193,17 @@ public class JamesHost
     public synchronized ACLMailbox getMailbox(String user, String mailboxName)
         throws AccessControlException, MailboxException { 
         if (user == null || mailboxName == null) {
-            logger.error("Null parameters received in getMailbox(). " );
+            getLogger().error("Null parameters received in getMailbox(). " );
             throw new RuntimeException("Null parameters received.");
         } else if (user.equals("")
                    ||(!mailboxName.startsWith(namespaceToken))) {
-            logger.error("Empty/ incorrect parameters received in getMailbox().");
+            getLogger().error("Empty/ incorrect parameters received in getMailbox().");
             throw new RuntimeException("Empty/incorrect parameters received.");
         }
-        logger.debug("Getting mailbox " + mailboxName + " for " + user);
+        getLogger().debug("Getting mailbox " + mailboxName + " for " + user);
         String absoluteName = getAbsoluteName(user, mailboxName);
         if (absoluteName == null) {
-            logger.error("Parameters in getMailbox() cannot be interpreted. ");
+            getLogger().error("Parameters in getMailbox() cannot be interpreted. ");
             throw new RuntimeException("Parameters in getMailbox() cannot be interpreted.");
         }
         return getAbsoluteMailbox(user, absoluteName);
@@ -229,7 +230,7 @@ public class JamesHost
                     Integer c = (Integer)mailboxCounts.get(absoluteName);
                     int count = c.intValue() + 1;
                     mailboxCounts.put(absoluteName, (new Integer(count)));
-                    logger.info("Request no " + count + " for " + absoluteName);
+                    getLogger().info("Request no " + count + " for " + absoluteName);
                     return mailbox;
                 }
             } else {
@@ -239,6 +240,7 @@ public class JamesHost
                 try {
                     in        = new ObjectInputStream( new FileInputStream(key + File.separator + FileMailbox.MAILBOX_FILE_NAME) );
                     mailbox = (FileMailbox) in.readObject();
+		    setupLogger(mailbox);
                     mailbox.configure(conf);
                     mailbox.contextualize(context);
                     mailbox.compose(compMgr);
@@ -292,19 +294,19 @@ public class JamesHost
         throws AccessControlException, AuthorizationException,
         MailboxException {
         if (user == null || mailboxName == null) {
-            logger.error("Null parameters received in createMailbox(). " );
+            getLogger().error("Null parameters received in createMailbox(). " );
             throw new RuntimeException("Null parameters received.");
         } else if (user.equals("")
                    ||(!mailboxName.startsWith(namespaceToken))) {
-            logger.error("Empty/ incorrect parameters received in createMailbox().");
+            getLogger().error("Empty/ incorrect parameters received in createMailbox().");
             throw new RuntimeException("Empty/incorrect parameters received.");
         }
         String absoluteName = getAbsoluteName(user, mailboxName);
         if (absoluteName == null) {
-            logger.error("Parameters in createMailbox() cannot be interpreted. ");
+            getLogger().error("Parameters in createMailbox() cannot be interpreted. ");
             throw new RuntimeException("Parameters in createMailbox() cannot be interpreted.");
         }
-        logger.debug("JamesHost createMailbox() for:  " + absoluteName);
+        getLogger().debug("JamesHost createMailbox() for:  " + absoluteName);
 
         return createAbsoluteMailbox(user, absoluteName);
     }
@@ -320,14 +322,14 @@ public class JamesHost
         if( recordRep.containsRecord(absoluteName)) {
             record = recordRep.retrieve(absoluteName);
             if (!record.isDeleted()) {
-                logger.error("Attempt to create an existing Mailbox.");
+                getLogger().error("Attempt to create an existing Mailbox.");
                 throw new MailboxException("Mailbox already exists", MailboxException.ALREADY_EXISTS_LOCALLY);
             }
         } else {
             String parent
                 = absoluteName.substring(0, absoluteName.lastIndexOf(privateNamespaceSeparator));
             if (!(parent.startsWith(privateNamespace + privateNamespaceSeparator) || parent.startsWith(sharedNamespace + sharedNamespaceSeparator))) {
-                logger.warn("No such parent: " + parent);
+                getLogger().warn("No such parent: " + parent);
                 throw new MailboxException("No such parent: " + parent);
             }
             //Recurse to a created and not deleted mailbox
@@ -347,13 +349,14 @@ public class JamesHost
             } 
             try {
                 mailbox = new FileMailbox();
+		setupLogger(mailbox);
                 mailbox.configure(conf);
                 mailbox.contextualize(context);
                 mailbox.compose(compMgr);
                 mailbox.prepareMailbox(user, absoluteName, user);
                 mailbox.initialize();
             } catch (Exception e) {
-                logger.error("Exception creating mailbox: " + e);
+                getLogger().error("Exception creating mailbox: " + e);
                 throw new MailboxException("Exception creating mailbox: " + e);
             }
             String mailboxName
@@ -377,7 +380,7 @@ public class JamesHost
      */
     public void releaseMailbox(String user, ACLMailbox mailbox) {
         if (mailbox == null) {
-            logger.debug("Attempt to release mailbox with null reference");
+            getLogger().debug("Attempt to release mailbox with null reference");
             return;
         }
         if (user != MailServer.MDA) {
@@ -403,13 +406,13 @@ public class JamesHost
                 recordRep.store(fr);
                 mailbox.dispose();
                 mailbox = null;
-                logger.info("Mailbox object destroyed: " + absName);
+                getLogger().info("Mailbox object destroyed: " + absName);
             } catch (Exception e) {
-                logger.error("Exception destroying mailbox object: " + e);
+                getLogger().error("Exception destroying mailbox object: " + e);
                 e.printStackTrace();
             }
         } else {
-            logger.info("Mailbox " + absName + " now has " + count + "live references");
+            getLogger().info("Mailbox " + absName + " now has " + count + "live references");
             mailboxCounts.put(absName, (new Integer(count)));
         }
     }
@@ -433,19 +436,19 @@ public class JamesHost
     public boolean deleteMailbox(String user, String mailboxName)
         throws MailboxException, AuthorizationException {
         if (user == null || mailboxName == null) {
-            logger.error("Null parameters received in deleteMailbox(). ");
+            getLogger().error("Null parameters received in deleteMailbox(). ");
             throw new RuntimeException("Null parameters received.");
         } else if (user.equals("")
                    ||(!mailboxName.startsWith(namespaceToken))) {
-            logger.error("Empty/ incorrect parameters received in deleteMailbox().");
+            getLogger().error("Empty/ incorrect parameters received in deleteMailbox().");
             throw new RuntimeException("Empty/incorrect parameters received.");
         }
         String absoluteName = getAbsoluteName(user, mailboxName);
         if (absoluteName == null) {
-            logger.error("Parameters in deleteMailbox() cannot be interpreted. ");
+            getLogger().error("Parameters in deleteMailbox() cannot be interpreted. ");
             throw new RuntimeException("Parameters in deleteMailbox() cannot be interpreted.");
         }
-        logger.debug("JamesHost deleteMailbox() called for:  " + absoluteName);
+        getLogger().debug("JamesHost deleteMailbox() called for:  " + absoluteName);
         return false;
         //return deleteAbsoluteMailbox(user, absoluteName);
     }
@@ -546,7 +549,7 @@ public class JamesHost
                                                  String mailboxName,
                                                  boolean subscribedOnly)
         throws MailboxException, AccessControlException {
-        logger.debug("Listing for user: " + username + " ref " + referenceName + " mailbox " + mailboxName);
+        getLogger().debug("Listing for user: " + username + " ref " + referenceName + " mailbox " + mailboxName);
         List responseList = new ArrayList();
         if (subscribedOnly == true ) {
             return null;
@@ -564,7 +567,7 @@ public class JamesHost
                 response = "(\\Noselect) \"" + sharedNamespaceSeparator
                     + "\" " + sharedNamespace;
             } else {
-                logger.error("Weird arguments for LIST? referenceName was: " + referenceName + " and mailbox names was " + mailboxName);
+                getLogger().error("Weird arguments for LIST? referenceName was: " + referenceName + " and mailbox names was " + mailboxName);
                 return null;
             }
             responseList.add(response);
@@ -597,7 +600,7 @@ public class JamesHost
             }
             
             //mailboxName = mailboxName.substring(0,mailboxName.length() -1);
-            logger.debug("Refined mailboxName to: " + mailboxName);
+            getLogger().debug("Refined mailboxName to: " + mailboxName);
             String userTarget;
             if (mailboxName.startsWith("#")) {
                 userTarget = mailboxName;
@@ -609,49 +612,49 @@ public class JamesHost
                 }
             }
             String target = getAbsoluteName(username, userTarget);
-            logger.info("Target is: " + target);
+            getLogger().info("Target is: " + target);
             if (target == null) { return new HashSet();}
             int firstPercent = target.indexOf("%");
             int firstStar = target.indexOf("*");
-            logger.info("First percent at index: " + firstPercent);
-            logger.info("First star at index: " + firstStar);
+            getLogger().info("First percent at index: " + firstPercent);
+            getLogger().info("First star at index: " + firstStar);
             Iterator all = recordRep.getAbsoluteNames();
             Set matches = new HashSet();
 
             while (all.hasNext()) {
                 boolean match = false;
                 String test = (String)all.next();
-                logger.info("Test is: " + test);
+                getLogger().info("Test is: " + test);
                 if (firstPercent == -1 && firstStar == -1) {
                     // no wildcards so exact or nothing
                     match = test.equals(target);
-                    logger.debug("match/ no match at test 1"); 
+                    getLogger().debug("match/ no match at test 1"); 
                 } else if (firstStar == -1) {
                     // only % wildcards
                     if (!test.startsWith(target.substring(0, firstPercent))) {
                         match = false;
-                        logger.debug("fail match at test 2");
+                        getLogger().debug("fail match at test 2");
                     } else if (firstPercent == target.length() -1) {
                         // only one % and it is terminating char
                         target = target.substring(0, firstPercent);
-                        logger.debug("Refined target to: " + target);
+                        getLogger().debug("Refined target to: " + target);
                         if (test.equals(target)) {
                             match = true;
-                            logger.debug("pass match at test 3");
+                            getLogger().debug("pass match at test 3");
                         } else if ( (test.length() > target.length())
                                     &&  (test.indexOf('.', target.length())
                                          == -1)
                                     ) {
                             match = true;
-                            logger.debug("pass match at test 4");
+                            getLogger().debug("pass match at test 4");
                         } else {
                             match = false;
-                            logger.debug("fail match at test 5");
+                            getLogger().debug("fail match at test 5");
                         }
                     } else {
                         int secondPercent = target.indexOf("%", firstPercent + 1);
                         match = false; // unfinished
-                        logger.debug("fail match at test 6");
+                        getLogger().debug("fail match at test 6");
                     }
                 } else {
                     //at least one star
@@ -674,7 +677,7 @@ public class JamesHost
                 }
                   
                 if (match)  {
-                    logger.info("Processing match for : " + test);
+                    getLogger().info("Processing match for : " + test);
                     FolderRecord record = recordRep.retrieve(test);
                     ACLMailbox mailbox = null;
                     StringBuffer buf = new StringBuffer();
@@ -723,7 +726,7 @@ public class JamesHost
             }
             return matches;
         } catch (Exception e) {
-            logger.error("Exception with list request for mailbox " + mailboxName);
+            getLogger().error("Exception with list request for mailbox " + mailboxName);
             e.printStackTrace();
             return null;
         }
@@ -957,7 +960,7 @@ public class JamesHost
             userInbox.initialize();
             userInbox.setRights(user, MailServer.MDA, "lrswi");
         } catch (Exception e) {
-            logger.error("Exception creating new account: " + e);
+            getLogger().error("Exception creating new account: " + e);
             return false;
         }
         userInboxRecord.initialize();
@@ -978,7 +981,7 @@ public class JamesHost
         //      userRootFolder.destroy();
         //      userInbox.destroy();
         //} catch (Exception e) {
-        //    logger.error("Exception closing new account mailbox: " + e);
+        //    getLogger().error("Exception closing new account mailbox: " + e);
         //    return false;
         //} 
         userRootFolder = null;

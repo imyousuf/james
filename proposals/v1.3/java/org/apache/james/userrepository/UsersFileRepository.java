@@ -38,8 +38,8 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/06 10:50:18 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/06 13:17:48 $
+ * $Revision: 1.4 $
  */
 public class UsersFileRepository
     extends AbstractLoggable
@@ -89,9 +89,9 @@ public class UsersFileRepository
                 = new DefaultConfiguration( "repository",
                                             "generated:UsersFileRepository.compose()" );
 
-            objectConfiguration.addAttribute( "destinationURL", destination );
-            objectConfiguration.addAttribute( "type", "OBJECT" );
-            objectConfiguration.addAttribute( "model", "SYNCHRONOUS" );
+            objectConfiguration.setAttribute( "destinationURL", destination );
+            objectConfiguration.setAttribute( "type", "OBJECT" );
+            objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
             or = (ObjectRepository)store.select( objectConfiguration );
 	    getLogger().debug(this.getClass().getName() + " created in " + destination);

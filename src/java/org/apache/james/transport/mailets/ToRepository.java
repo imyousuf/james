@@ -44,9 +44,9 @@ public class ToRepository extends GenericMailet {
             MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
             DefaultConfiguration mailConf
                 = new DefaultConfiguration("repository", "generated:ToRepository");
-            mailConf.addAttribute("destinationURL", repositoryPath);
-            mailConf.addAttribute("type", "MAIL");
-            mailConf.addAttribute("model", "SYNCHRONOUS");
+            mailConf.setAttribute("destinationURL", repositoryPath);
+            mailConf.setAttribute("type", "MAIL");
+            mailConf.setAttribute("model", "SYNCHRONOUS");
 
             repository = (MailRepository) mailstore.select(mailConf);
         } catch (ComponentException cnfe) {

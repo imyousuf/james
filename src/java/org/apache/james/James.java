@@ -206,6 +206,7 @@ public class James
                 getLogger().info("Using SimpleSystem.");
                 imapHost = (Host) Class.forName(imapHostClass).newInstance();
                 //imapHost = new JamesHost();
+		setupLogger(imapHost, "imaphost");
                 imapHost.configure(conf.getChild("imapHost"));
                 imapHost.contextualize(context);
                 imapHost.compose(compMgr);
@@ -349,9 +350,9 @@ public class James
             String destination = inboxRootURL + userName + File.separator;;
             DefaultConfiguration mboxConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-            mboxConf.addAttribute("destinationURL", destination);
-            mboxConf.addAttribute("type", "MAIL");
-            mboxConf.addAttribute("model", "SYNCHRONOUS");
+            mboxConf.setAttribute("destinationURL", destination);
+            mboxConf.setAttribute("type", "MAIL");
+            mboxConf.setAttribute("model", "SYNCHRONOUS");
             try {
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
