@@ -42,6 +42,7 @@ public class ExtraDotOutputStream extends FilterOutputStream {
      */
     public void write(int b) throws IOException {
         out.write(b);
+
         switch (b) {
             case '.':
                 if (countLast0A0D == 2) {
@@ -60,8 +61,10 @@ public class ExtraDotOutputStream extends FilterOutputStream {
                     countLast0A0D = 0;
                 }
                 break;
+            default:
+                countLast0A0D = 0;
+                break;
         }
     }
-
 }
 
