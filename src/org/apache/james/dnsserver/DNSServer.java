@@ -25,13 +25,11 @@ import org.xbill.DNS.*;
  * @version 1.0.0, 18/06/2000
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class DNSServer implements Component, Configurable, Contextualizable {
+public class DNSServer implements Component, Configurable, Contextualizable, Initializable {
 
     private DefaultComponentManager compMgr;
     private Configuration conf;
     private Logger logger =  LogKit.getLoggerFor("james.DnsServer");
-    //    private ThreadManager threadManager;
-    //   private Store store;
     private Resolver resolver;
     private Cache cache;
     private byte dnsCredibility;
