@@ -208,6 +208,13 @@ public class File_Persistent_Stream_Repository
 
         super.remove( key );
     }
+
+    public long getSize(final String key) {
+        try {
+            return getFile(key).length();
+        }
+        catch(IOException e) {
+            return 0;
+        }
+    }
 }
-
-
