@@ -21,10 +21,9 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -40,7 +39,7 @@ import org.apache.james.util.watchdog.WatchdogFactory;
  *
  */
 public abstract class AbstractJamesService extends AbstractHandlerFactory
-    implements Component,Composable,Configurable,Disposable,Initializable,
+    implements Serviceable,Configurable,Disposable,Initializable,
         ConnectionHandlerFactory {
     /**
      * The default value for the connection timeout.
@@ -115,7 +114,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * The component manager used by this service.
      */
-    private ComponentManager compMgr;
+    private ServiceManager compMgr;
 
     /**
      * The ConnectionManager that spawns and manages service connections.
@@ -126,6 +125,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * Whether this service is enabled.
      */
     private volatile boolean enabled;
+
+    /**
+     * Flag holding the disposed state of the component.
+     */
+    private boolean m_disposed = false;
 
     /**
      * This method returns the type of service provided by this server. This
@@ -145,10 +149,10 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp) throws ComponentException {
-        super.compose(comp);
+    public void service(ServiceManager comp) throws ServiceException {
+        super.service( comp );
         compMgr               = comp;
         connectionManager =
             (ConnectionManager)compMgr.lookup(ConnectionManager.ROLE);
@@ -302,18 +306,42 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         if(!isEnabled()) {
             return;
         }
-        StringBuffer infoBuffer =
-            new StringBuffer(64).append(getServiceType()).append(
-                " dispose... ").append(connectionName);
-        getLogger().debug(infoBuffer.toString());
+        if( m_disposed )
+        {
+            if( getLogger().isWarnEnabled() )
+            {
+                getLogger().warn( "ignoring disposal request - already disposed" );
+            }
+            return;
+        }
 
-        try {
+        if( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "disposal" );
+        }
+
+        m_disposed = true;
+        if( getLogger().isDebugEnabled() )
+        {
+            StringBuffer infoBuffer =
+               new StringBuffer(64).append(getServiceType()).append(
+                   " dispose... ").append(connectionName);
+            getLogger().debug(infoBuffer.toString());
+        }
+
+        try
+        {
             connectionManager.disconnect(connectionName,true);
-        } catch(final Exception e) {
-            StringBuffer warnBuffer =
-                new StringBuffer(64).append("Error disconnecting ")
+        }
+        catch(final Throwable e) 
+        {
+            if( getLogger().isWarnEnabled() )
+            {
+                StringBuffer warnBuffer =
+                   new StringBuffer(64).append("Error disconnecting ")
                                     .append(getServiceType()).append(": ");
-            getLogger().warn(warnBuffer.toString(),e);
+                getLogger().warn(warnBuffer.toString(),e);
+            }
         }
 
         compMgr     = null;

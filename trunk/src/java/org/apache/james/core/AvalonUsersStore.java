@@ -8,10 +8,10 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -31,7 +31,7 @@ import java.util.Iterator;
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled
-    implements Component, Contextualizable, Composable, Configurable, Initializable, UsersStore {
+    implements Contextualizable, Serviceable, Configurable, Initializable, UsersStore {
 
     /**
      * A mapping of respository identifiers to actual repositories
@@ -52,7 +52,7 @@ public class AvalonUsersStore
     /**
      * The Avalon component manager used by the instance
      */
-    protected ComponentManager       componentManager;
+    protected ServiceManager       manager;
 
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
@@ -63,11 +63,11 @@ public class AvalonUsersStore
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        this.componentManager = componentManager;
+    public void service( final ServiceManager manager )
+        throws ServiceException {
+        this.manager = manager;
     }
 
     /**
@@ -105,13 +105,18 @@ public class AvalonUsersStore
 
             UsersRepository rep = (UsersRepository) theClassLoader.loadClass(repClass).newInstance();
 
-            setupLogger((Component)rep);
+            setupLogger(rep);
 
             if (rep instanceof Contextualizable) {
                 ((Contextualizable) rep).contextualize(context);
             }
+            if (rep instanceof Serviceable) {
+                ((Serviceable) rep).service( manager );
+            }
             if (rep instanceof Composable) {
-                ((Composable) rep).compose( componentManager );
+                final String error = "no implementation in place to support Coposable";
+                getLogger().error( error );
+                throw new IllegalArgumentException( error );
             }
             if (rep instanceof Configurable) {
                 ((Configurable) rep).configure(repConf);

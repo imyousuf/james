@@ -27,7 +27,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -51,7 +51,7 @@ public class UsersLDAPRepository
     extends AbstractLogEnabled
     implements UsersRepository, Configurable, Contextualizable, Initializable{
 
-    private ComponentManager comp;
+    private ServiceManager comp;
 
     private Logger logger;
     private String path;
@@ -90,9 +90,9 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager compMgr) {
+    public void service(ServiceManager compMgr) {
         this.comp = comp;
     }
 

@@ -20,10 +20,10 @@ import javax.mail.internet.*;
 import javax.activation.*;
 
 import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -39,7 +39,7 @@ import org.apache.james.core.MailImpl;
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.2 2003/02/06 06:25:58 noel Exp $
+ * $Id: FetchMail.java,v 1.3 2003/02/08 04:12:25 mcconnell Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {
@@ -140,7 +140,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             }
 
 
-            //    // try to open read/write and if that fails try read-only
+            // try to open read/write and if that fails try read-only
             try {
                 folder.open(Folder.READ_WRITE);
             } catch (MessagingException ex) {
@@ -267,16 +267,16 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
+    public void service(final ServiceManager manager ) throws ServiceException {
         try {
-            server = (MailServer) componentManager.lookup(MailServer.ROLE);
+            server = (MailServer) manager.lookup(MailServer.ROLE);
         } catch (ClassCastException cce) {
             StringBuffer errorBuffer =
                     new StringBuffer(128).append("Component ").append(MailServer.ROLE).append(
                             "does not implement the required interface.");
-            throw new ComponentException(errorBuffer.toString());
+            throw new ServiceException(errorBuffer.toString());
         }
     }
 

@@ -11,11 +11,10 @@ import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -28,14 +27,14 @@ import java.util.Iterator;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.3 2003/02/08 00:20:45 noel Exp $
+ * $Id: FetchScheduler.java,v 1.4 2003/02/08 04:12:25 mcconnell Exp $
  *
  *  @see org.apache.james.fetchmail.FetchMail#configure(Configuration) FetchMail
  *  
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Component, Composable, Configurable, Initializable, Disposable {
+    implements Serviceable, Configurable, Initializable, Disposable {
 
     /**
      * Configuration object for this service
@@ -43,9 +42,9 @@ public class FetchScheduler
     private Configuration conf;
 
     /**
-     * The component manager that allows access to the system services
+     * The service manager that allows access to the system services
      */
-    private ComponentManager compMgr;
+    private ServiceManager m_manager;
 
     /**
      * The scheduler service that is used to trigger fetch tasks.
@@ -60,10 +59,10 @@ public class FetchScheduler
     private ArrayList theFetchTaskNames = new ArrayList();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service( ServiceManager )
      */
-    public void compose(ComponentManager comp) throws ComponentException {
-        compMgr = comp;
+    public void service(ServiceManager comp) throws ServiceException {
+        m_manager = comp;
     }
 
     /**
@@ -79,23 +78,29 @@ public class FetchScheduler
     public void initialize() throws Exception {
         enabled = conf.getAttributeAsBoolean("enabled", false);
         if (enabled) {
-            scheduler = (TimeScheduler) compMgr.lookup(TimeScheduler.ROLE);
+            scheduler = (TimeScheduler) m_manager.lookup(TimeScheduler.ROLE);
             Configuration[] fetchConfs = conf.getChildren("fetch");
             for (int i = 0; i < fetchConfs.length; i++) {
                 FetchMail fetcher = new FetchMail();
                 Configuration fetchConf = fetchConfs[i];
                 String fetchTaskName = fetchConf.getAttribute("name");
                 fetcher.enableLogging(getLogger().getChildLogger(fetchTaskName));
-                fetcher.compose(compMgr);
+                fetcher.service( m_manager );
                 fetcher.configure(fetchConf);
                 Integer interval = new Integer(fetchConf.getChild("interval").getValue());
                 PeriodicTimeTrigger fetchTrigger = new PeriodicTimeTrigger(0, interval.intValue());
-                scheduler.addTrigger(fetchTaskName, fetchTrigger, fetcher);
+                scheduler.addTrigger(fetchTaskName, fetchTrigger, fetcher );
                 theFetchTaskNames.add(fetchTaskName);
             }
-            getLogger().info("FetchMail Started");
+            if( getLogger().isInfoEnabled() )
+            {
+                getLogger().info("FetchMail Started");
+            }
         } else {
-            getLogger().info("FetchMail Disabled");
+            if( getLogger().isInfoEnabled() )
+            {
+                getLogger().info("FetchMail Disabled");
+            }
         }
     }
 

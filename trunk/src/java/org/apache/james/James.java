@@ -33,11 +33,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -73,13 +72,13 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.45 $
+ * @version This is $Revision: 1.46 $
 
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable, JamesMBean,
-               Initializable, MailServer, MailetContext, Component {
+    implements Contextualizable, Serviceable, Configurable, JamesMBean,
+               Initializable, MailServer, MailetContext {
 
     /**
      * The software name and version
@@ -89,7 +88,7 @@ public class James
     /**
      * The component manager used both internally by James and by Mailets.
      */
-    private DefaultComponentManager compMgr; //Components shared
+    private DefaultServiceManager compMgr; //Components shared
 
     /**
      * TODO: Investigate what this is supposed to do.  Looks like it
@@ -200,10 +199,10 @@ public class James
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp) {
-        compMgr = new DefaultComponentManager(comp);
+    public void service( ServiceManager comp) {
+        compMgr = new DefaultServiceManager(comp);
         mailboxes = new HashMap(31);
     }
 
@@ -343,7 +342,7 @@ public class James
             throw e;
         }
         //}
-        compMgr.put( "org.apache.mailet.UsersRepository", (Component)localusers);
+        compMgr.put( "org.apache.mailet.UsersRepository", localusers);
         getLogger().info("Local users repository opened");
 
         initialiseInboxes(conf, compMgr);
@@ -360,7 +359,7 @@ public class James
 
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);
-        // For AVALON aware mailets and matchers, we put the Component object as
+        // For AVALON aware mailets and matchers, we put the object as
         // an attribute
 
         //TODO NOT unless specifically required by conf
@@ -376,12 +375,11 @@ public class James
     /**
      * Initiliases the local inbox repository.
      * @param configuration The James component configuration
-     * @param componentManager The ComponentManager which can be used to locate
-     *                         other services
+     * @param manager not used 
      * @throws Exception If the local mail storage can't be initiliased.
      */
     protected void initialiseInboxes( Configuration configuration,
-                                      ComponentManager componentManager ) throws Exception
+                                      ServiceManager manager ) throws Exception
     {
         Configuration inboxConf = configuration.getChild("inboxRepository");
         Configuration inboxRepConf = inboxConf.getChild("repository");
@@ -592,7 +590,7 @@ public class James
         DNSServer dnsServer = null;
         try {
             dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
-        } catch ( final ComponentException cme ) {
+        } catch ( final ServiceException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
@@ -905,7 +903,7 @@ public class James
             spoolConf.setAttribute("destinationURL", specificationURL);
             spoolConf.setAttribute("type", storeType);
             return (MailRepository) mailstore.select(spoolConf);
-        } catch (ComponentException cnfe) {
+        } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
             throw new MessagingException("Failed to retrieve Store component:"+specificationURL+" because "+cnfe.getMessage(),cnfe );
         } catch (Exception e) {

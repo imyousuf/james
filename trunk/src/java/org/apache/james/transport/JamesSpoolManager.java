@@ -13,11 +13,11 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.activity.Executable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -40,11 +40,11 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.27 $
+ * @version This is $Revision: 1.28 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Composable, Configurable, Initializable, Runnable, Disposable, Component, Contextualizable {
+    implements Serviceable, Configurable, Initializable, Runnable, Disposable, Contextualizable {
     private Context context;
     /**
      * Whether 'deep debugging' is turned on.
@@ -53,7 +53,7 @@ public class JamesSpoolManager
     /**
      * System component manager
      */
-    private DefaultComponentManager compMgr;
+    private DefaultServiceManager compMgr;
     /**
      * The configuration object used by this spool manager.
      */
@@ -76,13 +76,15 @@ public class JamesSpoolManager
      * The ThreadManager from which the thread pool is obtained.
      */
     private ThreadManager threadManager;
+
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp) throws ComponentException {
+    public void service(ServiceManager comp) throws ServiceException {
         threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
-        compMgr = new DefaultComponentManager(comp);
+        compMgr = new DefaultServiceManager(comp);
     }
+
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -241,8 +243,17 @@ public class JamesSpoolManager
             getLogger().info(infoBuffer.toString());
         }
         for (int i = 0; i < numThreads; i++)
-            workerPool.execute(this);
+            workerPool.execute( this);
     }
+
+    /**
+     * Invokes run.
+     */
+    public void execute() 
+    {
+        run();
+    }
+
     /**
      * This routinely checks the message spool for messages, and processes
      * them as necessary

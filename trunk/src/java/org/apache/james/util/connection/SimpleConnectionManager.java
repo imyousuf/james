@@ -16,9 +16,9 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactor
 import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -34,7 +34,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  */
 public class SimpleConnectionManager extends AbstractLogEnabled
-    implements ConnectionManager, Composable, Configurable, Disposable {
+    implements ConnectionManager, Serviceable, Configurable, Disposable {
 
     /**
      * The default value for client socket idle timeouts.  The
@@ -113,10 +113,10 @@ public class SimpleConnectionManager extends AbstractLogEnabled
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager componentManager)
-        throws ComponentException {
+    public void service(ServiceManager componentManager) 
+        throws ServiceException {
         threadManager = (ThreadManager)componentManager.lookup( ThreadManager.ROLE );
     }
 
@@ -124,6 +124,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * Disconnects all the underlying ServerConnections
      */
     public void dispose() {
+
         disposed = true;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Starting SimpleConnectionManager dispose...");

@@ -10,11 +10,10 @@ import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -32,7 +31,7 @@ import java.util.Iterator;
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Component, Composable, Configurable, Initializable, Disposable {
+    implements Serviceable, Configurable, Initializable, Disposable {
 
     /**
      * Configuration object for this service
@@ -42,7 +41,7 @@ public class FetchScheduler
     /**
      * The component manager that allows access to the system services
      */
-    private ComponentManager compMgr;
+    private ServiceManager compMgr;
 
     /**
      * The scheduler service that is used to trigger fetch tasks.
@@ -57,9 +56,9 @@ public class FetchScheduler
     private ArrayList theFetchTaskNames = new ArrayList();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp) throws ComponentException {
+    public void service(ServiceManager comp) throws ServiceException {
         compMgr = comp;
     }
 

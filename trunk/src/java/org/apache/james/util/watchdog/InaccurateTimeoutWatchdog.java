@@ -100,10 +100,17 @@ public class InaccurateTimeoutWatchdog
      * the timer when it next awakens.
      */
     public void reset() {
-        if (watchdogThread != null) {
-            getLogger().debug("Calling reset() " + watchdogThread.getName());
+        if (watchdogThread != null) 
+        {
+            if( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug("Calling reset() " + watchdogThread.getName());
+            }
         } else {
-            getLogger().debug("Calling reset() for inactive watchdog");
+            if( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug("Calling reset() for inactive watchdog");
+            }
         }
         isReset = true;
     }

@@ -17,10 +17,9 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.logger.LogEnabled;
 
 import org.apache.james.core.AbstractJamesService;
@@ -40,7 +39,7 @@ import java.net.UnknownHostException;
  *
  * @version 1.0.0, 24/04/1999
  */
-public class POP3Server extends AbstractJamesService implements Component {
+public class POP3Server extends AbstractJamesService {
 
     /**
      * The internal mail server service
@@ -81,18 +80,18 @@ public class POP3Server extends AbstractJamesService implements Component {
         = new POP3HandlerConfigurationDataImpl();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        super.compose(componentManager);
+    public void service( final ServiceManager componentManager )
+        throws ServiceException {
+        super.service(componentManager);
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
         UsersStore usersStore = (UsersStore)componentManager.
             lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
-            throw new ComponentException("The user repository could not be found.");
+            throw new ServiceException("The user repository could not be found.");
         }
     }
 
