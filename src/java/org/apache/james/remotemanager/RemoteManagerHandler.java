@@ -31,6 +31,7 @@ import org.apache.james.services.JamesUser;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.mailet.MailAddress;
+import org.apache.james.userrepository.DefaultUser;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -43,8 +44,8 @@ import org.apache.mailet.MailAddress;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:27 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: serge $ on $Date: 2001/09/11 04:33:21 $
+ * $Revision: 1.3 $
  *
  */
 public class RemoteManagerHandler
@@ -53,6 +54,7 @@ public class RemoteManagerHandler
 
     private UsersStore usersStore;
     private UsersRepository users;
+    private boolean inLocalUsers = true;
     private TimeScheduler scheduler;
     private MailServer mailServer;
 
@@ -137,8 +139,14 @@ public class RemoteManagerHandler
             out.println( "Welcome " + login + ". HELP for a list of commands" );
             getLogger().info("Login for " + login + " succesful");
 
-            while (parseCommand(in.readLine())) {
-                scheduler.resetTrigger(this.toString());
+            try {
+                while (parseCommand(in.readLine())) {
+                    scheduler.resetTrigger(this.toString());
+                }
+            }
+            catch (Throwable thr) {
+                System.out.println("Exception: " + thr.getMessage());
+                thr.printStackTrace();
             }
             getLogger().info("Logout for " + login + ".");
             socket.close();
@@ -191,16 +199,26 @@ public class RemoteManagerHandler
                 out.println("usage: adduser [username] [password]");
                 return true;
             }
+
+            boolean success = false;
             if (users.contains(username)) {
                 out.println("user " + username + " already exist");
-            } else {
-                if(mailServer.addUser(username, passwd)) {
-                    out.println("User " + username + " added");
-                    getLogger().info("User " + username + " added");
-                } else {
-                    out.println("Error adding user " + username);
-                    getLogger().info("Error adding user " + username);
-                }
+            } 
+            else if ( inLocalUsers ) {
+                success = mailServer.addUser(username, passwd);
+            }
+            else {
+                DefaultUser user = new DefaultUser(username, "SHA");
+                user.setPassword(passwd);
+                success = users.addUser(user);
+            }
+            if ( success ) {
+                out.println("User " + username + " added");
+                getLogger().info("User " + username + " added");
+            }
+            else {
+                out.println("Error adding user " + username);
+                getLogger().info("Error adding user " + username);
             }
             out.flush();
         } else if (command.equalsIgnoreCase("SETPASSWORD")) {
@@ -214,7 +232,7 @@ public class RemoteManagerHandler
                 out.println("usage: adduser [username] [password]");
                 return true;
 	    }
-	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    User user = users.getUserByName(username);
 	    if (user == null) {
 		out.println("No such user");
 		return true;
@@ -321,11 +339,16 @@ public class RemoteManagerHandler
                 return true;
 	    }
 	    // Verify user exists
-	    JamesUser user = (JamesUser) users.getUserByName(username);
-	    if (user == null) {
+	    User baseuser = users.getUserByName(username);
+	    if (baseuser == null) {
 		out.println("No such user");
 		return true;
 	    }
+            else if (! (baseuser instanceof JamesUser ) ) {
+                out.println("Can't set forwarding for this user type.");
+                return true;
+            }
+            JamesUser user = (JamesUser)baseuser;
 	    // Veriy acceptable email address
 	    MailAddress forwardAddr;
             try {
@@ -379,6 +402,29 @@ public class RemoteManagerHandler
 	    }
             out.flush();
 	    return true;
+        } else if (command.equalsIgnoreCase("USE")) {
+	    if (argument == null || argument.equals("")) {
+                out.println("usage: use [repositoryName]");
+                return true;
+	    }
+            String repositoryName = argument;
+            UsersRepository repos = usersStore.getRepository(repositoryName);
+            if ( repos == null ) {
+                out.println("no such repository");
+                return true;
+            }
+            else {
+                users = repos;
+                out.println("Changed to repository '" + repositoryName + "'.");
+                if ( repositoryName.equalsIgnoreCase("localusers") ) {
+                    inLocalUsers = true;
+                }
+                else {
+                    inLocalUsers = false;
+                }
+                return true;
+            }
+
         } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("bye");
             return false;

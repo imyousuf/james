@@ -103,6 +103,8 @@
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
     <provide name="objectstorage"
              role="org.apache.avalon.cornerstone.services.store.Store"/> 
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
   </block>
        
   <!-- The User Storage block -->
@@ -110,6 +112,8 @@
     <!-- Configure file based user store here, defaults should be fine -->
     <provide name="objectstorage"
              role="org.apache.avalon.cornerstone.services.store.Store"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
   </block>
       
 
@@ -135,7 +139,10 @@
   <!-- The Time Manager block -->
   <block class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
          name="scheduler"/>
-
+         
+  <!-- The DataSourceSelector block -->
+  <block class="org.apache.avalon.cornerstone.blocks.datasource.DefaultDataSourceSelector" 
+         name="database-connections"/>
 
 </assembly>
 

@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.james.core.MimeMessageSource;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
+import org.apache.james.util.SqlResources;
 
 /**
  * This class points to a specific message in a repository.  This will return an
@@ -50,8 +51,11 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         this.key = key;
         this.sr = sr;
 
-        retrieveMessageBodySQL = repository.sqlQueries.getProperty("retrieveMessageBodySQL");
-        retrieveMessageBodySizeSQL = repository.sqlQueries.getProperty("retrieveMessageBodySizeSQL");
+        retrieveMessageBodySQL = 
+            repository.sqlQueries.getSqlString("retrieveMessageBodySQL", true);
+        // this is optional
+        retrieveMessageBodySizeSQL = 
+            repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
     }
 
     /**

@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.9 $
-    Committed on $Date: 2001/08/11 10:31:17 $ by: $Author: charlesb $
+    This is $Revision: 1.10 $
+    Committed on $Date: 2001/09/11 04:29:30 $ by: $Author: serge $
 -->
 <config>
 
@@ -66,20 +66,25 @@
 
 
 
-      <!-- The inbox repository is the location for users inboxes -->
+      <!-- The inbox repository is the location for users inboxes
       <inboxRepository>
         <repository destinationURL="file://var/mail/inboxes/"
                     type="MAIL">
         </repository>
-      </inboxRepository>
+      </inboxRepository> -->
 
-      <!-- Alternative inbox repository definition for DB use. Note you must create the inbox.properties file
+      <!-- Alternative inbox repository definition for DB use.
+           The format for the destinationURL is "db://<data-source>/<table>"
+            - <data-source> is the datasource name set up in the
+                    database-connections block, below
+            - <table> is the name of the table to store user inboxes in
+           The user name is used as <repositoryName> for this repository config.
+      -->
       <inboxRepository>
-        <repository destinationURL="db://../conf/inbox.properties"
-                    type="SPOOL">
+        <repository destinationURL="db://maildb/inbox/"
+                    type="MAIL">
         </repository>
       </inboxRepository>
-      -->
   </James>
 
   <!-- The James Spool Manager block  -->
@@ -148,10 +153,21 @@
             <subjectprefix>JamesList</subjectprefix>
           </mailet>
 
+          <mailet match="RecipientIs=test@glissando.lokitech.com" class="ToProcessor">
+            <processor> schedule </processor>
+          </mailet>
+
           <!-- Sends remaining mails to the transport processor for either
           local or remote delivery -->
           <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
+          </mailet>
+        </processor>
+
+        <processor name="schedule">
+          <mailet match="All" class="ToRepository">
+            <repositoryPath> db://maildb/PendingMail/pending </repositoryPath>
+            <passThrough> true </passThrough>
           </mailet>
         </processor>
 
@@ -256,6 +272,7 @@
   <dnsserver>
         <servers>
           <server>127.0.0.1</server>
+          <server>216.181.1.2</server>
           <!--<server> put extra dns server address here </server>-->
         </servers>
         <authoritative>false</authoritative>
@@ -437,6 +454,9 @@
           <types>
             <type>MAIL</type>
           </types>
+          <config>
+            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+          </config>
         </repository>
         <repository
             class="org.apache.james.mailrepository.JDBCSpoolRepository">
@@ -446,109 +466,124 @@
           <types>
             <type>SPOOL</type>
           </types>
+          <config>
+            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <filestore>file://var/dbspool</filestore>
+          </config>
         </repository>
       </repositories>
 
       <!-- The spool repository is a singular location where incoming mails
       are temporarily stored before being processed.
-     (ex. file://c:/james/spool/) -->
+     (ex. file://c:/james/spool/)
       <spoolRepository>
         <repository destinationURL="file://var/mail/spool/"
                     type="SPOOL">
         </repository>
       </spoolRepository>
+      -->
 
       <!-- Alternative spool repository definition for JDBC use
+      -->
       <spoolRepository>
-        <repository destinationURL="db://../conf/spool.properties"
+        <repository destinationURL="db://maildb/message/spool"
                     type="SPOOL">
         </repository>
       </spoolRepository>
-      -->
   </mailstore>
 
   <!-- The User Storage block -->
   <users-store>
+    <!-- Configure User Repositories here.
+         User repositories are required for the following purposes:
+            - hold information about Users of the James mail server
+            - hold lists of users for the listserv mailet
 
-    <!-- Note: Two user repositories are required for default configuration:
+         Currently, 2 different storage options are available:
+            - file-based storage using Java serialisation
+            - database-backed storage
+         (Use of database or file-system is defined on a "per-repository" basis)
+
+         Note: Two user repositories are required for default configuration:
          LocalUsers - the users for whom you are providing POP3, IMAP or NNTP
                       AUTH service
          list-james - the users of the james@localhost mailiinglist
     -->
-      <!-- File-based user repository  -->
+
+      <!-- File-based user repositories
+           Use these configurations to store user info in the filesystem  -->
+      <!--
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/users/"/>
       </repository>
 
-      <!-- Uncomment this to store users in an RDBMS
-      <repository name="LocalUsers"
-                  class="org.apache.james.userrepository.UsersTownRepository">
-        <destination URL="town://users/">
-        <conn>file:///var/maildatabase</conn>
-        <table>Users</table>
-      </repository>
-      -->
-      <!-- The following are examples of database connections which have been
-           tested.
-           These should provided a guide to setting up other databases as well.
-           The driver.class and destination.URL properties are require,
-           but destination.user and destination.password are optional. -->
-      <!-- Mssql server with Inet Sprinta
-            <destination>
-                <driver class="com.inet.tds.TdsDriver"/>
-                <datasource>
-                    <dburl>jdbc:inetdae7:127.0.0.1?database=mail</dburl>
-                    <user>user</user>
-                    <password>password</password>
-                </datasource>
-            </destination>
-      </repository>
-      -->
-
-      <!-- MySQL server via ODBC
-      <repository name="LocalUsers"
-                  class="org.apache.james.userrepository.UsersJDBCRepository">
-            <destination>
-                <driver class="sun.jdbc.odbc.JdbcOdbcDriver"/>
-                <datasource>
-                    <dburl>jdbc:odbc:mail-mysql</dburl>
-                </datasource>
-            </destination>
-      </repository>
-      -->
-      <!-- MySQL server via mm mysql driver
-      <repository name="LocalUsers"
-                  class="org.apache.james.userrepository.UsersJDBCRepository">
-            <destination>
-                <driver class="org.gjt.mm.mysql.Driver"/>
-                <datasource>
-                    <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
-                    <user>user</user>
-                    <password>password</password>
-                </datasource>
-            </destination>
-      </repository>
-      -->
-      <!-- Oracle8i server via thin driver
-      <repository name="LocalUsers"
-                  class="org.apache.james.userrepository.UsersJDBCRepository">
-            <destination>
-                <driver class="oracle.jdbc.driver.OracleDriver"/>
-                <datasource>
-                    <dburl>jdbc:oracle:thin:@127.0.0.1:1521:mail</dburl>
-                    <user>user</user>
-                    <password>password</password>
-                </datasource>
-            </destination>
-      </repository>
-      -->
-
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/lists/list-james/"/>
       </repository>
+      -->
+
+      <!-- Database backed user repositories
+           Use these configurations to store user info in a database.
+           Note: the <data-source> element must refer to a connection configured
+            in the <database-connections> configuration section. -->
+
+      <!-- The LocalUsers repository, for storing James' User info. -->
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.JamesUsersJdbcRepository"
+                  destinationURL="db://maildb/users">
+          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+      </repository>
+      <!-- The list used by the default ListServ mailet -->
+      <repository name="list-james"
+                  class="org.apache.james.userrepository.ListUsersJdbcRepository"
+                  destinationURL="db://maildb/lists/list-james">
+          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+      </repository>
+      <!-- An example mailinglist repository, with no "listName" parameter
+           specified. Uses the default value from the sql definition file. -->
+      <repository name="list-test"
+                  class="org.apache.james.userrepository.ListUsersJdbcRepository"
+                  destinationURL="db://maildb/lists">
+          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+      </repository>
+      <!-- An example UserRepository for DefaultUser implementations. Testing purposes
+           only. -->
+      <repository name="default-users"
+                  class="org.apache.james.userrepository.DefaultUsersJdbcRepository"
+                  destinationURL="db://maildb/DefaultUsers">
+          <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+      </repository>
   </users-store>
+
+  <!-- The database-connections block -->
+  <database-connections>
+    <!-- Confugure database connections here.
+         These connections are referred to by name elsewhere in the config file -->
+<!-- CHECKME! To allow James to use a database, configure the database connection here -->
+    <data-sources>
+        <!-- Example, connecting to a MySQL database called "mail" on localhost
+        -->
+        <!--
+        <data-source name="maildb"
+                     type="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+            <driver>org.gjt.mm.mysql.Driver</driver>
+            <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
+            <user>username</user>
+            <password>password</password>
+        </data-source>
+        -->
+
+        <data-source name="maildb"
+        			type="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+        	<driver>com.inet.tds.TdsDriver</driver>
+        	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
+        	<user>sa_james</user>
+        	<password>blahblah</password>
+        </data-source>
+    </data-sources>
+  </database-connections>
 
   <!-- Configuration for Cornerstone Blocks only after here
        NOTHING BELOW THIS SHOULD NEED CHANGING,

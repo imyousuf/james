@@ -12,7 +12,7 @@ import org.apache.james.services.*;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 
 /**
- * A partial implementation of a Repository to store users on the File System.
+ * A partial implementation of a Repository to store users.
  * <p>This implements common functionality found in different UsersRespository 
  * implementations, and makes it easier to create new User repositories.</p>
  *
@@ -28,7 +28,7 @@ public abstract class AbstractUsersRepository
     //
     /**
      * Returns a list populated with all of the Users in the repository.
-     * @return an <code>Iterator</code> of <code>JamesUser</code>s.
+     * @return an <code>Iterator</code> of <code>User</code>s.
      */
     protected abstract Iterator listAllUsers();
 
@@ -36,30 +36,24 @@ public abstract class AbstractUsersRepository
      * Adds a user to the underlying Repository.
      * The user name must not clash with an existing user.
      */
-    protected abstract void doAddUser(DefaultJamesUser user);
+    protected abstract void doAddUser(User user);
 
     /**
      * Removes a user from the underlying repository.
      * If the user doesn't exist, returns ok.
      */
-    protected abstract void doRemoveUser(DefaultJamesUser user);
+    protected abstract void doRemoveUser(User user);
+
+    /**
+     * Updates a user record to match the supplied User.
+     */
+    protected abstract void doUpdateUser(User user);
 
     //
     // Extended protected methods.
     // These provide very basic default implementations, which will work,
     // but may need to be overridden by subclasses for performance reasons.
     //
-    /**
-     * Updates a user record to match the supplied User.
-     * This is a very basic, remove-then-insert implementation,
-     * which should really be overridden, but will work.
-     */
-    protected void doUpdateUser(DefaultJamesUser user)
-    {
-        doRemoveUser(user);
-        doAddUser(user);
-    }
-
     /**
      * Produces the complete list of User names, with correct case.
      * @return a <code>List</code> of <code>String</code>s representing
@@ -70,7 +64,7 @@ public abstract class AbstractUsersRepository
         Iterator users = listAllUsers();
         List userNames = new LinkedList();
         while ( users.hasNext() ) {
-            JamesUser user = (JamesUser)users.next();
+            User user = (User)users.next();
             userNames.add(user.getUserName());
         }
 
@@ -88,7 +82,7 @@ public abstract class AbstractUsersRepository
         Iterator users = listAllUsers();
         while ( users.hasNext() ) 
         {
-            JamesUser user = (JamesUser)users.next();
+            User user = (User)users.next();
             String username = user.getUserName();
             if (( !ignoreCase && username.equals(name) ) ||
                 ( ignoreCase && username.equalsIgnoreCase(name) )) {
@@ -97,35 +91,6 @@ public abstract class AbstractUsersRepository
         }
         // Not found - return null
         return null;
-    }
-
-    //
-    // User conversion.
-    //
-    /**
-     * This method is hackery to get JamesUser instances, regardless of what 
-     * user implementation is passed.
-     * Ideally, the UsersRepository interface would be updated to accept only 
-     *  JamesUsers, or we could combine the 2.
-     */
-    protected DefaultJamesUser getJamesUser(User user)
-    {
-        // Return JamesUser instances directly.
-        if ( user instanceof DefaultJamesUser ) {
-            return (DefaultJamesUser)user;
-        }
-        // Build a JamesUser with a DefaultUser.
-        else if ( user instanceof DefaultUser ) {
-            DefaultUser defaultUser = (DefaultUser)user;
-            return new DefaultJamesUser(defaultUser.getUserName(), 
-                                        defaultUser.getHashedPassword(), 
-                                        defaultUser.getHashAlgorithm());
-        }
-        // Shouldn't be any other implementations.
-        else {
-            throw new RuntimeException("An unknown implementation of User was found. This implementation cannot be persisted to a UsersJDBCRepsitory.");
-        }
-
     }
 
     //
@@ -146,7 +111,7 @@ public abstract class AbstractUsersRepository
             return false;
         }
         
-        doAddUser(getJamesUser(user));
+        doAddUser(user);
         return true;
     }
 
@@ -156,7 +121,17 @@ public abstract class AbstractUsersRepository
      */
     public void addUser(String name, Object attributes) 
     {
-        throw new RuntimeException("Improper use of deprecated method - read javadocs");
+	if (attributes instanceof String)
+        {
+	    User newbie = new DefaultUser(name, "SHA");
+            newbie.setPassword( (String) attributes );
+	    addUser(newbie);
+	}
+        else
+        {
+            throw new RuntimeException("Improper use of deprecated method" 
+                                       + " - use addUser(User user)");
+        }
     }
 
     /**
@@ -172,7 +147,7 @@ public abstract class AbstractUsersRepository
             return false;
         }
         else {
-            doUpdateUser(getJamesUser(user));
+            doUpdateUser(user);
             return true;
         }
     }
@@ -184,7 +159,7 @@ public abstract class AbstractUsersRepository
     {
         User user = getUserByName(name);
         if ( user != null ) {
-            doRemoveUser(getJamesUser(user));
+            doRemoveUser(user);
         }
     }
 

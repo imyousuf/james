@@ -7,6 +7,9 @@
  */
 package org.apache.james.mailrepository;
 
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -92,7 +95,7 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
-	        getLogger().debug(this.getClass().getName() + " created in " + destination);
+            getLogger().debug(this.getClass().getName() + " created in " + destination);
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -125,30 +128,41 @@ public class AvalonMailRepository
             mc.writeMessageTo(out);
             out.close();
             or.put(key, mc);
-	    if(DEEP_DEBUG) getLogger().debug("Mail " + key + " stored." );
+        if(DEEP_DEBUG) getLogger().debug("Mail " + key + " stored." );
             notifyAll();
         } catch (Exception e) {
-	    getLogger().error("Exception storing mail: " + e);
+        getLogger().error("Exception storing mail: " + e);
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing Message Container: " + e);
         }
     }
 
     public MailImpl retrieve(String key) {
-	if(DEEP_DEBUG) getLogger().debug("Retrieving mail: " + key);
-        MailImpl mc = (MailImpl) or.get(key);
+        if(DEEP_DEBUG) {
+            getLogger().debug("Retrieving mail: " + key);
+        }
         try {
-			MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, key);
-			mc.setMessage(new MimeMessageWrapper(source));
+            MailImpl mc = (MailImpl) or.get(key);
+            MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, key);
+            mc.setMessage(new MimeMessageWrapper(source));
 
-            //InputStream in = new FileMimeMessageInputStream(sr, key);
-            //mc.setMessage(in);
-            //in.close();
+            return mc;
         } catch (Exception me) {
-	    getLogger().error("Exception retrieving mail: " + me);
+            if (me instanceof IOException) {
+				getLogger().error("IOException retrieving mail: " + me + ", so we're deleting it... good ridance!");
+				remove(key);
+				return null;
+			}
+			/*
+            if (me instanceof FileNotFoundException ||
+            	me instanceof EOFException) {
+                remove(key);
+                return null;
+            }
+            */
+            getLogger().error("Exception retrieving mail: " + me);
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
-        return mc;
     }
 
     public void remove(MailImpl mail) {
