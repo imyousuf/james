@@ -1,0 +1,12 @@
+To Do List for JAMES
+
+
+- Convert JamesSpoolManager and LinearProcessor to use Stage/ Pipeline design
+- Handle mails that have been sent to error/ spam where something else has been reconfigured so they are now OK
+
+- Make Service interfaces for all major components
+
+- Review threadpooling - is it dynamic?
+
+
+
