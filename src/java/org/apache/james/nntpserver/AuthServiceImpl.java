@@ -52,6 +52,15 @@ public class AuthServiceImpl extends AbstractLogEnabled
         return allowed;
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
@@ -59,6 +68,12 @@ public class AuthServiceImpl extends AbstractLogEnabled
         repo = usersStore.getRepository("LocalUsers");
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( Configuration configuration ) throws ConfigurationException {
         authRequired =
             configuration.getChild("authRequired").getValueAsBoolean(false);

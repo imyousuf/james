@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 
 /**
  * used by ARTICLE, HEAD, BODY, STAT command.
- * these commands are identical except in the writing the Article header 
+ * these commands are identical except in how they write the Article header 
  * and body to the response stream
  * ARTICLE - writes header and body
  * HEAD - writes headers

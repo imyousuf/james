@@ -49,11 +49,25 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private String[] addGroups = null;
 
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(Context context)
             throws ContextException {
         this.context = context;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName() + ": configure");
         //NNTPUtil.show(configuration,System.out);
@@ -83,6 +97,14 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         addGroups = (String[])addGroupsList.toArray(new String[0]);
         getLogger().debug("repository configuration done");
     }
+
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
         //System.out.println(getClass().getName() + ": init");
         if ( rootPath.exists() == false )
