@@ -202,7 +202,7 @@ public class JDBCMailRepository
         try {
             // Initialise the sql strings.
             String fileName = sqlFileName.substring("file://".length());
-            if (fileName.startsWith("/")) {
+            if (!(fileName.startsWith("/"))) {
                 fileName = ((BlockContext)context).getBaseDirectory() +
                            File.separator + fileName;
             }
