@@ -20,6 +20,7 @@
 <li>(SK) (update) Patched bug in GenericListserv for when subject was null</li>
 <li>(SK) (update) Got mailets/matchers to load from something besides james.bar</li>
 <li>(SK) (code) Added scheduler notification during SMTP DATA reception and POP3 RETR sending so the connection handler doesn't time out connection while data is being transfered.</li>
+<li>(SK) (code) Support &lt;gatewayPort&gt; setting on RemoteDelivery to send all messages to a non-port 25 SMTP server.  Only makes sense when &lt;gateway&gt; is also set.</li>
 </ul>
 </section>
 
