@@ -17,7 +17,7 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class UserIs implements Match {
+public class UserIs extends AbstractMatch {
     
     public Vector match(MessageContainer mc, String condition) {
         Vector matchingRecipients = new Vector();

@@ -21,23 +21,15 @@ import org.apache.avalon.blocks.*;
  * @author  Pierpaolo Fumagalli <pier@apache.org>
  * @author  Serge Knystautas    <sergek@lokitech.com>
  */
-public abstract class GenericMailServlet implements MailServlet, Configurable, Composer {
+public abstract class GenericMailServlet implements MailServlet, Configurable, Composer, Contextualizable {
 
     private Configuration conf;
     private ComponentManager comp;
+    private Context context;
     private Logger logger;
-    private MailServletContext context;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
-    }
-    
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-// This is commented 'couse I don't need it right now and it was annong to me 
-// for some strange reason I didn't want to care of.
-//        this.context = (MailServletContext) comp.getComponent(MailServletContext.CONTEXT);
     }
     
     public Configuration getConfiguration(String name) {
@@ -52,7 +44,20 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
         return conf.getConfigurations(name);
     }
     
-    public MailServletContext getContext() {
+    public void setComponentManager(ComponentManager comp) {
+        this.comp = comp;
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+    }
+    
+    public ComponentManager getComponentManager() {
+        return comp;
+    }
+    
+    public void setContext(Context context) {
+        this.context = context;
+    }
+    
+    public Context getContext() {
         return context;
     }
 

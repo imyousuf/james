@@ -12,12 +12,13 @@ import javax.mail.internet.*;
 import javax.mail.Session;
 import org.apache.mail.MessageContainer;
 import java.util.*;
+import org.apache.arch.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface Match {
+public interface Match extends Component, Composer, Contextualizable {
     
     public Vector match(MessageContainer mc, String condition);
 }

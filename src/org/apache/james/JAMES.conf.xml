@@ -17,10 +17,6 @@
                         command are received the connection will be closed">
                     120000 
                 </connectiontimeout>
-                <mailboxName help="The name of the public repository where mails
-                        are stored">
-                    localInbox 
-                </mailboxName>
             </pop3handler>
         </block>
 
@@ -47,60 +43,52 @@
         <block class="org.apache.james.james.James"
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.MailServer">
-<!--        <servername> To override autodetected server name uncomment this. </servername> -->
-            <spoolRepository help="Place here the path where incoming mail are 
-                    temporaly stored before beeing processed. 
-                    (ex. file://c:/james/spool/)"> 
-                file://../mail/spool/
-            </spoolRepository>
-
-            <spoolmanagerthreads help="The number of threads that spool and 
-                    process messages from spoolRepository.">
-                1
-            </spoolmanagerthreads>
-            <spoolmanager>
-
+            <servernames>
+<!--            <servername> To override autodetected server names uncomment this. </servername> -->
+<!--            <servername> To override autodetected server names uncomment this. </servername> -->
+<!--            <servername> To override autodetected server names uncomment this. </servername> -->
+            </servernames>
+<!-- Place here the path where incoming mail are temporaly stored before beeing processed. (ex. file://c:/james/spool/) -->
+            <spoolRepository> file://../mail/spool/ </spoolRepository>
+            <mailboxName> localInbox </mailboxName>
+<!-- The number of threads that spool and process messages from spoolRepository. -->
+            <spoolmanagerthreads> 1 </spoolmanagerthreads>
+<!-- ++++++++++++ MAIL SERVLET PIPE LINE +++++++++++++ -->
 <!-- Configure your mail Servlet processing pipe here. -->
+            <spoolmanager>
                 <servlets rootpath="org.apache.james.james.servlet.">
 
-<!-- ____________ FILL ME _______________ -->
-<!-- These servlet act as system servlet and provides local deliver. 
-    If recipient is [user]@[host] where [host] match parameters for HostIs class,
-    mail is stored locally in a folder named [user]. Add any hostname you want
-    to be considered local in the parameter line separated by commas.
-    (ex. "HostIs=localhost,maggie.galaxus,maggie" -->
-                    <servlet match="HostIs=localhost" class="LocalDelivery">
-                        <repository> localInbox </repository>
+<!-- Thise servlet acts as system servlet and provides local delivery -->
+                    <servlet match="RecipientIsLocal" class="LocalDelivery">
                     </servlet>
 
 <!-- These servlet act as system servlet and provides remote deliver -->
-                    <servlet match="All" class="RemoteDelivery">
-
-                        <outgoingmailserver>  
-<!-- ____________ FILL ME _______________ 
-    place here your default outgoing mail server 
-    (ex. mail.tin.it) -->
-                        </outgoingmailserver>
-
-                        <repository help="Fill the repository path where to 
-                                store temoporaly underiverable messages 
-                                (ex. file://c:/archivio/store/james/delayed/)">  
-                            file://../mail/delayed/
-                        </repository>
-                        <delayTime help="Delay time before retying send mail.
-                                Default is 5 hour: 5*60*60*1000">
-                            18000000</delayTime>
-                        <maxRetyes>5</maxRetyes>
+                    <servlet match="!HostIsLocal" class="RemoteDelivery">
+                        <authoritative> true </authoritative>
+                        <DNSservers>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- ____________ FILL ME _______________ place here your dns servers (ex. 212.216.176.33 etc.) -->
+                            <server>  </server>
+                            <server>  </server>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+                        </DNSservers>
+<!-- Fill the repository path where to store temoporaly underiverable messages 
+    (ex. file://c:/archivio/store/james/delayed/) -->
+                        <repository> file://../mail/delayed/ </repository>
+<!-- Delay time before retying send mail. Default is 5 hour: 6*60*60*1000 -->
+                         <delayTime> 21600000 </delayTime>
+                         <maxRetyes>5</maxRetyes>
                     </servlet>
 
 <!-- The last servlet in the pipe is the one managing errors -->
                     <servlet match="All" class="ToRepository">
-                        <repository help="Fill the repository path where error 
+                        <repositoryPath help="Fill the repository path where error 
                                 are stored.(ex. (file://../mail/errors/)">
                             file://../mail/errors/
-                        </repository>
+                        </repositoryPath>
                         <passThrought> false </passThrought>
                     </servlet>
+<!-- ++++++++++++ END OF MAIL SERVLET PIPE LINE +++++++++++++ -->
                 </servlets>
             </spoolmanager>
         </block>

@@ -12,24 +12,33 @@ import javax.mail.internet.*;
 import javax.mail.Session;
 import org.apache.mail.MessageContainer;
 import java.util.*;
+import org.apache.avalon.blocks.*;
+import org.apache.arch.*;
+import org.apache.james.james.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class HostIs extends AbstractMatch {
+public class HostIsLocal extends AbstractMatch {
     
+    private Vector serverNames;
+    
+    public void setContext(Context context) {
+        serverNames = (Vector) context.get(Constants.SERVER_NAMES);
+    }
+
     public Vector match(MessageContainer mc, String condition) {
         Vector matchingRecipients = new Vector();
         for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
             String rec = (String) e.nextElement();
-            if (condition.indexOf(getHost(rec)) != -1) {
+            if (serverNames.contains(getHost(rec))) {
                 matchingRecipients.addElement(rec);
             }
         }
         return matchingRecipients;
     }
-    
+
     private String getHost(String recipient) {
         return recipient.substring(recipient.indexOf("@") + 1);
     }

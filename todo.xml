@@ -13,9 +13,6 @@
     Beta test interface and implementation of MailServlet.
   </action>
   <action context="code">
-    Add DNS support to RemoteDerivery Servlet.
-  </action>
-  <action context="code">
     Improve exception management in RemoteDerivery Servlet.
   </action>
   <action context="code">
