@@ -8,7 +8,7 @@
 <section name="Step 0: Building. (only necessary for daily snapshots)"> 
 <p> If you have downloaded a binary distribution, you do not need to build James. 
   Proceed directory to Step 1. </p>
-<p> To compile James from the source code you need <a href="http://jakarta.apache.org/ant/">Ant</a>. 
+<p> To compile James from the source code you need <a href="http://ant.apache.org/">Ant</a>. 
   This is a Java-tailored, XML-configured, extensible build or make system. We 
   are currently using Ant 1.4, which is included in the source distribution.</p>
 <p> If you have downloaded a daily snapshot, you need to build a distribution. 
