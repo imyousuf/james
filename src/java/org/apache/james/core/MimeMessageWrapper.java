@@ -134,11 +134,11 @@ public class MimeMessageWrapper extends MimeMessage {
     private String getHeaderName(Message.RecipientType recipienttype) throws MessagingException {
         String s;
         if (recipienttype == javax.mail.Message.RecipientType.TO) {
-            s = "To";
+            s = RFC2822Headers.TO;
         } else if (recipienttype == javax.mail.Message.RecipientType.CC) {
-            s = "Cc";
+            s = RFC2822Headers.CC;
         } else if (recipienttype == javax.mail.Message.RecipientType.BCC) {
-            s = "Bcc";
+            s = RFC2822Headers.BCC;
         } else if (recipienttype == RecipientType.NEWSGROUPS) {
             s = "Newsgroups";
         } else {
