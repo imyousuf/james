@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/configuration_v2_1.html -->
 
-<!-- $Revision: 1.38 $ Committed on $Date: 2002/11/08 23:34:14 $ by: $Author: pgoldstein $ -->
+<!-- $Revision: 1.39 $ Committed on $Date: 2002/12/29 23:12:38 $ by: $Author: serge $ -->
 
 <config>
    <James>
@@ -165,7 +165,7 @@
          <mailet match="All" class="ToRepository">
             <repositoryPath> file://var/mail/error/</repositoryPath>
             <!-- An alternative database repository example follows. -->
-            <!-- 
+            <!--
             <repositoryPath> db://maildb/deadletter/error </repositoryPath>
             -->
             <passThrough> true </passThrough>
@@ -663,7 +663,7 @@
    <!-- Defines file storage details that are used for file-based repositories. -->
    <objectstorage>
       <repositories>
-         <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
+         <repository class="org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
@@ -677,7 +677,7 @@
             </models>
          </repository>
 
-         <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
+         <repository class="org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
