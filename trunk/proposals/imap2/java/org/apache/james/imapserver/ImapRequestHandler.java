@@ -11,14 +11,14 @@ import org.apache.james.imapserver.commands.ImapCommandFactory;
 import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.commands.ImapCommand;
 
-import java.io.Reader;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public final class ImapRequestHandler
 {
@@ -36,12 +36,12 @@ public final class ImapRequestHandler
      *
      * @return whether additional commands are expected.
      */
-    public boolean handleRequest( Reader reader,
-                                  PrintWriter writer,
+    public boolean handleRequest( InputStream input,
+                                  OutputStream output,
                                   ImapSession session )
             throws ProtocolException
     {
-        ImapRequestLineReader request = new ImapRequestLineReader( reader, writer );
+        ImapRequestLineReader request = new ImapRequestLineReader( input, output );
         try {
             request.nextChar();
         }
@@ -49,7 +49,7 @@ public final class ImapRequestHandler
             return false;
         }
 
-        ImapResponse response = new ImapResponse( writer );
+        ImapResponse response = new ImapResponse( output );
 
         doProcessRequest( request, response, session );
 

@@ -16,10 +16,10 @@ import junit.framework.TestSuite;
  * Runs tests for commands valid in the NON_AUTHENTICATED state.
  * A welcome message precedes the execution of the test elements.
  */
-public class TestNonAuthenticated
+public class TestCommandsInNonAuthenticatedState
         extends SimpleFileProtocolTest
 {
-    public TestNonAuthenticated( String name )
+    public TestCommandsInNonAuthenticatedState( String name )
     {
         super( name );
     }
@@ -40,10 +40,18 @@ public class TestNonAuthenticated
     public static Test suite() throws Exception
     {
         TestSuite suite = new TestSuite();
-        suite.addTest( new TestNonAuthenticated( "Capability" ) );
-        suite.addTest( new TestNonAuthenticated( "Authenticate" ) );
-        suite.addTest( new TestNonAuthenticated( "Login" ) );
-        suite.addTest( new TestNonAuthenticated( "Logout" ) );
+        // Not valid in this state
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "ValidAuthenticated" ) );
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "ValidSelected" ) );
+
+        // Valid in all states
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "Capability" ) );
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "Noop" ) );
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "Logout" ) );
+
+        // Valid only in non-authenticated state.
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "Authenticate" ) );
+        suite.addTest( new TestCommandsInNonAuthenticatedState( "Login" ) );
 
         return suite;
     }

@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class ImapCommandFactory
         extends AbstractLogEnabled
@@ -55,27 +55,28 @@ public class ImapCommandFactory
         _imapCommands.put( LsubCommand.NAME, LsubCommand.class );
         _imapCommands.put( StatusCommand.NAME, StatusCommand.class );
         _imapCommands.put( AppendCommand.NAME, AppendCommand.class );
-        
+
 //        // RFC2342 NAMESPACE
 //        _imapCommands.put( "NAMESPACE", NamespaceCommand.class );
-//        // RFC2086 GETACL, SETACL, DELETEACL, LISTRIGHTS, MYRIGHTS
+
+        // RFC2086 GETACL, SETACL, DELETEACL, LISTRIGHTS, MYRIGHTS
 //        _imapCommands.put( "GETACL", GetAclCommand.class );
 //        _imapCommands.put( "SETACL", SetAclCommand.class );
 //        _imapCommands.put( "DELETEACL", DeleteAclCommand.class );
 //        _imapCommands.put( "LISTRIGHTS", ListRightsCommand.class );
 //        _imapCommands.put( "MYRIGHTS", MyRightsCommand.class );
-//
-//
-//        // Commands only valid in SELECTED state.
-//        // CHECK, CLOSE, EXPUNGE, SEARCH, FETCH, STORE, COPY, and UID
-//        _imapCommands.put( "CHECK", CheckCommand.class );
-//        _imapCommands.put( "CLOSE", CloseCommand.class );
-//        _imapCommands.put( "COPY", CopyCommand.class );
-//        _imapCommands.put( "EXPUNGE", ExpungeCommand.class );
-//        _imapCommands.put( "SEARCH", SearchCommand.class );
-//        _imapCommands.put( "FETCH", CommandFetch.class );
-//        _imapCommands.put( "STORE", CommandStore.class );
-//        _imapCommands.put( "UID", UidCommand.class );
+
+
+        // Commands only valid in SELECTED state.
+        // CHECK, CLOSE, EXPUNGE, SEARCH, FETCH, STORE, COPY, and UID
+        _imapCommands.put( CheckCommand.NAME, CheckCommand.class );
+        _imapCommands.put( CloseCommand.NAME, CloseCommand.class );
+        _imapCommands.put( ExpungeCommand.NAME, ExpungeCommand.class );
+        _imapCommands.put( CopyCommand.NAME, CopyCommand.class );
+        _imapCommands.put( SearchCommand.NAME, SearchCommand.class );
+        _imapCommands.put( FetchCommand.NAME, FetchCommand.class );
+        _imapCommands.put( StoreCommand.NAME, StoreCommand.class );
+        _imapCommands.put( UidCommand.NAME, UidCommand.class );
     }
 
     public ImapCommand getCommand( String commandName )
@@ -96,6 +97,9 @@ public class ImapCommandFactory
             ImapCommand cmd = ( ImapCommand ) commandClass.newInstance();
             if ( cmd instanceof LogEnabled ) {
                 ( ( LogEnabled ) cmd ).enableLogging( getLogger() );
+            }
+            if ( cmd instanceof UidCommand ) {
+                ( ( UidCommand) cmd ).setCommandFactory( this );
             }
             return cmd;
         }

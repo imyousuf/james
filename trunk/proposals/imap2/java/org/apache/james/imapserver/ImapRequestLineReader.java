@@ -7,13 +7,9 @@
  */
 package org.apache.james.imapserver;
 
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.io.BufferedWriter;
-import java.util.StringTokenizer;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Wraps the client input reader with a bunch of convenience methods, allowing lookahead=1
@@ -22,20 +18,20 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ImapRequestLineReader
 {
-    private Reader reader;
-    private Writer writer;
+    private InputStream input;
+    private OutputStream output;
 
     private boolean nextSeen = false;
     private char nextChar; // unknown
 
-    ImapRequestLineReader( Reader reader, Writer writer )
+    ImapRequestLineReader( InputStream input, OutputStream output )
     {
-        this.reader = reader;
-        this.writer = writer;
+        this.input = input;
+        this.output = output;
     }
 
     /**
@@ -73,7 +69,7 @@ public class ImapRequestLineReader
             int next = -1;
 
             try {
-                next = reader.read();
+                next = input.read();
             }
             catch ( IOException e ) {
                 throw new ProtocolException( "Error reading from stream." );
@@ -113,6 +109,7 @@ public class ImapRequestLineReader
 
         // Check if we found extra characters.
         if ( next != '\n' ) {
+            // TODO debug log here and other exceptions
             throw new ProtocolException( "Expected end-of-line, found more characters.");
         }
     }
@@ -140,14 +137,28 @@ public class ImapRequestLineReader
      * @param holder A char array which will be filled with chars read from the underlying reader.
      * @throws ProtocolException If a char can't be read into each array element.
      */
-    public void read( char[] holder ) throws ProtocolException
+    public void read( byte[] holder ) throws ProtocolException
     {
-        try {
-            reader.read( holder );
+        int readTotal = 0;
+        try
+        {
+            while ( readTotal < holder.length )
+            {
+                int count = 0;
+                count = input.read( holder, readTotal, holder.length - readTotal );
+                if ( count == -1 ) {
+                    throw new ProtocolException( "Unexpectd end of stream." );
+                }
+                readTotal += count;
+            }
+            // Unset the next char.
+            nextSeen = false;
+            nextChar = 0;
         }
         catch ( IOException e ) {
             throw new ProtocolException( "Error reading from stream." );
         }
+
     }
 
     /**
@@ -158,7 +169,10 @@ public class ImapRequestLineReader
             throws ProtocolException
     {
         try {
-            writer.write( "+\n" );
+            output.write( '+' );
+            output.write( '\r' );
+            output.write( '\n' );
+            output.flush();
         }
         catch ( IOException e ) {
             throw new ProtocolException("Unexpected exception in sending command continuation request.");

@@ -9,8 +9,10 @@ package org.apache.james.imapserver;
 
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.store.MessageFlags;
+import org.apache.james.util.InternetPrintWriter;
 
 import java.io.PrintWriter;
+import java.io.OutputStream;
 
 /**
  * Class providing methods to send response messages from the server
@@ -21,9 +23,9 @@ public class ImapResponse implements ImapConstants
     private PrintWriter writer;
     private String tag = UNTAGGED;
 
-    public ImapResponse( PrintWriter writer )
+    public ImapResponse( OutputStream output )
     {
-        this.writer = writer;
+        this.writer = new InternetPrintWriter( output, true );
     }
 
     public void setTag( String tag )
@@ -165,6 +167,23 @@ public class ImapResponse implements ImapConstants
         end();
     }
 
+    public void expungeResponse( int msn )
+    {
+        untagged();
+        message( msn );
+        message( "EXPUNGE" );
+        end();
+    }
+
+    public void fetchResponse( int msn, String msgData )
+    {
+        untagged();
+        message( msn );
+        message( "FETCH" );
+        message( "(" + msgData + ")" );
+        end();
+    }
+
     public void commandResponse( ImapCommand command, String message )
     {
         untagged();
@@ -242,6 +261,7 @@ public class ImapResponse implements ImapConstants
     private void end()
     {
         writer.println();
+        writer.flush();
     }
 
 }

@@ -24,7 +24,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
@@ -57,7 +57,7 @@ abstract class CommandTemplate
             doProcess( request, response, session );
         }
         catch ( MailboxException e ) {
-            response.commandFailed( this, e.getMessage() );
+            response.commandFailed( this, e.getResponseCode(), e.getMessage() );
         }
         catch ( AuthorizationException e ) {
             String msg = "Authorization error: Lacking permissions to perform requested operation.";

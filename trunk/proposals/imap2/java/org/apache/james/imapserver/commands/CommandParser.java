@@ -14,6 +14,7 @@ import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.Assert;
 
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -22,7 +23,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class CommandParser
 {
@@ -106,6 +107,7 @@ public class CommandParser
 
     /**
      * Reads a "date-time" argument from the request.
+     * TODO handle timezones properly
      */
     public Date dateTime( ImapRequestLineReader request ) throws ProtocolException
     {
@@ -118,7 +120,7 @@ public class CommandParser
             throw new ProtocolException( "DateTime values must be quoted." );
         }
 
-        DateFormat dateFormat = new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss ZZ" );
+        DateFormat dateFormat = new SimpleDateFormat( "dd-MMM-yyyy hh:mm:ss zzzz" );
         try {
             return dateFormat.parse( dateString );
         }
@@ -129,6 +131,7 @@ public class CommandParser
 
     /**
      * Reads a "date" argument from the request.
+     * TODO handle timezones properly
      */
     public Date date( ImapRequestLineReader request ) throws ProtocolException
     {
@@ -213,17 +216,33 @@ public class CommandParser
 
         // Consume the '}' and the newline
         consumeChar( request, '}' );
-        consumeChar( request, '\n' );
+        consumeCRLF( request );
 
         if ( synchronizedLiteral ) {
             request.commandContinuationRequest();
         }
 
         int size = Integer.parseInt( digits.toString() );
-        char[] buffer = new char[size];
+        byte[] buffer = new byte[size];
         request.read( buffer );
 
         return new String( buffer );
+    }
+
+    /**
+     * Consumes a CRLF from the request.
+     * TODO we're being liberal, the spec insists on \r\n for new lines.
+     * @param request
+     * @throws ProtocolException
+     */
+    private void consumeCRLF( ImapRequestLineReader request )
+            throws ProtocolException
+    {
+        char next = request.nextChar();
+        if ( next != '\n' ) {
+            consumeChar( request, '\r' );
+        }
+        consumeChar( request, '\n' );
     }
 
     /**
@@ -280,13 +299,48 @@ public class CommandParser
     /**
      * Reads a "flags" argument from the request.
      */
-    public MessageFlags flagList( ImapRequestLineReader request )
+    public MessageFlags flagList( ImapRequestLineReader request ) throws ProtocolException
     {
-        // TODO implement
-        return null;
+        MessageFlags flags = new MessageFlags();
+        request.nextWordChar();
+        consumeChar( request, '(' );
+        CharacterValidator validator = new NoopCharValidator();
+        String nextWord = consumeWord( request, validator );
+        while ( ! nextWord.endsWith(")" ) ) {
+            setFlag( nextWord, flags );
+            nextWord = consumeWord( request, validator );
+        }
+        // Got the closing ")", may be attached to a word.
+        if ( nextWord.length() > 1 ) {
+            setFlag( nextWord.substring(0, nextWord.length() - 1 ), flags );
+        }
+
+        return flags;
+        }
+
+    public void setFlag( String flagString, MessageFlags flags ) throws ProtocolException
+    {
+        if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED ) ) {
+            flags.setAnswered( true );
+        }
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED ) ) {
+            flags.setDeleted( true );
+        }
+        else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT ) ) {
+            flags.setDraft( true );
+        }
+        else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED ) ) {
+            flags.setFlagged( true );
+        }
+        else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
+            flags.setSeen( true );
+        }
+        else {
+            throw new ProtocolException( "Invalid flag string." );
+        }
     }
 
-    /**
+     /**
      * Reads an argument of type "number" from the request.
      */
     public long number( ImapRequestLineReader request ) throws ProtocolException
@@ -338,6 +392,33 @@ public class CommandParser
     public void endLine( ImapRequestLineReader request ) throws ProtocolException
     {
         request.eol();
+    }
+
+    /**
+     * Reads a "message set" argument, and parses into an IdSet.
+     * Currently only supports a single range of values.
+     */
+    public IdSet set( ImapRequestLineReader request )
+            throws ProtocolException
+    {
+        CharacterValidator validator = new MessageSetCharValidator();
+        String nextWord = consumeWord( request, validator );
+
+        int pos = nextWord.indexOf( ':' );
+        try {
+            if ( pos == -1 ) {
+                long value = Long.parseLong( nextWord );
+                return new HighLowIdSet( value, value );
+            }
+            else {
+                long lowVal = Long.parseLong( nextWord.substring(0, pos ) );
+                long highVal = Long.parseLong( nextWord.substring( pos + 1 ) );
+                return new HighLowIdSet( lowVal, highVal );
+            }
+        }
+        catch ( NumberFormatException e ) {
+            throw new ProtocolException( "Invalid message set.");
+        }
     }
 
     /**
@@ -393,6 +474,37 @@ public class CommandParser
         {
             if ( chr == '+' ) return false;
             return super.isValid( chr );
+        }
+    }
+
+    private class MessageSetCharValidator implements CharacterValidator
+    {
+        public boolean isValid( char chr )
+        {
+            return isDigit( chr ) ||
+                    chr == ':' ||
+                    chr == ',';
+        }
+
+        private boolean isDigit( char chr )
+        {
+            return '0' <= chr && chr <= '9';
+        }
+    }
+
+    private class HighLowIdSet implements IdSet
+    {
+        private long lowVal;
+        private long highVal;
+
+        public HighLowIdSet( long lowVal, long highVal )
+        {
+            this.lowVal = lowVal;
+            this.highVal = highVal;
+        }
+
+        public boolean includes( long value ) {
+            return ( lowVal <= value ) && ( value <= highVal );
         }
     }
 

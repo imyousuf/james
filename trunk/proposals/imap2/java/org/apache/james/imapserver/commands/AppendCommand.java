@@ -29,9 +29,9 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-class AppendCommand extends CommandTemplate
+class AppendCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "APPEND";
     public static final String ARGS = "<mailbox> [<flag_list>] [<date_time>] literal";
@@ -56,11 +56,13 @@ class AppendCommand extends CommandTemplate
         MimeMessage message = parser.mimeMessage( request );
         parser.endLine( request );
 
-        ImapMailbox mailbox = getMailbox( mailboxName, session );
-        if ( mailbox == null ) {
-            session.unsolicitedResponses( response );
-            response.commandFailed( this, "TRYCREATE", "No such mailbox.");
-            return;
+        ImapMailbox mailbox = null;
+        try {
+            mailbox = getMailbox( mailboxName, session, true );
+        }
+        catch ( MailboxException e ) {
+            e.setResponseCode( "TRYCREATE" );
+            throw e;
         }
 
         mailbox.createMessage( message, flags, datetime );

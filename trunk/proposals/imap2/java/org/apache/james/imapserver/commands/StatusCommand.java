@@ -15,13 +15,13 @@ import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
 /**
- * Handles processeing for the NOOP imap command.
+ * Handles processeing for the STATUS imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
-class StatusCommand extends CommandTemplate
+class StatusCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "STATUS";
     public static final String ARGS = "<mailbox> ( <status-data-item>+ )";

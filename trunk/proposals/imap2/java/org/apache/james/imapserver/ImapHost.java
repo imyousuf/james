@@ -11,6 +11,7 @@ import org.apache.james.services.User;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
 
+import javax.mail.search.SearchTerm;
 import java.util.Collection;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Collection;
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Darrell DeBoer <darrell@apache.org>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface ImapHost
 {
@@ -243,6 +244,14 @@ public interface ImapHost
      */
     void unsubscribe( User user, String mailbox )
             throws MailboxException;
+
+    int[] expunge( ImapMailbox mailbox ) throws MailboxException;
+
+    long[] search( SearchTerm searchTerm, ImapMailbox mailbox );
+
+    void copyMessage( long uid, ImapMailbox currentMailbox, ImapMailbox toMailbox )
+            throws MailboxException;
+
 
 }
 

@@ -12,7 +12,14 @@ import org.apache.james.imapserver.store.ImapStore;
 import org.apache.james.imapserver.store.InMemoryStore;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.SimpleImapMessage;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.ConsoleLogger;
 
+import examples.messages;
+
+import javax.mail.search.SearchTerm;
+import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,17 +34,23 @@ import java.util.HashMap;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class JamesImapHost
+        extends AbstractLogEnabled
         implements ImapHost, ImapConstants
 {
     private ImapStore store;
     private MailboxSubscriptions subscriptions;
 
+    /**
+     * Hack constructor which creates an in-memory store, and creates a console logger.
+     */
     public JamesImapHost()
     {
+        enableLogging( new ConsoleLogger() );
         store = new InMemoryStore();
+        setupLogger( store );
         subscriptions = new MailboxSubscriptions();
     }
 
@@ -137,7 +150,12 @@ public class JamesImapHost
         ImapMailbox toDelete = getMailbox( user, mailboxName, true );
 
         if ( store.getChildren( toDelete ).isEmpty() ) {
-            // Does this delete all messages?
+            long[] uids = toDelete.getMessageUids();
+            for ( int i = 0; i < uids.length; i++ ) {
+                long uid = uids[i];
+                SimpleImapMessage imapMessage = toDelete.getMessage( uid );
+                toDelete.deleteMessage( imapMessage.getUid() );
+            }
             store.deleteMailbox( toDelete );
         }
         else {
@@ -245,6 +263,63 @@ public class JamesImapHost
     {
         ImapMailbox mailbox = getMailbox( user, mailboxName, true );
         subscriptions.unsubscribe( user, mailbox );
+    }
+
+    public int[] expunge( ImapMailbox mailbox )
+            throws MailboxException
+    {
+        ArrayList deletedMessages = new ArrayList();
+
+        long[] uids = mailbox.getMessageUids();
+        for ( int i = 0; i < uids.length; i++ ) {
+            long uid = uids[i];
+            SimpleImapMessage message = mailbox.getMessage( uid );
+            if ( message.getFlags().isDeleted() ) {
+                deletedMessages.add( message );
+            }
+        }
+
+        int[] ids = new int[ deletedMessages.size() ];
+        for ( int i = 0; i < ids.length; i++ ) {
+            SimpleImapMessage imapMessage = ( SimpleImapMessage ) deletedMessages.get( i );
+            long uid = imapMessage.getUid();
+            int msn = mailbox.getMsn( uid );
+            ids[i] = msn;
+            mailbox.deleteMessage( uid );
+        }
+
+        return ids;
+    }
+
+    public long[] search( SearchTerm searchTerm, ImapMailbox mailbox )
+    {
+        ArrayList matchedMessages = new ArrayList();
+
+        long[] allUids = mailbox.getMessageUids();
+        for ( int i = 0; i < allUids.length; i++ ) {
+            long uid = allUids[i];
+            SimpleImapMessage message = mailbox.getMessage( uid );
+            if ( searchTerm.match( message.getMimeMessage() ) ) {
+                matchedMessages.add( message );
+            }
+        }
+
+        long[] matchedUids = new long[ matchedMessages.size() ];
+        for ( int i = 0; i < matchedUids.length; i++ ) {
+            SimpleImapMessage imapMessage = ( SimpleImapMessage ) matchedMessages.get( i );
+            long uid = imapMessage.getUid();
+            matchedUids[i] = uid;
+        }
+        return matchedUids;
+    }
+
+    public void copyMessage( long uid, ImapMailbox currentMailbox, ImapMailbox toMailbox )
+            throws MailboxException
+    {
+        SimpleImapMessage message = currentMailbox.getMessage( uid );
+        toMailbox.createMessage( message.getMimeMessage(),
+                                 message.getFlags(),
+                                 message.getInternalDate() );
     }
 
     /**
