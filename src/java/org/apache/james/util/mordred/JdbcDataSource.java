@@ -41,7 +41,7 @@ import java.util.Vector;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.6 $ $Date: 2002/04/18 19:14:55 $
+ * @version CVS $Revision: 1.7 $ $Date: 2002/06/20 21:55:17 $
  * @since 4.0
  */
 public class JdbcDataSource
@@ -275,10 +275,12 @@ public class JdbcDataSource
                 } catch (SQLException e1) {
                     // Failed test... close the entry
                     finalizeEntry(entry);
+
                 }
             } else {
                 // No SQL was provided... we have to kill this entry to be sure
                 finalizeEntry(entry);
+
             }
             return;
         } else {
@@ -293,6 +295,10 @@ public class JdbcDataSource
      * @param PoolConnEntry entry
      */
     private synchronized void finalizeEntry(PoolConnEntry entry) {
+                    try{
+                    entry.finalize();
+                    }catch(Exception fe){
+                    }
         pool.removeElement(entry);
     }
 
