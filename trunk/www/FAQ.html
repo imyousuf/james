@@ -151,6 +151,9 @@
 <li><a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a></li>
 <li><a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a></li>
 <li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
+<li><a href="#6">What about IMAP support?</a></li>
+<li><a href="#7">What about support virtual hosting?</a></li>
+<li><a href="#8">Where do I stick classes and jars?</a></li>
 </ul>
 </p>
                             </blockquote>
@@ -355,6 +358,58 @@
         <blockquote>
                                     <p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
                                                 <p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="6" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="What about IMAP support?"><strong>What about IMAP support?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Unfortunately IMAP support is currently stalled.  There is a proposal in CVS, but IMAP is a significantly more complex than other mail protocols, both from a protocol command support and in terms of complexity you need on the server.  If you are interested in taking the proverbial ball and running with it, we would all very much appreciated. (I personally am incredibly frustrated with an old Netscape Mail server, but I've sworn myself to upgrade only to James's IMAP once ready as incentive.)
+  <br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="7" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="What about support virtual hosting?"><strong>What about support virtual hosting?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Virtual hosting is something the developers are still wrestling with.  The challenge is that POP3 does not support virtual hosting in that it does not have a command to indicate what domain the user is in.  What this means is the mail server needs to develop a 'mapping' or 'translation', e.g., 'user1@domaina.com' gets a username 'domaina.user1'.  This allows the mail server to have a single username namespace.  We have seen a few good proposals put forward, but nothing that seemed the clear solution as ideally we could have this part solve the next issue.</p>
+                                                <p>Beyond that, James needs to refine virtual hosting for mailet processing.  The mailet API has a Mail.getUser() method that no longer would be useable as a reliable indicator of whether they were in the local username namespace.  To date we are unclear of the best way to bring this translation into the mailet processing.  Similarly, it would be nice to support different mailet processing based on the domain, although this is somewhat feasible using the limited processing flow offered with a HostIs/ForwardTo combination.</p>
+                                                <p>This is one of the most requested feature, so hopefully this will be resolved soon.
+  <br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="8" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="Where do I stick classes and jars?"><strong>Where do I stick classes and jars?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>We are largely reliant on what Avalon is doing in terms of classloading, but here are a few tips and suggestions:
+  <ul>
+  <li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
+  <li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
+  </ul>
+  Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.
+  <br />Serge Knystautas</p>
                             </blockquote>
       </td></tr>
       <tr><td><br/></td></tr>
