@@ -54,7 +54,7 @@ public class IMAPServer
         final String useTLS = configuration.getChild("useTLS").getValue( "" );
         if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
 
-        super.configure( configuration.getChild( "pop3handler" ) );
+        super.configure( configuration.getChild( "imaphandler" ) );
     }
 
     public void init() throws Exception {
@@ -63,6 +63,7 @@ public class IMAPServer
         getLogger().info( "IMAPListener using " + m_serverSocketType + " on port " + m_port );
         super.init();
         getLogger().info("IMAPServer ...init end");
+        System.out.println("Started IMAP Server");
     }
 }
     

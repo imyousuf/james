@@ -57,6 +57,7 @@ public class POP3Server
         getLogger().info( "POP3Listener using " + m_serverSocketType + " on port " + m_port );
         super.init();
         getLogger().info( "POP3Server ...init end" );
+        System.out.println("Started POP3 Server");
     }
 }
     

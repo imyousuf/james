@@ -20,9 +20,10 @@ import org.apache.excalibur.io.DirectoryFileFilter;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.phoenix.Block;
 
-public class NNTPRepositoryImpl extends AbstractLoggable
-    implements NNTPRepository, Configurable, Initializable, Component
+public class NNTPRepositoryImpl extends AbstractLoggable 
+    implements NNTPRepository, Configurable, Initializable, Block
 {
     private boolean readOnly;
     // the groups are located under this path.

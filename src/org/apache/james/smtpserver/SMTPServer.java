@@ -52,10 +52,10 @@ public class SMTPServer
     }
 
     public void init() throws Exception {
-
         getLogger().info("SMTPServer init...");
         super.init();
         getLogger().info("SMTPServer ...init end");
+        System.out.println("Started SMTP Server");
     }
 }
     

@@ -19,15 +19,12 @@ import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.cornerstone.services.connection.AbstractService;
 import org.apache.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.cornerstone.services.connection.DefaultHandlerFactory;
-import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.nntpserver.repository.NNTPUtil;
 
 /**
  * @author Harmeet <hbedi@apache.org>
  */
 public class NNTPServer extends AbstractService {
 
-    private Component repository;
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory( NNTPHandler.class );
     }
@@ -50,27 +47,13 @@ public class NNTPServer extends AbstractService {
         if( useTLS.equals( "TRUE" ) )
             m_serverSocketType = "ssl";
 
-        repository = (Component)NNTPUtil.createInstance
-            (configuration.getChild("repository"),getLogger(),
-             "org.apache.james.nntpserver.repository.NNTPRepositoryImpl");
-
         super.configure( configuration.getChild( "nntphandler" ) );
         getLogger().info("configured NNTPServer to run at : "+m_port);
-    }
-
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException
-    {
-        //System.out.println(getClass().getName()+": compose");
-        DefaultComponentManager mgr = new DefaultComponentManager(componentManager);
-        mgr.put("org.apache.james.nntpserver.repository.NNTPRepository",repository);
-        super.compose(mgr);
     }
 
     public void init() throws Exception {
         //System.out.println(getClass().getName()+": init");
         super.init();
-        if ( repository instanceof Initializable )
-            ((Initializable)repository).init();
+        System.out.println("Started NNTP Server");
     }
 }

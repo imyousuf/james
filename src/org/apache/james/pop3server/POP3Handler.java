@@ -82,6 +82,8 @@ public class POP3Handler
 
     public void  contextualize( final Context context ) {
         servername = (String)context.get( Constants.HELO_NAME );
+        if ( servername == null )
+            servername = "POP3Server";
     }
 
     public void configure( final Configuration configuration )
