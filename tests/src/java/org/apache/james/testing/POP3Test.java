@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import java.io.InputStream;
+import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import javax.mail.internet.MimeMessage;
@@ -19,7 +19,11 @@ import org.apache.commons.net.pop3.POP3;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 
-/**
+import org.apache.james.fetchmail.ReaderInputStream;
+
+
+
+/**
  * Fetch mail. Can be configured and extended to test specific POP3
  * operations.
  */
@@ -152,12 +156,12 @@ public class POP3Test extends BaseTest {
      */
     private void fetchMsg(POP3MessageInfo msg, boolean save) throws Exception {
         InputStream in = new ReaderInputStream(client.retrieveMessage(msg.number));
-        try {
+        try {
             MimeMessage message = new MimeMessage(null, in);
-            if (save) {
+            if (save) {
                 OutputStream out = new FileOutputStream
                         ("pop3test-" + host + "-" + username + "." + (saveMsgCounter++) + ".eml");
-                try {
+                try {
                     message.writeTo(out);
                 } finally {
                     IOUtil.shutdownStream(out);
