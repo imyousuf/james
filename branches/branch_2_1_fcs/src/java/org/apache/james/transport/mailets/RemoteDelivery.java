@@ -101,7 +101,7 @@ import java.util.*;
  *
  * as well as other places.
  *
- * This is $Revision: 1.33.4.7 $
+ * This is $Revision: 1.33.4.8 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -119,6 +119,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private int deliveryThreadCount = 1; // default number of delivery threads
     private String gatewayServer = null; // the server to send all email to
     private String gatewayPort = null;  //the port of the gateway server to send all email to
+    private String bindAddress = null; // JavaMail delivery socket binds to this local address. If null the JavaMail default will be used.
+    private boolean isBindUsed = false; // true, if the bind configuration 
+                                        // parameter is supplied, RemoteDeliverySocketFactory 
+                                        // will be used in this case
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
@@ -197,6 +201,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             Thread t = new Thread(this, nameBuffer.toString());
             t.start();
             deliveryThreads.add(t);
+        }
+
+        bindAddress = getInitParameter("bind");
+        isBindUsed = bindAddress != null;
+        try {
+            if (isBindUsed) RemoteDeliverySocketFactory.setBindAdress(bindAddress);
+        } catch (UnknownHostException e) {
+            log("Invalid bind setting (" + bindAddress + "): " + e.toString());
         }
     }
 
@@ -713,6 +725,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (gatewayPort != null) {
             props.put("mail.smtp.port", gatewayPort);
         }
+
+        if (isBindUsed) {
+            // undocumented JavaMail 1.2 feature, smtp transport will use
+            // our socket factory, which will also set the local address
+            props.put("mail.smtp.socketFactory.class", 
+                      "org.apache.james.transport.mailets.RemoteDeliverySocketFactory");
+            // Don't fallback to the standard socket factory on error, do throw an exception
+            props.put("mail.smtp.socketFactory.fallback", "false");
+        }
+
         Session session = Session.getInstance(props, null);
         try {
             while (!Thread.currentThread().interrupted() && !destroyed) {
