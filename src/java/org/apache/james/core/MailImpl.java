@@ -49,7 +49,9 @@ public class MailImpl implements Mail {
     public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
     throws MessagingException {
         this(name, sender, recipients);
-        this.setMessage(messageIn);
+        MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
+        MimeMessageWrapper wrapper = new MimeMessageWrapper(source);
+        this.setMessage(wrapper);
     }
 
     public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) {
@@ -117,14 +119,6 @@ public class MailImpl implements Mail {
         return lastUpdated;
     }
 
-    private void parse(InputStream messageIn) throws MessagingException {
-        if (messageIn != null) {
-            message = new EnhancedMimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
-        } else {
-	    throw new MessagingException("Attempt to parse null input stream.");
-	}
-    }
-
     /**
      * <p>Return the size of the message including its headers.
      * MimeMessage.getSize() method only returns the size of the
@@ -147,7 +141,7 @@ public class MailImpl implements Mail {
             size += ((Header)e.nextElement()).toString().length();
          }
         return size;
-     }
+    }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
@@ -166,10 +160,6 @@ public class MailImpl implements Mail {
 
     public void setErrorMessage(String msg) {
         this.errorMessage = msg;
-    }
-
-    public void setMessage(InputStream in) throws MessagingException {
-        this.message = new JamesMimeMessage(Session.getDefaultInstance(System.getProperties(), null), in);
     }
 
     public void setMessage(MimeMessage message) {
@@ -250,7 +240,7 @@ public class MailImpl implements Mail {
                 out.write(line.getBytes());
             }
         } else {
-	    throw new MessagingException("No message set for this MailImpl.");
-	}
+    	    throw new MessagingException("No message set for this MailImpl.");
+        }
     }
 }
