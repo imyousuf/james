@@ -34,11 +34,11 @@ import org.apache.log.Logger;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonMailStore extends AbstractBlock implements MailStore {
+public class AvalonMailStore extends AbstractBlock implements MailStore, Initializable {
 
     protected final static boolean       LOG       = true;
     protected final static boolean       DEBUG     = LOG && false;
-    protected Logger LOGGER = LOG ? LogKit.getLoggerFor("MailStore") : null;
+
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;
@@ -48,8 +48,8 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
     
     public void init() 
         throws Exception {
-        super.init();
-        if( LOG ) LOGGER.info("James RepositoryManager init...");
+    
+        m_logger.info("JamesMailStore init...");
         repositories = new HashMap();
         models = new HashMap();
         classes = new HashMap();
@@ -57,12 +57,12 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
         while (registeredClasses.hasNext()) {
             registerRepository((Configuration) registeredClasses.next());
         }
-        if( LOG ) LOGGER.info("James RepositoryManager ...init");
+        m_logger.info("James RepositoryManager ...init");
     }
     
     public void registerRepository(Configuration repConf) throws ConfigurationException {
         String className = repConf.getAttribute("class");
-        if( LOG ) LOGGER.info("Registering Repository " + className);
+        m_logger.info("Registering Repository " + className);
         Iterator protocols = repConf.getChild("protocols").getChildren("protocol");
         Iterator types = repConf.getChild("types").getChildren("type");
         Iterator models = repConf.getChild("models").getChildren("model");
@@ -73,7 +73,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
                 while (models.hasNext()) {
                     String model = ((Configuration) models.next()).getValue();
                     classes.put(protocol + type + model, className);
-                    if( LOG ) LOGGER.info("   for " + protocol + "," + type + "," + model);
+                    m_logger.info("   for " + protocol + "," + type + "," + model);
                 }
             }
         }
@@ -113,7 +113,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
                 String protocol = destination.getProtocol();
                 String repClass = (String) classes.get( protocol + type + model );
 
-                if( LOG ) LOGGER.debug( "Need instance of " + repClass + 
+                m_logger.debug( "Need instance of " + repClass + 
                                         " to handle: " + protocol + type + model );
 
                 try {
@@ -132,11 +132,11 @@ public class AvalonMailStore extends AbstractBlock implements MailStore {
                     }
                     repositories.put(repID, reply);
                     models.put(repID, model);
-                    if( LOG ) LOGGER.info( "New instance of " + repClass + 
+                    m_logger.info( "New instance of " + repClass + 
                                            " created for " + destination );
                     return (Component)reply;
                 } catch (Exception e) {
-                    if( LOG ) LOGGER.warn( "Exception while creating repository:" +
+                    m_logger.warn( "Exception while creating repository:" +
                                            e.getMessage(), e );
 
                     throw new 

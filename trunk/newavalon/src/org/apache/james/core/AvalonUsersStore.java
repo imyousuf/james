@@ -12,8 +12,8 @@ import java.util.Iterator;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import org.apache.avalon.services.Store;
 import org.apache.avalon.*;
+import org.apache.avalon.services.Store;
 import org.apache.avalon.blocks.AbstractBlock;
 
 import org.apache.james.services.UsersStore;
@@ -27,7 +27,7 @@ import org.apache.log.Logger;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonUsersStore extends AbstractBlock implements UsersStore {
+public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initializable {
 
     private Logger logger  = LogKit.getLoggerFor("UsersStore");
     private HashMap repositories;
@@ -36,8 +36,7 @@ public class AvalonUsersStore extends AbstractBlock implements UsersStore {
     public void init() 
         throws Exception {
 
-        super.init();
-        logger.info("AvalonUsersStore init...");
+        m_logger.info("AvalonUsersStore init...");
         repositories = new HashMap();
      
         Iterator repConfs = m_configuration.getChildren("repository");
@@ -61,16 +60,16 @@ public class AvalonUsersStore extends AbstractBlock implements UsersStore {
 		((Initializable) rep).init();
 	    }
 	    repositories.put(repName, rep);
-	    logger.info("UsersRepository " + repName + " started.");
+	    m_logger.info("UsersRepository " + repName + " started.");
         }
-        logger.info("AvalonUsersStore ...init");
+        m_logger.info("AvalonUsersStore ...init");
     }
     
 
     public UsersRepository getRepository(String request) {
 	UsersRepository response = (UsersRepository) repositories.get(request);
 	if (response == null) {
-	    logger.warn("No users repository called: " + request);
+	    m_logger.warn("No users repository called: " + request);
 	}
 	return response;
     }

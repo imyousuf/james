@@ -58,14 +58,16 @@ All these package are in current distribution.
 
 	<property name="src.dir" value="./src"/>
 	<property name="conf.dir" value="./conf"/>
+	<property name="lib.dir" value="lib"/>
 
 	<property name="build.dir" value="./build"/>
-	<property name="build.src" value="./build/src"/>
-	<property name="build.classes" value="./build/classes"/>
-        <property name="build.docs" value="./build/docs"/>
-        <property name="build.mailetdocs" value="./build/mailetdocs"/>
-	<property name="build.javadocs" value="./build/javadocs"/>
-	<property name="build.BARINF" value="./build/BAR-INF"/>
+	<property name="build.src" value="${build.dir}/src"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+        <property name="build.docs" value="${build.dir}/docs"/>
+        <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
+	<property name="build.javadocs" value="${build.dir}/javadocs"/>
+	<property name="build.BARINF" value="${build.dir}/BAR-INF"/>
+	<property name="build.lib" value="${build.dir}/lib"/>
 
 	<property name="constants.file" value="org/apache/james/Constants.java"/>
 	<property name="conf.file" value="james.conf.xml"/>
@@ -116,6 +118,7 @@ All these package are in current distribution.
     <!-- create directories -->
     <mkdir dir="${build.src}"/>
     <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.lib}"/>
 
     <!-- copy src files -->
     <copy todir="${build.src}">
@@ -124,6 +127,8 @@ All these package are in current distribution.
     <copy todir="${build.BARINF}">
       <fileset dir="${conf.dir}" includes="${conf.file},${blockdefs.file}"/>
     </copy>
+
+    <copy file="${lib.dir}/avalon-core-blocks.bar" tofile="${build.lib}/avalon-core-blocks.bar"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -151,14 +156,22 @@ All these package are in current distribution.
   <!-- Creates the JAMES.bar archive                                       -->
   <!-- =================================================================== -->
   <target name="block-archive" depends="compile">
-    <jar jarfile="${build.dir}/${name}.bar" basedir="${build.classes}">
+
+    <jar jarfile="${build.dir}/${name}.bar"
+         basedir="${build.classes}"
+         manifest="${build.src}/Manifest.mf">
+
        <include name="org/**"/>
 
        <fileset dir="${build.BARINF}" prefix="BAR-INF/">
          <include name="${conf.file}"/>
          <include name="${blockdefs.file}"/>
        </fileset>
+
     </jar>
+
+    <copy file="${build.dir}/${name}.bar" tofile="${build.lib}/${name}.bar"/>
+  
   </target>
 
   <!-- =================================================================== -->
@@ -169,11 +182,33 @@ All these package are in current distribution.
          manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
+
+  <!--
+       ===================================================================
+                           Creates the .sar file
+       ===================================================================
+  -->
+  <target name="sar" depends="block-archive">
+
+    <jar jarfile="${build.lib}/${name}.sar">
+
+      <fileset dir="${build.lib}/" prefix="blocks/">
+        <include name="*.bar"/>
+      </fileset>
+
+      <fileset dir="${conf.dir}" fullpath="conf/assembly.xml">
+        <include name="james.conf.xml"/>
+      </fileset>
+
+    </jar>
+
+  </target>
+
   <!-- =================================================================== -->
   <!-- Creates the distribution                                            -->
   <!-- =================================================================== -->
-<!--  <target name="dist" depends="block-archive, auxiliary-jars, docs, javadocs"> -->
-  <target name="dist" depends="block-archive, auxiliary-jars">
+
+  <target name="dist" depends="sar, auxiliary-jars">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
     <mkdir dir="${dist.dir}/bin/blocks"/>
@@ -187,34 +222,34 @@ All these package are in current distribution.
     <copy todir="${dist.dir}/docs">
       <fileset dir="./docs/"/>
     </copy>
-    <copyfile src="${build.dir}/${name}.bar" dest="${dist.dir}/bin/blocks/${name}.bar"/>
-    <copyfile src="./lib/avalon-core-blocks.bar" dest="${dist.dir}/bin/blocks/avalon-core-blocks.bar"/>
-    <copyfile src="./lib/avalon-engine.jar" dest="${dist.dir}/bin/avalon-engine.jar"/>
-    <copyfile src="./lib/avalon-loader.jar" dest="${dist.dir}/bin/avalon-loader.jar"/>
-    <copyfile src="./lib/avalonapi.jar" dest="${dist.dir}/lib/avalonapi.jar"/>
-    <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
-    <copyfile src="./lib/mail_1_2.jar" dest="${dist.dir}/lib/mail_1_2.jar"/>
-    <copyfile src="./lib/xerces.jar" dest="${dist.dir}/lib/xerces.jar"/>
-    <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
-    <copyfile src="./lib/town.jar" dest="${dist.dir}/lib/town.jar"/>
-    <copyfile src="${build.dir}/mailet.jar" dest="${dist.dir}/lib/mailet.jar"/>
+    <copy file="${build.lib}/${name}.sar" tofile="${dist.dir}/bin/blocks/${name}.sar"/>
 
-    <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
-    <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
-    <copyfile src="./res/avalonTestKeys" dest="${dist.dir}/conf/avalonTestKeys"/>
+    <copy file="./lib/avalon-engine.jar" tofile="${dist.dir}/bin/avalon-engine.jar"/>
+    <copy file="./lib/avalon-loader.jar" tofile="${dist.dir}/bin/avalon-loader.jar"/>
+    <copy file="./lib/avalonapi.jar" tofile="${dist.dir}/lib/avalonapi.jar"/>
+    <copy file="./lib/activation.jar" tofile="${dist.dir}/lib/activation.jar"/>
+    <copy file="./lib/mail_1_2.jar" tofile="${dist.dir}/lib/mail_1_2.jar"/>
+    <copy file="./lib/xerces.jar" tofile="${dist.dir}/lib/xerces.jar"/>
+    <copy file="./lib/dnsjava.jar" tofile="${dist.dir}/lib/dnsjava.jar"/>
+    <copy file="./lib/town.jar" tofile="${dist.dir}/lib/town.jar"/>
+    <copy file="${build.dir}/mailet.jar" tofile="${dist.dir}/lib/mailet.jar"/>
+
+    <copy file="./res/run.bat" tofile="${dist.dir}/bin/run.bat"/>
+    <copy file="./res/run.sh" tofile="${dist.dir}/bin/run.sh"/>
+    <copy file="./res/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
     <chmod dir="${dist.dir}" perm="go-rwx" />
     <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
     <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
     <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
 
-    <copyfile src="./res/maildatabase-odbc" dest="${dist.dir}/var/maildatabase-odbc"/>
-    <copyfile src="./res/maildatabase-sqlserver" dest="${dist.dir}/var/maildatabase-sqlserver"/>
-    <copyfile src="./res/maildatabase-mysql" dest="${dist.dir}/var/maildatabase-mysql"/>
+    <copy todir="${dist.dir}/var">
+      <fileset dir="res"/>
+    </copy>
 
-    <copyfile src="README" dest="${dist.dir}/README"/>
+    <copy file="README" tofile="${dist.dir}/README"/>
     <replace file="${dist.dir}/README" token="@@version@@" value="${version}"/>
-    <copyfile src="LICENSE" dest="${dist.dir}/LICENSE"/>
-    <copyfile src="build.xml" dest="${dist.dir}/build.xml"/>
+    <copy file="LICENSE" tofile="${dist.dir}/LICENSE"/>
+    <copy file="build.xml" tofile="${dist.dir}/build.xml"/>
 
     <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
@@ -225,9 +260,11 @@ All these package are in current distribution.
   <!-- Cleans everything                                                   -->
   <!-- =================================================================== -->
   <target name="clean" depends="init">
-    <deltree dir="${build.dir}"/>
-    <deltree dir="${dist.dir}"/>
-    <deltree dir="${build.docs}"/>
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete file="${name}-${version}.zip"/>
+    <delete file="${name}-${version}.tar"/>
+    <delete file="${name}-${version}.tar.gz"/>
   </target>
 
   <!-- =================================================================== -->
@@ -237,7 +274,7 @@ All these package are in current distribution.
     <mkdir dir="${build.docs}"/>
     <javadoc sourcepath="${build.src}"
         destdir="${build.docs}"
-        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mail.mailets.*"
+        packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.imapserver.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mail.mailets.*"
         classpath="${classpath}"
 	use="true"
         />

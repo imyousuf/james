@@ -47,7 +47,7 @@ public class RepositoryManager extends AbstractBlock implements MailStore {
     
     public void init() 
         throws Exception {
-        super.init();
+    
         if( LOG ) LOGGER.info("James RepositoryManager init...");
         repositories = new HashMap();
         models = new HashMap();

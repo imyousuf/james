@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.ArrayList;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.blocks.AbstractBlock;
 import org.apache.avalon.services.Store;
 import org.apache.avalon.util.io.ResettableFileInputStream;
@@ -99,8 +100,11 @@ public abstract class AbstractFileRepository
 	  throw new RuntimeException( "Cannot initialize child repository " + 
 				      childName + " : " + e );
 	}
-
-        child.compose( m_componentManager );
+	try { child.compose( m_componentManager ); }
+	catch (final ComponentManagerException cme) {
+	    LOGGER.warn("Unable to compose child repository: " + cme);
+	    return null;
+	}
         child.setDestination( m_destination + File.pathSeparatorChar + 
 			      childName + File.pathSeparator );
         

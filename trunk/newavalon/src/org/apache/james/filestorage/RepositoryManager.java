@@ -42,7 +42,7 @@ public class RepositoryManager extends AbstractBlock implements Store {
     
     public void init() 
         throws Exception {
-        super.init();
+
         if( LOG ) LOGGER.info("RepositoryManager init...");
         repositories = new HashMap();
         models = new HashMap();
