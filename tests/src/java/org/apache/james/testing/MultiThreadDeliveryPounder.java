@@ -29,7 +29,7 @@ public class MultiThreadDeliveryPounder extends Thread {
         start();
     }
 
-	public void run() {
+    public void run() {
         try {
             Session session = Session.getDefaultInstance(prop, null);
             // Transport transport = session.getTransport("smtp");
@@ -51,6 +51,11 @@ public class MultiThreadDeliveryPounder extends Thread {
     }
 
     public static void main(String[] args) throws Throwable {
+        if (args.length != 3) {
+            System.err.println("Usage: ");
+            System.err.println(" java org.apache.james.testing.MultiThreadDeliveryPounder <threadcount> <loops> <user>");
+            System.exit(1);
+        }
         int threadCount = Integer.parseInt(args[0]);
         int loops = Integer.parseInt(args[1]);
         String user = args[2];
