@@ -10,7 +10,7 @@ package org.apache.james.transport;
 import java.io.*;
 import java.util.*;
 import javax.mail.*;
-import org.apache.avalon.framework.logger.Loggable;
+import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.james.*;
 import org.apache.james.core.*;
@@ -35,9 +35,10 @@ import org.apache.mailet.*;
  * Note that the 'onerror' attribute is not yet supported.
  */
 public class LinearProcessor 
-    implements Loggable, Initializable {
+    extends AbstractLoggable
+    implements Initializable {
 
-    private final static boolean DEBUG_PRINT_PIPE = false;
+    private final static boolean DEEP_DEBUG = true;
 
     private List mailets;
     private List matchers;
@@ -47,12 +48,9 @@ public class LinearProcessor
     private Logger logger;
     private SpoolRepository spool;
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
     public void setSpool(SpoolRepository spool) {
         this.spool = spool;
+	if (DEEP_DEBUG) getLogger().debug("Using spool: " + spool);
     }
 
 
@@ -74,6 +72,7 @@ public class LinearProcessor
 
 
     public synchronized void service(MailImpl mail) throws MessagingException {
+	if (DEEP_DEBUG) getLogger().debug("Servicing mail: " + mail.getName());
         //make sure we have the array built
         if (unprocessed == null) {
             //Need to construct that object

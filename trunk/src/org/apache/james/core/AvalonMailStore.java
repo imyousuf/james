@@ -19,6 +19,7 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
@@ -73,7 +74,7 @@ public class AvalonMailStore
         {
             registerRepository((Configuration) registeredClasses[i]);
         }
-        getLogger().info("James RepositoryManager ...init");
+        getLogger().info("James MailStore ...init");
     }
 
     public synchronized void registerRepository(Configuration repConf)
@@ -151,6 +152,9 @@ public class AvalonMailStore
 
                 try {
                     reply = (MailRepository) Class.forName(repClass).newInstance();
+                   if (reply instanceof Loggable) {
+		       setupLogger(reply);
+                    }
                     if (reply instanceof Configurable) {
                         ((Configurable) reply).configure(repConf);
                     }
@@ -166,8 +170,9 @@ public class AvalonMailStore
                     repositories.put(repID, reply);
                     models.put(repID, model);
                     getLogger().info("added repository: "+repID+"->"+repClass);
-                    getLogger().info( "New instance of " + repClass +
-                                      " created for " + destination );
+		    /*                    getLogger().info( "New instance of " + repClass +
+		     *		  " created for " + destination );
+                     */
                     return (Component)reply;
                 } catch (Exception e) {
                     getLogger().warn( "Exception while creating repository:" +

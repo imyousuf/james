@@ -52,6 +52,7 @@ public class AvalonMailRepository
     private ObjectRepository or;
     private MailStore mailstore;
     private String destination;
+    private static boolean DEEP_DEBUG = true;
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
@@ -90,6 +91,7 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
+	    getLogger().debug(this.getClass().getName() + " created in " + destination);
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -122,20 +124,24 @@ public class AvalonMailRepository
             mc.writeMessageTo(out);
             out.close();
             or.put(key, mc);
+	    if(DEEP_DEBUG) getLogger().debug("Mail " + key + " stored." );
             notifyAll();
         } catch (Exception e) {
+	    getLogger().error("Exception storing mail: " + e);
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing Message Container: " + e);
         }
     }
 
     public MailImpl retrieve(String key) {
+	if(DEEP_DEBUG) getLogger().debug("Retrieving mail: " + key);
         MailImpl mc = (MailImpl) or.get(key);
         try {
             InputStream in = new FileMimeMessageInputStream(sr, key);
             mc.setMessage(in);
             in.close();
         } catch (Exception me) {
+	    getLogger().error("Exception retrieving mail: " + me);
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
         return mc;

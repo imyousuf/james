@@ -105,8 +105,8 @@ public class JamesSpoolManager
             String processorName = processorConf.getAttribute("name");
             try {
                 LinearProcessor processor = new LinearProcessor();
+                setupLogger(processor, processorName);
                 processor.setSpool(spool);
-                processor.setLogger( getLogger() );
                 processor.initialize();
                 processors.put(processorName, processor);
 

@@ -39,6 +39,7 @@ public class AvalonSpoolRepository
                 
                 String s = it.next().toString();
                 if (lock.lock(s)) {
+		    getLogger().debug("accept() has locked: " + s);
                     return s;
                 }
                 //  Object o = it.next();
