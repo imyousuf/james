@@ -138,11 +138,13 @@ public class FileMailbox
     private Map acl;
     private String name;
     private int uidValidity;
-    private int highestUID;
     private int mailboxSize; // octets
     private boolean inferiorsAllowed;
     private boolean marked;
     private boolean notSelectableByAnyone;
+
+    // Sets the UID for all Mailboxes
+    private static HighestUID highestUID;
 
     // The message sequence number of a msg is its index in List sequence + 1
     private List sequence; //List of UIDs of messages in mailbox
@@ -187,9 +189,6 @@ public class FileMailbox
     }
 
     public void initialize() throws Exception {
-        java.util.Date dt = new java.util.Date();
-        
-        highestUID = (int) dt.getTime();
         
         mailboxSize = 0;
         inferiorsAllowed = true;
@@ -458,7 +457,7 @@ public class FileMailbox
      * @returns int the next UID that would be used.
      */
     public int getNextUID() {
-        return highestUID + 1;
+        return highestUID.get() + 1;
     }
 
     /**
@@ -1112,7 +1111,8 @@ public class FileMailbox
         }
         SimpleMessageAttributes attrs = (SimpleMessageAttributes)msgAttrs;
 
-        int newUID = ++highestUID;
+        highestUID.increase();
+        int newUID = highestUID.get();
         attrs.setUID(newUID);
         sequence.add(new Integer(newUID));
         attrs.setMessageSequenceNumber(sequence.size());
