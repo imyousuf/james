@@ -19,6 +19,9 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 /**
+ * Provides DNS client functionality to components running
+ * inside James
+ *
  * @version 1.0.0, 18/06/2000
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
@@ -27,22 +30,44 @@ public class DNSServer
     implements Configurable, Initializable,
     org.apache.james.services.DNSServer {
 
+    /**
+     * A resolver instance used to retrieve DNS records.  This
+     * is a reference to a third party library object.
+     */
     private Resolver resolver;
-    private Cache cache;
-    private byte dnsCredibility;
-    private Collection servers = new Vector();
 
+    /**
+     * A TTL cache of results received from the DNS server.  This
+     * is a reference to a third party library object.
+     */
+    private Cache cache;
+
+    /**
+     * Whether the DNS response is required to be authoritative
+     */
+    private byte dnsCredibility;
+
+    /**
+     * The DNS servers to be used by this component
+     */
+    private Collection dnsServers = new Vector();
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        // Get this servers that this service will use for lookups
+        // Get the DNS servers that this service will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
         final Configuration[] serverConfigurations =
             serversConfiguration.getChildren( "server" );
 
-        for ( int i = 0; i < serverConfigurations.length; i++ )
-        {
-            servers.add( serverConfigurations[ i ].getValue() );
+        for ( int i = 0; i < serverConfigurations.length; i++ ) {
+            dnsServers.add( serverConfigurations[ i ].getValue() );
         }
 
         final boolean authoritative =
@@ -50,38 +75,64 @@ public class DNSServer
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize()
         throws Exception {
 
         getLogger().info("DNSServer init...");
 
-        if (servers.isEmpty()) {
+        // If no DNS servers were configured, default to local host
+        if (dnsServers.isEmpty()) {
             try {
-                servers.add( InetAddress.getLocalHost().getHostName() );
+                dnsServers.add( InetAddress.getLocalHost().getHostName() );
             } catch ( UnknownHostException ue ) {
-                servers.add( "127.0.0.1" );
+                dnsServers.add( "127.0.0.1" );
             }
         }
 
         if (getLogger().isInfoEnabled()) {
-            for (Iterator i = servers.iterator(); i.hasNext(); ) {
-                getLogger().info("DNS Servers is: " + i.next());
+            for (Iterator i = dnsServers.iterator(); i.hasNext(); ) {
+                getLogger().info("DNS Server is: " + i.next());
             }
         }
 
         //Create the extended resolver...
-        final String serversArray[] = (String[])servers.toArray(new String[0]);
-        resolver = new ExtendedResolver( serversArray );
+        final String serversArray[] = (String[])dnsServers.toArray(new String[0]);
+        try {
+            resolver = new ExtendedResolver( serversArray );
+        } catch (UnknownHostException uhe) {
+            getLogger().fatalError("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
+            throw uhe;
+        }
 
         cache = new Cache (DClass.IN);
 
         getLogger().info("DNSServer ...init end");
     }
 
+    /**
+     * <p>Return a prioritized list of MX records
+     * obtained from the server.</p>
+     *
+     * <p>TODO: This should actually return a List, not
+     * a Collection.</p>
+     *
+     * @param the domain name to look up
+     *
+     * @return a list of MX records corresponding to
+     *         this mail domain name
+     */
     public Collection findMXRecords(String hostname) {
         Record answers[] = lookup(hostname, Type.MX);
 
-        Collection servers = new Vector ();
+        // TODO: Determine why this collection is synchronized
+        Collection servers = new Vector();
         try {
             if (answers == null) {
                 return servers;
@@ -92,6 +143,9 @@ public class DNSServer
                 mxAnswers[i] = (MXRecord)answers[i];
             }
 
+            // TODO: Convert this to a static class instance
+            //       No need to pay the object creation cost
+            //       on each call
             Comparator prioritySort = new Comparator () {
                     public int compare (Object a, Object b) {
                         MXRecord ma = (MXRecord)a;
@@ -114,15 +168,34 @@ public class DNSServer
                     InetAddress.getByName(hostname);
                     servers.add(hostname);
                 } catch (UnknownHostException uhe) {
+                    // The original domain name is not a valid host,
+                    // so we can't add it to the server list.  In this
+                    // case we return an empty list of servers
                 }
             }
         }
     }
 
+    /**
+     * Looks up DNS records of the specified type for the specified name.
+     *
+     * This method is a public wrapper for the private implementation 
+     * method
+     *
+     * @param name the name of the host to be looked up
+     * @param type the type of record desired
+     */
     public Record[] lookup(String name, short type) {
         return rawDNSLookup(name,false,type);
     }
 
+    /**
+     * Looks up DNS records of the specified type for the specified name
+     *
+     * @param name the name of the host to be looked up
+     * @param querysent whether the query has already been sent to the DNS servers
+     * @param type the type of record desired
+     */
     private Record[] rawDNSLookup(String namestr, boolean querysent, short type) {
         Name name = new Name(namestr);
         short dclass = DClass.IN;
@@ -176,7 +249,7 @@ public class DNSServer
                 return null;
             }
 
-            return rawDNSLookup(namestr, true, Type.MX);
+            return rawDNSLookup(namestr, true, type);
         }
 
         return answers;
