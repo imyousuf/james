@@ -246,28 +246,28 @@
                     class="org.apache.avalon.blocks.masterstore.StreamStore"/>
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.AvalonMailRepository"/>
+                    class="org.apache.james.mailrepository.AvalonMailRepository"/>
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="town://"
-                    class="org.apache.james.TownSpoolRepository">
+                    class="org.apache.james.mailrepository.TownSpoolRepository">
                     <conn>file:///dev/james/dist/var/maildatabase</conn>
                     <table>Message</table>
                 </repository>
                 <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="town://"
-                    class="org.apache.james.TownSpoolRepository">
+                    class="org.apache.james.mailrepository.TownSpoolRepository">
                     <conn>file:///dev/james/dist/var/maildatabase</conn>
                     <table>Message</table>
                 </repository>
                 <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.AvalonMailRepository"/>
+                    class="org.apache.james.mailrepository.AvalonMailRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.usermanager.UsersFileRepository"/>
+                    class="org.apache.james.userrepository.UsersFileRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="ldap://"
-                    class="org.apache.james.usermanager.UsersLDAPRepository">
+                    class="org.apache.james.userrepository.UsersLDAPRepository">
 
                 <!-- If you are going to use the LDAP implementation for a UserRepository,
                     you must configure this section with your LDAP server's information -->
