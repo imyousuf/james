@@ -8,6 +8,7 @@
 package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -16,7 +17,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.imapserver.AccessControlException;
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.services.MailServer;
@@ -49,12 +49,13 @@ import java.util.*;
  */
 public class JamesHost
         extends AbstractLogEnabled
-        implements Host, Block, Configurable, Composable, Contextualizable, Initializable {
-            
+        implements Host, Component, Composable, 
+                   Configurable, Contextualizable, Initializable {
+
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private String rootPath; // ends with File.seperator
+    private String rootPath; // ends with File.separator
     private IMAPSystem imapSystem;
     private UsersRepository localUsers;
     private RecordRepository recordRep;
@@ -101,24 +102,31 @@ public class JamesHost
 
     /* No constructor */
 
-    public void configure( Configuration conf ) throws ConfigurationException
-    {
-        this.conf = conf;
-    }
-
-    public void contextualize( Context context )
-    {
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
+    public void contextualize( Context context ) {
         this.context = context;
     }
 
-    public void compose( ComponentManager comp )
-    {
+    /**
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     */
+    public void compose( ComponentManager comp ) {
         compMgr = comp;
     }
 
-    public void initialize() throws Exception
-    {
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure( Configuration conf ) throws ConfigurationException {
+        this.conf = conf;
+    }
 
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
         getLogger().info( "JamesHost init..." );
 
         imapSystem = (IMAPSystem) compMgr.lookup( IMAPSystem.ROLE );
@@ -149,17 +157,15 @@ public class JamesHost
     }
 
     /**
-     *  Checks that the Directory provided exists and is writable, creating it if it is not.
+     *  Checks that the Directory provided exists and is writeable, creating it if it is not.
      */
-    private void prepareDir( String dir )
-    {
+    private void prepareDir( String dir ) {
         File newFolder = new File( dir );
         if ( !newFolder.isDirectory() ) {
             if ( !newFolder.mkdir() ) {
                 throw new RuntimeException( "Error: Cannot create directory: " + dir );
             }
-        }
-        else if ( !newFolder.canWrite() ) {
+        } else if ( !newFolder.canWrite() ) {
             throw new RuntimeException( "Error: Cannot write to directory: " + dir );
         }
     }
@@ -173,8 +179,7 @@ public class JamesHost
      * @return true if inbox (and private mailfolders) are accessible through
      * this host.
      */
-    public boolean isHomeServer( String username )
-    {
+    public boolean isHomeServer( String username ) {
         return localUsers.contains( username );
     }
 
@@ -187,8 +192,7 @@ public class JamesHost
      * @return true if the specified user has at least read access to any
      * mailboxes on this host.
      */
-    public boolean hasLocalAccess( String username )
-    {
+    public boolean hasLocalAccess( String username ) {
         return localUsers.contains( username );
     }
 
@@ -205,23 +209,19 @@ public class JamesHost
      * @throws MailboxException if mailbox does not exist locally.
      */
     public synchronized ACLMailbox getMailbox( String user, String mailboxName )
-            throws AccessControlException, MailboxException
-    {
+            throws AccessControlException, MailboxException {
         Assert.isTrue( Assert.ON &&
                        user != null &&
                        user.length() > 0 &&
                        mailboxName != null );
 
         getLogger().debug( "Getting mailbox " + mailboxName + " for " + user );
-
         String absoluteName = getAbsoluteMailboxName( user, mailboxName );
-
         return getAbsoluteMailbox( user, absoluteName );
     }
 
     private synchronized ACLMailbox getAbsoluteMailbox( String user, String absoluteName )
-            throws AccessControlException, MailboxException
-    {
+            throws AccessControlException, MailboxException {
         Assert.isTrue( Assert.ON &&
                        user != null &&
                        absoluteName.startsWith( NAMESPACE_TOKEN ) );
@@ -230,30 +230,26 @@ public class JamesHost
         FolderRecord record = null;
 
         // Has a folder with this name ever been created?
-        System.out.println("THISISTHEFUCKING ABSOLUETENAME IN getAbsoluteMailbox "+absoluteName);
+        System.out.println("THISISTHE ABSOLUTENAME IN getAbsoluteMailbox " + absoluteName);
         if ( !recordRep.containsRecord( absoluteName ) ) {
             throw new MailboxException( "Mailbox: " + absoluteName + " has never been created.", MailboxException.NOT_LOCAL );
-        }
-        else {
+        } else {
             record = recordRep.retrieve( absoluteName );
             if ( record.isDeleted() ) {
                 throw new MailboxException( "Mailbox has been deleted", MailboxException.LOCAL_BUT_DELETED );
-            }
-            else if ( openMailboxes.contains( absoluteName ) ) {
+            } else if ( openMailboxes.contains( absoluteName ) ) {
                 mailbox = openMailboxes.getMailbox( absoluteName );
                 if ( ! mailbox.hasLookupRights( user ) ) {
                     throw new AccessControlException( "No lookup rights." );
                 }
                 openMailboxes.addReference( absoluteName );
                 return mailbox;
-            }
-            else {
+            } else {
                 String owner = record.getUser();
                 String key = getPath( absoluteName );
                 ObjectInputStream in = null;
                 try {
                     // SK:UPDATE
-                    
                     in = new ObjectInputStream( new FileInputStream( key + File.separator + FileMailbox.MAILBOX_FILE_NAME ) );
                     mailbox = (FileMailbox) in.readObject();
                     setupLogger( mailbox );
@@ -261,12 +257,10 @@ public class JamesHost
                     mailbox.contextualize( context );
                     mailbox.compose( compMgr );
                     mailbox.reinitialize();
-                }
-                catch ( Exception e ) {
+                } catch ( Exception e ) {
                     e.printStackTrace();
                     throw new RuntimeException( "Exception caught while reading FileMailbox: " + e );
-                }
-                finally {
+                } finally {
                     if ( in != null ) {
                         try {
                             in.close();
@@ -325,7 +319,7 @@ public class JamesHost
 
     private synchronized ACLMailbox createAbsoluteMailbox( String user, String absoluteName )
             throws AccessControlException, AuthorizationException, MailboxException {
-                
+
         Assert.isTrue( Assert.ON &&
                        absoluteName.startsWith( NAMESPACE_TOKEN ) &&
                        absoluteName.indexOf( HIERARCHY_SEPARATOR ) != -1 );
@@ -360,7 +354,7 @@ public class JamesHost
                 throw new AuthorizationException( "User does not have create rights." );
             }
             try {
-                //BUG! Here MUST be used a Factory for using FILE / JDBC !!!
+                //TODO: BUG! Here MUST be used a Factory for using FILE / JDBC !!!
                 mailbox = new FileMailbox();
                 setupLogger( mailbox );
                 mailbox.configure( conf );
@@ -368,8 +362,7 @@ public class JamesHost
                 mailbox.compose( compMgr );
                 mailbox.prepareMailbox( user, absoluteName, user, recordRep.nextUIDValidity() );
                 mailbox.initialize();
-            }
-            catch ( Exception e ) {
+            } catch ( Exception e ) {
                 getLogger().error( "Exception creating mailbox: " + e );
                 throw new MailboxException( "Exception creating mailbox: " + e );
             }
@@ -386,7 +379,7 @@ public class JamesHost
     /**
      * Releases a reference to a mailbox, allowing Host to do any housekeeping.
      *
-     * @param mbox a non-null reference to an ACL Mailbox.
+     * @param mailbox a non-null reference to an ACL Mailbox.
      */
     public void releaseMailbox( String user, ACLMailbox mailbox )
     {
@@ -416,13 +409,11 @@ public class JamesHost
                 mailbox.dispose();
                 mailbox = null;
                 getLogger().info( "Mailbox object destroyed: " + absoluteName );
-            }
-            catch ( Exception e ) {
+            } catch ( Exception e ) {
                 getLogger().error( "Exception destroying mailbox object: " + e );
                 e.printStackTrace();
             }
-        }
-        else {
+        } else {
             getLogger().info( "Mailbox " + absoluteName + " now has " + count + "live references" );
         }
     }
@@ -444,8 +435,7 @@ public class JamesHost
      * @see FolderRecord
      */
     public boolean deleteMailbox( String user, String mailboxName )
-            throws MailboxException, AuthorizationException, AccessControlException
-    {
+            throws MailboxException, AuthorizationException, AccessControlException {
         Assert.isTrue( Assert.ON &&
                        user != null &&
                        mailboxName != null &&
@@ -458,8 +448,7 @@ public class JamesHost
     }
 
     private boolean deleteAbsoluteMailbox( String user, String absoluteName )
-            throws MailboxException, AuthorizationException, AccessControlException
-    {
+            throws MailboxException, AuthorizationException, AccessControlException {
         if ( ! recordRep.containsRecord( absoluteName ) ) {
             throw new MailboxException( "Mailbox doesn't exist" );
         }
@@ -479,15 +468,13 @@ public class JamesHost
         if ( ! childList.isEmpty() ) {
             if ( mailbox.isNotSelectableByAnyone() ) {
                 throw new MailboxException( "Mailbox with \\Noselect AND subfolders cannot be deleted" );
-            }
-            else {
+            } else {
                 // Delete and expunge all messages, and set NotSelectableByAnyone.
                 deleteAllMessages( mailbox, user );
                 mailbox.setNotSelectableByAnyone( true );
                 releaseMailbox( user, mailbox );
             }
-        }
-        else {
+        } else {
             deleteAllMessages( mailbox, user );
             Assert.isTrue( Assert.ON &&
                            mailbox.getExists() == 0 );
@@ -499,8 +486,8 @@ public class JamesHost
         return true;
     }
 
-    private void deleteAllMessages( ACLMailbox mailbox, String user ) throws AccessControlException, AuthorizationException
-    {
+    private void deleteAllMessages( ACLMailbox mailbox, String user )
+            throws AccessControlException, AuthorizationException {
         // Delete all messages in this box
         int messageCount = mailbox.getExists();
         for ( int i = 0; i < messageCount; i++ ) {
@@ -556,10 +543,10 @@ public class JamesHost
                 while(strl.hasMoreTokens()) {
                     String token = strl.nextToken();
                     if(token.equals("\""+this.HIERARCHY_SEPARATOR+"\"") || mbxfound) {
-                        // This must be the FileSeperator Token. After that comes the name of the Mailbox
+                        // This must be the FileSeparator Token. After that comes the name of the Mailbox
                         if(mbxfound){
                             mailboxname += " "+token;
-                        }else{
+                        } else {
                             mailboxname += strl.nextToken();
                         }
                         mbxfound=true;
@@ -578,13 +565,17 @@ public class JamesHost
                     HashSet hs = new HashSet();
                     hs.add(mailboxname);
                     tr.put(new Integer(strl.countTokens()), hs);
-                }else{
+                } else {
                     HashSet hs = (HashSet) oldcoll;
                     hs.add(mailboxname);
                     tr.put(new Integer(strl.countTokens()), hs);
                 }
-                if(maxdepth<strl.countTokens()) maxdepth=strl.countTokens();
-                if(mindepth>strl.countTokens()) mindepth=strl.countTokens();
+                if(maxdepth<strl.countTokens()) {
+                    maxdepth=strl.countTokens();
+                }
+                if(mindepth>strl.countTokens()) {
+                    mindepth=strl.countTokens();
+                }
             }
             System.out.println("RENAME: POSSIBLE MAXDEPTH FOUND: "+maxdepth+" THE MINDEPTH IS "+mindepth);
             for(int i=maxdepth;i>=0;i--) {
@@ -620,7 +611,7 @@ public class JamesHost
                             // Remove old entry from openMailboxes and create a new one
                             this.openMailboxes.removeMailbox(suboldabsolutename);
                             this.openMailboxes.addMailbox(subnewabsolutename,mmm);
-                        }else{
+                        } else {
                             // RENAME MAILBOX MAIN
                             System.out.println("NEWMAILBOXNAME WILL BE "+newMailboxName);
                             if (mmm.renameMailbox(user, newMailboxName)) {
@@ -647,7 +638,7 @@ public class JamesHost
                                 mailbox = getAbsoluteMailbox( user, absolutenewName );
                                 this.openMailboxes.addMailbox(absolutenewName,mailbox);
                                 return true;
-                            }else{
+                            } else {
                                 return false;
                             }
                         }
@@ -655,9 +646,9 @@ public class JamesHost
                 }
             }
             return false;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new AuthorizationException("You have no rights for changing the Mailbox Name");
+            throw new AuthorizationException("You have insufficient permission to change the Mailbox Name");
         }
     }
 
@@ -668,8 +659,7 @@ public class JamesHost
      * @param username String an email address
      * @return a String of a namespace
      */
-    public String getDefaultNamespace( String username )
-    {
+    public String getDefaultNamespace( String username ) {
         return PRIVATE_NAMESPACE_PREFIX;
     }
 
@@ -753,13 +743,11 @@ public class JamesHost
             String userTarget;
             if ( mailboxName.startsWith( NAMESPACE_TOKEN ) ) {
                 userTarget = mailboxName;
-            }
-            else {
+            } else {
                 if ( referenceName.length() == 0 ||
                         referenceName.endsWith( HIERARCHY_SEPARATOR ) ) {
                     userTarget = referenceName + mailboxName;
-                }
-                else {
+                } else {
                     userTarget = referenceName + HIERARCHY_SEPARATOR + mailboxName;
                 }
             }
@@ -806,12 +794,10 @@ public class JamesHost
 
                 if ( starWildcard ) {
                     match = testMailboxName.startsWith( targetMatch );
-                }
-                else if ( percentWildcard ) {
+                } else if ( percentWildcard ) {
                     match = (testMailboxName.startsWith( targetMatch )
                             && testMailboxName.lastIndexOf( HIERARCHY_SEPARATOR ) < targetMatch.length());
-                }
-                else {
+                } else {
                     // no wildcards so exact or nothing
                     match = testMailboxName.equals( target );
                     getLogger().debug( "match/ no match at testMailboxName 1" );
@@ -836,27 +822,23 @@ public class JamesHost
                     }
                     if ( record.isDeleted() ) {
                         buf.append( "\\Noselect" );
-                    }
-                    else if ( openMailboxes.contains( target ) ) {
+                    } else if ( openMailboxes.contains( target ) ) {
                         mailbox = openMailboxes.getMailbox( target );
                         if ( !mailbox.isSelectable( username ) ) {
                             buf.append( "\\Noselect" );
                         }
                         if ( mailbox.isMarked() ) {
                             buf.append( "\\Marked" );
-                        }
-                        else {
+                        } else {
                             buf.append( "\\Unmarked" );
                         }
-                    }
-                    else {
+                    } else {
                         if ( !record.isSelectable( username ) ) {
                             buf.append( "\\Noselect" );
                         }
                         if ( record.isMarked() ) {
                             buf.append( "\\Marked" );
-                        }
-                        else {
+                        } else {
                             buf.append( "\\Unmarked" );
                         }
                     }
@@ -881,11 +863,9 @@ public class JamesHost
     {
         if ( mailbox.startsWith( USER_NAMESPACE_PREFIX ) ) {
             return USER_NAMESPACE_PREFIX;
-        }
-        else if ( mailbox.startsWith( SHARE_NAMESPACE_PREFIX ) ) {
+        } else if ( mailbox.startsWith( SHARE_NAMESPACE_PREFIX ) ) {
             return SHARE_NAMESPACE_PREFIX;
-        }
-        else {
+        } else {
             return PRIVATE_NAMESPACE_PREFIX;
         }
     }
@@ -977,13 +957,11 @@ public class JamesHost
         // Has a folder with this name ever been created?
         if ( !recordRep.containsRecord( absoluteName ) ) {
             throw new MailboxException( "Mailbox: " + absoluteName + " has never been created.", MailboxException.NOT_LOCAL );
-        }
-        else {
+        } else {
             record = recordRep.retrieve( absoluteName );
             if ( record.isDeleted() ) {
                 throw new MailboxException( "Mailbox has been deleted", MailboxException.LOCAL_BUT_DELETED );
-            }
-            else if ( openMailboxes.contains( absoluteName ) ) {
+            } else if ( openMailboxes.contains( absoluteName ) ) {
                 response = new String();
                 mailbox = openMailboxes.getMailbox( absoluteName );
                 if ( !mailbox.hasLookupRights( username ) ) {
@@ -993,17 +971,13 @@ public class JamesHost
                     String dataItem = (String) it.next();
                     if ( dataItem.equalsIgnoreCase( "MESSAGES" ) ) {
                         response += "MESSAGES " + mailbox.getExists();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "RECENT" ) ) {
+                    } else if ( dataItem.equalsIgnoreCase( "RECENT" ) ) {
                         response += "RECENT " + mailbox.getRecent();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UIDNEXT" ) ) {
+                    } else if ( dataItem.equalsIgnoreCase( "UIDNEXT" ) ) {
                         response += "UIDNEXT " + mailbox.getNextUID();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UIDVALIDITY" ) ) {
+                    } else if ( dataItem.equalsIgnoreCase( "UIDVALIDITY" ) ) {
                         response += "UIDVALIDITY " + mailbox.getUIDValidity();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UNSEEN" ) ) {
+                    } else if ( dataItem.equalsIgnoreCase( "UNSEEN" ) ) {
                         response += "UNSEEN " + mailbox.getUnseen( username );
                     }
                     if ( it.hasNext() ) {
@@ -1020,19 +994,15 @@ public class JamesHost
                 while ( it.hasNext() ) {
                     String dataItem = (String) it.next();
                     if ( dataItem.equalsIgnoreCase( "MESSAGES" ) ) {
-                        response += "MESSAGES " + record.getExists();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "RECENT" ) ) {
-                        response += "RECENT " + record.getRecent();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UIDNEXT" ) ) {
-                        response += "UIDNEXT " + (record.getHighestUid() + 1);
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UIDVALIDITY" ) ) {
-                        response += "UIDVALIDITY " + record.getUidValidity();
-                    }
-                    else if ( dataItem.equalsIgnoreCase( "UNSEEN" ) ) {
-                        response += "UNSEEN " + record.getUnseen( username );
+                        response += "MESSAGES" + " " + record.getExists();
+                    } else if ( dataItem.equalsIgnoreCase( "RECENT" ) ) {
+                        response += "RECENT" + " " + record.getRecent();
+                    } else if ( dataItem.equalsIgnoreCase( "UIDNEXT" ) ) {
+                        response += "UIDNEXT" + " " + (record.getHighestUid() + 1);
+                    } else if ( dataItem.equalsIgnoreCase( "UIDVALIDITY" ) ) {
+                        response += "UIDVALIDITY" + " " + record.getUidValidity();
+                    } else if ( dataItem.equalsIgnoreCase( "UNSEEN" ) ) {
+                        response += "UNSEEN" + " " + record.getUnseen( username );
                     }
                     if ( it.hasNext() ) {
                         response += " ";
@@ -1097,8 +1067,7 @@ public class JamesHost
      * @param absoluteName the user-independent name of the mailbox
      * @param owner string name of owner of mailbox
      */
-    String getPath( String absoluteName )
-    {
+    String getPath( String absoluteName ) {
         Assert.isTrue( Assert.ON &&
                        absoluteName.startsWith( NAMESPACE_TOKEN ) );
 
@@ -1108,8 +1077,7 @@ public class JamesHost
         return rootPath + filePath;
     }
 
-    public boolean createPrivateMailAccount( String user )
-    {
+    public boolean createPrivateMailAccount( String user ) {
         Assert.isTrue( Assert.ON &&
                        user != null &&
                        user.length() > 0 );
@@ -1165,84 +1133,71 @@ public class JamesHost
         return true;
     }
 
-    private static final class OpenMailboxes
-    {
+    private static final class OpenMailboxes {
+
         private Map _mailboxes = new HashMap();
 
-        boolean contains( String absoluteName )
-        {
+        boolean contains( String absoluteName ) {
             return _mailboxes.containsKey( absoluteName );
         }
 
-        private OpenMailbox getOpen( String absoluteName )
-        {
+        private OpenMailbox getOpen( String absoluteName ) {
             return (OpenMailbox)_mailboxes.get( absoluteName );
         }
 
-        void addMailbox( String absoluteName, ACLMailbox mailbox )
-        {
+        void addMailbox( String absoluteName, ACLMailbox mailbox ) {
             OpenMailbox openMailbox = new OpenMailbox( mailbox );
             _mailboxes.put( absoluteName, openMailbox );
         }
 
-        void removeMailbox( String absoluteName )
-        {
+        void removeMailbox( String absoluteName ) {
             _mailboxes.remove( absoluteName );
         }
 
-        ACLMailbox getMailbox( String absoluteName )
-        {
+        ACLMailbox getMailbox( String absoluteName ) {
             return getOpen( absoluteName ).getMailbox();
         }
 
-        int addReference( String absoluteName )
-        {
+        int addReference( String absoluteName ) {
             return getOpen( absoluteName ).addReference();
         }
 
-        int removeReference( String absoluteName )
-        {
+        int removeReference( String absoluteName ) {
             return getOpen( absoluteName ).removeReference();
         }
 
-        int getReferenceCount( String absoluteName )
-        {
+        int getReferenceCount( String absoluteName ) {
             OpenMailbox openMailbox = getOpen( absoluteName );
             if ( openMailbox == null ) {
                 return 0;
-            }
-            else {
+            } else {
                 return openMailbox.getReferenceCount();
             }
         }
     }
 
-    private static final class OpenMailbox
-    {
+    private static final class OpenMailbox {
         private ACLMailbox _mailbox;
         private int _referenceCount;
 
-        OpenMailbox( ACLMailbox mailbox )
-        {
+        OpenMailbox( ACLMailbox mailbox ) {
             _mailbox = mailbox;
             _referenceCount = 1;
         }
 
-        ACLMailbox getMailbox()
-        {
+        ACLMailbox getMailbox() {
             return _mailbox;
         }
-        int getReferenceCount()
-        {
+
+        int getReferenceCount() {
             return _referenceCount;
         }
 
-        int addReference()
-        {
+        int addReference() {
             return ++_referenceCount;
         }
-        int removeReference()
-        {
+
+        int removeReference() {
             return --_referenceCount;
         }
     }
