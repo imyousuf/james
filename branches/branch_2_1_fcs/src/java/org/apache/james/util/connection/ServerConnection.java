@@ -363,7 +363,8 @@ public class ServerConnection extends AbstractLogEnabled
                     // This error indicates that the underlying thread pool
                     // is out of threads.  For robustness, we catch this and
                     // cleanup
-                    getLogger().error("Internal error - insufficient threads available to service request.", e);
+                    getLogger().error("Internal error - insufficient threads available to service request.  " +
+                                      Thread.activeCount() + " threads in service request pool.", e);
                     try {
                         clientSocket.close();
                     } catch (IOException ignored) {
