@@ -61,7 +61,7 @@ import org.apache.mailet.SpoolRepository;
  * as well as other places.
  *
  *
- * This is $Revision: 1.43 $
+ * This is $Revision: 1.44 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -122,7 +122,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         gatewayServer = getInitParameter("gateway");
         gatewayPort = getInitParameter("gatewayPort");
 
-
         outgoing = getMailetContext().getMailSpool(getInitParameter("outgoing"));
 
         //Start up a number of threads
@@ -169,6 +168,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 addr[j] = rcpt.toInternetAddress();
             }
 
+            if (addr.length <= 0) {
+                log("No recipients specified... not sure how this could have happened.");
+                return true;
+            }
+
             //Figure out which servers to try to send to.  This collection
             //  will hold all the possible target servers
             Collection targetServers = null;
@@ -182,9 +186,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     log("No mail server found for: " + host);
                     StringBuffer exceptionBuffer =
                         new StringBuffer(128)
-                            .append("There are no DNS entries for the hostname ")
-                            .append(host)
-                            .append(".  I cannot determine where to send this message.");
+                        .append("There are no DNS entries for the hostname ")
+                        .append(host)
+                        .append(".  I cannot determine where to send this message.");
                     return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
                 }
             } else {
@@ -194,104 +198,104 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             MessagingException lastError = null;
 
-            if (addr.length > 0) {
-                Iterator i = targetServers.iterator();
-                while ( i.hasNext()) {
-                    try {
-                        String outgoingMailServer = i.next().toString ();
-                        StringBuffer logMessageBuffer =
-                            new StringBuffer(256)
-                                    .append("Attempting delivery of ")
-                                    .append(mail.getName())
-                                    .append(" to host ")
-                                    .append(outgoingMailServer)
-                                    .append(" to addresses ")
-                                    .append(Arrays.asList(addr));
-                        log(logMessageBuffer.toString());
-                        URLName urlname = new URLName("smtp://" + outgoingMailServer);
+            Iterator i = targetServers.iterator();
+            while ( i.hasNext()) {
+                try {
+                    String outgoingMailServer = i.next().toString ();
+                    StringBuffer logMessageBuffer =
+                        new StringBuffer(256)
+                        .append("Attempting delivery of ")
+                        .append(mail.getName())
+                        .append(" to host ")
+                        .append(outgoingMailServer)
+                        .append(" to addresses ")
+                        .append(Arrays.asList(addr));
+                    log(logMessageBuffer.toString());
+                    URLName urlname = new URLName("smtp://" + outgoingMailServer);
 
-                        Properties props = session.getProperties();
-                        if (mail.getSender() == null) {
-                            props.put("mail.smtp.from", "<>");
-                        } else {
-                            String sender = mail.getSender().toString();
-                            props.put("mail.smtp.from", sender);
-                        }
-
-                        //Many of these properties are only in later JavaMail versions
-                        //"mail.smtp.ehlo"  //default true
-                        //"mail.smtp.auth"  //default false
-                        //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
-                        //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
-
-                        Transport transport = null;
-                        try {
-                            transport = session.getTransport(urlname);
-                            try {
-                                transport.connect();
-                            } catch (MessagingException me) {
-                                // Any error on connect should cause the mailet to attempt
-                                // to connect to the next SMTP server associated with this MX record,
-                                // assuming the number of retries hasn't been exceeded.
-                                if (failMessage(mail, me, false)) {
-                                    return true;
-                                } else {
-                                    continue;
-                                }
-                            }
-                            transport.sendMessage(message, addr);
-                        } finally {
-                            if (transport != null) {
-                                transport.close();
-                                transport = null;
-                            }
-                        }
-                        logMessageBuffer =
-                            new StringBuffer(256)
-                                    .append("Mail (")
-                                    .append(mail.getName())
-                                    .append(") sent successfully to ")
-                                    .append(outgoingMailServer);
-                        log(logMessageBuffer.toString());
-                        return true;
-                    } catch (MessagingException me) {
-                        //MessagingException are horribly difficult to figure out what actually happened.
-                        StringBuffer exceptionBuffer =
-                            new StringBuffer(256)
-                                    .append("Exception delivering message (")
-                                    .append(mail.getName())
-                                    .append(") - ")
-                                    .append(me.getMessage());
-                        log(exceptionBuffer.toString());
-                        //Assume it is a permanent exception, or prove ourselves otherwise
-                        boolean permanent = true;
-                        if ((me.getNextException() != null) &&
-                            (me.getNextException() instanceof java.io.IOException)) {
-                            //This is more than likely a temporary failure
-
-                            // If it's an IO exception with no nested exception, it's probably
-                            // some socket or weird I/O related problem.
-                            lastError = me;
-                            continue;
-                        }
-                        // This was not a connection or I/O error particular to one
-                        // SMTP server of an MX set.  Instead, it is almost certainly
-                        // a protocol level error.  In this case we assume that this
-                        // is an error we'd encounter with any of the SMTP servers
-                        // associated with this MX record, and we pass the exception
-                        // to the code in the outer block that determines its severity.
-                        throw me;
+                    Properties props = session.getProperties();
+                    if (mail.getSender() == null) {
+                        props.put("mail.smtp.from", "<>");
+                    } else {
+                        String sender = mail.getSender().toString();
+                        props.put("mail.smtp.from", sender);
                     }
-                } // end while
-                //If we encountered an exception while looping through, send the last exception we got
-                if (lastError != null) {
-                    throw lastError;
+
+                    //Many of these properties are only in later JavaMail versions
+                    //"mail.smtp.ehlo"  //default true
+                    //"mail.smtp.auth"  //default false
+                    //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
+                    //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
+
+                    Transport transport = null;
+                    try {
+                        transport = session.getTransport(urlname);
+                        try {
+                            transport.connect();
+                        } catch (MessagingException me) {
+                            // Any error on connect should cause the mailet to attempt
+                            // to connect to the next SMTP server associated with this MX record,
+                            // assuming the number of retries hasn't been exceeded.
+                            if (failMessage(mail, me, false)) {
+                                return true;
+                            } else {
+                                continue;
+                            }
+                        }
+                        transport.sendMessage(message, addr);
+                    } finally {
+                        if (transport != null) {
+                            transport.close();
+                            transport = null;
+                        }
+                    }
+                    logMessageBuffer =
+                                      new StringBuffer(256)
+                                      .append("Mail (")
+                                      .append(mail.getName())
+                                      .append(") sent successfully to ")
+                                      .append(outgoingMailServer);
+                    log(logMessageBuffer.toString());
+                    return true;
+                } catch (MessagingException me) {
+                    //MessagingException are horribly difficult to figure out what actually happened.
+                    StringBuffer exceptionBuffer =
+                        new StringBuffer(256)
+                        .append("Exception delivering message (")
+                        .append(mail.getName())
+                        .append(") - ")
+                        .append(me.getMessage());
+                    log(exceptionBuffer.toString());
+                    if ((me.getNextException() != null) &&
+                          (me.getNextException() instanceof java.io.IOException)) {
+                        //This is more than likely a temporary failure
+
+                        // If it's an IO exception with no nested exception, it's probably
+                        // some socket or weird I/O related problem.
+                        lastError = me;
+                        continue;
+                    }
+                    // This was not a connection or I/O error particular to one
+                    // SMTP server of an MX set.  Instead, it is almost certainly
+                    // a protocol level error.  In this case we assume that this
+                    // is an error we'd encounter with any of the SMTP servers
+                    // associated with this MX record, and we pass the exception
+                    // to the code in the outer block that determines its severity.
+                    throw me;
                 }
-            } else {
-                log("No recipients specified... not sure how this could have happened.");
+            } // end while
+            //If we encountered an exception while looping through,
+            //throw the last MessagingException we caught.  We only
+            //do this if we were unable to send the message to any
+            //server.  If sending eventually succeeded, we exit
+            //deliver() though the return at the end of the try
+            //block.
+            if (lastError != null) {
+                throw lastError;
             }
         } catch (SendFailedException sfe) {
             //Would like to log all the types of email addresses
+            /*
             if (sfe.getValidSentAddresses() != null) {
                 Address[] validSent = sfe.getValidSentAddresses();
                 Collection recipients = mail.getRecipients();
@@ -306,32 +310,102 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 }
             }
-            // The rest of the recipients failed for one reason or another.
-            // let failMessage handle it -- 5xx codes are permanent, others temporary.
-            return failMessage(mail, sfe, (('5' == sfe.getMessage().charAt(0)) ? true : false));
+            */
+
+            /*
+             * The rest of the recipients failed for one reason or
+             * another.
+             * 
+             * SendFailedException actually handles this for us.  For
+             * example, if you send a message that has multiple invalid
+             * addresses, you'll get a top-level SendFailedException
+             * that that has the valid, valid-unsent, and invalid
+             * address lists, with all of the server response messages
+             * will be contained within the nested exceptions.  [Note:
+             * the content of the nested exceptions is implementation
+             * dependent.]
+             *
+             * sfe.getInvalidAddresses() should be considered permanent. 
+             * sfe.getValidUnsentAddresses() should be considered temporary.
+             *
+             * JavaMail v1.3 properly populates those collections based
+             * upon the 4xx and 5xx response codes.
+             *
+             */
+
+            boolean deleteMessage = false;
+            Collection recipients = mail.getRecipients();
+
+            log("Recipients: " + recipients);
+
+            if (sfe.getInvalidAddresses() != null) {
+                Address[] address = sfe.getInvalidAddresses();
+                if (address.length > 0) {
+                    recipients.clear();
+                    for (int i = 0; i < address.length; i++) {
+                        try {
+                            recipients.add(new MailAddress(address[i].toString()));
+                        } catch (ParseException pe) {
+                            // this should never happen ... we should have
+                            // caught malformed addresses long before we
+                            // got to this code.
+                            log("Can't parse invalid address: " + pe.getMessage());
+                        }
+                    }
+                    log("Invalid recipients: " + recipients);
+                    deleteMessage = failMessage(mail, sfe, true);
+                }
+            }
+
+            if (sfe.getValidUnsentAddresses() != null) {
+                Address[] address = sfe.getValidUnsentAddresses();
+                if (address.length > 0) {
+                    recipients.clear();
+                    for (int i = 0; i < address.length; i++) {
+                        try {
+                            recipients.add(new MailAddress(address[i].toString()));
+                        } catch (ParseException pe) {
+                            // this should never happen ... we should have
+                            // caught malformed addresses long before we
+                            // got to this code.
+                            log("Can't parse unsent address: " + pe.getMessage());
+                        }
+                    }
+                    log("Unsent recipients: " + recipients);
+                    deleteMessage = failMessage(mail, sfe, false);
+                }
+            }
+
+            return deleteMessage;
         } catch (MessagingException ex) {
             // We should do a better job checking this... if the failure is a general
             // connect exception, this is less descriptive than more specific SMTP command
             // failure... have to lookup and see what are the various Exception
             // possibilities
 
-            //Unable to deliver message after numerous tries... fail accordingly
+            // Unable to deliver message after numerous tries... fail accordingly
 
-            //We check whether this is a 5xx error message, which indicates a permanent
-            //  failure (like account doesn't exist or mailbox is full or domain is
-            //  setup wrong).
-            boolean error5xx = ('5' == ex.getMessage().charAt(0));
-
-            //We fail permanently if this was a 5xx error
-            return failMessage(mail, ex, error5xx);
+            // We check whether this is a 5xx error message, which
+            // indicates a permanent failure (like account doesn't exist
+            // or mailbox is full or domain is setup wrong).
+            // We fail permanently if this was a 5xx error
+            return failMessage(mail, ex, ('5' == ex.getMessage().charAt(0)));
         }
-        return true;
+
+        /* If we get here, we've exhausted the loop of servers without
+         * sending the message or throwing an exception.  One case
+         * where this might happen is if we get a MessagingException on
+         * each transport.connect(), e.g., if there is only one server
+         * and we get a connect exception.  Return FALSE to keep run()
+         * from deleting the message.
+         */
+        return false;
     }
 
     /**
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
-     * @param mail org.apache.mailet.MailImpl
+     * @param mail org.apache.mailet.Mail
      * @param ex javax.mail.MessagingException
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
