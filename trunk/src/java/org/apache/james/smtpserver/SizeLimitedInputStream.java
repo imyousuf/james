@@ -10,8 +10,9 @@ package org.apache.james.smtpserver;
 import java.io.IOException;
 import java.io.InputStream;
 
-/** This class wraps an underlying input stream, limiting the allowable size
-  * of an incoming MimeMessage. The size limit is configured in the conf file,
+/** 
+  * Wraps an underlying input stream, limiting the allowable size
+  * of incoming data. The size limit is configured in the conf file,
   * and when the limit is reached, a MessageSizeException is thrown.
   * @author Matthew Pangaro <mattp@lokitech.com>
   */
@@ -25,7 +26,8 @@ public class SizeLimitedInputStream extends InputStream {
      */
     private long bytesread = 0;
 
-    /** InputStream that will be wrapped.
+    /**
+     * InputStream that will be wrapped.
      */
     private InputStream in = null;
 
