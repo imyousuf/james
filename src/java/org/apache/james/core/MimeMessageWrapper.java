@@ -716,6 +716,7 @@ public class MimeMessageWrapper
             loadMessage();
         }
         modified = true;
+        headers.setHeader(RFC2822Headers.SUBJECT, subject);
         message.setSubject(subject);
     }
 
@@ -724,6 +725,11 @@ public class MimeMessageWrapper
             loadMessage();
         }
         modified = true;
+        // is this correct?
+        try {
+            headers.setHeader(RFC2822Headers.SUBJECT, new String(subject.getBytes(charset)));
+        }
+        catch (java.io.UnsupportedEncodingException _) { /* TODO */ }
         message.setSubject(subject, charset);
     }
 
@@ -732,6 +738,7 @@ public class MimeMessageWrapper
             loadMessage();
         }
         modified = true;
+        headers.setHeader(RFC2822Headers.DATE, mailDateFormat.format(d));
         message.setSentDate(d);
     }
 
