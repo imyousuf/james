@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.26 $
+ * This is $Revision: 1.27 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -308,7 +308,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             //possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            return failMessage(mail, ex, false);
+            return failMessage(mail, ex, (('5' == ex.getMessage().charAt(0)) ? true : false));
         }
         return true;
     }
