@@ -82,7 +82,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * Note: as it is not possible to put arbitrary objects in the configuration,
  * toString() is called on the attribute value, and that is the value matched against.
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/09/22 12:08:48 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/09/22 12:12:00 $
  * @since 2.2.0
  **/
 public class HasMailAttributeWithValueRegex extends GenericMatcher 
