@@ -69,8 +69,6 @@ public class JDBCMailRepository
     extends AbstractLoggable
     implements MailRepository, Component, Configurable, Composable {
 
-    //private SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy MMM dd h:mm:ss a");
-
     protected Lock lock;
     protected String destination;
     protected String tableName;
@@ -203,7 +201,7 @@ public class JDBCMailRepository
                 updateMessage.setString(4, recipients.toString());
                 updateMessage.setString(5, mc.getRemoteHost());
                 updateMessage.setString(6, mc.getRemoteAddr());
-                updateMessage.setDate(7, new java.sql.Date(mc.getLastUpdated().getTime()));
+                updateMessage.setTimestamp(7, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
                 updateMessage.setString(8, mc.getName());
                 updateMessage.setString(9, repositoryName);
                 updateMessage.execute();
@@ -262,8 +260,7 @@ public class JDBCMailRepository
                 insertMessage.setString(6, recipients.toString());
                 insertMessage.setString(7, mc.getRemoteHost());
                 insertMessage.setString(8, mc.getRemoteAddr());
-                java.sql.Date lastUpdated = new java.sql.Date(mc.getLastUpdated().getTime());
-                insertMessage.setDate(9, lastUpdated);
+                insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
                 MimeMessage messageBody = mc.getMessage();
 
                 ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
@@ -325,7 +322,7 @@ public class JDBCMailRepository
             mc.setRecipients(recipients);
             mc.setRemoteHost(rsMessage.getString(5));
             mc.setRemoteAddr(rsMessage.getString(6));
-            mc.setLastUpdated(new java.util.Date(rsMessage.getDate(7).getTime()));
+            mc.setLastUpdated(rsMessage.getTimestamp(7));
 
             MimeMessageJDBCSource source = new MimeMessageJDBCSource(this, key, sr);
             MimeMessageWrapper message = new MimeMessageWrapper(source);

@@ -110,7 +110,7 @@ public class JDBCSpoolRepository
                     boolean process = false;
                     if (state.equals(Mail.ERROR)) {
                         //Test the time
-                        long timeToProcess = delay + rsListMessages.getDate(3).getTime();
+                        long timeToProcess = delay + rsListMessages.getTimestamp(3).getTime();
                         if (System.currentTimeMillis() > timeToProcess) {
                             process = true;
                         } else {
