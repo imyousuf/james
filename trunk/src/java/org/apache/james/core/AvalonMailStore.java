@@ -35,7 +35,7 @@ import org.apache.avalon.phoenix.Block;
  * Provides Registry of mail repositories. A mail repository is uniquely
  * identified
  * by destinationURL, type and model.
- * 
+ *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
@@ -119,7 +119,7 @@ public class AvalonMailStore
             for ( int j = 0; j < types.length; j++ )
             {
                 String type = types[j].getValue();
-		String key = protocol + type ;
+        String key = protocol + type ;
                 classes.put(key, className);
                 getLogger().info("Registered class: " + key+"->"+className);
             }
@@ -176,8 +176,8 @@ public class AvalonMailStore
                 getLogger().debug( "Need instance of " + repClass +
                                    " to handle: " + protocol + "," + type  );
 
-                // If default values have been set, create a new repository 
-                // configuration element using the default values 
+                // If default values have been set, create a new repository
+                // configuration element using the default values
                 // and the values in the selector.
                 // If no default values, just use the selector.
                 Configuration config;
@@ -186,17 +186,16 @@ public class AvalonMailStore
                     config = repConf;
                 }
                 else {
-                    config = new DefaultConfiguration(repConf.getName(), 
+                    config = new DefaultConfiguration(repConf.getName(),
                                                       repConf.getLocation());
                     copyConfig(defConf, (DefaultConfiguration)config);
                     copyConfig(repConf, (DefaultConfiguration)config);
                 }
- 
+
                 try {
-                    reply
-                    = (MailRepository) Class.forName(repClass).newInstance();
-                   if (reply instanceof Loggable) {
-		       setupLogger(reply);
+                    reply = (MailRepository) Class.forName(repClass).newInstance();
+                    if (reply instanceof Loggable) {
+                       setupLogger(reply);
                     }
                     if (reply instanceof Contextualizable) {
                         ((Contextualizable) reply).contextualize(context);
@@ -216,7 +215,7 @@ public class AvalonMailStore
                 } catch (Exception e) {
                     getLogger().warn( "Exception while creating repository:" +
                                       e.getMessage(), e );
-
+                    e.printStackTrace();
                     throw new
                         ComponentException("Cannot find or init repository",
                                            e);
