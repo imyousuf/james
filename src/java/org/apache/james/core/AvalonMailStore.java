@@ -28,9 +28,8 @@ import org.apache.james.services.SpoolRepository;
 import java.util.HashMap;
 
 /**
- * Provides Registry of mail repositories. A mail repository is uniquely
- * identified
- * by destinationURL, type and model.
+ * Provides a registry of mail repositories. A mail repository is uniquely
+ * identified by its destinationURL, type and model.
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  * @author Darrell DeBoer <dd@bigdaz.com>
@@ -39,8 +38,13 @@ public class AvalonMailStore
     extends AbstractLogEnabled
     implements Contextualizable, Composable, Configurable, Initializable, MailStore {
 
+    // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";
+
+    // Static variable used to name individual repositories.  Should only
+    // be accessed when a lock on the AvalonMailStore.class is held
     private static long id;
+
     // map of [destinationURL + type]->Repository
     private HashMap repositories;
 
@@ -50,29 +54,70 @@ public class AvalonMailStore
     // map of [Repository Class]->default config for repository.
     private HashMap defaultConfigs;
 
+    /**
+     * The Avalon context used by the instance
+     */
     protected Context                context;
+
+    /**
+     * The Avalon configuration used by the instance
+     */
     protected Configuration          configuration;
+
+    /**
+     * The Avalon component manager used by the instance
+     */
     protected ComponentManager       componentManager;
 
     private SpoolRepository inboundSpool;
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the instance.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
         this.componentManager = componentManager;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException
     {
         this.configuration = configuration;
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize()
         throws Exception {
 
@@ -103,6 +148,19 @@ public class AvalonMailStore
         }
     }
 
+    /**
+     * <p>Registers a new mail repository type in the mail store's
+     * registry based upon a passed in <code>Configuration</code> object.</p>
+     *
+     * <p>This is presumably synchronized to prevent corruption of the
+     * internal registry.</p>
+     *
+     * @param repConf the Configuration object used to register the
+     *                repository
+     *
+     * @throws ConfigurationException if an error occurs accessing the
+     *                                Configuration object
+     */
     public synchronized void registerRepository(Configuration repConf)
         throws ConfigurationException {
         String className = repConf.getAttribute("class");
@@ -141,13 +199,25 @@ public class AvalonMailStore
         }
     }
 
-    public void release(Component component)
-    {
-    }
-
-    public synchronized Component select(Object hint) throws ComponentException
-    {
-
+    /**
+     * This method accept a Configuration object as hint and return the
+     * corresponding MailRepository.
+     * The Configuration must be in the form of:
+     * <repository destinationURL="[URL of this mail repository]"
+     *             type="[repository type ex. OBJECT or STREAM or MAIL etc.]"
+     *             model="[repository model ex. PERSISTENT or CACHE etc.]">
+     *   [addition configuration]
+     * </repository>
+     *
+     * @param hint the Configuration object used to look up the repository
+     *
+     * @return the selected repository
+     *
+     * @throws ComponentException if any error occurs while parsing the 
+     *                            Configuration or retrieving the 
+     *                            MailRepository
+     */
+    public synchronized Component select(Object hint) throws ComponentException {
         Configuration repConf = null;
         try {
             repConf = (Configuration) hint;
@@ -262,18 +332,44 @@ public class AvalonMailStore
         }
     }
 
+    /**
+     * <p>Returns a new name for a repository.</p>
+     *
+     * <p>Synchronized on the AvalonMailStore.class object to ensure
+     * against duplication of the repository name</p>
+     *
+     * @return a new repository name
+     */
     public static final String getName() {
-        return REPOSITORY_NAME + id++;
+        synchronized (AvalonMailStore.class) {
+            return REPOSITORY_NAME + id++;
+        }
     }
 
+    /**
+     * Returns the mail spool associated with this AvalonMailStore
+     *
+     * @return the mail spool
+     *
+     * @throws IllegalStateException if the inbound spool has not
+     *                               yet been set
+     */
     public SpoolRepository getInboundSpool() {
         if (inboundSpool != null) {
             return inboundSpool;
         } else {
-            throw new RuntimeException("Inbound spool not defined");
+            throw new IllegalStateException("Inbound spool not defined");
         }
     }
 
+    /**
+     * Returns whether the mail store has a repository corresponding to
+     * the passed in hint.
+     *
+     * @param hint the Configuration object used to look up the repository
+     *
+     * @return whether the mail store has a repository corresponding to this hint
+     */
     public boolean hasComponent( Object hint ) {
         Component comp = null;
         try {
@@ -289,6 +385,9 @@ public class AvalonMailStore
     /**
      * Copies values from one config into another, overwriting duplicate attributes
      * and merging children.
+     *
+     * @param fromConfig the Configuration to be copied
+     * @param toConfig the Configuration to which data is being copied
      */
     private void copyConfig(Configuration fromConfig, DefaultConfiguration toConfig)
     {
@@ -320,4 +419,12 @@ public class AvalonMailStore
             toConfig.setValue(val);
         }
     }
+
+    /**
+     * Return the <code>Component</code> when you are finished with it.  In this
+     * implementation it does nothing
+     *
+     * @param component The Component we are releasing.
+     */
+    public void release(Component component) {}
 }

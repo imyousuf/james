@@ -34,8 +34,10 @@ public class AvalonUsersStore
     extends AbstractLogEnabled
     implements Component, Contextualizable, Composable, Configurable, Initializable, UsersStore {
 
-    // A mapping of respository identifiers to actual repositories
-    // This mapping is obtained from the component configuration
+    /**
+     * A mapping of respository identifiers to actual repositories
+     * This mapping is obtained from the component configuration
+     */
     private HashMap repositories;
 
     /**

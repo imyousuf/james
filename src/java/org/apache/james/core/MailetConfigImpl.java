@@ -15,21 +15,43 @@ import org.apache.mailet.MailetContext;
 import java.util.Iterator;
 
 /**
+ * Implements the configuration object for a Mailet.
  *
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailetConfigImpl implements MailetConfig {
+
+    /**
+     * The mailet MailetContext
+     */
     private MailetContext mailetContext;
+
+    /**
+     * The mailet name
+     */
     private String name;
+
     //This would probably be better.
     //Properties params = new Properties();
     //Instead, we're tied to the Configuration object
+    /**
+     * The mailet Avalon Configuration
+     */
     private Configuration configuration;
 
-    public MailetConfigImpl() {
+    /**
+     * No argument constructor for this object.
+     */
+    public MailetConfigImpl() {}
 
-    }
-
+    /**
+     * Get the value of an parameter stored in this MailetConfig.  Multi-valued
+     * parameters are returned as a comma-delineated string.
+     *
+     * @param name the name of the parameter whose value is to be retrieved.
+     *
+     * @return the parameter value
+     */
     public String getInitParameter(String name) {
         try {
             String result = null;
@@ -53,27 +75,57 @@ public class MailetConfigImpl implements MailetConfig {
 
     }
 
+    /**
+     * Returns an iterator over the set of configuration parameter names.
+     *
+     * @throws UnsupportedOperationException in all cases, as this is not implemented
+     */ 
     public Iterator getInitParameterNames() {
-        throw new RuntimeException("Not yet implemented");
+        throw new UnsupportedOperationException("Not yet implemented");
         //return params.keySet().iterator();
     }
 
+    /**
+     * Get the mailet's MailetContext object.
+     *
+     * @return the MailetContext for the mailet
+     */
     public MailetContext getMailetContext() {
         return mailetContext;
     }
 
+    /**
+     * Get the mailet's Avalon Configuration object.
+     *
+     * @return the Configuration for the mailet
+     */
     public void setMailetContext(MailetContext newContext) {
         mailetContext = newContext;
     }
 
+    /**
+     * Set the Avalon Configuration object for the mailet.
+     *
+     * @param newConfiguration the new Configuration for the mailet
+     */
     public void setConfiguration(Configuration newConfiguration) {
         configuration = newConfiguration;
     }
 
+    /**
+     * Get the name of the mailet.
+     *
+     * @return the name of the mailet
+     */
     public String getMailetName() {
         return name;
     }
 
+    /**
+     * Set the name for the mailet.
+     *
+     * @param newName the new name for the mailet
+     */
     public void setMailetName(String newName) {
         name = newName;
     }

@@ -46,6 +46,12 @@ public class MimeMessageWrapper extends MimeMessage {
      */
     RFC822DateFormat mailDateFormat = new RFC822DateFormat();
 
+    /**
+     * A constructor that instantiates a MimeMessageWrapper based on 
+     * a MimeMessageSource
+     *
+     * @param source the MimeMessageSource
+     */
     public MimeMessageWrapper(MimeMessageSource source) {
         super(javax.mail.Session.getDefaultInstance(System.getProperties(), null));
         this.source = source;
@@ -136,7 +142,9 @@ public class MimeMessageWrapper extends MimeMessage {
 
 
     /**
-     * Special methods you can call
+     * Get whether the message has been modified.
+     *
+     * @return whether the message has been modified
      */
     public boolean isModified() {
         return modified;
@@ -251,7 +259,6 @@ public class MimeMessageWrapper extends MimeMessage {
     /**
      * Various reader methods
      */
-
     public Address[] getFrom() throws MessagingException {
         if (headers == null) {
             loadHeaders();
@@ -599,7 +606,9 @@ public class MimeMessageWrapper extends MimeMessage {
 
 
     /**
-     * Writes content only, ie not headers, to the specified outputstream.
+     * Writes content only, ie not headers, to the specified OutputStream.
+     *
+     * @param outs the OutputStream to which the content is written
      */
     public void writeContentTo(OutputStream outs)
             throws java.io.IOException, MessagingException {
