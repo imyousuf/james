@@ -112,9 +112,7 @@ public class POP3Handler
 
 
     /**
-     * This method is called by the ConnectionHandlerFactory with the
-     * handler <code>Configuration</code>.  This provides the POP3Handler
-     * with required configuration data.
+     * Pass the <code>Configuration</code> to the instance.
      *
      * @param configuration the class configurations.
      * @throws ConfigurationException if an error occurs
@@ -127,9 +125,9 @@ public class POP3Handler
     }
 
     /**
-     * This method is called by the ConnectionHandlerFactory with the
-     * appropriate <code>ComponentManager</code>.  This allows the POP3Handler
-     * to access other system components.
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
      *
      * @param componentManager The <code>ComponentManager</code> which this
      *                <code>Composable</code> uses.
@@ -151,8 +149,8 @@ public class POP3Handler
      * This handler is responsible for processing connections as they occur.
      *
      * @param connection the connection
-     * @exception IOException if an error reading from socket occurs
-     * @exception ProtocolException if an error handling connection occurs
+     * @throws IOException if an error reading from socket occurs
+     * @throws ProtocolException if an error handling connection occurs
      */
     public void handleConnection( Socket connection )
             throws IOException {
