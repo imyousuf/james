@@ -20,16 +20,15 @@
 
     <menu name="Documentation">
         <item name="James 2.1 Documentation"           href="/documentation_2_1.html"/>
+        <item name="Design objectives"     href="/design_objectives.html"/>
         <item name="James Javadocs"      href="/javadocs/index.html"/>
-        <item name="Mailet API"     href="/mailet/index.html"/>
-        <item name="James and sendmail"     href="/james_and_sendmail.html"/>
+        <item name="Mailet Javadocs"     href="/mailet/index.html"/>
         <item name="Useful RFCs"   href="/rfclist.html"/>
         <item name="Older Document Archive"      href="/document_archive.html"/>
     </menu>
 
-
     <menu name="Project">
-    <item name="Bug Database "     href="http://jakarta.apache.org/site/bugs.html"/>
+        <item name="Bug Database "     href="http://jakarta.apache.org/site/bugs.html"/>
         <item name="CVS Repositories"      href="http://jakarta.apache.org/site/cvsindex.html"/>
         <item name="Who We Are"        href="/weare.html"/>
         <item name="How Can I Contribute?" href="/contribute.html"/>
