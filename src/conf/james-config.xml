@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.54 $ Committed on $Date: 2003/06/07 00:26:28 $ by: $Author: noel $ -->
+<!-- $Revision: 1.55 $ Committed on $Date: 2003/09/12 13:42:40 $ by: $Author: danny $ -->
 
 <config>
    <James>
@@ -274,12 +274,21 @@
 
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery">
-             <!-- These are new and override the James level equivalents -->
+             <!-- EXPERIMETAL -->
+             <!-- (currently POP3 does not also support this)     -->
+             
+             <!-- For supporting virtual hosts you can use the    -->
+             <!-- the settings below to support several           -->
+             <!-- LocalDelivery mailets delivering mail to several-->
+             <!-- both inboxURI and users MUST be specified       -->
+             <!-- otherwise ALL of these settings will be ignored -->
+             <!-- 
              <inboxURI>db://maildb/inbox/</inboxURI>
              <users>LocalUsers</users>
              <ignoreCase>true</ignoreCase>
              <enableAliases>true</enableAliases>
              <enableForwarding>true</enableForwarding>
+             -->
          </mailet>
 
 
