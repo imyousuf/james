@@ -40,14 +40,17 @@ public class LocalDelivery extends GenericMailet {
             try {
                 getMailetContext().storeMail(mail.getSender(), recipient, mail.getMessage());
             } catch (Exception ex) {
-                ex.printStackTrace();
+                getMailetContext().log("Error while storing mail.", ex);
                 errors.add(recipient);
             }
         }
 
         if (!errors.isEmpty()) {
-            //If there were errors, we need to send a message to the sender
-            //  with the details
+            // If there were errors, we redirect the email to the ERROR processor.
+            // In order for this server to meet the requirements of the SMTP specification,
+            // mails on the ERROR processor must be returned to the sender.  Note that this
+            // email doesn't include any details regarding the details of the failure(s).
+            // In the future we may wish to address this.
             getMailetContext().sendMail(mail.getSender(),
                                         errors, mail.getMessage(), Mail.ERROR);
         }

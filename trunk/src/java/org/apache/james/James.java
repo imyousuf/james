@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.32 $
+ * @version This is $Revision: 1.33 $
 
  */
 public class James
@@ -687,8 +687,23 @@ public class James
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
         throws MessagingException {
         String username;
+        if (recipient == null) {
+            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+        }
+        if (message == null) {
+            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+        }
         if (ignoreCase) {
-            username = localusers.getRealName(recipient.getUser());
+            String originalUsername = recipient.getUser();
+            username = localusers.getRealName(originalUsername);
+            if (username == null) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(128)
+                        .append("The inbox for user ")
+                        .append(originalUsername)
+                        .append(" was not found on this server.");
+                throw new MessagingException(errorBuffer.toString());
+            }
         } else {
             username = recipient.getUser();
         }
@@ -698,8 +713,17 @@ public class James
             if (enableAliases && user.getAliasing()) {
                 username = user.getAlias();
             }
+            // Forwarding takes precedence over local aliases
             if (enableForwarding && user.getForwarding()) {
                 MailAddress forwardTo = user.getForwardingDestination();
+                if (forwardTo == null) {
+                    StringBuffer errorBuffer = 
+                        new StringBuffer(128)
+                            .append("Forwarding was enabled for ")
+                            .append(username)
+                            .append(" but no forwarding address was set for this account.");
+                    throw new MessagingException(errorBuffer.toString());
+                }
                 Collection recipients = new HashSet();
                 recipients.add(forwardTo);
                 try {
@@ -721,6 +745,7 @@ public class James
                                     .append("attempting local delivery");
                         getLogger().error(logBuffer.toString());
                     }
+                    throw me;
                 }
             }
         }
@@ -728,7 +753,16 @@ public class James
         Collection recipients = new HashSet();
         recipients.add(recipient);
         MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-        getUserInbox(username).store(mailImpl);
+        MailRepository userInbox = getUserInbox(username);
+        if (userInbox == null) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                    .append("The inbox for user ")
+                    .append(username)
+                    .append(" was not found on this server.");
+            throw new MessagingException(errorBuffer.toString());
+        }
+        userInbox.store(mailImpl);
     }
 
     /**
