@@ -142,7 +142,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null) return false;
-        logger.log("Command recieved: " + commandRaw, "POP3", logger.INFO);
+        logger.log("Command received: " + commandRaw, "POP3", logger.INFO);
         String command = commandRaw.trim();
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
