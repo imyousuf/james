@@ -13,11 +13,11 @@ import java.io.PrintWriter;
 import java.util.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import org.apache.avalon.Loggable;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.core.EnhancedMimeMessage;
-import org.apache.log.Logger;
+
 
 /**
  * Provides methods useful for IMAP command objects.
@@ -28,16 +28,10 @@ import org.apache.log.Logger;
  */
 
 public abstract class BaseCommand 
-    implements Loggable {
+    extends AbstractLoggable {
 
     //mainly to switch on stack traces and catch responses;  
     private static final boolean DEEP_DEBUG = true;
-
-    protected Logger logger;
-  
-    public void setLogger( final Logger aLogger ) {
-        logger = aLogger;
-    }
 
     /**
      * Turns a protocol-compliant string representing a message sequence
@@ -50,13 +44,13 @@ public abstract class BaseCommand
      */
     protected List decodeSet( String rawSet, int exists ) throws IllegalArgumentException {
         if (rawSet == null) {
-            logger.debug("Null argument in decodeSet");
+            getLogger().debug("Null argument in decodeSet");
             throw new IllegalArgumentException("Null argument");
         } else if (rawSet.equals("")) {
-            logger.debug("Empty argument in decodeSet");
+            getLogger().debug("Empty argument in decodeSet");
             throw new IllegalArgumentException("Empty string argument"); 
         }
-        logger.debug(" decodeSet called for: " + rawSet);
+        getLogger().debug(" decodeSet called for: " + rawSet);
         List response = new ArrayList();
         int checkComma = rawSet.indexOf(",");
         if (checkComma == -1) {
@@ -102,7 +96,7 @@ public abstract class BaseCommand
                 response.addAll(decodeSet(firstRawSet, exists));
                 response.addAll(decodeSet(secondRawSet, exists));
             } catch (IllegalArgumentException e) {
-                logger.debug("Wonky arguments in: " + rawSet + " " + e);
+                getLogger().debug("Wonky arguments in: " + rawSet + " " + e);
                 throw e;
             }
         }
@@ -122,16 +116,16 @@ public abstract class BaseCommand
     protected List decodeUIDSet( String rawSet, List uidsList )
         throws IllegalArgumentException {
         if (rawSet == null) {
-            logger.debug("Null argument in decodeSet");
+            getLogger().debug("Null argument in decodeSet");
             throw new IllegalArgumentException("Null argument");
         } else if (rawSet.equals("")) {
-            logger.debug("Empty argument in decodeSet");
+            getLogger().debug("Empty argument in decodeSet");
             throw new IllegalArgumentException("Empty string argument"); 
         }
-        logger.debug(" decodeUIDSet called for: " + rawSet);
+        getLogger().debug(" decodeUIDSet called for: " + rawSet);
         Iterator it = uidsList.iterator();
         while (it.hasNext()) {
-            logger.info ("uids present : " + (Integer)it.next() );
+            getLogger().info ("uids present : " + (Integer)it.next() );
         }
         List response = new ArrayList();
         int checkComma = rawSet.indexOf(",");
@@ -189,7 +183,7 @@ public abstract class BaseCommand
                 response.addAll(decodeUIDSet(firstRawSet, uidsList));
                 response.addAll(decodeUIDSet(secondRawSet, uidsList));
             } catch (IllegalArgumentException e) {
-                logger.debug("Wonky arguments in: " + rawSet + " " + e);
+                getLogger().debug("Wonky arguments in: " + rawSet + " " + e);
                 throw e;
             }
         }
