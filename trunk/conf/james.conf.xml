@@ -480,49 +480,10 @@
     </block>
       
 
- <!-- The Low-Level Storage block
-     This is to avoid class-loader problems with early versions of Avalon 3
-    <block class="org.apache.james.filestorage.RepositoryManager" 
-           name="james-storage" >
 
-        <logger name="Store" destinationURL="../logs/core_blocks.log" priority="DEBUG"/>
+    <!-- Configuration for Avalon Core Blocks only after here
+         Should not need changing, unless you want secure sockets (TLS) -->
 
-        <logger name="Repository" destinationURL="../logs/core_blocks.log" priority="DEBUG"/>
-        <configuration>
-          <repositories>
-              <repository class="org.apache.james.filestorage.File_Persistent_Object_Repository">
-                <protocols>
-                    <protocol> file </protocol>
-                </protocols>
-                <types>
-                    <type> OBJECT </type>
-                </types>
-                <models>
-                    <model> SYNCHRONOUS </model>
-                    <model> ASYNCHRONOUS </model>
-                    <model> CACHE </model>
-                </models>
-              </repository>
-              <repository class="org.apache.james.filestorage.File_Persistent_Stream_Repository">
-                <protocols>
-                    <protocol> file </protocol>
-                </protocols>
-                <types>
-                    <type> STREAM </type>
-                </types>
-                <models>
-                    <model> SYNCHRONOUS </model>
-                    <model> ASYNCHRONOUS </model>
-                    <model> CACHE </model>
-                </models>
-              </repository>
-	
-          </repositories>
-        </configuration>
-
-    </block>
-
- -->
 
     <!-- The Storage block -->
     <block class="org.apache.avalon.blocks.masterstore.RepositoryManager" 
