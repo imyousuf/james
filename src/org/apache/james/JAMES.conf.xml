@@ -29,9 +29,9 @@
     Note that you cannot leave a blank password.  If the password is blank, the admin account is disabled.
 
     Anti-relay mailet: Add your network address here, e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
-   <processor name="transport"> 
+   <processor name="transport">
        <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
-                      
+
 
     OPTIONAL, and interesting
 
@@ -46,7 +46,7 @@
 
 
     !!TODO!
-   
+
     - Quickly mention where to look to configure for database storage
 -->
 <avalon>
@@ -108,7 +108,7 @@
 	       enter 'ldap' here.  -->
             <userRepository> file://../var/users/ </userRepository>
             <!-- If you want to use a database to track user accounts, uncomment this line
-            <userRepository> town://users </userRepository> -->            
+            <userRepository> town://users </userRepository> -->
 	    <!-- If you are going to use the LDAP implementation for a
 	      UserRepository, you must configure this section with your LDAP
 	       server's information -->
@@ -180,15 +180,29 @@
 
 <!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
                 <processor name="root">
-                <!-- Sample matching to kill a message (send to Null) -->
-                    <mailet match="RecipientIs=badboy@badhost" class="Null">
-                    </mailet>
                 <!-- Checks that the MAIL FROM command was for a valid domain. Important for spam prevention. -->
                     <mailet match="SenderInFakeDomain" class="ToProcessor">
                         <processor> spam </processor>
                     </mailet>
                 <!-- Important check to avoid race conditions -->
                     <mailet match="RelayLimit=30" class="Null">
+                    </mailet>
+                <!-- Check for delivery from a known spam server -->
+                    <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
+                    </mailet>
+                    <mailet match="InSpammerBlacklist=dialups.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
+                    </mailet>
+                    <mailet match="InSpammerBlacklist=relays.mail-abuse.org" class="ToProcessor">
+                        <processor> spam </processor>
+                        <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
+                    </mailet>
+
+                <!-- Sample matching to kill a message (send to Null) -->
+                    <mailet match="RecipientIs=badboy@badhost" class="Null">
                     </mailet>
                 <!-- Sample listserv wrapping a local avalon list of users. -->
                     <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
@@ -311,7 +325,7 @@
 		    <conn>file:///var/maildatabase</conn>
 		    <table>Users</table>
 		</repository>
-          
+
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
