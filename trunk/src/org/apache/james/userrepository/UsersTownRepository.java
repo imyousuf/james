@@ -4,11 +4,16 @@
 
 package org.apache.james.userrepository;
 
+import java.io.*;
+import java.util.*;
+
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
-import org.apache.avalon.utils.*;
-import java.util.*;
-import java.io.*;
+//import org.apache.avalon.utils.*;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+import org.apache.james.services.UsersRepository;
+
 import com.workingdogs.town.*;
 
 /**
@@ -16,66 +21,37 @@ import com.workingdogs.town.*;
  * @version 1.0.0, 10/01/2000
  * @author  Ivan Seskar, Upside Technologies <seskar@winlab.rutgers.edu>
  */
-public class UsersTownRepository implements UsersRepository, Configurable {
+public class UsersTownRepository implements UsersRepository, Loggable, Component, Configurable {
 
-    private String name;
-    private String type;
-    private String model;
-
-    private String destination;
-    private String prefix;
-    private String repositoryName;
+    //private String destination;
+    //private String repositoryName;
 
     private String conndefinition;
     private String tableName;
 
     //  System defined logger funtion
-    private ComponentManager comp;
+    //private ComponentManager comp;
     private Logger logger;
 
     // Constructor - empty
     public UsersTownRepository() {
     }
 
+    public void setLogger(final Logger a_Logger) {
+	logger = a_Logger;
+    }
+
+    public void configure(Configuration conf) throws ConfigurationException {
+	//  destination = conf.getChild("destination").getAttribute("URL");
+	//  repositoryName = destination.substring(destination.indexOf("//") + 2);
+	conndefinition= conf.getChild("conn").getValue();
+	tableName = conf.getChild("table").getValue("Users");
+
+    }
+
+ 
+	
     // Methods from interface Repository
-    public void setAttributes(String name, String destination, String type, String model) {
-        this.name = name;
-        this.model = model;
-        this.type = type;
-
-        this.destination = destination;
-        int slash = destination.indexOf("//");
-        prefix = destination.substring(0, slash + 2);
-        repositoryName = destination.substring(slash + 2);
-    }
-
-
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-        // Store logger
-        this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-    }
-
-    public void setConfiguration(Configuration conf) {
-        conndefinition = conf.getConfiguration("conn").getValue();
-        tableName = conf.getConfiguration("table").getValue("Users");
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getChildDestination(String childName) {
-        return prefix + repositoryName + "/" + childName;
-    }
 
     public synchronized void addUser(String strUserName, Object attributes) {
         try {
@@ -90,8 +66,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
                 user.save();
             } else {
                 // file://User already exists: reject add
-                logger.log("User "+strUserName+" already exists.",
-                "UserManager", logger.WARNING);  // old Avalon logger format
+                logger.warn("User "+strUserName+" already exists."); 
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,8 +79,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
             TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             MRUser.setWhere("username = '" + strUserName+"'");
             if (MRUser.size() == 0) {
-                logger.log("User "+strUserName+" could not be found while fetching password.",
-                "UserManager", logger.WARNING);
+                logger.warn("User "+strUserName+" could not be found while fetching password.");
                 return(null);
             } else {
                 Record user = MRUser.getRecord(0);
@@ -122,7 +96,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
             MRUser.setWhere("username = '" + strUserName + "'");
             if (MRUser.size() == 0) {
                 // file://User doesn't exists: reject delete
-                logger.log("User: " + strUserName + " does not exist.  Cannot delete", "UserManager", logger.WARNING);
+                logger.warn("User: " + strUserName + " does not exist.  Cannot delete");
             } else {
                 Record user = MRUser.getRecord(0);
                 user.markToBeDeleted();
@@ -157,7 +131,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
                 return(user.getAsString("Password").equals(attributes.toString()));
             } else {
                 // file://UserName does not exist
-                logger.log("User "+strUserName+" doesn't exist", "UserManager", logger.WARNING);
+                logger.warn("User "+strUserName+" doesn't exist");
                 return(false);
             }
         } catch (Exception e) {
@@ -177,8 +151,8 @@ public class UsersTownRepository implements UsersRepository, Configurable {
     }
     }
 
-    public Enumeration list() {
-        Vector list = new Vector();
+    public Iterator list() {
+        List list = new ArrayList();
 
         try {
             TableDataSet users = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
@@ -186,11 +160,11 @@ public class UsersTownRepository implements UsersRepository, Configurable {
                 list.add(users.getRecord(i).getAsString("username"));
             }
         } catch (Exception e) {
-            logger.log("Problem listing mailboxes. " + e ,"UserManager", logger.ERROR);
+            logger.error("Problem listing mailboxes. " + e );
             e.printStackTrace();
             throw new RuntimeException("Exception while listing users: " + e.getMessage());
         }
-        return list.elements();
+        return list.iterator();
     }
 
 }
