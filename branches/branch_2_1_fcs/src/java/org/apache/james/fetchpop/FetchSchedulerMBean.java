@@ -55,25 +55,21 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
-package org.apache.james;
+package org.apache.james.fetchpop;
 
 /**
- * An interface to expose James management functionality through JMX.  At
- * the time of this writing, this interface is just an example.
+ * An interface to expose James management functionality through JMX.
  * 
- * @phoenix:mx-topic name="MainJAMESServerManagement"
+ * @phoenix:mx-topic name="FetchScheduler,type=POP"
  */
-public interface JamesMBean {
-
+public interface FetchSchedulerMBean {
     /**
-     * Adds a user to this mail server.
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add a new user
-     *
-     * @param userName The name of the user being added
-     * @param password The password of the user being added
-     */
-    boolean addUser(String userName, String password);
+    * @phoenix:mx-attribute
+    * @phoenix:mx-description Returns flag indicating it this service is enabled 
+    * @phoenix:mx-isWriteable no
+    * 
+    * @return boolean The enabled flag     
+    */  
+    public boolean isEnabled();
+
 }

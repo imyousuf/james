@@ -94,7 +94,7 @@ import java.net.UnknownHostException;
  * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
-public class POP3Server extends AbstractJamesService implements Component {
+public class POP3Server extends AbstractJamesService implements Component, POP3ServerMBean {
 
     /**
      * The internal mail server service

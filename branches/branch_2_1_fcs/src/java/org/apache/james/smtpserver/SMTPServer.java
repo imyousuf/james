@@ -94,7 +94,7 @@ import org.apache.mailet.MailetContext;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractJamesService implements Component {
+public class SMTPServer extends AbstractJamesService implements Component, SMTPServerMBean {
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
