@@ -67,7 +67,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.StringTokenizer;
 import java.util.ArrayList;
 
 
@@ -112,7 +111,7 @@ import org.apache.mailet.MailAddress;
  * if none of the lists is specified.<BR>
  * These addresses will only appear in the To: header if no &quot;to&quot; list is
  * supplied.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot; and &quot;unaltered&quot;.
+ * It can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;recipients&quot; and &quot;unaltered&quot;.
  * </TD>
  * </TR>
  * <TR valign=top>
@@ -306,7 +305,7 @@ import org.apache.mailet.MailAddress;
  * <P><I>replyto</I> can be used instead of
  * <I>replyTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.33 $ $Date: 2003/07/04 16:46:12 $
+ * @version CVS $Revision: 1.34 $ $Date: 2003/07/07 06:16:21 $
  */
 
 public class Redirect extends AbstractRedirect {
@@ -377,7 +376,6 @@ public class Redirect extends AbstractRedirect {
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
-        boolean error = false;
         String addressList = (getInitParameter("recipients") == null)
                                  ? getInitParameter("to")
                                  : getInitParameter("recipients");
@@ -387,30 +385,25 @@ public class Redirect extends AbstractRedirect {
             return null;
         }
 
-        StringTokenizer st = new StringTokenizer(addressList, ",", false);
-        while(st.hasMoreTokens()) {
-            String token = null;
-            try {
-                token = st.nextToken();
-                MailAddress specialAddress = getSpecialAddress(token,
-                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+        try {
+            InternetAddress[] iaarray = InternetAddress.parse(addressList, false);
+            for (int i = 0; i < iaarray.length; i++) {
+                String addressString = iaarray[i].getAddress();
+                MailAddress specialAddress = getSpecialAddress(addressString,
+                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
-                    newRecipients.add(new MailAddress(token));
+                    newRecipients.add(new MailAddress(iaarray[i]));
                 }
-            } catch(Exception e) {
-                error = true;
-                log("Exception thrown in getRecipients() parsing: " + token, e);
             }
-        }
-        if (error) {
-            throw new MessagingException("Failed to initialize \"recipients\" list; see mailet log.");
+        } catch (Exception e) {
+            throw new MessagingException("Exception thrown in getRecipients() parsing: " + addressList, e);
         }
         if (newRecipients.size() == 0) {
             throw new MessagingException("Failed to initialize \"recipients\" list; empty <recipients> init parameter found.");
         }
-        
+
         return newRecipients;
     }
 
@@ -424,7 +417,7 @@ public class Redirect extends AbstractRedirect {
      * or <CODE>null</CODE> if also the latter is missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
-        boolean error = false;
+        InternetAddress[] iaarray = null;
         String addressList = (getInitParameter("to") == null)
                                  ? getInitParameter("recipients")
                                  : getInitParameter("to");
@@ -434,29 +427,20 @@ public class Redirect extends AbstractRedirect {
             return null;
         }
 
-        StringTokenizer rec = new StringTokenizer(addressList, ",");
-        int tokenCount = rec.countTokens();
-        InternetAddress[] iaarray = new InternetAddress[tokenCount];
-        String token = "";
-        for(int i = 0; i < tokenCount; ++i) {
-            try {
-                token = rec.nextToken();
-                MailAddress specialAddress = getSpecialAddress(token,
-                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "to", "null"});
+        try {
+            iaarray = InternetAddress.parse(addressList, false);
+            for(int i = 0; i < iaarray.length; ++i) {
+                String addressString = iaarray[i].getAddress();
+                MailAddress specialAddress = getSpecialAddress(addressString,
+                                                new String[] {"postmaster", "sender", "from", "reversePath", "unaltered", "to", "null"});
                 if (specialAddress != null) {
                     iaarray[i] = specialAddress.toInternetAddress();
-                } else {
-                    iaarray[i] = new InternetAddress(token);
                 }
-            } catch(Exception e) {
-                error = true;
-                log("Exception thrown in getTo() parsing: " + token, e);
             }
+        } catch (Exception e) {
+            throw new MessagingException("Exception thrown in getTo() parsing: " + addressList, e);
         }
-        if (error) {
-            throw new MessagingException("Failed to initialize \"to\" list; see mailet log.");
-        }
-        if (tokenCount == 0) {
+        if (iaarray.length == 0) {
             throw new MessagingException("Failed to initialize \"to\" list; empty <to> init parameter found.");
         }
 
