@@ -123,7 +123,7 @@ import org.apache.mailet.MailAddress;
  * <LI>a "setX(Mail, Tx, Mail)" method is called to change the correspondent "X" value
  * of the redirected Mail object, using the value returned by "gexX(Mail)".</LI>
  * </UL>
- * <P>Here follows the tipical pattern of those methods:</P>
+ * <P>Here follows the typical pattern of those methods:</P>
  * <PRE><CODE>
  *    ...
  *    Tx x;
@@ -952,7 +952,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         String head       = "";
         StringBuffer headBuffer = new StringBuffer(1024);
         while(heads.hasMoreElements()) {
-            headBuffer.append(heads.nextElement().toString()).append("\n");
+            headBuffer.append(heads.nextElement().toString()).append("\r\n");
         }
         head = headBuffer.toString();
         boolean all = false;
@@ -999,9 +999,9 @@ public abstract class AbstractRedirect extends GenericMailet {
             part.setText(sout.toString());
             part.setDisposition("inline");
             mpContent.addBodyPart(part);
-            if(getAttachmentType() != NONE) {
+            if(getAttachmentType(originalMail) != NONE) {
                 part = new MimeBodyPart();
-                switch(getAttachmentType()) {
+                switch(getAttachmentType(originalMail)) {
                     case HEADS: //HEADS:
                         part.setText(head);
                         break;
