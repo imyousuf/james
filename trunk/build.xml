@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.141 $  Committed on $Date: 2003/10/21 01:49:58 $ by: $Author: noel $
+ James build file $Revision: 1.142 $  Committed on $Date: 2004/02/19 10:12:34 $ by: $Author: hilmer $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -41,6 +41,15 @@ Legal:
 
     <!--
     ===================================================================
+    Set the properties for build tools directory
+    ===================================================================
+     -->
+     
+    <property name="tools.dir" value="tools"/>
+    <property name="tools.lib.dir" value="${tools.dir}/lib"/>
+
+    <!--
+    ===================================================================
     Set the classpath
     ===================================================================
     -->
@@ -72,10 +81,19 @@ Legal:
     </path>
 
     <path id="tools.class.path">
-      <path refid="project.class.path"/>
-      <pathelement location="${phoenix-client.jar}"/>
+        <fileset dir="${tools.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${phoenix.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
     </path>
+    
+    <taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
+        <classpath refid="tools.class.path"/>        
+    </taskdef>
 
+    
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="tools.class.path"/>
     </taskdef>
@@ -184,6 +202,20 @@ Legal:
 
     <!--
     ===================================================================
+                                   jmx 
+    ===================================================================
+    -->
+    <target name="prepare-mxinfo">
+       <phoenix-mxinfo destdir="${build.classes}">
+	  <fileset dir="${java.dir}">
+	    <include name="**" />
+	  </fileset>
+	  <mxinfo/>
+       </phoenix-mxinfo>
+    </target>
+
+    <!--
+    ===================================================================
                                    jdbc3 
     ===================================================================
     -->
@@ -198,7 +230,7 @@ Legal:
                                   Prepare target
     ===================================================================
     -->
-    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3"/>
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo"/>
 
     <!--
     ===================================================================

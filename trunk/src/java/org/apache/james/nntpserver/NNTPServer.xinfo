@@ -7,6 +7,11 @@
     <version>1.0</version>
   </block>
 
+  <!-- interfaces that may be exported to manange this block -->
+  <management-access-points>
+    <service name="org.apache.james.nntpserver.NNTPServerMBean"/>
+  </management-access-points>
+
   <dependencies>
     <dependency>
       <service name="org.apache.james.services.JamesConnectionManager" version="1.0"/>

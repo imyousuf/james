@@ -48,7 +48,7 @@ import org.apache.mailet.UsersRepository;
  *
  * @version 1.1.0, 06/02/2001
  */
-public class SMTPServer extends AbstractJamesService {
+public class SMTPServer extends AbstractJamesService implements SMTPServerMBean {
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API

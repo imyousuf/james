@@ -39,7 +39,7 @@ import org.apache.avalon.framework.service.Serviceable;
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Disposable {
+    implements Serviceable, Configurable, Initializable, Disposable, FetchSchedulerMBean {
 
     /**
      * Configuration object for this service
@@ -120,4 +120,12 @@ public class FetchScheduler
         }
     }
 
+    /**
+     * Describes whether this service is enabled by configuration.
+     *
+     * @return is the service enabled.
+     */
+    public final boolean isEnabled() {
+        return enabled;
+    }
 }
