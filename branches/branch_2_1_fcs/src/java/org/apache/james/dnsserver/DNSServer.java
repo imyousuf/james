@@ -209,7 +209,7 @@ public class DNSServer
                             .append(".");
                 getLogger().info(logBuffer.toString());
                 try {
-                    org.xbill.DNS.Address.getByName(hostname);
+                    getByName(hostname);
                     servers.add(hostname);
                 } catch (UnknownHostException uhe) {
                     // The original domain name is not a valid host,
@@ -386,7 +386,7 @@ public class DNSServer
                     final String nextHostname = (String)mxHosts.next();
                     InetAddress[] addrs = null;
                     try {
-                        addrs = org.xbill.DNS.Address.getAllByName(nextHostname);
+                        addrs = getAllByName(nextHostname);
                     } catch (UnknownHostException uhe) {
                         // this should never happen, since we just got
                         // this host from mxHosts, which should have
