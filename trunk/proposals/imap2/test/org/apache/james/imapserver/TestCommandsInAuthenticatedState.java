@@ -109,8 +109,8 @@ public class TestCommandsInAuthenticatedState
         suite.addTest( new TestCommandsInAuthenticatedState( "Logout" ) );
 
         // Valid in authenticated state
-        suite.addTest( new TestCommandsInAuthenticatedState( "ExamineInbox" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "SelectInbox" ) );
+        suite.addTest( new TestCommandsInAuthenticatedState( "AppendExamineInbox" ) );
+        suite.addTest( new TestCommandsInAuthenticatedState( "AppendSelectInbox" ) );
         suite.addTest( new TestCommandsInAuthenticatedState( "Create" ) );
         suite.addTest( new TestCommandsInAuthenticatedState( "ExamineEmpty" ) );
         suite.addTest( new TestCommandsInAuthenticatedState( "SelectEmpty" ) );
@@ -123,5 +123,4 @@ public class TestCommandsInAuthenticatedState
 
         return suite;
     }
-
 }

@@ -72,8 +72,7 @@ import java.util.*;
 public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     private ImapMailbox _mailbox;
     private boolean _readonly;
-    // TODO encapsulate
-    public boolean _sizeChanged;
+    private boolean _sizeChanged;
     private List _expungedMsns = Collections.synchronizedList(new LinkedList());
     private Map _modifiedFlags = Collections.synchronizedMap(new TreeMap());
 
@@ -122,32 +121,30 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         }
     }
 
-    public Map getFlagUpdates() throws MailboxException {
+    public List getFlagUpdates() throws MailboxException {
         if (_modifiedFlags.isEmpty()) {
-            return Collections.EMPTY_MAP;
+            return Collections.EMPTY_LIST;
         }
 
-        TreeMap retVal = new TreeMap();
-        retVal.putAll(_modifiedFlags);
+        List retVal = new ArrayList();
+        retVal.addAll(_modifiedFlags.values());
         _modifiedFlags.clear();
         return retVal;
     }
 
-    public void expunged(long uid) throws MailboxException {
+    public void expunged(int msn) {
         synchronized (_expungedMsns) {
-            int msn = getMsn(uid);
             _expungedMsns.add(new Integer(msn));
         }
     }
 
-    public void added(long uid) {
+    public void added(int msn) {
         _sizeChanged = true;
     }
 
-    public void flagsUpdated(long uid, Flags flags) throws MailboxException {
+    public void flagsUpdated(int msn, Flags flags, Long uid) {
         // This will overwrite any earlier changes
-        int msn = getMsn(uid);
-        _modifiedFlags.put(new Integer(msn), flags);
+        _modifiedFlags.put(new Integer(msn), new FlagUpdate(msn, uid, flags));
     }
 
     public String getName() {
@@ -166,8 +163,8 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _mailbox.getMessageCount();
     }
 
-    public int getRecentCount() {
-        return _mailbox.getRecentCount();
+    public int getRecentCount(boolean reset) {
+        return _mailbox.getRecentCount(reset);
     }
 
     public long getUidValidity() {
@@ -175,7 +172,24 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     }
 
     public int getFirstUnseen() {
-        return _mailbox.getFirstUnseen();
+        return correctForExpungedMessages(_mailbox.getFirstUnseen());
+    }
+
+    /**
+     * Adjust an actual mailbox msn for the expunged messages in this mailbox that have not
+     * yet been notified.
+     * TODO - need a test for this
+     */ 
+    private int correctForExpungedMessages(int absoluteMsn) {
+        int correctedMsn = absoluteMsn;
+        // Loop throught the expunged list backwards, adjusting the msn as we go.
+        for (int i = (_expungedMsns.size() - 1); i >= 0; i--) {
+            Integer expunged = (Integer) _expungedMsns.get(i);
+            if (expunged.intValue() <= absoluteMsn) {
+                correctedMsn++;
+            }
+        }
+        return correctedMsn;
     }
 
     public boolean isSelectable() {
@@ -230,16 +244,36 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return new IdRange[0];  //To change body of created methods use Options | File Templates.
     }
 
-    public void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException {
-        _mailbox.setFlags(flags, value, uid, silent);
+    public void setFlags(Flags flags, boolean value, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException {
+        _mailbox.setFlags(flags, value, uid, silentListener, addUid);
     }
 
-    public void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException {
-        _mailbox.replaceFlags(flags, uid, silent);
+    public void replaceFlags(Flags flags, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException {
+        _mailbox.replaceFlags(flags, uid, silentListener, addUid);
     }
 
     public void deleteAllMessages() {
         _mailbox.deleteAllMessages();
+    }
+
+    public boolean isSizeChanged() {
+        return _sizeChanged;
+    }
+
+    public void setSizeChanged(boolean sizeChanged) {
+        _sizeChanged = sizeChanged;
+    }
+    
+    static final class FlagUpdate {
+        int msn;
+        Long uid;
+        Flags flags;
+
+        public FlagUpdate(int msn, Long uid, Flags flags) {
+            this.msn = msn;
+            this.uid = uid;
+            this.flags = flags;
+        }
     }
 
 }

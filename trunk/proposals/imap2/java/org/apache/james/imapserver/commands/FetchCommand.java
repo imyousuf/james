@@ -84,7 +84,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -111,6 +111,10 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
         IdRange[] idSet = parser.parseIdRange( request );
         FetchRequest fetch = parser.fetchRequest( request );
         parser.endLine( request );
+        
+        if (useUids) {
+            fetch.addElement(FetchElement.UID);
+        }
 
         ImapMailbox mailbox = session.getSelected();
         long[] uids = mailbox.getMessageUids();
@@ -125,7 +129,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                 String msgData = outputMessage( fetch, imapMessage );
                 response.fetchResponse( msn, msgData );
                 if (imapMessage.getFlags().contains(Flags.Flag.RECENT)) {
-                    mailbox.setFlags(new Flags(Flags.Flag.RECENT), false, uid, true);
+                    mailbox.setFlags(new Flags(Flags.Flag.RECENT), false, uid, null, false);
                 }
             }
         }
@@ -140,7 +144,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
     {
 
         StringBuffer response = new StringBuffer();
-
+        
         List elements = fetch.getElements();
         for ( int i = 0; i < elements.size(); i++ ) {
             FetchElement fetchElement = ( FetchElement ) elements.get( i );

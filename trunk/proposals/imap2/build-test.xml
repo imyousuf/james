@@ -117,7 +117,7 @@ Legal:
     <!-- Run the full set of Imap tests against local components -->
     <target name="unit-tests" depends="compile"
             description="Run the full set of IMAP tests against local components.">
-        <junit fork="yes">
+        <junit fork="yes" failureproperty="unit-test.failed"  >
             <classpath>
                 <pathelement location="${build.test.classes}"/>
                 <path refid="test.class.path"/>
@@ -135,6 +135,8 @@ Legal:
             <test name="org.apache.james.imapserver.TestCompound"/>
             <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
         </junit>
+        
+        <fail if="unit-test.failed" message="One or more unit-tests failed"/>
     </target>
 
     <!-- Executes tests against a running instance of James -->
@@ -182,8 +184,8 @@ Legal:
     </target>
     
     <target name="copytests">
-        <mkdir dir="${build.dir}/tests"/>
-        <copy todir="${build.dir}/tests">
+        <mkdir dir="${build.test.classes}"/>
+        <copy todir="${build.test.classes}">
             <fileset dir="${test.dir}" includes="**/*.test"/>
         </copy>
     </target>

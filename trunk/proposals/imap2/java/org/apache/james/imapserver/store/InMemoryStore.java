@@ -82,7 +82,7 @@ import org.apache.james.imapserver.ImapConstants;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled
@@ -332,6 +332,11 @@ public class InMemoryStore
             return count;
         }
 
+        /**
+         * Returns the 1-based index of the first unseen message. Unless there are outstanding
+         * expunge responses in the ImapSessionMailbox, this will correspond to the MSN for
+         * the first unseen.
+         */ 
         public int getFirstUnseen()
         {
             for (int i = 0; i < mailMessages.size(); i++) {
@@ -343,9 +348,19 @@ public class InMemoryStore
             return -1;
         }
 
-        public int getRecentCount()
+        public int getRecentCount(boolean reset)
         {
-            return 0;
+            int count = 0;
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
+                if (message.getFlags().contains(Flags.Flag.RECENT)) {
+                    count++;
+                    if (reset) {
+                        message.getFlags().remove(Flags.Flag.RECENT);
+                    }
+                }
+            }
+            return count;
         }
 
         public int getMsn( long uid ) throws MailboxException
@@ -379,6 +394,7 @@ public class InMemoryStore
 //            flags.setRecent(true);
             SimpleImapMessage imapMessage = new SimpleImapMessage( message, flags,
                                                        internalDate, uid );
+            imapMessage.getFlags().add(Flags.Flag.RECENT);
             setupLogger( imapMessage );
 
             mailMessages.add(imapMessage);
@@ -388,55 +404,57 @@ public class InMemoryStore
             synchronized (_mailboxListeners) {
                 for (int j = 0; j < _mailboxListeners.size(); j++) {
                     MailboxListener listener = (MailboxListener) _mailboxListeners.get(j);
-                    listener.added(uid);
+                    listener.added(newMsn);
                 }
             }
 
             return uid;
         }
 
-        public void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException {
-            SimpleImapMessage message = getMessage(uid);
-            if (message == null) {
-                throw new MailboxException( "Message doesn't exist" );
-            }
-
+        public void setFlags(Flags flags, boolean value, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException {
+            int msn = getMsn(uid);
+            SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(msn - 1);
+            
             if (value) {
                 message.getFlags().add(flags);
             } else {
                 message.getFlags().remove(flags);
             }
 
-            // TODO - this doesn't send silent updates to *any* listeners
-            // I think "silence" is supposed to be restricted to the session sending the command?.
-            if (! silent) {
-                notifyFlagUpdate(uid, message.getFlags());
+            Long uidNotification = null;
+            if (addUid) {
+                uidNotification = new Long(uid);
             }
+            notifyFlagUpdate(msn, message.getFlags(), uidNotification, silentListener);
         }
-
-        private void notifyFlagUpdate(long uid, Flags flags) throws MailboxException {
-            synchronized(_mailboxListeners) {
-                for (int i = 0; i < _mailboxListeners.size(); i++) {
-                    MailboxListener listener = (MailboxListener) _mailboxListeners.get(i);
-
-                    listener.flagsUpdated(uid, flags);
-                }
-            }
-        }
-
-        public void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException {
-            SimpleImapMessage message = getMessage(uid);
-            if (message == null) {
-                throw new MailboxException( "Message doesn't exist" );
-            }
+        
+        public void replaceFlags(Flags flags, long uid, MailboxListener silentListener, boolean addUid) throws MailboxException {
+            int msn = getMsn(uid);
+            SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(msn - 1);
             message.getFlags().remove(MessageFlags.ALL_FLAGS);
             message.getFlags().add(flags);
 
-            if (! silent) {
-                notifyFlagUpdate(uid, message.getFlags());
+            Long uidNotification = null;
+            if (addUid) {
+                uidNotification = new Long(uid);
             }
+            notifyFlagUpdate(msn, message.getFlags(), uidNotification, silentListener);
         }
 
+        private void notifyFlagUpdate(int msn, Flags flags, Long uidNotification, MailboxListener silentListener) {
+            synchronized(_mailboxListeners) {
+                for (int i = 0; i < _mailboxListeners.size(); i++) {
+                    MailboxListener listener = (MailboxListener) _mailboxListeners.get(i);
+                    
+                    if (listener == silentListener) {
+                        continue;
+                    }
+
+                    listener.flagsUpdated(msn, flags, uidNotification);
+                }
+            }
+        }
+        
         public void deleteAllMessages() {
             mailMessages.clear();
         }
@@ -460,7 +478,7 @@ public class InMemoryStore
             }
             return null;
         }
-
+        
         public long[] getMessageUids()
         {
             long[] uids = new long[ mailMessages.size() ];
@@ -471,10 +489,9 @@ public class InMemoryStore
             return uids;
         }
 
-        private void deleteMessage( long uid )
+        private void deleteMessage( int msn )
         {
-            SimpleImapMessage message = getMessage(uid);
-            mailMessages.remove(message);
+            mailMessages.remove(msn - 1);
         }
 
         public long[] search(SearchTerm searchTerm) {
@@ -516,27 +533,24 @@ public class InMemoryStore
         }
 
         public void expunge() throws MailboxException {
-
-            long[] allUids = getMessageUids();
-            for (int i = 0; i < allUids.length; i++) {
-                long uid = allUids[i];
-                SimpleImapMessage message = getMessage(uid);
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
                 if (message.getFlags().contains(Flags.Flag.DELETED)) {
-                    expungeMessage(uid);
+                    expungeMessage(i + 1);
                 }
             }
         }
 
-        private void expungeMessage(long uid) throws MailboxException {
+        private void expungeMessage(int msn) {
             // Notify all the listeners of the pending delete
             synchronized (_mailboxListeners) {
                 for (int j = 0; j < _mailboxListeners.size(); j++) {
                     MailboxListener expungeListener = (MailboxListener) _mailboxListeners.get(j);
-                    expungeListener.expunged(uid);
+                    expungeListener.expunged(msn);
                 }
             }
 
-            deleteMessage(uid);
+            deleteMessage(msn);
         }
 
         public void addListener(MailboxListener listener) {

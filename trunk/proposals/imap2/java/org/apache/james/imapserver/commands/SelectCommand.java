@@ -71,7 +71,7 @@ import org.apache.james.imapserver.ImapSessionMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 class SelectCommand extends AuthenticatedStateCommand
 {
@@ -89,19 +89,20 @@ class SelectCommand extends AuthenticatedStateCommand
 
         session.deselect();
 
-        selectMailbox(mailboxName, session);
+        final boolean isExamine = ( this instanceof ExamineCommand );
+        selectMailbox(mailboxName, session, isExamine);
 
         ImapSessionMailbox mailbox = session.getSelected();
         response.flagsResponse( mailbox.getPermanentFlags() );
         response.existsResponse( mailbox.getMessageCount() );
-        response.recentResponse( mailbox.getRecentCount() );
+        final boolean resetRecent = ! isExamine;
+        response.recentResponse( mailbox.getRecentCount(resetRecent) );
         response.okResponse( "UIDVALIDITY " + mailbox.getUidValidity(), null );
 
         int firstUnseen = mailbox.getFirstUnseen();
         if ( firstUnseen > 0 ) {
-            int msnUnseen = mailbox.getMsn( firstUnseen );
-            response.okResponse( "UNSEEN " + msnUnseen,
-                                 "Message " + msnUnseen + " is the first unseen" );
+            response.okResponse( "UNSEEN " + firstUnseen,
+                                 "Message " + firstUnseen + " is the first unseen" );
         }
         else {
             response.okResponse( null, "No messages unseen" );
@@ -117,14 +118,13 @@ class SelectCommand extends AuthenticatedStateCommand
         }
     }
 
-    private boolean selectMailbox(String mailboxName, ImapSession session) throws MailboxException {
+    private boolean selectMailbox(String mailboxName, ImapSession session, boolean readOnly) throws MailboxException {
         ImapMailbox mailbox = getMailbox( mailboxName, session, true );
 
         if ( !mailbox.isSelectable() ) {
             throw new MailboxException( "Nonselectable mailbox." );
         }
 
-        boolean readOnly = ( this instanceof ExamineCommand );
         session.setSelected( mailbox, readOnly );
         return readOnly;
     }

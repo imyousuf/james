@@ -1,14 +1,6 @@
-C: abcd SELECT inbox
-S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
-S: \* \d+ EXISTS
-S: \* \d+ RECENT
-S: \* OK \[UIDVALIDITY \d+\]
-S: (\* OK \[UNSEEN \d+\] \d+ is the first unseen)|(\* OK No messages unseen)
-S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
-S: abcd OK \[READ-WRITE\] SELECT completed
-
+# try to delete the select mailbox (don't worry about failures
 C: a1 DELETE selected
-S: a1 OK DELETE completed
+S: .*
 
 C: a1 SELECT selected
 S: a1 NO SELECT failed. No such mailbox.

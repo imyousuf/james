@@ -68,7 +68,7 @@ import junit.framework.TestSuite;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class TestOtherCommandsInSelectedState
         extends TestCommandsInAuthenticatedState
@@ -89,6 +89,12 @@ public class TestOtherCommandsInSelectedState
         addTestFile( "SelectInbox.test", preElements );
     }
 
+    protected void addCloseInbox()
+    {
+        postElements.CL( "a CLOSE");
+        postElements.SL( ".*", "TestOtherCommandsInSelectedState.java:96");
+    }
+    
     /**
      * Provides all tests which should be run in the selected state. Each test name
      * corresponds to a protocol session file.
