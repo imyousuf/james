@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.19 $
- * Committed on $Date: 2002/04/18 14:14:53 $ by: $Author: serge $
+ * This is $Revision: 1.20 $
+ * Committed on $Date: 2002/04/18 14:45:47 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -59,6 +59,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private String gatewayPort = null;  //the port of the gateway server to send all email to
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
+    private boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
     public void init() throws MessagingException {
         try {
@@ -405,6 +406,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     // Need to synchronize to get object monitor for notifyAll()
     public synchronized void destroy() {
+        //Mark flag so threads from this mailet stop themselves
+        destroyed = true;
         //Wake up all threads from waiting for an accept
         for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
             Thread t = (Thread)i.next();
@@ -437,7 +440,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             props.put("mail.smtp.port", gatewayPort);
         }
         Session session = Session.getInstance(props, null);
-        while (!Thread.currentThread().interrupted()) {
+        while (!Thread.currentThread().interrupted() && !destroyed) {
             try {
                 String key = outgoing.accept(delayTime);
                 try {
