@@ -55,8 +55,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.20 $
- * Committed on $Date: 2002/04/05 05:22:29 $ by: $Author: serge $
+ * This is $Revision: 1.21 $
+ * Committed on $Date: 2002/04/17 04:14:45 $ by: $Author: serge $
 
  */
 public class James
@@ -339,10 +339,23 @@ public class James
         return names.iterator();
     }
 
+    /**
+     * This generates a response to the Return-Path address, or the address of
+     * the message's sender if the Return-Path is not available.  Note that
+     * this is different than a mail-client's reply, which would use the
+     * Reply-To or From header. This will send the bounce with the server's
+     * postmaster as the sender.
+     */
     public void bounce(Mail mail, String message) throws MessagingException {
         bounce(mail, message, getPostmaster());
     }
 
+    /**
+     * This generates a response to the Return-Path address, or the address of
+     * the message's sender if the Return-Path is not available.  Note that
+     * this is different than a mail-client's reply, which would use the
+     * Reply-To or From header.
+     */
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         MimeMessage orig = mail.getMessage();
         //Create the reply message
@@ -384,6 +397,9 @@ public class James
         sendMail(bouncer, recipients, reply);
     }
 
+    /**
+     * Returns whether that account has a local inbox on this server
+     */
     public boolean isLocalUser(String name) {
         if (ignoreCase) {
             return localusers.containsCaseInsensitive(name);
@@ -392,6 +408,9 @@ public class James
         }
     }
 
+    /**
+     * Returns the address of the postmaster for this server.
+     */
     public MailAddress getPostmaster() {
         return postmaster;
     }
