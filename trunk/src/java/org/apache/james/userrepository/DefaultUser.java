@@ -19,8 +19,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/19 18:57:08 $
- * $Revision: 1.5 $
+ * @version CVS $Revision: 1.6 $
  */
 
 public class DefaultUser implements User, Serializable {

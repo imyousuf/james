@@ -14,8 +14,7 @@ package org.apache.james;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.6 $
- * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.7 $
  */
 public class Constants {
 

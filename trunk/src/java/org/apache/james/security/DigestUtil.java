@@ -20,8 +20,7 @@ import java.util.Locale;
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/15 21:15:51 $
- * $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class DigestUtil {
 

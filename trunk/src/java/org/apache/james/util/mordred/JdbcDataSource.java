@@ -46,9 +46,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.13 $ $Date: 2002/08/16 21:06:32 $
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
+ * @version CVS $Revision: 1.14 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled

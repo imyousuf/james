@@ -19,12 +19,10 @@ import org.apache.avalon.cornerstone.services.store.Store;
  * <p>This configuration, including any included child elements, is used to 
  * configure the returned component.
  *
- * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2002/08/16 22:00:07 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.5 $
  */
 public interface MailStore 
     extends Store {

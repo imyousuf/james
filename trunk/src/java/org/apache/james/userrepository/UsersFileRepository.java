@@ -34,12 +34,11 @@ import java.util.Iterator;
  *              model="SYNCHRONOUS"/>
  * Requires a logger called UsersRepository.
  *
- * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/23 08:00:29 $
- * $Revision: 1.8 $
+ * @version CVS $Revision: 1.9 $
+ *
  */
 public class UsersFileRepository
     extends AbstractLogEnabled

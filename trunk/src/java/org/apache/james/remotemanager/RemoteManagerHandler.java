@@ -45,8 +45,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/23 08:00:29 $
- * $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  *
  */
 public class RemoteManagerHandler

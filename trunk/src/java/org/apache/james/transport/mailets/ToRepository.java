@@ -24,8 +24,7 @@ import org.apache.mailet.Mail;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2002/08/23 08:00:29 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.8 $
  */
 public class ToRepository extends GenericMailet {
 

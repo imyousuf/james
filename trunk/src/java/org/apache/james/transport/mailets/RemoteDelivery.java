@@ -53,8 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.25 $
- * Committed on $Date: 2002/09/14 07:25:00 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.26 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 

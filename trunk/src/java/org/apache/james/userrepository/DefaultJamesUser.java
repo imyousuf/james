@@ -16,8 +16,7 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/17 18:33:28 $
- * $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 public class DefaultJamesUser 
