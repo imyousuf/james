@@ -53,7 +53,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.44 $
+ * @version This is $Revision: 1.45 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -627,10 +627,12 @@ public class SMTPHandler
             responseString = clearResponseBuffer();
             if (theConfigData.isAuthRequired()) {
                 writeLoggedResponse(responseString);
-                responseString = "250 AUTH LOGIN PLAIN";
+                responseString = "250-AUTH LOGIN PLAIN";
+                writeLoggedResponse(responseString);
+                responseString = "250 AUTH=LOGIN PLAIN";
             }
-        }
             writeLoggedFlushedResponse(responseString);
+        }
     }
 
     /**
@@ -671,7 +673,9 @@ public class SMTPHandler
             responseString = clearResponseBuffer();
             if (theConfigData.isAuthRequired()) {
                 writeLoggedResponse(responseString);
-                responseString = "250 AUTH LOGIN PLAIN";
+                responseString = "250-AUTH LOGIN PLAIN";
+                writeLoggedResponse(responseString);
+                responseString = "250 AUTH=LOGIN PLAIN";
             }
             writeLoggedFlushedResponse(responseString);
         }
