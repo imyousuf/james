@@ -18,6 +18,7 @@ import org.apache.mail.Mail;
 import org.apache.avalon.blocks.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
+import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
 
 import javax.mail.MessagingException;
@@ -35,7 +36,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private Logger logger;
     private MailServer mailServer;
     private MailRepository userInbox;
-    private UserManager userManager;
+    private UsersRepository userManager;
     private TimeServer timeServer;
 
     private Socket socket;
@@ -79,7 +80,8 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-        this.userManager = (UserManager) comp.getComponent(Constants.USERS_MANAGER);
+        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
+        userManager = (UsersRepository) manager.getUserRepository("LocalUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
         this.servername = (String) context.get(Constants.HELO_NAME);
