@@ -159,6 +159,6 @@
 
   <!-- The ThreadManager block -->
   <block name="thread-manager"
-         class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" />
+         class="org.apache.james.util.thread.DefaultThreadManager" />
 
 </assembly>
