@@ -50,7 +50,7 @@
   the protocol and server type) thru the ServletRequest object and creates some output and
   sends it to its destination using the ServletResponse object.</p>
   <p align="left">Note: this framework doesn't specify the location of the servlet, the way
-  to map a servlet to a particula resource, the way to create the request and response and,
+  to map a servlet to a particular resource, the way to create the request and response and,
   more important, where to send the response to!</p>
   <p align="left">This is the key to the ability to enhance existing classes and solutions
   without requiring changes in the generic servlet&nbsp; package: while HTTPServlets send
@@ -87,9 +87,11 @@
   mail system. Our mail server is listening on the SMTP port on the host <u>java.apache.org</u>.
   We want the address <u>james-dev@java.apache.org</u> to be the Apache James development
   mailing list.</p>
-  <p align="left">Let's write the MailingListServlet as follows:</p>
+  <p align="left">Let's write the MailingListServlet as follows (note that since we are not
+  allowed to use the <u>javax</u> package, we will use <u>org.apache</u> until JavaSoft
+  incorporates them officially into the servlet API framework, if this ever happens)</p>
   <div align="left"><pre>import javax.servlet.*;
-import javax.servlet.mail.*;
+import org.apache.servlet.mail.*;
 import java.io.*;
 
 /**
@@ -212,10 +214,10 @@ public String getServletInfo() {
   <p align="left">The javadoc generated documents for the proposal may be found <a
   href="../javadoc/index.html">here</a>.</p>
   <p align="left">A package containing the source code may be found <a
-  href="../MailServlets_working_draft.zip">here</a>. You may not redistribute, modify or use
-  these classes in any form whatsoever since these classes contain some draft
-  &quot;javax.servlet&quot; classes that must be approuved by JavaSoft before release or
-  redistribution. These source code are intended to be just a review and a working draft.</p>
+  href="http://java.apache.org/james/mail_servlets_working_draft.zip">here</a>. You may not
+  redistribute, modify or use these classes in any form whatsoever without explicit
+  permissions from the authors. The source code are intended to be just a review and a
+  working draft and will be subjected to changes in the future.</p>
 </blockquote>
 
 <h3>Future directions</h3>
@@ -224,15 +226,16 @@ public String getServletInfo() {
   <p>One of the <a href="http://java.apache.org/">Java Apache Project</a> goals is to create
   a family of enterprise servers using pure Java technologies. Apache JServ, Apache James,
   Apache Jam will try to share common code and resources as well as to propose common
-  solutions such as servlet extentions and so on.</p>
+  solutions such as servlet extentions.</p>
   <p>This mail servlet specification is currently just a working draft and will be subjected
   to changes directly by JavaSoft, by other servlet group interests or by the Apache James
   development team before it's definately standardized by inclusion in the JavaSoft Servlet
-  API specifications. In case this cannot happen, the &quot;javax.servlet.mail&quot; package
-  will be renamed &quot;org.apache.servlet.mail&quot; and ruled by the Apache James
-  development team (even if we don't wish this to happen).</p>
-  <p>The authors would like to thanks JavaSoft and James Duncan Davidson for reviewing this
-  proposal and for the work they are doing to make the servlet platform a truly open one.</p>
+  API specifications. In case this cannot happen, the &quot;org.apache.servlet.mail&quot;
+  package will be ruled by the Apache James development team (even if we don't wish this to
+  happen).</p>
+  <p>The authors would like to thanks James Duncan Davidson (JavaSoft Servlet API lead) for
+  reviewing this proposal and for the work he is doing to make the servlet platform a truly
+  open one.</p>
 </blockquote>
 </body>
 </html>
