@@ -352,7 +352,6 @@ public class AvalonMailRepository
             }
         } catch (Exception e) {
             getLogger().error("Exception storing mail: " + e);
-            e.printStackTrace();
             throw new MessagingException("Exception caught while storing Message Container: " + e);
         }
     }

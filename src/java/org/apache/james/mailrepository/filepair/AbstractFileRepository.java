@@ -186,7 +186,6 @@ public abstract class AbstractFileRepository
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw e;
         }
 

@@ -170,7 +170,6 @@ public class MimeMessageWrapper
                 IOUtil.shutdownStream(in);
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
         }
     }
@@ -197,7 +196,6 @@ public class MimeMessageWrapper
 
             message = new MimeMessage(session, in);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
         } finally {
             IOUtil.shutdownStream(in);
@@ -577,7 +575,6 @@ public class MimeMessageWrapper
             }
             return counter.getLineNumber();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             return -1;
         } finally {
             IOUtil.shutdownStream(in);

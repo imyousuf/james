@@ -88,7 +88,7 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.20.4.8 $ $Date: 2003/06/19 16:16:37 $
+ * @version CVS $Revision: 1.20.4.9 $ $Date: 2003/10/20 06:03:15 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -260,7 +260,6 @@ public class JamesSpoolManager
                         }
                         System.err.println("Unable to init matcher " + matcherName);
                         System.err.println("Check spool manager logs for more details.");
-                        ex.printStackTrace();
                         //System.exit(1);
                         throw ex;
                     }
@@ -288,7 +287,6 @@ public class JamesSpoolManager
                         }
                         System.err.println("Unable to init mailet " + mailetClassName);
                         System.err.println("Check spool manager logs for more details.");
-                        ex.printStackTrace();
                         //System.exit(1);
                         throw ex;
                     }
@@ -391,13 +389,13 @@ public class JamesSpoolManager
                 }
                 mail = null;
             } catch (Throwable e) {
-                e.printStackTrace();
                 if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Exception in JamesSpoolManager.run "
+                    getLogger().error("Exception processing " + key + " in JamesSpoolManager.run "
                                       + e.getMessage(), e);
-                }
+				}
             }
-        }
+		}
+		
     }
 
     /**

@@ -67,7 +67,7 @@ import java.io.*;
  *
  * This is used from {@link BaseCommand#generateMail}
  *
- * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @version CVS $Revision: 1.1.2.3 $ $Date: 2003/10/20 06:03:16 $
  * @since 2.2.0
  */
 public class MailDataSource implements DataSource {
@@ -83,15 +83,12 @@ public class MailDataSource implements DataSource {
     /**
      * Create a datasource from an input stream
      */
-    public MailDataSource(InputStream inputStream, String contentType) {
+    public MailDataSource(InputStream inputStream, String contentType) throws IOException {
         this.contentType = contentType;
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            copyStream(inputStream, baos);
-            data = baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        copyStream(inputStream, baos);
+        data = baos.toByteArray();
     }
 
     /**
@@ -105,13 +102,9 @@ public class MailDataSource implements DataSource {
     /**
      * Create a datasource from a String
      */
-    public MailDataSource(String data, String contentType) {
+    public MailDataSource(String data, String contentType) throws UnsupportedEncodingException {
         this.contentType = contentType;
-        try {
-            this.data = data.getBytes(DEFAULT_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        this.data = data.getBytes(DEFAULT_ENCODING);
     }
 
     /**

@@ -85,7 +85,7 @@ import java.util.*;
  *
  * This clas is a dummy for the proposal!
  *
- * @version This is $Revision: 1.9.4.3 $
+ * @version This is $Revision: 1.9.4.4 $
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
@@ -196,10 +196,8 @@ public class UsersLDAPRepository
         try {
             ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
         } catch (Exception e) {
-            e.getMessage();
-            e.printStackTrace();
+            getLogger().error("Exception creating InitialDirContext: ", e);
         }
-
 
         getLogger().info("Initial context initialized from " + baseURL);
     }
@@ -255,8 +253,7 @@ public class UsersLDAPRepository
                 getLogger().info("Created new LDAP node: " + destination);
             }
         } catch (NamingException e) {
-            System.out.println("Problem with child nodes " + e.getMessage());
-            e.printStackTrace();
+            getLogger().error("Problem with child nodes " + e.getMessage(), e);
         }
 
         return destination;
