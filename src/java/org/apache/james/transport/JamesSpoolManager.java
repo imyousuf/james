@@ -41,15 +41,21 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.13 $
- * Committed on $Date: 2002/08/18 07:27:51 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.14 $
+ * Committed on $Date: 2002/08/23 04:43:48 $ by: $Author: pgoldstein $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
     implements Contextualizable, Composable, Configurable, Initializable,
                Runnable, Disposable, Component {
 
+    /**
+     * Whether 'deep debugging' is turned on.
+     *
+     * TODO: Shouldn't this be false by default?
+     */
     private final static boolean DEEP_DEBUG = true;
+
     private DefaultComponentManager compMgr;
     //using implementation as we need put method.
     private Configuration conf;
