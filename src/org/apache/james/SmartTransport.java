@@ -13,16 +13,16 @@ import java.util.*;
  * @author: Serge Knystautas <sergek@lokitech.com>
  */
 public class SmartTransport implements Component {
-	private Resolver resolver;
-	private Cache cache;
-	private byte dnsCredibility;
+    private Resolver resolver;
+    private Cache cache;
+    private byte dnsCredibility;
 
 /**
  * Simplest constructor.  Assumes localhost is a DNS server
  * Creation date: (3/16/00 6:13:04 PM)
  */
 public SmartTransport() throws UnknownHostException {
-	this ("127.0.0.1");
+    this ("127.0.0.1");
 }
 /**
  * Assumes NONAUTH_ANSWER is ok
@@ -30,7 +30,7 @@ public SmartTransport() throws UnknownHostException {
  * @param dnsServers java.lang.String
  */
 public SmartTransport(String dnsServers) throws UnknownHostException {
-	this (dnsServers, false);
+    this (dnsServers, false);
 }
 /**
  * Creates SmartTransport based on servers and whether requires authoritative answers
@@ -39,16 +39,16 @@ public SmartTransport(String dnsServers) throws UnknownHostException {
  * @param authority boolean
  */
 public SmartTransport(String dnsServers, boolean authoritative) throws UnknownHostException {
-	StringTokenizer serverTokenizer = new StringTokenizer (dnsServers, ", ", false);
-	String servers[] = new String [serverTokenizer.countTokens ()];
-	for (int i = 0; i < servers.length; i++) {
-		servers[i] = serverTokenizer.nextToken ();
-	}
-	resolver = new ExtendedResolver (servers);
+    StringTokenizer serverTokenizer = new StringTokenizer (dnsServers, ", ", false);
+    String servers[] = new String [serverTokenizer.countTokens ()];
+    for (int i = 0; i < servers.length; i++) {
+        servers[i] = serverTokenizer.nextToken ();
+    }
+    resolver = new ExtendedResolver (servers);
 
-	dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
+    dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
-	cache = new Cache ();
+    cache = new Cache ();
 }
 /**
  * Internal dns lookup on host name (using MX records), returned as Vector, sorted by priority
@@ -57,35 +57,35 @@ public SmartTransport(String dnsServers, boolean authoritative) throws UnknownHo
  * @param name java.lang.String
  */
 private Collection dnsLookup(String name) {
-	Record answers[] = rawDNSLookup(name, false);
+    Record answers[] = rawDNSLookup(name, false);
 
-	Vector servers = new Vector ();
-	if (answers == null) {
-		servers.addElement (name);
-    	return servers;
-	}
+    Vector servers = new Vector ();
+    if (answers == null) {
+        servers.addElement (name);
+        return servers;
+    }
 
-	MXRecord mxAnswers[] = new MXRecord[answers.length];
-	for (int i = 0; i < answers.length; i++) {
-		mxAnswers[i] = (MXRecord)answers[i];
-	}
+    MXRecord mxAnswers[] = new MXRecord[answers.length];
+    for (int i = 0; i < answers.length; i++) {
+        mxAnswers[i] = (MXRecord)answers[i];
+    }
 
-	Comparator prioritySort = new Comparator () {
-		public int compare (Object a, Object b) {
-			MXRecord ma = (MXRecord)a;
-			MXRecord mb = (MXRecord)b;
-			return mb.getPriority () - ma.getPriority ();
-		}
-	};
-	Arrays.sort (mxAnswers, prioritySort);
+    Comparator prioritySort = new Comparator () {
+        public int compare (Object a, Object b) {
+            MXRecord ma = (MXRecord)a;
+            MXRecord mb = (MXRecord)b;
+            return mb.getPriority () - ma.getPriority ();
+        }
+    };
+    Arrays.sort (mxAnswers, prioritySort);
 
-	for (int i = 0; i < mxAnswers.length; i++) {
-		servers.addElement (mxAnswers[i].getTarget ().toString ());
-	}
-	//If we found no results, we'll add the original domain name
-	if (servers.size () == 0)
-		servers.addElement (name);
-	return servers;
+    for (int i = 0; i < mxAnswers.length; i++) {
+        servers.addElement (mxAnswers[i].getTarget ().toString ());
+    }
+    //If we found no results, we'll add the original domain name
+    if (servers.size () == 0)
+        servers.addElement (name);
+    return servers;
 }
 /**
  * Returns MX records for a namestring
@@ -94,60 +94,60 @@ private Collection dnsLookup(String name) {
  * @param name java.lang.String
  */
 private Record[] rawDNSLookup(String namestr, boolean querysent) {
-	Name name = new Name(namestr);
-	short type = Type.MX;
-	short dclass = DClass.IN;
+    Name name = new Name(namestr);
+    short type = Type.MX;
+    short dclass = DClass.IN;
 
-	Record [] answers;
-	int answerCount = 0, n = 0;
-	Enumeration e;
+    Record [] answers;
+    int answerCount = 0, n = 0;
+    Enumeration e;
 
-	SetResponse cached = cache.lookupRecords(name, type, dclass, dnsCredibility);
-	if (cached.isSuccessful()) {
-		RRset [] rrsets = cached.answers();
-		answerCount = 0;
-		for (int i = 0; i < rrsets.length; i++)
-			answerCount += rrsets[i].size();
+    SetResponse cached = cache.lookupRecords(name, type, dclass, dnsCredibility);
+    if (cached.isSuccessful()) {
+        RRset [] rrsets = cached.answers();
+        answerCount = 0;
+        for (int i = 0; i < rrsets.length; i++)
+            answerCount += rrsets[i].size();
 
-		answers = new Record[answerCount];
+        answers = new Record[answerCount];
 
-		for (int i = 0; i < rrsets.length; i++) {
-			e = rrsets[i].rrs();
-			while (e.hasMoreElements()) {
-				Record r = (Record)e.nextElement();
-				answers[n++] = r;
-			}
-		}
-	}
-	else if (cached.isNegative()) {
-		return null;
-	}
-	else if (querysent) {
-		return null;
-	}
-	else {
-		Record question = Record.newRecord(name, type, dclass);
-		org.xbill.DNS.Message query = org.xbill.DNS.Message.newQuery(question);
-		org.xbill.DNS.Message response;
+        for (int i = 0; i < rrsets.length; i++) {
+            e = rrsets[i].rrs();
+            while (e.hasMoreElements()) {
+                Record r = (Record)e.nextElement();
+                answers[n++] = r;
+            }
+        }
+    }
+    else if (cached.isNegative()) {
+        return null;
+    }
+    else if (querysent) {
+        return null;
+    }
+    else {
+        Record question = Record.newRecord(name, type, dclass);
+        org.xbill.DNS.Message query = org.xbill.DNS.Message.newQuery(question);
+        org.xbill.DNS.Message response;
 
-		try {
-			response = resolver.send(query);
-		}
-		catch (Exception ex) {
-			return null;
-		}
+        try {
+            response = resolver.send(query);
+        }
+        catch (Exception ex) {
+            return null;
+        }
 
-		short rcode = response.getHeader().getRcode();
-		if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN)
-			cache.addMessage(response);
+        short rcode = response.getHeader().getRcode();
+        if (rcode == Rcode.NOERROR || rcode == Rcode.NXDOMAIN)
+            cache.addMessage(response);
 
-		if (rcode != Rcode.NOERROR)
-			return null;
+        if (rcode != Rcode.NOERROR)
+            return null;
 
-		return rawDNSLookup(namestr, true);
-	}
+        return rawDNSLookup(namestr, true);
+    }
 
-	return answers;
+    return answers;
 }
 /**
  * Sends the MimeMessage to the array of recipients.
@@ -156,28 +156,28 @@ private Record[] rawDNSLookup(String namestr, boolean querysent) {
  * @param recipients javax.mail.internet.InternetAddress[]
  */
 public void sendMessage(MimeMessage message, InternetAddress[] recipients) throws MessagingException {
-	if (recipients.length == 0)
-		return;
-	String host = recipients[0].toString ();
-	host = host.substring (host.indexOf ("@") + 1);
+    if (recipients.length == 0)
+        return;
+    String host = recipients[0].getAddress();
+    host = host.substring (host.indexOf ("@") + 1);
 
-	//Lookup the possible targets
-	for (Iterator i = dnsLookup(host).iterator(); i.hasNext();) {
-		try {
-			String outgoingmailserver = i.next().toString ();
-			URLName urlname = new URLName("smtp://" + outgoingmailserver);
+    //Lookup the possible targets
+    for (Iterator i = dnsLookup(host).iterator(); i.hasNext();) {
+        try {
+            String outgoingmailserver = i.next().toString ();
+            URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
-			Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
+            Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
 
-			transport.connect ();
-			transport.sendMessage(message, recipients);
-			transport.close ();
-			return;
-		} catch (MessagingException me) {
-			if (!i.hasNext())
-				throw me;
-		}
-	}
-	throw new MessagingException("No route found to " + host);
+            transport.connect ();
+            transport.sendMessage(message, recipients);
+            transport.close ();
+            return;
+        } catch (MessagingException me) {
+            if (!i.hasNext())
+                throw me;
+        }
+    }
+    throw new MessagingException("No route found to " + host);
 }
 }
