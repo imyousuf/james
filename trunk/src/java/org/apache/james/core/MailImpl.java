@@ -25,6 +25,7 @@ import java.util.HashSet;
  * Wrap a MimeMessage adding routing informations (from SMTP) and same simple API.
  * @author Federico Barbieri <scoobie@systemy.it>
  * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
  * @version 0.9
  */
 public class MailImpl implements Mail {
@@ -143,8 +144,6 @@ public class MailImpl implements Mail {
      * documentation of MimeMessage.getSize().</p>
      *
      * @return approximate size of full message including headers.
-     *
-     * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
      */
     public long getMessageSize() throws MessagingException {
         //If we have a MimeMessageWrapper, then we can ask it for just the

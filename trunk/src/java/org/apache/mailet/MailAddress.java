@@ -48,6 +48,7 @@ import javax.mail.internet.ParseException;
  * @author Roberto Lo Giacco <rlogiacco@mail.com>
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Gabriel Bucher <gabriel.bucher@razor.ch>
+ * @author Stuart Roebuck <stuart.roebuck@adolos.com>
  */
 public class MailAddress implements java.io.Serializable {
     //We hardcode the serialVersionUID so that from James 1.2 on,
@@ -208,7 +209,6 @@ public class MailAddress implements java.io.Serializable {
      * for separate object instances.
      *
      * @return the hashcode.
-     * @author Stuart Roebuck <stuart.roebuck@adolos.com>
      */
     public int hashCode() {
         return toString().toLowerCase().hashCode();
