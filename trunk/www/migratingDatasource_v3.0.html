@@ -1,9 +1,9 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache James - Apache Software License - Java Mail and News server, SMTP POP3 NNTP</title>
+<title>Apache James - Migrating from Avalon database connections to DataSource - Java Mail and News server, SMTP POP3 NNTP</title>
 <meta value="Serge Knystautas" name="author">
-<meta value="sergek@lokitech.com" name="email">
+<meta value="serge@apache.org" name="email">
 <meta content="mail,email,news,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
 <meta content="Free (Open Source) Java mail server (mailserver) from Apache. Providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
 <meta content="ALL" name="ROBOTS">
@@ -146,18 +146,24 @@
 <!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
 <tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Apache%20Software%20License"><strong>Apache Software License</strong></a></font></td>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Migrating%20from%20Avalon%20database%20connections%20to%20DataSource"><strong>Migrating from Avalon database connections to DataSource</strong></a></font></td>
 </tr>
 <tr>
 <td>
 <blockquote>
 
+
 <p>
-    James is released under the Apache Software License
-    listed below:
+  In James version 3.0, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
 </p>
 
+<ol>
 
+<li>Remove references to DataSourceSelector.</li>
+
+<li>Change references of DataSourceComponent to DataSource</li>
+
+<li>Add imports:
 <div align="left">
 <table border="0" cellpadding="0" cellspacing="4">
 <tr>
@@ -166,58 +172,9 @@
 <tr>
 <td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
 <pre>
-
- The Apache Software License, Version 1.1
-
- Copyright (c) 2001 The Apache Software Foundation.  All rights
- reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
-
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
-
- 3. The end-user documentation included with the redistribution, if
-    any, must include the following acknowlegement:
-       "This product includes software developed by the
-        Apache Software Foundation (http://www.apache.org/)."
-    Alternately, this acknowlegement may appear in the software itself,
-    if and wherever such third-party acknowlegements normally appear.
-
- 4. The names "The Jakarta Project", "James", and "Apache Software
-    Foundation" must not be used to endorse or promote products derived
-    from this software without prior written permission. For written
-    permission, please contact apache@apache.org.
-
- 5. Products derived from this software may not be called "Apache"
-    nor may "Apache" appear in their names without prior written
-    permission of the Apache Group.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- SUCH DAMAGE.
- ====================================================================
-
- This software consists of voluntary contributions made by many
- individuals on behalf of the Apache Software Foundation.  For more
- information on the Apache Software Foundation, please see
- &lt;http://www.apache.org/&gt;.
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 </pre>
 </td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
 </tr>
@@ -227,22 +184,60 @@
 </table>
 </div>
 
+</li>
 
-</blockquote>
-</td>
+<li>Change how the datasource is looked up
+<br>
+Replace:
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+    ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+    // Get the DataSourceSelector service
+    DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
+    // Get the data-source required.
+    datasource = (DataSourceComponent)datasources.select(datasourceName);
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
 </tr>
 </table>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
+</div>
+with
+<div align="left">
+<table border="0" cellpadding="0" cellspacing="4">
 <tr>
-<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="mm.mysql%20drivers"><strong>mm.mysql drivers</strong></a></font></td>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
 </tr>
 <tr>
-<td>
-<blockquote>
+<td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#ffffff">
+<pre>
+    InitialContext ctx = new InitialContext();
+    datasource = (DataSource) ctx.lookup("java:comp/env/jdbc/" + datasourceName);
+</pre>
+</td><td width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+<tr>
+<td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td><td height="1" width="1" bgcolor="#023264"><img border="0" hspace="0" vspace="0" height="1" width="1" src="/images/void.gif"></td>
+</tr>
+</table>
+</div>
+Then update exception handling appropriately.
+</li>
 
+</ol>
+ 
 <p>
-    mm.mysql JDBC drivers are distributed with James, a copy of the licence is contained in the distribution
-</p>
+   That's all there is to it.  Enjoy!
+ </p>
+
 
 </blockquote>
 </td>
