@@ -18,48 +18,41 @@ import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.phoenix.BlockContext;
-
 import org.apache.james.Constants;
-import org.apache.james.util.SqlResources;
 
 /**
  * Rewrites recipient addresses based on a database table.  The connection
  * is configured by passing the URL to a conn definition.  You need to set
  * the table name to check (or view) along with the source and target columns
  * to use.  For example,
- * <mailet match="All" class="JDBCAlias">
- *   <mappings>db://maildb/Aliases</mappings>
- * </mailet>
+ * &lt;mailet match="All" class="JDBCAlias"&gt;
+ *   &lt;mappings&gt;db://maildb/Aliases&lt;/mappings&gt;
+ *   &lt;source_column&gt;source_email_address&lt;/source_column&gt;
+ *   &lt;target_column&gt;target_email_address&lt;/target_column&gt;
+ * &lt;/mailet&gt;
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class JDBCAlias extends GenericMailet implements Contextualizable {
+public class JDBCAlias extends GenericMailet {
 
     protected DataSourceComponent datasource;
-    protected Context context;
-
-    // Contains all of the sql strings for this component.
-    protected SqlResources sqlQueries;
-
-    public void contextualize(final Context context) throws ContextException {
-        this.context = context;
-    }
+    protected String query = null;
 
     public void init() throws MessagingException {
         String mappingsURL = getInitParameter("mappings");
-        String sqlFileName = getInitParameter("sqlFile");
 
         String datasourceName = mappingsURL.substring(5);
         int pos = datasourceName.indexOf("/");
         String tableName = datasourceName.substring(pos + 1);
         datasourceName = datasourceName.substring(0, pos);
 
-
         Connection conn = null;
+        if (getInitParameter("source_column") == null) {
+            throw new MailetException("source_column not specified for JDBCAlias");
+        }
+        if (getInitParameter("target_column") == null) {
+            throw new MailetException("target_column not specified for JDBCAlias");
+        }
         try {
             ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
             // Get the DataSourceSelector block
@@ -67,54 +60,33 @@ public class JDBCAlias extends GenericMailet implements Contextualizable {
             // Get the data-source required.
             datasource = (DataSourceComponent)datasources.select(datasourceName);
 
-            // Initialise the sql strings.
-            String fileName = sqlFileName.substring("file://".length());
-            fileName = ((BlockContext)context).getBaseDirectory() + File.separator + fileName;
-            File sqlFile = (new File(fileName)).getCanonicalFile();
+            conn = datasource.getConnection();
 
-            String resourceName = "org.apache.james.mailrepository.JDBCAlias";
-
-            log("Reading SQL resources from file: " +
-                              sqlFile.getAbsolutePath() + ", section " +
-                              this.getClass().getName() + ".");
-
-            // Build the statement parameters
-            Map sqlParameters = new HashMap();
-            if (tableName != null) {
-                sqlParameters.put("table", tableName);
-            }
-
-            sqlQueries = new SqlResources();
-            sqlQueries.init(sqlFile, this.getClass().getName(),
-                            conn, sqlParameters);
-
-            // Check if the required table exists. If not, create it.
+            // Check if the required table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
             if (! ( tableExists(dbMetaData, tableName) ||
                     tableExists(dbMetaData, tableName.toUpperCase()) ||
                     tableExists(dbMetaData, tableName.toLowerCase()) ))  {
-                // Users table doesn't exist - create it.
-                PreparedStatement createStatement =
-                    conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
-                createStatement.execute();
-                createStatement.close();
-
-                log("JdbcMailRepository: Created table \'" +
-                                 tableName + "\'.");
+                throw new MailetException("Could not find table '" + tableName + "' in datasource '" + datasourceName + "'");
             }
-        } catch (MessagingException me) {
+
+            //Build the query
+            query = "SELECT " + getInitParameter("source_column")
+                    + " FROM " + tableName + " WHERE "
+                    + getInitParameter("target_column") + " = ?";
+        } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
-            throw new MessagingException("An exception occurred while configuring JDBCAlias.", e);
+            throw new MessagingException("Error initializing JDBCAlias", e);
         } finally {
-            if (conn != null) {
-                try {
+            try {
+                if (conn != null) {
                     conn.close();
-                } catch (SQLException sqle) {
-                    //ignore
                 }
+            } catch (SQLException sqle) {
+                //ignore
             }
         }
     }
@@ -135,8 +107,8 @@ public class JDBCAlias extends GenericMailet implements Contextualizable {
             for (Iterator i = recipients.iterator(); i.hasNext(); ) {
                 try {
                     MailAddress source = (MailAddress)i.next();
-                    mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("select", true));
-
+                    mappingStmt = conn.prepareStatement(query);
+                    mappingStmt.setString(1, source.toString());
                     mappingRS = mappingStmt.executeQuery();
                     if (!mappingRS.next()) {
                         //This address was not found
