@@ -90,6 +90,9 @@ All these package are in current distribution.
   <property name="src.dir" value="src"/>
   <property name="java.dir" value="${src.dir}/java"/>
   <property name="conf.dir" value="${src.dir}/conf"/>
+  <property name="proposal.base" value="proposals"/>
+  <property name="proposal.dir" value="${proposal.base}/v1.3"/>
+  <property name="java.proposal.dir" value="${proposal.dir}/java"/>
   <property name="lib.dir" value="lib"/>
   <property name="tools.dir" value="tools"/>
   <property name="xdocs.dir" value="${src.dir}/xdocs"/>
@@ -210,7 +213,8 @@ All these package are in current distribution.
     <mkdir dir="${build.src}"/>
     <copy todir="${build.src}">
       <fileset dir="${java.dir}">
-        <include name="${constants.file}" />
+        <exclude name="**/*.properties"/>
+        <exclude name="**/*.xinfo"/>
       </fileset>
     </copy>
 
@@ -224,6 +228,16 @@ All these package are in current distribution.
 
   </target>
 
+  <target name="prepare-proposal" depends="prepare" if="with.proposal">
+    <echo>Building with proposal </echo>
+    <copy todir="${build.src}" overwrite="on">
+      <fileset dir="${java.proposal.dir}">
+        <exclude name="**/*.properties"/>
+        <exclude name="**/*.xinfo"/>
+      </fileset>
+    </copy>
+  </target>
+
   <target name="prepare-error" depends="prepare" unless="AnakiaTask.present">
     <echo>
         AnakiaTask is not present! Please check to make sure that
@@ -235,13 +249,13 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare-proposal">
     <mkdir dir="${build.dir}"/>
     <available property="jndi.present" classname="javax.naming.InitialContext" />
 
     <mkdir dir="${build.classes}"/>
  
-    <javac srcdir="${java.dir}" 
+    <javac srcdir="${build.src}" 
            destdir="${build.classes}" 
            debug="${debug}"
            optimize="${optimize}"
