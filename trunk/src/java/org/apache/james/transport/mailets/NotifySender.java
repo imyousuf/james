@@ -129,9 +129,9 @@ import java.util.Iterator;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
- * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
+ * <I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.23 $ $Date: 2003/06/30 09:41:03 $
+ * @version CVS $Revision: 1.24 $ $Date: 2003/07/04 16:46:12 $
  */
 public class NotifySender extends AbstractNotify {
 
@@ -195,6 +195,19 @@ public class NotifySender extends AbstractNotify {
             }
         }
         return iaarray;
+    }
+
+    /**
+     * @return the <CODE>attachStackTrace</CODE> init parameter, 
+     * or the <CODE>attachError</CODE> init parameter if missing,
+     * or false if missing 
+     */
+    protected boolean attachError() throws MessagingException {
+        String parameter = getInitParameter("attachStackTrace");
+        if (parameter == null) {
+            return super.attachError();
+        }        
+        return new Boolean(parameter).booleanValue();
     }
 
     /* ******************************************************************** */

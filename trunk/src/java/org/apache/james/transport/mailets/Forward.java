@@ -76,7 +76,7 @@ import java.util.StringTokenizer;
  * <P>Sample configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="Forward">
- *   &lt;forwardto&gt;<I>comma delimited list of email addresses</I>&lt;/forwardto&gt;
+ *   &lt;forwardTo&gt;<I>comma delimited list of email addresses</I>&lt;/forwardTo&gt;
  *   &lt;passThrough&gt;<I>true or false, default=false</I>&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
@@ -93,8 +93,10 @@ import java.util.StringTokenizer;
  *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
+ * <P><I>forwardto</I> can be used instead of
+ * <I>forwardTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.17 $ $Date: 2003/07/03 05:27:45 $
+ * @version CVS $Revision: 1.18 $ $Date: 2003/07/04 16:46:12 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -115,6 +117,7 @@ public class Forward extends AbstractRedirect {
             "passThrough",
             "fakeDomainCheck",
             "forwardto",
+            "forwardTo"
         };
         return allowedArray;
     }
@@ -148,24 +151,40 @@ public class Forward extends AbstractRedirect {
      * @return the <CODE>recipients</CODE> init parameter or null if missing
      */
     protected Collection getRecipients() throws MessagingException {
-        Collection newRecipients = null;
+        Collection newRecipients = new HashSet();
         boolean error = false;
         String addressList = getInitParameter("forwardto");
-        if (addressList != null) {
-            newRecipients = new HashSet();
-            StringTokenizer st = new StringTokenizer(addressList, ",", false);
-            while(st.hasMoreTokens()) {
-                String recipient = st.nextToken();
-                try {
-                    newRecipients.add(new MailAddress(recipient));
-                } catch(Exception e) {
-                    log("Add \"" + recipient + "\" failed", e);
-                    error = true;
+        if (addressList == null) {
+            addressList = getInitParameter("forwardTo");
+        }
+        
+        // if nothing was specified, throw an exception
+        if (addressList == null) {
+            throw new MessagingException("Failed to initialize \"recipients\" list: no <forwardTo> or <forwardto> init parameter found");
+        }
+
+        StringTokenizer st = new StringTokenizer(addressList, ",", false);
+        while(st.hasMoreTokens()) {
+            String token = null;
+            try {
+                token = st.nextToken();
+                MailAddress specialAddress = getSpecialAddress(token,
+                                                new String[] {"postmaster", "sender", "reversePath", "unaltered", "recipients"});
+                if (specialAddress != null) {
+                    newRecipients.add(specialAddress);
+                } else {
+                    newRecipients.add(new MailAddress(token));
                 }
+            } catch(Exception e) {
+                error = true;
+                log("Exception thrown in getRecipients() parsing: " + token, e);
             }
         }
-        if (error || newRecipients == null || newRecipients.size() == 0) {
-            throw new MessagingException("Failed to initialize recipient list; see mailet log.");
+        if (error) {
+            throw new MessagingException("Failed to initialize \"recipients\" list; see mailet log.");
+        }
+        if (newRecipients.size() == 0) {
+            throw new MessagingException("Failed to initialize \"recipients\" list; empty <forwardTo> or <forwardto> init parameter found.");
         }
 
         return newRecipients;
@@ -188,7 +207,7 @@ public class Forward extends AbstractRedirect {
     /**
      * @return null
      */
-    protected MailAddress getReturnPath() throws MessagingException {
+    protected MailAddress getReversePath() throws MessagingException {
         return null;
     }
 
@@ -216,7 +235,7 @@ public class Forward extends AbstractRedirect {
     /**
      * @return false
      */
-    protected boolean attachError() throws MessagingException {
+    protected boolean attachError() {
         return false;
     }
 

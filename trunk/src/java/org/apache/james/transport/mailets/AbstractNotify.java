@@ -113,10 +113,10 @@ import java.util.Iterator;
  *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
- * <P><I>notice</I>, <I>senderAddress</I> and <I>attachStackTrace</I> can be used instead of
- * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
+ * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
+ * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.8 $ $Date: 2003/06/30 09:41:03 $
+ * @version CVS $Revision: 1.9 $ $Date: 2003/07/04 16:46:11 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -260,7 +260,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
     /**
      * @return {@link AbstractRedirect#getSender(Mail)}, meaning the new requested sender if any
      */
-    protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
+    protected MailAddress getReversePath(Mail originalMail) throws MessagingException {
         return getSender(originalMail);
     }
 
@@ -289,23 +289,30 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>attachStackTrace</CODE> init parameter, 
-     * or the <CODE>attachError</CODE> init parameter if missing,
-     * or false if missing 
+     * @return the <CODE>prefix</CODE> init parameter or "Re:" if missing
      */
-    protected boolean attachError() {
-        boolean attachStackTrace = false;
-        try {
-            attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
-        } catch (Exception e) {
-            // try with attachError
-            try {
-                attachStackTrace = new Boolean(getInitParameter("attachError")).booleanValue();
-            } catch (Exception e2) {
-                // Ignore exception, default to false
-            }
+    protected String getSubjectPrefix() {
+        if(getInitParameter("prefix") == null) {
+            return "Re:";
+        } else {
+            return getInitParameter("prefix");
         }
-        return attachStackTrace;
+    }
+
+    /**
+     * Builds the subject of <I>newMail</I> appending the subject
+     * of <I>originalMail</I> to <I>subjectPrefix</I>, but avoiding a duplicate.
+     */
+    protected void setSubjectPrefix(Mail newMail, String subjectPrefix, Mail originalMail) throws MessagingException {
+        String subject = originalMail.getMessage().getSubject();
+        if (subject == null) {
+            subject = "";
+        }
+        if (subject.indexOf(subjectPrefix) == 0) {
+            newMail.getMessage().setSubject(subject);
+        } else {
+            newMail.getMessage().setSubject(subjectPrefix + subject);
+        }
     }
 
     /**
