@@ -17,6 +17,9 @@ import javax.mail.internet.MailDateFormat;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RFC822DateFormat extends SynchronizedDateFormat {
+    /**
+     * A static instance of the RFC822DateFormat, used by toString
+     */
     private static RFC822DateFormat instance; 
 
     static {
@@ -39,6 +42,9 @@ public class RFC822DateFormat extends SynchronizedDateFormat {
         return instance.format(d);
     }
 
+    /**
+     * Constructor for RFC822DateFormat
+     */
     public RFC822DateFormat() {
         super(new MailDateFormat());
     }

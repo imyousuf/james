@@ -11,11 +11,11 @@ import java.sql.*;
 import java.util.Locale;
 
 /**
- * Helper class for managing common JDBC tasks.
+ * <p>Helper class for managing common JDBC tasks.</p>
  *
- * This class is abstract to allow implementations to 
+ * <p>This class is abstract to allow implementations to 
  * take advantage of different logging capabilities/interfaces in
- * different parts of the code.
+ * different parts of the code.</p>
  *
  * @author Noel Bergman <noel@devtech.com>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
@@ -23,6 +23,12 @@ import java.util.Locale;
  */
 abstract public class JDBCUtil
 {
+    /**
+     * An abstract method which child classes override to handle logging of
+     * errors in their particular environments.
+     *
+     * @param errorString the error message generated
+     */
     abstract protected void delegatedLog(String errorString);
 
     /**
@@ -32,7 +38,7 @@ abstract public class JDBCUtil
      * @param dbMetaData the database metadata to be used to look up this table
      * @param tableName the table name
      *
-     * @exception SQLException thrown if an exception is encountered while accessing the database
+     * @throws SQLException if an exception is encountered while accessing the database
      */
     public boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
         throws SQLException {
@@ -48,7 +54,7 @@ abstract public class JDBCUtil
      * @param dbMetaData the database metadata to be used to look up this table
      * @param tableName the case sensitive table name
      *
-     * @exception SQLException thrown if an exception is encountered while accessing the database
+     * @throws SQLException if an exception is encountered while accessing the database
      */
     public boolean tableExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName)
         throws SQLException {

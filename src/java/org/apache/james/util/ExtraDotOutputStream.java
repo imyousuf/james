@@ -24,11 +24,23 @@ public class ExtraDotOutputStream extends FilterOutputStream {
      */
     protected int countLast0A0D;
 
+    /**
+     * Constructor that wraps an OutputStream.
+     *
+     * @param out the OutputStream to be wrapped
+     */
     public ExtraDotOutputStream(OutputStream out) {
         super(out);
         countLast0A0D = 2; // we already assume a CRLF at beginning (otherwise TOP would not work correctly !)
     }
 
+    /**
+     * Writes a byte to the stream, adding dots where appropriate.
+     *
+     * @param b the byte to write
+     *
+     * @throws IOException if an error occurs writing the byte
+     */
     public void write(int b) throws IOException {
         out.write(b);
         if (b == '.') {

@@ -21,9 +21,20 @@ import java.util.TimeZone;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RFC977DateFormat implements SimplifiedDateFormat {
+
+    /**
+     * Internal date formatter for long date formats
+     */
     private final SynchronizedDateFormat internalLongDateFormat;
+
+    /**
+     * Internal date formatter for short date formats
+     */
     private final SynchronizedDateFormat internalShortDateFormat;
 
+    /**
+     * Constructor for RFC977DateFormat
+     */
     public RFC977DateFormat() {
         internalLongDateFormat = new SynchronizedDateFormat("yyyyMMdd HHmmss", Locale.ENGLISH);
         internalShortDateFormat = new SynchronizedDateFormat("yyMMdd HHmmss", Locale.ENGLISH);
@@ -48,8 +59,8 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      *
      * @param source A <code>String</code> whose beginning should be parsed.
      * @return A <code>Date</code> parsed from the string.
-     * @exception ParseException if the beginning of the specified string
-     *            cannot be parsed.
+     * @throws ParseException if the beginning of the specified string
+     *         cannot be parsed.
      */
     public Date parse(String source) throws ParseException {
         source = source.trim();
