@@ -54,7 +54,7 @@ public class IMAPServer
         final String useTLS = configuration.getChild("useTLS").getValue( "" );
         if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
 
-        super.configure( configuration.getChild( "imaphandler" ) );
+        super.configure( configuration.getChild( "handler" ) );
     }
 
     public void initialize() throws Exception {
