@@ -163,7 +163,7 @@ All theese package are in current distribution.
 
     <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
     <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
-
+    <copyfile src="./res/avalonTestKeys" dest="${dist.dir}/conf/avalonTestKeys"/>
     <chmod dir="${dist.dir}" perm="go-rwx" />
     <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
     <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
