@@ -74,7 +74,7 @@ import javax.mail.MessagingException;
  * Sample configuration:
  * &lt;mailet match="HasMailAttribute=whatever" class="Null"/&gt;
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/07/15 10:44:49 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/07/15 10:50:24 $
  * @since 2.2.0
  **/
 public class HasMailAttribute extends GenericMatcher 
