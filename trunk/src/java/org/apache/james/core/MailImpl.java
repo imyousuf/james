@@ -72,7 +72,11 @@ public class MailImpl implements Mail {
 
     public Mail duplicate() {
         try {
-            return new MailImpl(name, sender, recipients, getMessage());
+            MailImpl newMail = new MailImpl(name, sender, recipients, getMessage());
+            newMail.setRemoteHost(remoteHost);
+            newMail.setRemoteAddr(remoteAddr);
+            newMail.setLastUpdated(lastUpdated);
+            return newMail;
         } catch (MessagingException me) {
         }
         return (Mail) null;
@@ -80,7 +84,11 @@ public class MailImpl implements Mail {
 
     public Mail duplicate(String newName) {
         try {
-            return new MailImpl(newName, sender, recipients, getMessage());
+            MailImpl newMail = new MailImpl(newName, sender, recipients, getMessage());
+            newMail.setRemoteHost(remoteHost);
+            newMail.setRemoteAddr(remoteAddr);
+            newMail.setLastUpdated(lastUpdated);
+            return newMail;
         } catch (MessagingException me) {
         }
         return (Mail) null;
