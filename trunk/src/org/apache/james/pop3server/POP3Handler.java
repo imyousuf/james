@@ -21,6 +21,7 @@ import java.util.Vector;
 import javax.mail.MessagingException;
 import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.Composer;
 import org.apache.avalon.Context;
 import org.apache.avalon.Contextualizable;
@@ -47,12 +48,11 @@ import org.apache.mailet.Mail;
  */
 public class POP3Handler 
     extends AbstractLoggable
-    implements ConnectionHandler, Contextualizable, Composer, Configurable, 
-    Initializable, Target {
+    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target {
+
+    private String softwaretype        = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
 
     private ComponentManager compMgr;
-    private Configuration conf;
-    private Context context;
     private MailServer mailServer;
     private MailRepository userInbox;
     private UsersRepository users;
@@ -66,10 +66,9 @@ public class POP3Handler
     private String remoteHost;
     private String remoteIP;
     private String servername;
-    private String softwaretype;
     private int state;
     private String user;
-    private Vector userMailbox;
+    private Vector userMailbox = new Vector();
     private Vector backupUserMailbox;
     private static final Mail DELETED = new MailImpl();
 
@@ -80,40 +79,23 @@ public class POP3Handler
     private final static String OK_RESPONSE = "+OK";
     private final static String ERR_RESPONSE = "-ERR";
 
-    /**
-     * Constructor has no parameters to allow Class.forName() stuff.
-     */
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
-        timeout = conf.getChild("connectiontimeout").getValueAsInt(120000);
+    public void  contextualize( final Context context ) {
+        servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void  contextualize(Context context) {
-        this.context = context;
+    public void configure( final Configuration configuration ) 
+        throws ConfigurationException {
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
     }
 
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-
-    public void init() throws Exception {
-
-        try {
-            mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-            users = (UsersRepository)compMgr.
-                lookup("org.apache.james.services.UsersRepository");
-            scheduler = (TimeScheduler)compMgr.
-                lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
-
-            softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
-            servername = (String) context.get(Constants.HELO_NAME);
-            userMailbox = new Vector();
-
-        } catch (Exception e) {
-            getLogger().error("Exception initializing a PO3Handler was : " + e);
-            e.printStackTrace();
-            throw e;
-        }
+    public void compose( final ComponentManager componentManager ) 
+        throws ComponentManagerException {
+        mailServer = (MailServer)componentManager.
+            lookup( "org.apache.james.services.MailServer" );
+        users = (UsersRepository)componentManager.
+            lookup( "org.apache.james.services.UsersRepository" );
+        scheduler = (TimeScheduler)componentManager.
+            lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
     }
 
     /**
@@ -135,17 +117,19 @@ public class POP3Handler
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
-            getLogger().error("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
+            getLogger().error( "Cannot open connection from " + remoteHost + 
+                               " (" + remoteIP + "): " + e.getMessage(), e );
         }
 
-        getLogger().info("Connection from " + remoteHost + " (" + remoteIP + ")");
+        getLogger().info( "Connection from " + remoteHost + " (" + remoteIP + ")" );
 
         try {
             final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
             scheduler.addTrigger( this.toString(), trigger, this );
             state = AUTHENTICATION_READY;
             user = "unknown";
-            out.println(OK_RESPONSE + " " + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
+            out.println( OK_RESPONSE + " " + this.servername + 
+                         " POP3 server (" + this.softwaretype + ") ready " );
             while (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());
             }
@@ -156,7 +140,8 @@ public class POP3Handler
         } catch (Exception e) {
             out.println(ERR_RESPONSE + " Error closing connection.");
             out.flush();
-            getLogger().error("Exception during connection from " + remoteHost + " (" + remoteIP + ") : " + e.getMessage());
+            getLogger().error( "Exception during connection from " + remoteHost + 
+                               " (" + remoteIP + ") : " + e.getMessage(), e );
             try {
                 socket.close();
             } catch (IOException ioe) {
@@ -334,8 +319,13 @@ public class POP3Handler
                     return true;
                 }
                 try {
-                    userMailbox.setElementAt(DELETED, num);
-                    out.println(OK_RESPONSE + " Message removed");
+                    MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                    if (mc == DELETED) {
+                         out.println(ERR_RESPONSE + " Message (" + num + ") does not exist.");
+                    } else {
+                         userMailbox.setElementAt(DELETED, num);
+                         out.println(OK_RESPONSE + " Message removed");
+                    }
                 } catch (ArrayIndexOutOfBoundsException iob) {
                     out.println(ERR_RESPONSE + " Message (" + num + ") does not exist.");
                 }
