@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.82 $  Committed on $Date: 2001/09/29 08:21:18 $ by: $Author: danny $
+ James build file $Revision: 1.83 $  Committed on $Date: 2001/09/30 17:58:13 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -345,6 +345,10 @@ Legal:
         <include name="james-server.xml"/>
       </zipfileset>
 
+      <zipfileset dir="${build.conf}" fullpath="conf/sqlResources.xml">
+        <include name="sqlResources.xml"/>
+      </zipfileset>
+
     </jar>
 
   </target>
@@ -386,7 +390,6 @@ Legal:
       <fileset dir="${conf.dir}">
         <include name="inet*"/>
         <include name="*.properties"/>
-        <include name="sqlResources.xml"/>
       </fileset>
     </copy>
 
