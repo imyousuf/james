@@ -13,7 +13,7 @@
 <tr>
 <td colspan="2">
 <!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
-<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -40,7 +40,7 @@
 </p>
 <ul>
 <li>
-<a href="http://www.terra-intl.com/jakarta/james/">Japanese (web)</a>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
 </li>
 </ul>
 <p>
@@ -48,10 +48,10 @@
 </p>
 <ul>
 <li>
-<a href="http://jakarta.apache.org/site/binindex.html">Binaries</a>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/site/sourceindex.html">Source Code</a>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
 </li>
 </ul>
 <p>
@@ -139,10 +139,13 @@
 </p>
 <ul>
 <li>
-<a href="http://jakarta.apache.org/ant/index.html">Ant</a>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/avalon/index.html">Avalon</a>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
 </li>
 </ul>
 </td>
@@ -173,6 +176,26 @@ Matchers and use them in the James SpoolManager can be found <a href="spoolmanag
 <p>Description: This matcher is the trivial one - it matches all mails being processed.  All recipients are returned.</p>
 
 <p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AttachmentFileNameIs"><strong>AttachmentFileNameIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: It can be used to refuse emails with SCR, PIF, EXE etc. attachments.
+It matches mails that has a file attachment with a file name meeting one of the supplied filters.
+All recipients are returned.</p>
+
+<p>Configuration string: A comma or space delimited list of file names. 
+File names may start with a wildcard '*'. Example: *.scr,*.bat,*.pif,*.pi,*.com,*.exe</p>
 
 </blockquote>
 </td>
@@ -262,6 +285,97 @@ the message.  All recipients are returned.</p>
 <p>Description: Matches mails that have the specified header.  All recipients are returned.</p>
 
 <p>Configuration string: The name of the header whose presence determines the match.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttribute"><strong>HasMailAttribute</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute.  All 
+recipients are returned.</p>
+
+<p>Configuration string: The name of the Mail Attribute to match. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttribute=name" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValue"><strong>HasMailAttributeWithValue</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and the
+specified MailAttribute value. All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The 
+String.equals(String) method tests for a match.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the String value to be matched. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValue=name, value" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValueRegex"><strong>HasMailAttributeWithValueRegex</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and 
+a MailAttribute value that matches the specified regular expression.
+All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The regular
+expression must follow Perl5 syntax.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the regular expression used to match the value against. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValueRegex=name, regex" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
 
 </blockquote>
 </td>
