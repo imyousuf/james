@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
@@ -17,7 +17,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class NoopCommand extends CommandTemplate
 {
@@ -25,11 +25,11 @@ class NoopCommand extends CommandTemplate
     public static final String ARGS = null;
 
     /** @see org.apache.james.imapserver.commands.CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session ) throws ProtocolException
     {
-        request.endLine();
+        parser.endLine( request );
         session.unsolicitedResponses( response );
         response.commandComplete( this );
     }

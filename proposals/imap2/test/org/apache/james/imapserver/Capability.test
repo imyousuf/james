@@ -3,4 +3,4 @@ S: \* CAPABILITY IMAP4rev1
 S: abcd OK CAPABILITY completed
 
 C: abcd CAPABILITY extra stuff
-S: abcd BAD Extra argument found. Command should be '<tag> CAPABILITY'
+S: abcd BAD Expected end-of-line, found more characters. Command should be '<tag> CAPABILITY'

@@ -11,7 +11,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
@@ -24,12 +24,14 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 abstract class CommandTemplate
         extends AbstractLogEnabled
         implements ImapCommand, ImapConstants
 {
+    protected CommandParser parser = new CommandParser();
+
     /**
      * By default, valid in any state (unless overridden by subclass.
      * @see org.apache.james.imapserver.commands.ImapCommand#validForState
@@ -47,7 +49,7 @@ abstract class CommandTemplate
      *
      * @see ImapCommand#process
      */
-    public void process( ImapRequestParser request,
+    public void process( ImapRequestLineReader request,
                          ImapResponse response,
                          ImapSession session )
     {
@@ -76,7 +78,7 @@ abstract class CommandTemplate
      * @param response The server response
      * @param session The current client session
      */
-    protected abstract void doProcess( ImapRequestParser request,
+    protected abstract void doProcess( ImapRequestLineReader request,
                                        ImapResponse response,
                                        ImapSession session )
             throws ProtocolException, MailboxException, AuthorizationException;
@@ -122,99 +124,8 @@ abstract class CommandTemplate
         return session.getHost().getMailbox( session.getUser(), mailboxName, mustExist );
     }
 
-//    /**
-//     * Logs the command details.
-//     */
-//    protected void logCommand( ImapRequestParser request, ImapSession session )
-//    {
-//        getLogger().debug( request.getCommand() + " command completed for " +
-//                           session.getRemoteHost() + "(" +
-//                           session.getRemoteIP() + ")" );
-//    }
-//
-//    protected ACLMailbox getMailbox( ImapSession session, String mailboxName, String command )
-//    {
-//        if ( session.getState() == ImapSessionState.SELECTED && session.currentMailbox().equals( mailboxName ) ) {
-//            return session.getCurrentMailbox();
-//        }
-//        else {
-//            try {
-//                return session.getImapHost().getMailbox( session.getCurrentUser(), mailboxName );
-//            } catch ( MailboxException me ) {
-//                if ( me.isRemote() ) {
-//                    session.noResponse( "[REFERRAL " + me.getRemoteServer() + "]" + SP + "Remote mailbox" );
-//                } else {
-//                    session.noResponse( command, "Unknown mailbox" );
-//                    getLogger().info( "MailboxException in method getBox for user: "
-//                                      + session.getCurrentUser() + " mailboxName: " + mailboxName + " was "
-//                                      + me.getMessage() );
-//                }
-//                return null;
-//            }
-//            catch ( AccessControlException e ) {
-//                session.noResponse( command, "Unknown mailbox" );
-//                return null;
-//            }
-//        }
-//    }
-
-//    public static String readAstring( StringTokenizer tokens )
-//    {
-//        if ( ! tokens.hasMoreTokens() ) {
-//            throw new RuntimeException( "Not enough tokens" );
-//        }
-//        String token = tokens.nextToken();
-//        Assert.isTrue( token.length() > 0 );
-//
-//        StringBuffer astring = new StringBuffer( token );
-//
-//        if ( astring.charAt(0) == '\"' ) {
-//            while ( astring.length() == 1 ||
-//                    astring.charAt( astring.length() - 1 ) != '\"' ) {
-//                if ( tokens.hasMoreTokens() ) {
-//                    astring.append( tokens.nextToken() );
-//                }
-//                else {
-//                    throw new RuntimeException( "Missing closing quote" );
-//                }
-//            }
-//            astring.deleteCharAt( 0 );
-//            astring.deleteCharAt( astring.length() - 1 );
-//        }
-//
-//        return astring.toString();
-//    }
-//
-//    public String decodeAstring( String rawAstring )
-//    {
-//
-//        if ( rawAstring.length() == 0 ) {
-//            return rawAstring;
-//        }
-//
-//        if ( rawAstring.startsWith( "\"" ) ) {
-//            //quoted string
-//            if ( rawAstring.endsWith( "\"" ) ) {
-//                if ( rawAstring.length() == 2 ) {
-//                    return new String(); //ie blank
-//                }
-//                else {
-//                    return rawAstring.substring( 1, rawAstring.length() - 1 );
-//                }
-//            }
-//            else {
-//                getLogger().error( "Quoted string with no closing quote." );
-//                return null;
-//            }
-//        }
-//        else {
-//            //atom
-//            return rawAstring;
-//        }
-//    }
-//
-//    public void setArgs( List args )
-//    {
-//        this.args = args;
-//    }
+    public CommandParser getParser()
+    {
+        return parser;
+    }
 }

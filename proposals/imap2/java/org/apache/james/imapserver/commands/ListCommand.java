@@ -8,7 +8,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.store.MailboxException;
@@ -24,22 +24,24 @@ import java.util.Iterator;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class ListCommand extends AuthenticatedStateCommand
 {
     public static final String NAME = "LIST";
     public static final String ARGS = "<reference-name> <mailbox-name-with-wildcards>";
 
+    private ListCommandParser parser = new ListCommandParser();
+
     /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
             throws ProtocolException, MailboxException
     {
-        String referenceName = request.astring();
-        String mailboxPattern = request.listMailbox();
-        request.endLine();
+        String referenceName = parser.astring( request );
+        String mailboxPattern = parser.listMailbox( request );
+        parser.endLine( request );
 
         // Should the #user.userName section be removed from names returned?
         boolean removeUserPrefix;
@@ -180,6 +182,40 @@ class ListCommand extends AuthenticatedStateCommand
         return ARGS;
     }
 
+    private class ListCommandParser extends CommandParser
+    {
+        private final char[] WILDCARD_CHARS = new char[]{'*', '%'};
+
+        /**
+         * Reads an argument of type "list_mailbox" from the request, which is
+         * the second argument for a LIST or LSUB command. Valid values are a "string"
+         * argument, an "atom" with wildcard characters.
+         * @return An argument of type "list_mailbox"
+         */
+        public String listMailbox( ImapRequestLineReader request ) throws ProtocolException
+        {
+            char next = request.nextWordChar();
+            switch ( next ) {
+                case '"':
+                    return consumeQuoted( request );
+                case '{':
+                    return consumeLiteral( request );
+                default:
+                    return consumeWord( request, new ListCharValidator() );
+            }
+        }
+
+        private class ListCharValidator extends ATOM_CHARValidator
+        {
+            public boolean isValid( char chr )
+            {
+                if ( isListWildcard( chr ) ) {
+                    return true;
+                }
+                return super.isValid( chr );
+            }
+        }
+    }
 }
 
 /*

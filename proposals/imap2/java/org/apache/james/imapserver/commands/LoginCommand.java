@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
@@ -18,7 +18,7 @@ import org.apache.james.services.User;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class LoginCommand extends NonAuthenticatedStateCommand
 {
@@ -26,14 +26,14 @@ class LoginCommand extends NonAuthenticatedStateCommand
     public static final String ARGS = "<userid> <password>";
 
     /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
             throws ProtocolException
     {
-        String userid = request.astring();
-        String password = request.astring();
-        request.endLine();
+        String userid = parser.astring( request );
+        String password = parser.astring( request );
+        parser.endLine( request );
 
         if ( session.getUsers().test( userid, password ) ) {
             User user = session.getUsers().getUserByName( userid );

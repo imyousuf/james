@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
  * 
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class InMemoryStore implements ImapStore, ImapConstants
 {
@@ -244,6 +244,16 @@ public class InMemoryStore implements ImapStore, ImapConstants
         }
 
         public int getUidValidity()
+        {
+            return 0;
+        }
+
+        public int getUidNext()
+        {
+            return 0;
+        }
+
+        public int getUnseenCount()
         {
             return 0;
         }
