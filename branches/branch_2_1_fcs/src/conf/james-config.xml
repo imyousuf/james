@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.6 $ Committed on $Date: 2003/05/17 07:17:29 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.7 $ Committed on $Date: 2003/05/17 07:41:42 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -274,6 +274,9 @@
 
             <!-- The number of threads that should be trying to deliver outgoing messages -->
             <deliveryThreads> 1 </deliveryThreads>
+
+            <!-- If false the message will not be sent to given server if any recipients fail -->
+            <sendpartial>false</sendpartial>
 
             <!-- A single mail server to deliver all outgoing messages. -->
             <!-- This is useful if this server is a backup or failover machine, -->
