@@ -60,6 +60,8 @@ package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.mail.Session;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -112,6 +114,11 @@ class Account implements Comparable
     private boolean fieldIgnoreRecipientHeader;     
 
     /**
+     * The JavaMail Session for this Account.
+     */ 
+    
+    private Session fieldSession;
+    /**
      * Constructor for Account.
      */
     private Account()
@@ -128,6 +135,7 @@ class Account implements Comparable
      * @param password
      * @param recipient
      * @param ignoreRecipientHeader
+     * @param session
      * @throws ConfigurationException
      */
     
@@ -137,7 +145,8 @@ class Account implements Comparable
         String user,
         String password,
         String recipient,
-        boolean ignoreRecipientHeader)
+        boolean ignoreRecipientHeader,
+        Session session)
         throws ConfigurationException
     {
         this();
@@ -147,6 +156,7 @@ class Account implements Comparable
         setPassword(password);
         setRecipient(recipient);
         setIgnoreRecipientHeader(ignoreRecipientHeader);
+        setSession(session);
     }   
 
     /**
@@ -345,6 +355,24 @@ class Account implements Comparable
     protected void setParsedConfiguration(ParsedConfiguration parsedConfiguration)
     {
         fieldParsedConfiguration = parsedConfiguration;
+    }
+
+    /**
+     * Returns the session.
+     * @return Session
+     */
+    public Session getSession()
+    {
+        return fieldSession;
+    }
+
+    /**
+     * Sets the session.
+     * @param session The session to set
+     */
+    protected void setSession(Session session)
+    {
+        fieldSession = session;
     }
 
 }

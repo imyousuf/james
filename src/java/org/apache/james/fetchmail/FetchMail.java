@@ -448,7 +448,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 getServer(),
                 getLocalUsers());
         setConfiguration(parsedConfiguration);
-        
+
         // Setup the Accounts
         Configuration[] allAccounts = configuration.getChildren("accounts");
         if (allAccounts.length < 1)
@@ -487,7 +487,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                         accountsChild.getAttribute("password"),
                         accountsChild.getAttribute("recipient"),
                         accountsChild.getAttributeAsBoolean(
-                            "ignorercpt-header")));
+                            "ignorercpt-header"),
+                        getSession()));
                 continue;
             }
 
@@ -507,7 +508,11 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     {
         // if we are already fetching then just return
         if (isFetching())
+        {
+            getLogger().info(
+                "Triggered fetch cancelled. A fetch is already in progress.");
             return;
+        }
 
         // Enter Fetching State
         try
@@ -561,8 +566,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             {
                 try
                 {
-                    new StoreProcessor((Account) accounts.next(), getSession())
-                        .process();
+                    new StoreProcessor((Account) accounts.next()).process();
                 }
                 catch (MessagingException ex)
                 {
@@ -868,7 +872,8 @@ protected void setLocalUsers(UsersRepository localUsers)
                         parameters.getPassword(),
                         parameters.getRecipientPrefix(),
                         parameters.getRecipientSuffix(),
-                        parameters.isIgnoreRecipientHeader());
+                        parameters.isIgnoreRecipientHeader(),
+                        getSession());
             }
             accounts.put(key, account);
         }

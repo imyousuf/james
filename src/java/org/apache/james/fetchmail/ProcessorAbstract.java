@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.mail.MessagingException;
+import javax.mail.Session;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailServer;
@@ -224,6 +225,15 @@ abstract public class ProcessorAbstract
     }
     
     /**
+     * Returns the session.
+     * @return Session
+     */
+    protected Session getSession()
+    {
+        return getAccount().getSession();
+    }    
+    
+    /**
      * Returns the repository of local users.
      * @return UsersRepository
      */
@@ -319,6 +329,15 @@ abstract public class ProcessorAbstract
     }
     
     /**
+     * Returns the LeaveMaxMessageSizeExceeded.
+     * @return boolean
+     */
+    protected boolean isLeaveMaxMessageSizeExceeded()
+    {
+        return getConfiguration().isLeaveMaxMessageSizeExceeded();
+    }    
+    
+    /**
      * Returns the leaveUndeliverable.
      * @return boolean
      */
@@ -335,6 +354,15 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().isRejectUserUndefined();
     }
+    
+    /**
+     * Returns the RejectMaxMessageSizeExceeded.
+     * @return boolean
+     */
+    protected boolean isRejectMaxMessageSizeExceeded()
+    {
+        return getConfiguration().isRejectMaxMessageSizeExceeded();
+    }    
     
     /**
      * Returns the RejectUserBlacklisted.
@@ -407,6 +435,15 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().isMarkUserUndefinedSeen();
     }
+    
+    /**
+     * Returns the MarkMaxMessageSizeExceededSeen.
+     * @return boolean
+     */
+    protected boolean isMarkMaxMessageSizeExceededSeen()
+    {
+        return getConfiguration().isMarkMaxMessageSizeExceededSeen();
+    }    
     
     /**
      * Returns the markUndeliverableSeen.
@@ -532,5 +569,14 @@ abstract public class ProcessorAbstract
     {
         fieldAccount = account;
     }
+    
+    /**
+     * Returns the getMaxMessageSizeLimit.
+     * @return int
+     */
+    protected int getMaxMessageSizeLimit()
+    {
+        return getConfiguration().getMaxMessageSizeLimit();
+    }    
 
 }

@@ -292,8 +292,30 @@ class ParsedConfiguration
     /**
      * The Set of MailAddresses for whom mail should be rejected
      */    
-    private Set fieldBlacklist;   
+    private Set fieldBlacklist; 
 
+    /**
+     * The maximum message size limit
+     * 0 means no limit.
+     */
+    private int fieldMaxMessageSizeLimit = 0;
+    
+    /**
+     * Reject mail exceeding the maximum message size limit
+     */
+    private boolean fieldRejectMaxMessageSizeExceeded;
+    
+    /**
+     * Leave messages on the server that exceed the maximum message size limit.
+     */
+    private boolean fieldLeaveMaxMessageSizeExceeded; 
+    
+    /**
+     * Mark as seen messages on the server that exceed the maximum message size
+     * limit.
+     */
+    private boolean fieldMarkMaxMessageSizeExceededSeen;        
+    
    /**
      * The Local Users repository
      */
@@ -388,6 +410,19 @@ class ParsedConfiguration
 
         setRemoteReceivedHeaderIndex(
             conf.getChild("remoteReceivedHeaderIndex").getValueAsInteger(-1));
+
+        Configuration maxmessagesize = conf.getChild("maxmessagesize", false);
+        if (null != maxmessagesize)
+        {
+            setMaxMessageSizeLimit(
+                maxmessagesize.getAttributeAsInteger("limit") * 1024);
+            setRejectMaxMessageSizeExceeded(
+                maxmessagesize.getAttributeAsBoolean("reject"));
+            setLeaveMaxMessageSizeExceeded(
+                maxmessagesize.getAttributeAsBoolean("leaveonserver"));
+            setMarkMaxMessageSizeExceededSeen(
+                maxmessagesize.getAttributeAsBoolean("markseen"));
+        }
 
         if (getLogger().isDebugEnabled())
         {
@@ -1000,6 +1035,78 @@ protected void setLocalUsers(UsersRepository localUsers)
     protected void setRemoteReceivedHeaderIndex(int remoteReceivedHeaderIndex)
     {
         fieldRemoteReceivedHeaderIndex = remoteReceivedHeaderIndex;
+    }
+
+    /**
+     * Returns the leaveMaxMessageSize.
+     * @return boolean
+     */
+    public boolean isLeaveMaxMessageSizeExceeded()
+    {
+        return fieldLeaveMaxMessageSizeExceeded;
+    }
+
+    /**
+     * Returns the markMaxMessageSizeSeen.
+     * @return boolean
+     */
+    public boolean isMarkMaxMessageSizeExceededSeen()
+    {
+        return fieldMarkMaxMessageSizeExceededSeen;
+    }
+
+    /**
+     * Returns the maxMessageSizeLimit.
+     * @return int
+     */
+    public int getMaxMessageSizeLimit()
+    {
+        return fieldMaxMessageSizeLimit;
+    }
+
+    /**
+     * Returns the rejectMaxMessageSize.
+     * @return boolean
+     */
+    public boolean isRejectMaxMessageSizeExceeded()
+    {
+        return fieldRejectMaxMessageSizeExceeded;
+    }
+
+    /**
+     * Sets the leaveMaxMessageSize.
+     * @param leaveMaxMessageSize The leaveMaxMessageSize to set
+     */
+    protected void setLeaveMaxMessageSizeExceeded(boolean leaveMaxMessageSize)
+    {
+        fieldLeaveMaxMessageSizeExceeded = leaveMaxMessageSize;
+    }
+
+    /**
+     * Sets the markMaxMessageSizeSeen.
+     * @param markMaxMessageSizeSeen The markMaxMessageSizeSeen to set
+     */
+    protected void setMarkMaxMessageSizeExceededSeen(boolean markMaxMessageSizeSeen)
+    {
+        fieldMarkMaxMessageSizeExceededSeen = markMaxMessageSizeSeen;
+    }
+
+    /**
+     * Sets the maxMessageSizeLimit.
+     * @param maxMessageSizeLimit The maxMessageSizeLimit to set
+     */
+    protected void setMaxMessageSizeLimit(int maxMessageSizeLimit)
+    {
+        fieldMaxMessageSizeLimit = maxMessageSizeLimit;
+    }
+
+    /**
+     * Sets the rejectMaxMessageSize.
+     * @param rejectMaxMessageSize The rejectMaxMessageSize to set
+     */
+    protected void setRejectMaxMessageSizeExceeded(boolean rejectMaxMessageSize)
+    {
+        fieldRejectMaxMessageSizeExceeded = rejectMaxMessageSize;
     }
 
 }

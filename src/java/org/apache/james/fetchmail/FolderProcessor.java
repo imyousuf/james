@@ -66,9 +66,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 /**
- * <p>Class <code>FolderProcessor</code> opens a Folder, fetches the Envelopes for
- * each Message and then iterates over all of the Messages, delegating their
- * processing to <code>MessageProcessor</code>.</p>
+ * <p>Class <code>FolderProcessor</code> opens a Folder and iterates over all
+ * of the Messages, delegating their processing to 
+ * <code>MessageProcessor</code>.</p>
  * 
  * <p>If isRecurse(), all subfolders are fetched recursively.</p>
  * 
@@ -105,6 +105,7 @@ public class FolderProcessor extends ProcessorAbstract
     public void process() throws MessagingException
     {
         int messagesProcessed = 0;
+        int messageCount = 0;
         try
         {
             // open the folder            
@@ -119,34 +120,31 @@ public class FolderProcessor extends ProcessorAbstract
                 throw ex;
             }
 
-            // Fetch the Envelopes from the folder
-            // Note that the fetch profile causes the envelope contents
-            // for all of the messages to be bulk fetched. This is an
-            // efficiency measure as we know we are going to read each envelope.
-            Message[] messagesIn = getFolder().getMessages();
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            getFolder().fetch(messagesIn, fp);
-
-            // Process each message
-            for (int i = 0; i < messagesIn.length; i++)
+            // Lock the folder while processing each message
+            synchronized (getFolder())
             {
-                MimeMessage message = (MimeMessage) messagesIn[i];
-                if (isFetchAll() || !isSeen(message))
+                messageCount = getFolder().getMessageCount();
+                for (int i = 1; i <= messageCount; i++)
                 {
-                    try
+                    MimeMessage message =
+                        (MimeMessage) getFolder().getMessage(i);
+                    if (isFetchAll() || !isSeen(message))
                     {
-                        new MessageProcessor(message, getAccount()).process();
-                        messagesProcessed++;
-                    }
-                    // Catch and report an exception but don't rethrow it, 
-                    // allowing subsequent messages to be processed.                    
-                    catch (MessagingException mex)
-                    {
-                        StringBuffer logMessageBuffer =
-                            new StringBuffer("MessagingException processing message ID: ");
-                        logMessageBuffer.append(message.getMessageID());
-                        getLogger().error(logMessageBuffer.toString(), mex);
+                        try
+                        {
+                            new MessageProcessor(message, getAccount())
+                                .process();
+                            messagesProcessed++;
+                        }
+                        // Catch and report an exception but don't rethrow it, 
+                        // allowing subsequent messages to be processed.                    
+                        catch (Exception ex)
+                        {
+                            StringBuffer logMessageBuffer =
+                                new StringBuffer("Exception processing message ID: ");
+                            logMessageBuffer.append(message.getMessageID());
+                            getLogger().error(logMessageBuffer.toString(), ex);
+                        }
                     }
                 }
             }
@@ -170,7 +168,9 @@ public class FolderProcessor extends ProcessorAbstract
             }
             StringBuffer logMessageBuffer = new StringBuffer("Processed ");
             logMessageBuffer.append(messagesProcessed);
-            logMessageBuffer.append(" messages in folder '");
+            logMessageBuffer.append(" messages of ");
+            logMessageBuffer.append(messageCount);
+            logMessageBuffer.append(" in folder '");
             logMessageBuffer.append(getFolder().getName());
             logMessageBuffer.append("'");
             getLogger().info(logMessageBuffer.toString());

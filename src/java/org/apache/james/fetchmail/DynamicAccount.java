@@ -58,6 +58,8 @@
 
 package org.apache.james.fetchmail;
 
+import javax.mail.Session;
+
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 public class DynamicAccount extends Account
@@ -71,18 +73,27 @@ public class DynamicAccount extends Account
      * @param password
      * @param recipient
      * @param ignoreRecipientHeader
+     * @param session
      * @throws ConfigurationException
      */
     private DynamicAccount(
         int sequenceNumber,
-        ParsedConfiguration parsedConfiguration,        
+        ParsedConfiguration parsedConfiguration,
         String user,
         String password,
         String recipient,
-        boolean ignoreRecipientHeader)
+        boolean ignoreRecipientHeader,
+        Session session)
         throws ConfigurationException
     {
-        super(sequenceNumber, parsedConfiguration, user, password, recipient, ignoreRecipientHeader);
+        super(
+            sequenceNumber,
+            parsedConfiguration,
+            user,
+            password,
+            recipient,
+            ignoreRecipientHeader,
+            session);
     }
 
     /**
@@ -96,21 +107,30 @@ public class DynamicAccount extends Account
      * @param recipientPrefix 
      * @param recipientSuffix  
      * @param ignoreRecipientHeader
+     * @param session
      * @throws ConfigurationException
      */
     public DynamicAccount(
         int sequenceNumber,
-        ParsedConfiguration parsedConfiguration,         
+        ParsedConfiguration parsedConfiguration,
         String userName,
         String userPrefix,
         String userSuffix,
-        String password,        
+        String password,
         String recipientPrefix,
         String recipientSuffix,
-        boolean ignoreRecipientHeader)
+        boolean ignoreRecipientHeader,
+        Session session)
         throws ConfigurationException
     {
-        this(sequenceNumber, parsedConfiguration, null, password, null, ignoreRecipientHeader);
+        this(
+            sequenceNumber,
+            parsedConfiguration,
+            null,
+            password,
+            null,
+            ignoreRecipientHeader,
+            session);
 
         StringBuffer userBuffer = new StringBuffer(userPrefix);
         userBuffer.append(userName);
