@@ -45,18 +45,13 @@ import org.apache.mailet.MailAddress;
  * Implementation of a MailRepository on a database.
  *
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br><repository destinationURL="town://path"
+ *  <br><repository destinationURL="db://<datasource>/<repository_name>"
  *  <br>            type="MAIL"
  *  <br>            model="SYNCHRONOUS"/>
- *  <br>            <driver>sun.jdbc.odbc.JdbcOdbcDriver</conn>
- *  <br>            <conn>jdbc:odbc:LocalDB</conn>
- *  <br>            <table>Message</table>
  *  <br></repository>
  * <p>destinationURL specifies..(Serge??)
  * <br>Type can be SPOOL or MAIL
  * <br>Model is currently not used and may be dropped
- * <br>conn is the location of the ...(Serge)
- * <br>table is the name of the table in the Database to be used
  *
  * <p>Requires a logger called MailRepository.
  *
@@ -67,7 +62,7 @@ public class JDBCMailRepository
     extends AbstractLoggable
     implements MailRepository, Component, Configurable, Composable {
 
-    private SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy MMM dd h:mm:ss a");
+    //private SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy MMM dd h:mm:ss a");
 
     protected Lock lock;
     protected String destination;
@@ -77,35 +72,36 @@ public class JDBCMailRepository
     //The table where this is stored
     private String driverClassName = "com.inet.tds.TdsDriver";
     protected String jdbcURL = "jdbc:inetdae7:127.0.0.1?database=James";
-    protected String jdbcUsername = "sa";   //optional
-    protected String jdbcPassword = "rufus4811";    //optional
+    protected String jdbcUsername = "sa_james";   //optional
+    protected String jdbcPassword = "blahblah";    //optional
 
 
-    private String checkMessageExistsSQL =
+    protected String checkMessageExistsSQL =
             "SELECT count(*) FROM " + tableName + " WHERE message_name = ? AND repository_name = ?";
 
-    private String updateMessageSQL =
+    protected String updateMessageSQL =
             "UPDATE " + tableName + " SET message_state = ?, error_message = ?, sender = ?, recipients = ?, "
             + "remote_host = ?, remote_addr = ?, last_updated = ? "
             + "WHERE message_name = ? AND repository_name = ?";
 
-    private String updateMessageBodySQL =
+    protected String updateMessageBodySQL =
             "UPDATE " + tableName + " SET message_body = ? WHERE message_name = ? AND repository_name = ?";
 
-    private String insertMessageSQL =
+    protected String insertMessageSQL =
             "INSERT INTO " + tableName + " (message_name, repository_name, message_state, "
             + "error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    private String retrieveMessageSQL =
+    protected String retrieveMessageSQL =
             "SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated "
             + "FROM " + tableName + " WHERE message_name = ? AND repository_name = ?";
 
-    private String removeMessageSQL =
+    protected String removeMessageSQL =
             "DELETE FROM " + tableName + " WHERE message_name = ? AND repository_name = ?";
 
-    private String listMessagesSQL =
-            "SELECT message_name FROM " + tableName + " WHERE repository_name = ? ORDER BY last_updated ASC";
+    protected String listMessagesSQL =
+            "SELECT message_name, message_state, last_updated FROM " + tableName
+            + " WHERE repository_name = ? ORDER BY last_updated ASC";
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
@@ -131,8 +127,6 @@ public class JDBCMailRepository
             getLogger().error(message);
             throw new ConfigurationException(message);
         }
-        //lock = new Lock();
-        System.err.println("jdbc spool initialized for " + repositoryName);
     }
 
     public void compose( final ComponentManager componentManager )
@@ -186,7 +180,7 @@ public class JDBCMailRepository
     }
 
     public void store(MailImpl mc) {
-        System.err.println("storing " + mc.getName());
+        //System.err.println("storing " + mc.getName());
         try {
             Connection conn = getConnection();
 
@@ -239,7 +233,8 @@ public class JDBCMailRepository
                 if (saveBody) {
                     updateMessage = conn.prepareStatement(updateMessageBodySQL);
                     int size = (int)messageBody.getSize();
-                    updateMessage.setBinaryStream(1, new DebugInputStream(messageBody.getInputStream()), size);
+                    updateMessage.setBinaryStream(1, messageBody.getInputStream(), size);
+                    //updateMessage.setBinaryStream(1, new DebugInputStream(messageBody.getInputStream()), size);
                     updateMessage.setString(2, mc.getName());
                     updateMessage.setString(3, repositoryName);
                     updateMessage.execute();
@@ -263,13 +258,14 @@ public class JDBCMailRepository
                 insertMessage.setString(6, recipients.toString());
                 insertMessage.setString(7, mc.getRemoteHost());
                 insertMessage.setString(8, mc.getRemoteAddr());
-                //java.sql.Date lastUpdated = new java.sql.Date(mc.getLastUpdated().getTime());
+                java.sql.Date lastUpdated = new java.sql.Date(mc.getLastUpdated().getTime());
                 //System.err.println(lastUpdated);
-                //insertMessage.setDate(9, lastUpdated);
-                insertMessage.setString(9, sqlFormat.format(mc.getLastUpdated()));
+                insertMessage.setDate(9, lastUpdated);
+                //insertMessage.setString(9, sqlFormat.format(mc.getLastUpdated()));
                 MimeMessage messageBody = mc.getMessage();
                 int size = messageBody.getSize();
-                insertMessage.setBinaryStream(10, new DebugInputStream(messageBody.getInputStream()), size);
+                insertMessage.setBinaryStream(10, messageBody.getInputStream(), size);
+                //insertMessage.setBinaryStream(10, new DebugInputStream(messageBody.getInputStream()), size);
                 insertMessage.execute();
                 insertMessage.close();
             }
@@ -279,7 +275,6 @@ public class JDBCMailRepository
             conn.close();
 
             synchronized (this) {
-                System.err.println("everything is notified on " + this);
                 notifyAll();
             }
         } catch (Exception e) {
@@ -289,7 +284,7 @@ public class JDBCMailRepository
     }
 
     public MailImpl retrieve(String key) {
-        System.err.println("retrieving " + key);
+        //System.err.println("retrieving " + key);
         try {
             Connection conn = getConnection();
 
@@ -345,7 +340,7 @@ public class JDBCMailRepository
     }
 
     public void remove(String key) {
-        System.err.println("removing " + key);
+        //System.err.println("removing " + key);
         try {
             lock(key);
 
@@ -364,7 +359,7 @@ public class JDBCMailRepository
     }
 
     public Iterator list() {
-        System.err.println("listing messages");
+        //System.err.println("listing messages");
         try {
             Connection conn = getConnection();
             PreparedStatement listMessages = conn.prepareStatement(listMessagesSQL);
