@@ -235,7 +235,7 @@ import org.apache.mailet.MailAddress;
  */
 
 public class Redirect extends AbstractRedirect {
-            
+
     /**
      * Returns a string describing this mailet.
      *
@@ -248,7 +248,7 @@ public class Redirect extends AbstractRedirect {
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
      * @return the <CODE>static</CODE> init parameter
     */
@@ -290,8 +290,8 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>recipients</CODE> init parameter or SpecialAddress.SENDER
-     * or SpecialAddress.RETURN_PATH or null if missing
+     * @return the <CODE>recipients</CODE> init parameter or <CODE>SpecialAddress.SENDER</CODE>
+     * or <CODE>SpecialAddress.RETURN_PATH</CODE> or null if missing
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
@@ -302,7 +302,7 @@ public class Redirect extends AbstractRedirect {
         if (addressList == null) {
             return null;
         }
-        
+
         MailAddress specialAddress = getSpecialAddress(addressList,
                                         new String[] {"postmaster", "sender", "returnPath"});
         if (specialAddress != null) {
@@ -322,8 +322,8 @@ public class Redirect extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>to</CODE> init parameter or SpecialAddress.SENDER
-     * or SpecialAddress.RETURN_PATH or SpecialAddress.UNALTERED or null if missing
+     * @return the <CODE>to</CODE> init parameter or <CODE>SpecialAddress.SENDER</CODE>
+     * or S<CODE>pecialAddress.RETURN_PATH</CODE> or <CODE>SpecialAddress.UNALTERED</CODE> or null if missing
      */
     protected InternetAddress[] getTo() throws MessagingException {
         String addressList = (getInitParameter("to") == null)
@@ -372,20 +372,20 @@ public class Redirect extends AbstractRedirect {
                 }
                 return specialAddress;
             }
-            
+
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
                 log("Parse error in getReplyTo: " + addressString);
             }
         }
-        
+
         return null;
     }
 
     /**
-     * @return the <CODE>returnPath</CODE> init parameter or SpecialAddress.NULL
-     * or SpecialAddress.SENDER or null if missing
+     * @return the <CODE>returnPath</CODE> init parameter or <CODE>SpecialAddress.NULL</CODE>
+     * or <CODE>SpecialAddress.SENDER</CODE> or null if missing
      */
     protected MailAddress getReturnPath() throws MessagingException {
         String addressString = getInitParameter("returnPath");
@@ -395,14 +395,14 @@ public class Redirect extends AbstractRedirect {
             if (specialAddress != null) {
                 return specialAddress;
             }
-            
+
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
                 log("Parse error in getReturnPath: " + addressString);
             }
         }
-        
+
         return null;
     }
 
@@ -421,7 +421,7 @@ public class Redirect extends AbstractRedirect {
                 }
                 return specialAddress;
             }
-            
+
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
@@ -463,9 +463,9 @@ public class Redirect extends AbstractRedirect {
         }
         return new Boolean(getInitParameter("isReply")).booleanValue();
     }
-    
+
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
-    
+
 }
