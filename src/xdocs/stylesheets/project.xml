@@ -28,11 +28,18 @@
         <item name="Useful RFCs {web}"   href="http://jakarta.apache.org/james/rfclist"/>
     </menu>
     
+    <menu name="Translations {web}">
+		<item name="Japanese" href="http://www.terra-intl.com/jakarta/james/"/>
+	</menu>
+    
 	<menu name="Project">        
         <item name="Coding Standards"  href="/code-standards.html"/>
         <item name="License"           href="/license.html"/>
         <item name="TODO"              href="/todo.html"/>
         <item name="Changelog"		   href="/changelog.html"/>
+        <item name="Bug Database {web}"	href="/site/bugs.html"/>
+        <item name="Contributors How To" href="/contribute.html"/>
+        
         <item name="Who We Are"		   href="/weare.html"/>
     </menu>    
 
@@ -41,7 +48,6 @@
         <item name="CVS Repositories"      href="/site/cvsindex.html"/>
         <item name="Mailing Lists"         href="/site/mail.html"/>
         <item name="Reference Library"     href="/site/library.html"/>
-        <item name="Bug Database"          href="/site/bugs.html"/>
     </menu>
 
     <menu name="Jakarta Essentials {web}">

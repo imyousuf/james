@@ -44,6 +44,9 @@
                <li>
                   <a href="#11">Why isn't my mailet making changes to a MimeMessage?</a>
                </li>
+				<li>
+                  <a href="#12">How can I contribute to James?</a>
+               </li>               
             </ul>
          </p>
       </section>
@@ -201,6 +204,13 @@ see):</p>
   Serge Knystautas
   </p>
          </subsection>
+         <a name="12"/>
+         <subsection name="How can I contribute to James">
+            <p>Read the "Contributors How To" <a href="contribute.html">here</a>
+            <br/>
+  Danny Angus
+  </p>
+         </subsection>         
       </section>
    </body>
 </document>
