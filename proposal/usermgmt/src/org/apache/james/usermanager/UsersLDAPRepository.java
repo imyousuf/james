@@ -11,6 +11,7 @@ package org.apache.james.usermanager;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
+import org.apache.james.Constants;
 import java.util.*;
 import java.io.*;
 import javax.naming.*;
@@ -21,10 +22,11 @@ import javax.naming.directory.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class UsersLDAPRepository  implements UsersRepository, Configurable{
+public class UsersLDAPRepository  implements UsersRepository, Configurable, Contextualizable{
 
    
     private ComponentManager comp;
+    private org.apache.avalon.Context context;
   
     private Logger logger;
     private String path;
@@ -160,7 +162,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
 	authType = conf.getConfiguration("AuthenticationType").getValue();
 	principal = conf.getConfiguration("Principal").getValue();
 	password = conf.getConfiguration("Password").getValue();
-	usersDomain = conf.getConfiguration("UsersDomain").getValue();
+	
 	membersAttr = conf.getConfiguration("MembersAttribute").getValue();
 	manageGroupAttr = conf.getConfiguration("ManageGroupAttribute").getValue().equals("TRUE");
 	groupAttr = conf.getConfiguration("GroupAttribute").getValue();
@@ -168,9 +170,14 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
 	passwordAttr = conf.getConfiguration("PasswordAttribute").getValue();
 	}
 
+   public void setContext(org.apache.avalon.Context context) {
+        this.context = context;
+    }
+
     public void setComponentManager(ComponentManager comp) {
 	this.comp = comp;
     }
+
 
     public void setServerRoot() {
 	this.setBase(serverRDN +", " + rootNodeDN);
@@ -202,6 +209,9 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable{
 	    e.getMessage();
 	    e.printStackTrace();
 	}
+
+	Collection serverNames = (Collection) context.get(Constants.SERVER_NAMES);
+	usersDomain = (String) serverNames.iterator().next();
     }
     
 

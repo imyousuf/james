@@ -37,8 +37,6 @@ public interface UsersRepository extends Store.Repository {
     public boolean test(String name, Object attributes) ;
     
     public int countUsers() ;
-
-    public String getDomains();
     
 }
 

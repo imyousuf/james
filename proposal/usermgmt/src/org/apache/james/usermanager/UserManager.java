@@ -53,6 +53,7 @@ public class UserManager implements Component, Configurable, Composer, Service, 
 		UsersLDAPRepository LDAPrep = new UsersLDAPRepository();
 		try {
 		    LDAPrep.setConfiguration(conf.getConfiguration("LDAPRepository"));
+		    LDAPrep.setContext(context);
 		    LDAPrep.setComponentManager(comp);
 		    LDAPrep.setServerRoot();
 		    LDAPrep.init();
@@ -86,6 +87,7 @@ public class UserManager implements Component, Configurable, Composer, Service, 
 		UsersLDAPRepository newRep = new UsersLDAPRepository();
 		try {
 		    newRep.setConfiguration(conf.getConfiguration("LDAPRepository"));
+		    newRep.setContext(context);
 		    newRep.setComponentManager(comp);
 		    newRep.setBase(newBase);
 		    newRep.init();

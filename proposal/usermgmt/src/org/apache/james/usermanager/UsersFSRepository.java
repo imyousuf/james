@@ -108,10 +108,6 @@ public class UsersFSRepository implements UsersRepository {
         return count;
     }
 
-    public String getDomains() {
-	return null;
-    }
-
 }
 
     
