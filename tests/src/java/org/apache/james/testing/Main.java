@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import java.io.File;
+import java.io.File;
 import java.lang.reflect.Constructor;
 
 import junit.extensions.ActiveTestSuite;
@@ -20,7 +20,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
-/**
+/**
  * Run tests. 
  * - Reads test configuration file, constructs test suite
  * - initiates tests, reports result.
@@ -42,7 +42,7 @@ public class Main {
         Configuration alltestconf = builder.buildFromFile(testconfFile);
         Configuration[] testconf = alltestconf.getChildren("test");
         TestSuite alltests = new TestSuite();
-        for ( int i = 0 ; i < testconf.length ; i++ ) {
+        for (int i = 0; i < testconf.length; i++) {
             Configuration conf = testconf[i];
             String clsname = conf.getAttribute("class");
             String name = conf.getAttribute("name");
@@ -51,18 +51,18 @@ public class Main {
 
             Class clazz = Class.forName(clsname);
             Constructor cstr = clazz.getConstructor(new Class[] { String.class });
-            Test test = (Test)cstr.newInstance(new Object[] {name});
-            if ( test instanceof Configurable ) {
-                ((Configurable)test).configure(conf);
+            Test test = (Test) cstr.newInstance(new Object[] {name});
+            if (test instanceof Configurable) {
+                ((Configurable) test).configure(conf);
             }
 
             if (repetition > 1) {
-                test = new RepeatedTest(test,repetition);
+                test = new RepeatedTest(test, repetition);
             }
 
-            if ( async ) {
+            if (async) {
                 TestSuite ts = new ActiveTestSuite();
-                ts.addTest(test);
+                ts.addTest(test);
                 test = ts;
             }
             alltests.addTest(test);

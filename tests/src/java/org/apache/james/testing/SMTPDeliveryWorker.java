@@ -3,52 +3,50 @@
  *
  * This software is published under the terms of the Apache Software License
  * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE file. 
+ * the LICENSE file.
  */
 package org.apache.james.testing;
-import java.io.IOException;
+import java.io.IOException;
 import org.apache.commons.net.smtp.SMTPClient;
-/**
+/**
  * SMTPDeliveryWorker.java
  *
  * A worker thread that is part of the SMTP delivery end to end testing.
  *
- * @author <A href="mailto:danny@apache.org">Danny Angus</a>
- * 
- * $Id: SMTPDeliveryWorker.java,v 1.3 2002/10/14 16:14:55 danny Exp $
+ * $Id: SMTPDeliveryWorker.java,v 1.4 2003/01/27 02:15:31 serge Exp $
  */
 public class SMTPDeliveryWorker implements Runnable {
     private SMTPClient client;
-    /**
+    /**
      * The test of the mail message to send.
      */
     private String mail;
-    /**
+    /**
      * The worker id.  Primarily used for identification by the class
      * managing the threads.
      */
     private int workerid;
-    /**
+    /**
      * The EndToEnd test case that spawned this thread.
      */
     EndToEnd boss;
-    /**
+    /**
      * Constructor for SMTPDeliveryWorker.
      *
-     * @param client the SMTP client being used by this test to 
+     * @param client the SMTP client being used by this test to
      */
     public SMTPDeliveryWorker(SMTPClient client, String mail, EndToEnd boss) {
         this.boss = boss;
         this.client = client;
         this.mail = mail;
     }
-    /**
+    /**
      * @see java.lang.Runnable#run()
      */
     public void run() {
         try {
             for (int run = 0; run < 100; run++) {
-                //move the connect and disconnect out of the loop to reuse 
+                // move the connect and disconnect out of the loop to reuse
                 // the connection for all mail
                 client.connect("127.0.0.1", 25);
                 client.sendSimpleMessage("postmaster@localhost", "test@localhost", mail);
@@ -56,7 +54,7 @@ public class SMTPDeliveryWorker implements Runnable {
                 client.disconnect();
             }
             String[] outs = client.getReplyStrings();
-            for (int i = 0; i < outs.length; i++) {
+            for (int i = 0; i < outs.length; i++) {
                 System.out.println(outs[i]);
             }
         } catch (IOException e) {
@@ -64,7 +62,7 @@ public class SMTPDeliveryWorker implements Runnable {
         }
         boss.finished(workerid);
     }
-    /**
+    /**
      * Set the worker id for this worker thread.
      *
      * @param workerid the worker thread id
@@ -72,7 +70,7 @@ public class SMTPDeliveryWorker implements Runnable {
     public void setWorkerid(int workerid) {
         this.workerid = workerid;
     }
-    /**
+    /**
      * Get the worker id for this worker thread.
      *
      * @return the worker thread id

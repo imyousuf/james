@@ -7,9 +7,9 @@
  */
 package org.apache.james.testing;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method;
 
-/**
+/**
  * A test class to test a single method call.
  */
 class TestMethod {
@@ -55,14 +55,14 @@ class TestMethod {
      *            to be tested should be invoked.
      */
     void invoke(Object obj) throws Exception {
-        Method m = obj.getClass().getMethod(name,new Class[0]);
-        attempts++;
+        Method m = obj.getClass().getMethod(name, new Class[0]);
+        attempts++;
         long st = System.currentTimeMillis();
-        try {
-            m.invoke(obj,new Object[0]);
+        try {
+            m.invoke(obj, new Object[0]);
             success++;
         } finally {
-            timeTaken = (int)(System.currentTimeMillis() - st);
+            timeTaken = (int) (System.currentTimeMillis() - st);
         }
     }
 
@@ -74,14 +74,7 @@ class TestMethod {
      */
     public String toString() {
         StringBuffer theStringBuffer =
-            new StringBuffer(128)
-                    .append(name)
-                    .append(", ")
-                    .append(timeTaken)
-                    .append(", ")
-                    .append(success)
-                    .append(", ")
-                    .append(attempts);
-        return theStringBuffer.toString();
+                new StringBuffer(128).append(name).append(", ").append(timeTaken).append(", ").append(success).append(", ").append(attempts);
+        return theStringBuffer.toString();
     }
 }

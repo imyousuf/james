@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import java.io.InputStream;
+import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import javax.mail.internet.MimeMessage;
@@ -18,9 +18,8 @@ import org.apache.commons.net.SocketClient;
 import org.apache.commons.net.pop3.POP3;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
-import org.apache.james.fetchpop.ReaderInputStream;
 
-/**
+/**
  * Fetch mail. Can be configured and extended to test specific POP3
  * operations.
  */
@@ -53,8 +52,8 @@ public class POP3Test extends BaseTest {
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration configuration) 
-        throws ConfigurationException {
+    public void configure(Configuration configuration)
+            throws ConfigurationException {
         this.host = configuration.getChild("host").getValue();
         this.username = configuration.getChild("username").getValue();
         this.password = configuration.getChild("password").getValue();
@@ -120,8 +119,8 @@ public class POP3Test extends BaseTest {
      * Fetches all messages from the POP3 server.
      */
     public void fetchMsgs() throws Exception {
-        for ( int i = 0 ; i < msg.length ; i++ ) {
-            fetchMsg(msg[i],false);
+        for (int i = 0; i < msg.length; i++) {
+            fetchMsg(msg[i], false);
         }
     }
 
@@ -130,8 +129,8 @@ public class POP3Test extends BaseTest {
      * to disk.
      */
     public void fetchAndSaveMsgs() throws Exception {
-        for ( int i = 0 ; i < msg.length ; i++ ) {
-            fetchMsg(msg[i],true);
+        for (int i = 0; i < msg.length; i++) {
+            fetchMsg(msg[i], true);
         }
     }
 
@@ -139,7 +138,7 @@ public class POP3Test extends BaseTest {
      * Deletes all the messages from the server.
      */
     public void deleteMsgs() throws Exception {
-        for ( int i = 0 ; i < msg.length ; i++ ) {
+        for (int i = 0; i < msg.length; i++) {
             client.deleteMessage(msg[i].number);
         }
     }
@@ -151,14 +150,14 @@ public class POP3Test extends BaseTest {
      * @param msg the information for the particular message to retrieve
      * @param save whether the message is saved to a file.
      */
-    private void fetchMsg(POP3MessageInfo msg,boolean save) throws Exception {
+    private void fetchMsg(POP3MessageInfo msg, boolean save) throws Exception {
         InputStream in = new ReaderInputStream(client.retrieveMessage(msg.number));
-        try {
+        try {
             MimeMessage message = new MimeMessage(null, in);
-            if ( save ) {
+            if (save) {
                 OutputStream out = new FileOutputStream
-                    ("pop3test-"+host+"-"+username+"."+(saveMsgCounter++)+".eml");
-                try {
+                        ("pop3test-" + host + "-" + username + "." + (saveMsgCounter++) + ".eml");
+                try {
                     message.writeTo(out);
                 } finally {
                     IOUtil.shutdownStream(out);
