@@ -330,6 +330,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     if (mc != DELETED) {
                         out.println(OK_RESPONSE + " Message follows");
                         mc.writeMessageTo(outs);
+                        out.println();
                         out.println(".");
                     } else {
                         out.println(ERR_RESPONSE + " Message (" + num + ") deleted.");
