@@ -62,5 +62,39 @@ of the mailet.  Destruction logic is implemented by overriding the destroy() met
 GenericMailet.</p>
 </subsection>
 </section>
+<section name="Deploying a Custom Mailet">
+<p>Once a Mailet has been successfully implemented there are only a couple of 
+additional steps necessary to actually deploy the Mailet.</p>
+<subsection name="Adding Your Mailet to the Classpath">
+<p>
+The Mailet must be added to James' classpath so that the Mailet can be loaded by James.  There 
+are two ways to add a custom Mailet to the classpath so that James will be able to load the 
+Mailet.  These are:
+</p>
+<p>
+1. Download the source distribution, add a jar file containing the custom files to the lib 
+directory of the unpacked source distribution, and build a new .sar file by following the 
+directions <a href="build_instructions_2_1.html">here</a>.  This new .sar file will now 
+include your custom classes.
+</p>
+<p>
+or
+</p>
+<p>
+2. Place a jar file containing the custom class files in the lib subdirectory of the James
+installation.  It will also be necessary to unpack the JavaMail and James jar files from 
+the provided .sar file and add them to this directory.
+</p>
+</subsection>
+<subsection name="James Configuration">
+<p>Configuration of the processor chain is discussed 
+<a href="spoolmanager_configuration_2_1.html">elsewhere</a> in this documentation.  The 
+details of configuring mailet deployment is discussed at length.  Here we will only comment 
+that it is important to add the appropriate mailet package for your custom mailet to the 
+&lt;mailetpackages&gt; list and that the name of your mailet should not conflict with any of 
+the mailets described <a href="provided_mailets_2_1.html">here</a>.
+</p>
+</subsection>
+</section>
 </body>
 </document>
