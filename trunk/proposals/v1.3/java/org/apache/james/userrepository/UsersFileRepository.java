@@ -38,8 +38,8 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:00:36 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/21 15:57:06 $
+ * $Revision: 1.2 $
  */
 public class UsersFileRepository
     extends AbstractLoggable
@@ -125,16 +125,22 @@ public class UsersFileRepository
 	}
         else
         {
-            throw new RuntimeException("Improper use of deprecated method - use addUser(User user)");
+            throw new RuntimeException("Improper use of deprecated method" 
+                                       + " - use addUser(User user)");
         }
     }
 
     public synchronized User getUserByName(String name) {
-        try {
-            return (User)or.get(name);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception while retrieving user: " + e.getMessage());
-        }
+	if (contains(name)) {
+            try {
+                return (User)or.get(name);
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while retrieving user: "
+                                           + e.getMessage());
+            }
+	} else {
+	    return null;
+	}
     }
 
     public User getUserByNameCaseInsensitive(String name) {

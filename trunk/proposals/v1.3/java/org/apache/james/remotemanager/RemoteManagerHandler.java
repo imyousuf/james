@@ -41,8 +41,8 @@ import org.apache.james.services.UsersStore;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:02:53 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/21 15:56:53 $
+ * $Revision: 1.2 $
  *
  */
 public class RemoteManagerHandler
@@ -271,6 +271,69 @@ public class RemoteManagerHandler
             out.println("verify [username]               verify if specified user exist");
             out.println("quit                            close connection");
             out.flush();
+        } else if (command.equalsIgnoreCase("SETALIAS")) {
+	    if (argument == null || argument1 == null) {
+                out.println("usage: setalias [username] [alias]");
+                return true;
+	    }
+            String username = argument;
+            String alias = argument1;
+            if (username.equals("") || alias.equals("")) {
+                out.println("usage: adduser [username] [alias]");
+                return true;
+	    }
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+	    JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+	    if (aliasUser == null) {
+		out.println("Alias unknown to server" 
+                            + " - create that user first.");
+		return true;
+	    }
+
+  	    boolean success;
+	    success = user.setAlias(alias);
+	    if (success){
+	        user.setAliasing(true);
+		users.updateUser(user);
+                out.println("Alias for " + username + " set to:" + alias);
+                getLogger().info("Alias for " + username + " set to:" + alias);
+	    } else {
+                out.println("Error setting alias");
+                getLogger().info("Error setting alias");
+	    }
+            out.flush();
+	    return true;
+        } else if (command.equalsIgnoreCase("UNSETALIAS")) {
+	    if (argument == null) {
+                out.println("usage: unsetalias [username]");
+                return true;
+	    }
+            String username = argument;
+            if (username.equals("")) {
+                out.println("usage: adduser [username]");
+                return true;
+	    }
+	    JamesUser user = (JamesUser) users.getUserByName(username);
+	    if (user == null) {
+		out.println("No such user");
+		return true;
+	    }
+
+	    if (user.getAliasing()){
+	        user.setAliasing(false);
+		users.updateUser(user);
+                out.println("Alias for " + username + " unset");
+                getLogger().info("Alias for " + username + " unset");
+	    } else {
+                out.println("Aliasing not active for" + username);
+                getLogger().info("Aliasing not active for" + username);
+	    }
+            out.flush();
+	    return true;
         } else if (command.equalsIgnoreCase("QUIT")) {
             out.println("bye");
             return false;

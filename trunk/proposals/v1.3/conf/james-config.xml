@@ -36,7 +36,9 @@
       </servernames>
 
       <!-- Set whether user names are case sensitive or insensitive -->
-      <usernames ignoreCase="TRUE"/>
+      <!-- Set whether to enable local aliases -->
+      <usernames ignoreCase="TRUE" enableAliases="TRUE"/>
+
 
       <!-- Set the type of permanent mailfolders to be used.
       If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
