@@ -128,7 +128,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * How long a thread should sleep when there are no messages to process.
      */
-    private static int WAIT_LIMIT = 1000;
+    private static int WAIT_LIMIT = 60000;
     /**
      * How long we have to wait before reloading the list of pending messages
      */
@@ -165,8 +165,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     //            .append(" in ")
                     //            .append(repositoryName);
                     //System.err.println(errorBuffer.toString());
-//                    wait(WAIT_LIMIT);
-                    wait(); // we'll be woken by store() calling notify()
+                    wait(WAIT_LIMIT);
                 }
             } catch (InterruptedException ex) {
                 throw ex;
@@ -210,12 +209,13 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 }
             }
             //Nothing to do... sleep!
-//            if (sleepUntil == 0) {
-//                sleepUntil = System.currentTimeMillis() + WAIT_LIMIT;
-//            }
+            if (sleepUntil == 0) {
+                sleepUntil = System.currentTimeMillis() + WAIT_LIMIT;
+            }
             try {
                 synchronized (this) {
-                    long waitTime = (sleepUntil == 0) ? 0 : sleepUntil - System.currentTimeMillis();                    //StringBuffer errorBuffer =
+                    long waitTime = sleepUntil - System.currentTimeMillis();
+                    //StringBuffer errorBuffer =
                     //    new StringBuffer(128)
                     //            .append("waiting ")
                     //            .append((waitTime) / 1000L)
