@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.31 $
+ * This is $Revision: 1.32 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -195,17 +195,17 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 Iterator i = targetServers.iterator();
                 while ( i.hasNext()) {
                     try {
-                        String outgoingmailserver = i.next().toString ();
+                        String outgoingMailServer = i.next().toString ();
                         StringBuffer logMessageBuffer =
                             new StringBuffer(256)
                                     .append("Attempting delivery of ")
                                     .append(mail.getName())
                                     .append(" to host ")
-                                    .append(outgoingmailserver)
-                                    .append(" to ")
+                                    .append(outgoingMailServer)
+                                    .append(" to addresses ")
                                     .append(Arrays.asList(addr));
                         log(logMessageBuffer.toString());
-                        URLName urlname = new URLName("smtp://" + outgoingmailserver);
+                        URLName urlname = new URLName("smtp://" + outgoingMailServer);
 
                         Properties props = session.getProperties();
                         //This was an older version of JavaMail
@@ -227,7 +227,18 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         Transport transport = null;
                         try {
                             transport = session.getTransport(urlname);
-                            transport.connect();
+                            try {
+                                transport.connect();
+                            } catch (MessagingException me) {
+                                // Any error on connect should cause the mailet to attempt
+                                // to connect to the next SMTP server associated with this MX record,
+                                // assuming the number of retries hasn't been exceeded.
+                                if (failMessage(mail, me, false)) {
+                                    return true;
+                                } else {
+                                    continue;
+                                }
+                            }
                             transport.sendMessage(message, addr);
                         } finally {
                             if (transport != null) {
@@ -240,7 +251,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     .append("Mail (")
                                     .append(mail.getName())
                                     .append(") sent successfully to ")
-                                    .append(outgoingmailserver);
+                                    .append(outgoingMailServer);
                         log(logMessageBuffer.toString());
                         return true;
                     } catch (MessagingException me) {
@@ -254,34 +265,22 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log(exceptionBuffer.toString());
                         //Assume it is a permanent exception, or prove ourselves otherwise
                         boolean permanent = true;
-                        if (me.getNextException() != null && me.getNextException() instanceof java.io.IOException) {
+                        if ((me.getNextException() != null) && 
+                            (me.getNextException() instanceof java.io.IOException)) {
                             //This is more than likely a temporary failure
 
-                            //If it's an IO exception with no nested exception, it's probably
-                            //  some socket or weird IO related problem.
-                            permanent = false;
-                        }
-                        if (me instanceof SendFailedException) {
-                            SendFailedException sfe = (SendFailedException) me;
-                            //This means there was a partial delivery to certain recipients, so
-                            //  whatever caused this exception must have been a permanent error no
-                            //  matter what type of exception this was.
-                            if (sfe.getValidSentAddresses() != null && sfe.getValidSentAddresses().length > 0) {
-                                permanent = true;
-                            }
-                        }
-                        //Now take action based on whether this was a permanent or temporary action
-                        if (permanent) {
-                            //If it's permanent, fail immediately.
-                            //Note that this has changed as we have all our logic in the outer block
-                            //  for what should happen when we have a delivery failure.
-                            throw me;
-                        } else {
-                            //Record what the last error is and continue the loop in case
-                            //  there are other servers we could try.
+                            // If it's an IO exception with no nested exception, it's probably
+                            // some socket or weird I/O related problem.
                             lastError = me;
                             continue;
                         }
+                        // This was not a connection or I/O error particular to one
+                        // SMTP server of an MX set.  Instead, it is almost certainly
+                        // a protocol level error.  In this case we assume that this
+                        // is an error we'd encounter with any of the SMTP servers
+                        // associated with this MX record, and we pass the exception
+                        // to the code in the outer block that determines its severity.
+                        throw me;
                     }
                 } // end while
                 //If we encountered an exception while looping through, send the last exception we got
@@ -307,14 +306,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 }
             }
-            //The rest of the recipients failed for one reason or another.
-            //let the fail message handle it like a permanent exception.
+            // The rest of the recipients failed for one reason or another.
+            // let the fail message handle it like a permanent exception.
             return failMessage(mail, sfe, true);
         } catch (MessagingException ex) {
-            //We should do a better job checking this... if the failure is a general
-            //connect exception, this is less descriptive than more specific SMTP command
-            //failure... have to lookup and see what are the various Exception
-            //possibilities
+            // We should do a better job checking this... if the failure is a general
+            // connect exception, this is less descriptive than more specific SMTP command
+            // failure... have to lookup and see what are the various Exception
+            // possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
             return failMessage(mail, ex, (('5' == ex.getMessage().charAt(0)) ? true : false));
@@ -366,6 +365,15 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 mail.setErrorMessage(retries + "");
                 mail.setLastUpdated(new Date());
                 return false;
+            } else {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append("Bouncing message ")
+                            .append(mail.getName())
+                            .append(" after ")
+                            .append(retries)
+                            .append(" retries"); 
+                log(logBuffer.toString());
             }
         }
         bounce(mail, ex);
