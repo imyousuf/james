@@ -24,7 +24,6 @@ import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.log.LogKit;
 import org.apache.log.Logger;
 import org.apache.avalon.phoenix.Block;
 

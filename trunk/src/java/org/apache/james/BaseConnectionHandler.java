@@ -34,7 +34,6 @@ import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
 import org.apache.james.services.*;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
 /**
