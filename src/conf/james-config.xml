@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.8 $
-    Committed on $Date: 2001/08/01 03:58:31 $ by: $Author: serge $
+    This is $Revision: 1.9 $
+    Committed on $Date: 2001/08/11 10:31:17 $ by: $Author: charlesb $
 -->
 <config>
 
@@ -75,7 +75,7 @@
 
       <!-- Alternative inbox repository definition for DB use. Note you must create the inbox.properties file
       <inboxRepository>
-        <repository destinationURL="db://conf/inbox.properties"
+        <repository destinationURL="db://../conf/inbox.properties"
                     type="SPOOL">
         </repository>
       </inboxRepository>
@@ -460,7 +460,7 @@
 
       <!-- Alternative spool repository definition for JDBC use
       <spoolRepository>
-        <repository destinationURL="db://conf/spool.properties"
+        <repository destinationURL="db://../conf/spool.properties"
                     type="SPOOL">
         </repository>
       </spoolRepository>

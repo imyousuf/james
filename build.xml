@@ -389,6 +389,7 @@ Legal:
       <fileset dir="${conf.dir}">
         <include name="inet*"/>
         <include name="maildatabase*"/>
+        <include name="*.properties"/>
       </fileset>
     </copy>
 
