@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.13 $
-    Committed on $Date: 2001/09/27 13:37:51 $ by: $Author: serge $
+    This is $Revision: 1.14 $
+    Committed on $Date: 2001/09/27 21:11:40 $ by: $Author: serge $
 -->
 <config>
 
@@ -449,6 +449,7 @@
           </types>
         </repository>
 
+		<!-- These repositories store the entire message in the database -->
         <repository
             class="org.apache.james.mailrepository.JDBCMailRepository">
           <protocols>
@@ -471,7 +472,33 @@
           </types>
           <config>
             <sqlFile>dist/conf/sqlResources.xml</sqlFile>
-            <filestore>file://var/dbspool</filestore>
+          </config>
+        </repository>
+        <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
+        <repository
+            class="org.apache.james.mailrepository.JDBCMailRepository">
+          <protocols>
+            <protocol>dbfile</protocol>
+          </protocols>
+          <types>
+            <type>MAIL</type>
+          </types>
+          <config>
+            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <filestore>file://var/dbmail</filestore>
+          </config>
+        </repository>
+        <repository
+            class="org.apache.james.mailrepository.JDBCSpoolRepository">
+          <protocols>
+            <protocol>dbfile</protocol>
+          </protocols>
+          <types>
+            <type>SPOOL</type>
+          </types>
+          <config>
+            <sqlFile>dist/conf/sqlResources.xml</sqlFile>
+            <filestore>file://var/dbmail</filestore>
           </config>
         </repository>
       </repositories>
