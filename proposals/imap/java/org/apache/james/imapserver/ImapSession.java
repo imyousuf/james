@@ -34,9 +34,9 @@ public interface ImapSession extends MailboxEventListener
 
     void untaggedResponse( String msg );
 
-    int getState();
+    ImapSessionState getState();
 
-    void setState( int state );
+    void setState( ImapSessionState state );
 
     BufferedReader getIn();
 

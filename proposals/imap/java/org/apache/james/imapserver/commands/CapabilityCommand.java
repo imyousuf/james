@@ -9,13 +9,14 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
 class CapabilityCommand extends CommandTemplate
 {
     public boolean process( ImapRequest request, ImapSession session )
     {
         session.untaggedResponse( CAPABILITY_RESPONSE );
-        if ( session.getState() == SELECTED ) {
+        if ( session.getState() == ImapSessionState.SELECTED ) {
             session.checkSize();
             session.checkExpunge();
         }

@@ -9,10 +9,7 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
-import org.apache.james.imapserver.ImapRequest;
-import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ACLMailbox;
-import org.apache.james.imapserver.MailboxException;
+import org.apache.james.imapserver.*;
 
 import java.util.StringTokenizer;
 
@@ -61,7 +58,7 @@ class CreateCommand extends AuthenticatedSelectedStateCommand
                                  + folder );
             return true;
         }
-        if ( session.getState() == SELECTED ) {
+        if ( session.getState() == ImapSessionState.SELECTED ) {
             session.checkSize();
             session.checkExpunge();
         }

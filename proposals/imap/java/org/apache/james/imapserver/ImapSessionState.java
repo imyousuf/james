@@ -11,7 +11,7 @@ package org.apache.james.imapserver;
  * Enumerated type representing an IMAP session state.
  * @todo use this instead of int constants.
  */
-class ImapSessionState
+public class ImapSessionState
 {
     private int _state;
     private String _name;
@@ -35,9 +35,9 @@ class ImapSessionState
         return _name;
     }
     
-    public static final ImapSessionState NON_AUTHENTICATED = new ImapSessionState( ImapConstants.NON_AUTHENTICATED, "NONAUTHENTICATED" );
-    public static final ImapSessionState AUTHENTICATED = new ImapSessionState( ImapConstants.AUTHENTICATED, "AUTHENTICATED" );
-    public static final ImapSessionState SELECTED = new ImapSessionState( ImapConstants.SELECTED, "SELECTED" );
-    public static final ImapSessionState LOGOUT = new ImapSessionState( ImapConstants.LOGOUT, "LOGOUT" );
+    public static final ImapSessionState NON_AUTHENTICATED = new ImapSessionState( 0, "NONAUTHENTICATED" );
+    public static final ImapSessionState AUTHENTICATED = new ImapSessionState( 1, "AUTHENTICATED" );
+    public static final ImapSessionState SELECTED = new ImapSessionState( 2, "SELECTED" );
+    public static final ImapSessionState LOGOUT = new ImapSessionState( 3, "LOGOUT" );
     
 }

@@ -10,6 +10,7 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
 class NamespaceCommand extends AuthenticatedSelectedStateCommand
 {
@@ -18,7 +19,7 @@ class NamespaceCommand extends AuthenticatedSelectedStateCommand
         String namespaces = session.getImapSystem().getNamespaces( session.getCurrentUser() );
         session.untaggedResponse( "NAMESPACE " + namespaces );
         getLogger().info( "Provided NAMESPACE: " + namespaces );
-        if ( session.getState() == SELECTED ) {
+        if ( session.getState() == ImapSessionState.SELECTED ) {
             session.checkSize();
             session.checkExpunge();
         }

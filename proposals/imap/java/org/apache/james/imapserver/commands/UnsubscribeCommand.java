@@ -11,6 +11,7 @@ import org.apache.james.AccessControlException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.MailboxException;
+import org.apache.james.imapserver.ImapSessionState;
 
 import java.util.StringTokenizer;
 
@@ -53,7 +54,7 @@ class UnsubscribeCommand extends AuthenticatedSelectedStateCommand
             session.logACE( ace );
             return true;
         }
-        if ( session.getState() == SELECTED ) {
+        if ( session.getState() == ImapSessionState.SELECTED ) {
             session.checkSize();
             session.checkExpunge();
         }

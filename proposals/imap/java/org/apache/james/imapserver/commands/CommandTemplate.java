@@ -23,7 +23,7 @@ abstract class CommandTemplate
     /**
      * By default, valid in any state (unless overridden by subclass.
      */ 
-    public boolean validForState( int state )
+    public boolean validForState( ImapSessionState state )
     {
         return true;
     }
@@ -37,7 +37,7 @@ abstract class CommandTemplate
 
     protected ACLMailbox getMailbox( ImapSession session, String mailboxName, String command )
     {
-        if ( session.getState() == SELECTED && session.getCurrentFolder().equals( mailboxName ) ) {
+        if ( session.getState() == ImapSessionState.SELECTED && session.getCurrentFolder().equals( mailboxName ) ) {
             return session.getCurrentMailbox();
         }
         else {

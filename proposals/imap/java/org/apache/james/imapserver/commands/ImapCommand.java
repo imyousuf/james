@@ -9,9 +9,10 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
 public interface ImapCommand
 {
-    boolean validForState( int state );
+    boolean validForState( ImapSessionState state );
     boolean process( ImapRequest request, ImapSession session );
 }

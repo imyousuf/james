@@ -231,8 +231,10 @@ public class JamesHost
     public synchronized ACLMailbox getMailbox( String user, String mailboxName )
             throws AccessControlException, MailboxException
     {
-        Assert.isTrue( user != null && user.length() > 0
-                      && mailboxName != null );
+        Assert.isTrue( Assert.ON &&
+                       user != null &&
+                       user.length() > 0 &&
+                       mailboxName != null );
 
         getLogger().debug( "Getting mailbox " + mailboxName + " for " + user );
 
@@ -244,7 +246,9 @@ public class JamesHost
     private synchronized ACLMailbox getAbsoluteMailbox( String user, String absoluteName )
             throws AccessControlException, MailboxException
     {
-        Assert.isTrue( user != null && absoluteName.startsWith( NAMESPACE_TOKEN ) );
+        Assert.isTrue( Assert.ON &&
+                       user != null &&
+                       absoluteName.startsWith( NAMESPACE_TOKEN ) );
 
         ACLMailbox mailbox = null;
         FolderRecord record = null;
@@ -329,8 +333,10 @@ public class JamesHost
             MailboxException
 
     {
-        Assert.isTrue( user != null && user.length() > 0
-                      && mailboxName != null );
+        Assert.isTrue( Assert.ON &&
+                       user != null &&
+                       user.length() > 0 &&
+                       mailboxName != null );
 //        if (user == null || mailboxName == null) {
 //            getLogger().error("Null parameters received in createMailbox(). " );
 //            throw new RuntimeException("Null parameters received.");
@@ -340,7 +346,8 @@ public class JamesHost
 //            throw new RuntimeException("Empty/incorrect parameters received.");
 //        }
         String absoluteName = getAbsoluteMailboxName( user, mailboxName );
-        Assert.isTrue( absoluteName != null );
+        Assert.isTrue( Assert.ON &&
+                       absoluteName != null );
 //        if (absoluteName == null) {
 //            getLogger().error("Parameters in createMailbox() cannot be interpreted. ");
 //            throw new RuntimeException("Parameters in createMailbox() cannot be interpreted.");
@@ -354,8 +361,9 @@ public class JamesHost
             throws AccessControlException, AuthorizationException,
             MailboxException
     {
-        Assert.isTrue( absoluteName.startsWith( NAMESPACE_TOKEN )
-                      && absoluteName.indexOf( HIERARCHY_SEPARATOR ) != -1 );
+        Assert.isTrue( Assert.ON &&
+                       absoluteName.startsWith( NAMESPACE_TOKEN ) &&
+                       absoluteName.indexOf( HIERARCHY_SEPARATOR ) != -1 );
 
         ACLMailbox mailbox = null;
         FolderRecord record = null;
@@ -483,8 +491,11 @@ public class JamesHost
     public boolean deleteMailbox( String user, String mailboxName )
             throws MailboxException, AuthorizationException, AccessControlException
     {
-        Assert.isTrue( user != null && mailboxName != null &&
-                      user.length() > 0 && mailboxName.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       user != null &&
+                       mailboxName != null &&
+                       user.length() > 0 &&
+                       mailboxName.length() > 0 );
 
         String absoluteName = getAbsoluteMailboxName( user, mailboxName );
         getLogger().debug( "JamesHost deleteMailbox() called for:  " + absoluteName );
@@ -523,7 +534,8 @@ public class JamesHost
         }
         else {
             deleteAllMessages( mailbox, user );
-            Assert.isTrue( mailbox.getExists() == 0 );
+            Assert.isTrue( Assert.ON &&
+                           mailbox.getExists() == 0 );
 
             openMailboxes.removeMailbox( absoluteName );
             recordRep.deleteRecord( recordRep.retrieve( absoluteName ) );
@@ -886,8 +898,11 @@ public class JamesHost
     public boolean subscribe( String userName, String mailboxName )
             throws MailboxException, AccessControlException
     {
-        Assert.isTrue( userName != null && mailboxName != null &&
-                      userName.length() > 0 && mailboxName.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       userName != null &&
+                       mailboxName != null &&
+                       userName.length() > 0 &&
+                       mailboxName.length() > 0 );
 
         String absoluteName = getAbsoluteMailboxName( userName, mailboxName );
         ACLMailbox mailbox = getAbsoluteMailbox( userName, absoluteName );
@@ -908,8 +923,11 @@ public class JamesHost
     public boolean unsubscribe( String userName, String mailboxName )
             throws MailboxException, AccessControlException
     {
-        Assert.isTrue( userName != null && mailboxName != null &&
-                      userName.length() > 0 && mailboxName.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       userName != null &&
+                       mailboxName != null &&
+                       userName.length() > 0 &&
+                       mailboxName.length() > 0 );
 
         String absoluteName = getAbsoluteMailboxName( userName, mailboxName );
         ACLMailbox mailbox = getAbsoluteMailbox( userName, absoluteName );
@@ -1120,7 +1138,8 @@ public class JamesHost
      */
     String getPath( String absoluteName )
     {
-        Assert.isTrue( absoluteName.startsWith( NAMESPACE_TOKEN ) );
+        Assert.isTrue( Assert.ON &&
+                       absoluteName.startsWith( NAMESPACE_TOKEN ) );
 
         // Remove the leading '#' and replace Hierarchy separators with file separators.
         String filePath = absoluteName.substring( NAMESPACE_TOKEN.length() );
@@ -1146,7 +1165,9 @@ public class JamesHost
 
     public boolean createPrivateMailAccount( String user )
     {
-        Assert.isTrue( user != null && user.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       user != null &&
+                       user.length() > 0 );
 
         String userRootName
                 = getAbsoluteMailboxName( user, "" );

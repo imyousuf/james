@@ -9,12 +9,6 @@ package org.apache.james.imapserver;
 
 public interface ImapConstants
 {
-    // Connection states
-    int NON_AUTHENTICATED = 0;
-    int AUTHENTICATED = 1;
-    int SELECTED = 2;
-    int LOGOUT = 3;
-
     // Basic response types
     String OK = "OK";
     String NO = "NO";
