@@ -15,6 +15,7 @@ import org.apache.arch.*;
 import org.apache.james.*;
 import org.apache.avalon.blocks.*;
 import javax.mail.*;
+import javax.mail.internet.*;
 
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery 
@@ -30,9 +31,11 @@ public class RemoteAgent implements Configurable, Composer {
     private Configuration conf;
     private Logger logger;
     private Vector localHost;
+    private String deliverserver;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
+        deliverserver = conf.getConfiguration("deliverserver").getValue();
     }
     
     public void setComponentManager(ComponentManager comp) {
@@ -47,13 +50,38 @@ public class RemoteAgent implements Configurable, Composer {
     
     public void delivery(MessageContainer mc) {
         
-// FIXME: need implementation of remote delivery.
+// FIXME: need implementation of DNS.
+        logger.log("Remote delivery of " + mc.getMessageId(), "SMTPServer", logger.INFO);
         Vector recipients = mc.getState().getRecipients();
-        for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
-            String recipient = (String) e.nextElement();
+        Vector rRecipients = new Vector();
+        for (int i = 0  ; i < recipients.size(); i++) {
+            String recipient = (String) recipients.elementAt(i);
             if (isRemote(recipient)) {
-                logger.log("Remote delivery=" + recipient, "SMTPServer", logger.INFO);
-                recipients.removeElementAt(recipients.indexOf(recipient));
+                rRecipients.addElement(recipient);
+                recipients.removeElementAt(i);
+            }
+        }
+        if (!rRecipients.isEmpty()) {
+            try {
+                InternetAddress addr[] = new InternetAddress[rRecipients.size()];
+                int i = 0;
+                for (Enumeration e = rRecipients.elements(); e.hasMoreElements(); i++) {
+                    addr[i] = new InternetAddress((String) e.nextElement());
+                }
+                Session session = Session.getDefaultInstance(System.getProperties(), null);
+                session.setDebug(false);
+                InputStream mailIn = mc.getBodyInputStream();
+                mailIn.mark(Integer.MAX_VALUE);
+                MimeMessage message = new MimeMessage(session, mailIn);
+                mailIn.reset();
+                URLName urlname = new URLName("smtp://" + deliverserver);
+                
+                Transport t = session.getTransport(urlname);
+                t.connect();
+                t.sendMessage(message, addr);
+                t.close();
+            } catch (Exception ex) {
+                logger.log("Exception delivering mail: " + ex.getMessage(), "SMTPServer", logger.ERROR);
             }
         }
         mc.getState().setRecipients(recipients);

@@ -53,6 +53,7 @@
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
                 <localhost> maggie.galaxus </localhost>
+                <deliverserver>212.216.176.34</deliverserver>
             </spoolmanager>
         </block>
 

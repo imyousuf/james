@@ -208,8 +208,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
                 out.println("250 Recipient <" + recipient + "> OK");
                 return true;
             }
-            // NOP Command
-        } else if (command.equalsIgnoreCase("NOP")) {
+            // NOOP Command
+        } else if (command.equalsIgnoreCase("NOOP")) {
                 out.println("250 OK");
                 return true;
             // DATA Command
