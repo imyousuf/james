@@ -83,13 +83,12 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
- * <P>Generates a response to the Return-Path address, or the
- * address of the message's sender if the Return-Path is not
- * available. Note that this is different than a mail-client's
+ * <P>Generates a response to the reverse-path address.
+ * Note that this is different than a mail-client's
  * reply, which would use the Reply-To or From header.</P>
  * <P>Bounced messages are attached in their entirety (headers and
  * content) and the resulting MIME part type is "message/rfc822".<BR>
- * The Return-Path header of the response is set to "null" ("<>"),
+ * The reverse-path and the Return-Path header of the response is set to "null" ("<>"),
  * meaning that no reply should be sent.</P>
  * <P>A sender of the notification message can optionally be specified.
  * If one is not specified, the postmaster's address will be used.<BR>
@@ -126,17 +125,17 @@ import java.util.ArrayList;
  *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
- *   &lt;returnPath&gt;null&lt;/returnPath&gt;
+ *   &lt;reversePath&gt;null&lt;/reversePath&gt;
  *   &lt;inline&gt;see {@link Resend}&lt;/inline&gt;
  *   &lt;attachment&gt;see {@link Resend}&lt;/attachment&gt;
  *   &lt;isReply&gt;true&lt;/isReply&gt;
  *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
- * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
- * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
+ * <P><I>notice</I> and <I>sendingAddress</I> can be used instead of
+ * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.1.2.8 $ $Date: 2003/06/30 09:42:07 $
+ * @version CVS $Revision: 1.1.2.9 $ $Date: 2003/07/04 16:42:17 $
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
@@ -165,7 +164,6 @@ public class Bounce extends AbstractNotify {
             "sendingAddress",
             "prefix",
             "attachError",
-            "attachStackTrace"
         };
         return allowedArray;
     }
@@ -175,27 +173,27 @@ public class Bounce extends AbstractNotify {
     /* ******************************************************************** */
 
     /**
-     * @return <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * @return <CODE>SpecialAddress.REVERSE_PATH</CODE>
      */
     protected Collection getRecipients() {
         Collection newRecipients = new HashSet();
-        newRecipients.add(SpecialAddress.RETURN_PATH);
+        newRecipients.add(SpecialAddress.REVERSE_PATH);
         return newRecipients;
     }
 
     /**
-     * @return <CODE>SpecialAddress.RETURN_PATH</CODE>
+     * @return <CODE>SpecialAddress.REVERSE_PATH</CODE>
      */
     protected InternetAddress[] getTo() {
         InternetAddress[] apparentlyTo = new InternetAddress[1];
-        apparentlyTo[0] = SpecialAddress.RETURN_PATH.toInternetAddress();
+        apparentlyTo[0] = SpecialAddress.REVERSE_PATH.toInternetAddress();
         return apparentlyTo;
     }
 
     /**
      * @return <CODE>SpecialAddress.NULL</CODE> (the meaning of bounce)
      */
-    protected MailAddress getReturnPath(Mail originalMail) {
+    protected MailAddress getReversePath(Mail originalMail) {
         return SpecialAddress.NULL;
     }
 
@@ -215,13 +213,13 @@ public class Bounce extends AbstractNotify {
         MailAddress returnAddress = getExistingReturnPath(originalMail);
         if (returnAddress == SpecialAddress.NULL) {
             if (isDebug)
-                log("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
+                log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
             if(!getPassThrough(originalMail)) {
                 originalMail.setState(Mail.GHOST);
             }
             return;
         } else if (returnAddress == null) {
-            log("WARNING: Mail to be bounced does not contain a Return-Path header.");
+            log("WARNING: Mail to be bounced does not contain a reverse-path.");
         } else {
             if (isDebug)
                 log("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnAddress);
