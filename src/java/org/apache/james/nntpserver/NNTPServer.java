@@ -12,6 +12,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactor
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.component.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,7 +22,7 @@ import java.net.UnknownHostException;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-public class NNTPServer extends AbstractService {
+public class NNTPServer extends AbstractService implements Component {
 
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory( NNTPHandler.class );

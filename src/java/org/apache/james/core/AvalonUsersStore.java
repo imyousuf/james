@@ -19,7 +19,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
@@ -32,7 +31,7 @@ import java.util.Iterator;
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled
-    implements Block, Contextualizable, Composable, Configurable, Initializable, UsersStore {
+    implements Contextualizable, Composable, Configurable, Initializable, UsersStore {
 
     private HashMap repositories;
     protected Context                context;

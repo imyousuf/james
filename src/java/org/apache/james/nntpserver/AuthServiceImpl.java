@@ -14,7 +14,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
@@ -31,7 +30,7 @@ import org.apache.james.services.UsersStore;
  * @author  Harmeet <harmeet@kodemuse.com> 
  */
 public class AuthServiceImpl extends AbstractLogEnabled
-    implements AuthService, Composable, Configurable, Block 
+    implements AuthService, Composable, Configurable
 {
     protected boolean authRequired;
     protected UsersRepository repo;

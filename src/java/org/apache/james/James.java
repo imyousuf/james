@@ -18,7 +18,6 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.phoenix.Block;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
@@ -55,14 +54,14 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.22 $
- * Committed on $Date: 2002/04/18 13:39:34 $ by: $Author: serge $
+ * This is $Revision: 1.23 $
+ * Committed on $Date: 2002/06/03 16:07:05 $ by: $Author: hammant $
 
  */
 public class James
     extends AbstractLogEnabled
-    implements Block, Contextualizable, Composable, Configurable,
-               Initializable, MailServer, MailetContext {
+    implements Contextualizable, Composable, Configurable,
+               Initializable, MailServer, MailetContext, Component {
 
     private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     private final static boolean DEEP_DEBUG = true;
@@ -492,7 +491,7 @@ public class James
      * @param userName String representing user name, that is the portion of
      * an email address before the '@<domain>'.
      * @param password String plaintext password
-     * @returns boolean true if user added succesfully, else false.
+     * @return boolean true if user added succesfully, else false.
      */
     public boolean addUser(String userName, String password) {
         boolean success;
