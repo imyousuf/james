@@ -109,7 +109,7 @@ public class AvalonSpoolRepository
 
                     // Retrieve can return null if the mail is no longer in the store.
                     // In this case we simply continue to the next key
-                    MailImpl mail = retrieve(s);
+                    Mail mail = retrieve(s);
                     if (mail == null) {
                         continue;
                     }

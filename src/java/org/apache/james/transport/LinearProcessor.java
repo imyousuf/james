@@ -231,7 +231,7 @@ public class LinearProcessor
      * @throws IllegalStateException when this method is called before the processor lists have been closed
      *                                  or the spool has been initialized
      */
-    public void service(MailImpl mail) throws MessagingException {
+    public void service(Mail mail) throws MessagingException {
         if (spool == null) {
             throw new IllegalStateException("Attempt to service mail before the spool has been set to a non-null value");
         }
@@ -347,7 +347,7 @@ public class LinearProcessor
                 // There are a mix of recipients and not recipients.
                 // We need to clone this message, put the notRecipients on the clone
                 // and store it in the next spot
-                MailImpl notMail = (MailImpl)mail.duplicate(newName(mail));
+                Mail notMail = ((MailImpl)mail).duplicate(newName(mail));
                 notMail.setRecipients(notRecipients);
                 unprocessed[i + 1].add(notMail);
                 //We have to set the reduce possible recipients on the old message
@@ -402,7 +402,7 @@ public class LinearProcessor
      * 
      * @return a new name
      */
-    private String newName(MailImpl mail) {
+    private String newName(Mail mail) {
         StringBuffer nameBuffer =
             new StringBuffer(64)
                     .append(mail.getName())
