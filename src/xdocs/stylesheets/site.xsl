@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.5 2003/02/03 19:01:48 noel Exp $ -->
+<!-- $Id: site.xsl,v 1.6 2004/01/30 02:22:19 noel Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -109,6 +109,7 @@
       <tr>
 
         <xsl:comment>LEFT SIDE NAVIGATION</xsl:comment>
+        <A HREF="http://apachecon.com/2003/US/index.html"><img border="0" src="http://jakarta.apache.org/images/logos/ac2003-150.gif"/></A>
         <td width="20%" valign="top" nowrap="true">
           <xsl:apply-templates select="$project/body/menu"/>
         </td>
