@@ -86,9 +86,9 @@ public class UsersLDAPRepository
 
         membersAttr = conf.getChild("MembersAttribute").getValue();
         manageGroupAttr
-            = conf.getChild("ManageGroupAttribute").getValue().equals("TRUE");
+            = conf.getChild("ManageGroupAttribute").getValueAsBoolean( false );
         groupAttr = conf.getChild("GroupAttribute").getValue();
-        managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValue().equals("TRUE");
+        managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValueAsBoolean( false );
         passwordAttr = conf.getChild("PasswordAttribute").getValue();
     }
 
@@ -96,7 +96,7 @@ public class UsersLDAPRepository
         this.comp = comp;
     }
 
-    public void contextualize(Context context) 
+    public void contextualize(Context context)
         throws ContextException {
         Collection serverNames
             = (Collection)context.get(Constants.SERVER_NAMES);

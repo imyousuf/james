@@ -41,9 +41,11 @@ public class NNTPServer extends AbstractService {
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
-        final String useTLS = configuration.getChild("useTLS").getValue( "" );
-        if( useTLS.equals( "TRUE" ) )
+        final boolean useTLS = configuration.getChild("userTLS").getValueAsBoolean( false );
+        if ( useTLS )
+        {
             m_serverSocketType = "ssl";
+        }
 
         super.configure( configuration.getChild( "handler" ) );
         getLogger().info("configured NNTPServer to run at : "+m_port);

@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class POP3Server 
+public class POP3Server
     extends AbstractService {
 
     protected ConnectionHandlerFactory createFactory()
@@ -33,21 +33,23 @@ public class POP3Server
 
         m_port = configuration.getChild( "port" ).getValueAsInteger( 25 );
 
-        try 
-        { 
+        try
+        {
             final String bindAddress = configuration.getChild( "bind" ).getValue( null );
             if( null != bindAddress )
             {
-                m_bindTo = InetAddress.getByName( bindAddress ); 
+                m_bindTo = InetAddress.getByName( bindAddress );
             }
         }
-        catch( final UnknownHostException unhe ) 
+        catch( final UnknownHostException unhe )
         {
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
-        final String useTLS = configuration.getChild("useTLS").getValue( "" );
-        if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
+        final boolean useTLS = configuration.getChild("useTLS").getValueAsBoolean( false );
+        if( useTLS ) {
+            m_serverSocketType = "ssl";
+        }
 
         super.configure( configuration.getChild( "handler" ) );
     }
@@ -61,4 +63,4 @@ public class POP3Server
         System.out.println("Started POP3 Server "+m_connectionName);
     }
 }
-    
+
