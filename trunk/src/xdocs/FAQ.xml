@@ -23,7 +23,7 @@
 <li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
 <li><a href="#6">What about IMAP support?</a></li>
 <li><a href="#7">What about support virtual hosting?</a></li>
-<li><a href="#8">Where do I stick classes and jars?</a><li>
+<li><a href="#8">Where do I stick classes and jars?</a></li>
 </ul>
 </p>
 
@@ -117,7 +117,7 @@
   <subsection name="What about IMAP support?">
   <p>Unfortunately IMAP support is currently stalled.  There is a proposal in CVS, but IMAP is a significantly more complex than other mail protocols, both from a protocol command support and in terms of complexity you need on the server.  If you are interested in taking the proverbial ball and running with it, we would all very much appreciated. (I personally am incredibly frustrated with an old Netscape Mail server, but I've sworn myself to upgrade only to James's IMAP once ready as incentive.)
   <br />Serge Knystautas</p>
-
+     </subsection>
 
   <a name="7"></a>
   <subsection name="What about support virtual hosting?">
