@@ -2,13 +2,10 @@
 
 <document>
 
- <header>
+ <properties>
   <title>Java Apache Mail Enterprise Server</title>
-  <subtitle>Overview</subtitle>
-  <authors>
-   <person name="Serge Knystautas" email="sergek@lokitech.com"/>
-  </authors>
- </header>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
 
 <body>
 

@@ -7,20 +7,20 @@
 
     <body>
     <menu name="About">
-        <item name="Overview"       href="/james/index.html"/>
-        <item name="Install"        href="/james/install.html"/>
-        <item name="Mailets Concept"    href="/james/mailetconcept.html"/>
-        <item name="Architecture"   href="/james/architecture.html"/>
-        <item name="Coding Standards"   href="/james/code-standards.html"/>
-        <item name="License"        href="/james/license.html"/>
-        <item name="TODO"       href="/james/todo.html"/>
+        <item name="Overview"       href="/index.html"/>
+        <item name="Install"        href="/install.html"/>
+        <item name="Mailets Concept"    href="/mailets.html"/>
+<!--        <item name="Architecture"   href="/architecture.html"/> -->
+        <item name="Coding Standards"   href="/code-standards.html"/>
+        <item name="License"        href="/license.html"/>
+        <item name="TODO"       href="/todo.html"/>
     </menu>
 
     <menu name="Guides">
-        <item name="Mailet API"     href="/james/javadoc/mailet/index.html"/>
-        <item name="Using LDAP"     href="/james/usingLDAP.html"/>
-        <item name="Bundled Mailets"    href="/james/mailet_list.html"/>
-        <item name="Bundled Matchers"   href="/james/matcher_list.html"/>
+        <item name="Mailet API"     href="/javadoc/mailet/index.html"/>
+        <item name="Using LDAP"     href="/usingLDAP.html"/>
+<!--        <item name="Bundled Mailets"    href="/mailet_list.html"/>
+        <item name="Bundled Matchers"   href="/matcher_list.html"/> -->
     </menu>
 
     </body>
