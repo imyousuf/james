@@ -40,7 +40,7 @@ import org.apache.mailet.SpoolRepository;
  * complete.
  *
  *
- * @version This is $Revision: 1.26 $
+ * @version This is $Revision: 1.27 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -290,10 +290,10 @@ public class JamesSpoolManager
                     spool.unlock(key);
                 }
                 mail = null;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Exception in JamesSpoolManager.run " + e.getMessage());
+                    getLogger().error("Exception in JamesSpoolManager.run " + e.getMessage(), e);
                 }
             }
         }

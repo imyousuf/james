@@ -214,7 +214,7 @@ class NNTPSpooler extends AbstractLogEnabled
                             getLogger().debug("Processing file: "+f.getAbsolutePath());
                             try {
                                 process(f);
-                            } catch(Exception ex) {
+                            } catch(Throwable ex) {
                                 getLogger().debug("Exception occured while processing file: "+
                                                   f.getAbsolutePath(),ex);
                             } finally {
