@@ -175,9 +175,9 @@ public class POP3Handler
      * emails in the user's inbox at any given time
      * during the POP3 transaction.
      */
-    private Vector userMailbox = new Vector();
+    private ArrayList userMailbox = new ArrayList();
 
-    private Vector backupUserMailbox;            // A snapshot list representing the set of 
+    private ArrayList backupUserMailbox;         // A snapshot list representing the set of 
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
@@ -423,8 +423,8 @@ public class POP3Handler
      *
      */
     private void stat() {
-        userMailbox = new Vector();
-        userMailbox.addElement(DELETED);
+        userMailbox = new ArrayList();
+        userMailbox.add(DELETED);
         for (Iterator it = userInbox.list(); it.hasNext(); ) {
             String key = (String) it.next();
             MailImpl mc = userInbox.retrieve(key);
@@ -433,9 +433,9 @@ public class POP3Handler
             if (mc == null) {
                 continue;
             }
-            userMailbox.addElement(mc);
+            userMailbox.add(mc);
         }
-        backupUserMailbox = (Vector) userMailbox.clone();
+        backupUserMailbox = (ArrayList) userMailbox.clone();
     }
 
     /**
@@ -579,8 +579,8 @@ public class POP3Handler
             long size = 0;
             int count = 0;
             try {
-                for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
-                    MailImpl mc = (MailImpl) e.nextElement();
+                for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
+                    MailImpl mc = (MailImpl) i.next();
                     if (mc != DELETED) {
                         size += mc.getMessageSize();
                         count++;
@@ -622,8 +622,8 @@ public class POP3Handler
                 long size = 0;
                 int count = 0;
                 try {
-                    for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
-                        MailImpl mc = (MailImpl) e.nextElement();
+                    for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
+                        MailImpl mc = (MailImpl) i.next();
                         if (mc != DELETED) {
                             size += mc.getMessageSize();
                             count++;
@@ -639,8 +639,9 @@ public class POP3Handler
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                     count = 0;
-                    for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
-                        MailImpl mc = (MailImpl) e.nextElement();
+                    for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
+                        MailImpl mc = (MailImpl) i.next();
+
                         if (mc != DELETED) {
                             responseBuffer =
                                 new StringBuffer(16)
@@ -660,7 +661,7 @@ public class POP3Handler
                 int num = 0;
                 try {
                     num = Integer.parseInt(argument);
-                    MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                    MailImpl mc = (MailImpl) userMailbox.get(num);
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -725,8 +726,8 @@ public class POP3Handler
                 responseString = OK_RESPONSE + " unique-id listing follows";
                 writeLoggedFlushedResponse(responseString);
                 int count = 0;
-                for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
-                    MailImpl mc = (MailImpl) e.nextElement();
+                for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
+                    MailImpl mc = (MailImpl) i.next();
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -742,7 +743,7 @@ public class POP3Handler
                 int num = 0;
                 try {
                     num = Integer.parseInt(argument);
-                    MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                    MailImpl mc = (MailImpl) userMailbox.get(num);
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -828,7 +829,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                MailImpl mc = (MailImpl) userMailbox.get(num);
                 if (mc == DELETED) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -839,7 +840,7 @@ public class POP3Handler
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                 } else {
-                    userMailbox.setElementAt(DELETED, num);
+                    userMailbox.set(num, DELETED);
                     writeLoggedFlushedResponse(OK_RESPONSE + " Message removed");
                 }
             } catch (ArrayIndexOutOfBoundsException iob) {
@@ -898,7 +899,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                MailImpl mc = (MailImpl) userMailbox.get(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
@@ -971,7 +972,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.elementAt(num);
+                MailImpl mc = (MailImpl) userMailbox.get(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
