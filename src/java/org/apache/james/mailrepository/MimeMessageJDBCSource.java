@@ -24,6 +24,7 @@ import java.sql.SQLException;
  * InputStream to the JDBC field/record, possibly sequenced with the file stream.
  */
 public class MimeMessageJDBCSource extends MimeMessageSource {
+    private static final boolean DEEP_DEBUG = false;
 
     //Define how to get to the data
     JDBCMailRepository repository = null;
@@ -67,26 +68,28 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      */
     public synchronized InputStream getInputStream() throws IOException {
         try {
-            new Throwable().printStackTrace();
             Connection conn = repository.getConnection();
 
             byte[] headers = null;
 
-            for (int i = 0; i < 10; i++) {
-                long start = System.currentTimeMillis();
-                System.err.println("starting");
-                PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
-                retrieveMessageStream.setString(1, key);
-                retrieveMessageStream.setString(2, repository.repositoryName);
-                ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
+            long start = 0;
+            if (DEEP_DEBUG) {
+                start = System.currentTimeMillis();
+                System.out.println("starting");
+            }
+            PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
+            retrieveMessageStream.setString(1, key);
+            retrieveMessageStream.setString(2, repository.repositoryName);
+            ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
 
-                if (!rsRetrieveMessageStream.next()) {
-                    throw new IOException("Could not find message");
-                }
+            if (!rsRetrieveMessageStream.next()) {
+                throw new IOException("Could not find message");
+            }
 
-                headers = rsRetrieveMessageStream.getBytes(1);
-                rsRetrieveMessageStream.close();
-                retrieveMessageStream.close();
+            headers = rsRetrieveMessageStream.getBytes(1);
+            rsRetrieveMessageStream.close();
+            retrieveMessageStream.close();
+            if (DEEP_DEBUG) {
                 System.err.println("stopping");
                 System.err.println(System.currentTimeMillis() - start);
             }
