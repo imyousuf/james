@@ -71,6 +71,12 @@
 
 </section>
 
+<section name="mm.mysql drivers">
+<p>
+    mm.mysql JDBC drivers are distributed with James, a copy of the licence is contained in the distribution
+</p>
+</section>
+
 </body>
 </document>
 
