@@ -32,21 +32,39 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
     public MimeMessageInputStreamSource(String key, InputStream in) {
         //We want to immediately read this into a temporary file
         //Create a temp file and channel the input stream into it
+        OutputStream fout = null;
         try {
             file = File.createTempFile(key, ".m64");
-            OutputStream fout = new BufferedOutputStream(new FileOutputStream(file));
+            fout = new BufferedOutputStream(new FileOutputStream(file));
             int b = -1;
             while ((b = in.read()) != -1) {
                 fout.write(b);
             }
-            fout.close();
-            in.close();
+            fout.flush();
             file.deleteOnExit();
 
             sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
             throw new RuntimeException("Unable to retrieve the data: " + ioe.getMessage());
+        } finally {
+            try {
+                if (fout != null) {
+                    fout.close();
+                }
+            } catch (IOException ioe) {
+                // Ignored - logging unavailable to log this non-fatal error.
+            }
+
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ioe) {
+                // Ignored - logging unavailable to log this non-fatal error.
+            }
         }
+              
+            
     }
 
     /**
