@@ -187,7 +187,7 @@ public class FileMailbox
         }
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         uidValidity = 1;
         highestUID = 0;
         mailboxSize = 0;
@@ -261,7 +261,7 @@ public class FileMailbox
      *
      * <p> Contract is that re-init must be called after configure, contextualize, compose.
      */
-    public void reInit() throws Exception {
+    public void reinitialize() throws Exception {
         listeners = new HashSet();
         logger = LogKit.getLoggerFor("james.MailRepository");
         logger.info("FileMailbox reInit for " + absoluteName);
@@ -993,7 +993,7 @@ public class FileMailbox
             throw new RuntimeException("Exception creating SimpleMessageAttributes: " + me);
         }
         Flags flags = new Flags();
-        flags.init();
+        flags.initialize();
         return store(message, username, attrs, flags);
     }
 
@@ -1243,7 +1243,7 @@ public class FileMailbox
             try {
                 inAttrs = new ObjectInputStream( new FileInputStream(path + File.separator + uid + ATTRIBUTES_EXTENSION));
                 response = (SimpleMessageAttributes)inAttrs.readObject();
-                response.reInit();
+                response.reinitialize();
             } catch(Exception e) {
                 logger.error("Error reading attributes from disc: " + e);
                 e.printStackTrace();

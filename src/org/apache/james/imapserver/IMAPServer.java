@@ -36,7 +36,7 @@ public class IMAPServer
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        m_port = configuration.getChild( "port" ).getValueAsInt( 143 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 143 );
 
         try 
         { 

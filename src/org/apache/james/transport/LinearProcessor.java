@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 import javax.mail.*;
 import org.apache.avalon.logger.Loggable;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.SpoolRepository;
@@ -56,7 +56,7 @@ public class LinearProcessor
     }
 
 
-    public void init() {
+    public void initialize() {
         this.matchers = new Vector();
         this.mailets = new Vector();
         tempUnprocessed = new Vector();

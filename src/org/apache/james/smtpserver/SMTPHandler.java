@@ -78,7 +78,7 @@ public class SMTPHandler
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-        timeout = conf.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        timeout = conf.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
     }
 
     public void contextualize( final Context context )

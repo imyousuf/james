@@ -30,7 +30,7 @@ public class POP3Server
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        m_port = configuration.getChild( "port" ).getValueAsInt( 25 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 25 );
 
         try 
         { 
@@ -51,11 +51,11 @@ public class POP3Server
         super.configure( configuration.getChild( "pop3handler" ) );
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         getLogger().info( "POP3Server init..." );
         getLogger().info( "POP3Listener using " + m_serverSocketType + " on port " + m_port );
-        super.init();
+        super.initialize();
         getLogger().info( "POP3Server ...init end" );
         System.out.println("Started POP3 Server "+m_connectionName);
     }

@@ -9,7 +9,7 @@ package org.apache.james.nntpserver.repository;
 
 import java.io.*;
 import java.util.*;
-import org.apache.avalon.Initializable;
+import org.apache.avalon.activity.Initializable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;

@@ -94,7 +94,7 @@ public class NNTPHandler extends AbstractLoggable
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName()+": configure");
         //NNTPUtil.show(configuration,System.out);
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
         authRequired=configuration.getChild("authRequired").getValueAsBoolean(false);
         authState = new AuthState(authRequired,users);
     }

@@ -95,7 +95,7 @@ public class SizeLimitedSMTPHandler
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-        timeout = conf.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        timeout = conf.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
         // get the message size limit from the conf file and multiply
         //by 1024, to put it in bytes
         maxmessagesize =

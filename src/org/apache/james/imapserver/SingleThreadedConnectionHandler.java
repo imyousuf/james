@@ -13,7 +13,7 @@ import java.text.*;
 import java.util.*;
 import javax.mail.internet.*;
 import org.apache.avalon.activity.Initializable;
-import org.apache.avalon.Stoppable;
+import org.apache.avalon.activity.Disposable;
 import org.apache.avalon.component.ComponentException;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.component.Composable;
@@ -48,7 +48,7 @@ import org.apache.log.Logger;
 public class SingleThreadedConnectionHandler
     extends BaseCommand
     implements ConnectionHandler, Contextualizable, Composable, Configurable,
-               Initializable, Stoppable, Target, MailboxEventListener {
+               Initializable, Disposable, Target, MailboxEventListener {
 
     //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
@@ -147,7 +147,7 @@ public class SingleThreadedConnectionHandler
             lookup("org.apache.james.imapserver.Host");
     }
 
-    public void contextualize( final Context context ) 
+    public void contextualize( final Context context )
         throws ContextException {
         servername = (String)context.get( Constants.HELO_NAME );
         if ( servername == null )
@@ -156,7 +156,7 @@ public class SingleThreadedConnectionHandler
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 1800000 );
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 1800000 );
     }
 
     public void initialize() throws Exception {
@@ -1273,7 +1273,7 @@ public class SingleThreadedConnectionHandler
 
     } // end of parseCommand
 
-    public void stop() {
+    public void dispose() {
         // todo
         getLogger().error("Stop IMAPHandler");
     }

@@ -36,7 +36,7 @@ public class RemoteManager
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        m_port = configuration.getChild( "port" ).getValueAsInt( 4554 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 4554 );
 
         try 
         { 
@@ -57,11 +57,11 @@ public class RemoteManager
         super.configure( configuration );
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         getLogger().info( "RemoteManager init..." );
         getLogger().info( "RemoteManager using " + m_serverSocketType + " on port " + m_port );
-        super.init();
+        super.initialize();
         getLogger().info("RemoteManager ...init end");
     }
 }

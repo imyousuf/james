@@ -11,8 +11,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
-import org.apache.avalon.Initializable;
-import org.apache.avalon.Stoppable;
+import org.apache.avalon.activity.Initializable;
+import org.apache.avalon.activity.Disposable;
 import org.apache.avalon.component.ComponentManager;
 import org.apache.avalon.component.Composable;
 import org.apache.avalon.component.DefaultComponentManager;
@@ -37,7 +37,7 @@ import org.apache.phoenix.BlockContext;
  */
 public class JamesSpoolManager
     extends AbstractLoggable
-    implements Composable, Configurable, Initializable, Runnable, Stoppable, Contextualizable, Block {
+    implements Composable, Configurable, Initializable, Runnable, Disposable, Contextualizable, Block {
 
     private DefaultComponentManager compMgr;
     //using implementation as we need put method.
@@ -52,7 +52,7 @@ public class JamesSpoolManager
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-        threads = conf.getChild("threads").getValueAsInt(1);
+        threads = conf.getChild("threads").getValueAsInteger(1);
     }
 
     public void contextualize(Context context) {
@@ -64,7 +64,7 @@ public class JamesSpoolManager
         compMgr = new DefaultComponentManager(comp);
     }
 
-    public void init() throws Exception {
+    public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
         workerPool = blockContext.getThreadPool( "default" );
@@ -107,7 +107,7 @@ public class JamesSpoolManager
                 LinearProcessor processor = new LinearProcessor();
                 processor.setSpool(spool);
                 processor.setLogger( getLogger() );
-                processor.init();
+                processor.initialize();
                 processors.put(processorName, processor);
 
                 //If this is the root processor, add the PostmasterAlias mailet silently
@@ -227,5 +227,5 @@ public class JamesSpoolManager
         }
     }
 
-    public void stop() {}
+    public void dispose() {}
 }
