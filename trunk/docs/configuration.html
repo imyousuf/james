@@ -30,7 +30,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -82,7 +82,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -114,7 +114,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -151,7 +151,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -167,7 +167,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -189,7 +189,7 @@ WIDTH="609"></h2>
         <tr>
             <td> administrator_accounts </td>
             <td> N.A. </td>
-            <td> The parent of &ltaccount&gt </td>
+            <td> The parent of &lt;account&gt; </td>
         </tr>
         <tr>
             <td> account </td>
@@ -208,7 +208,7 @@ WIDTH="609"></h2>
 </blockquote>
     <table border=1>
         <tr>
-            <th>&ltname&gt</th>
+            <th>&lt;name&gt;</th>
             <th>default value</th>
             <th>meaning</th>
         </tr>
@@ -245,8 +245,8 @@ WIDTH="609"></h2>
 <blockquote>
         <p>This is James sitemap. It defines how each incoming mail will be processed.
         Incoming mails begins their process at the first mailet in the pipe.
-        Each step is described by a &ltservet&gt tag with some attributes:
-        &ltmailet match="[matchClass]=[matchParameters]" class="[mailetClass]"&gt.
+        Each step is described by a &lt;servet&gt; tag with some attributes:
+        &lt;mailet match="[matchClass]=[matchParameters]" class="[mailetClass]"&gt;.
         The Match class split the mail into two: one with all recipients matching conditions and
         the other with all recipient not matching. All information in the mail except recipients
         cloned so bot matching and not matching are identical (again except recipients).
@@ -299,7 +299,7 @@ WIDTH="609"></h2>
             <td> HostIsLocal </td>
             <td> none </td>
             <td> check recipients's hosts against the list of host names set in configuration for localhost
-            (see &ltservername&gt). </td>
+            (see &lt;servername&gt;). </td>
             <td> match="HostIsLocal" </td>
         </tr>
         <tr>
@@ -338,11 +338,11 @@ WIDTH="609"></h2>
     </table>
 <blockquote>
        Some examples:<br>
-        - &ltmailet match="RecipientIsLocal" class="LocalDelivery"&gt<br><br>
+        - &lt;mailet match="RecipientIsLocal" class="LocalDelivery"&gt;<br><br>
 
-        - &ltmailet match="UserIs=root & HostIsLocal" class="Forward"&gt<br><br>
+        - &lt;mailet match="UserIs=root & HostIsLocal" class="Forward"&gt;<br><br>
 
-        - &ltmailet match="SenderIs=badBoy@myhost,badGirl@yourhost" class="Null"&gt<br><br>
+        - &lt;mailet match="SenderIs=badBoy@myhost,badGirl@yourhost" class="Null"&gt;<br><br>
 
 </blockquote>
     <h4>Mailet</h4>
@@ -360,8 +360,8 @@ WIDTH="609"></h2>
         <b>Null</b>
 <blockquote>
             Destroy any incoming mail. No configuration needed.<br><br>
-            &ltmailet match="SenderIs=badBoy@badhost" class="Null"&gt<br>
-            &lt/mailet&gt<br><br>
+            &lt;mailet match="SenderIs=badBoy@badhost" class="Null"&gt;<br>
+            &lt;/mailet&gt;<br><br>
 
 </blockquote>
 
@@ -369,38 +369,38 @@ WIDTH="609"></h2>
 <blockquote>
             Leave any incoming mail untoched.Sort of debug mailet (not really useful).
             No configuration needed.<br><br>
-            &ltmailet match="All" class="Identity"&gt<br>
-            &lt/mailet&gt<br><br>
+            &lt;mailet match="All" class="Identity"&gt;<br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>Forward</b>
 <blockquote>
             Replace the recipient list with recipient specified in configurations.<br><br>
-            &ltmailet match="RecipientIs=root@localhost" class="Forward"&gt<br>
+            &lt;mailet match="RecipientIs=root@localhost" class="Forward"&gt;<br>
 <blockquote>
-            &ltforwardto&gt green@blue.org &lt/forwardto&gt<br>
-            &ltforwardto&gt red@yellow.com &lt/forwardto&gt<br>
+            &lt;forwardto&gt; green@blue.org &lt;/forwardto&gt;<br>
+            &lt;forwardto&gt; red@yellow.com &lt;/forwardto&gt;<br>
 </blockquote>
-            &lt/mailet&gt<br><br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>ToProcessor</b>
 <blockquote>
             Sends the incoming mail object to a new processor pipeline.  <code>root</code> and
             <code>error</code> are special processors that should always be defined.<br><br>
-            &ltmailet match="RecipientIsLocal" class="ToProcessor"&gt<br>
+            &lt;mailet match="RecipientIsLocal" class="ToProcessor"&gt;<br>
 <blockquote>
-            &ltprocessor&gt localdelivery &lt/processor&gt<br>
+            &lt;processor&gt; localdelivery &lt;/processor&gt;<br>
 </blockquote>
-            &lt/mailet&gt<br><br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>ServerTime</b>
 <blockquote>
             Replies to the sender with a short message with the current time.
             No configuration needed.<br><br>
-            &ltmailet match="RecipientIs=time@localhost" class="ServerTime"&gt<br>
-            &lt/mailet&gt<br><br>
+            &lt;mailet match="RecipientIs=time@localhost" class="ServerTime"&gt;<br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>ToRepository</b>
@@ -408,19 +408,19 @@ WIDTH="609"></h2>
             Stores mails in the specified MailRepository. Useful for mail logging etc.
             If the passThrough is false the mail will be destroyed, if true it will be
             returned untouched to the pipe.<br><br>
-            &ltmailet match="RecipientIs=root@localhost" class="ToRepository"&gt<br>
+            &lt;mailet match="RecipientIs=root@localhost" class="ToRepository"&gt;<br>
 <blockquote>
-            &ltrepositoryPath&gt file://../var/mail/logAdmin &lt/repositoryPath&gt<br>
-            &ltpassThrough&gt true &lt/passThrough&gt (default false)<br>
+            &lt;repositoryPath&gt; file://../var/mail/logAdmin &lt;/repositoryPath&gt;<br>
+            &lt;passThrough&gt; true &lt;/passThrough&gt; (default false)<br>
 </blockquote>
-            &lt/mailet&gt<br><br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>LocalDelivery</b>
 <blockquote>
             Store mail in the local inbox, one folder for each user.<br><br>
-            &ltmailet match="RecipientIsLocal" class="LocalDelivery"&gt<br>
-            &lt/mailet&gt<br><br>
+            &lt;mailet match="RecipientIsLocal" class="LocalDelivery"&gt;<br>
+            &lt;/mailet&gt;<br><br>
 </blockquote>
 
         <b>RemoteDelivery</b>
@@ -428,12 +428,12 @@ WIDTH="609"></h2>
             Realy mails to remote hosts. "delayTime" is the time in mills the mailet will wait
             before retrying sending a mail which fail at first time. "maxRetries" is the number of
             retries before sending back to sender the mail.<br><br>
-            &ltmailet match="!RecipientIsLocal" class="RemoteDelivery"&gt<br>
+            &lt;mailet match="!RecipientIsLocal" class="RemoteDelivery"&gt;<br>
 <blockquote>
-            &ltdelayTime&gt 21600000 &lt/delayTime&gt <br>
-            &ltmaxRetries&gt 5 &lt/maxRetries&gt <br>
+            &lt;delayTime&gt; 21600000 &lt;/delayTime&gt; <br>
+            &lt;maxRetries&gt; 5 &lt;/maxRetries&gt; <br>
 </blockquote>
-            &lt/mailet&gt<br><br>
+            &lt;/mailet&gt;<br><br>
             <br>
             .<br>
 </blockquote>
