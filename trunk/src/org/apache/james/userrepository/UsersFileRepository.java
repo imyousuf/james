@@ -19,7 +19,8 @@ import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.Lock;
-import org.apache.cornerstone.services.Store;
+import org.apache.cornerstone.services.store.Store;
+import org.apache.cornerstone.services.store.ObjectRepository;
 import org.apache.james.services.UsersRepository;
 
 /**
@@ -42,7 +43,7 @@ public class UsersFileRepository
     private static final String TYPE = "USERS";
 
     private Store store;
-    private Store.ObjectRepository or;
+    private ObjectRepository or;
     private String destination;
     private Lock lock;
 
@@ -57,9 +58,10 @@ public class UsersFileRepository
         }
     }
 
-    public void compose(ComponentManager compMgr) {
+    public void compose( final ComponentManager componentManager ) {
         try {
-            store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
+            store = (Store)componentManager.
+                lookup( "org.apache.cornerstone.services.store.Store" );
             //prepare Configurations for object and stream repositories
             DefaultConfiguration objConf
                 = new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
@@ -67,7 +69,7 @@ public class UsersFileRepository
             objConf.addAttribute("type", "OBJECT");
             objConf.addAttribute("model", "SYNCHRONOUS");
         
-            or = (Store.ObjectRepository) store.select(objConf);
+            or = (ObjectRepository) store.select(objConf);
             lock = new Lock();
         } catch (ComponentManagerException cme) {
             getLogger().error("Failed to retrieve Store component:" + cme.getMessage(), cme );

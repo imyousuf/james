@@ -21,7 +21,9 @@ import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.Lock;
 import org.apache.avalon.util.LockException;
-import org.apache.cornerstone.services.Store;
+import org.apache.cornerstone.services.store.Store;
+import org.apache.cornerstone.services.store.StreamRepository;
+import org.apache.cornerstone.services.store.ObjectRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
@@ -46,8 +48,8 @@ public class AvalonMailRepository
     protected Lock lock;
     private static final String TYPE = "MAIL";
     private Store store;
-    private Store.StreamRepository sr;
-    private Store.ObjectRepository or;
+    private StreamRepository sr;
+    private ObjectRepository or;
     private MailStore mailstore;
     private String destination;
 
@@ -65,7 +67,7 @@ public class AvalonMailRepository
     public void compose(ComponentManager compMgr) 
         throws ComponentManagerException {
         try {
-            store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
+            store = (Store)compMgr.lookup("org.apache.cornerstone.services.store.Store");
             //prepare Configurations for object and stream repositories
             DefaultConfiguration objConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
@@ -78,8 +80,8 @@ public class AvalonMailRepository
             strConf.addAttribute("type", "STREAM");
             strConf.addAttribute("model", "SYNCHRONOUS");
             
-            sr = (Store.StreamRepository) store.select(strConf);
-            or = (Store.ObjectRepository) store.select(objConf);
+            sr = (StreamRepository) store.select(strConf);
+            or = (ObjectRepository) store.select(objConf);
             lock = new Lock();
         } catch (Exception e) {
             getLogger().error( "Failed to retrieve Store component:" + e.getMessage() );

@@ -1,39 +1,35 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.smtpserver;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.mail.*;
 import javax.mail.internet.*;
-
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.Composer;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Stoppable;
-import org.apache.cornerstone.services.Scheduler;
-
+import org.apache.cornerstone.services.connection.ConnectionHandler;
+import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.cornerstone.services.scheduler.Target;
+import org.apache.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.MailServer;
 import org.apache.james.util.*;
-
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
 import org.apache.mailet.*;
-
 
 /**
  * This handles an individual incoming message.  It handles regular SMTP
@@ -43,7 +39,9 @@ import org.apache.mailet.*;
   * @author Matthew Pangaro <mattp@lokitech.com>
  * @version 0.9.1
  */
-public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable, Stoppable, Scheduler.Target, Contextualizable {
+public class SizeLimitedSMTPHandler 
+    extends AbstractLoggable
+    implements ConnectionHandler, Contextualizable, Composer, Configurable, Target {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -59,7 +57,6 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
 
     private Socket socket;
     private DataInputStream in;
-    private InputStream socketIn;
     private PrintWriter out;
 
     private String remoteHost;
@@ -68,52 +65,57 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
     private String messageID;
     private String smtpID;
 
-    private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
-    private Scheduler scheduler;
+    private TimeScheduler scheduler;
     private MailServer mailServer;
 
     private String servername;
     private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count;
-    private Hashtable state;
-    private Random random;
-    private long timeout;
+
+    private Hashtable state     = new Hashtable();
+    private Random random       = new Random();
+    private int timeout;
     private long maxmessagesize;
+
+    public void  contextualize( final Context context ) {
+        servername = (String)context.get( Constants.HELO_NAME );
+    }
+
+    public void compose( final ComponentManager componentManager ) 
+        throws ComponentManagerException {
+        mailServer = (MailServer)componentManager.
+            lookup("org.apache.james.services.MailServer");
+        scheduler = (TimeScheduler)componentManager.
+            lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
+    }
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-	timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
-	// get the message size limit from the conf file and multiply 
-	//by 1024, to put it in bytes
-	maxmessagesize = 
-	    conf.getChild("maxmessagesize").getValueAsLong(0) * 1024;
+        timeout = conf.getChild( "connectiontimeout" ).getValueAsInt( 120000 );
+        // get the message size limit from the conf file and multiply 
+        //by 1024, to put it in bytes
+        maxmessagesize = 
+            conf.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
     }
 
-    public void  contextualize(Context context) {
-        this.context = context;
-    }
-
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-
-    public void init() throws Exception {
-        mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-        scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
-        servername = (String) context.get(Constants.HELO_NAME);
-        state = new Hashtable();
-        random = new Random();
-    }
-
-    public void parseRequest(Socket socket) {
+    /**
+     * Handle a connection.
+     * This handler is responsible for processing connections as they occur.
+     *
+     * @param connection the connection
+     * @exception IOException if an error reading from socket occurs
+     * @exception ProtocolException if an error handling connection occurs
+     */
+    public void handleConnection( Socket connection ) 
+        throws IOException {
 
         try {
             this.socket = socket;
-            socketIn = new BufferedInputStream(socket.getInputStream(), 1024);
-            in = new DataInputStream(socketIn);
+            final InputStream bufferedInput = 
+                new BufferedInputStream( socket.getInputStream(), 1024 );
+            in = new DataInputStream( bufferedInput );
             out = new InternetPrintWriter(socket.getOutputStream(), true);
 
             remoteHost = socket.getInetAddress ().getHostName ();
@@ -126,47 +128,48 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
             state.put(REMOTE_IP, remoteIP);
             state.put(SMTP_ID, smtpID);
         } catch (Exception e) {
-            logger.error("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
-            throw new RuntimeException("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
+            final String message = 
+                "Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + 
+                e.getMessage();
+            getLogger().error( message, e );
+            throw new RuntimeException( message );
         }
 
-        logger.info("Connection from " + remoteHost + " (" + remoteIP + ")");
-    }
-
-    public void run() {
+        getLogger().info( "Connection from " + remoteHost + " (" + remoteIP + ")" );
 
         try {
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
-            scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
+            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
+            scheduler.addTrigger( this.toString(), trigger, this );
             out.println("220 " + this.servername + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
 
             while  (parseCommand(in.readLine())) {
-                scheduler.resetAlarm(this.toString());
+                scheduler.resetTrigger(this.toString());
             }
             socket.close();
-            scheduler.removeAlarm(this.toString());
-        } catch (SocketException e) {
-            logger.debug("Socket to " + remoteHost + " closed remotely.");
-        } catch (InterruptedIOException e) {
-            logger.debug("Socket to " + remoteHost + " timeout.");
-        } catch (IOException e) {
-            logger.debug("Exception handling socket to " + remoteHost + ":"
-			 + e.getMessage());
-        } catch (Exception e) {
-            logger.debug("Exception opening socket: " + e.getMessage());
+            scheduler.removeTrigger(this.toString());
+        } catch ( final SocketException se ) {
+            getLogger().debug( "Socket to " + remoteHost + " closed remotely.", se );
+        } catch ( final InterruptedIOException iioe ) {
+            getLogger().debug( "Socket to " + remoteHost + " timeout.", iioe );
+        } catch ( final IOException ioe ) {
+            getLogger().debug("Exception handling socket to " + remoteHost + ":"
+                              + ioe.getMessage(), ioe );
+        } catch ( final Exception e ) {
+            getLogger().debug( "Exception opening socket: " + e.getMessage(), e );
         } finally {
             try {
-            socket.close();
-            } catch (IOException e) {
-                logger.error("Exception closing socket: " + e.getMessage());
+                socket.close();
+            } catch ( final IOException ioe ) {
+                getLogger().error( "Exception closing socket: " + ioe.getMessage(), ioe );
             }
         }
     }
 
-    public void wake(String name, Scheduler.Event event) {
-        logger.error("Connection timeout on socket");
+    public void targetTriggered( final String triggerName ) {
+        getLogger().error("Connection timeout on socket");
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -175,12 +178,12 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
     }
 
     private boolean parseCommand(String command)
-	throws Exception {
+        throws Exception {
 
         if (command == null) return false;
-	if (state.get(MESG_FAILED) == null) {
-            logger.info("Command received: " + command);
-         }
+        if (state.get(MESG_FAILED) == null) {
+            getLogger().info("Command received: " + command);
+        }
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -196,7 +199,7 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
         }
-            // HELO Command
+        // HELO Command
         if (command.equalsIgnoreCase("HELO")) {
             if (state.containsKey(CURRENT_HELO_MODE)) {
                 out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO/EHLO");
@@ -237,8 +240,8 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                 String sender = argument1.trim();
                 if (!sender.startsWith("<") || !sender.endsWith(">")) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.error("Error parsing sender address: " + sender
-				 + ": did not start and end with < >");
+                    getLogger().error("Error parsing sender address: " + sender
+                                 + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress senderAddress = null;
@@ -248,8 +251,8 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.error("Error parsing sender address: " + sender
-				 + ": " + pe.getMessage());
+                    getLogger().error("Error parsing sender address: " + sender
+                                 + ": " + pe.getMessage());
                     return true;
                 }
                 state.put(SENDER, senderAddress);
@@ -272,9 +275,9 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                 String recipient = argument1.trim();
                 if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                     out.println("Syntax error in parameters or arguments");
-                    logger.error("Error parsing recipient address: "
-				 + recipient
-				 + ": did not start and end with < >");
+                    getLogger().error("Error parsing recipient address: "
+                                 + recipient
+                                 + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress recipientAddress = null;
@@ -284,8 +287,8 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                     recipientAddress = new MailAddress(recipient);
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.error("Error parsing recipient address: "
-				 + recipient + ": " + pe.getMessage());
+                    getLogger().error("Error parsing recipient address: "
+                                 + recipient + ": " + pe.getMessage());
                     return true;
                 }
                 rcptColl.add(recipientAddress);
@@ -295,13 +298,13 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
             }
             // NOOP Command
         } else if (command.equalsIgnoreCase("NOOP")) {
-                out.println("250 OK");
-                return true;
+            out.println("250 OK");
+            return true;
             // DATA Command
         } else if (command.equalsIgnoreCase("RSET")) {
-                resetState();
-                out.println("250 OK");
-                return true;
+            resetState();
+            out.println("250 OK");
+            return true;
             // DATA Command
         } else if (command.equalsIgnoreCase("DATA")) {
             if (!state.containsKey(SENDER)) {
@@ -315,11 +318,11 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                 try {
                     // parse headers
                     InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
-		    // if the message size limit has been set, we'll 
-		    //wrap msgIn with a SizeLimitedInputStream
-                     if (maxmessagesize > 0) {
-                         msgIn =
-			     new SizeLimitedInputStream(msgIn, maxmessagesize);
+                    // if the message size limit has been set, we'll 
+                    //wrap msgIn with a SizeLimitedInputStream
+                    if (maxmessagesize > 0) {
+                        msgIn =
+                            new SizeLimitedInputStream(msgIn, maxmessagesize);
                     }
                     MailHeaders headers = new MailHeaders(msgIn);
                     // if headers do not contains minimum REQUIRED headers fields add them
@@ -327,10 +330,10 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                         headers.setHeader("Date", RFC822DateFormat.toString (new Date ()));
                     }
                     /*
-                    We no longer add To as this in practice is not set (from what I've seen)
-                    if (!headers.isSet("To")) {
-                        headers.setHeader("To", );
-                    }
+                      We no longer add To as this in practice is not set (from what I've seen)
+                      if (!headers.isSet("To")) {
+                      headers.setHeader("To", );
+                      }
                     */
                     if (!headers.isSet("From")) {
                         headers.setHeader("From", state.get(SENDER).toString());
@@ -351,40 +354,40 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
                     // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
                     ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
                     MailImpl mail = new MailImpl(mailServer.getId(), (MailAddress)state.get(SENDER), (Vector)state.get(RCPT_VECTOR), new SequenceInputStream(headersIn, msgIn));
-		    //call mail.getSize() to force the message to be 
-		    //loaded. Need to do this to limit the size
+                    //call mail.getSize() to force the message to be 
+                    //loaded. Need to do this to limit the size
                     mail.getSize();
                     mail.setRemoteHost((String)state.get(REMOTE_NAME));
                     mail.setRemoteAddr((String)state.get(REMOTE_IP));
                     mailServer.sendMail(mail);
                 } catch (MessagingException me) {
-                     //Grab any exception attached to this one.
-                     Exception e = me.getNextException();
+                    //Grab any exception attached to this one.
+                    Exception e = me.getNextException();
 
-                     //If there was an attached exception, and it's a 
-		     //MessageSizeException
-                     if (e != null && e instanceof MessageSizeException) {
-                         logger.error("552 Error processing message: "
-                             + e.getMessage());
-                         //Add an item to the state to suppress 
-			 //logging of extra lines of data
-                         //  that are sent after the size limit has 
-			 //been hit.
-                         state.put(MESG_FAILED, Boolean.TRUE);
+                    //If there was an attached exception, and it's a 
+                    //MessageSizeException
+                    if (e != null && e instanceof MessageSizeException) {
+                        getLogger().error("552 Error processing message: "
+                                     + e.getMessage());
+                        //Add an item to the state to suppress 
+                        //logging of extra lines of data
+                        //  that are sent after the size limit has 
+                        //been hit.
+                        state.put(MESG_FAILED, Boolean.TRUE);
 
-                         //then let the client know that the size 
-			 //limit has been hit.
-                         out.println("552 Error processing message: "
-                             + e.getMessage());
-                     } else {
-                         out.println("451 Error processing message: "
-                             + me.getMessage());
-                         logger.error("Error processing message: " + 
-				      me.getMessage());
+                        //then let the client know that the size 
+                        //limit has been hit.
+                        out.println("552 Error processing message: "
+                                    + e.getMessage());
+                    } else {
+                        out.println("451 Error processing message: "
+                                    + me.getMessage());
+                        getLogger().error("Error processing message: " + 
+                                     me.getMessage());
                     }
                     return true;
                 }
-                logger.info("Mail sent to Mail Server");
+                getLogger().info("Mail sent to Mail Server");
                 resetState();
                 out.println("250 Message received");
                 return true;
@@ -394,8 +397,8 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
             return false;
         } else {
             if (state.get(MESG_FAILED) == null) {
-		out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + command);
-	    }
+                out.println("500 " + state.get(SERVER_NAME) + " Syntax error, command unrecognized: " + command);
+            }
             return true;
         }
     }
@@ -407,8 +410,5 @@ public class SizeLimitedSMTPHandler implements Composer, Configurable, Runnable,
         state.put(REMOTE_NAME, remoteHost);
         state.put(REMOTE_IP, remoteIP);
         state.put(SMTP_ID, smtpID);
-    }
-
-    public void stop() {
     }
 }

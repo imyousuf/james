@@ -1,41 +1,36 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.userrepository;
 
 import java.io.*;
+import java.util.*;
 import javax.naming.*;
 import javax.naming.directory.*;
-import java.util.*;
-
-import org.apache.avalon.Loggable;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.Composer;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Loggable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
 import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
-
+import org.apache.log.Logger;
 
 /**
  * Implementation of a Repository to store users.
  * @version 1.0.0, 24/04/1999
  * @author  Charles Bennett
  */
-public class UsersLDAPRepository  implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable{
-
+public class UsersLDAPRepository
+    implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable{
 
     private ComponentManager comp;
 
@@ -67,17 +62,17 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
 
 
     public void setLogger(final Logger a_Logger) {
-	logger = a_Logger;
+        logger = a_Logger;
     }
 
     public void configure(Configuration conf)
         throws ConfigurationException {
 
-	LDAPHost = conf.getChild("LDAPServer").getValue();
+        LDAPHost = conf.getChild("LDAPServer").getValue();
         rootNodeDN = conf.getChild("LDAPRoot").getValue();
         serverRDN = conf.getChild("ThisServerRDN").getValue();
         mailAddressAttr
-	    = conf.getChild("MailAddressAttribute").getValue();
+            = conf.getChild("MailAddressAttribute").getValue();
         identAttr = conf.getChild("IdentityAttribute").getValue();
         authType = conf.getChild("AuthenticationType").getValue();
         principal = conf.getChild("Principal").getValue();
@@ -85,7 +80,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
 
         membersAttr = conf.getChild("MembersAttribute").getValue();
         manageGroupAttr
-	    = conf.getChild("ManageGroupAttribute").getValue().equals("TRUE");
+            = conf.getChild("ManageGroupAttribute").getValue().equals("TRUE");
         groupAttr = conf.getChild("GroupAttribute").getValue();
         managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValue().equals("TRUE");
         passwordAttr = conf.getChild("PasswordAttribute").getValue();
@@ -96,8 +91,8 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
    }
 
     public void contextualize(org.apache.avalon.Context context) {
-	Collection serverNames
-	    = (Collection) context.get(Constants.SERVER_NAMES);
+        Collection serverNames
+            = (Collection) context.get(Constants.SERVER_NAMES);
         usersDomain = (String) serverNames.iterator().next();
     }
 
@@ -119,7 +114,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
 
         Hashtable env = new Hashtable();
         env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
-		"com.sun.jndi.ldap.LdapCtxFactory");
+                "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(javax.naming.Context.PROVIDER_URL, baseURL);
 
         try {
@@ -130,7 +125,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
         }
 
      
-	logger.info("Initial context initialised from " + baseURL);
+        logger.info("Initial context initialised from " + baseURL);
     }
 
 
@@ -187,7 +182,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
 
         try {
             Attribute members
-		= ctx.getAttributes("", attrIDs).get(membersAttr);
+                = ctx.getAttributes("", attrIDs).get(membersAttr);
             if (members != null) {
                 NamingEnumeration enum = members.getAll();
                 while (enum.hasMore()) {
@@ -552,7 +547,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
      * Based on signature from interface Disposable in new Avalon
      */
     public void dispose() throws Exception {
-	ctx.close();
+        ctx.close();
     }
 
 }
