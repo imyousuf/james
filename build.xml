@@ -234,6 +234,7 @@ All these package are in current distribution.
         <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
+        <include name="jakarta-oro-2.0.1.jar"/>
       </zipfileset>
 
       <zipfileset dir="${build.conf}" fullpath="conf/assembly.xml">
