@@ -63,18 +63,17 @@ import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MatcherConfig;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 
-
 /**
- * This Matcher determines if the mail contains the attribute specified in the
- * condition, and returns all recipients if it is the case.
- * Sample configuration:
- * &lt;mailet match="HasMailAttribute=whatever" class="Null"/&gt;
+ * <P>This Matcher determines if the mail contains the attribute specified in the
+ * condition, and returns all recipients if it is the case.</P>
+ * <P>Sample configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="HasMailAttribute=whatever" class=&quot;&lt;any-class&gt;&quot;&gt;
+ * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/07/15 10:44:49 $
+ * @version CVS $Revision: 1.2 $ $Date: 2003/07/17 13:47:06 $
  * @since 2.2.0
  **/
 public class HasMailAttribute extends GenericMatcher 
@@ -93,7 +92,6 @@ public class HasMailAttribute extends GenericMatcher
 
     public void init (MatcherConfig conf) throws MessagingException
     {
-        super.init(conf);
         attributeName = conf.getCondition();
     }
 
