@@ -237,9 +237,9 @@ public class SqlResources
 
         while ( index > -1 ) {
             output.replace(index + outputOffset, index + outputOffset + find_length, replace);
-            outputOffset = outputOffset - find_length + replace_length;
+            outputOffset = outputOffset + (replace_length - find_length);
 
-            index = input.indexOf(find, index + replace_length);
+            index = input.indexOf(find, index + find_length);
         }
 
         String result = output.toString();
