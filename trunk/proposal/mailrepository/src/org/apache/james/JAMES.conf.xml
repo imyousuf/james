@@ -155,6 +155,9 @@
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.MailFSRepository"/>
+               <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.james.SpoolFSRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.usermanager.UsersRepository"/>
