@@ -13,6 +13,8 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.*;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
@@ -38,7 +40,6 @@ import org.apache.log.Logger;
  */
 
 public class JamesHost implements Host, Component, Initializable {
-
 
     private Context context;
     private Configuration conf;
@@ -90,7 +91,6 @@ public class JamesHost implements Host, Component, Initializable {
      * MimeMessage - msg
      * MessageAttributes - att
      */
-
 
     /* No constructor */
 

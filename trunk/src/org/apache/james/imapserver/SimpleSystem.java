@@ -10,7 +10,12 @@ package org.apache.james.imapserver;
 
 
 import java.util.*;
-import org.apache.avalon.*;
+import org.apache.avalon.Context;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Component;
 
 import org.apache.james.AuthenticationException;
 

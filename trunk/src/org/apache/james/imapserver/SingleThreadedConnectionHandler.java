@@ -16,7 +16,10 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Context;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.cornerstone.services.Scheduler;
 
 //import org.apache.james.*;
