@@ -23,13 +23,16 @@ import org.apache.mailet.MailAddress;
  * <br>&lt;/mailet&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.4 $
- * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.5 $
+ * Committed on $Date: 2002/08/23 08:00:29 $ by: $Author: pgoldstein $ 
  */
 public class AvalonListservManager extends GenericListservManager {
 
     private UsersRepository members;
 
+    /**
+     * Initialize the mailet
+     */
     public void init() {
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {

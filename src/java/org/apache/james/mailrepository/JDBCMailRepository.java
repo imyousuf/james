@@ -63,6 +63,9 @@ public class JDBCMailRepository
     extends AbstractLogEnabled
     implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
 
+    /**
+     * Whether 'deep debugging' is turned on.
+     */
     private static final boolean DEEP_DEBUG = false;
 
 
@@ -108,6 +111,64 @@ public class JDBCMailRepository
     public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
+    }
+
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
+    public void compose( final ComponentManager componentManager )
+        throws ComponentException {
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            logBuffer =
+                new StringBuffer(64)
+                        .append(this.getClass().getName())
+                        .append(".compose()");
+            getLogger().debug(logBuffer.toString());
+        }
+        // Get the DataSourceSelector service
+        datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
+
+        try {
+            if (filestore != null) {
+                Store store = (Store)componentManager.
+                        lookup("org.apache.avalon.cornerstone.services.store.Store");
+                //prepare Configurations for stream repositories
+                DefaultConfiguration streamConfiguration
+                    = new DefaultConfiguration( "repository",
+                                                "generated:JDBCMailRepository.compose()" );
+
+                streamConfiguration.setAttribute( "destinationURL", filestore );
+                streamConfiguration.setAttribute( "type", "STREAM" );
+                streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
+                sr = (StreamRepository) store.select(streamConfiguration);
+
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
+                }
+            }
+
+            lock = new Lock();
+            if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(" created according to ")
+                            .append(destination);
+                getLogger().debug(logBuffer.toString());
+            }
+        } catch (Exception e) {
+            final String message = "Failed to retrieve Store component:" + e.getMessage();
+            getLogger().error(message, e);
+            e.printStackTrace();
+            throw new ComponentException(message, e);
+        }
     }
 
     /**
@@ -183,65 +244,6 @@ public class JDBCMailRepository
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
                 ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
-        }
-    }
-
-    /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
-     */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        StringBuffer logBuffer = null;
-        if (getLogger().isDebugEnabled()) {
-            logBuffer =
-                new StringBuffer(64)
-                        .append(this.getClass().getName())
-                        .append(".compose()");
-            getLogger().debug(logBuffer.toString());
-        }
-
-        // Get the DataSourceSelector service
-        datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
-
-        try {
-            if (filestore != null) {
-                Store store = (Store)componentManager.
-                        lookup("org.apache.avalon.cornerstone.services.store.Store");
-                //prepare Configurations for stream repositories
-                DefaultConfiguration streamConfiguration
-                    = new DefaultConfiguration( "repository",
-                                                "generated:JDBCMailRepository.compose()" );
-
-                streamConfiguration.setAttribute( "destinationURL", filestore );
-                streamConfiguration.setAttribute( "type", "STREAM" );
-                streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
-                sr = (StreamRepository) store.select(streamConfiguration);
-
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
-                }
-            }
-
-            lock = new Lock();
-            if (getLogger().isDebugEnabled()) {
-                logBuffer =
-                    new StringBuffer(128)
-                            .append(this.getClass().getName())
-                            .append(" created according to ")
-                            .append(destination);
-                getLogger().debug(logBuffer.toString());
-            }
-        } catch (Exception e) {
-            final String message = "Failed to retrieve Store component:" + e.getMessage();
-            getLogger().error(message, e);
-            e.printStackTrace();
-            throw new ComponentException(message, e);
         }
     }
 

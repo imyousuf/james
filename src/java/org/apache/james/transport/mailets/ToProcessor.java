@@ -27,9 +27,22 @@ import javax.mail.MessagingException;
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class ToProcessor extends GenericMailet {
+
+    /**
+     * The name of the processor to which this mailet forwards mail
+     */
     String processor;
+
+    /**
+     * The error message to attach to the forwarded message
+     */
     String noticeText = null;
 
+    /**
+     * Initialize the mailet
+     *
+     * @throws MailetException if the processor parameter is missing
+     */
     public void init() throws MailetException {
         processor = getInitParameter("processor");
         if (processor == null) {
@@ -39,7 +52,7 @@ public class ToProcessor extends GenericMailet {
     }
 
     /**
-     * Throw an exception if any mail is processed.
+     * Deliver a mail to the processor.
      *
      * @param mail the mail to process
      *

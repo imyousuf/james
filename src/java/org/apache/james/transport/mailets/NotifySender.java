@@ -86,6 +86,7 @@ public class NotifySender extends GenericMailet {
         try {
             attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
         } catch (Exception e) {
+            // Ignore exception, default to false
         }
     }
 
