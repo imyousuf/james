@@ -97,6 +97,7 @@ import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailAddress;
 
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -127,7 +128,7 @@ import org.apache.oro.text.regex.MatchResult;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.14 $ $Date: 2003/11/16 21:47:24 $
+ * @version CVS $Revision: 1.33.4.15 $ $Date: 2003/12/12 22:48:19 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -335,7 +336,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 }
 
                 if (isDebug) log("Adding SMTP gateway: " + server) ;
-                gatewayServer.add(server);
+                try {
+                    gatewayServer.add(new GatewaySMTPHostAddresses(server));
+                } catch (UnknownHostException uhe) {
+                    log("Invalid gateway address:" + uhe.getMessage());
+                }
             }
         }
 
@@ -419,14 +424,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             //Figure out which servers to try to send to.  This collection
             //  will hold all the possible target servers
-            Collection targetServers = null;
+            Iterator targetServers = null;
             if (gatewayServer == null) {
                 MailAddress rcpt = (MailAddress) recipients.iterator().next();
                 String host = rcpt.getHost();
 
                 //Lookup the possible targets
-                targetServers = getMailetContext().getMailServers(host);
-                if (targetServers.size() == 0) {
+                targetServers = getMailetContext().getSMTPHostAddresses(host);
+                if (!targetServers.hasNext()) {
                     log("No mail server found for: " + host);
                     StringBuffer exceptionBuffer =
                         new StringBuffer(128)
@@ -436,105 +441,124 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
                 }
             } else {
-                targetServers = gatewayServer;
+                targetServers = gatewayServer.iterator();
             }
 
             MessagingException lastError = null;
 
-            Iterator i = targetServers.iterator();
-            while ( i.hasNext()) {
-                try {
-                    String outgoingMailServer = i.next().toString ();
-                    StringBuffer logMessageBuffer =
-                        new StringBuffer(256)
-                        .append("Attempting delivery of ")
-                        .append(mail.getName())
-                        .append(" to host ")
-                        .append(outgoingMailServer)
-                        .append(" to addresses ")
-                        .append(Arrays.asList(addr));
-                    log(logMessageBuffer.toString());
-                    URLName urlname = new URLName("smtp://" + outgoingMailServer);
-
-                    Properties props = session.getProperties();
-                    if (mail.getSender() == null) {
-                        props.put("mail.smtp.from", "<>");
-                    } else {
-                        String sender = mail.getSender().toString();
-                        props.put("mail.smtp.from", sender);
-                    }
-
-                    //Many of these properties are only in later JavaMail versions
-                    //"mail.smtp.ehlo"  //default true
-                    //"mail.smtp.auth"  //default false
-                    //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
-                    //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
-
-                    Transport transport = null;
+            while ( targetServers.hasNext() ) {
+                MailetContext.SMTPHostAddresses thisHost = 
+                    (MailetContext.SMTPHostAddresses)targetServers.next();
+                String thisHostName = thisHost.getHostname();
+                InetAddress[] addresses = thisHost.getAddresses();
+                for (int addressIndex = 0; addressIndex < addresses.length; addressIndex++){
                     try {
-                        transport = session.getTransport(urlname);
+                        InetAddress thisAddress = addresses[addressIndex];
+                        int thisPort = thisHost.getPort(thisAddress);
+
+                        StringBuffer outgoingMailServerBuf =
+                            new StringBuffer(256).append(thisAddress)
+                            .append(':')
+                            .append(thisPort);
+                        if (outgoingMailServerBuf.charAt(0) == '/') {
+                            outgoingMailServerBuf.deleteCharAt(0);
+                        }
+                        String outgoingMailServer = outgoingMailServerBuf.toString();
+                        
+                        StringBuffer logMessageBuffer =
+                            new StringBuffer(256)
+                            .append("Attempting delivery of ")
+                            .append(mail.getName())
+                            .append(" to host ")
+                            .append(thisHostName)
+                            .append(" at ")
+                            .append(outgoingMailServer)
+                            .append(" to addresses ")
+                            .append(Arrays.asList(addr));
+                        log(logMessageBuffer.toString());
+                        URLName urlname = new URLName("smtp://" + outgoingMailServer);
+
+                        Properties props = session.getProperties();
+                        if (mail.getSender() == null) {
+                            props.put("mail.smtp.from", "<>");
+                        } else {
+                            String sender = mail.getSender().toString();
+                            props.put("mail.smtp.from", sender);
+                        }
+                        
+                        //Many of these properties are only in later JavaMail versions
+                        //"mail.smtp.ehlo"  //default true
+                        //"mail.smtp.auth"  //default false
+                        //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
+                        //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
+                        Transport transport = null;
                         try {
-                            transport.connect();
-                        } catch (MessagingException me) {
-                            // Any error on connect should cause the mailet to attempt
-                            // to connect to the next SMTP server associated with this
-                            // MX record.  Just log the exception.  We'll worry about
-                            // failing the message at the end of the loop.
-                            log(me.getMessage());
+                            transport = session.getTransport(urlname);
+                            try {
+                                transport.connect();
+                            } catch (MessagingException me) {
+                                // Any error on connect should cause the mailet to attempt
+                                // to connect to the next SMTP server associated with this
+                                // MX record.  Just log the exception.  We'll worry about
+                                // failing the message at the end of the loop.
+                                log(me.getMessage());
+                                continue;
+                            }
+                            transport.sendMessage(message, addr);
+                        } finally {
+                            if (transport != null) {
+                                transport.close();
+                                transport = null;
+                            }
+                        }
+                        logMessageBuffer =
+                            new StringBuffer(256)
+                            .append("Mail (")
+                            .append(mail.getName())
+                            .append(") sent successfully to ")
+                            .append(thisHostName)
+                            .append(" at ")
+                            .append(outgoingMailServer);
+                        log(logMessageBuffer.toString());
+                        return true;
+                    } catch (SendFailedException sfe) {
+                        if (sfe.getValidSentAddresses() == null
+                            || sfe.getValidSentAddresses().length < 1) {
+                            if (isDebug) log("Send failed, continuing with any other servers");
+                            lastError = sfe;
+                            continue;
+                        } else {
+                            // If any mail was sent then the outgoing
+                            // server config must be ok, therefore rethrow
+                            throw sfe;
+                        }
+                    } catch (MessagingException me) {
+                        //MessagingException are horribly difficult to figure out what actually happened.
+                        StringBuffer exceptionBuffer =
+                            new StringBuffer(256)
+                            .append("Exception delivering message (")
+                            .append(mail.getName())
+                            .append(") - ")
+                            .append(me.getMessage());
+                        log(exceptionBuffer.toString());
+                        if ((me.getNextException() != null) &&
+                            (me.getNextException() instanceof java.io.IOException)) {
+                            //This is more than likely a temporary failure
+                            
+                            // If it's an IO exception with no nested exception, it's probably
+                            // some socket or weird I/O related problem.
+                            lastError = me;
                             continue;
                         }
-                        transport.sendMessage(message, addr);
-                    } finally {
-                        if (transport != null) {
-                            transport.close();
-                            transport = null;
-                        }
+                        // This was not a connection or I/O error particular to one
+                        // SMTP server of an MX set.  Instead, it is almost certainly
+                        // a protocol level error.  In this case we assume that this
+                        // is an error we'd encounter with any of the SMTP servers
+                        // associated with this MX record, and we pass the exception
+                        // to the code in the outer block that determines its severity.
+                        throw me;
                     }
-                    logMessageBuffer =
-                                      new StringBuffer(256)
-                                      .append("Mail (")
-                                      .append(mail.getName())
-                                      .append(") sent successfully to ")
-                                      .append(outgoingMailServer);
-                    log(logMessageBuffer.toString());
-                    return true;
-                } catch (SendFailedException sfe) {
-                    if (sfe.getValidSentAddresses() == null
-                          || sfe.getValidSentAddresses().length < 1) {
-                        if (isDebug) log("Send failed, continuing with any other servers");
-                        lastError = sfe;
-                        continue;
-                    } else {
-                        // If any mail was sent then the outgoing
-                        // server config must be ok, therefore rethrow
-                        throw sfe;
-                    }
-                } catch (MessagingException me) {
-                    //MessagingException are horribly difficult to figure out what actually happened.
-                    StringBuffer exceptionBuffer =
-                        new StringBuffer(256)
-                        .append("Exception delivering message (")
-                        .append(mail.getName())
-                        .append(") - ")
-                        .append(me.getMessage());
-                    log(exceptionBuffer.toString());
-                    if ((me.getNextException() != null) &&
-                          (me.getNextException() instanceof java.io.IOException)) {
-                        //This is more than likely a temporary failure
-
-                        // If it's an IO exception with no nested exception, it's probably
-                        // some socket or weird I/O related problem.
-                        lastError = me;
-                        continue;
-                    }
-                    // This was not a connection or I/O error particular to one
-                    // SMTP server of an MX set.  Instead, it is almost certainly
-                    // a protocol level error.  In this case we assume that this
-                    // is an error we'd encounter with any of the SMTP servers
-                    // associated with this MX record, and we pass the exception
-                    // to the code in the outer block that determines its severity.
-                    throw me;
-                }
+                } //end for
             } // end while
             //If we encountered an exception while looping through,
             //throw the last MessagingException we caught.  We only
@@ -1092,5 +1116,54 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             return buf.toString();
         }
     }
+
+    /**
+     * This implementation of MailetContext.SMTPHostAddresses is used for holding gateway information
+     */
+    private class GatewaySMTPHostAddresses implements MailetContext.SMTPHostAddresses
+    {
+        protected InetAddress[] ipAddresses;
+        protected int port;
+        
+        /**
+         * @param server gateway to use the String is of the form "address<:port>"
+         */
+        public GatewaySMTPHostAddresses (String server) throws UnknownHostException
+        {
+            int idx = server.indexOf(':');
+            if ( idx > 0) {
+                port = Integer.parseInt (server.substring(idx+1));
+                server = server.substring(0,idx);
+            } else {
+                port = 25;
+            }
+            ipAddresses = new InetAddress[1];
+            ipAddresses[0] = InetAddress.getByName(server);
+        }
+        
+        /**
+         *  @return the hostName of the SMTP server (from the MX record lookup)
+         */
+        public String getHostname() {
+            return "Gateway";
+        }
+        
+        /**
+         * @return an array with the ip addresses of the hostname. An array is
+         * used because a host can have multiple homes (addresses)
+         */
+        public InetAddress[] getAddresses() {
+            return ipAddresses;
+        }
+        
+        
+        /**
+         * @param address for which we need the port to use in SMTP connection
+         * @return the port number to use for the given address (this will usually be 25 for SMTP)
+         */
+        public int getPort(InetAddress address) {
+            return port;
+        }
     
+    }
 }
