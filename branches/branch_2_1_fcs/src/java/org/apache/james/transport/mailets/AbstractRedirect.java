@@ -164,7 +164,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.14 $ $Date: 2003/06/30 09:42:07 $
+ * @version CVS $Revision: 1.1.2.15 $ $Date: 2003/07/03 05:24:17 $
  * @since 2.2.0
  */
 
@@ -1232,7 +1232,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         if (oldName.length() > 76) {
             int count = 0;
             int index = 0;
-            while ((index = oldName.indexOf('!', index)) >= 0) {
+            while ((index = oldName.indexOf('!', index + 1)) >= 0) {
                 count++;
             }
             // It looks like a configuration loop. It's better to stop.
