@@ -1,10 +1,16 @@
+
 <project default="main" basedir=".">
+
     <!--
     Give user a chance to override without editing this file
     (and without typing -D each time he compiles it)
-  -->
+    -->
+
     <property file=".ant.properties"/>
     <property file="${user.home}/.ant.properties"/>
+    <property file="test.properties"/>
+    <property file="${james.dir}/include.properties"/>
+
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
     <property name="version" value="2.1a1-cvs"/>
@@ -15,7 +21,7 @@
     <!--
     these are here only for those who use jikes compiler. For other
     developers this part makes no difference.
-  -->
+    -->
     <property name="build.compiler.emacs" value="on"/>
     <property name="build.compiler.pedantic" value="true"/>
     <property name="build.compiler.depend" value="true"/>
@@ -24,11 +30,11 @@
     <property name="optimize" value="on"/>
     <property name="deprecation" value="on"/>
 
-   <!--
+    <!--
        ===================================================================
        Set the properties for intermediate directory
        ===================================================================
-  -->
+    -->
     <property name="build.dir" value="build/tests"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="james.classes" value="../build/classes"/>
@@ -36,29 +42,41 @@
        ===================================================================
        Set the properties for source directories and parameters
        ===================================================================
-  -->
+    -->
     <property name="src.dir" value="src"/>
     <property name="java.dir" value="${src.dir}/java"/>
     <property name="conf.dir" value="${src.dir}/conf"/>
     
     <property name="lib.dir" value="../lib"/>
-    <property name="phoenix" value="../phoenix-bin"/>
-    <property name="phoenix.lib.dir" value="${phoenix}/lib"/>    
+    <property name="phoenix-lib.dir" value="../lib"/>
 
-    <path id="project.class.path">
-        <pathelement path="${java.class.path}"/>
-        <fileset dir="${lib.dir}">
-            <include name="*.jar"/>
-            <exclude name="xerces.jar"/>
-        </fileset>
-        <fileset dir="${phoenix.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement path="${build.classes}"/>
-        <pathelement path="${james.classes}"/>
-    </path>
+  <path id="project.class.path">
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${xerces.jar}"/>
+    <pathelement location="${xalan.jar}"/>
+    <pathelement location="${xml-apis.jar}"/>
+    <pathelement location="${dns.jar}"/>
+    <pathelement location="${javax-mail.jar}"/>
+    <pathelement location="${javax-activation.jar}"/>
+    <pathelement location="${commons-net.jar}"/>
+    <pathelement location="${excalibur-io.jar}"/>
+    <pathelement location="${excalibur-cli.jar}"/>
+    <pathelement location="${avalon-framework.jar}"/>
+    <pathelement location="${jakarta-oro.jar}"/>
+
+    <pathelement path="${java.class.path}" />
+
+    <fileset dir="../build/lib">
+      <include name="james.jar"/>
+      <include name="mailet.jar"/>
+    </fileset>
+
+    <pathelement path="${build.classes}"/>
+
+  </path>
+
     
-<target name="main" depends="test"/>
+  <target name="main" depends="test"/>
 
     <target name="compile" >
     <echo message="compiling James"/>
@@ -73,7 +91,7 @@
                 <include name="**/*.properties"/>
             </fileset>
         </copy>
-    </target>    
+  </target>    
 
   <!-- ==================================================================== -->
   <!-- Run the unit test suite                                            -->
@@ -85,5 +103,9 @@
 			<test name="org.apache.james.testing.EndToEnd" haltonerror="true"/> 
 		</junit>
 	</target>
+
+   <target name="clean">
+     <delete dir="build"/>
+   </target>
 
 </project>
