@@ -79,6 +79,11 @@ public abstract class AbstractUsersRepository
      * Gets a user by name, ignoring case if specified.
      * This implementation gets the entire set of users,
      * and scrolls through searching for one matching <code>name</code>.
+     *
+     * @param name the name of the user being retrieved
+     * @param ignoreCase whether the name is regarded as case-insensitive
+     *
+     * @return the user being retrieved, null if the user doesn't exist
      */
     protected User getUserByName(String name, boolean ignoreCase)
     {
@@ -104,6 +109,8 @@ public abstract class AbstractUsersRepository
      * Adds a user to the repository with the specified User object.
      * Users names must be unique-case-insensitive in the repository.
      *
+     * @param user the user to be added
+     *
      * @return true if succesful, false otherwise
      * @since James 1.2.2
      */
@@ -122,6 +129,9 @@ public abstract class AbstractUsersRepository
     /**
      * Adds a user to the repository with the specified attributes.  In current
      * implementations, the Object attributes is generally a String password.
+     *
+     * @param name the name of the user to be added
+     * @param attributes the password value as a String
      */
     public void addUser(String name, Object attributes) 
     {
@@ -142,6 +152,8 @@ public abstract class AbstractUsersRepository
      * Update the repository with the specified user object. A user object
      * with this username must already exist.
      *
+     * @param user the user to be updated
+     *
      * @return true if successful.
      */
     public boolean updateUser(User user)
@@ -158,6 +170,8 @@ public abstract class AbstractUsersRepository
 
     /**
      * Removes a user from the repository
+     *
+     * @param user the user to be removed
      */
     public void removeUser(String name)
     {
@@ -181,6 +195,10 @@ public abstract class AbstractUsersRepository
      * Get the user object with the specified user name.  Return null if no
      * such user.
      *
+     * @param name the name of the user to retrieve
+     *
+     * @return the user if found, null otherwise
+     *
      * @since James 1.2.2
      */
     public User getUserByName(String name)
@@ -192,6 +210,10 @@ public abstract class AbstractUsersRepository
      * Get the user object with the specified user name. Match user naems on
      * a case insensitive basis.  Return null if no such user.
      *
+     * @param name the name of the user to retrieve
+     *
+     * @return the user if found, null otherwise
+     *
      * @since James 1.2.2
      */
     public User getUserByNameCaseInsensitive(String name)
@@ -202,6 +224,10 @@ public abstract class AbstractUsersRepository
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
      * basis. Returns null if no match.
+     *
+     * @param name the name of the user to retrieve
+     *
+     * @return the correct case sensitive name of the user
      */
     public String getRealName(String name)
     {
@@ -239,16 +265,27 @@ public abstract class AbstractUsersRepository
      * this typically means "check the password" where a String password is passed
      * as the Object attributes.
      *
+     * @param name the name of the user to be tested
+     * @param attributes the password to be tested
+     *
+     * @throws UnsupportedOperationException always, as this method should not be used
+     *
      * @deprecated As of James 1.2.2, use {@link #test(String, String) test(String name, String password)}
      */
     public boolean test(String name, Object attributes)
     {
-        throw new RuntimeException("Improper use of deprecated method - read javadocs");
+        throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
     }
 
     /**
      * Test if user with name 'name' has password 'password'.
      *
+     * @param name the name of the user to be tested
+     * @param password the password to be tested
+     *
+     * @return true if the test is successful, false if the
+     *              password is incorrect or the user doesn't
+     *              exist
      * @since James 1.2.2
      */
     public boolean test(String name, String password)
@@ -264,6 +301,8 @@ public abstract class AbstractUsersRepository
 
     /**
      * Returns a count of the users in the repository.
+     *
+     * @return the number of users in the repository
      */
     public int countUsers()
     {

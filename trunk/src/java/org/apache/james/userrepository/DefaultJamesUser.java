@@ -16,8 +16,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/17 18:33:28 $
+ * $Revision: 1.3 $
  */
 
 public class DefaultJamesUser 
@@ -39,13 +39,17 @@ public class DefaultJamesUser
 
 
     /**
-     * Call initialize when creating a new instance.
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
      */
     public void initialize() {
-	forwarding = false;
-	forwardingDestination = null;
-	aliasing = false;
-	alias = "";
+        forwarding = false;
+        forwardingDestination = null;
+        aliasing = false;
+        alias = "";
     }
 
     public void setForwarding(boolean forward) {

@@ -22,24 +22,22 @@ import java.sql.SQLException;
  */
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
-    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException 
-    {
+    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException {
         // Get the username, and build a DefaultUser with it.
         String username = rsUsers.getString(1);
         DefaultUser user = new DefaultUser(username, "SHA");
         return user;
     }
+
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 
-        throws SQLException 
-    {
+        throws SQLException {
         userInsert.setString(1, user.getUserName());
     }
 
     protected void setUserForUpdateStatement(User user, 
                                              PreparedStatement userUpdate) 
-        throws SQLException 
-    {
+        throws SQLException {
         throw new UnsupportedOperationException("Can't update a List User - " +
                                                 "only has a single attribute.");
     }

@@ -31,7 +31,7 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * An abstract base class for creating UserRepository implementation
+ * An abstract base class for creating UserRepository implementations
  * which use a database for persistence.
  * 
  * To implement a new UserRepository using by extending this class,
@@ -56,11 +56,19 @@ import java.util.*;
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
     implements Component, Contextualizable, Composable, Configurable, Initializable
 {
+    /**
+     * The Avalon context used by the instance
+     */
     protected Context context;
+
     protected Map m_sqlParameters;
+
     private String m_sqlFileName;
+
     private String m_datasourceName;
+
     private DataSourceSelector m_datasources;
+
     private DataSourceComponent m_datasource;
 
     // Fetches all Users from the db.
@@ -81,13 +89,27 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     // The JDBCUtil helper class
     private JDBCUtil theJDBCUtil;
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
 
     /**
-     * Compose the repository with the DataSourceSelector component.
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException
@@ -202,6 +224,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      *     and performing paramter substitution,
      * 3) Initialises the database with the required tables, if necessary.
      * 
+     * @throws Exception if an error occurs
      */
     public void initialize() throws Exception 
     {
@@ -337,7 +360,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     //
-    // Superclass methods - overridden in AbstractUsersRepository
+    // Superclass methods - overridden from AbstractUsersRepository
     //
     /**
      * Returns a list populated with all of the Users in the repository.
@@ -377,6 +400,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     /**
      * Adds a user to the underlying Repository.
      * The user name must not clash with an existing user.
+     *
+     * @param user the user to be added
      */
     protected void doAddUser(User user) {
         Connection conn = openConnection();
@@ -403,7 +428,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
     /**
      * Removes a user from the underlying repository.
-     * If the user doesn't exist, returns ok.
+     * If the user doesn't exist this method doesn't throw
+     * an exception.
+     *
+     * @param user the user to be removed
      */
     protected void doRemoveUser(User user) {
         String username = user.getUserName();
@@ -428,6 +456,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
     /**
      * Updates a user record to match the supplied User.
+     *
+     * @param user the updated user record
      */
     protected void doUpdateUser(User user)
     {
@@ -454,6 +484,11 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * If the specified SQL statement has been defined, this method
      * overrides the basic implementation in AbstractUsersRepository
      * to increase performance.
+     *
+     * @param name the name of the user being retrieved
+     * @param ignoreCase whether the name is regarded as case-insensitive
+     *
+     * @return the user being retrieved, null if the user doesn't exist
      */
     protected User getUserByName(String name, boolean ignoreCase)
     {
@@ -508,7 +543,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * 
      * @param rsUsers A ResultSet with a User record in the current row.
      * @return A User instance
-     * @exception SQLException
+     * @throws SQLException
      *                   if an exception occurs reading from the ResultSet
      */
     protected abstract User readUserFromResultSet(ResultSet rsUsers)
@@ -523,7 +558,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userInsert a PreparedStatement initialised with SQL taken from the "insert" SQL definition.
-     * @exception SQLException
+     * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
     protected abstract void setUserForInsertStatement(User user, 
@@ -539,7 +574,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userUpdate a PreparedStatement initialised with SQL taken from the "update" SQL definition.
-     * @exception SQLException
+     * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
     protected abstract void setUserForUpdateStatement(User user, 
@@ -547,7 +582,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         throws SQLException;
 
     /**
-     * Opens a connection, handling exceptions.
+     * Opens a connection, throwing a runtime exception if a SQLException is
+     * encountered in the process.
+     *
+     * @return the new connection
      */
     private Connection openConnection()
     {
