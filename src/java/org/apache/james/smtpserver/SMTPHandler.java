@@ -6,7 +6,6 @@
  * the LICENSE file.
  */
 package org.apache.james.smtpserver;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
@@ -26,13 +25,11 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.*;
 import org.apache.mailet.MailAddress;
-
 import javax.mail.MessagingException;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
-
 /**
  * This handles an individual incoming message.  It handles regular SMTP
  * commands, and when it receives a message, adds it to the spool.
@@ -43,14 +40,13 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  *
 
- * This is $Revision: 1.17 $
- * Committed on $Date: 2002/04/17 03:19:32 $ by: $Author: serge $
+ * This is $Revision: 1.18 $
+ * Committed on $Date: 2002/07/27 10:06:21 $ by: $Author: danny $
 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Target {
-
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
     public final static String REMOTE_NAME = "REMOTE_NAME";
@@ -63,61 +59,47 @@ public class SMTPHandler
     public final static String RCPT_VECTOR = "RCPT_VECTOR";
     public final static String SMTP_ID = "SMTP_ID";
     public final static String AUTH = "AUTHENTICATED";
-    public final static char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
-
+    public final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
     private Socket socket;
     private DataInputStream in;
     private PrintWriter out;
-
     private String remoteHost;
     private String remoteHostGiven;
     private String remoteIP;
     private String messageID;
     private String smtpID;
-
     private boolean authRequired = false;
     private boolean verifyIdentity = false;
-
     private TimeScheduler scheduler;
     private UsersRepository users;
     private MailServer mailServer;
-
-    private String softwaretype = "JAMES SMTP Server "
-                                   + Constants.SOFTWARE_VERSION;
+    private String softwaretype = "JAMES SMTP Server " + Constants.SOFTWARE_VERSION;
     private static long count = 0;
     private long connNumber = count++;
-    private HashMap state       = new HashMap();
-    private Random random       = new Random();
+    private HashMap state = new HashMap();
+    private Random random = new Random();
     private long maxmessagesize = 0;
     private int lengthReset = 20000;
-
-    public void configure ( Configuration configuration )
-           throws ConfigurationException {
+    public void configure(Configuration configuration) throws ConfigurationException {
         super.configure(configuration);
-        authRequired
-           = configuration.getChild("authRequired").getValueAsBoolean(false);
-        verifyIdentity
-           = configuration.getChild("verifyIdentity").getValueAsBoolean(false);
+        authRequired = configuration.getChild("authRequired").getValueAsBoolean(false);
+        verifyIdentity = configuration.getChild("verifyIdentity").getValueAsBoolean(false);
         // get the message size limit from the conf file and multiply
         // by 1024, to put it in bytes
-        maxmessagesize =
-            configuration.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
+        maxmessagesize = configuration.getChild("maxmessagesize").getValueAsLong(0) * 1024;
         getLogger().debug("Max message size is: " + maxmessagesize);
         //how many bytes to read before updating the timer that data is being transfered
         lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
     }
-
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        mailServer = (MailServer)componentManager.lookup(
-                                 "org.apache.james.services.MailServer");
-        scheduler = (TimeScheduler)componentManager.lookup(
-            "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
-        UsersStore usersStore = (UsersStore)componentManager.lookup(
-            "org.apache.james.services.UsersStore" );
+    public void compose(final ComponentManager componentManager) throws ComponentException {
+        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
+        scheduler =
+            (TimeScheduler) componentManager.lookup(
+                "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
+        UsersStore usersStore =
+            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
         users = usersStore.getRepository("LocalUsers");
     }
-
     /**
      * Handle a connection.
      * This handler is responsible for processing connections as they occur.
@@ -126,67 +108,71 @@ public class SMTPHandler
      * @exception IOException if an error reading from socket occurs
      * @exception ProtocolException if an error handling connection occurs
      */
-    public void handleConnection( Socket connection )
-        throws IOException {
+    public void handleConnection(Socket connection) throws IOException {
         try {
             this.socket = connection;
             final InputStream bufferedInput =
-                new BufferedInputStream( socket.getInputStream(), 1024 );
-            in = new DataInputStream( bufferedInput );
+                new BufferedInputStream(socket.getInputStream(), 1024);
+            in = new DataInputStream(bufferedInput);
             out = new InternetPrintWriter(socket.getOutputStream(), true);
-
-            remoteHost = socket.getInetAddress ().getHostName ();
-            remoteIP = socket.getInetAddress ().getHostAddress ();
+            remoteHost = socket.getInetAddress().getHostName();
+            remoteIP = socket.getInetAddress().getHostAddress();
             smtpID = Math.abs(random.nextInt() % 1024) + "";
             resetState();
         } catch (Exception e) {
-            getLogger().error("Cannot open connection from " + remoteHost
-                              + " (" + remoteIP + "): " + e.getMessage(), e );
-            throw new RuntimeException("Cannot open connection from "
-                      + remoteHost + " (" + remoteIP + "): " + e.getMessage());
+            getLogger().error(
+                "Cannot open connection from "
+                    + remoteHost
+                    + " ("
+                    + remoteIP
+                    + "): "
+                    + e.getMessage(),
+                e);
+            throw new RuntimeException(
+                "Cannot open connection from "
+                    + remoteHost
+                    + " ("
+                    + remoteIP
+                    + "): "
+                    + e.getMessage());
         }
-
-        getLogger().info("Connection from " + remoteHost + " ("
-                         + remoteIP + ")");
-
+        getLogger().info("Connection from " + remoteHost + " (" + remoteIP + ")");
         try {
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
-
-            final PeriodicTimeTrigger trigger
-                  = new PeriodicTimeTrigger( timeout, -1 );
-            scheduler.addTrigger( this.toString(), trigger, this );
-            out.println("220 " + this.helloName + " SMTP Server ("
-                        + softwaretype + ") ready "
-                        + RFC822DateFormat.toString(new Date()));
-
-            while  (parseCommand(in.readLine())) {
+            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger(timeout, -1);
+            scheduler.addTrigger(this.toString(), trigger, this);
+            out.println(
+                "220 "
+                    + this.helloName
+                    + " SMTP Server ("
+                    + softwaretype
+                    + ") ready "
+                    + RFC822DateFormat.toString(new Date()));
+            while (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());
             }
             socket.close();
             scheduler.removeTrigger(this.toString());
         } catch (SocketException se) {
-            getLogger().debug("Socket to " + remoteHost
-                              + " closed remotely.", se );
-        } catch ( InterruptedIOException iioe ) {
-            getLogger().debug( "Socket to " + remoteHost + " timeout.", iioe );
-        } catch ( IOException ioe ) {
-            getLogger().debug( "Exception handling socket to " + remoteHost
-                               + ":" + ioe.getMessage(), ioe );
+            getLogger().debug("Socket to " + remoteHost + " closed remotely.", se);
+        } catch (InterruptedIOException iioe) {
+            getLogger().debug("Socket to " + remoteHost + " timeout.", iioe);
+        } catch (IOException ioe) {
+            getLogger().debug(
+                "Exception handling socket to " + remoteHost + ":" + ioe.getMessage(),
+                ioe);
         } catch (Exception e) {
-            getLogger().debug( "Exception opening socket: "
-                               + e.getMessage(), e );
+            getLogger().debug("Exception opening socket: " + e.getMessage(), e);
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
-                getLogger().error("Exception closing socket: "
-                                  + e.getMessage());
+                getLogger().error("Exception closing socket: " + e.getMessage());
             }
         }
     }
-
-    public void targetTriggered( final String triggerName ) {
+    public void targetTriggered(final String triggerName) {
         getLogger().error("Connection timeout on socket");
         try {
             out.println("Connection timeout. Closing connection");
@@ -194,10 +180,8 @@ public class SMTPHandler
         } catch (IOException e) {
         }
     }
-
- private void resetState() {
+    private void resetState() {
         String user = (String) state.get(AUTH);
-
         state.clear();
         state.put(SERVER_NAME, this.helloName);
         state.put(SERVER_TYPE, this.softwaretype);
@@ -206,57 +190,52 @@ public class SMTPHandler
         state.put(SMTP_ID, smtpID);
         // seems that after authenticating an smtp client sends
         // a RSET, so we need to remember that they are authenticated
-        if(user != null){
+        if (user != null) {
             state.put(AUTH, user);
         }
     }
-
-
-    private boolean parseCommand(String command)
-        throws Exception {
-        String argument  = null;
+    private boolean parseCommand(String command) throws Exception {
+        String argument = null;
         String argument1 = null;
-        if (command == null) return false;
+        if (command == null)
+            return false;
         if (state.get(MESG_FAILED) == null) {
             getLogger().info("Command received: " + command);
         }
         command = command.trim();
-        if (command.indexOf(" ")>0){
-            argument = command.substring(command.indexOf(" ")+1);
-            command = command.substring(0,command.indexOf(" "));
-            if(argument.indexOf(":")>0){
-                argument1 = argument.substring(argument.indexOf(":")+1);
-                argument = argument.substring(0,argument.indexOf(":"));
+        if (command.indexOf(" ") > 0) {
+            argument = command.substring(command.indexOf(" ") + 1);
+            command = command.substring(0, command.indexOf(" "));
+            if (argument.indexOf(":") > 0) {
+                argument1 = argument.substring(argument.indexOf(":") + 1);
+                argument = argument.substring(0, argument.indexOf(":"));
+            }
         }
-        }
-
         if (command.equalsIgnoreCase("HELO"))
-            doHELO(command,argument,argument1);
+            doHELO(command, argument, argument1);
         else if (command.equalsIgnoreCase("EHLO"))
-            doEHLO(command,argument,argument1);
+            doEHLO(command, argument, argument1);
         else if (command.equalsIgnoreCase("AUTH"))
-            doAUTH(command,argument,argument1);
+            doAUTH(command, argument, argument1);
         else if (command.equalsIgnoreCase("MAIL"))
-            doMAIL(command,argument,argument1);
+            doMAIL(command, argument, argument1);
         else if (command.equalsIgnoreCase("RCPT"))
-            doRCPT(command,argument,argument1);
+            doRCPT(command, argument, argument1);
         else if (command.equalsIgnoreCase("NOOP"))
-            doNOOP(command,argument,argument1);
+            doNOOP(command, argument, argument1);
         else if (command.equalsIgnoreCase("RSET"))
-            doRSET(command,argument,argument1);
+            doRSET(command, argument, argument1);
         else if (command.equalsIgnoreCase("DATA"))
-            doDATA(command,argument,argument1);
+            doDATA(command, argument, argument1);
         else if (command.equalsIgnoreCase("QUIT"))
-            doQUIT(command,argument,argument1);
+            doQUIT(command, argument, argument1);
         else
-            doUnknownCmd(command,argument,argument1);
+            doUnknownCmd(command, argument, argument1);
         return (command.equalsIgnoreCase("QUIT") == false);
     }
-
-    private void doHELO(String command,String argument,String argument1) {
+    private void doHELO(String command, String argument, String argument1) {
         if (state.containsKey(CURRENT_HELO_MODE)) {
-            out.println("250 " + state.get(SERVER_NAME)
-                        + " Duplicate HELO");
+            out.println("250 " + state.get(SERVER_NAME) + " Duplicate HELO");
         } else if (argument == null) {
             out.println("501 domain address required: " + command);
         } else {
@@ -268,19 +247,23 @@ public class SMTPHandler
             } else {
                 out.print("250 ");
             }
-            out.println(state.get(SERVER_NAME) + " Hello "
-                        + argument + " (" + state.get(REMOTE_NAME)
-                        + " [" + state.get(REMOTE_IP) + "])");
+            out.println(
+                state.get(SERVER_NAME)
+                    + " Hello "
+                    + argument
+                    + " ("
+                    + state.get(REMOTE_NAME)
+                    + " ["
+                    + state.get(REMOTE_IP)
+                    + "])");
             if (authRequired) {
                 out.println("250 AUTH LOGIN PLAIN");
             }
         }
     }
-
-    private void doEHLO(String command,String argument,String argument1) {
+    private void doEHLO(String command, String argument, String argument1) {
         if (state.containsKey(CURRENT_HELO_MODE)) {
-            out.println("250 " + state.get(SERVER_NAME)
-                        + " Duplicate EHLO");
+            out.println("250 " + state.get(SERVER_NAME) + " Duplicate EHLO");
         } else if (argument == null) {
             out.println("501 domain address required: " + command);
         } else {
@@ -295,29 +278,35 @@ public class SMTPHandler
             } else {
                 out.print("250 ");
             }
-            out.println(state.get(SERVER_NAME) + " Hello "
-                        + argument + " (" + state.get(REMOTE_NAME)
-                        + " [" + state.get(REMOTE_IP) + "])");
+            out.println(
+                state.get(SERVER_NAME)
+                    + " Hello "
+                    + argument
+                    + " ("
+                    + state.get(REMOTE_NAME)
+                    + " ["
+                    + state.get(REMOTE_IP)
+                    + "])");
             if (authRequired) {
                 out.println("250 AUTH LOGIN PLAIN");
             }
-
-
         }
-
-
     }
-
-    private void doAUTH(String command,String argument,String argument1)
-            throws Exception {
+    private void doAUTH(String command, String argument, String argument1) throws Exception {
         if (state.containsKey(AUTH)) {
-            out.println("503 User has previously authenticated."
-                        + " Further authentication is not required!");
+            out.println(
+                "503 User has previously authenticated."
+                    + " Further authentication is not required!");
             return;
         } else if (argument == null) {
             out.println("501 Usage: AUTH (authentication type) <challenge>");
             return;
-        } else if (argument.equalsIgnoreCase("PLAIN")) {
+        }
+        if ((argument1 == null) && (argument.indexOf(" ") > 0)) {
+            argument1 = argument.substring(argument.indexOf(" ") + 1);
+            argument = argument.substring(0, argument.indexOf(" "));
+        }
+        if (argument.equalsIgnoreCase("PLAIN")) {
             String userpass, user, pass;
             StringTokenizer authTokenizer;
             if (argument1 == null) {
@@ -325,8 +314,7 @@ public class SMTPHandler
                 userpass = in.readLine().trim();
             } else
                 userpass = argument1.trim();
-            authTokenizer = new StringTokenizer(
-                              Base64.decodeAsString(userpass), "\0");
+            authTokenizer = new StringTokenizer(Base64.decodeAsString(userpass), "\0");
             user = authTokenizer.nextToken();
             pass = authTokenizer.nextToken();
             // Authenticate user
@@ -341,7 +329,6 @@ public class SMTPHandler
             return;
         } else if (argument.equalsIgnoreCase("LOGIN")) {
             String user, pass;
-
             if (argument1 == null) {
                 out.println("334 VXNlcm5hbWU6"); // base64 encoded "Username:"
                 user = in.readLine().trim();
@@ -362,30 +349,29 @@ public class SMTPHandler
             return;
         } else {
             out.println("504 Unrecognized Authentication Type");
-            getLogger().error("AUTH method " + argument
-                              + " is an unrecognized authentication type");
+            getLogger().error(
+                "AUTH method " + argument + " is an unrecognized authentication type");
             return;
         }
     }
-
-    private void doMAIL(String command,String argument,String argument1) {
+    private void doMAIL(String command, String argument, String argument1) {
         if (state.containsKey(SENDER)) {
             out.println("503 Sender already specified");
-        } else if (argument == null || !argument.equalsIgnoreCase("FROM")
-                   || argument1 == null) {
+        } else if (argument == null || !argument.equalsIgnoreCase("FROM") || argument1 == null) {
             out.println("501 Usage: MAIL FROM:<sender>");
         } else {
             String sender = argument1.trim();
             int lastChar = sender.lastIndexOf('>');
-            if (sender.length() > lastChar+1) {
+            if (sender.length() > lastChar + 1) {
                 //handle a SIZE=### command if it's sent
-                String cmdString = sender.substring(lastChar+1).trim();
+                String cmdString = sender.substring(lastChar + 1).trim();
                 if (cmdString.toUpperCase().startsWith("SIZE")) {
                     try {
-                        int size = Integer.parseInt(cmdString.substring(cmdString.indexOf('=')+1));
+                        int size =
+                            Integer.parseInt(cmdString.substring(cmdString.indexOf('=') + 1));
                         if (maxmessagesize > 0 && size > maxmessagesize) {
-                            getLogger().error("552 Message size exceeds fixed maximum message size");
-
+                            getLogger().error(
+                                "552 Message size exceeds fixed maximum message size");
                             //let the client know that the size limit has been hit.
                             out.println("552 Message size exceeds fixed maximum message size");
                             return;
@@ -398,13 +384,12 @@ public class SMTPHandler
                     }
                 }
                 //cut off the extra bit in the sender string
-                sender = sender.substring(0, lastChar+1);
+                sender = sender.substring(0, lastChar + 1);
             }
-
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
                 out.println("501 Syntax error in parameters or arguments");
-                getLogger().error("Error parsing sender address: " + sender
-                                  + ": did not start and end with < >");
+                getLogger().error(
+                    "Error parsing sender address: " + sender + ": did not start and end with < >");
                 return;
             }
             MailAddress senderAddress = null;
@@ -413,15 +398,15 @@ public class SMTPHandler
             if (sender.length() == 0) {
                 //This is the <> case.  Let senderAddress == null
             } else {
-                if(sender.indexOf("@")<0){
-                   sender = sender+"@localhost";
+                if (sender.indexOf("@") < 0) {
+                    sender = sender + "@localhost";
                 }
                 try {
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
-                    getLogger().error("Error parsing sender address: " + sender
-                                      + ": " + pe.getMessage());
+                    getLogger().error(
+                        "Error parsing sender address: " + sender + ": " + pe.getMessage());
                     return;
                 }
             }
@@ -429,12 +414,10 @@ public class SMTPHandler
             out.println("250 Sender <" + sender + "> OK");
         }
     }
-
-    private void doRCPT(String command,String argument,String argument1) {
+    private void doRCPT(String command, String argument, String argument1) {
         if (!state.containsKey(SENDER)) {
             out.println("503 Need MAIL before RCPT");
-        } else if (argument == null || !argument.equalsIgnoreCase("TO")
-                   || argument1 == null) {
+        } else if (argument == null || !argument.equalsIgnoreCase("TO") || argument1 == null) {
             out.println("501 Usage: RCPT TO:<recipient>");
         } else {
             Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
@@ -444,23 +427,24 @@ public class SMTPHandler
             String recipient = argument1.trim();
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                 out.println("Syntax error in parameters or arguments");
-                getLogger().error("Error parsing recipient address: "
-                                  + recipient
-                                  + ": did not start and end with < >");
+                getLogger().error(
+                    "Error parsing recipient address: "
+                        + recipient
+                        + ": did not start and end with < >");
                 return;
             }
             MailAddress recipientAddress = null;
             //Remove < and >
             recipient = recipient.substring(1, recipient.length() - 1);
-            if(recipient.indexOf("@")<0){
-                recipient = recipient+"@localhost";
+            if (recipient.indexOf("@") < 0) {
+                recipient = recipient + "@localhost";
             }
             try {
                 recipientAddress = new MailAddress(recipient);
             } catch (Exception pe) {
                 out.println("501 Syntax error in parameters or arguments");
-                getLogger().error("Error parsing recipient address: "
-                                  + recipient + ": " + pe.getMessage());
+                getLogger().error(
+                    "Error parsing recipient address: " + recipient + ": " + pe.getMessage());
                 return;
             }
             // If this is a delivery failure notification (MAIL FROM: <>)
@@ -468,38 +452,35 @@ public class SMTPHandler
             if (authRequired && state.get(SENDER) != null) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
-
                 if (!state.containsKey(AUTH)) {
                     String toDomain = recipientAddress.getHost();
-
                     if (!mailServer.isLocalServer(toDomain)) {
                         out.println("530 Authentication Required");
-                        getLogger().error(
-                            "Authentication is required for mail request");
+                        getLogger().error("Authentication is required for mail request");
                         return;
                     }
                 } else {
                     // Identity verification checking
                     if (verifyIdentity) {
-                        String authUser = (String)state.get(AUTH);
-                        MailAddress senderAddress
-                                = (MailAddress)state.get(SENDER);
+                        String authUser = (String) state.get(AUTH);
+                        MailAddress senderAddress = (MailAddress) state.get(SENDER);
                         boolean domainExists = false;
-
-                        if (!authUser.equalsIgnoreCase(
-                                senderAddress.getUser())) {
-                        out.println("503 Incorrect Authentication for Specified Email Address");
-                        getLogger().error("User " + authUser
-                                + " authenticated, however tried sending email as "
-                                + senderAddress);
-                        return;
-                    }
-                    if (!mailServer.isLocalServer(
-                                       senderAddress.getHost())) {
-                        out.println("503 Incorrect Authentication for Specified Email Address");
-                        getLogger().error("User " + authUser
-                            + " authenticated, however tried sending email as "
-                            + senderAddress);
+                        if (!authUser.equalsIgnoreCase(senderAddress.getUser())) {
+                            out.println("503 Incorrect Authentication for Specified Email Address");
+                            getLogger().error(
+                                "User "
+                                    + authUser
+                                    + " authenticated, however tried sending email as "
+                                    + senderAddress);
+                            return;
+                        }
+                        if (!mailServer.isLocalServer(senderAddress.getHost())) {
+                            out.println("503 Incorrect Authentication for Specified Email Address");
+                            getLogger().error(
+                                "User "
+                                    + authUser
+                                    + " authenticated, however tried sending email as "
+                                    + senderAddress);
                             return;
                         }
                     }
@@ -510,15 +491,14 @@ public class SMTPHandler
             out.println("250 Recipient <" + recipient + "> OK");
         }
     }
-    private void doNOOP(String command,String argument,String argument1) {
+    private void doNOOP(String command, String argument, String argument1) {
         out.println("250 OK");
     }
-    private void doRSET(String command,String argument,String argument1) {
+    private void doRSET(String command, String argument, String argument1) {
         resetState();
         out.println("250 OK");
     }
-
-    private void doDATA(String command,String argument,String argument1) {
+    private void doDATA(String command, String argument, String argument1) {
         if (!state.containsKey(SENDER)) {
             out.println("503 No sender specified");
         } else if (!state.containsKey(RCPT_VECTOR)) {
@@ -527,34 +507,31 @@ public class SMTPHandler
             out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
             try {
                 //Setup the input stream to notify the scheduler periodically
-                InputStream msgIn = new SchedulerNotifyInputStream(in, scheduler, this.toString(), 20000);
+                InputStream msgIn =
+                    new SchedulerNotifyInputStream(in, scheduler, this.toString(), 20000);
                 // parse headers
                 msgIn = new CharTerminatedInputStream(msgIn, SMTPTerminator);
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
                 if (maxmessagesize > 0) {
-                    getLogger().debug("Using SizeLimitedInputStream "
-                              + " with max message size: "
-                              + maxmessagesize);
+                    getLogger().debug(
+                        "Using SizeLimitedInputStream "
+                            + " with max message size: "
+                            + maxmessagesize);
                     msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
                 }
                 //Removes the dot stuffing
                 msgIn = new SMTPInputStream(msgIn);
-
                 //Parse out the message headers
                 MailHeaders headers = new MailHeaders(msgIn);
-
                 // if headers do not contains minimum REQUIRED headers fields,
                 // add them
                 if (!headers.isSet("Date")) {
-                    headers.setHeader("Date",
-                            RFC822DateFormat.toString(new Date()));
+                    headers.setHeader("Date", RFC822DateFormat.toString(new Date()));
                 }
-
                 if (!headers.isSet("From") && state.get(SENDER) != null) {
                     headers.setHeader("From", state.get(SENDER).toString());
                 }
-
                 //Determine the Return-Path
                 String returnPath = headers.getHeader("Return-Path", "\r\n");
                 headers.removeHeader("Return-Path");
@@ -565,78 +542,78 @@ public class SMTPHandler
                         returnPath = "<" + state.get(SENDER) + ">";
                     }
                 }
-
                 //We will rebuild the header object to put Return-Path and our
                 //  Received message at the top
                 Enumeration headerLines = headers.getAllHeaderLines();
-
                 headers = new MailHeaders();
                 //Put the Return-Path first
                 headers.addHeaderLine("Return-Path: " + returnPath);
                 //Put our Received header next
-                headers.addHeaderLine("Received: from " + state.get(REMOTE_NAME)
-                        + " ([" + state.get(REMOTE_IP) + "])");
-                String temp = "          by " + this.helloName + " ("
-                        + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
-                if (((Collection)state.get(RCPT_VECTOR)).size() == 1) {
+                headers.addHeaderLine(
+                    "Received: from "
+                        + state.get(REMOTE_NAME)
+                        + " (["
+                        + state.get(REMOTE_IP)
+                        + "])");
+                String temp =
+                    "          by "
+                        + this.helloName
+                        + " ("
+                        + softwaretype
+                        + ") with SMTP ID "
+                        + state.get(SMTP_ID);
+                if (((Collection) state.get(RCPT_VECTOR)).size() == 1) {
                     //Only indicate a recipient if they're the only recipient
                     //(prevents email address harvesting and large headers in
                     // bulk email)
                     headers.addHeaderLine(temp);
-                    headers.addHeaderLine("          for <"
-                            + ((Vector)state.get(RCPT_VECTOR)).get(0).toString()
+                    headers.addHeaderLine(
+                        "          for <"
+                            + ((Vector) state.get(RCPT_VECTOR)).get(0).toString()
                             + ">;");
                 } else {
                     //Put the ; on the end of the 'by' line
                     headers.addHeaderLine(temp + ";");
                 }
-                headers.addHeaderLine("          "
-                        + RFC822DateFormat.toString(new Date()));
-
+                headers.addHeaderLine("          " + RFC822DateFormat.toString(new Date()));
                 //Add all the original message headers back in next
                 while (headerLines.hasMoreElements()) {
-                    headers.addHeaderLine((String)headerLines.nextElement());
+                    headers.addHeaderLine((String) headerLines.nextElement());
                 }
-
-                ByteArrayInputStream headersIn
-                    = new ByteArrayInputStream(headers.toByteArray());
-                MailImpl mail = new MailImpl(mailServer.getId(),
-                                    (MailAddress)state.get(SENDER),
-                                    (Vector)state.get(RCPT_VECTOR),
-                                    new SequenceInputStream(headersIn, msgIn));
+                ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
+                MailImpl mail =
+                    new MailImpl(
+                        mailServer.getId(),
+                        (MailAddress) state.get(SENDER),
+                        (Vector) state.get(RCPT_VECTOR),
+                        new SequenceInputStream(headersIn, msgIn));
                 // if the message size limit has been set, we'll
                 // call mail.getSize() to force the message to be
                 // loaded. Need to do this to enforce the size limit
                 if (maxmessagesize > 0) {
                     mail.getMessageSize();
                 }
-                mail.setRemoteHost((String)state.get(REMOTE_NAME));
-                mail.setRemoteAddr((String)state.get(REMOTE_IP));
+                mail.setRemoteHost((String) state.get(REMOTE_NAME));
+                mail.setRemoteAddr((String) state.get(REMOTE_IP));
                 mailServer.sendMail(mail);
             } catch (MessagingException me) {
                 //Grab any exception attached to this one.
                 Exception e = me.getNextException();
-
                 //If there was an attached exception, and it's a
                 //MessageSizeException
                 if (e != null && e instanceof MessageSizeException) {
-                    getLogger().error("552 Error processing message: "
-                                      + e.getMessage());
+                    getLogger().error("552 Error processing message: " + e.getMessage());
                     // Add an item to the state to suppress
                     // logging of extra lines of data
                     // that are sent after the size limit has
                     // been hit.
                     state.put(MESG_FAILED, Boolean.TRUE);
-
                     //then let the client know that the size
                     //limit has been hit.
-                    out.println("552 Error processing message: "
-                                + e.getMessage());
+                    out.println("552 Error processing message: " + e.getMessage());
                 } else {
-                    out.println("451 Error processing message: "
-                                + me.getMessage());
-                    getLogger().error("Error processing message: "
-                                + me.getMessage());
+                    out.println("451 Error processing message: " + me.getMessage());
+                    getLogger().error("Error processing message: " + me.getMessage());
                     me.printStackTrace();
                 }
                 return;
@@ -646,18 +623,16 @@ public class SMTPHandler
             out.println("250 Message received");
         }
     }
-
-    private void doQUIT(String command,String argument,String argument1) {
-        out.println("221 " + state.get(SERVER_NAME)
-                    + " Service closing transmission channel");
+    private void doQUIT(String command, String argument, String argument1) {
+        out.println("221 " + state.get(SERVER_NAME) + " Service closing transmission channel");
     }
-
-    private void doUnknownCmd(String command,String argument,
-                              String argument1) {
+    private void doUnknownCmd(String command, String argument, String argument1) {
         if (state.get(MESG_FAILED) == null) {
-            out.println("500 " + state.get(SERVER_NAME)
-                        + " Syntax error, command unrecognized: " + command);
+            out.println(
+                "500 "
+                    + state.get(SERVER_NAME)
+                    + " Syntax error, command unrecognized: "
+                    + command);
         }
     }
-
 }
