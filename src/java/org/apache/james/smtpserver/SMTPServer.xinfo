@@ -14,6 +14,9 @@
 
   <dependencies>
     <dependency>
+      <service name="org.apache.mailet.MailetContext" version="1.0"/>
+    </dependency>
+    <dependency>
       <service name="org.apache.james.services.MailStore" version="1.0"/>
     </dependency>
     <dependency>

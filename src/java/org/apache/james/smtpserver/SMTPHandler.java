@@ -10,6 +10,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
@@ -25,6 +26,7 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.*;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
 import javax.mail.MessagingException;
 import java.io.*;
 import java.net.Socket;
@@ -42,13 +44,13 @@ import java.util.*;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
 
- * This is $Revision: 1.22 $
- * Committed on $Date: 2002/08/15 21:37:34 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.23 $
+ * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $
 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Target {
+    implements ConnectionHandler, Composable, Configurable, Initializable, Target {
 
     /**SMTP Server identification string used in SMTP headers*/
     private static final String softwaretype = "JAMES SMTP Server "
@@ -110,8 +112,33 @@ public class SMTPHandler
 
     private MailServer mailServer;      // The internal mail server service
 
+    /**
+     * The system-wide component manager
+     */
+    private ComponentManager componentManager;
+
     private HashMap state = new HashMap();  // The hash map that holds variables for the SMTP
                                             // session in progress.
+
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
+    public void compose(final ComponentManager componentManager) throws ComponentException {
+        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
+        scheduler =
+            (TimeScheduler) componentManager.lookup(
+                "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
+        UsersStore usersStore =
+            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
+        users = usersStore.getRepository("LocalUsers");
+        this.componentManager = componentManager;
+     }
 
     /**
      * Pass the <code>Configuration</code> to the instance.
@@ -134,22 +161,16 @@ public class SMTPHandler
     }
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
+     * Initialize the component. In the SMTPHandler this looks up the mailet
+     * context and sets the appropriate value for the hello name.
      *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @throws Exception if an error occurs
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
-        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
-        scheduler =
-            (TimeScheduler) componentManager.lookup(
-                "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
-        UsersStore usersStore =
-            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
-        users = usersStore.getRepository("LocalUsers");
+    public void initialize() throws Exception {
+        // make our "helloName" available through the MailetContext
+        MailetContext mailetcontext
+                = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
+        mailetcontext.setAttribute(Constants.HELLO_NAME, this.helloName);
     }
 
     /**

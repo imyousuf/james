@@ -42,11 +42,19 @@ import java.util.*;
  * 3. More efficiently handle numerous recipients
  * 4. Migrate to use Phoenix for the delivery threads
  *
+ * You really want to read the JavaMail documentation if you are
+ * working in here, and you will want to view the list of JavaMail
+ * attributes, which are documented here:
+ * 
+ * http://java.sun.com/products/javamail/1.3/docs/javadocs/com/sun/mail/smtp/package-summary.html
+ *
+ * as well as other places.
+ * 
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.23 $
- * Committed on $Date: 2002/08/18 07:27:51 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.24 $
+ * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -61,6 +69,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private MailServer mailServer;
     private boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
+    /**
+     * Initialize the mailet
+     */
     public void init() throws MessagingException {
         try {
             if (getInitParameter("delayTime") != null) {
@@ -495,9 +506,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
         //Set the hostname we'll use as this server
-        Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
-        if (servernames.size() > 0) {
-            props.put("mail.smtp.localhost", (String) servernames.iterator().next());
+        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
+            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(Constants.HELLO_NAME));
+        }
+        else {
+            Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
+            if ((servernames != null) && (servernames.size() > 0)) {
+                props.put("mail.smtp.localhost", (String) servernames.iterator().next());
+            }
         }
 
         //If there's a gateway port, we can just set it here
