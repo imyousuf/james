@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.92 $  Committed on $Date: 2002/05/16 23:48:50 $ by: $Author: hammant $
+ James build file $Revision: 1.93 $  Committed on $Date: 2002/05/25 16:46:39 $ by: $Author: serge $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -124,7 +124,7 @@ Legal:
       <exclude name="xerces.jar"/>
     </fileset>
     <fileset dir="phoenix-bin/lib">
-      <include name="*.jar" />    
+      <include name="*.jar" />
     </fileset>
     <pathelement path="${build.classes}" />
   </path>
@@ -233,6 +233,9 @@ Legal:
     <echo>
         AnakiaTask is not present! Please check to make sure that
         velocity.jar is in your classpath.
+        Please read http://jakarta.apache.org/site/jakarta-site2.html and
+		understand the 'How To: From Scratch' section before attempting
+		to build xdocs on your local machine.
     </echo>
   </target>
 
@@ -306,12 +309,11 @@ Legal:
 
       <lib dir="${build.lib}/">
         <include name="*.jar"/>
-      </lib>      
+      </lib>
 
       <lib dir="lib">
         <include name="cornerstone.jar"/>
         <include name="dnsjava-1.2.3.jar"/>
-        <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
         <include name="jakarta-oro-2.0.1.jar"/>
@@ -320,7 +322,7 @@ Legal:
       <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
         <include name="sqlResources.xml"/>
       </zipfileset>
-      
+
     </sar>
 
   </target>
@@ -333,18 +335,18 @@ Legal:
 
   <!-- Completely build all dists -->
   <target name="dist2" depends="install" description="Generates JAMES downloadables">
-    
+
     <mkdir dir="dist"/>
-    
-    
+
+
     <!-- Without Phoenix -->
-    
+
 
     <zip zipfile="dist/${name}-${version}-src.zip">
       <fileset dir=".">
         <include name="src/**"/>
         <include name="lib/**"/>
-        <include name="proposals/**"/>        
+        <include name="proposals/**"/>
         <include name="www/**"/>
         <include name="tools/**"/>
         <include name="*.xml"/>
@@ -352,14 +354,14 @@ Legal:
         <include name="README"/>
         <include name="KEYS"/>
         <include name="build.*"/>
-      </fileset>         
-    </zip>         
+      </fileset>
+    </zip>
 
     <tar longfile="gnu" tarfile="dist/${name}-${version}-src.tar" >
       <tarfileset dir="." username="${name}" group="${name}">
         <include name="src/**"/>
         <include name="lib/**"/>
-        <include name="proposals/**"/>        
+        <include name="proposals/**"/>
         <include name="www/**"/>
         <include name="tools/**"/>
         <include name="*.xml"/>
@@ -373,9 +375,9 @@ Legal:
     <gzip zipfile="dist/${name}-${version}-src.tar.gz"
           src="dist/${name}-${version}-src.tar"/>
     <delete file="dist/${name}-${version}-src.tar"/>
-    
+
     <!-- With Phoenix -->
-    
+
 
     <zip zipfile="dist/${name}-with-phoenix-${version}-src.zip">
       <fileset dir=".">
@@ -394,15 +396,15 @@ Legal:
         <include name="tools/**"/>
         <include name="www/**"/>
 
-      </fileset>         
-    </zip>         
+      </fileset>
+    </zip>
 
     <tar longfile="gnu" tarfile="dist/${name}-with-phoenix-${version}-src.tar" >
       <tarfileset dir="." username="${name}" group="${name}">
         <include name="phoenix-bin/bin/**"/>
         <include name="phoenix-bin/conf/**"/>
         <include name="phoenix-bin/ext/**"/>
-        <include name="phoenix-bin/lib/**"/>      
+        <include name="phoenix-bin/lib/**"/>
         <include name="*.txt"/>
         <include name="*.xml"/>
         <include name="KEYS"/>
@@ -418,8 +420,8 @@ Legal:
 
     <gzip zipfile="dist/${name}-with-phoenix-${version}-src.tar.gz"
           src="dist/${name}-with-phoenix-${version}-src.tar"/>
-    <delete file="dist/${name}-with-phoenix-${version}-src.tar"/>   
-    
+    <delete file="dist/${name}-with-phoenix-${version}-src.tar"/>
+
     <zip zipfile="dist/${name}-binary-${version}.zip">
       <fileset dir=".">
         <include name="phoenix-bin/bin/*"/>
@@ -430,7 +432,7 @@ Legal:
         <include name="release-notes.txt"/>
         <include name="LICENSE.txt"/>
       </fileset>
-    </zip>         
+    </zip>
 
     <tar longfile="gnu" tarfile="dist/${name}-binary-${version}.tar" >
       <tarfileset dir="." username="${name}" group="${name}">
@@ -446,11 +448,11 @@ Legal:
 
     <gzip zipfile="dist/${name}-binary-${version}.tar.gz"
           src="dist/${name}-binary-${version}.tar"/>
-    <delete file="dist/${name}-binary-${version}.tar"/>        
-    
+    <delete file="dist/${name}-binary-${version}.tar"/>
+
     <copy file="${build.lib}/${name}.sar" todir="dist" />
-    
-  </target>  
+
+  </target>
 
 
   <!-- =================================================================== -->
@@ -651,7 +653,7 @@ Legal:
   -->
 
   <target name="dist-lite"/>
-  
+
   <target name="dist" depends="dist-lite, docs">
 
     <mkdir dir="${dist.docs}"/>
