@@ -47,6 +47,11 @@ public class SqlResources
     private Map m_sql = new HashMap();
 
     /**
+     * A map of engine specific options
+     */
+    private Map m_dbOptions = new HashMap();
+
+    /**
      * A set of all used String values
      */
     static private Map stringTable = java.util.Collections.synchronizedMap(new HashMap());
@@ -92,6 +97,19 @@ public class SqlResources
             m_perl5Util = null;     // release the PERL matcher!
         }
 
+        // Now get the options valid for the database product used.
+        Element dbOptionsElement = 
+            (Element)(sqlDoc.getElementsByTagName("dbOptions").item(0));
+        if ( dbOptionsElement != null ) {
+            // First populate the map with default values 
+            populateDbOptions("", dbOptionsElement, m_dbOptions);
+            // Now update the map with specific product values
+            if ( dbProduct != null ) {
+                populateDbOptions(dbProduct, dbOptionsElement, m_dbOptions);
+            }
+        }
+
+        
         // Now get the section defining sql for the repository required.
         NodeList sections = sqlDoc.getElementsByTagName("sqlDefs");
         int sectionsCount = sections.getLength();
@@ -242,6 +260,32 @@ public class SqlResources
     }
 
     /**
+     * Gets all the name/value pair db option couples related to the dbProduct,
+     * and put them into the dbOptionsMap.
+     *
+     * @param dbProduct the db product used
+     * @param dbOptionsElement the XML element containing the options
+     * @param dbOptionsMap the <CODE>Map</CODE> to populate
+     *
+     */
+    private void populateDbOptions(String dbProduct, Element dbOptionsElement, Map dbOptionsMap)
+    {
+        NodeList dbOptions = 
+            dbOptionsElement.getElementsByTagName("dbOption");
+        for ( int i = 0; i < dbOptions.getLength(); i++ ) {
+            // Get the values for this option element.
+            Element dbOption = (Element)dbOptions.item(i);
+            // Check is this element is pertinent to the dbProduct
+            // Notice that a missing attribute returns "", good for defaults
+            if (!dbProduct.equalsIgnoreCase(dbOption.getAttribute("db"))) {
+                continue;
+            }
+            // Put into the map
+            dbOptionsMap.put(dbOption.getAttribute("name"), dbOption.getAttribute("value"));
+        }
+    }
+
+    /**
      * Replace substrings of one string with another string and return altered string.
      * @param input input string
      * @param find the string to replace
@@ -306,4 +350,16 @@ public class SqlResources
         }
         return sql;
     }
+    
+    /**
+     * Returns the dbOption string value set for the specified dbOption name.
+     * 
+     * @param name the name of the dbOption required.
+     * @return the requested dbOption value
+     */
+    public String getDbOption(String name)
+    {
+        return (String)m_dbOptions.get(name);
+    }
+
 }

@@ -138,8 +138,13 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 throw new IOException("Could not find message");
             }
 
-            Blob b = rsRetrieveMessageStream.getBlob(1);
-            headers = b.getBytes(1, (int)b.length());
+            String getBodyOption = repository.sqlQueries.getDbOption("getBody");
+            if (getBodyOption != null && getBodyOption.equalsIgnoreCase("useBlob")) {
+                Blob b = rsRetrieveMessageStream.getBlob(1);
+                headers = b.getBytes(1, (int)b.length());
+            } else {
+                headers = rsRetrieveMessageStream.getBytes(1);
+            }
             if (DEEP_DEBUG) {
                 System.err.println("stopping");
                 System.err.println(System.currentTimeMillis() - start);
