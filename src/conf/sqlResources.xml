@@ -152,4 +152,13 @@
     </sql>
 </sqlDefs>
 
+<sqlDefs name="org.apache.james.transport.mailets.JDBCAlias">
+    <sql name="tableName">${table}</sql>
+    <sql name="select">SELECT source_email_address
+                 FROM ${table}
+                 WHERE target_email_address = ?
+    </sql>
+    <sql name="createTable">CREATE TABLE ${table} (source_email_address VARCHAR(200) NOT NULL, target_email_address VARCHAR(200) PRIMARY KEY(source_email_address))</sql>
+</sqlDefs>
+
 </sqlResources>
