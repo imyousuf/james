@@ -74,6 +74,7 @@ public class James
     private UsersRepository localusers;
     private Collection serverNames;
     private boolean ignoreCase;
+    private boolean enableAliases;
 
     // this used to be long, but increment operations on long are not
     // thread safe. Changed to int. 'int' should be ok, because id generation
@@ -171,7 +172,11 @@ public class James
         } else {
 	    ignoreCase = false;
 	}
-
+        if (userNamesConf.getAttribute("enableAliases").equals("TRUE")) {
+            enableAliases = true;
+        } else {
+	    enableAliases = false;
+	}
         //Get localusers
         try {
             localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
@@ -470,10 +475,24 @@ public class James
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
 
+        String username;
+        if (ignoreCase) {
+            username = localusers.getRealName(recipient.getUser());
+        } else {
+            username = recipient.getUser();
+        }
+	JamesUser user;
+	if (enableAliases) {
+	    user = (JamesUser) localusers.getUserByName(username);
+	    if (user.getAliasing()) {
+	        username = user.getAlias();
+	    }
+	}
+
         if (useIMAPstorage) {
             ACLMailbox mbox = null;
             try {
-                String folderName = "#users." + recipient.getUser() + ".INBOX";
+                String folderName = "#users." + username + ".INBOX";
                 getLogger().debug("Want to store to: " + folderName);
                 mbox = imapHost.getMailbox(MailServer.MDA, folderName);
                 if(mbox.store(message,MailServer.MDA)) {
@@ -496,12 +515,6 @@ public class James
             Collection recipients = new HashSet();
             recipients.add(recipient);
             MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-	    String username;
-	    if (ignoreCase) {
-	        username = localusers.getRealName(recipient.getUser());
-	    } else {
-		username = recipient.getUser();
-	    }
             getUserInbox(username).store(mailImpl);
         }
     }
