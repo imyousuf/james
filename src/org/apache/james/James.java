@@ -40,7 +40,7 @@ public class James implements MailServer, Block {
     private ThreadManager threadManager;
     private Store store;
     private MailRepository spool;
-    private String mailboxName;
+    private MailRepository localInbox;
     
     public James() {
     }
@@ -82,18 +82,18 @@ public class James implements MailServer, Block {
         String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
         context.put(Constants.POSTMASTER, postmaster);
             // Get the LocalInbox repository
-        mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
+        String inboxRepository = conf.getConfiguration("inboxRepository", "file://../mail/inbox/").getValue();
         try {
-            MailRepository localInbox = (MailRepository) store.getPublicRepository(mailboxName);
-        } catch (RuntimeException e) {
-            logger.log("Cannot open public Repository LocalInbox", "JAMES", logger.ERROR);
+            this.localInbox = (MailRepository) store.getPrivateRepository(inboxRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
+        } catch (Exception e) {
+            logger.log("Cannot open private MailRepository", "JAMES", logger.ERROR);
             throw e;
         }
-        logger.log("Public Repository LocalInbox opened", "JAMES", logger.INFO);
+        logger.log("Private Repository LocalInbox opened", "JAMES", logger.INFO);
             // Add this to comp
         comp.put(Interfaces.MAIL_SERVER, this);
         
-        String spoolRepository = conf.getConfiguration("spoolRepository", ".").getValue();
+        String spoolRepository = conf.getConfiguration("spoolRepository", "file://../mail/spool/").getValue();
         try {
             this.spool = (MailRepository) store.getPrivateRepository(spoolRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         } catch (Exception e) {
@@ -203,12 +203,12 @@ public class James implements MailServer, Block {
     public MailRepository getUserInbox(String userName) {
 
         MailRepository userInbox = (MailRepository) null;
-        String repositoryName = mailboxName + userName;
         try {
-            userInbox = (MailRepository) comp.getComponent(repositoryName);
+            userInbox = (MailRepository) comp.getComponent(userName);
         } catch (ComponentNotFoundException ex) {
-            userInbox = (MailRepository) store.getPublicRepository(repositoryName);
-            comp.put(repositoryName, userInbox);
+            String dest = localInbox.getChildDestination(userName);
+            userInbox = (MailRepository) store.getPrivateRepository(dest, MailRepository.MAIL, Store.ASYNCHRONOUS);
+            comp.put(userName, userInbox);
         }
         return userInbox;
     }
