@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.8 $  Committed on $Date: 2003/07/03 07:50:14 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.9 $  Committed on $Date: 2003/07/21 02:37:54 $ by: $Author: serge $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -393,6 +393,8 @@ Legal:
                 <include name="mail_1_3.jar"/>
                 <include name="commons-net-1.0.0-dev.jar"/>
                 <include name="commons-collections.jar"/>
+                <include name="commons-pool.jar"/>
+                <include name="commons-dbcp.jar"/>
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
