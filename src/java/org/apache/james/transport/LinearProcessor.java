@@ -38,7 +38,7 @@ public class LinearProcessor
     extends AbstractLoggable
     implements Initializable {
 
-    private final static boolean DEEP_DEBUG = true;
+    private final static boolean DEEP_DEBUG = false;
 
     private List mailets;
     private List matchers;
@@ -181,7 +181,7 @@ public class LinearProcessor
             } else {
                 //Ok, we made it through with the same state... move it to the next
                 //  spot in the array
-                getLogger().debug("State not changed by: " + mailet.getMailetInfo());
+                if (DEEP_DEBUG) getLogger().debug("State not changed by: " + mailet.getMailetInfo());
                 unprocessed[i + 1].add(mail);
             }
 
