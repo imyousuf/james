@@ -47,7 +47,7 @@ import java.io.UnsupportedEncodingException;
  * <P>If '<CODE>-z</CODE>' is coded, the check will be non-recursively applied
  * to the contents of any attached '*.zip' file.</P>
  *
- * @version CVS $Revision: 1.1.2.6 $ $Date: 2004/07/16 12:24:59 $
+ * @version CVS $Revision: 1.1.2.7 $ $Date: 2004/07/27 15:05:08 $
  * @since 2.2.0
  */
 public class AttachmentFileNameIs extends GenericMatcher {
@@ -148,7 +148,9 @@ public class AttachmentFileNameIs extends GenericMatcher {
          * if there is an attachment and no inline text,
          * the content type can be anything
          */
-        if (part.getContentType() == null) {
+        
+        if (part.getContentType() == null ||
+            part.getContentType().startsWith("multipart/alternative")) {
             return false;
         }
         
