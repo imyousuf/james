@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.35.4.1 $
+ * @version This is $Revision: 1.35.4.2 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -474,10 +474,10 @@ public class SMTPHandler
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         byte b = -1;
         while (true) {
-            in.mark(1);
             b = (byte) in.read();
             if (b == 13) {
                 //We're done, but we want to see if \n is next
+                in.mark(1);
                 b = (byte) in.read();
                 if (b != 10) {
                     in.reset();
