@@ -42,6 +42,7 @@ public class James implements MailServer, Block {
     private MailRepository spool;
     private MailRepository localInbox;
     private Vector serverNames;
+    private static long count;
     
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -173,7 +174,7 @@ public class James implements MailServer, Block {
         sendMail(new Mail(getId(), sender, recipients, message));
     }
 
-    public void sendMail(String sender, Vector recipients, InputStream msg)
+    public synchronized void sendMail(String sender, Vector recipients, InputStream msg)
     throws MessagingException {
 
             // parse headers
@@ -187,7 +188,7 @@ public class James implements MailServer, Block {
         sendMail(new Mail(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
 
-    public void sendMail(Mail mail)
+    public synchronized void sendMail(Mail mail)
     throws MessagingException {
         try {
             spool.store(mail);
@@ -201,7 +202,7 @@ public class James implements MailServer, Block {
         logger.log("Mail " + mail.getName() + " pushed in spool", "JamesSystem", logger.INFO);
     }
 
-    public MailRepository getUserInbox(String userName) {
+    public synchronized MailRepository getUserInbox(String userName) {
 
         MailRepository userInbox = (MailRepository) null;
         try {
@@ -215,7 +216,7 @@ public class James implements MailServer, Block {
     }
     
     private String getId() {
-        return "Mail" + System.currentTimeMillis();
+        return "Mail" + System.currentTimeMillis() + "-" + count++;
     }
 
 	public static void main(String[] args) {

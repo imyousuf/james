@@ -6,24 +6,26 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.servlet;
+package org.apache.mail;
 
-import org.apache.mail.*;
+import org.apache.java.lang.*;
 
 /**
- * Opposite of Null Servlet. It let any incoming mail untouched. Used only for 
- * debugging.
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * Draft of a MailServlet inteface.
+ *
+ * @version 1.0.0, 24/04/1999
+ * @author  Federico Barbieri   <scoobie@pop.systemy.it>
+ * @author  Stefano Mazzocchi   <stefano@apache.org>
+ * @author  Pierpaolo Fumagalli <pier@apache.org>
+ * @author  Serge Knystautas    <sergek@lokitech.com>
  */
-public class Identity extends GenericMailServlet {
+public interface Mailet extends Service {
 
-    public Mail service(Mail mail) {
-        log("Untouching mail " + mail.getName());
-        return mail;
-    }
+    public void service(Mail mail) throws Exception;
     
-    public String getServletInfo() {
-        return "Identity Mail Servlet";
-    }
+    public String getServletInfo();
+    
+    public MailetContext getContext();
 }
+
     

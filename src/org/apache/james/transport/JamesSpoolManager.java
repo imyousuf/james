@@ -15,8 +15,6 @@ import org.apache.avalon.interfaces.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
 import org.apache.mail.*;
-import org.apache.james.transport.servlet.*;
-import org.apache.james.transport.match.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -29,8 +27,8 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Context context;
     private MailRepository spool;
     private Logger logger;
-    private GenericMailServlet rootMailet;
-    private GenericMailServlet errorMailet;
+    private Mailet rootMailet;
+    private Mailet errorMailet;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -69,18 +67,15 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         comp.put(Resources.MAILET_LOADER, mailetLoader);
         
         MatchLoader matchLoader = new MatchLoader();
-        matchLoader.setContext(context);
-        matchLoader.setComponentManager(comp);
         comp.put(Resources.MATCH_LOADER, matchLoader);
         
         Configuration rootMailetConf = conf.getConfiguration("processor");
         String className = rootMailetConf.getAttribute("class");
         try {
-            rootMailet = (GenericMailServlet) Class.forName(className).newInstance();
-            rootMailet.setConfiguration(rootMailetConf);
-            rootMailet.setContext(context);
-            rootMailet.setComponentManager(comp);
-            rootMailet.init();
+            JamesMailetContext rootContext = new JamesMailetContext(context);
+            rootContext.setConfiguration(rootMailetConf);
+            rootContext.setComponentManager(comp);
+            rootMailet = mailetLoader.getMailet(className, rootContext);
             logger.log("Root mailet " + className + " instantiated", "Processor", logger.INFO);
         } catch (Exception ex) {
             logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
@@ -89,11 +84,10 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         Configuration errorMailetConf = conf.getConfiguration("errorManager");
         className = errorMailetConf.getAttribute("class");
         try {
-            errorMailet = (GenericMailServlet) Class.forName(className).newInstance();
-            errorMailet.setConfiguration(errorMailetConf);
-            errorMailet.setContext(context);
-            errorMailet.setComponentManager(comp);
-            errorMailet.init();
+            JamesMailetContext errorContext = new JamesMailetContext(context);
+            errorContext.setConfiguration(errorMailetConf);
+            errorContext.setComponentManager(comp);
+            errorMailet = mailetLoader.getMailet(className, errorContext);
             logger.log("Error mailet " + className + " instantiated", "Processor", logger.INFO);
         } catch (Exception ex) {
             logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
@@ -111,25 +105,24 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
             try {
                 String key = spool.accept();
-                Mail mc = spool.retrieve(key);
-                logger.log("==== Begin processing mail " + key + " ====", "Processor", logger.INFO);
+                Mail mail = spool.retrieve(key);
+                logger.log("==== Begin processing mail " + mail.getName() + " ====", "Processor", logger.INFO);
                 try {
-                    rootMailet.service(mc);
+                    rootMailet.service(mail);
                 } catch (Exception ex) {
-                    mc.setState(mc.ERROR);
-                    mc.setErrorMessage("Exception in rootMailet service: " + ex.getMessage());
-                    logger.log("Exception in root service (" + mc.getName() + "): " + ex.getMessage(), "Processor", logger.INFO);
-                    ex.printStackTrace();
+                    mail.setState(Mail.ERROR);
+                    mail.setErrorMessage("Exception in rootMailet service: " + ex.getMessage());
+                    logger.log("Exception in root service (" + mail.getName() + "): " + ex.getMessage(), "Processor", logger.ERROR);
                 }
-                if (mc.getState() == mc.ERROR) {
+                if (mail.getState() != mail.GHOST) {
                     try {
-                        errorMailet.service(mc);
+                        errorMailet.service(mail);
                     } catch (Exception ex) {
-                    logger.log("Exception in errorMailet service (" + mc.getName() + "): " + ex.getMessage(), "Processor", logger.INFO);
+                    logger.log("Exception in errorMailet service (" + mail.getName() + "): " + ex.getMessage(), "Processor", logger.ERROR);
                     }
                 }
                 spool.remove(key);
-                logger.log("==== Removed from spool mail " + mc.getName() + " ====", "Processor", logger.INFO);
+                logger.log("==== Removed from spool mail " + mail.getName() + " ====", "Processor", logger.INFO);
             } catch (Exception e) {
                 logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "Processor", logger.ERROR);
             }

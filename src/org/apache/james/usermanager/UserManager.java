@@ -41,7 +41,7 @@ public class UserManager implements Component, Configurable, Composer, Service, 
 
 	public void init() throws Exception {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        String rootPath = conf.getConfiguration("rootPath", "file://../users/").getValue();
+        String rootPath = conf.getConfiguration("repository", "file://../var/users/").getValue();
         store = (Store) comp.getComponent(Interfaces.STORE);
         rootRepository = (UsersRepository) store.getPrivateRepository(rootPath, UsersRepository.USER, Store.ASYNCHRONOUS);
     }

@@ -6,24 +6,27 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.match;
+package org.apache.mail;
 
-import org.apache.mail.Mail;
-import java.util.*;
 import org.apache.java.lang.*;
 
 /**
+ * Draft of a MailServlet inteface.
+ *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author  Federico Barbieri   <scoobie@pop.systemy.it>
+ * @author  Stefano Mazzocchi   <stefano@apache.org>
+ * @author  Pierpaolo Fumagalli <pier@apache.org>
+ * @author  Serge Knystautas    <sergek@lokitech.com>
  */
-public abstract class AbstractMatch implements Match {
+public interface MailetContext extends Context {
     
-    public abstract Vector match(Mail mail, String condition);
+    public Configuration getConfiguration();
     
-    public void setComponentManager(ComponentManager comp) {
-    }
-
-    public void setContext(Context context) {
-    }
+    public ComponentManager getComponentManager();
+    
+    public MailetContext getChildContext(Configuration conf);
+    // Fill Me!!!
 }
+
     

@@ -9,8 +9,7 @@ package org.apache.james.transport;
 
 import java.util.*;
 import org.apache.java.lang.*;
-import org.apache.mail.servlet.*;
-import org.apache.james.transport.servlet.*;
+import org.apache.mail.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -30,17 +29,13 @@ public class MailetLoader implements Component, Configurable {
         }
     }
 
-    public MailServlet getMailet(String servletName, Configuration conf, Context context, ComponentManager comp)
+    public Mailet getMailet(String servletName, MailetContext context)
     throws Exception {
         for (int i = 0; i < servletPackages.size(); i++) {
             String className = (String)servletPackages.elementAt(i) + servletName;
             try {
-                MailServlet mailet = (MailServlet) Class.forName(className).newInstance();
-                mailet.setConfiguration(conf);
-                if (mailet instanceof GenericMailServlet) {
-                    ((GenericMailServlet) mailet).setContext(context);
-                    ((GenericMailServlet) mailet).setComponentManager(comp);
-                }
+                AbstractMailet mailet = (AbstractMailet) Class.forName(className).newInstance();
+                mailet.setMailetContext(context);
                 mailet.init();
                 return mailet;
             } catch (ClassNotFoundException cnfe) {

@@ -1,5 +1,3 @@
-package org.apache.mail;
-
 /*****************************************************************************
  * Copyright (C) The Apache Software Foundation. All rights reserved.        *
  * ------------------------------------------------------------------------- *
@@ -7,6 +5,8 @@ package org.apache.mail;
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
+
+package org.apache.mail;
 
 import java.io.*;
 import java.util.*;
@@ -22,6 +22,7 @@ public class Mail implements Serializable, Cloneable {
 
 	public final static String DEFAULT = "DEFAULT";
 	public final static String ERROR = "ERROR";
+	public final static String GHOST = "GHOST";
 
 	private String errorMessage;
 	private String state;

@@ -25,21 +25,9 @@
             <resource type="org.apache.avalon.blocks.Logger" mapTo="ApacheDefaultLogger"/>
             <resource type="org.apache.avalon.blocks.Store" mapTo="JamesObjectStore"/>
         </service>
-        <service name="JamesTest">
-            <resource type="org.apache.avalon.blocks.Logger" mapTo="JamesLogger"/>
-            <resource type="org.apache.avalon.blocks.ThreadManager" mapTo="ApacheDefaultThreadManager"/>
-            <resource type="org.apache.avalon.blocks.ConnectionManager" mapTo="ApacheDefaultConnectionManager"/>
-        </service>
     </servicesmap>
 
     <blocks>
-<!-- bench & test block that send mails... -->
-<!--        <block class="org.apache.james.bench.Tester"
-               name="JamesTest"
-               implementedInterface="">
-            <children> 1 </children>
-        </block>  -->
-
         <block class="org.apache.james.James"
                name="JamesMailServer"
                implementedInterface="org.apache.avalon.blocks.MailServer">
@@ -66,7 +54,7 @@
             <smtpServer>
                 <port>25</port>
                 <smtphandler>
-                    <connectiontimeout> 120000 </connectiontimeout>
+                    <connectiontimeout> 360000 </connectiontimeout>
                 </smtphandler>
             </smtpServer>
 
@@ -82,7 +70,7 @@
                 <repository> file://../var/users/ </repository>
             </usersManager>
 
-            <spoolmanagerthreads> 10 </spoolmanagerthreads>
+            <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
                 <DNSservers>
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -98,43 +86,18 @@
                 <repository> file://../var/mail/delayed/ </repository>
 
                 <servletpackages>
-                    <servletpackage>org.apache.james.transport.servlet.</servletpackage>
+                    <servletpackage>org.apache.james.transport.mailets.</servletpackage>
                 </servletpackages>
-                <processor class="org.apache.james.transport.TreeProcessor">
-                    <node type="match" condition="All">
-                        <node type="match" condition="RecipientIsLocal">
-                            <node type="mailet" name="LocalDelivery"/>
-                        </node>
-                        <node type="mailet" name="RemoteDelivery"/>
-                    </node>
-                    
-                    <mailets>
-                        <mailet name="Null" class="org.apache.james.transport.servlet.Null">
-                        </mailet>
-                        <mailet name="LocalDelivery" class="org.apache.james.transport.servlet.LocalDelivery">
-                        </mailet>
-                        <mailet name="rootForward" class="org.apache.james.transport.servlet.Forward">
-                            <forwardTo> scoobie@localhost </forwardTo>
-                        </mailet>
-                        <mailet name="RemoteDelivery" class="org.apache.james.transport.servlet.RemoteDelivery">
-                            <delayTime>21600000</delayTime>
-                            <maxRetries>5</maxRetries>
-                        </mailet>
-                    </mailets>
-                </processor>
-<!--        LinearProcessor CONFIGURATION SAMPLE
+<!--        LinearProcessor CONFIGURATION SAMPLE -->
                 <processor class="org.apache.james.transport.LinearProcessor">
-                    <servlets>
-                        <servlet match="RecipientIsLocal" class="LocalDelivery">
-                        </servlet>
-                        <servlet match="All" class="RemoteDelivery">
-                            <delayTime>21600000</delayTime>
-                            <maxRetries>5</maxRetries>
-                        </servlet>
-                    </servlets>
+                    <servlet match="All" class="Identity">
+                    </servlet>
+                    <servlet match="All" class="Null">
+                    </servlet>
+                    <servlet match="All" class="ExceptionThrowingMailet">
+                    </servlet>
                 </processor>
--->
-                <errorManager class="org.apache.james.transport.servlet.Null">
+                <errorManager class="Identity">
                 </errorManager>
             </spoolmanager>
         </block>
