@@ -54,7 +54,7 @@ IV. Configuring James
 <li><a href="nntp_configuration_2_1.html">NNTP Server Configuration</a></li>
 <li><a href="fetchpop_configuration_2_1.html">FetchPOP Configuration</a></li>
 <li><a href="remotemanager_configuration_2_1.html">RemoteManager Configuration</a></li>
-<li>Repository Configuration</li>
+<li><a href="repositories_2_1.html">Repository Configuration</a></li>
 <li><a href="spoolmanager_configuration_2_1.html">SpoolManager Configuration</a></li>
 <li><a href="serverwide_configuration_2_1.html">Server-wide Configuration</a></li>
 <li><a href="adding_users_2_1.html">Adding Users</a></li>
