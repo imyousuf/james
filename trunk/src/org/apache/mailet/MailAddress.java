@@ -172,14 +172,6 @@ public class MailAddress implements java.io.Serializable {
         return user + "@" + host;
     }
 
-    public boolean equals(Object object) {
-        if (object instanceof MailAddress || object instanceof String) {
-            return object.toString().equals(toString());
-        } else {
-            return false;
-        }
-    }
-
     public InternetAddress toInternetAddress() {
         try {
             return new InternetAddress(toString());
@@ -187,6 +179,18 @@ public class MailAddress implements java.io.Serializable {
             //impossible really
             return null;
         }
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        } else if (obj instanceof String) {
+            return toString().equals(obj.toString());
+        } else if (obj instanceof MailAddress) {
+            MailAddress addr = (MailAddress)obj;
+            return getUser().equals(addr.getUser()) && getHost().equals(addr.getHost());
+        }
+        return false;
     }
 
     private String parseQuotedLocalPart(String address) throws ParseException {
