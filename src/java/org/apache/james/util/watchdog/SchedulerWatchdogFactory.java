@@ -15,6 +15,31 @@ import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
  * This class is a factory to produce Watchdogs, each of which is associated
  * with a single TimeScheduler Target and a TimeScheduler object.
  *
+ * This could be used in James by adding a server configuration
+ * parameter:
+ *
+ *     schedulerWatchdogs = conf.getChild("useSchedulerWatchdogs").getValueAsBoolean(false);
+ *
+ * getting the TimeScheduler component:
+ *
+ *     scheduler = (TimeScheduler) compMgr.lookup(TimeScheduler.ROLE);
+ *
+ * and changing AbstractJamesService.getWatchdogFactory to look
+ * something like: 
+ *
+ *     protected WatchdogFactory getWatchdogFactory() {
+ *        WatchdogFactory theWatchdogFactory = null;
+ *        if (schedulerWatchdogs) {
+ *             theWatchdogFactory = new SchedulerWatchdogFactory(scheduler, timeout);
+ *           } else {
+ *             theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
+ *           }
+ *        if (theWatchdogFactory instanceof LogEnabled) {
+ *             ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
+ *        }
+ *        return theWatchdogFactory;
+ *     }
+ *
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class SchedulerWatchdogFactory implements WatchdogFactory {
@@ -27,9 +52,15 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
     private long timeout = -1;
 
     /**
-     * Sets the TimeScheduler used to generate Watchdogs.
+     * Creates the factory and sets the TimeScheduler used to implement
+     * the watchdogs.
+     *
+     * @param theTimeScheduler the scheduler that manages Watchdog triggering
+     *                         for Watchdogs produced by this factory
+     * @param timeout the timeout for Watchdogs produced by this factory
      */
-    public void setTimeScheduler(TimeScheduler theTimeScheduler) {
+    public SchedulerWatchdogFactory(TimeScheduler theTimeScheduler, long timeout) {
+        this.timeout = timeout;
         myTimeScheduler = theTimeScheduler;
     }
 

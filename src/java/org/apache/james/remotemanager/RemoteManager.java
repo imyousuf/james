@@ -25,7 +25,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
 
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.*;
-import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -148,10 +147,7 @@ public class RemoteManager
             ((Initializable)theHandlerPool).initialize();
         }
 
-        theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
-        if (theWatchdogFactory instanceof LogEnabled) {
-            ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
-        }
+        theWatchdogFactory = getWatchdogFactory();
     }
 
     /**
