@@ -8,7 +8,6 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import com.workingdogs.town.*;
 import org.apache.james.*;
-import org.apache.james.server.*;
 
 /**
  * Class Declaration.
