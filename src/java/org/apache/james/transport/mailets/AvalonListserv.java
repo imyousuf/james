@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ import java.util.Vector;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.7.4.1 $
+ * @version This is $Revision: 1.7.4.2 $
  */
 public class AvalonListserv extends GenericListserv {
 

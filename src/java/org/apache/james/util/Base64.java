@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ import java.io.InputStreamReader;
  * Simple Base64 string decoding function
  * @author Jason Borden <jborden@javasense.com>
  *
- * @version This is $Revision: 1.5.4.1 $
+ * @version This is $Revision: 1.5.4.2 $
  */
 
 public class Base64 {

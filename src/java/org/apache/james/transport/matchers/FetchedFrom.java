@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import java.util.Collection;
  * Once the condition is met the header is stripped from the message to prevent looping if the mail is re-inserted into the spool.
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: FetchedFrom.java,v 1.2.4.1 2003/02/27 06:16:21 noel Exp $
+ * $Id: FetchedFrom.java,v 1.2.4.2 2003/03/08 21:54:09 noel Exp $
  */
 
 public class FetchedFrom extends GenericMatcher {

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ import java.util.Iterator;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.4.4.1 2003/02/27 06:16:16 noel Exp $
+ * <br>$Id: FetchScheduler.java,v 1.4.4.2 2003/03/08 21:54:03 noel Exp $
  *  @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *  

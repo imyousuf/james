@@ -4,14 +4,14 @@
 
  <properties>
   <title>ChangeLog</title>
-  <author email="sergek@lokitech.com">Serge Knystautas</author>
+  <author email="james-dev@jakarta.apache.org">James Project</author>
  </properties>
 
 <body>
 
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
-<section name="Version 2.1.3">
+<section name="Version 2.2.0">
 <p>Expected release March 2003</p>
 <li>[JW] (code) JavaMail tuning in RemoteDelivery</li>
 <li>[SS4] (update) Upgrade to DnsJava 1.3.2</li>
@@ -29,20 +29,21 @@
 
 <section name="Version 2.1.1">
 <p>Released 11 February 2003</p>
-<li> [KL] (code) SMTP AUTH compatibility change</li>
-<li> [NjB] (code) Changed MimeMessageWrapper to use the raw stream when possible</li>
-<li> [NjB] (code) Fixed synchronization bug in AvalonMailRepository</li>
-<li> [NjB] (update) Updated Avalon LogKit</li>
-<li> [NjB] (code) Infinite loops are interruptable</li>
-<li> [HB, NjB] (code) Fixed NNTP crossposting</li>
-<li> [NjB] (code) Fixed synchronizaion bug in file repository</li>
-<li> [NjB] (code) Enabled log rotation</li>
-<li> [NjB] (doc) Fixed broken links</li>
-<li> [DA, NjB]  (update) Updated JavaMail and JAF</li>
-<li> [NjB] (code) Updated sqlResources.xml for PostgreSQL with patch from simon </li>
-<li> [NjB] (code) Reorder primary key for JDBCMailRepository? to optimize queries using just the repository name.</li>
+<li>[KL] (code) SMTP AUTH compatibility change</li>
+<li>[NjB] (code) Changed MimeMessageWrapper to use the raw stream when possible</li>
+<li>[NjB] (code) Fixed synchronization bug in AvalonMailRepository</li>
+<li>[NjB] (update) Updated Avalon LogKit</li>
+<li>[NjB] (code) Infinite loops are interruptable</li>
+<li>[HB, NjB] (code) Fixed NNTP crossposting</li>
+<li>[NjB] (code) Fixed synchronizaion bug in file repository</li>
+<li>[NjB] (code) Enabled log rotation</li>
+<li>[NjB] (doc) Fixed broken links</li>
+<li>[DA, NjB]  (update) Updated JavaMail and JAF</li>
+<li>[NjB] (code) Updated sqlResources.xml for PostgreSQL with patch from simon </li>
+<li>[NjB] (code) Reorder primary key for JDBCMailRepository? to optimize queries using just the repository name.</li>
 <li>[PG,HB]  (code) NNTP dot stuffing fix</li>
 <li>[PG]  (code) NNTP OVER/XOVER fix</li>
+<li>[NjB] (code) Experimental RegexMatcher classes</li>
 </section>
 
 <section name="Version 2.1">
