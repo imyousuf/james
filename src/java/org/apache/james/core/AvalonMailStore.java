@@ -165,9 +165,6 @@ public class AvalonMailStore
         throws ConfigurationException {
         String className = repConf.getAttribute("class");
         boolean infoEnabled = getLogger().isInfoEnabled();
-        if (infoEnabled) {
-            getLogger().info("Registering Repository " + className);
-        }
         Configuration[] protocols
             = repConf.getChild("protocols").getChildren("protocol");
         Configuration[] types = repConf.getChild("types").getChildren("type");
@@ -182,21 +179,23 @@ public class AvalonMailStore
             {
                 String type = types[j].getValue();
                 String key = protocol + type ;
+                if (infoEnabled) {
+                    StringBuffer infoBuffer =
+                        new StringBuffer(128)
+                            .append("Registering Repository instance of class ")
+                            .append(className)
+                            .append(" to handle ")
+                            .append(protocol)
+                            .append(" protocol requests for repositories of type ")
+                            .append(type);
+                    getLogger().info(infoBuffer.toString());
+                }
                 if (classes.get(key) != null) {
                     throw new ConfigurationException("The combination of protocol and type comprise a unique key for repositories.  This constraint has been violated.  Please check your repository configuration.");
                 }
                 classes.put(key, className);
                 if (defConf != null) {
                     defaultConfigs.put(key, defConf);
-                }
-                if (infoEnabled) {
-                    StringBuffer logBuffer =
-                        new StringBuffer(128)
-                                .append("Registered class: ")
-                                .append(key)
-                                .append("->")
-                                .append(className);
-                    getLogger().info(logBuffer.toString());
                 }
             }
         }

@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.27 $
+ * This is $Revision: 1.28 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -224,6 +224,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         } finally {
                             if (transport != null) {
                                 transport.close();
+                                transport = null;
                             }
                         }
                         logMessageBuffer =
