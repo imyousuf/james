@@ -134,7 +134,33 @@ public class SimpleServer extends AbstractBlock implements SimpleService {
 	    argument = fullcommand.substring(command.length() + 1);
         }
        
-	if (command.equalsIgnoreCase("PUT")) {
+	if (command.equalsIgnoreCase("TEST")) {
+	    out.println("You said 'TEST'");
+	    DummyClass write = new DummyClass();
+	    write.setName(argument);
+	    try {
+		repository.put(argument, write);
+	    } catch (Exception e1) {
+		LOGGER.warn("Exception putting into repository: " + e1);
+		e1.printStackTrace();
+	    }
+	    out.println("Dummy written, trying for read");
+	    try {
+		Iterator it = repository.list();
+	    } catch (Exception e2) {
+		LOGGER.warn("Exception putting into repository: " + e2);
+		e2.printStackTrace();
+	    }
+	    DummyClass read = null;
+	    try {
+		read = (DummyClass) repository.get(argument);
+	    } catch (Exception e3) {
+		LOGGER.warn("Exception reading from repository: " + e3);
+		e3.printStackTrace();
+	    }
+	    out.println("Recovered: " + read.getName());
+	    return true;
+	} else if (command.equalsIgnoreCase("PUT")) {
 	    out.println("You said 'PUT'");
 	    String key = "AMsg" + ++count;
 	    repository.put(key, argument);

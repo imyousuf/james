@@ -19,7 +19,7 @@ import java.util.Iterator;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface UsersRepository extends Store.Repository {
+public interface UsersRepository extends Service {
 
     public final static String USER = "USER";
 

@@ -8,7 +8,7 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.services.*;
+import org.apache.avalon.services.Store;
 
 
 /**
@@ -17,5 +17,7 @@ import org.apache.avalon.services.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public interface MailStore extends Store {
+
+    // MailRepository getInbox(String user);
 
 }

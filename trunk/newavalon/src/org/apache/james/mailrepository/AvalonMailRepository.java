@@ -23,7 +23,7 @@ import org.apache.log.Logger;
 import org.apache.mailet.*;
 import org.apache.james.core.*;
 import org.apache.james.services.SpoolRepository;
-
+import org.apache.james.services.MailStore;
 
 
 /**
@@ -39,7 +39,7 @@ import org.apache.james.services.SpoolRepository;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonMailRepository implements SpoolRepository, Configurable, Composer {
+public class AvalonMailRepository implements MailRepository, Configurable, Composer {
 
     private static final String TYPE = "MAIL";
     private final static boolean        LOG        = true;
@@ -48,6 +48,7 @@ public class AvalonMailRepository implements SpoolRepository, Configurable, Comp
     private Store store;
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;
+    private MailStore mailstore;
     //  private String path;
     //   private String name;
     private String destination;
@@ -70,6 +71,7 @@ public class AvalonMailRepository implements SpoolRepository, Configurable, Comp
 
     public void compose(ComponentManager compMgr) {
 	try {
+	    //  mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
 	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
 	    //prepare Configurations for object and stream repositories
 	    DefaultConfiguration objConf
