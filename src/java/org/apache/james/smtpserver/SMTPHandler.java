@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.13 $ $Date: 2003/07/17 14:00:10 $
+ * @version CVS $Revision: 1.35.4.14 $ $Date: 2003/08/30 17:45:13 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -1006,7 +1006,7 @@ public class SMTPHandler
      * Handles the SIZE MAIL option.
      *
      * @param mailOptionValue the option string passed in with the SIZE option
-     * @returns true if further options should be processed, false otherwise
+     * @return true if further options should be processed, false otherwise
      */
     private boolean doMailSize(String mailOptionValue) {
         int size = 0;
@@ -1442,20 +1442,12 @@ public class SMTPHandler
             if (theRecipients != null) {
                 recipientString = theRecipients.toString();
             }
-            if (getLogger().isDebugEnabled()) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                        .append("Successfully spooled mail )")
-                        .append(mail.getName())
-                        .append(" from ")
-                        .append(mail.getSender())
-                        .append(" for ")
-                        .append(recipientString);
-                getLogger().debug(debugBuffer.toString());
-            } else if (getLogger().isInfoEnabled()) {
+            if (getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                     new StringBuffer(256)
-                        .append("Successfully spooled mail from ")
+                        .append("Successfully spooled mail ")
+                        .append(mail.getName())
+                        .append(" from ")
                         .append(mail.getSender())
                         .append(" for ")
                         .append(recipientString);
