@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.96 $  Committed on $Date: 2002/05/31 09:19:43 $ by: $Author: danny $
+ James build file $Revision: 1.97 $  Committed on $Date: 2002/07/29 13:48:47 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -239,6 +239,8 @@ Legal:
                 <param name="-version"/>
                 <param name="-breakiterator"/>
                 <param name="-use"/>
+       			<param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+       			<param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>                
                 <param name="-doctitle" value="${Name} ${version}"/>
                 <param name="-windowtitle" value="${Name} API"/>
                 <param name="-bottom" value="&quot;Copyright &#169; 2001 Apache Jakarta Project. All Rights Reserved.&quot;"/>
@@ -252,6 +254,8 @@ Legal:
                 <param name="-version"/>
                 <param name="-breakiterator"/>
                 <param name="-use"/>
+       			<param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+       			<param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>                
                 <param name="-doctitle" value="Apache Jakarta Mailet API"/>
                 <param name="-windowtitle" value="Apache Jakarta Mailet API"/>
                 <param name="-bottom" value="&quot;Copyright &#169; 2002 Apache Jakarta Project. All Rights Reserved.&quot;"/>
@@ -345,6 +349,8 @@ Legal:
                 <include name="activation.jar"/>
                 <include name="mail_1_2.jar"/>
                 <include name="jakarta-oro-2.0.1.jar"/>
+                <include name="mm.mysql-2.0.14.jar"/>
+                <include name="mm.mysql.LICENCE"/>
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
