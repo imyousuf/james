@@ -58,34 +58,24 @@
 
 package org.apache.james.imapserver;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.Constants;
-import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.imapserver.commands.ImapCommandFactory;
-import org.apache.james.imapserver.commands.CommandParser;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.mailet.MailRepository;
-import org.apache.mailet.User;
-import org.apache.mailet.UsersRepository;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
-
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.io.Reader;
-import java.io.InputStream;
-import java.net.Socket;
+import org.apache.mailet.MailRepository;
 
 /**
  * The handler class for IMAP connections.

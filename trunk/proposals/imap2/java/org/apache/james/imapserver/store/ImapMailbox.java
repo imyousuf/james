@@ -58,14 +58,13 @@
 
 package org.apache.james.imapserver.store;
 
-import org.apache.james.core.MailImpl;
-import org.apache.james.imapserver.commands.IdSet;
-import org.apache.james.imapserver.commands.IdRange;
+import java.util.Date;
 
+import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
-import javax.mail.Flags;
-import java.util.Date;
+
+import org.apache.james.core.MailImpl;
 
 /**
  * Represents a mailbox within an {@link org.apache.james.imapserver.store.ImapStore}.
@@ -76,7 +75,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public interface ImapMailbox
 {

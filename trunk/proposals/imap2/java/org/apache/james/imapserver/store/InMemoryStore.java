@@ -58,17 +58,23 @@
 
 package org.apache.james.imapserver.store;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import javax.mail.Flags;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.search.SearchTerm;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.imapserver.ImapConstants;
-import org.apache.james.imapserver.commands.IdSet;
-import org.apache.james.imapserver.commands.IdRange;
-
-import javax.mail.internet.MimeMessage;
-import javax.mail.search.SearchTerm;
-import javax.mail.MessagingException;
-import javax.mail.Flags;
-import java.util.*;
 
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
@@ -76,7 +82,7 @@ import java.util.*;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled

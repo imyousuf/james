@@ -58,21 +58,20 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.ImapStore;
-import org.apache.james.imapserver.store.InMemoryStore;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.SimpleImapMessage;
-import org.apache.mailet.User;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.ImapStore;
+import org.apache.james.imapserver.store.InMemoryStore;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.mailet.User;
 
 /**
  * An initial implementation of an ImapHost. By default, uses,
@@ -81,7 +80,7 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled

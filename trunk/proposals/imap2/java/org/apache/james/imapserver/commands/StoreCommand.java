@@ -58,20 +58,23 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.*;
-import org.apache.james.imapserver.store.MessageFlags;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.SimpleImapMessage;
-import org.apache.james.imapserver.store.MailboxException;
-
 import javax.mail.Flags;
+
+import org.apache.james.imapserver.ImapRequestLineReader;
+import org.apache.james.imapserver.ImapResponse;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionMailbox;
+import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MessageFlags;
+import org.apache.james.imapserver.store.SimpleImapMessage;
 
 /**
  * Handles processeing for the STORE imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 {

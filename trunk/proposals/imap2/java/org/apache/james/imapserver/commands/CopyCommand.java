@@ -61,18 +61,17 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.ImapSessionMailbox;
+import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.SimpleImapMessage;
 
 /**
  * Handles processeing for the COPY imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
 {
