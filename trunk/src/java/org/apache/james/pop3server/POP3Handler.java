@@ -58,6 +58,7 @@
 
 package org.apache.james.pop3server;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -81,6 +82,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
+import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
@@ -265,7 +267,8 @@ public class POP3Handler
             synchronized (this) {
                 handlerThread = Thread.currentThread();
             }
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
+            // in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
+            in = new CRLFTerminatedReader(new BufferedInputStream(socket.getInputStream(), 512), "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress ();
             remoteHost = socket.getInetAddress().getHostName ();
         } catch (Exception e) {
@@ -309,7 +312,7 @@ public class POP3Handler
             out.println(responseBuffer.toString());
 
             theWatchdog.start();
-            while (parseCommand(in.readLine())) {
+            while (parseCommand(readCommandLine())) {
                 theWatchdog.reset();
             }
             theWatchdog.stop();
@@ -444,6 +447,24 @@ public class POP3Handler
     }
 
     /**
+     * Reads a line of characters off the command line.
+     *
+     * @return the trimmed input line
+     * @throws IOException if an exception is generated reading in the input characters
+     */
+    final String readCommandLine() throws IOException {
+        for (;;) try {
+            String commandLine = in.readLine();
+            if (commandLine != null) {
+                commandLine = commandLine.trim();
+            }
+            return commandLine;
+        } catch (CRLFTerminatedReader.TerminationException te) {
+            writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+        }
+    }
+
+    /**
      * This method parses POP3 commands read off the wire in handleConnection.
      * Actual processing of the command (possibly including additional back and
      * forth communication with the client) is delegated to one of a number of
@@ -460,8 +481,7 @@ public class POP3Handler
             return false;
         }
         boolean returnValue = true;
-        String command = rawCommand.trim();
-        rawCommand = command;
+        String command = rawCommand;
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
