@@ -95,7 +95,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * named parameter from the mailet's MailetConfig object.
      *
      * @param name - a String specifying the name of the initialization parameter
-     * @return String a String containing the value of the initalization parameter
+     * @return a String containing the value of the initalization parameter
      */
     public String getInitParameter(String name) {
         return config.getInitParameter(name);
@@ -109,7 +109,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * This method is supplied for convenience. It gets the parameter names from
      * the mailet's MailetConfig object.
      *
-     * @return Iterator an iterator of String objects containing the names of
+     * @return an Iterator of String objects containing the names of
      *          the mailet's initialization parameters
      */
     public Iterator getInitParameterNames() {
@@ -117,9 +117,9 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
     }
 
     /**
-     * Returns this matcher's MailetConfig object.
+     * Returns this Mailet's MailetConfig object.
      *
-     * @return MailetConfig the MailetConfig object that initialized this mailet
+     * @return the MailetConfig object that initialized this mailet
      */
     public MailetConfig getMailetConfig() {
         return config;
@@ -129,7 +129,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * Returns a reference to the MailetContext in which this mailet is
      * running.
      *
-     * @return MailetContext the MailetContext object passed to this mailet by the init method
+     * @return the MailetContext object passed to this mailet by the init method
      */
     public MailetContext getMailetContext() {
         return getMailetConfig().getMailetContext();
@@ -140,7 +140,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * copyright.  By default, this method returns an empty string. Override
      * this method to have it return a meaningful value.
      *
-     * @return String information about this mailet, by default an empty string
+     * @return information about this mailet, by default an empty string
      */
     public String getMailetInfo() {
         return "";
@@ -161,10 +161,10 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * mailet is being placed into service.</p>
      *
      * <p>This implementation stores the MailetConfig object it receives from
-     * the mailet container for alter use. When overriding this form of the
+     * the mailet container for later use. When overriding this form of the
      * method, call super.init(config).</p>
      *
-     * @param MailetConfig config - the MailetConfig object that contains
+     * @param MailetConfig newconfig - the MailetConfig object that contains
      *          configutation information for this mailet
      * @throws MessagingException
      *          if an exception occurs that interrupts the mailet's normal operation
@@ -193,7 +193,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * Writes the specified message to a mailet log file, prepended by
      * the mailet's name.
      *
-     * @param msg - a String specifying the message to be written to the log file
+     * @param message - a String specifying the message to be written to the log file
      */
     public void log(String message) {
         StringBuffer logBuffer =
@@ -209,7 +209,7 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * exception to the mailet log file, prepended by the mailet's name.
      *
      * @param message - a String that describes the error or exception
-     * @param t - the java.lang.Throwable error or exception
+     * @param t - the java.lang.Throwable to be logged
      */
     public void log(String message, Throwable t) {
         StringBuffer logBuffer =
@@ -229,7 +229,6 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * @param mail - the Mail object that contains the MimeMessage and
      *          routing information
      * @throws javax.mail.MessagingException - if an exception occurs that interferes with the mailet's normal operation
-     *          occurred
      */
     public abstract void service(Mail mail) throws javax.mail.MessagingException;
 }

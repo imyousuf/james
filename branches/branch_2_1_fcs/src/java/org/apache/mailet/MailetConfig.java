@@ -61,7 +61,7 @@ package org.apache.mailet;
 import java.util.Iterator;
 
 /**
- * A mailet configuration object used by a mailet container used to pass information
+ * A mailet configuration object used by a mailet container to pass information
  * to a mailet during initialization.
  * <p>
  * The configuration information contains initialization parameters, which are a set

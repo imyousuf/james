@@ -69,7 +69,7 @@ import java.util.Iterator;
  * deliver a message locally, or write to a log file.
  *
  * The MailetContext object is contained within the MailetConfig and
- * MatcherConfig objects, which the mailet container provides the
+ * MatcherConfig objects, which the mailet container provides to the
  * mailets and matchers when they are initialized.
  *
  * @version 1.0.0, 24/04/1999
@@ -78,7 +78,7 @@ public interface MailetContext {
 
     /**
      * Bounces the message using a standard format with the given message.
-     * Will be sent back to the sender from the postmaster as specified for
+     * The message will be sent back to the sender from the postmaster as specified for
      * this mailet context, adding message to top of mail server queue using
      * sendMail().
      *
@@ -119,7 +119,7 @@ public interface MailetContext {
      * Returns the mailet container attribute with the given name, or null
      * if there is no attribute by that name.  An attribute allows a mailet container
      * to give the mailet additional information not already provided by this interface.
-     * See * your server documentation for information about its attributes. A list of
+     * See your server documentation for information about its attributes. A list of
      * supported attributes can be retrieved using getAttributeNames.
      * <p>
      * The attribute is returned as a java.lang.Object or some subclass. Attribute
@@ -142,7 +142,7 @@ public interface MailetContext {
     Iterator getAttributeNames();
 
     /**
-     * Returns the minor version of the Mailet API that this mailet
+     * Returns the major version of the Mailet API that this mailet
      * container supports. All implementations that comply with Version 1.2 must have
      * this method return the integer 1.
      *
@@ -194,7 +194,7 @@ public interface MailetContext {
      * log.  The name and type of the mailet log file is specific to the mailet
      * container.
      *
-     * @param msg - a String specifying the message to be written to the log file
+     * @param message - a String specifying the message to be written to the log file
      */
     void log(String message);
 
@@ -229,7 +229,7 @@ public interface MailetContext {
 
     /**
      * Send an outgoing message to the top of this mailet container's root queue.
-     * Is the equivalent of opening an SMTP session to localhost.
+     * This is the equivalent of opening an SMTP session to localhost.
      *
      * @param sender - the sender of the message
      * @param recipients - a Collection of MailAddress objects of recipients
@@ -247,6 +247,7 @@ public interface MailetContext {
      * @param recipients - a Collection of MailAddress objects of recipients
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @param state - the state of the message, indicates which processor to use
+     * This is a String that names a processor for which the message will be queued
      * @throws MessagingException - if the message fails to parse
      */
     void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state)
@@ -277,7 +278,8 @@ public interface MailetContext {
     void setAttribute(String name, Object object);
 
     /**
-     * Stores mail into local accounts (POP3 by default)
+     * Stores the message is in the local repository associated with
+     * recipient for later retrieval, e.g., by a POP3 or IMAP service.
      *
      * @param sender - the sender of the incoming message
      * @param recipient - the user who is receiving this message (as a complete email address)
