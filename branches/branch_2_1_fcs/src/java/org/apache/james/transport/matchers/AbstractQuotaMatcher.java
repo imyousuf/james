@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2003-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -31,7 +31,7 @@ import org.apache.mailet.Mail;
  * will be done by subclasses.</P> 
  * <P>Although extending GenericMatcher, its logic is recipient oriented.</P>
  *
- * @version CVS $Revision: 1.1.2.2 $ $Date: 2004/02/26 13:41:02 $
+ * @version CVS $Revision: 1.1.2.3 $ $Date: 2004/02/26 20:37:00 $
  * @since 2.2.0
  */
 abstract public class AbstractQuotaMatcher extends GenericMatcher { 

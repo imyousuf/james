@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2003-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -41,7 +41,7 @@ import javax.mail.MessagingException;
  * <P>"Storage quota" at this level is still an abstraction whose specific interpretation
  * will be done by subclasses (e.g. could be specific for each user or common to all of them).</P> 
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2004/02/26 13:26:37 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date: 2004/02/26 20:37:00 $
  * @since 2.2.0
  */
 abstract public class AbstractStorageQuota extends AbstractQuotaMatcher { 
