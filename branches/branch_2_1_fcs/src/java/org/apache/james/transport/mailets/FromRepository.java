@@ -41,7 +41,7 @@ import java.util.Iterator;
  *    &lt;delete&t; [true|<b>false</b>] &lt;/delete&gt;
  * &lt;/mailet&gt;
  *
- * @version This is $Revision: 1.1.2.4 $
+ * @version This is $Revision: 1.1.2.5 $
  */
 public class FromRepository extends GenericMailet {
 
@@ -129,7 +129,13 @@ public class FromRepository extends GenericMailet {
                 log((new StringBuffer(160).append("Unable to re-spool mail ").append(key).append(" from ").append(repositoryPath)).toString(), e);
             }
         }
-        if (delete) repository.remove(processed);
+
+        if (delete) {
+            Iterator delList = processed.iterator();
+            while (delList.hasNext()) {
+                repository.remove((String)delList.next());
+            }
+        }
     }
 
     /**
