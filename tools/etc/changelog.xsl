@@ -101,7 +101,7 @@
           <h1>
             <a name="top"><xsl:value-of select="$title"/></a>
           </h1>
-          <p align="right">Designed for use with <a href="http://jakarta.apache.org">Ant</a>.</p>
+          <p align="right">Designed for use with <a href="http://ant.apache.org">Ant</a>.</p>
           <hr size="2"/>
         <TABLE BORDER="0" WIDTH="100%" CELLPADDING="3" CELLSPACING="1">
           

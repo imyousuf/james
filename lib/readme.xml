@@ -17,10 +17,10 @@ This directory contains some libraries required to build and run the container s
 
   <library>
     <filename>ant.jar</filename>
-    <url>http://jakarta.apache.org/ant/index.html</url>
+    <url>http://ant.apache.org/</url>
     <version>1.1</version>
     <name>Ant is a Java based build tool</name>
-    <desc>In theory it is kind of like make without makes wrinkles.  Ant is part of the Jakarta Project</desc>
+    <desc>In theory it is kind of like make without makes wrinkles.  Ant is a top level project of the Apache Software Foundation</desc>
   </library>
 
   <library>
@@ -160,5 +160,5 @@ Dev mailing list : openejb-dev@exolab.org
 CVS mailing list : openejb-cvs@exolab.org
          Website : www.OpenEJB.org
 ================================================================
-$Id: readme.xml,v 1.2.4.1 2003/01/08 06:08:25 serge Exp $
+$Id: readme.xml,v 1.2.4.2 2004/05/03 03:58:07 serge Exp $
 
