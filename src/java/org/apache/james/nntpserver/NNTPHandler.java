@@ -49,9 +49,6 @@ import java.util.*;
  *
  * Common NNTP extensions are in RFC 2980.
  *
- * @author Fedor Karpelevitch
- * @author Harmeet <hbedi@apache.org>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class NNTPHandler
     extends AbstractLogEnabled
@@ -298,7 +295,7 @@ public class NNTPHandler
      */
     void idleClose() {
         if (getLogger() != null) {
-            getLogger().error("Remote Manager Connection has idled out.");
+            getLogger().error("NNTP Connection has idled out.");
         }
         try {
             if (socket != null) {
@@ -359,10 +356,19 @@ public class NNTPHandler
             }
             theWatchdog.stop();
 
-            getLogger().info("Connection closed");
+            getLogger().debug("Connection closed");
         } catch (Exception e) {
-            doQUIT(null);
-            getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            // if the connection has been idled out, the
+            // socket will be closed and null.  Do NOT
+            // log the exception or attempt to send the
+            // closing connection message
+            if (socket != null) {
+                try {
+                    doQUIT(null);
+                } catch(Throwable t) { }
+
+                getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            }
         } finally {
             resetHandler();
         }
@@ -601,10 +607,28 @@ public class NNTPHandler
      * an argument.
      *
      * @param argument the argument passed in with the NEWNEWS command.
-     *                 Should be a date.
+     *                 Should be NEWNEWS newsgroups date time [GMT] [<distribution>]
+     *                 see RFC 977 #3.8, RFC 2980 #4.5.
      */
     private void doNEWNEWS(String argument) {
-        // see section 11.4
+
+        String wildmat = "*";
+        if (argument != null) {
+            int spaceIndex = argument.indexOf(" ");
+            if (spaceIndex >= 0) {
+                wildmat = argument.substring(0, spaceIndex);
+                argument = argument.substring(spaceIndex + 1);
+            } else {
+                getLogger().error("NEWNEWS had an invalid argument");
+                writeLoggedFlushedResponse("501 Syntax error");
+                return;
+            }
+        } else {
+            getLogger().error("NEWNEWS had a null argument");
+            writeLoggedFlushedResponse("501 Syntax error");
+            return;
+        }
+
         Date theDate = null;
         try {
             theDate = getDateFrom(argument);
@@ -613,15 +637,20 @@ public class NNTPHandler
             writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
-        Iterator iter = theConfigData.getNNTPRepository().getArticlesSince(theDate);
+
         writeLoggedFlushedResponse("230 list of new articles by message-id follows");
-        while ( iter.hasNext() ) {
-            StringBuffer iterBuffer =
-                new StringBuffer(64)
-                    .append("<")
-                    .append(((NNTPArticle)iter.next()).getUniqueID())
-                    .append(">");
-            writeLoggedResponse(iterBuffer.toString());
+
+        Iterator groups = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
+        while (groups.hasNext() ) {
+            Iterator articles = ((NNTPGroup)(groups.next())).getArticlesSince(theDate);
+            while ( articles.hasNext() ) {
+                StringBuffer iterBuffer =
+                                         new StringBuffer(64)
+                                         .append("<")
+                                         .append(((NNTPArticle)articles.next()).getUniqueID())
+                                         .append(">");
+                writeLoggedResponse(iterBuffer.toString());
+            }
         }
         writeLoggedFlushedResponse(".");
     }

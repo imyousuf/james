@@ -46,10 +46,10 @@ import java.util.*;
  * Implementation of a MailRepository on a database.
  *
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br><repository destinationURL="db://<datasource>/<table_name>/<repository_name>"
+ *  <br>&lt;repository destinationURL="db://&lt;datasource&gt;/&lt;table_name&gt;/&lt;repository_name&gt;"
  *  <br>            type="MAIL"
- *  <br>            model="SYNCHRONOUS"/>
- *  <br></repository>
+ *  <br>            model="SYNCHRONOUS"/&gt;
+ *  <br>&lt;/repository&gt;
  * <p>destinationURL specifies..(Serge??)
  * <br>Type can be SPOOL or MAIL
  * <br>Model is currently not used and may be dropped
@@ -743,7 +743,7 @@ public class JDBCMailRepository
             rsListMessages = listMessages.executeQuery();
 
             List messageList = new ArrayList();
-            while (rsListMessages.next()) {
+            while (rsListMessages.next() && !Thread.currentThread().isInterrupted()) {
                 messageList.add(rsListMessages.getString(1));
             }
             return messageList.iterator();

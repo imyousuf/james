@@ -13,7 +13,6 @@ package org.apache.james.services;
  * if inbound deliveries stop.
  *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public interface SpoolRepository 
     extends MailRepository {
@@ -31,7 +30,7 @@ public interface SpoolRepository
      *
      * @return the key for the mail
      */
-    String accept();
+    String accept() throws InterruptedException;
 
     /**
      * Returns the key for an arbitrarily select mail deposited in this Repository that
@@ -42,5 +41,5 @@ public interface SpoolRepository
      *
      * @return the key for the mail
      */
-    String accept(long delay);
+    String accept(long delay) throws InterruptedException;
 }

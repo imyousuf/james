@@ -206,10 +206,19 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             throws IOException {
         File articleFile = null;
         synchronized (this) {
-            int artNum = getLastArticleNumber();
-            articleFile = new File(root,(artNum + 1)+"");
+            int artNum;
+            if (numOfArticles < 0)
+                throw new IllegalStateException("NNTP Group is corrupt (articles < 0).");
+            else if (numOfArticles == 0) {
+                firstArticle = 1;
+                artNum = 1;
+            } else {
+                artNum = getLastArticleNumber() + 1;
+            }
+            
+            articleFile = new File(root, artNum + "");
             articleFile.createNewFile();
-            lastArticle++;
+            lastArticle = artNum;
             numOfArticles++;
         }
         if (getLogger().isDebugEnabled()) {

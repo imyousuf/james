@@ -7,6 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -23,15 +24,16 @@ import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Processes entries and sends to appropriate groups.
  * Eats up inappropriate entries.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-class NNTPSpooler extends AbstractLogEnabled 
+class NNTPSpooler extends AbstractLogEnabled
         implements Contextualizable, Configurable, Initializable {
 
     /**
@@ -62,7 +64,7 @@ class NNTPSpooler extends AbstractLogEnabled
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
-    public void contextualize(final Context context) 
+    public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
@@ -201,25 +203,27 @@ class NNTPSpooler extends AbstractLogEnabled
          * if it loses it tries to lock and process the next article.
          */
         public void run() {
-            getLogger().debug("in spool thread");
+            getLogger().debug(Thread.currentThread().getName() + " is the NNTP spooler thread.");
             try {
                 while ( Thread.currentThread().interrupted() == false ) {
                     String[] list = spoolPath.list();
+                    if (list.length > 0) getLogger().debug("Files to process: "+list.length);
                     for ( int i = 0 ; i < list.length ; i++ ) {
-                        getLogger().debug("Files to process: "+list.length);
                         if ( lock.lock(list[i]) ) {
                             File f = new File(spoolPath,list[i]).getAbsoluteFile();
                             getLogger().debug("Processing file: "+f.getAbsolutePath());
                             try {
                                 process(f);
-                            } catch(Exception ex) {
+                            } catch(Throwable ex) {
                                 getLogger().debug("Exception occured while processing file: "+
                                                   f.getAbsolutePath(),ex);
                             } finally {
                                 lock.unlock(list[i]);
                             }
                         }
+                        list[i] = null; // release the string entry;
                     }
+                    list = null; // release the array;
                     // this is good for other non idle threads
                     try {
                         Thread.currentThread().sleep(threadIdleTime);
@@ -250,23 +254,30 @@ class NNTPSpooler extends AbstractLogEnabled
             // TODO: Why is this a block?
             {   // Get the message for copying to destination groups.
                 FileInputStream fin = new FileInputStream(spoolFile);
-                msg = new MimeMessage(null,fin);
-                fin.close();
+                try {
+                    msg = new MimeMessage(null,fin);
+                } finally {
+                    IOUtil.shutdownStream(fin);
+                }
 
                 // ensure no duplicates exist.
                 String[] idheader = msg.getHeader("Message-Id");
                 articleID = ((idheader != null && (idheader.length > 0))? idheader[0] : null);
                 if ((articleID != null) && ( articleIDRepo.isExists(articleID))) {
                     getLogger().debug("Message already exists: "+articleID);
-                    spoolFile.delete();
+                    if (spoolFile.delete() == false)
+                        getLogger().error("Could not delete duplicate message from spool: " + spoolFile.getAbsolutePath());
                     return;
                 }
                 if ( articleID == null ) {
                     articleID = articleIDRepo.generateArticleID();
                     msg.setHeader("Message-Id", articleID);
                     FileOutputStream fout = new FileOutputStream(spoolFile);
-                    msg.writeTo(fout);
-                    fout.close();
+                    try {
+                        msg.writeTo(fout);
+                    } finally {
+                        IOUtil.shutdownStream(fout);
+                    }
                 }
             }
 
@@ -274,16 +285,24 @@ class NNTPSpooler extends AbstractLogEnabled
             Properties prop = new Properties();
             if (headers != null) {
                 for ( int i = 0 ; i < headers.length ; i++ ) {
-                    getLogger().debug("Copying message to group: "+headers[i]);
-                    NNTPGroup group = repo.getGroup(headers[i]);
-                    if ( group == null ) {
-                        getLogger().error("Couldn't add article with article ID " + articleID + " to group " + headers[i] + " - group not found.");
-                        continue;
-                    }
+                    StringTokenizer tokenizer = new StringTokenizer(headers[i],",");
+                    while ( tokenizer.hasMoreTokens() ) {
+                        String groupName = tokenizer.nextToken().trim();
+                        getLogger().debug("Copying message to group: "+groupName);
+                        NNTPGroup group = repo.getGroup(groupName);
+                        if ( group == null ) {
+                            getLogger().error("Couldn't add article with article ID " + articleID + " to group " + groupName + " - group not found.");
+                            continue;
+                        }
 
-                    FileInputStream newsStream = new FileInputStream(spoolFile);
-                    NNTPArticle article = group.addArticle(newsStream);
-                    prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                        FileInputStream newsStream = new FileInputStream(spoolFile);
+                        try {
+                            NNTPArticle article = group.addArticle(newsStream);
+                            prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                        } finally {
+                            IOUtil.shutdownStream(newsStream);
+                        }
+                    }
                 }
             }
             articleIDRepo.addArticle(articleID,prop);

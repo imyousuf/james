@@ -13,9 +13,9 @@
 <!-- are preceded by a CHECKME! or CONFIRM? comment in the left margin. -->
 
 <!-- For production use you will probably need to make more extensive changes, see -->
-<!-- http://jakarta.apache.org/james/configuration_v2_1.html -->
+<!-- http://jakarta.apache.org/james/documentation_v2_1.html -->
 
-<!-- $Revision: 1.39 $ Committed on $Date: 2002/12/29 23:12:38 $ by: $Author: serge $ -->
+<!-- $Revision: 1.40.2.2 $ Committed on $Date: 2003/02/11 18:18:07 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -409,6 +409,9 @@
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <nntpserver enabled="true">
+   <!-- THE NNTP PROTOCOL IS EXPERIMENTAL AND NOT AS WELL TESTED AS SMTP AND POP3 IN THIS RELEASE.
+        The James project recommends that you check the James web site for updates to the NNTP
+        service.  -->
       <!-- port 563 is the well-known/IANA registered port for NNTP over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard NNTP -->
       <port>119</port>
@@ -619,7 +622,7 @@
          <!--
          <data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
-            <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
+            <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
             <user>username</user>
             <password>password</password>
             <max>20</max>

@@ -94,91 +94,192 @@
     <!-- -->
     <targets>
       <file id="default">
-        <filename>${app.home}/logs/default.log</filename>
+        <filename>${app.home}/logs/default</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="James-Mailet-target">
-        <filename>${app.home}/logs/mailet.log</filename>
+        <filename>${app.home}/logs/mailet</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="James-target">
-        <filename>${app.home}/logs/james.log</filename>
+        <filename>${app.home}/logs/james</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="spoolmanager-target">
-        <filename>${app.home}/logs/spoolmanager.log</filename>
+        <filename>${app.home}/logs/spoolmanager</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="dnsserver-target">
-        <filename>${app.home}/logs/dnsserver.log</filename>
+        <filename>${app.home}/logs/dnsserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="remotemanager-target">
-        <filename>${app.home}/logs/remotemanager.log</filename>
+        <filename>${app.home}/logs/remotemanager</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="pop3server-target">
-        <filename>${app.home}/logs/pop3server.log</filename>
+        <filename>${app.home}/logs/pop3server</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="smtpserver-target">
-        <filename>${app.home}/logs/smtpserver.log</filename>
+        <filename>${app.home}/logs/smtpserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="nntpserver-target">
-        <filename>${app.home}/logs/nntpserver.log</filename>
+        <filename>${app.home}/logs/nntpserver</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="nntp-repository-target">
-        <filename>${app.home}/logs/nntpstore.log</filename>
+        <filename>${app.home}/logs/nntpstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="mailstore-target">
-        <filename>${app.home}/logs/mailstore.log</filename>
+        <filename>${app.home}/logs/mailstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="users-store-target">
-        <filename>${app.home}/logs/usersstore.log</filename>
+        <filename>${app.home}/logs/usersstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="objectstorage-target">
-        <filename>${app.home}/logs/objectstore.log</filename>
+        <filename>${app.home}/logs/objectstore</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="connections-target">
-        <filename>${app.home}/logs/connections.log</filename>
+        <filename>${app.home}/logs/connections</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="sockets-target">
-        <filename>${app.home}/logs/sockets.log</filename>
+        <filename>${app.home}/logs/sockets</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="scheduler-target">
-        <filename>${app.home}/logs/scheduler.log</filename>
+        <filename>${app.home}/logs/scheduler</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
       <file id="fetchpop-target">
-        <filename>${app.home}/logs/fetchpop.log</filename>
+        <filename>${app.home}/logs/fetchpop</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd-HH-mm" suffix=".log">
+          <or>
+            <date>dd</date>
+            <size>10485760</size>
+          </or>
+        </rotation>
       </file>
     </targets>
   </logs>
-
 </server>

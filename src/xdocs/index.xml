@@ -15,25 +15,33 @@
 <p>James is based upon the Apache Avalon application framework. (For more information about Avalon, please go to <a href="http://jakarta.apache.org/avalon">http://jakarta.apache.org/avalon</a>)</p>
 <p>James requires Java 2 (either JRE 1.3 or 1.4 as of 2.0a3). </p>
 <subsection name="news">
-<p><b>Find out how to use James with sendmail</b><br/>We've added a HOW TO document explaining how to configure sendmail to route all mail through James, read it <a href="james_and_sendmail.html">Here</a>.</p>
+<p><b>James Comes Of Age</b><br/>We're proud to announce that Jakarta James has been promoted from being a Jakarta sub-project to Apache James, a top-level project of the Apache Software Foundation (ASF).  James now has its own Project Management Committee, and reports directly to the <a href="http://www.apache.org/foundation">ASF</a>.</p>
+<p>We also have a brand new domain name: <b>http://james.apache.org</b> and are in the process of moving our infrastructure over to the new domain, so please forgive any confusion that might occur.</p>
+<p><i>At this time we would especially appreciate hearing about broken links or out of date references on this site.</i></p>
 </subsection>
 <subsection name="releases">
-<p><b>Latest: james-2.1 RC2 (2002-11-15)</b><br/> 
-Found in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area</a>.<br/>
-This build is a release candidate for James 2.1. It includes all code and configuration changes 
-expected to be included in that release.  Some additional documentation not packaged in this build 
-will be included in the final release.</p>
-<p>
-Evaluation and testing of this release candidate with feedback provided on the james-user and james-dev mailing lists is strongly encouraged.
-</p>
-<p><b>Stable: v2.0a3</b><br/>This version displays improved stability and a number of bug fixes over v2.0a2 and is the recommended stable version
-<br/><a href="http://jakarta.apache.org/builds/jakarta-james/release/v2.0a3">Binary and Source distributions of v2.0a3</a></p>
+<p><b>Latest and Stable: james-2.1</b><br/>
+James v2.1 is the current release.  Both <a href="http://jakarta.apache.org/site/binindex.cgi">binary</a> and <a href="http://jakarta.apache.org/site/sourceindex.cgi">source</a> distributions are available.</p>
+
+<p>This release has many enhancements and bug fixes over the previous
+release.  See the <a
+href="http://jakarta.apache.org/james/changelog.html">Change Log</a>
+for a detailed list of changes.  Some of the earlier defects could
+turn a James mail server into an Open Relay.  All users of James 2.0a3
+and earlier are urged to upgrade to James v2.1 as soon as
+possible.</p>
+
+<p>For details see the <A
+HREF="http://jakarta.apache.org/james/announcement_2_1.html">Official
+Announcement</A>.</p>
+
+<p>Any bugs found in James are dealt with promptly.  Please provide feedback on the james-user and james-dev mailing lists.</p>
 <p><b>Get your hands on the latest versions..</b><br/>We put significant milestones, and potential release candidates in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a><br/>Whilst the quality of these versions cannot be guaranteed they may contain important bug fixes and cool new features.<br/></p>
 </subsection>
 </section><section name="Design Objectives">
 <p>These are some of the currently implemented features:</p>
 <p><i><b>Complete portability</b></i>  Apache James is be a 100% pure Java application
-       based on the Java 2 platform and the JavaMail 1.2 API.
+       based on the Java 2 platform and the JavaMail 1.3 API.
   </p>
   <p><i><b>Protocol abstraction</b></i>  Unlike other mail engines, protocols are seen only
        like "communication languages" ruling comunications between clients and
@@ -50,7 +58,7 @@ Evaluation and testing of this release candidate with feedback provided on the j
        systems. Examples of the services a Mailet might provide include: a
        mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailing
        list manager, etc. Several Mailets are included in the JAMES
-       distribution (see <a href="configuration_v2_0.html">Configuration</a>).</p>
+       distribution (see <a href="documentation_2_1.html">documentation</a>).</p>
     <p><i><b>Resource abstraction</b></i>  Like protocols, resources are abstracted and,
        accessed through defined interfaces (JavaMail for transport, JDBC for
        spool storage or user accounts in RDBMS's, Apache Mailet API). The server is
@@ -135,8 +143,13 @@ Evaluation and testing of this release candidate with feedback provided on the j
         <td>1.2</td>
         <td>1.2</td>
       </tr>
+      <tr>
+        <td>FetchPOP</td>
+        <td>Experimental</td>
+        <td>2.1</td>
+        <td>2.1</td>
+      </tr>
     </table>
-
 </section>
 
 </body>
