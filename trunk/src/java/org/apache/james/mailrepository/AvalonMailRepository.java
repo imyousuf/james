@@ -22,9 +22,9 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
+import org.apache.mailet.MailRepository;
 
 import java.io.OutputStream;
 import java.util.*;

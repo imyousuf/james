@@ -7,9 +7,9 @@
  */
 package org.apache.james.mailrepository;
 
-import org.apache.james.services.SpoolRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
+import org.apache.mailet.SpoolRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
