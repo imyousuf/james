@@ -55,8 +55,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.21 $
- * Committed on $Date: 2002/04/17 04:14:45 $ by: $Author: serge $
+ * This is $Revision: 1.22 $
+ * Committed on $Date: 2002/04/18 13:39:34 $ by: $Author: serge $
 
  */
 public class James
@@ -161,6 +161,7 @@ public class James
             getLogger().info("Handling mail for: " + i.next());
         }
         context.put(Constants.SERVER_NAMES, this.serverNames);
+        attributes.put(Constants.SERVER_NAMES, this.serverNames);
 
 
         // Get postmaster
