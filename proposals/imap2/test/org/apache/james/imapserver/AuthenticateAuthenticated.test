@@ -1,0 +1,2 @@
+C: abcd AUTHENTICATE KERBEROS_V4
+S: abcd NO AUTHENTICATE failed. Command not valid in this state
