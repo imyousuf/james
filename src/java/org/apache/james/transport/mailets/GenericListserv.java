@@ -111,6 +111,21 @@ public abstract class GenericListserv extends GenericMailet {
                 if (subj == null) {
                     subj = "";
                 }
+            //replace Re: with RE:
+            String re ="Re:";
+            int index = subj.indexOf(re);
+            while(index > -1){
+                subj = subj.substring(0, index) +"RE:"+ subj.substring(index + re.length() + 1);
+                index = subj.indexOf(re);
+            }
+            //reduce them to one at the beginning
+            re ="RE:";
+            index = subj.indexOf(re,re.length());
+            System.err.println("3i-"+index);
+            while(index > 0){
+                subj = subj.substring(0, index) + subj.substring(index + re.length() + 1);
+                index = subj.indexOf(re,1);
+            }
                 //If the "prefix" is in the subject line, remove it and everything before it
                 int index = subj.indexOf(prefix);
                 if (index > -1) {
