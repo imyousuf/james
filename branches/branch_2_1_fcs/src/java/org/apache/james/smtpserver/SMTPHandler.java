@@ -40,7 +40,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.18 $ $Date: 2004/04/16 02:23:36 $
+ * @version CVS $Revision: 1.35.4.19 $ $Date: 2004/05/08 02:28:30 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -1365,7 +1365,14 @@ public class SMTPHandler
         Enumeration headerLines = headers.getAllHeaderLines();
         MailHeaders newHeaders = new MailHeaders();
         // Put the Return-Path first
-        newHeaders.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + returnPath);
+        // JAMES-281 fix for messages that improperly have multiple
+        // Return-Path headers
+        StringTokenizer tokenizer = new StringTokenizer(returnPath, "\r\n");
+        while(tokenizer.hasMoreTokens()) {
+            String path = tokenizer.nextToken();
+            newHeaders.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + path);
+        }
+
         // Put our Received header next
         headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
                         .append(remoteHost)
