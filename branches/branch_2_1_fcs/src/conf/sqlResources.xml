@@ -172,22 +172,13 @@
     <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to update the attributes of a message stored in this repository. -->
-    <!-- Uncomment this statement to activate the attributes support.
     <sql name="updateMessageAttributesSQL">UPDATE ${table} SET message_attributes = ? WHERE message_name = ? AND repository_name = ?</sql>
-    -->
 
     <!-- Statements used to insert a message into this repository. -->
     <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
     repository_name, message_state, error_message, sender, recipients,
-    remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
-
-    <!-- Statements used to insert a message with attributes into this repository. -->
-    <!-- Uncomment this statement and comment the previous one to activate the attributes support.
-    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
-    repository_name, message_state, error_message, sender, recipients,
     remote_host, remote_addr, last_updated, message_body,
     message_attributes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
-    -->
 
     <!-- Statements used to retrieve a message stored in this repository. -->
     <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -196,9 +187,7 @@
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to retrieve the attributes of a message stored in this repository. -->
-    <!-- Uncomment this statement to activate the attributes support.
     <sql name="retrieveMessageAttributesSQL">SELECT message_attributes FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
-     -->
 
     <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
     <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
@@ -329,20 +318,13 @@
     <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to update the attributes of a message stored in this repository. -->
-    <!-- Uncomment this statement to activate the attributes support.
     <sql name="updateMessageAttributesSQL">UPDATE ${table} SET message_attributes = ? WHERE message_name = ? AND repository_name = ?</sql>
-    -->
 
     <!-- Statements used to insert a message into this repository. -->
-    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
-    
-    <!-- Statements used to insert a message with attributes into this repository. -->
-    <!-- Uncomment this statement and comment the previous one to activate the attributes support.
     <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
     repository_name, message_state, error_message, sender, recipients,
     remote_host, remote_addr, last_updated, message_body,
     message_attributes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
-    -->
 
     <!-- Statements used to retrieve a message stored in this repository. -->
     <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -351,9 +333,7 @@
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to retrieve the attributes of a message stored in this repository. -->
-    <!-- Uncomment this statement to activate the attributes support.
     <sql name="retrieveMessageAttributesSQL">SELECT message_attributes FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
-    -->
     
     <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
     <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
