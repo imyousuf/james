@@ -43,24 +43,29 @@
         <ul>
                     <li>    <a href="./index.html">Overview</a>
 </li>
-                    <li>    <a href="./install.html">Install</a>
-</li>
-                    <li>    <a href="./configuration_v2_0.html">Configuration</a>
-</li>
                     <li>    <a href="./architecture_v2_0.html">Architecture</a>
 </li>
                     <li>    <a href="./FAQ.html">James FAQ</a>
 </li>
                 </ul>
-            <p><strong>Download</strong></p>
+            <p><strong>Translated {web}</strong></p>
+        <ul>
+                    <li>    <a href="http://www.terra-intl.com/jakarta/james/">Japanese</a>
+</li>
+                </ul>
+            <p><strong>Downloads</strong></p>
         <ul>
                     <li>    <a href="http://jakarta.apache.org/site/binindex.html">Binaries</a>
 </li>
                     <li>    <a href="http://jakarta.apache.org/site/sourceindex.html">Source Code</a>
 </li>
                 </ul>
-            <p><strong>Guides</strong></p>
+            <p><strong>Documentation</strong></p>
         <ul>
+                    <li>    <a href="./install.html">Install</a>
+</li>
+                    <li>    <a href="./configuration_v2_0.html">Configuration</a>
+</li>
                     <li>    <a href="./javadocs/index.html">James API</a>
 </li>
                     <li>    <a href="./mailet/index.html">Mailet API</a>
@@ -74,13 +79,12 @@
                     <li>    <a href="http://jakarta.apache.org/james/rfclist">Useful RFCs {web}</a>
 </li>
                 </ul>
-            <p><strong>Translations {web}</strong></p>
-        <ul>
-                    <li>    <a href="http://www.terra-intl.com/jakarta/james/">Japanese</a>
-</li>
-                </ul>
             <p><strong>Project</strong></p>
         <ul>
+                    <li>    <a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+                    <li>    <a href="./contribute.html">How Can I Contribute?</a>
+</li>
                     <li>    <a href="./code-standards.html">Coding Standards</a>
 </li>
                     <li>    <a href="./license.html">License</a>
@@ -88,10 +92,6 @@
                     <li>    <a href="./todo.html">TODO</a>
 </li>
                     <li>    <a href="./changelog.html">Changelog</a>
-</li>
-                    <li>    <a href="http://jakarta.apache.org/site/bugs.html">Bug Database {web}</a>
-</li>
-                    <li>    <a href="./contribute.html">Contributors How To</a>
 </li>
                     <li>    <a href="./weare.html">Who We Are</a>
 </li>
@@ -106,16 +106,9 @@
 </li>
                     <li>    <a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
 </li>
-                </ul>
-            <p><strong>Jakarta Essentials {web}</strong></p>
-        <ul>
                     <li>    <a href="http://jakarta.apache.org/index.html">Front Page</a>
 </li>
                     <li>    <a href="http://jakarta.apache.org/site/news.html">News & Status</a>
-</li>
-                    <li>    <a href="http://jakarta.apache.org/site/mission.html">Mission</a>
-</li>
-                    <li>    <a href="http://jakarta.apache.org/site/guidelines.html">Guidelines Notes</a>
 </li>
                     <li>    <a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
 </li>
@@ -165,8 +158,10 @@
         <blockquote>
                                     <p>
 			Patches should be submitted to the developers mailing list.<br />
-			<b>Always</b> use diff -u to generate patches, and make sure it conforms 
-			to the code standards, otherwise it may be ignored.<br />
+			<b>Always</b> use diff -u to generate patches, make sure you are patching the latest cvs (the HEAD).<br />
+			Make your patch from the jakarta-james directory and make sure it conforms 
+			to the code standards, otherwise it may be ignored. Its is OK to make a single patch covering several 
+			files, but please only one issue at a time.<br />
 			Prefix the mail subject with [PATCH]<br />
 			Briefly outline the reason for your patch, 
 			the solution your patch implements, why a patch is 
@@ -197,6 +192,7 @@
 			your intentions, as above, so that your code can be reviewed easily, and a 
 			note of any relevant bug numbers.<br />
 			New files must contain a refrence to the Apache licence, copy the header from an existing file.<br />
+			It also helps if you send your files in an archive (tar, zip) which preserves directories, make it from the jakarta-james directory so we can un-tar your files into the right place.
 		</p>
                             </blockquote>
         </p>
