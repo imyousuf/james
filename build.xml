@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.84 $  Committed on $Date: 2001/10/10 13:45:46 $ by: $Author: danny $
+ James build file $Revision: 1.85 $  Committed on $Date: 2001/10/25 02:57:23 $ by: $Author: serge $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -290,7 +290,7 @@ Legal:
     <jar jarfile="${build.lib}/${name}.bar"
          basedir="${build.classes}"
          manifest="${src.dir}/Manifest.mf">
-       <include name="org/**"/>
+       <include name="org/apache/james/**"/>
     </jar>
 
   </target>
