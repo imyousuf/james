@@ -43,7 +43,6 @@ public class ThreadPerWatchdogFactory
      * InaccurateTimeoutWatchdogs.
      */
     public ThreadPerWatchdogFactory(ThreadPool theThreadPool, long timeout) {
-        myThreadPool = theThreadPool;
         if (theThreadPool == null) {
             throw new IllegalArgumentException("The thread pool for the ThreadPerWatchdogFactory cannot be null.");
         }
