@@ -98,14 +98,19 @@ import java.util.ArrayList;
  * If the notified message has an "error message" set, it will be inserted into the
  * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
  * is set to true, such error message will be attached to the notification message.<BR>
- * <P>passThrough is <B>true</B>.</P>
+ * <P>Supports the <CODE>passThrough</CODE> init parameter (true if missing).</P>
  *
  * <P>Sample configuration:</P>
  * <PRE><CODE>
- * &lt;mailet match="All" class="NotifyPostmaster">
+ * &lt;mailet match="All" class="Bounce">
  *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
+ *   &lt;inline&gt;<I>see {@link Redirect}, default=none</I>&lt;/inline&gt;
+ *   &lt;attachment&gt;<I>see {@link Redirect}, default=message</I>&lt;/attachment&gt;
+ *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
@@ -116,16 +121,21 @@ import java.util.ArrayList;
  *   &lt;sender&gt;<I>an address or postmaster</I>&lt;/sender&gt;
  *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
  *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
- *   &lt;passThrough&gt;true&lt;/passThrough&gt;
+ *   &lt;prefix&gt;<I>a string</I>&lt;/prefix&gt;
+ *   &lt;passThrough&gt;true or false, default=true&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
  *   &lt;returnPath&gt;null&lt;/returnPath&gt;
- *   &lt;inline&gt;none&lt;/inline&gt;
- *   &lt;attachment&gt;message&lt;/attachment&gt;
+ *   &lt;inline&gt;see {@link Redirect}, default=NONE&lt;/inline&gt;
+ *   &lt;attachment&gt;see {@link Redirect}, default=message&lt;/attachment&gt;
  *   &lt;isReply&gt;true&lt;/isReply&gt;
  *   &lt;static&gt;true&lt;/static&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
+ * <P>CVS $Id: Bounce.java,v 1.1.2.4 2003/06/15 18:33:42 noel Exp $</P>
+ * @version 2.2.0
+ * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
 

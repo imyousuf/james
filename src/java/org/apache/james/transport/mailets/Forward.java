@@ -83,11 +83,14 @@ import java.util.StringTokenizer;
  * <PRE><CODE>
  * &lt;mailet match="All" class="Redirect">
  *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
  *   &lt;inline&gt;unaltered&lt;/inline&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
+ * <P>CVS $Id: Forward.java,v 1.6.4.5 2003/06/15 18:33:42 noel Exp $</P>
+ * @version 2.2.0
  */
 public class Forward extends AbstractRedirect {
 

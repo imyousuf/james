@@ -107,6 +107,7 @@ import org.apache.mailet.MailAddress;
  * <LI>getTo(), a list of people to whom the mail is *apparently* sent</LI>
  * <LI>isReply(), should this mailet set the IN_REPLY_TO header to the id of the current message</LI>
  * <LI>getPassThrough(), should this mailet allow the original message to continue processing or GHOST it.</LI>
+ * <LI>getFakeDomainCheck(), should this mailet check if the sender domain address is valid.</LI>
  * <LI>isStatic(), should this mailet run the get methods for every mail, or just once.</LI>
  * </UL>
  * <P>For each of the methods above (generically called "getX()" methods in this class
@@ -161,6 +162,9 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
+ * <P>CVS $Id: AbstractRedirect.java,v 1.1.2.8 2003/06/15 18:33:42 noel Exp $</P>
+ * @version 2.2.0
+ * @since 2.2.0
  */
 
 public abstract class AbstractRedirect extends GenericMailet {
@@ -229,6 +233,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     protected static final int MESSAGE          = 5;
 
     private boolean passThrough = false;
+    private boolean fakeDomainCheck = true;
     private int attachmentType = NONE;
     private int inLineType = BODY;
     private String messageText;
@@ -291,6 +296,33 @@ public abstract class AbstractRedirect extends GenericMailet {
     protected boolean getPassThrough(Mail originalMail) throws MessagingException {
         boolean passThrough = (isStatic()) ? this.passThrough : getPassThrough();
         return passThrough;
+    }
+
+    /**
+     * Gets the <CODE>fakeDomainCheck</CODE> property.
+     * Return true to check if the sender domain is valid.
+     * Is a "getX()" method.
+     *
+     * @return the <CODE>fakeDomainCheck</CODE> init parameter, or true if missing
+     */
+    protected boolean getFakeDomainCheck() throws MessagingException {
+        if(getInitParameter("fakeDomainCheck") == null) {
+            return true;
+        } else {
+            return new Boolean(getInitParameter("fakeDomainCheck")).booleanValue();
+        }
+    }
+
+    /**
+     * Gets the <CODE>fakeDomainCheck</CODE> property,
+     * built dynamically using the original Mail object.
+     * Is a "getX(Mail)" method.
+     *
+     * @return {@link #getFakeDomainCheck()}
+     */
+    protected boolean getFakeDomainCheck(Mail originalMail) throws MessagingException {
+        boolean fakeDomainCheck = (isStatic()) ? this.fakeDomainCheck : getFakeDomainCheck();
+        return fakeDomainCheck;
     }
 
     /**
@@ -736,6 +768,7 @@ public abstract class AbstractRedirect extends GenericMailet {
 
         if(isStatic()) {
             passThrough     = getPassThrough();
+            fakeDomainCheck = getFakeDomainCheck();
             attachmentType  = getAttachmentType();
             inLineType      = getInLineType();
             messageText     = getMessage();
@@ -752,11 +785,12 @@ public abstract class AbstractRedirect extends GenericMailet {
                     new StringBuffer(1024)
                             .append("static")
                             .append(", passThrough=").append(passThrough)
+                            .append(", fakeDomainCheck=").append(fakeDomainCheck)
                             .append(", sender=").append(sender)
                             .append(", replyTo=").append(replyTo)
                             .append(", returnPath=").append(returnPath)
                             .append(", message=").append(messageText)
-                            .append(", recipients=").append(arrayToString(recipients.toArray()))
+                            .append(", recipients=").append(arrayToString(recipients == null ? null : recipients.toArray()))
                             .append(", subjectPrefix=").append(subjectPrefix)
                             .append(", apparentlyTo=").append(arrayToString(apparentlyTo))
                             .append(", attachError=").append(attachError)
@@ -807,7 +841,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         //Create the message
         if(getInLineType(originalMail) != UNALTERED) {
             if (isDebug) {
-                log("Alter message inline=:" + getInLineType(originalMail));
+                log("Alter message");
             }
             newMail.setMessage(new MimeMessage(Session.getDefaultInstance(System.getProperties(),
                                                                null)));
@@ -887,10 +921,32 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @param mail the mail to use as the basis for the new mail name
      * @return a new name
      */
-    private String newName(MailImpl mail) {
+    private String newName(MailImpl mail) throws MessagingException {
+        String oldName = mail.getName();
+        
+        // Checking if the original mail name is too long, perhaps because of a
+        // loop caused by a configuration error.
+        // it could cause a "null pointer exception" in AvalonMailRepository much
+        // harder to understand.
+        if (oldName.length() > 76) {
+            int count = 0;
+            int index = 0;
+            while ((index = oldName.indexOf('!', index)) >= 0) {
+                count++;
+            }
+            // It looks like a configuration loop. It's better to stop.
+            if (count > 7) {
+                throw new MessagingException("Unable to create a new message name: too long."
+                                             + " Possible loop in config.xml.");
+            }
+            else {
+                oldName = oldName.substring(0, 76);
+            }
+        }
+        
         StringBuffer nameBuffer =
                                  new StringBuffer(64)
-                                 .append(mail.getName())
+                                 .append(oldName)
                                  .append("-!")
                                  .append(random.nextInt(1048576));
         return nameBuffer.toString();
@@ -953,6 +1009,9 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Utility method for obtaining a string representation of an array of Objects.
      */
     private String arrayToString(Object[] array) {
+        if (array == null) {
+            return "null";
+        }
         StringBuffer sb = new StringBuffer(1024);
         sb.append("[");
         for (int i = 0; i < array.length; i++) {
@@ -1075,6 +1134,9 @@ public abstract class AbstractRedirect extends GenericMailet {
             out.println(messageText);
         }
 
+        if (isDebug) {
+            log("inline:" + getInLineType(originalMail));
+        }
         switch(getInLineType(originalMail)) {
             case ALL: //ALL:
                 all = true;
@@ -1112,6 +1174,9 @@ public abstract class AbstractRedirect extends GenericMailet {
             part.setText(sout.toString());
             part.setDisposition("inline");
             mpContent.addBodyPart(part);
+            if (isDebug) {
+                log("attachmentType:" + getAttachmentType(originalMail));
+            }
             if(getAttachmentType(originalMail) != NONE) {
                 part = new MimeBodyPart();
                 switch(getAttachmentType(originalMail)) {
@@ -1254,8 +1319,11 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Although this can be viewed as a configuration error, the
      * consequences of such a mis-configuration are severe enough
      * to warrant protecting against the infinite loop.</P>
+     * <P>This check can be skipped if {@link #getFakeDomainCheck(Mail)} returns true.</P> 
      */
-    protected final boolean senderDomainIsValid(Mail mail) {
-        return mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0;
+    protected final boolean senderDomainIsValid(Mail mail) throws MessagingException {
+        if (getFakeDomainCheck(mail)) {
+            return mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0;
+        } else return true;
     }
 }
