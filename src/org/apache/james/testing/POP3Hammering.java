@@ -21,7 +21,7 @@ public class POP3Hammering {
 
     private int iter;
 
-    public JamesTest(String host, String user, String password) {
+    public POP3Hammering(String host, String user, String password) {
 		this.mailHost = host;
 		this.user = user;
 		this.password = password;
@@ -85,11 +85,11 @@ public class POP3Hammering {
     }
 
     public static void main(String[] args) throws Throwable {
-		JamesTest jt = new JamesTest(args[0], args[1], args[2]);
-		jt.sendMail();
-		jt.sendMail();
+		POP3Hammering tester = new POP3Hammering(args[0], args[1], args[2]);
+		tester.sendMail();
+		tester.sendMail();
 
-		jt.receiveMail(true);
-		jt.receiveMail(true);
+		tester.receiveMail(true);
+		tester.receiveMail(true);
     }
 }
