@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/configuration_v2_1.html -->
 
-<!-- $Revision: 1.1 $ Committed on $Date: 2002/11/22 02:09:50 $ by: $Author: darrell $ -->
+<!-- $Revision: 1.2 $ Committed on $Date: 2003/01/27 13:03:10 $ by: $Author: darrell $ -->
 
 <config>
    <James>
@@ -302,16 +302,23 @@
    <!-- Specifies DNS Server information for use by various components inside -->
    <!-- James. -->
    <!-- -->
+   <!-- James will attempt to autodetect the DNS servers configured on your underlying system.-->
+   <!-- Currently, this works if the OS has a unix-like /etc/resolv.conf,-->
+   <!-- or the system is Windows based with ipconfig or winipcfg.-->
+   <!-- -->
+   <!-- If no DNS servers are found and you have not specified any below, 127.0.0.1 will be used-->
+   <!-- -->
    <!-- Information includes a list of DNS Servers to be used by James.  These are -->
    <!-- specified by the server elements, each of which is a child element of the -->
    <!-- servers element.  Each server element is the IP address of a single DNS server. -->
    <!-- The servers element can have multiple server children. -->
    <dnsserver>
       <servers>
-<!-- CONFIRM? -->
-        <!--Enter ip address of your DNS server, one IP address per server -->
-        <!-- element.  The default configuration assumes a DNS server on the localhost. -->
-         <server>127.0.0.1</server>
+         <!--Enter ip address of your DNS server, one IP address per server -->
+         <!-- element. -->
+         <!--
+          <server>127.0.0.1</server>
+         -->
       </servers>
       <authoritative>false</authoritative>
    </dnsserver>
@@ -382,7 +389,7 @@
     <!-- but does not free as many resources as removing them would -->
    <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
-      <!-- port 100 is the well-known/IANA registered port for Standard POP3 -->
+      <!-- port 110 is the well-known/IANA registered port for Standard POP3 -->
       <port>110</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
@@ -452,6 +459,9 @@
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <nntpserver enabled="true">
+   <!-- THE NNTP PROTOCOL IS EXPERIMENTAL AND NOT AS WELL TESTED AS SMTP AND POP3 IN THIS RELEASE.
+        The James project recommends that you check the James web site for updates to the NNTP
+        service.  -->
       <!-- port 563 is the well-known/IANA registered port for NNTP over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard NNTP -->
       <port>119</port>
@@ -706,7 +716,7 @@
    <!-- Defines file storage details that are used for file-based repositories. -->
    <objectstorage>
       <repositories>
-         <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
+         <repository class="org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
@@ -720,7 +730,7 @@
             </models>
          </repository>
 
-         <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
+         <repository class="org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
