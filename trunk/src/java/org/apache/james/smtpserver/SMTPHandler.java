@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2001/08/11 18:25:03 $ by: $Author: serge $
+ * This is $Revision: 1.8 $
+ * Committed on $Date: 2001/08/11 21:25:15 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -84,7 +84,7 @@ public class SMTPHandler
     private String softwaretype = "JAMES SMTP Server "
                                    + Constants.SOFTWARE_VERSION;
     private static long count;
-    private Hashtable state     = new Hashtable();
+    private HashMap state       = new HashMap();
     private Random random       = new Random();
     private long maxmessagesize = 0;
 
@@ -135,12 +135,7 @@ public class SMTPHandler
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
             smtpID = Math.abs(random.nextInt() % 1024) + "";
-            state.clear();
-            state.put(SERVER_NAME, this.helloName );
-            state.put(SERVER_TYPE, this.softwaretype );
-            state.put(REMOTE_NAME, remoteHost);
-            state.put(REMOTE_IP, remoteIP);
-            state.put(SMTP_ID, smtpID);
+            resetState();
         } catch (Exception e) {
             getLogger().error("Cannot open connection from " + remoteHost
                               + " (" + remoteIP + "): " + e.getMessage(), e );
@@ -369,13 +364,17 @@ public class SMTPHandler
             MailAddress senderAddress = null;
             //Remove < and >
             sender = sender.substring(1, sender.length() - 1);
-            try {
-                senderAddress = new MailAddress(sender);
-            } catch (Exception pe) {
-                out.println("501 Syntax error in parameters or arguments");
-                getLogger().error("Error parsing sender address: " + sender
-                                  + ": " + pe.getMessage());
-                return;
+            if (sender.length() == 0) {
+                //This is the <> case.  Let senderAddress == null
+            } else {
+                try {
+                    senderAddress = new MailAddress(sender);
+                } catch (Exception pe) {
+                    out.println("501 Syntax error in parameters or arguments");
+                    getLogger().error("Error parsing sender address: " + sender
+                                      + ": " + pe.getMessage());
+                    return;
+                }
             }
             state.put(SENDER, senderAddress);
             out.println("250 Sender <" + sender + "> OK");
@@ -412,12 +411,14 @@ public class SMTPHandler
                                   + recipient + ": " + pe.getMessage());
                 return;
             }
-            if (authRequired) {
+            // If this is a delivery failure notification (MAIL FROM: <>)
+            //   we don't enforce authentication
+            if (authRequired && state.get(SENDER) != null) {
                 // Make sure the mail is being sent locally if not
-                // authenticated else reject
+                // authenticated else reject.
+
                 if (!state.containsKey(AUTH)) {
-                    String toDomain
-                         = recipient.substring(recipient.indexOf('@') + 1);
+                    String toDomain = recipientAddress.getHost();
 
                     if (!mailServer.isLocalServer(toDomain)) {
                         out.println("530 Authentication Required");
@@ -428,20 +429,20 @@ public class SMTPHandler
                 } else {
                     // Identity verification checking
                     if (verifyIdentity) {
-                      String authUser = (String)state.get(AUTH);
-                      MailAddress senderAddress
-                          = (MailAddress)state.get(SENDER);
-                      boolean domainExists = false;
+                        String authUser = (String)state.get(AUTH);
+                        MailAddress senderAddress
+                                = (MailAddress)state.get(SENDER);
+                        boolean domainExists = false;
 
-                      if (!authUser.equalsIgnoreCase(
-                                    senderAddress.getUser())) {
+                        if (!authUser.equalsIgnoreCase(
+                                senderAddress.getUser())) {
                         out.println("503 Incorrect Authentication for Specified Email Address");
                         getLogger().error("User " + authUser
-                            + " authenticated, however tried sending email as "
-                            + senderAddress);
+                                + " authenticated, however tried sending email as "
+                                + senderAddress);
                         return;
-                      }
-                      if (!mailServer.isLocalServer(
+                    }
+                    if (!mailServer.isLocalServer(
                                        senderAddress.getHost())) {
                         out.println("503 Incorrect Authentication for Specified Email Address");
                         getLogger().error("User " + authUser
@@ -499,7 +500,7 @@ public class SMTPHandler
                             RFC822DateFormat.toString(new Date()));
                 }
 
-                if (!headers.isSet("From")) {
+                if (!headers.isSet("From") && state.get(SENDER) != null) {
                     headers.setHeader("From", state.get(SENDER).toString());
                 }
 
@@ -507,7 +508,11 @@ public class SMTPHandler
                 String returnPath = headers.getHeader("Return-Path", "\r\n");
                 headers.removeHeader("Return-Path");
                 if (returnPath == null) {
-                    returnPath = "<" + state.get(SENDER).toString() + ">";
+                    if (state.get(SENDER) == null) {
+                        returnPath = "<>";
+                    } else {
+                        returnPath = "<" + state.get(SENDER) + ">";
+                    }
                 }
 
                 //We will rebuild the header object to put Return-Path and our
