@@ -21,6 +21,7 @@
     <dbMatcher db="mysql" databaseProductName="my.*"/>
     <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
     <dbMatcher db="sapdb" databaseProductName="sap.*"/>
+    <dbMatcher db="hypersonic" databaseProductName="HypersonicSQL"/>
 </dbMatchers>
 
 <!-- SQL statements to use for various components.
@@ -54,6 +55,7 @@
                 WHERE username = ?
     </sql>
     <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding INTEGER, forwardDestination VARCHAR(255), useAlias INTEGER, alias VARCHAR(255), PRIMARY KEY(username))</sql>
     <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
     <!-- An example of a database-specific sql statement
     <sql name="createTable" db="mssql">CREATE TABLE ${table} (uniqueId UNIQUEIDENTIFIER, username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
@@ -75,6 +77,7 @@
                 WHERE username = ?
     </sql>
     <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
     <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
 </sqlDefs>
 
@@ -101,7 +104,8 @@
     <sql name="delete">DELETE FROM ${table}
                 WHERE listSubscriber = ? AND listName = '${key}'
     </sql>
-    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL)</sql>
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL, PRIMARY KEY(listName, listSubscriber))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL, PRIMARY KEY(listName, listSubscriber))</sql>
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
@@ -114,6 +118,7 @@
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
     <sql name="createTable" db="mysql">
@@ -128,6 +133,21 @@
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
             last_updated datetime NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
     </sql>
@@ -193,8 +213,24 @@
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="createTable" db="hypersonic">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
             message_name varchar (200) NOT NULL,
