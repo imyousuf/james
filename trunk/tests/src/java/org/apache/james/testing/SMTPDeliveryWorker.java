@@ -15,27 +15,23 @@ import org.apache.commons.net.smtp.SMTPClient;
  *
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
- * $Id: SMTPDeliveryWorker.java,v 1.2 2002/10/14 06:44:22 pgoldstein Exp $
+ * $Id: SMTPDeliveryWorker.java,v 1.3 2002/10/14 16:14:55 danny Exp $
  */
 public class SMTPDeliveryWorker implements Runnable {
     private SMTPClient client;
-
     /**
      * The test of the mail message to send.
      */
     private String mail;
-
     /**
      * The worker id.  Primarily used for identification by the class
      * managing the threads.
      */
     private int workerid;
-
     /**
      * The EndToEnd test case that spawned this thread.
      */
     EndToEnd boss;
-
     /**
      * Constructor for SMTPDeliveryWorker.
      *
@@ -51,25 +47,23 @@ public class SMTPDeliveryWorker implements Runnable {
      */
     public void run() {
         try {
-            
-            //move the connect and disconnect into the loop to make a new connection for every mail
-            client.connect("127.0.0.1", 25);
             for (int run = 0; run < 100; run++) {
-                //System.out.println(client.getReplyString());
+                //move the connect and disconnect out of the loop to reuse 
+                // the connection for all mail
+                client.connect("127.0.0.1", 25);
                 client.sendSimpleMessage("postmaster@localhost", "test@localhost", mail);
                 boss.delivered();
+                client.disconnect();
             }
-            client.disconnect();
             String[] outs = client.getReplyStrings();
             for (int i = 0; i < outs.length; i++) {
                 System.out.println(outs[i]);
             }
         } catch (IOException e) {
-            System.err.println("argh! "+workerid+" "+e.getMessage());
+            System.err.println("argh! " + workerid + " " + e.getMessage());
         }
         boss.finished(workerid);
     }
-
     /**
      * Set the worker id for this worker thread.
      *
@@ -78,7 +72,6 @@ public class SMTPDeliveryWorker implements Runnable {
     public void setWorkerid(int workerid) {
         this.workerid = workerid;
     }
-
     /**
      * Get the worker id for this worker thread.
      *
