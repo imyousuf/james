@@ -70,7 +70,7 @@ public class NetMatcher
     public void initInetNetworks(final Collection nets)
     {
         networks = new ArrayList();
-        for (Iterator iter = networks.iterator(); iter.hasNext(); ) try
+        for (Iterator iter = nets.iterator(); iter.hasNext(); ) try
         {
             networks.add(InetNetwork.getFromString((String) iter.next()));
         }

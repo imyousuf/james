@@ -372,7 +372,7 @@ public class SMTPServer extends AbstractJamesService implements Component {
         public boolean isAuthRequired(String remoteIP) {
             boolean authRequired = SMTPServer.this.authRequired;
             if (authorizedNetworks != null) {
-                authRequired = authRequired && SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
         }
