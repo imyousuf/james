@@ -14,7 +14,7 @@
                                                     <meta name="author" value="Serge Knystautas">
             <meta name="email" value="sergek@lokitech.com">
             
-            <title>The Jakarta James Site - Installation</title>
+            <title>Jakarta James - Installation</title>
         </head>
 
         <body bgcolor="#ffffff" text="#000000" link="#525D76">        
@@ -36,22 +36,24 @@
                 
                 <tr>
                     <!-- LEFT SIDE NAVIGATION -->
-                    <td valign="top" nowrap="true">
+                    <td width="20%" valign="top" nowrap="true">
                                 <p><strong>James</strong></p>
         <ul>
                     <li>    <a href="./index.html">Overview</a>
 </li>
                     <li>    <a href="./install.html">Install</a>
 </li>
-                    <li>    <a href="./configuration_v1_2.html">Configuration</a>
+                    <li>    <a href="./configuration_v2_0.html">Configuration</a>
 </li>
-                    <li>    <a href="./architecture_v1_2.html">Architecture</a>
+                    <li>    <a href="./architecture_v2_0.html">Architecture</a>
 </li>
                     <li>    <a href="./code-standards.html">Coding Standards</a>
 </li>
                     <li>    <a href="./license.html">License</a>
 </li>
                     <li>    <a href="./todo.html">TODO</a>
+</li>
+                    <li>    <a href="./changelog.html">Changelog</a>
 </li>
                 </ul>
             <p><strong>Download</strong></p>
@@ -67,13 +69,9 @@
 </li>
                     <li>    <a href="./usingLDAP_v1_2.html">Using LDAP</a>
 </li>
-                    <li>    <a href="./usingTown.html">Using RDBMS</a>
+                    <li>    <a href="./usingJDBC_v2.0.html">Using JDBC</a>
 </li>
                     <li>    <a href="./usingTLS_v1_2.html">Using TLS</a>
-</li>
-                    <li>    <a href="./listservs.html">List Servers</a>
-</li>
-                    <li>    <a href="./matchers.html">Bundled Matchers</a>
 </li>
                     <li>    <a href="http://jakarta.apache.org/james/rfclist">Useful RFCs {web}</a>
 </li>
@@ -112,36 +110,36 @@
 </li>
                 </ul>
                         </td>
-                    <td align="left" valign="top">
+                    <td width="80%" align="left" valign="top">
                                                                     <table border="0" cellspacing="0" cellpadding="2" width="100%">
       <tr><td bgcolor="#525D76">
         <font color="#ffffff" face="arial,helvetica,sanserif">
           <a name="Step 0: Building. (only necessary for daily snapshots)"><strong>Step 0: Building. (only necessary for daily snapshots)</strong></a>
         </font>
       </td></tr>
-      <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
-                                    <p>
-    If you have downloaded a regular distribution, you do not need to
-    build James.  Proceed directory to Step 1.
-  </p>
-                                                <p>
-    To compile James from sources you will need <a href="http://jakarta.apache.org/ant/">Ant</a>.
-    This is a Java-tailored, XML-configured, extensible build or make system.
-    We are currently using Ant 1.1, although documentation generation requires Ant 1.2.
-  </p>
-                                                <p>
-    If you have downloaded a daily snapshot, you need to build a
-    distribution.  James uses Ant (<a href="http://jakarta.apache.org/ant/">http://jakarta.apache.org/ant/</a>) to
-    compile and package its distribution.  Once you have installed Ant,
-    extracted the snapshot to your favorite folder, cd to that folder
-    and run the "dist" task by calling "ant dist".  This will create the
-    distribution in the "./dist" folder as well as create .tgz and .zip
-    copies of this folder.  This "./dist" folder is the distribution
-    folder used in Step 1 and beyond.  You may either cd to ./dist, or
-    you may copy and rename the dist folder to your new favorite folder.
-  </p>
+                                    <p> If you have downloaded a binary distribution, you do not need to build James. 
+  Proceed directory to Step 1. </p>
+                                                <p> To compile James from sources you need <a href="http://jakarta.apache.org/ant/">Ant</a>. 
+  This is a Java-tailored, XML-configured, extensible build or make system. We 
+  are currently using Ant 1.4, which is included in the source distribution.</p>
+                                                <p> If you have downloaded a daily snapshot, you need to build a distribution. 
+  James includes Ant to compile and package its distribution. Extract the snapshot 
+  to your favorite directory, cd to that directory and run the build by calling "build" 
+  or "./build.sh" which will create an unpacked binary distribution 
+  in the dist directory, but no archives.</p>
+                                                <p>This "./dist" directory is the distribution directory used in Step 1 and beyond. 
+  You may either cd to ./dist, or you may copy and rename the dist directory to your 
+  installation directory.</p>
+                                                <p>If you prefer you can run build with the "dist" task "build dist" 
+  (or "./build.sh dist"). This will create the distribution in the "./dist" 
+  directory as well as create .tgz and .zip copies of this directory, however it may 
+  require other resources to build the documentation. </p>
+                                                <p> <strong>Warning!</strong> Any changes you've made in the 'dist' directory 
+  will be lost after a recompilation. If you are making changes to the config.xml 
+  or other files, we recommend you backup and then change the copies in src to 
+  avoid losing work. </p>
                             </blockquote>
         </p>
       </td></tr>
@@ -153,12 +151,10 @@
           <a name="Step 1: Installation."><strong>Step 1: Installation.</strong></a>
         </font>
       </td></tr>
-      <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
-                                    <p>
-    Download distibution. Extract all files in your favorite folder.
-  </p>
+                                    <p> Download distibution. Extract or copy all the files in the archive or dist 
+  directory intto your installation directory. </p>
                             </blockquote>
         </p>
       </td></tr>
@@ -170,7 +166,6 @@
           <a name="Step 2: Configuration."><strong>Step 2: Configuration.</strong></a>
         </font>
       </td></tr>
-      <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
                                     <p>
@@ -180,11 +175,11 @@
                                                 <p>
     <b>Summary</b> (for impatient people)
   </p>
-                                                <p>
-    M$ users should just run /bin/run.bat. Unix users will find run.sh
-    under the same folder. A JVM must be in the path.
-    Running [run* -help] will provide a simple command line help.
-  </p>
+                                                <p> M$ users should just run /bin/run.bat. Unix users will find run.sh under the 
+  same directory. A JVM must be present and its location specified in the JAVA_HOME 
+  environment variable. Set this on windows at the command prompt with something 
+  similar to "set JAVA_HOME=\jdk1.3\bin" on *nix with JAVA_HOME=/jdk1.3/</p>
+                                                <p> Running [run* --help] will provide a simple command line help. </p>
                                                 <p>
     Most UNIX systems require superuser privileges to open sockets below 1024,
     which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
@@ -192,13 +187,13 @@
     would then need to reconfigure your clients. This may not be an option if
     you want to receive mail from external mailservers.)
   </p>
-                                                <p>
-    The Avalon framework will unpack the neccessay configuration files and wait
-    for you to configure them. For basic use, you only need to set two items
-    in the JAMES.conf.xml file: a root password for the remote administration
-    facility and the IP address of a DNS server. Once you have edited the
-    configuration files, press 'Enter' on the terminal where Avalon is waiting.
-  </p>
+                                                <p> The Avalon framework will unpack the neccessay configuration files you will 
+  need to start the server, wait until it is running stop it again (ctrl-c) and 
+  edit the configuration (thereafter *nix users can run the server in the background 
+  using ./run.sh &amp;). For basic use, you only need to set two items in the 
+  JAMES.conf.xml file: a root password for the remote administration facility 
+  and the IP address of a DNS server. Once you have edited the configuration files, 
+  press 'Enter' on the terminal where Avalon is waiting. </p>
                             </blockquote>
         </p>
       </td></tr>
@@ -210,7 +205,6 @@
           <a name="Step 4: Kickstart."><strong>Step 4: Kickstart.</strong></a>
         </font>
       </td></tr>
-      <tr><td><br/></td></tr>
       <tr><td>
         <blockquote>
                                     <p>
@@ -253,7 +247,7 @@
                 </td></tr>
                 <tr><td colspan="2">
                     <div align="center"><font color="#525D76" size="-1"><em>
-                    Copyright &#169; 1999-2001, Apache Software Foundation
+                    Copyright &#169; 1999-2002, Apache Software Foundation
                     </em></font></div>
                 </td></tr>
             </table>
