@@ -384,7 +384,7 @@ public class MimeMessageWrapper extends MimeMessage {
     public int getLineCount() throws MessagingException {
             InputStream in=null;
         try{
-            InputStream in = getContentStream();
+            in = getContentStream();
         }catch(Exception e){
             return -1;
         }
