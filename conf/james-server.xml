@@ -15,6 +15,8 @@
 
         <category name="" target="default" priority="DEBUG" />
         <log-target name="default" location="/logs/James-default.log" />
+        <category name="James.Mailet" target="James-Mailet-target" priority="DEBUG" />
+        <log-target name="James-Mailet-target" location="/logs/James.Mailet.log" />
 
         <category name="James" target="James-target" priority="DEBUG"/>
         <log-target name="James-target" location="/logs/James.log"/>
