@@ -18,6 +18,7 @@ RFC 1893: Enhanced Mail System Status Codes (experimental)
 RFC 1985: SMTP Service Extension for Remote Message Queue Starting (elective)
 RFC 2034: SMTP Service Extension for Returning Enhanced Error Codes (elective)
 RFC 2197: SMTP Service Extension for Command Pipelining (elective)
+RFC 2554: SMTP Service Extension for Authentication
 
 POP3
 ----
