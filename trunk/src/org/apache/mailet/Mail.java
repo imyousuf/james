@@ -110,22 +110,4 @@ public interface Mail extends Serializable, Cloneable {
      * @param state - the new state of this message
      */
     public void setState(String state);
-
-    /**
-     * Dumps this message to an output stream
-     *
-     * @param out - the outputstream to send the MimeMessage headers and body content
-     */
-    /*
-    public void writeMessageTo(OutputStream out) throws IOException, MessagingException;
-    */
-    /**
-     * Dumps X many number of lines from this message to an output stream
-     *
-     * @param out - the outputstream to send the MimeMessage headers and body content
-     * @param lines - the number of lines to return of the message
-     */
-    /*
-    public void writeContentTo(OutputStream out, int lines) throws IOException, MessagingException;
-    */
 }
