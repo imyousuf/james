@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+<!DOCTYPE config [
+<!ENTITY fetchmailConfig SYSTEM "file:../apps/james/conf/james-fetchmail.xml">
+]>
 <!--  Configuration file for the Apache Jakarta James server -->
 
 <!--  This file contains important settings that control the behaviour -->
@@ -15,7 +18,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.55 $ Committed on $Date: 2003/09/12 13:42:40 $ by: $Author: danny $ -->
+<!-- $Revision: 1.56 $ Committed on $Date: 2004/02/11 18:02:06 $ by: $Author: sbrewin $ -->
 
 <config>
    <James>
@@ -101,54 +104,15 @@
         </fetch>
     </fetchpop>
 
-   <!-- Fetch mail block, fetches mail from message servers and inserts it into the incoming spool -->
-   <!-- Warning: It is important to prevent mail from looping by setting the  -->
-   <!-- fetched domains in the <servernames> section of the <James> block      -->
-   <!-- above. This block is disabled by default.                              -->
-    <fetchmail enabled="false">
-        <!-- You can have as many fetch tasks as you want, but each must have a -->
-        <!-- unique name by which it identified -->
-        <fetch name="mydomain.com">
-            <!-- Host name or IP address -->
-            <host>mail.mydomain.com</host>
-            <!-- Account login username -->
-            <user>username</user>
-            <!-- Account login password -->
-            <password>pass</password>
-            <!-- How frequently this account is checked - in milliseconds. 600000 is every ten minutes -->
-            <interval>600000</interval>
-            <!-- Fetchmail will leave the fetched message unchanged and will add a new envelope     -->
-            <!-- recipient before spooling the message in James.  -->
-            <!-- Fetchmail will try and determine the original recipient of the message             -->
-            <!-- in the following ways:  -->
-            <!-- First it tries to parse the Received: headers and look for the "for" parameter    -->
-            <!-- If the "for" parameter is not found it will check the To: header and if it only   -->
-            <!-- contains one address it will be used as the new envelope recipient.   -->
-            <!-- If no recipient can be determined, the value defined in the <recipient> parameter -->
-            <!-- will be used. Setting ignorercpt-header to true will force the defined recipient  -->
-            <!-- to ALWAYS be used and the parsing of headers will be ignored  -->
-            <recipient ignorercpt-header="false">user@mydomain.com</recipient>
-
-            <!-- name of the javamail provider you wish to use -->
-            <!-- (pop3, imap, etc. -->
-            <javaMailProviderName>pop3</javaMailProviderName>
-
-            <!-- name of the folder to open -->
-            <javaMailFolderName>INBOX</javaMailFolderName>
-
-            <!-- If "true" will leave the messages on the server           -->
-            <!-- and mark them as SEEN if "false" will delete the messages -->
-            <leaveonserver>false</leaveonserver>
-
-            <!-- Retrieve both old (seen) and new messages from mailserver.  The default -->
-            <!-- is to fetch only messages the server has not marked as seen -->
-            <fetchall>false</fetchall>
-
-            <!-- If the folder javaMailFolderName contains subfolders do you -->
-            <!-- want to recurse into the subfolders as well? true = yes, false = no -->
-            <recursesubfolders>false</recursesubfolders>
-        </fetch>
-    </fetchmail>
+    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
+    <!-- service that pulls messages from other sources, and inserts them into the -->
+    <!-- spool.  They are then processed normally, although FetchMail generally    -->
+    <!-- has to fabricate some of the envelope information.  FetchMail should be   -->
+    <!-- considered a mail gateway, rather than a relay, in RFC terms.             -->
+    <!-- Fetchmail is a functionally richer replacement for FetchPOP.              -->
+    <!-- CHECKME: FetchMail is disabled by default, and must be configured to use. -->
+    <!-- Edit the file referred to by fetchmailConfig to enable and configure.     -->
+    &fetchmailConfig;    
 
    <!-- The James Spool Manager block  -->
    <!-- -->
