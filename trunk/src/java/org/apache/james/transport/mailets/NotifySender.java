@@ -253,10 +253,10 @@ public class NotifySender extends GenericMailet {
             reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
         String subject = message.getSubject();
-		if (subject == null) {
-			subject = "";
-		}
-		reply.setSubject(subject);
+        if (subject == null) {
+            subject = "";
+        }
+        reply.setSubject(subject);
 
         if (message.getMessageID() != null) {
             reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
