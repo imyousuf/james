@@ -21,7 +21,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 /**
  *
- * $Id: Loader.java,v 1.3 2003/01/14 13:41:55 serge Exp $
+ * $Id: Loader.java,v 1.4 2003/01/15 12:49:34 danny Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
@@ -75,7 +75,7 @@ public class Loader implements Contextualizable {
         Vector jarlist = new Vector();
         URL[] classPath = null;
         try {
-            jarlist.add(new URL("file://" + baseDirectory + "/SAR-INF/lib/classes/"));
+            jarlist.add(new URL("file://" + baseDirectory + "/SAR-INF/classes/"));
         } catch (MalformedURLException e) {
             logger.error(
                 "cant add "
@@ -87,11 +87,11 @@ public class Loader implements Contextualizable {
             for (int i = 0; i < flist.length; i++) {
                 try {
                     if (flist[i].indexOf("jar") == flist[i].length() - 3) {
-                        jarlist.add(new URL("file://" + flist[i]));
-                        logger.debug("added " + flist[i] + " to mailet Classloader");
+                        jarlist.add(new URL("file://" + baseDirectory +"/SAR-INF/lib/"+ flist[i]));
+                        logger.debug("added file://" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
                     }
                 } catch (MalformedURLException e) {
-                    logger.error("cant add " + "file://" + flist[i] + " to mailet classloader");
+                    logger.error("cant add file://" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
                 }
             }
         }
