@@ -19,6 +19,7 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.Loggable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.MailRepository;
@@ -28,12 +29,12 @@ import org.apache.log.Logger;
 import org.apache.avalon.phoenix.Block;
 
 /**
- *
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
- *
  * Provides Registry of mail repositories. A mail repository is uniquely
- * identified 
+ * identified
  * by destinationURL, type and model.
+ * 
+ * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
+ * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class AvalonMailStore
     extends AbstractLoggable
@@ -46,6 +47,10 @@ public class AvalonMailStore
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
     private HashMap classes;
+
+    // map of [Repository Class]->default config for repository.
+    private HashMap defaultConfigs;
+
     protected Configuration          configuration;
     protected ComponentManager       componentManager;
 
@@ -69,6 +74,7 @@ public class AvalonMailStore
         getLogger().info("JamesMailStore init...");
         repositories = new HashMap();
         classes = new HashMap();
+        defaultConfigs = new HashMap();
         Configuration[] registeredClasses
             = configuration.getChild("repositories").getChildren("repository");
         for ( int i = 0; i < registeredClasses.length; i++ )
@@ -108,6 +114,12 @@ public class AvalonMailStore
                 classes.put(key, className);
                 getLogger().info("Registered class: " + key+"->"+className);
             }
+        }
+
+        // Get the default configuration for this Repository class.
+        Configuration defConf = repConf.getChild("config");
+        if ( defConf != null ) {
+            defaultConfigs.put(className, defConf);
         }
     }
 
@@ -155,6 +167,22 @@ public class AvalonMailStore
                 getLogger().debug( "Need instance of " + repClass +
                                    " to handle: " + protocol + "," + type  );
 
+                // If default values have been set, create a new repository 
+                // configuration element using the default values 
+                // and the values in the selector.
+                // If no default values, just use the selector.
+                Configuration config;
+                Configuration defConf = (Configuration)defaultConfigs.get(repClass);
+                if ( defConf == null) {
+                    config = repConf;
+                }
+                else {
+                    config = new DefaultConfiguration(repConf.getName(), 
+                                                      repConf.getLocation());
+                    copyConfig(defConf, (DefaultConfiguration)config);
+                    copyConfig(repConf, (DefaultConfiguration)config);
+                }
+ 
                 try {
                     reply
                     = (MailRepository) Class.forName(repClass).newInstance();
@@ -162,7 +190,7 @@ public class AvalonMailStore
 		       setupLogger(reply);
                     }
                     if (reply instanceof Configurable) {
-                        ((Configurable) reply).configure(repConf);
+                        ((Configurable) reply).configure(config);
                     }
                     if (reply instanceof Composable) {
                         ((Composable) reply).compose( componentManager );
@@ -207,5 +235,40 @@ public class AvalonMailStore
             getLogger().error("Exception AvalonMailStore.hasComponent-"+ex.toString());
         }
         return (comp != null);
+    }
+
+    /**
+     * Copies values from one config into another, overwriting duplicate attributes
+     * and merging children.
+     */
+    private void copyConfig(Configuration fromConfig, DefaultConfiguration toConfig)
+    {
+        // Copy attributes
+        String[] attrs = fromConfig.getAttributeNames();
+        for ( int i = 0; i < attrs.length; i++ ) {
+            String attrName = attrs[i];
+            String attrValue = fromConfig.getAttribute(attrName, null);
+            toConfig.setAttribute(attrName, attrValue);
+        }
+
+        // Copy children
+        Configuration[] children = fromConfig.getChildren();
+        for ( int i = 0; i < children.length; i++ ) {
+            Configuration child = children[i];
+            String childName = child.getName();
+            Configuration existingChild = toConfig.getChild(childName, false);
+            if ( existingChild == null ) {
+                toConfig.addChild(child);
+            }
+            else {
+                copyConfig(child, (DefaultConfiguration)existingChild);
+            }
+        }
+
+        // Copy value
+        String val = fromConfig.getValue(null);
+        if ( val != null ) {
+            toConfig.setValue(val);
+        }
     }
 }

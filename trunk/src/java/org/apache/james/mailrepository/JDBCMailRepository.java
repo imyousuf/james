@@ -8,6 +8,7 @@
 package org.apache.james.mailrepository;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,19 +22,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.mail.internet.MimeMessage;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
+import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -44,91 +50,109 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.Lock;
+import org.apache.james.util.SqlResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
  * Implementation of a MailRepository on a database.
- *
+ * 
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br><repository destinationURL="db://<datasource>/<repository_name>"
+ *  <br><repository destinationURL="db://<datasource>/<table_name>/<repository_name>"
  *  <br>            type="MAIL"
  *  <br>            model="SYNCHRONOUS"/>
  *  <br></repository>
  * <p>destinationURL specifies..(Serge??)
  * <br>Type can be SPOOL or MAIL
  * <br>Model is currently not used and may be dropped
- *
+ * 
  * <p>Requires a logger called MailRepository.
- *
+ * 
+ * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Darrell DeBoer <dd@bigdaz.com>
  * @version 1.0.0, 24/04/1999
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class JDBCMailRepository
     extends AbstractLoggable
-    implements MailRepository, Component, Configurable, Composable {
+    implements MailRepository, Component, Configurable, Composable, Initializable 
+{
 
     private Lock lock;
+
+    // Configuration elements
     protected String destination;
     protected String tableName;
     protected String repositoryName;
+    protected String filestore;
+    protected String sqlFileName;
 
     private StreamRepository sr = null;
 
-    //The table where this is stored
-    private String driverClassName;
-    protected String jdbcURL;
-    protected String jdbcUsername;   //optional
-    protected String jdbcPassword;    //optional
+    //The data-source for this repository
+    protected DataSourceSelector datasources;
+    protected DataSourceComponent datasource;
+    protected String datasourceName;
 
-    protected Properties sqlQueries = null;
+    // Contains all of the sql strings for this component.
+    protected SqlResources sqlQueries;
 
-    public void configure(Configuration conf) throws ConfigurationException {
+    public void configure(Configuration conf) throws ConfigurationException 
+    {
+        getLogger().debug(this.getClass().getName() + ".configure()");
+
+
         destination = conf.getAttribute("destinationURL");
+        // normalise the destination, to simplify processing.
+        if ( ! destination.endsWith("/") ) {
+            destination += "/";
+        }
+        // Parse the DestinationURL for the name of the datasource, 
+        // the table to use, and the (optional) repository Key.
+        // Split on "/", starting after "db://"
+        List urlParams = new ArrayList();
+        int start = 5;
+        int end = destination.indexOf('/', start);
+        while ( end > -1 ) {
+            urlParams.add(destination.substring(start, end));
+            start = end + 1;
+            end = destination.indexOf('/', start);
+        }
+
+        // Build SqlParameters and get datasource name from URL parameters
+        switch ( urlParams.size() ) {
+        case 3:
+            repositoryName = (String)urlParams.get(2);
+        case 2:
+            tableName = (String)urlParams.get(1);
+        case 1:
+            datasourceName = (String)urlParams.get(0);
+            break;
+        default:
+            throw new ConfigurationException
+                ("Malformed destinationURL - Must be of the format \"" +
+                 "db://<data-source>[/<table>[/<repositoryName>]]\".");
+        }
+
+        getLogger().debug("Parsed URL: table = '" + tableName + 
+                          "', repositoryName = '" + repositoryName + "'");
+        
+        filestore = conf.getChild("filestore").getValue(null);
+        sqlFileName = conf.getChild("sqlFile").getValue();
     }
 
     public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+        throws ComponentException 
+    {
+        getLogger().debug(this.getClass().getName() + ".compose()");
+
+        // Get the DataSourceSelector block
+        datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
+
         try {
-            Properties props = new Properties();
-            InputStream in = new FileInputStream(destination.substring(5));
-            props.load(in);
-            in.close();
-
-            driverClassName = props.getProperty("driver");
-            jdbcURL = props.getProperty("URL");
-            jdbcUsername = props.getProperty("username");   //optional
-            jdbcPassword = props.getProperty("password");    //optional
-
-            Class.forName(driverClassName);
-
-            tableName = props.getProperty("table");
-            repositoryName = props.getProperty("repository");
-
-            //Loop through and replace <table> with the actual table name in each case
-            sqlQueries = new Properties();
-            for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
-                String key = (String)e.nextElement();
-                if (!(key.endsWith("SQL"))) {
-                    continue;
-                }
-                String query = props.getProperty(key);
-                int i = query.indexOf("<table>");
-                if (i > -1) {
-                    query = query.substring(0, i) + tableName + query.substring(i + 7);
-                }
-                //System.err.println(query);
-                sqlQueries.put(key, query);
-            }
-
-
-            String filestore = props.getProperty("filestore");
-
-            if (filestore != null) {
-
+            if (filestore != null)
+            {
                 Store store = (Store)componentManager.
                         lookup("org.apache.avalon.cornerstone.services.store.Store");
-
                 //prepare Configurations for stream repositories
                 DefaultConfiguration streamConfiguration
                     = new DefaultConfiguration( "repository",
@@ -138,6 +162,8 @@ public class JDBCMailRepository
                 streamConfiguration.setAttribute( "type", "STREAM" );
                 streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
                 sr = (StreamRepository) store.select(streamConfiguration);
+
+                getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
             }
 
             lock = new Lock();
@@ -148,6 +174,82 @@ public class JDBCMailRepository
             e.printStackTrace();
             throw new ComponentException(message, e);
         }
+    }
+
+    /**
+     * Initialises the JDBC repository.
+     * 1) Tests the connection to the database.
+     * 2) Loads SQL strings from the SQL definition file,
+     *     choosing the appropriate SQL for this connection, 
+     *     and performing paramter substitution,
+     * 3) Initialises the database with the required tables, if necessary.
+     * 
+     */
+    public void initialize() throws Exception 
+    {
+        getLogger().debug(this.getClass().getName() + ".initialize()");
+        
+        // Get the data-source required.
+        datasource = (DataSourceComponent)datasources.select(datasourceName);
+
+        // Test the connection to the database, by getting the DatabaseMetaData.
+        Connection conn = getConnection();
+        
+        try{
+            // Initialise the sql strings.
+            java.io.File sqlFile = new java.io.File(sqlFileName);
+
+            String resourceName = "org.apache.james.mailrepository.JDBCMailRepository";
+            
+            getLogger().debug("Reading SQL resources from file: " + 
+                              sqlFile.getAbsolutePath() + ", section " +
+                              this.getClass().getName() + ".");
+
+            // Build the statement parameters
+            Map sqlParameters = new HashMap();
+            if ( tableName != null ) {
+                sqlParameters.put("table", tableName);
+            }
+            if ( repositoryName != null ) {
+                sqlParameters.put("repository", repositoryName);
+            }
+
+            sqlQueries = new SqlResources();
+            sqlQueries.init(sqlFile, this.getClass().getName(), 
+                            conn, sqlParameters);
+            
+            // Check if the required table exists. If not, create it.
+            DatabaseMetaData dbMetaData = conn.getMetaData();
+            // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+            // Try UPPER, lower, and MixedCase, to see if the table is there.
+            if (! ( tableExists(dbMetaData, tableName) ||
+                    tableExists(dbMetaData, tableName.toUpperCase()) ||
+                    tableExists(dbMetaData, tableName.toLowerCase()) )) 
+            {
+                // Users table doesn't exist - create it.
+                PreparedStatement createStatement = 
+                    conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
+                createStatement.execute();
+                createStatement.close();
+
+                getLogger().info("JdbcMailRepository: Created table \'" + 
+                                 tableName + "\'.");
+            }
+        
+        }
+        finally {
+            conn.close();
+        }
+    }
+
+
+    private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
+        throws SQLException
+    {
+        ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
+        boolean found = rsTables.next();
+        rsTables.close();
+        return found;
     }
 
     public synchronized boolean unlock(String key) {
@@ -178,7 +280,8 @@ public class JDBCMailRepository
             //Begin a transaction
             conn.setAutoCommit(false);
 
-            PreparedStatement checkMessageExists = conn.prepareStatement(sqlQueries.getProperty("checkMessageExistsSQL"));
+            PreparedStatement checkMessageExists = 
+                conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
             checkMessageExists.setString(1, mc.getName());
             checkMessageExists.setString(2, repositoryName);
             ResultSet rsExists = checkMessageExists.executeQuery();
@@ -188,7 +291,8 @@ public class JDBCMailRepository
 
             if (exists) {
                 //Update the existing record
-                PreparedStatement updateMessage = conn.prepareStatement(sqlQueries.getProperty("updateMessageSQL"));
+                PreparedStatement updateMessage = 
+                    conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
                 updateMessage.setString(1, mc.getState());
                 updateMessage.setString(2, mc.getErrorMessage());
                 if (mc.getSender() == null) {
@@ -224,7 +328,8 @@ public class JDBCMailRepository
                 }
 
                 if (saveBody) {
-                    updateMessage = conn.prepareStatement(sqlQueries.getProperty("updateMessageBodySQL"));
+                    updateMessage = 
+                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
                     ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
                     OutputStream bodyOut = null;
                     if (sr == null) {
@@ -249,7 +354,8 @@ public class JDBCMailRepository
                 }
             } else {
                 //Insert the record into the database
-                PreparedStatement insertMessage = conn.prepareStatement(sqlQueries.getProperty("insertMessageSQL"));
+                PreparedStatement insertMessage = 
+                    conn.prepareStatement(sqlQueries.getSqlString("insertMessageSQL", true));
                 insertMessage.setString(1, mc.getName());
                 insertMessage.setString(2, repositoryName);
                 insertMessage.setString(3, mc.getState());
@@ -311,7 +417,8 @@ public class JDBCMailRepository
         try {
             Connection conn = getConnection();
 
-            PreparedStatement retrieveMessage = conn.prepareStatement(sqlQueries.getProperty("retrieveMessageSQL"));
+            PreparedStatement retrieveMessage = 
+                conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
             retrieveMessage.setString(1, key);
             retrieveMessage.setString(2, repositoryName);
             ResultSet rsMessage = retrieveMessage.executeQuery();
@@ -368,7 +475,8 @@ public class JDBCMailRepository
         if (lock(key)) {
             try {
                 Connection conn = getConnection();
-                PreparedStatement removeMessage = conn.prepareStatement(sqlQueries.getProperty("removeMessageSQL"));
+                PreparedStatement removeMessage = 
+                    conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
                 removeMessage.setString(1, key);
                 removeMessage.setString(2, repositoryName);
                 removeMessage.execute();
@@ -390,7 +498,8 @@ public class JDBCMailRepository
         //System.err.println("listing messages");
         try {
             Connection conn = getConnection();
-            PreparedStatement listMessages = conn.prepareStatement(sqlQueries.getProperty("listMessagesSQL"));
+            PreparedStatement listMessages = 
+                conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
             listMessages.setString(1, repositoryName);
             ResultSet rsListMessages = listMessages.executeQuery();
 
@@ -413,14 +522,11 @@ public class JDBCMailRepository
      */
     protected Connection getConnection() {
         try {
-            if (jdbcUsername == null ) {
-                return DriverManager.getConnection(jdbcURL);
-            } else {
-                return DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-            }
-        } catch (SQLException sqlExc) {
-            sqlExc.printStackTrace();
-            throw new RuntimeException("Error connecting to database");
+            return datasource.getConnection();
+        }
+        catch (SQLException sqle) {
+            throw new CascadingRuntimeException(
+                "An exception occurred getting a database connection.", sqle);
         }
     }
 
