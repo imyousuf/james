@@ -12,9 +12,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.mail.Mail;
 
 import org.apache.james.transport.*;

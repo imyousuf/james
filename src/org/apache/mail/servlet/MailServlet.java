@@ -8,7 +8,7 @@
 
 package org.apache.mail.servlet;
 
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.mail.*;
 
 /**

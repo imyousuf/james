@@ -6,12 +6,12 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
  
-package org.apache.avalon.blocks;
+package org.apache.avalon.interfaces;
 
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.james.*;
 import java.io.*;
 

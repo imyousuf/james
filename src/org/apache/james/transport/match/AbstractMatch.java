@@ -10,7 +10,7 @@ package org.apache.james.transport.match;
 
 import org.apache.mail.Mail;
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 
 /**
  * @version 1.0.0, 24/04/1999

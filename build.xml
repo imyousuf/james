@@ -40,7 +40,7 @@ All theese package are in current distribution.
 	<property name="debug" value="off"/>
 	<property name="optimize" value="on"/>
 	<property name="deprecation" value="off"/>
-	<property name="classpath" value="./lib/Avalon.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
+	<property name="classpath" value="./lib/AvalonInterfaces.jar;./lib/ApacheJava.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
 
 	<property name="src.dir" value="./src"/>
 	<property name="dtd.dir" value="./dtd"/>
@@ -134,6 +134,7 @@ All theese package are in current distribution.
   <target name="dist" depends="package">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
+    <mkdir dir="${dist.dir}/bin/blocks"/>
     <mkdir dir="${dist.dir}/src"/>
     <mkdir dir="${dist.dir}/conf"/>
     <mkdir dir="${dist.dir}/docs"/>
@@ -141,9 +142,12 @@ All theese package are in current distribution.
     <copydir src="${build.src}" dest="${dist.dir}/src" excludes="james.conf.xml"/>
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
-    <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/${name}.jar"/>
+    <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/blocks/${name}.jar"/>
 
-    <copyfile src="./lib/Avalon.jar" dest="${dist.dir}/bin/Avalon.jar"/>
+    <copyfile src="./lib/Avalon.jar" dest="${dist.dir}/bin/blocks/Avalon.jar"/>
+    <copyfile src="./lib/AvalonInterfaces.jar" dest="${dist.dir}/lib/AvalonInterfaces.jar"/>
+    <copyfile src="./lib/ApacheJava.jar" dest="${dist.dir}/lib/ApacheJava.jar"/>
+    <copyfile src="./lib/Loader.jar" dest="${dist.dir}/bin/Loader.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail.jar" dest="${dist.dir}/lib/mail.jar"/>
     <copyfile src="./lib/xerces_1_0_1.jar" dest="${dist.dir}/lib/xerces_1_0_1.jar"/>

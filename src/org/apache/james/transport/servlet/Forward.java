@@ -9,7 +9,7 @@
 package org.apache.james.transport.servlet;
 
 import java.util.*;
-import org.apache.arch.Configuration;
+import org.apache.java.lang.*;
 import org.apache.mail.Mail;
 
 /**

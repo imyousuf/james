@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
                                 README!
 
@@ -10,8 +11,6 @@
     You can set as many dns as you want.
 
 -->
-
-<?xml version="1.0"?>
 <avalon>
     <servicesmap>
         <service name="JamesMailServer">
