@@ -35,6 +35,40 @@ import java.util.LinkedList;
  *
  * <p>Requires a logger called MailRepository.
  *
+ * <p>Approach for spool manager:
+ *
+ * PendingMessage inner class
+ *
+ * accept() is called....
+ * checks whether needs to load PendingMessages()
+ * tries to get a message()
+ * if none, wait 60
+ *
+ * accept(long) is called
+ * checks whether needs to load PendingMessages
+ * tries to get a message(long)
+ * if none, wait accordingly
+ *
+ * sync checkswhetherneedstoloadPendingMessages()
+ * if pending messages has messages in immediate process, return immediately
+ * if run query in last WAIT_LIMIT time, return immediately
+ * query and build 2 vectors of Pending messages.
+ *  Ones that need immediate processing
+ *  Ones that are delayed.  put them in time order
+ * return
+ *
+ * get_a_message()
+ * loop through immediate messages.
+ *  - remove top message
+ *  - try to lock.  if successful, return.  otherwise loop.
+ * if nothing, return null
+ *
+ * get_a_message(long)
+ * try get_a_message()
+ * check top message in pending.  if ready, then remove, try to lock, return if lock.
+ * return null.
+ *
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
