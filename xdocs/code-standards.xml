@@ -34,39 +34,7 @@
 </p>
 
 <p>
-1. Brackets should begin and end on new lines. Examples:
-</p>
-
-<p>
-<source><![CDATA[
-
-if ( foo )
-{
-    // code here
-}
-
-try
-{
-    // code here
-}
-catch (Exception bar)
-{
-    // code here
-}
-finally
-{
-    // code here
-}
-
-while ( true )
-{
-    // code here
-}
-]]></source>
-</p>
-
-<p>
-2. Spaces between parentheses are optional. The preference is to exclude
+1. Spaces between parentheses are optional. The preference is to exclude
 extra spaces. Both of these conventions are acceptable:
 </p>
 
@@ -82,7 +50,7 @@ if ( foo )
 </p>
 
 <p>
-3. Four spaces. <strong>NO</strong> tabs. Period. The James
+2. Four spaces. <strong>NO</strong> tabs. Period. The James
 mailing list receives cvs commit messages that are almost impossible
 to read if tabs are used.
 </p>
@@ -94,18 +62,18 @@ In Emacs-speak, this translates to the following command:
 </p>
 
 <p>
-4. Use Unix linefeeds for all .java source code files. Only platform-specific
+3. Use Unix linefeeds for all .java source code files. Only platform-specific
 files (e.g. .bat files for Windows) should contain non-Unix linefeeds.
 </p>
 
 <p>
-5. Javadoc <strong>MUST</strong> exist on all methods. Contributing
+4. Javadoc <strong>MUST</strong> exist on all methods. Contributing
 a missing javadoc for any method, class, variable, etc., will be greatly
 appreciated as this will help to improve the James project.
 </p>
 
 <p>
-6. The Jakarta Apache/James License <strong>MUST</strong> be placed
+5. The Jakarta Apache/James License <strong>MUST</strong> be placed
 at the top of every file.
 </p>
 
