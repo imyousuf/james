@@ -201,8 +201,8 @@ public class MailImpl implements Mail {
         if (message != null) {
             message.writeTo(out);
         } else {
-	    throw new MessagingException("No message set for this MailImpl.");
-	}
+	        throw new MessagingException("No message set for this MailImpl.");
+	    }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
