@@ -30,14 +30,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Jason Borden <jborden@javasense.com>
- * @author Matthew Pangaro <mattp@lokitech.com>
- * @author Danny Angus <danny@thought.co.uk>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- *
- * @version This is $Revision: 1.35.4.4 $
+ * @version This is $Revision: 1.35.4.5 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -843,7 +836,8 @@ public class SMTPHandler
             writeLoggedFlushedResponse(responseString);
         } else {
             sender = sender.trim();
-            int lastChar = sender.lastIndexOf('>');
+            // the next gt after the first lt ... AUTH may add more <>
+            int lastChar = sender.indexOf('>', sender.indexOf('<'));
             // Check to see if any options are present and, if so, whether they are correctly formatted
             // (separated from the closing angle bracket by a ' ').
             if ((lastChar > 0) && (sender.length() > lastChar + 2) && (sender.charAt(lastChar + 1) == ' ')) {
