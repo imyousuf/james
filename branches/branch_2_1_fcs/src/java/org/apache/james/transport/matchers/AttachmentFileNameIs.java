@@ -79,6 +79,8 @@ import java.util.Locale;
  * <P>File name masks may start with a wildcard '*'.</P>
  * <P>Multiple file name masks can be specified, e.g.: '*.scr,*.bat'.</P>
  *
+ * @version CVS $Revision: 1.1.2.3 $ $Date: 2003/06/20 11:47:35 $
+ * @since 2.2.0
  */
 public class AttachmentFileNameIs extends GenericMatcher {
     /**
@@ -118,45 +120,53 @@ public class AttachmentFileNameIs extends GenericMatcher {
         masks = (Mask[])theMasks.toArray(new Mask[0]);
     }
 
-    /**
-     * either every recipient is matching or neither of them
+    /** 
+     * Either every recipient is matching or neither of them.
+     * @throws MessagingException if no matching attachment is found and at least one exception was thrown
      */
     public Collection match(Mail mail) throws MessagingException {
-        MimeMessage message = mail.getMessage();
-        Object content;
         
-        /**
-         * if there is an attachment and no inline text,
-         * the content type can be anything
-         */ 
-        if (message.getContentType() == null) {
-            return null;
-        }
+        Exception anException = null;
         
         try {
-            content = message.getContent(); 
-        } catch (java.io.IOException e) {
-            throw new MessagingException(
-                    "Attachment file names cannot be determined", e);
-        }
-        if (content instanceof Multipart) {
-            Multipart multipart = (Multipart) content;
-            for (int i = 0; i < multipart.getCount(); i++) {
-                try {
-                    Part part = multipart.getBodyPart(i);
-                    String fileName = part.getFileName();
-                    if (fileName != null && matchFound(fileName)) {
-                        return mail.getRecipients(); // matching file found
-                    }
-                } catch (Exception ex) {} // ignore any exception and process next bodypart
+            MimeMessage message = mail.getMessage();
+            Object content;
+            
+            /**
+             * if there is an attachment and no inline text,
+             * the content type can be anything
+             */
+            if (message.getContentType() == null) {
+                return null;
             }
-        } else {
-            try {
+            
+            content = message.getContent();
+            if (content instanceof Multipart) {
+                Multipart multipart = (Multipart) content;
+                for (int i = 0; i < multipart.getCount(); i++) {
+                    try {
+                        Part part = multipart.getBodyPart(i);
+                        String fileName = part.getFileName();
+                        if (fileName != null && matchFound(fileName)) {
+                            return mail.getRecipients(); // matching file found
+                        }
+                    } catch (MessagingException e) {
+                        anException = e;
+                    } // ignore any messaging exception and process next bodypart
+                }
+            } else {
                 String fileName = message.getFileName();
                 if (fileName != null && matchFound(fileName)) {
                     return mail.getRecipients(); // matching file found
                 }
-            } catch (Exception ex) {} // ignore any exception
+            }
+        } catch (Exception e) {
+            anException = e;
+        }
+        
+        // if no matching attachment was found and at least one exception was catched rethrow it up
+        if (anException != null) {
+            throw new MessagingException("Malformed message", anException);
         }
         
         return null; // no matching attachment found
