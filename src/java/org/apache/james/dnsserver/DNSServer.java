@@ -18,6 +18,7 @@
 package org.apache.james.dnsserver;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -50,7 +51,7 @@ import java.util.*;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable,
+    implements Configurable, Initializable, Disposable,
     org.apache.james.services.DNSServer, DNSServerMBean {
 
     /**
@@ -588,4 +589,21 @@ public class DNSServer
             throw new UnsupportedOperationException ("remove not supported by this iterator");
         }
     }
+
+    
+    /**
+     * The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.
+     *
+     * This implementation shuts down org.xbill.DNS.Cache
+     *
+     * @throws Exception if an error is encountered during shutdown
+     */
+    public void dispose()
+    {
+        //setting the clean interval to a negative value, will terminate
+        //the Cache cleaner thread.
+        cache.setCleanInterval (-1);
+    } 
 }
