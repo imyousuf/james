@@ -18,6 +18,7 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -33,6 +34,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.ParseException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -59,7 +61,7 @@ import java.util.*;
  *
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.6 $ $Date: 2004/04/16 20:59:14 $
+ * @version CVS $Revision: 1.1.2.6 $ $Date$
  * @since 2.2.0
  */
 public class CommandListservProcessor extends GenericMailet {
@@ -152,22 +154,29 @@ public class CommandListservProcessor extends GenericMailet {
      */
     protected XMLResources xmlResources;
 
+    protected boolean specificPostersOnly;
+    protected Collection allowedPosters;
+
     /**
      * Initialize the mailet
      */
     public void init() throws MessagingException {
-        membersOnly = getBoolean("membersonly", false);
-        attachmentsAllowed = getBoolean("attachmentsallowed", true);
-        replyToList = getBoolean("replytolist", true);
-        subjectPrefix = getString("subjectprefix", null);
-        listName = getString("listName", null);
-        autoBracket = getBoolean("autobracket", true);
         try {
+            Configuration configuration = (Configuration) getField(getMailetConfig(), "configuration");
+
+            membersOnly = getBoolean("membersonly", false);
+            attachmentsAllowed = getBoolean("attachmentsallowed", true);
+            replyToList = getBoolean("replytolist", true);
+            subjectPrefix = getString("subjectprefix", null);
+            listName = getString("listName", null);
+            autoBracket = getBoolean("autobracket", true);
             listOwner = new MailAddress(getString("listOwner", null));
+            specificPostersOnly = getBoolean("specifiedpostersonly", false);
             //initialize resources
             initializeResources();
             //init user repos
             initUsersRepository();
+            initAllowedPosters(configuration);
         } catch (Exception e) {
             throw new MessagingException(e.getMessage(), e);
         }
@@ -180,12 +189,11 @@ public class CommandListservProcessor extends GenericMailet {
      */
     public void service(Mail mail) throws MessagingException {
         try {
-            Collection members = new ArrayList();
-            members.addAll(getMembers());
+            Collection members = getMembers();
             MailAddress listservAddr = (MailAddress) mail.getRecipients().iterator().next();
 
-            //Check for members only flag....
-            if (!checkMembers(members, mail)) {
+            // Check if allowed to post
+            if (!checkAllowedPoster(mail, members)) {
                 return;
             }
 
@@ -332,7 +340,7 @@ public class CommandListservProcessor extends GenericMailet {
     }
 
     public Collection getMembers() throws ParseException {
-        Collection reply = new Vector();
+        Collection reply = new ArrayList();
         for (Iterator it = usersRepository.list(); it.hasNext();) {
             String member = it.next().toString();
             try {
@@ -502,5 +510,63 @@ public class CommandListservProcessor extends GenericMailet {
             commandListservFooter.init(getMailetConfig());
         }
         return commandListservFooter;
+    }
+
+    /**
+     * Retrieves a data field, potentially defined by a super class.
+     * @return null if not found, the object otherwise
+     */
+    protected static Object getField(Object instance, String name) throws IllegalAccessException {
+        Class clazz = instance.getClass();
+        Field[] fields;
+        while (clazz != null) {
+            fields = clazz.getDeclaredFields();
+            for (int index = 0; index < fields.length; index++) {
+                Field field = fields[index];
+                if (field.getName().equals(name)) {
+                    field.setAccessible(true);
+                    return field.get(instance);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+
+        return null;
+    }
+
+    protected void initAllowedPosters(Configuration configuration) throws Exception {
+        final Configuration allowedPostersElement = configuration.getChild("allowedposters");
+        allowedPosters = new ArrayList();
+        if (allowedPostersElement != null) {
+            final Configuration[] addresses = allowedPostersElement.getChildren("address");
+            for (int index = 0; index < addresses.length; index++) {
+                Configuration address = addresses[index];
+                String emailAddress = address.getValue();
+                allowedPosters.add(new MailAddress(emailAddress));
+            }
+        }
+    }
+
+    /**
+     * Returns true if this user is ok to send to the list
+     *
+     * @param mail
+     * @return true if this message is ok, false otherwise
+     * @throws MessagingException
+     */
+    protected boolean checkAllowedPoster(Mail mail, Collection members) throws MessagingException {
+        /*
+        if we don't require someone to be an allowed poster, then allow post if we don't require require them to be a subscriber, or they are one.
+        if the sender is in the allowed list, post
+        */
+        if ((!specificPostersOnly && (!membersOnly || members.contains(mail.getSender()))) || allowedPosters.contains(mail.getSender())) {
+            return true;
+        } else {
+            Properties standardProperties = getCommandListservManager().getStandardProperties();
+            getCommandListservManager().onError(mail,
+                                                xmlResources.getString("invalid.mail.subject", standardProperties),
+                                                xmlResources.getString("error.membersonly", standardProperties));
+            return false;
+        }
     }
 }
