@@ -56,7 +56,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.18.4.5 $
+ * @version CVS $Revision: 1.18.4.6 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -66,6 +66,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                DataSourceComponent {
     // The limit that an active connection can be running
     public static final long ACTIVE_CONN_TIME_LIMIT = 60000; // (one minute)
+    public static final long ACTIVE_CONN_HARD_TIME_LIMIT = 2*ACTIVE_CONN_TIME_LIMIT;
     // How long before you kill off a connection due to inactivity
     public static final long CONN_IDLE_LIMIT        = 600000; // (10 minutes)
     private static final boolean DEEP_DEBUG         = false;
@@ -308,10 +309,10 @@ public class JdbcDataSource extends AbstractLogEnabled
      *
      * @deprecated This was left over code from Town... but not exposed in Avalon.
      */
-    public synchronized void killAllConnections() {
+    public void killAllConnections() {
         //Just remove the references to all the connections... this will cause them to get
         // finalized before very long. (not an instant shutdown, but that's ok).
-        pool.clear();
+        synchronized (pool) { pool.clear(); }
     }
 
     /**
@@ -387,11 +388,28 @@ public class JdbcDataSource extends AbstractLogEnabled
      */
     public void run() {
         try {
-            while(reaperActive) {
+            while(reaperActive) synchronized (pool) {
                 for(int i = 0; i < pool.size(); i++) try {
                     PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
                     long age            = System.currentTimeMillis() - entry.getLastActivity();
                     synchronized(entry) {
+                        if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
+                           (age > ACTIVE_CONN_HARD_TIME_LIMIT)) {
+                            StringBuffer logBuffer =
+                                new StringBuffer(128)
+                                        .append(" ***** connection ")
+                                        .append(entry.getId())
+                                        .append(" is way too old: ")
+                                        .append(age)
+                                        .append(" > ")
+                                        .append(ACTIVE_CONN_HARD_TIME_LIMIT)
+                                        .append(" and will be closed.");
+                            getLogger().info(logBuffer.toString());
+                            // This connection is way too old...
+                            // kill it no matter what
+                            finalizeEntry(entry);
+                            continue;
+                        }
                         if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
                            (age > ACTIVE_CONN_TIME_LIMIT)) {
                             StringBuffer logBuffer =
@@ -404,8 +422,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                                         .append(ACTIVE_CONN_TIME_LIMIT);
                             getLogger().info(logBuffer.toString());
                             // This connection is way too old...
-                            // kill it no matter what
-                            finalizeEntry(entry);
+                            // just log it for now.
                             continue;
                         }
                         if((entry.getStatus() == PoolConnEntry.AVAILABLE) &&
@@ -460,7 +477,7 @@ public class JdbcDataSource extends AbstractLogEnabled
      */
     private PoolConnEntry createConn() throws SQLException {
         PoolConnEntry entry = null;
-        synchronized(this) {
+        synchronized(pool) {
             if(connCreationsInProgress > 0) {
                 //We are already creating one in another place
                 return null;
@@ -516,7 +533,7 @@ public class JdbcDataSource extends AbstractLogEnabled
             }
             return null;
         } finally {
-            synchronized(this) {
+            synchronized(pool) {
                 connCreationsInProgress--;
             }
         }
@@ -527,11 +544,13 @@ public class JdbcDataSource extends AbstractLogEnabled
      *
      * @param entry entry
      */
-    private synchronized void finalizeEntry(PoolConnEntry entry) {
-        try {
-            entry.finalize();
-        } catch(Exception fe) {
+    private void finalizeEntry(PoolConnEntry entry) {
+        synchronized(pool) {
+            try {
+                entry.finalize();
+            } catch(Exception fe) {
+            }
+            pool.removeElement(entry);
         }
-        pool.removeElement(entry);
     }
 }
