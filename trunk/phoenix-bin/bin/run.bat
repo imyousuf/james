@@ -83,6 +83,6 @@ rem thus breaking Phoenix
 rem
 
 rem Kicking the tires and lighting the fires!!!
-"%PHOENIX_JAVACMD%" "-Djava.ext.dirs=%PHOENIX_HOME%\lib" "-Dphoenix.home=%PHOENIX_HOME%" "-Djava.security.policy=jar:file:%PHOENIX_HOME%/bin/phoenix-loader.jar!/META-INF/java.policy" %PHOENIX_JVM_OPTS% %PHOENIX_SECURE% -jar "%PHOENIX_HOME%\bin\phoenix-loader.jar" %1 %2 %3 %4 %5 %6 %7 %8 %9
+"%PHOENIX_JAVACMD%" "-Djava.ext.dirs=%PHOENIX_HOME%\lib" "-Dphoenix.home=%PHOENIX_HOME%" "-Djava.security.policy=jar:file:%PHOENIX_HOME%/bin/phoenix-loader.jar!/META-INF/java.policy" %PHOENIX_JVM_OPTS% %PHOENIX_SM% -jar "%PHOENIX_HOME%\bin\phoenix-loader.jar" %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 :end
