@@ -56,6 +56,13 @@
                 WHERE lower(username) = ?
     </sql>
 
+    <sql name="selectByLowercaseName" db="mysql">
+                SELECT username, pwdHash, pwdAlgorithm, useForwarding,
+                        forwardDestination, useAlias, alias
+                FROM ${table}
+                WHERE username = ?
+    </sql>
+
     <!-- Statements used to insert a user into this repository. -->
     <sql name="insert">INSERT INTO ${table}
                     (username, pwdHash, pwdAlgorithm, useForwarding, forwardDestination, useAlias, alias)
