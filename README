@@ -8,45 +8,43 @@
 
   JAMES is a 100% pure Java server application designed to be a complete,
   portable and powerful enterprise mail engine solution based on currently
-  available open protocols  (SMTP, POP3, IMAP, NNTP etc).
+  available open protocols  (SMTP, POP3, IMAP, NNTP).
 
   JAMES was formerly known as the Java Apache Mail Enterprise Server.
 
-  Development Status for JAMES 1.2.2
+  Development Status for JAMES 2.2
   ----------------------------------
   
   SMTP Server: Stable 
-  POP3 Server: Beta 
-  IMAP Server: 
-  NNTP Server:
+  POP3 Server: Stable
+  IMAP Server: Under development
+  NNTP Server: Stable
   
   Current Feature
   ----------------
 
   These are some JAMES features:
   
-    o  complete portability:  Apache James is a 100% pure Java(tm) application
-       based on the Java 2 platform and the JavaMail 1.1 API.
+    o  complete portability:  James is a 100% pure Java(tm) application
+       based on the Java 2 platform and the JavaMail 1.3.1 API.
        
     o  protocol abstraction:  unlike other mail engines, protocols are seen only
        like "communication languages" ruling communications between clients and
-       the server. Apache James is not be tied to any particular protocol but
-       follow an abstracted server design (almost like JavaMail did on the
-       client side)
+       the server. James is not be tied to any particular protocol but follow an 
+       abstracted server design (like JavaMail did on the client side)
        
     o  complete solution:  the mail system is able to handle both mail
        transport and storage in a single server application. Apache James
        works alone without the need for any other server or solution.
        
-    o  mailet support:  Apache James supports the Apache Mailet API. A Mailet
+    o  mailet support:  James supports the Apache Mailet API. A Mailet
        is a discrete piece of mail-processing logic which is incorporated into
        a Mailet-compliant mail-server's processing. This easy-to-write,
        easy-to-use pattern allows developers to build powerful customized mail
        systems. Examples of the services a Mailet might provide include: a
        mail-to-fax or mail-to-phone transformer, a filter, a language
        translator, a mailing list manager, etc.
-       Several Mailets are included in the JAMES distribution (see
-       docs/Configuration.html).
+       Several Mailets are included in the JAMES distribution.
     
     o  resource abstraction:  like protocols, resources are abstracted and,
        accessed through defined interfaces (JavaMail for transport, JDBC for
@@ -54,11 +52,11 @@
        and can reuse solutions from other projects or applications.  
        
     o  secure and multi-threaded design:  based on the technology developed for
-       the Apache JServ servlet engine, Apache James has a careful, 
-       security-oriented, full multi-threaded design, to allow performance, 
-       scalability and mission-critical use.
+       the Apache JServ servlet engine, James has a careful,  security-oriented, 
+       full multi-threaded design, to allow performance,  scalability and 
+       mission-critical use.
        
-    o  Currently JAMES support SMTP, POP3 and a simple remote administration
+    o  Currently JAMES support SMTP, POP3, NNTP and a simple remote administration
        facility.
        
 
@@ -69,8 +67,6 @@
     
     o  IMAP server side filtering.
 
-    o  Download remote inbox to your local inbox.
-    
     o  More powerful remote admin protocol and tool.
     
     o  Extended set of Mailet to easily support most mail system request.
@@ -82,7 +78,7 @@
   ------------
 
   - JAMES.sar (required)
-  - Phoenix server (Jakarta-Avalon-Phoenix) (required)
+  - Phoenix server (Avalon-Phoenix) (required)
 
   JAMES distribution includes both required items.
   
@@ -185,5 +181,5 @@ Step 5: configuration.
 
   Thanks.
 
-                                           The Jakarta Project
-                                           http://jakarta.apache.org/
+                                           The James Project
+                                           http://james.apache.org/
