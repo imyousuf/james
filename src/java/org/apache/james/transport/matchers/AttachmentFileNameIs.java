@@ -69,15 +69,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Locale;
 
 
 /**
- * Checks if at least one attachment has a file name which matches any
+ * <P>Checks if at least one attachment has a file name which matches any
  * element of a comma-separated list of file name masks.
- * <P>File name masks may start with a wildcard * 
- * <p>Multiple file name masks can be specified, e.g.: '*.scr,*.bat'
+ * The match is case insensitive.</P>
+ * <P>File name masks may start with a wildcard '*'.</P>
+ * <P>Multiple file name masks can be specified, e.g.: '*.scr,*.bat'.</P>
  *
- * Possible enhancement: it should be case insensitive
  */
 public class AttachmentFileNameIs extends GenericMatcher {
     /**
@@ -110,6 +111,8 @@ public class AttachmentFileNameIs extends GenericMatcher {
                 mask.suffixMatch = false;
                 mask.matchString = fileName;
             }
+            mask.matchString = mask.matchString.toLowerCase(Locale.US);
+            mask.matchString = mask.matchString.trim();
             theMasks.add(mask);
         }
         masks = (Mask[])theMasks.toArray(new Mask[0]);
@@ -119,42 +122,66 @@ public class AttachmentFileNameIs extends GenericMatcher {
      * either every recipient is matching or neither of them
      */
     public Collection match(Mail mail) throws MessagingException {
-        Multipart content;
         MimeMessage message = mail.getMessage();
+        Object content;
         
         /**
-         * if the content-type is not multipart/mixed, then there is no 
-         * attachment 
+         * if there is an attachment and no inline text,
+         * the content type can be anything
          */ 
-        if (message.getContentType() == null ||
-                !message.getContentType().startsWith("multipart/mixed")) {
+        if (message.getContentType() == null) {
             return null;
         }
+        
         try {
-            content = (Multipart)message.getContent(); 
+            content = message.getContent(); 
         } catch (java.io.IOException e) {
             throw new MessagingException(
                     "Attachment file names cannot be determined", e);
         }
-        for (int i = 0; i < content.getCount(); i++) {
-            Part part = content.getBodyPart(i);
-            String fileName = part.getFileName();
-            if (fileName == null) continue;
-            for (int j = 0; j < masks.length; j++) {
-                boolean fMatch;
-                Mask mask = masks[j];
-                
-                //XXX: file names in mail may contain directory - theoretically
-                if (mask.suffixMatch) {
-                    fMatch = fileName.endsWith(mask.matchString);
-                } else {
-                    fMatch = fileName.equals(mask.matchString);
-                }
-                if (fMatch) return mail.getRecipients(); // matching file found
+        if (content instanceof Multipart) {
+            Multipart multipart = (Multipart) content;
+            for (int i = 0; i < multipart.getCount(); i++) {
+                try {
+                    Part part = multipart.getBodyPart(i);
+                    String fileName = part.getFileName();
+                    if (fileName != null && matchFound(fileName)) {
+                        return mail.getRecipients(); // matching file found
+                    }
+                } catch (Exception ex) {} // ignore any exception and process next bodypart
             }
+        } else {
+            try {
+                String fileName = message.getFileName();
+                if (fileName != null && matchFound(fileName)) {
+                    return mail.getRecipients(); // matching file found
+                }
+            } catch (Exception ex) {} // ignore any exception
         }
         
         return null; // no matching attachment found
+    }
+    
+    /*
+     * Checks if <I>fileName</I> matches with at least one of the <CODE>masks</CODE>.
+     */
+    private boolean matchFound(String fileName) {
+        fileName = fileName.toLowerCase(Locale.US);
+        fileName = fileName.trim();
+            
+        for (int j = 0; j < masks.length; j++) {
+            boolean fMatch;
+            Mask mask = masks[j];
+            
+            //XXX: file names in mail may contain directory - theoretically
+            if (mask.suffixMatch) {
+                fMatch = fileName.endsWith(mask.matchString);
+            } else {
+                fMatch = fileName.equals(mask.matchString);
+            }
+            if (fMatch) return true; // matching file found
+        }
+        return false;
     }
 }
 
