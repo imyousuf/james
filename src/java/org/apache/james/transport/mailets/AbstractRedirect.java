@@ -124,7 +124,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.22 $ $Date: 2004/08/19 00:45:16 $
+ * @version CVS $Revision: 1.1.2.23 $ $Date: 2004/08/21 14:51:48 $
  * @since 2.2.0
  */
 
@@ -1176,6 +1176,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * <I>mail</I>.
      * If empty returns <CODE>SpecialAddress.NULL</CODE>,
      * if missing return <CODE>null</CODE>.
+     * @deprecated The Return-Path header is no longer available until local delivery.
      */
     protected MailAddress getExistingReturnPath(Mail mail) throws MessagingException {
         MailAddress mailAddress = null;
