@@ -88,7 +88,7 @@ import org.apache.oro.text.regex.MatchResult;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.21 $ $Date: 2004/05/02 06:08:37 $
+ * @version CVS $Revision: 1.33.4.22 $ $Date: 2004/08/20 03:39:35 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -1094,12 +1094,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             private Iterator addresses = null;
 
             public boolean hasNext() {
-                return gateways.hasNext();
-            }
-
-            public Object next() {
-                if (addresses == null || !addresses.hasNext())
-                {
+                /* Make sure that when next() is called, that we can
+                 * provide a HostAddress.  This means that we need to
+                 * have an inner iterator, and verify that it has
+                 * addresses.  We could, for example, run into a
+                 * situation where the next gateway didn't have any
+                 * valid addresses.
+                 */
+                if ((addresses == null || !addresses.hasNext()) && gateways.hasNext()) do {
                     String server = (String) gateways.next();
                     String port = "25";
 
@@ -1134,7 +1136,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("Unknown gateway host: " + uhe.getMessage().trim());
                         log("This could be a DNS server error or configuration error.");
                     }
-                }
+                } while (!addresses.hasNext() && gateways.hasNext());
+
+                return addresses != null && addresses.hasNext();
+            }
+
+            public Object next() {
                 return (addresses != null) ? addresses.next() : null;
             }
 
