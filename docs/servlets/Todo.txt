@@ -1,0 +1,17 @@
+Future improvements and fixes:
+
+0) Try to unify the servlet behavior with HTTPServlets to allow servlet engine 
+abstraction based on generic servlets.
+
+1) Try a more elegant way of using MailHeaders to retrieve more specific information
+from the mail avoiding to get it, change it and set it.
+
+2) Extended input/output streams to ease the job of copying one stream to the other,
+MIME encoding/decoding, etc...
+
+3) Mail Servlet Sessions:  like HTTP servlets, mail servlets may gain power from the
+ability to track user sessions. For example, mailing list information could be stored in
+a session object managed by the servlet engine eliminating the need for simple database
+operations.
+
+4) Implementation of at least some of the mail servlet examples.
