@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.35.4.2 $
+ * @version This is $Revision: 1.35.4.3 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -169,6 +169,11 @@ public class SMTPHandler
     private PrintWriter out;
 
     /**
+     * A Reader wrapper for the incoming stream of bytes coming from the socket.
+     */
+    private BufferedReader inReader;
+
+    /**
      * The remote host name obtained by lookup on the socket.
      */
     private String remoteHost;
@@ -279,6 +284,10 @@ public class SMTPHandler
                 handlerThread = Thread.currentThread();
             }
             in = new BufferedInputStream(socket.getInputStream(), 1024);
+            // An ASCII encoding can be used because all transmissions other
+            // that those in the DATA command are guaranteed
+            // to be ASCII
+            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
@@ -382,6 +391,7 @@ public class SMTPHandler
 
         clearResponseBuffer();
         in = null;
+        inReader = null;
         out = null;
         remoteHost = null;
         remoteIP = null;
@@ -470,31 +480,7 @@ public class SMTPHandler
      * @throws IOException if an exception is generated reading in the input characters
      */
     final String readCommandLine() throws IOException {
-        //Read through for \r or \n
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        byte b = -1;
-        while (true) {
-            b = (byte) in.read();
-            if (b == 13) {
-                //We're done, but we want to see if \n is next
-                in.mark(1);
-                b = (byte) in.read();
-                if (b != 10) {
-                    in.reset();
-                }
-                break;
-            } else if (b == 10) {
-                //We're done
-                break;
-            } else if (b == -1) {
-                break;
-            }
-            bout.write(b);
-        }
-        // An ASCII encoding can be used because all transmissions other
-        // that those in the DATA command are guaranteed
-        // to be ASCII
-        return bout.toString("ASCII").trim();
+        return inReader.readLine().trim();
     }
 
     /**
@@ -1500,5 +1486,4 @@ public class SMTPHandler
         }
 
     }
-
 }
