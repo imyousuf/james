@@ -22,7 +22,7 @@ import org.apache.mail.*;
  */
 public interface MailServlet extends Configurable, Service {
 
-    public Mail service(Mail mail);
+    public Mail service(Mail mail) throws Exception;
     
     public String getServletInfo();
 }

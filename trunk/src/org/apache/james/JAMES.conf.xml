@@ -2,6 +2,7 @@
 <avalon>
     <servicesmap>
         <service name="JamesMailServer">
+            <resource type="org.apache.avalon.blocks.Logger" mapTo="JamesLogger"/>
             <resource type="org.apache.avalon.blocks.ThreadManager" mapTo="ApacheDefaultThreadManager"/>
             <resource type="org.apache.avalon.blocks.Store" mapTo="JamesObjectStore"/>
             <resource type="org.apache.avalon.blocks.ConnectionManager" mapTo="ApacheDefaultConnectionManager"/>
@@ -12,19 +13,25 @@
             <resource type="org.apache.avalon.blocks.Logger" mapTo="ApacheDefaultLogger"/>
             <resource type="org.apache.avalon.blocks.Store" mapTo="JamesObjectStore"/>
         </service>
+        <service name="JamesTest">
+            <resource type="org.apache.avalon.blocks.Logger" mapTo="JamesLogger"/>
+            <resource type="org.apache.avalon.blocks.ThreadManager" mapTo="ApacheDefaultThreadManager"/>
+            <resource type="org.apache.avalon.blocks.ConnectionManager" mapTo="ApacheDefaultConnectionManager"/>
+        </service>
     </servicesmap>
 
     <blocks>
+<!-- bench & test block that send mails... -->
+<!--        <block class="org.apache.james.bench.Tester"
+               name="JamesTest"
+               implementedInterface="">
+            <children> 1 </children>
+        </block>  -->
+
         <block class="org.apache.james.James"
                name="JamesMailServer"
                implementedInterface="org.apache.avalon.blocks.MailServer">
 
-            <LogChannel name="James">
-                <writer>
-                    <destination> file://../logs/jamesinfo.log </destination>
-                </writer>
-                <level>DEBUG</level>
-            </LogChannel>
             <postmaster> root@localhost </postmaster>
             <servernames>
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
@@ -38,50 +45,20 @@
             <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
 
             <pop3Server>
-                <LogChannel name="POP3Server">
-                    <writer>
-                        <destination> file://../logs/pop3serverinfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </LogChannel>
                 <port>110</port>
                 <pop3handler>
-                    <LogChannel name="POP3Handler">
-                        <writer>
-                            <destination> file://../logs/pop3handlerinfo.log </destination>
-                        </writer>
-                        <level>DEBUG</level>
-                    </LogChannel>
                     <connectiontimeout> 120000 </connectiontimeout>
                 </pop3handler>
             </pop3Server>
 
             <smtpServer>
-                <LogChannel name="SMTPServer">
-                    <writer>
-                        <destination> file://../logs/smtpserverinfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </LogChannel>
                 <port>25</port>
                 <smtphandler>
-                    <LogChannel name="SMTPHandler">
-                        <writer>
-                            <destination> file://../logs/smtphandlerinfo.log </destination>
-                        </writer>
-                        <level>DEBUG</level>
-                    </LogChannel>
                     <connectiontimeout> 120000 </connectiontimeout>
                 </smtphandler>
             </smtpServer>
 
             <remoteManager>
-                <LogChannel name="RemoteAdmin">
-                    <writer>
-                        <destination> file://../logs/remoteadminfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </LogChannel>
                 <port>4555</port>
                 <administrator_accounts>
                     <account login="root" password="root"/>
@@ -90,29 +67,11 @@
             </remoteManager>
 
             <usersManager>
-                <LogChannel name="UsersManager">
-                    <writer>
-                        <destination> file://../logs/usersmnginfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </LogChannel>
                 <repository> file://../var/users/ </repository>
             </usersManager>
 
-            <spoolmanagerthreads> 1 </spoolmanagerthreads>
+            <spoolmanagerthreads> 10 </spoolmanagerthreads>
             <spoolmanager>
-                <LogChannel name="James Processor">
-                    <writer>
-                        <destination> file://../logs/processorinfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </LogChannel>
-                <MailetLogChannel name="MailetLogChannel">
-                    <writer>
-                        <destination> file://../logs/mailetinfo.log </destination>
-                    </writer>
-                    <level>DEBUG</level>
-                </MailetLogChannel>
                 <DNSservers>
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- !!!!!!!!!!!!!!!!!!!!!!! FILL ME !!!!!!!!!!!!!!!!!!!!!!! -->
@@ -127,43 +86,32 @@
                 <repository> file://../var/mail/delayed/ </repository>
 
                 <servletpackages>
-                    <servletpackage>org.apache.james.transport.servlet</servletpackage>
+                    <servletpackage>org.apache.james.transport.servlet.</servletpackage>
                 </servletpackages>
-<!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
-                <servlets>
-
-<!-- Thise servlet acts as system servlet and provides local delivery -->
-                    <servlet match="All" class="ProcessingPipe">
-                        <node type="match" condition="All">
-                            <node type="match" condition="RecipientIsLocal">
-                                <node type="mailet" name="LocalDelivery"/>
-                            </node>
-                            <node type="mailet" name="RemoteDelivery"/>
+                <processor class="org.apache.james.transport.TreeProcessor">
+                    <node type="match" condition="All">
+                        <node type="match" condition="RecipientIsLocal">
+                            <node type="mailet" name="LocalDelivery"/>
                         </node>
-                        
-                        <mailets>
-                            <mailet name="Null" class="org.apache.james.transport.servlet.Null">
-                            </mailet>
-                            <mailet name="LocalDelivery" class="org.apache.james.transport.servlet.LocalDelivery">
-                            </mailet>
-                            <mailet name="rootForward" class="org.apache.james.transport.servlet.Forward">
-                                <forwardTo> scoobie@localhost </forwardTo>
-                            </mailet>
-                            <mailet name="RemoteDelivery" class="org.apache.james.transport.servlet.RemoteDelivery">
-                                <delayTime>21600000</delayTime>
-                                <maxRetries>5</maxRetries>
-                            </mailet>
-                        </mailets>
-
-                    </servlet>
-
-<!-- The last servlet in the pipe is the one managing errors -->
-                    <servlet match="All" class="ToRepository">
-                        <repositoryPath> file://../var/mail/errors/ </repositoryPath>
-                        <passThrought> false </passThrought>
-                    </servlet>
-<!-- ++++++++++++ END OF MAIL SERVLET PIPE LINE +++++++++++++ -->
-                </servlets>
+                        <node type="mailet" name="RemoteDelivery"/>
+                    </node>
+                    
+                    <mailets>
+                        <mailet name="Null" class="org.apache.james.transport.servlet.Null">
+                        </mailet>
+                        <mailet name="LocalDelivery" class="org.apache.james.transport.servlet.LocalDelivery">
+                        </mailet>
+                        <mailet name="rootForward" class="org.apache.james.transport.servlet.Forward">
+                            <forwardTo> scoobie@localhost </forwardTo>
+                        </mailet>
+                        <mailet name="RemoteDelivery" class="org.apache.james.transport.servlet.RemoteDelivery">
+                            <delayTime>21600000</delayTime>
+                            <maxRetries>5</maxRetries>
+                        </mailet>
+                    </mailets>
+                </processor>
+                <errorManager class="org.apache.james.transport.servlet.Null">
+                </errorManager>
             </spoolmanager>
         </block>
 
@@ -199,6 +147,66 @@
 
 <!--            <repository name="MyRepository" type="OBJECT" model="SYNCHRONOUS"> file://../myfolder/ </repository> -->
             </publicrepositories>
+        </block>
+
+        <block class="org.apache.avalon.blocks.omero.Omero"
+               name="JamesLogger"
+               implementedInterface="org.apache.avalon.blocks.Logger"
+               help="Provides a pluggable logging system">
+            <timestamp>
+                <granularity help="Sets the timestamp time granularity in 
+                        milliseconds. If set to 0 means to use maximum time precision 
+                        else timestam is calculated every 'granularity' milliseconds">
+                    0
+                </granularity>
+                <format help="Define the format for the timestamp">
+                    yyyy.MM.dd hh:mm:ss SSS 
+                </format>
+            </timestamp>
+            <channels help="Every log call is performed througt a channel. 
+                    The proposed pattern is: each application (Block) should use its own
+                    channel to allow adminitrators to set what to log from that 
+                    application and where to place logs. So if you plug a new server 
+                    under Avalon you MUST place channel definition from that server
+                    configuration file hereafter">
+                <channel name="JamesSystem"  loglevel="DEBUG"  logwriter="jamesfile"/>
+                <channel name="SMTP"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="POP3"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="RemoteAdmin"  loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="Mailets"      loglevel="DEBUG"  logwriter="mailet"/>
+                <channel name="Processor"    loglevel="DEBUG"  logwriter="jamesfile"/>
+                <channel name="Test"         loglevel="DEBUG"  logwriter="test"/>
+                <channel name="UserManager"  loglevel="DEBUG"  logwriter="usersfile"/>
+
+            </channels>
+            <logwriters help="Each filtered channel goes to the specified logwriter.
+                    Place here any additionl logwriter definition needed">
+                <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/jamesfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="usersfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/usersfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="netfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/netfile.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="mailet" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/mailet.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="test" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/test.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+            </logwriters>
         </block>
 
     </blocks>

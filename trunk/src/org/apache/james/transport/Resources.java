@@ -25,4 +25,8 @@ public class Resources {
     public static final String TRANSPORT = "TRANSPORT";
     
     public static final String TMP_REPOSITORY = "TMP_REPOSITORY";
+    
+    public static final String MAILET_LOADER = "MAILET_LOADER";
+    
+    public static final String MATCH_LOADER = "MATCH_LOADER";
 }

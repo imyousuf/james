@@ -8,7 +8,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.blocks.masterconnection.logger.*;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
 import org.apache.arch.*;
@@ -23,14 +22,10 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
 
     private ComponentManager comp;
     private Configuration conf;
-    private ConnectionManager connectionManager;
-    private LogChannel logger;
+    private Logger logger;
     private ThreadManager threadManager;
     private Context context;
     
-    public SMTPServer() {
-    }
-
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
@@ -45,13 +40,12 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
 
 	public void init() throws Exception {
 
-        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
-        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
-        logger.log("SMTPServer init...", logger.INFO);
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        logger.log("SMTPServer init...", "SMTP", logger.INFO);
         threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
-        logger.log("SMTPServer ...init end", logger.INFO);
+        logger.log("SMTPServer ...init end", "SMTP", logger.INFO);
     }
 
     public void parseRequest(Socket s) {
@@ -64,9 +58,9 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
             smtpHandler.init();
             smtpHandler.parseRequest(s);
             threadManager.execute(smtpHandler);
-            logger.log("Executing handler.", logger.DEBUG);
+            logger.log("Executing handler.", "SMTP", logger.DEBUG);
         } catch (Exception e) {
-            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), logger.ERROR);
+            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "SMTP", logger.ERROR);
             e.printStackTrace();
         }
     }

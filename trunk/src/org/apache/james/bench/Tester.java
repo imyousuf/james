@@ -6,53 +6,54 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.usermanager;
+package org.apache.james.bench;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 import org.apache.arch.*;
+import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
-import org.apache.java.util.*;
-import org.apache.james.*;
-import java.util.*;
+import org.apache.mail.Mail;
+
+import javax.mail.internet.*;
+import javax.mail.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class UserManager implements Component, Configurable, Composer, Service, Contextualizable {
+public class Tester implements  Block {
 
-    private Context context;
-    private Configuration conf;
     private ComponentManager comp;
+    private Configuration conf;
     private Logger logger;
-    private Store store;
-    private UsersRepository rootRepository;
-
+    private ThreadManager threadManager;
+    
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
     
-    public void setContext(Context context) {
-        this.context = context;
-    }
-    
     public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
+        this.comp = new SimpleComponentManager(comp);
     }
 
 	public void init() throws Exception {
+
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        String rootPath = conf.getConfiguration("rootPath", "file://../users/").getValue();
-        store = (Store) comp.getComponent(Interfaces.STORE);
-        rootRepository = (UsersRepository) store.getPrivateRepository(rootPath, UsersRepository.USER, Store.ASYNCHRONOUS);
+        logger.log("TestJames init...", "Test", logger.INFO);
+        threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
+        int threads = conf.getConfiguration("children", "1").getValueAsInt();
+        String target = conf.getConfiguration("target", "127.0.0.1").getValue();
+        logger.log("Open connection to " + target, "Test", logger.INFO);
+        while (threads-- > 0) {
+            Caller caller = new Caller("caller" + threads, logger, target);
+            threadManager.execute(caller);
+        }
+        logger.log("TestJames ...init end", "Test", logger.INFO);
     }
     
-    public UsersRepository getUserRepository(String name) {
-        String path = rootRepository.getChildDestination(name);
-        logger.log("Opening user repositoy " + name + " in " + path, "UserManager", logger.INFO);
-        return (UsersRepository) store.getPrivateRepository(path, UsersRepository.USER, Store.ASYNCHRONOUS);
-    }
-
     public void destroy() {
     }
 }
-    

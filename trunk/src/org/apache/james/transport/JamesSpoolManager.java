@@ -17,7 +17,6 @@ import org.apache.james.*;
 import org.apache.mail.*;
 import org.apache.james.transport.servlet.*;
 import org.apache.james.transport.match.*;
-import org.apache.avalon.blocks.masterconnection.logger.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -29,21 +28,9 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Configuration conf;
     private Context context;
     private MailRepository spool;
-    private ConnectionManager connectionManager;
-    private LogChannel logger;
-    private Vector servlets;
-    private Vector servletMatchs;
-    private Vector servletPackages;
-
-    private static final String OP_NOT = "!";
-    private static final String OP_OR = "|";
-    private static final String OP_AND = "&";
-
-    /**
-     * SpoolManager constructor comment.
-     */
-    public JamesSpoolManager() {
-    }
+    private Logger logger;
+    private GenericMailServlet rootMailet;
+    private GenericMailServlet errorMailet;
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
@@ -59,11 +46,8 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
     public void init() throws Exception {
 
-        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
-        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
-        LogChannel mailetChannel = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("MailetLogChannel"));
-        comp.put("MailetLogChannel", mailetChannel);
-        logger.log("JamesSpoolManager init...", logger.INFO);
+        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
+        logger.log("JamesSpoolManager init...", "Processor", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
         StringBuffer servers = new StringBuffer ();
@@ -80,51 +64,40 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         comp.put(Resources.TMP_REPOSITORY, delayed);
 
-        this.servletPackages = new Vector();
-        for (Enumeration e = conf.getConfigurations("servletpackages.servletpackage"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
-            servletPackages.addElement(c.getValue());
-        }
-        servletPackages.addElement("");
-
-        this.servletMatchs = new Vector();
-        this.servlets = new Vector();
-        for (Enumeration e = conf.getConfigurations("servlets.servlet"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
-            String className = c.getAttribute("class");
-            String match = c.getAttribute("match");
-            try {
-                GenericMailServlet servlet = getServletInstance(className);
-                servlet.setConfiguration(c);
-                servlet.setContext(context);
-                servlet.setComponentManager(comp);
-                servlet.init();
-                servlets.addElement(servlet);
-                servletMatchs.addElement(match);
-                logger.log("Mailet " + className + " instantiated", logger.INFO);
-            } catch (Exception ex) {
-                logger.log("Unable to init mailet " + className + ": " + ex, logger.ERROR);
-                ex.printStackTrace();
-            }
-        }
-    }
-
-    private GenericMailServlet getServletInstance(String servletName) throws Exception {
+        MailetLoader mailetLoader = new MailetLoader();
+        mailetLoader.setConfiguration(conf.getConfiguration("servletpackages"));
+        comp.put(Resources.MAILET_LOADER, mailetLoader);
+        
+        MatchLoader matchLoader = new MatchLoader();
+        matchLoader.setContext(context);
+        matchLoader.setComponentManager(comp);
+        comp.put(Resources.MATCH_LOADER, matchLoader);
+        
+        Configuration rootMailetConf = conf.getConfiguration("processor");
+        String className = rootMailetConf.getAttribute("class");
         try {
-            for (int i = 0; i < servletPackages.size(); i++) {
-                String className = (String)servletPackages.elementAt(i) + "." + servletName;
-                try {
-                    return (GenericMailServlet)Class.forName(className).newInstance();
-                } catch (ClassNotFoundException cnfe) {
-                    //do this so we loop through all the packages
-                } catch (ClassCastException cce) {
-                    //do this so we know what class is having problems
-                    throw new ClassCastException(className);
-                }
-            }
-            throw new ClassNotFoundException();
-        } catch (ClassNotFoundException e) {
-            throw new Exception("Requested servlet not found: " + servletName + ".  looked in " + servletPackages.toString());
+            rootMailet = (GenericMailServlet) Class.forName(className).newInstance();
+            rootMailet.setConfiguration(rootMailetConf);
+            rootMailet.setContext(context);
+            rootMailet.setComponentManager(comp);
+            rootMailet.init();
+            logger.log("Root mailet " + className + " instantiated", "Processor", logger.INFO);
+        } catch (Exception ex) {
+            logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
+            throw ex;
+        }
+        Configuration errorMailetConf = conf.getConfiguration("errorManager");
+        className = errorMailetConf.getAttribute("class");
+        try {
+            errorMailet = (GenericMailServlet) Class.forName(className).newInstance();
+            errorMailet.setConfiguration(errorMailetConf);
+            errorMailet.setContext(context);
+            errorMailet.setComponentManager(comp);
+            errorMailet.init();
+            logger.log("Error mailet " + className + " instantiated", "Processor", logger.INFO);
+        } catch (Exception ex) {
+            logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
+            throw ex;
         }
     }
 
@@ -133,180 +106,37 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
      */
     public void run() {
 
-        logger.log("run JamesSpoolManager", logger.INFO);
-
-        Vector unprocessed = new Vector(servlets.size() + 1, 2);
-        unprocessed.setSize(servlets.size() + 1);
-        GenericMailServlet errorServlet = (GenericMailServlet) servlets.elementAt(servlets.size() - 1);
-        Stack errors = new Stack();
+        logger.log("run JamesSpoolManager", "Processor", logger.INFO);
         while(true) {
 
             try {
                 String key = spool.accept();
                 Mail mc = spool.retrieve(key);
-                logger.log("==== Begin processing mail " + key + " ====", logger.INFO);
-                unprocessed.insertElementAt(mc, 0);
-// ---- Reactor begin ----
-/*DEBUG*/       printPipe(unprocessed);
-                for (int i = 0; true ; i++) {
-                    logger.log("===== i = " + i + " =====", logger.DEBUG);
-                    Mail next = (Mail) unprocessed.elementAt(i);
-                    if (!isEmpty(next)) {
-                        split(unprocessed, i, (String) servletMatchs.elementAt(i));
-                        logger.log("--- after split (" + i + ")---", logger.DEBUG);
-/*DEBUG*/               printPipe(unprocessed);
-                    } else {
-                        try {
-                            do {
-                                next = (Mail) unprocessed.elementAt(--i);
-                            } while (isEmpty(next));
-                        } catch (ArrayIndexOutOfBoundsException emptyPipe) {
-                            break;
-                        }
-                        GenericMailServlet servlet = (GenericMailServlet) servlets.elementAt(i);
-                        Mail response = null;
-                        try {
-                            response = servlet.service(next);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            response = next;
-                            response.setState(Mail.ERROR);
-                            response.setErrorMessage("Exception during mail servlet service: " + ex.getMessage());
-                            logger.log("Exception during mail servlet service: " + ex.getMessage(), logger.ERROR);
-                        }
-                        if (response == null) {
-                            unprocessed.setElementAt(null, i + 1);
-                        } else if (response.getState() == Mail.ERROR) {
-                            try {
-                                errorServlet.service(response);
-                            } catch (Exception ex) {
-                                logger.log("Exception trying to store Mail " + response + " in error repository... deleting it", logger.ERROR);
-                            }
-                            unprocessed.setElementAt(null, i + 1);
-                        } else if (isEmpty(response)) {
-                            unprocessed.setElementAt(null, i + 1);
-                        } else {
-                            unprocessed.setElementAt(response, i + 1);
-                        }
-                        unprocessed.setElementAt(null, i);
-                        logger.log("--- after service (" + i + ")---", logger.DEBUG);
-/*DEBUG*/               printPipe(unprocessed);
+                logger.log("==== Begin processing mail " + key + " ====", "Processor", logger.INFO);
+                try {
+                    rootMailet.service(mc);
+                } catch (Exception ex) {
+                    mc.setState(mc.ERROR);
+                    mc.setErrorMessage("Exception in rootMailet service: " + ex.getMessage());
+                    logger.log("Exception in root service (" + mc.getName() + "): " + ex.getMessage(), "Processor", logger.INFO);
+                    ex.printStackTrace();
+                }
+                if (mc.getState() == mc.ERROR) {
+                    try {
+                        errorMailet.service(mc);
+                    } catch (Exception ex) {
+                    logger.log("Exception in errorMailet service (" + mc.getName() + "): " + ex.getMessage(), "Processor", logger.INFO);
                     }
                 }
-// ---- Reactor end ----
                 spool.remove(key);
-                logger.log("==== Removed from spool mail " + mc.getName() + " ====", logger.INFO);
+                logger.log("==== Removed from spool mail " + mc.getName() + " ====", "Processor", logger.INFO);
             } catch (Exception e) {
-                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), logger.ERROR);
-                e.printStackTrace();
+                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "Processor", logger.ERROR);
             }
         }
     }
-
-    private void split(Vector pipe, int i, String conditions) {
-
-        Mail mc = (Mail) pipe.elementAt(i);
-        StringTokenizer matchT = new StringTokenizer(conditions.trim(), " ");
-        Vector matchingRecipients = new Vector();
-// Fix Me!!! some recursive pattern needed. Now only ONE or TWO conditions allowed.
-        if (matchT.countTokens() == 1) {
-            matchingRecipients = singleMatch(mc, matchT.nextToken());
-        } else if (matchT.countTokens() == 3) {
-            matchingRecipients = doubleMatch(mc, matchT.nextToken(), matchT.nextToken(), matchT.nextToken());
-        }
-        if (matchingRecipients == null || matchingRecipients.isEmpty()) {
-            pipe.setElementAt(null, i);
-            pipe.setElementAt(mc, i + 1);
-        } else {
-            Vector unMatchingRecipients = VectorUtils.subtract(mc.getRecipients(), matchingRecipients);
-            if (unMatchingRecipients.isEmpty()) {
-                pipe.setElementAt(mc, i);
-                pipe.setElementAt(null, i + 1);
-            } else {
-                Mail response = mc.duplicate();
-                response.setRecipients(matchingRecipients);
-                mc.setRecipients(unMatchingRecipients);
-                pipe.setElementAt(response, i);
-                pipe.setElementAt(mc, i + 1);
-            }
-        }
-    }
-
-    private Vector doubleMatch(Mail mc, String condition1, String operator, String condition2) {
-        Vector r1 = singleMatch(mc, condition1);
-        Vector r2 = singleMatch(mc, condition2);
-        if (operator.equals(OP_AND)) {
-            return VectorUtils.intersection(r1, r2);
-        } else {
-            return VectorUtils.sum(r1, r2);
-        }
-    }
-
-    private Vector singleMatch(Mail mc, String conditions) {
-        boolean opNot = conditions.startsWith(OP_NOT);
-        if (opNot) {
-            conditions = conditions.substring(1);
-        }
-        String matchClass = "org.apache.james.transport.match." + conditions;
-        String param = "";
-        int sep = conditions.indexOf("=");
-        if (sep != -1) {
-            matchClass = "org.apache.james.transport.match." + conditions.substring(0, sep);
-            param = conditions.substring(sep + 1);
-        }
-        Match match = (Match) null;
-        try {
-            match = (Match) comp.getComponent(matchClass);
-        } catch (ComponentNotFoundException cnfe) {
-            try {
-                match = (Match) Class.forName(matchClass).newInstance();
-                match.setContext(context);
-                match.setComponentManager(comp);
-                comp.put(matchClass, match);
-            } catch (Exception ex) {
-                logger.log("Exception instantiationg match " + matchClass + " : " + ex, logger.ERROR);
-                return (Vector) null;
-            }
-        }
-        if (opNot) return VectorUtils.subtract(mc.getRecipients(), match.match(mc, param));
-        else return match.match(mc, param);
-    }
-
-    private boolean isEmpty(Mail mc) {
-        if (mc == null) return true;
-        else if (mc.getRecipients().isEmpty()) return true;
-        else return false;
-    }
-
-    public void stop() {
-    }
-
-    public void destroy()
-    throws Exception {
-    }
-
-// Debuggin methods...
-    private String printRecipients(Mail mc) {
-        if (mc == null) return "Null ";
-        Vector rec = mc.getRecipients();
-        StringBuffer buffer = new StringBuffer("Recipients: ");
-        boolean empty = true;
-        for (Enumeration e = rec.elements(); e.hasMoreElements(); ) {
-            buffer.append((String) e.nextElement() + " ");
-            empty = false;
-        }
-        if (empty) return "Empty";
-        else return buffer.toString();
-    }
-
-    private void printPipe(Vector unprocessed) {
-        for (int j = 0; j < unprocessed.size(); j++) {
-            Mail m = (Mail) unprocessed.elementAt(j);
-            if (m == null) {
-                logger.log("unprocessed " + j + " -> Null ", logger.DEBUG);
-            } else {
-                logger.log("unprocessed " + j + " -> " + printRecipients(m), logger.DEBUG);
-            }
-        }
-    }
+    
+    public void destroy() {}
+    
+    public void stop() {}
 }
