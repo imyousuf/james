@@ -234,8 +234,8 @@ public class TownSpoolRepository
 
     public void remove(String key) {
         //System.err.println("removing " + key);
-        lock(key);
         try {
+            lock(key);
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
@@ -243,8 +243,9 @@ public class TownSpoolRepository
             message.save();
         } catch (Exception me) {
             throw new RuntimeException("Exception while removing mail: " + me.getMessage());
+        } finally {
+            unlock(key);
         }
-        unlock(key);
     }
 
     public Iterator list() {
