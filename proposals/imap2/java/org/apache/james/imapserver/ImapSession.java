@@ -62,6 +62,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
 import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Encapsulates all state held for an ongoing Imap session,
@@ -70,7 +71,7 @@ import org.apache.james.imapserver.store.ImapMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public interface ImapSession
 {
@@ -79,7 +80,7 @@ public interface ImapSession
      * responses when the selected mailbox is modified by another user.
      * @param response The response to write to
      */
-    public void unsolicitedResponses( ImapResponse response );
+    public void unsolicitedResponses( ImapResponse response ) throws MailboxException;
 
     /**
      * Closes the connection for this session.
@@ -151,5 +152,7 @@ public interface ImapSession
      * @return the currently selected mailbox.
      */
     ImapSessionMailbox getSelected();
+
+    void unsolicitedResponses( ImapResponse request, boolean omitExpunged ) throws MailboxException;
 
 }

@@ -7,13 +7,13 @@ S: \* 4 FETCH \(FLAGS \(\)\)
 S: f1 OK FETCH completed
 
 #Simple store
-C: f1 STORE 1 FLAGS (\Deleted)
+C: f2 STORE 1 FLAGS (\Deleted)
 S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
-S: f1 OK STORE completed
+S: f2 OK STORE completed
 
-C: f1 FETCH 1 (FLAGS)
+C: f3 FETCH 1 (FLAGS)
 S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
-S: f1 OK FETCH completed
+S: f3 OK FETCH completed
 
 #Override previous value (silent)
 C: f2 STORE 1 FLAGS.SILENT (\Draft \Flagged)

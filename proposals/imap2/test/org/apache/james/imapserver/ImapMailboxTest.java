@@ -78,7 +78,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class ImapMailboxTest extends TestCase
         implements ImapConstants
@@ -90,7 +90,7 @@ public class ImapMailboxTest extends TestCase
 
     public void testAppend() throws Exception
     {
-        ImapMailbox mailbox = getMailbox();
+        ImapMailbox mailbox = getMailbox("test");
 
         Flags flags = new Flags();
         flags.add(Flags.Flag.FLAGGED);
@@ -130,15 +130,121 @@ public class ImapMailboxTest extends TestCase
                 new MimeMessageByteArraySource( "messageContent:" + System.currentTimeMillis(),
                                                 messageContent.getBytes());
         MimeMessage message = new MimeMessageWrapper( source );
-        SimpleImapMessage imapMessage = mailbox.createMessage( message, flags, datetime );
-        return imapMessage.getUid();
+        return mailbox.appendMessage( message, flags, datetime );
     }
 
-    private ImapMailbox getMailbox() throws MailboxException
+    public void testName() throws Exception {
+        checkName("named");
+        checkName("NaMeD");
+        checkName("Na_94Eg");
+    }
+
+    private void checkName(String mailboxName) throws Exception {
+        ImapMailbox mailbox = getMailbox(mailboxName);
+        assertEquals(mailboxName, mailbox.getName());
+        assertEquals(ImapConstants.USER_NAMESPACE + ImapConstants.HIERARCHY_DELIMITER + mailboxName,
+                mailbox.getFullName());
+    }
+
+    public void testMailboxFlags() throws Exception {
+        Flags expectedFlags = new Flags();
+        expectedFlags.add(Flags.Flag.ANSWERED);
+        expectedFlags.add(Flags.Flag.DELETED);
+        expectedFlags.add(Flags.Flag.DRAFT);
+        expectedFlags.add(Flags.Flag.FLAGGED);
+        expectedFlags.add(Flags.Flag.SEEN);
+
+        ImapMailbox mailbox = getMailbox("test");
+
+        Flags permanentFlags = mailbox.getPermanentFlags();
+        assertTrue(permanentFlags.contains(expectedFlags));
+        assertTrue(! permanentFlags.contains(Flags.Flag.RECENT));
+    }
+
+    public void testMessageCount() throws Exception
+    {
+        ImapMailbox mailbox = getMailbox("messagecount");
+        assertEquals(0, mailbox.getMessageCount());
+
+        appendMessage(mailbox);
+        appendMessage(mailbox);
+        assertEquals(2, mailbox.getMessageCount());
+
+        appendMessage(mailbox);
+        assertEquals(3, mailbox.getMessageCount());
+
+        mailbox.deleteAllMessages();
+        assertEquals(0, mailbox.getMessageCount());
+    }
+
+    public void testUnseen() throws Exception {
+        ImapMailbox mailbox = getMailbox("firstUnseen");
+        assertEquals(-1, mailbox.getFirstUnseen());
+        assertEquals(0, mailbox.getUnseenCount());
+
+        long uid1 = appendMessage(mailbox);
+        long uid2 = appendMessage(mailbox);
+        assertEquals(1, mailbox.getFirstUnseen());
+        assertEquals(2, mailbox.getUnseenCount());
+
+        // Flag the first as seen
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid1, true);
+        assertEquals(2, mailbox.getFirstUnseen());
+        assertEquals(1, mailbox.getUnseenCount());
+
+        // Flag the second as seen
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), true, uid2, true);
+        assertEquals(-1, mailbox.getFirstUnseen());
+        assertEquals(0, mailbox.getUnseenCount());
+
+        // Unset the seen flag on the first
+        mailbox.setFlags(new Flags(Flags.Flag.SEEN), false, uid1, true);
+        assertEquals(1, mailbox.getFirstUnseen());
+        assertEquals(1, mailbox.getUnseenCount());
+    }
+
+    public void testSelectable() throws Exception {
+        ImapStore store = new InMemoryStore();
+        ImapMailbox root = store.getMailbox( ImapConstants.USER_NAMESPACE );
+        ImapMailbox selectable = store.createMailbox( root, "selectable", true );
+        assertTrue(selectable.isSelectable());
+
+        ImapMailbox nonSelectable = store.createMailbox(root, "nonselectable", false);
+        assertTrue(! nonSelectable.isSelectable());
+    }
+
+    public void testUidNext() throws Exception {
+        ImapMailbox mailbox = getMailbox("uidnext");
+        long first = mailbox.getUidNext();
+        assertTrue(first != 0);
+        assertEquals(first, appendMessage(mailbox));
+        long second = mailbox.getUidNext();
+        assertEquals(second, appendMessage(mailbox));
+        assertTrue(first < second);
+    }
+
+    private long appendMessage(ImapMailbox mailbox) {
+        Date datetime = new Date();
+        String message =
+        "Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\r\n" +
+        "From: Fred Foobar <foobar@Blurdybloop.COM>\r\n" +
+        "Subject: afternoon meeting\r\n" +
+        "To: mooch@owatagu.siam.edu\r\n" +
+        "Message-Id: <B27397-0100000@Blurdybloop.COM>\r\n" +
+        "MIME-Version: 1.0\r\n" +
+        "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\r\n" +
+        "\r\n" +
+        "Hello Joe, do you think we can meet at 3:30 tomorrow?\r\n" +
+        "\r\n";
+
+        return appendMessage( message, new Flags(), datetime, mailbox );
+    }
+
+    private ImapMailbox getMailbox(String mailboxName) throws MailboxException
     {
         ImapStore store = new InMemoryStore();
         ImapMailbox root = store.getMailbox( ImapConstants.USER_NAMESPACE );
-        ImapMailbox test = store.createMailbox( root, "test", true );
+        ImapMailbox test = store.createMailbox( root, mailboxName, true );
         return test;
     }
 

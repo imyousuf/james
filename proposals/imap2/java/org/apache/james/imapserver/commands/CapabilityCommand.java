@@ -62,13 +62,14 @@ import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.store.MailboxException;
 
 /**
  * Handles processeing for the CAPABILITY imap command.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class CapabilityCommand extends CommandTemplate
 {
@@ -81,7 +82,7 @@ class CapabilityCommand extends CommandTemplate
     protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
-            throws ProtocolException
+            throws ProtocolException, MailboxException
     {
         parser.endLine( request );
         response.untaggedResponse( CAPABILITY_RESPONSE );

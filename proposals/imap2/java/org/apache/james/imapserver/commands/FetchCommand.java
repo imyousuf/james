@@ -84,7 +84,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -108,7 +108,7 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
                               boolean useUids )
             throws ProtocolException, MailboxException
     {
-        IdSet idSet = parser.set( request );
+        IdRange[] idSet = parser.parseIdRange( request );
         FetchRequest fetch = parser.fetchRequest( request );
         parser.endLine( request );
 
@@ -118,20 +118,20 @@ class FetchCommand extends SelectedStateCommand implements UidEnabledCommand
             long uid = uids[i];
             int msn = mailbox.getMsn( uid );
 
-            if ( ( useUids && idSet.includes( uid ) ) ||
-                 ( !useUids && idSet.includes( msn ) ) )
+            if ( ( useUids && includes( idSet, uid ) ) ||
+                 ( !useUids && includes( idSet, msn ) ) )
             {
                 SimpleImapMessage imapMessage = mailbox.getMessage( uid );
                 String msgData = outputMessage( fetch, imapMessage );
                 response.fetchResponse( msn, msgData );
                 if (imapMessage.getFlags().contains(Flags.Flag.RECENT)) {
-                    imapMessage.getFlags().remove(Flags.Flag.RECENT);
-                    mailbox.updateMessage(imapMessage);
+                    mailbox.setFlags(new Flags(Flags.Flag.RECENT), false, uid, true);
                 }
             }
         }
 
-        session.unsolicitedResponses( response );
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged );
         response.commandComplete( this );
     }
 

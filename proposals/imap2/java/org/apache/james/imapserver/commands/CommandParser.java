@@ -77,7 +77,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class CommandParser
 {
@@ -452,7 +452,7 @@ public class CommandParser
      * Reads a "message set" argument, and parses into an IdSet.
      * Currently only supports a single range of values.
      */
-    public IdSet set( ImapRequestLineReader request )
+    public IdRange[] parseIdRange( ImapRequestLineReader request )
             throws ProtocolException
     {
         CharacterValidator validator = new MessageSetCharValidator();
@@ -460,36 +460,36 @@ public class CommandParser
 
         int commaPos = nextWord.indexOf( ',' );
         if ( commaPos == -1 ) {
-            return singleRangeSet( nextWord );
+            return new IdRange[]{ parseRange( nextWord ) };
         }
 
-        CompoundIdSet compoundSet = new CompoundIdSet();
+        ArrayList rangeList = new ArrayList();
         int pos = 0;
         while ( commaPos != -1 ) {
             String range = nextWord.substring( pos, commaPos );
-            IdSet set = singleRangeSet( range );
-            compoundSet.addIdSet( set );
+            IdRange set = parseRange( range );
+            rangeList.add( set );
 
             pos = commaPos + 1;
             commaPos = nextWord.indexOf( ',', pos );
         }
         String range = nextWord.substring( pos );
-        compoundSet.addIdSet( singleRangeSet( range ) );
-        return compoundSet;
+        rangeList.add( parseRange( range ) );
+        return (IdRange[]) rangeList.toArray(new IdRange[rangeList.size()]);
     }
 
-    private IdSet singleRangeSet( String range ) throws ProtocolException
+    private IdRange parseRange( String range ) throws ProtocolException
     {
         int pos = range.indexOf( ':' );
         try {
             if ( pos == -1 ) {
                 long value = parseLong( range );
-                return new HighLowIdSet( value, value );
+                return new IdRange( value );
             }
             else {
                 long lowVal = parseLong( range.substring(0, pos ) );
                 long highVal = parseLong( range.substring( pos + 1 ) );
-                return new HighLowIdSet( lowVal, highVal );
+                return new IdRange( lowVal, highVal );
             }
         }
         catch ( NumberFormatException e ) {
@@ -575,42 +575,5 @@ public class CommandParser
             return '0' <= chr && chr <= '9';
         }
     }
-
-    private class HighLowIdSet implements IdSet
-    {
-        private long lowVal;
-        private long highVal;
-
-        public HighLowIdSet( long lowVal, long highVal )
-        {
-            this.lowVal = lowVal;
-            this.highVal = highVal;
-        }
-
-        public boolean includes( long value ) {
-            return ( lowVal <= value ) && ( value <= highVal );
-        }
-    }
-
-    private class CompoundIdSet implements IdSet
-    {
-        private List idSets = new ArrayList();
-
-        void addIdSet( IdSet set ) {
-            idSets.add( set );
-        }
-
-        public boolean includes( long value )
-        {
-            for ( int i = 0; i < idSets.size(); i++ ) {
-                IdSet idSet = ( IdSet ) idSets.get( i );
-                if ( idSet.includes( value ) ) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
 
 }

@@ -80,7 +80,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class AppendCommand extends AuthenticatedStateCommand
 {
@@ -116,7 +116,7 @@ class AppendCommand extends AuthenticatedStateCommand
             throw e;
         }
 
-        mailbox.createMessage( message, flags, datetime );
+        mailbox.appendMessage( message, flags, datetime );
 
         session.unsolicitedResponses( response );
         response.commandComplete( this );

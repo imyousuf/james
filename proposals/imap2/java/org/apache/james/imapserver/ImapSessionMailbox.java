@@ -57,20 +57,17 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.MailboxListener;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.MessageFlags;
-import org.apache.james.imapserver.store.SimpleImapMessage;
 import org.apache.james.core.MailImpl;
+import org.apache.james.imapserver.commands.IdRange;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MailboxListener;
+import org.apache.james.imapserver.store.SimpleImapMessage;
 
-import javax.mail.search.SearchTerm;
-import javax.mail.internet.MimeMessage;
 import javax.mail.Flags;
-import java.util.List;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Date;
+import javax.mail.internet.MimeMessage;
+import javax.mail.search.SearchTerm;
+import java.util.*;
 
 public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     private ImapMailbox _mailbox;
@@ -78,6 +75,7 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     // TODO encapsulate
     public boolean _sizeChanged;
     private List _expungedMsns = Collections.synchronizedList(new LinkedList());
+    private Map _modifiedFlags = Collections.synchronizedMap(new TreeMap());
 
     public ImapSessionMailbox(ImapMailbox mailbox, boolean readonly) {
         _mailbox = mailbox;
@@ -107,16 +105,32 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _readonly;
     }
 
-    public int[] getExpunged() {
+    public int[] getExpunged() throws MailboxException {
         synchronized (_expungedMsns) {
             int[] expungedMsns = new int[_expungedMsns.size()];
             for (int i = 0; i < expungedMsns.length; i++) {
-                Integer msn = (Integer) _expungedMsns.get(i);
-                expungedMsns[i] = msn.intValue();
+                int msn = ((Integer) _expungedMsns.get(i)).intValue();
+                expungedMsns[i] = msn;
             }
             _expungedMsns.clear();
+
+            // TODO - renumber any cached ids (for now we assume the _modifiedFlags has been cleared)\
+            if (! (_modifiedFlags.isEmpty() && ! _sizeChanged ) ) {
+                throw new IllegalStateException("Need to do this properly...");
+            }
             return expungedMsns;
         }
+    }
+
+    public Map getFlagUpdates() throws MailboxException {
+        if (_modifiedFlags.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
+
+        TreeMap retVal = new TreeMap();
+        retVal.putAll(_modifiedFlags);
+        _modifiedFlags.clear();
+        return retVal;
     }
 
     public void expunged(long uid) throws MailboxException {
@@ -130,16 +144,18 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         _sizeChanged = true;
     }
 
+    public void flagsUpdated(long uid, Flags flags) throws MailboxException {
+        // This will overwrite any earlier changes
+        int msn = getMsn(uid);
+        _modifiedFlags.put(new Integer(msn), flags);
+    }
+
     public String getName() {
         return _mailbox.getName();
     }
 
     public String getFullName() {
         return _mailbox.getFullName();
-    }
-
-    public Flags getAllowedFlags() {
-        return _mailbox.getAllowedFlags();
     }
 
     public Flags getPermanentFlags() {
@@ -158,7 +174,7 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _mailbox.getUidValidity();
     }
 
-    public long getFirstUnseen() {
+    public int getFirstUnseen() {
         return _mailbox.getFirstUnseen();
     }
 
@@ -174,12 +190,8 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
         return _mailbox.getUnseenCount();
     }
 
-    public SimpleImapMessage createMessage( MimeMessage message, Flags flags, Date internalDate ) {
-        return _mailbox.createMessage(message, flags, internalDate);
-    }
-
-    public void updateMessage( SimpleImapMessage message ) throws MailboxException {
-        _mailbox.updateMessage(message);
+    public long appendMessage( MimeMessage message, Flags flags, Date internalDate ) {
+        return _mailbox.appendMessage(message, flags, internalDate);
     }
 
     public void store( MailImpl mail) throws Exception {
@@ -192,10 +204,6 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
 
     public long[] getMessageUids() {
         return _mailbox.getMessageUids();
-    }
-
-    public void deleteMessage( long uid ) {
-        _mailbox.deleteMessage(uid);
     }
 
     public void expunge() throws MailboxException {
@@ -216,6 +224,22 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
 
     public void removeListener(MailboxListener listener) {
         _mailbox.removeListener(listener);
+    }
+
+    public IdRange[] msnsToUids(IdRange[] idSet) {
+        return new IdRange[0];  //To change body of created methods use Options | File Templates.
+    }
+
+    public void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException {
+        _mailbox.setFlags(flags, value, uid, silent);
+    }
+
+    public void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException {
+        _mailbox.replaceFlags(flags, uid, silent);
+    }
+
+    public void deleteAllMessages() {
+        _mailbox.deleteAllMessages();
     }
 
 }

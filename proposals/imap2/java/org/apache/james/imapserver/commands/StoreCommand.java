@@ -58,10 +58,7 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ProtocolException;
+import org.apache.james.imapserver.*;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.SimpleImapMessage;
@@ -74,7 +71,7 @@ import javax.mail.Flags;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -98,33 +95,60 @@ class StoreCommand extends SelectedStateCommand implements UidEnabledCommand
                               boolean useUids )
             throws ProtocolException, MailboxException
     {
-        IdSet idSet = parser.set( request );
+        IdRange[] idSet = parser.parseIdRange( request );
         StoreDirective directive = parser.storeDirective( request );
         Flags flags = parser.flagList( request );
         parser.endLine( request );
 
-        ImapMailbox mailbox = session.getSelected();
+        ImapSessionMailbox mailbox = session.getSelected();
+//        IdRange[] uidSet;
+//        if (useUids) {
+//           uidSet = idSet;
+//        } else {
+//            uidSet = mailbox.msnsToUids(idSet);
+//        }
+//        if (directive.getSign() < 0) {
+//            mailbox.setFlags(flags, false, uidSet, directive.isSilent());
+//        }
+//        else if (directive.getSign() > 0) {
+//            mailbox.setFlags(flags, true, uidSet, directive.isSilent());
+//        }
+//        else {
+//            mailbox.replaceFlags(flags, uidSet, directive.isSilent());
+//        }
+
+        // TODO do this in one hit.
         long[] uids = mailbox.getMessageUids();
         for ( int i = 0; i < uids.length; i++ ) {
             long uid = uids[i];
             int msn = mailbox.getMsn( uid );
 
-            if ( ( useUids && idSet.includes( uid ) ) ||
-                 ( !useUids && idSet.includes( msn ) ) )
+            if ( ( useUids && includes(idSet, uid) ) ||
+                 ( !useUids && includes( idSet, msn ) ) )
             {
-                SimpleImapMessage imapMessage = mailbox.getMessage( uid );
-                storeFlags( imapMessage, directive, flags );
-                mailbox.updateMessage( imapMessage );
-
-                if ( ! directive.isSilent() ) {
-                    StringBuffer out = new StringBuffer( "FLAGS " );
-                    out.append( MessageFlags.format(imapMessage.getFlags()) );
-                    response.fetchResponse( msn, out.toString() );
+                if (directive.getSign() < 0) {
+                    mailbox.setFlags(flags, false, uid, directive.isSilent());
                 }
+                else if (directive.getSign() > 0) {
+                    mailbox.setFlags(flags, true, uid, directive.isSilent());
+                }
+                else {
+                    mailbox.replaceFlags(flags, uid, directive.isSilent());
+                }
+//                SimpleImapMessage imapMessage = mailbox.getMessage( uid );
+//                storeFlags( imapMessage, directive, flags );
+//                mailbox.updateMessage( imapMessage );
+//
+//                if ( ! directive.isSilent() ) {
+//                    StringBuffer out = new StringBuffer( "FLAGS " );
+//                    out.append( MessageFlags.format(imapMessage.getFlags()) );
+//                    response.fetchResponse( msn, out.toString() );
+//                }
             }
         }
 
-        session.unsolicitedResponses( response );
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged );
         response.commandComplete( this );
     }
 
