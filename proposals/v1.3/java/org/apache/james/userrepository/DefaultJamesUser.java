@@ -18,8 +18,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/22 12:03:32 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/07 10:39:43 $
+ * $Revision: 1.3 $
  */
 
 public class DefaultJamesUser 
@@ -31,9 +31,14 @@ public class DefaultJamesUser
     private boolean aliasing;
     private String alias;
 
-    public DefaultJamesUser(String name, String pass) {
-	super(name, pass);
+    public DefaultJamesUser(String name, String alg) {
+	super(name, alg);
     }
+
+    public DefaultJamesUser(String name, String passwordHash, String hashAlg) {
+        super(name, passwordHash, hashAlg);
+    }
+
 
     /**
      * Call initialize when creating a new instance.
@@ -43,10 +48,6 @@ public class DefaultJamesUser
 	forwardingDestination = null;
 	aliasing = false;
 	alias = "";
-    }
-
-    public boolean setPassword(String pass) {
-	return setPass(pass);
     }
 
     public void setForwarding(boolean forward) {
