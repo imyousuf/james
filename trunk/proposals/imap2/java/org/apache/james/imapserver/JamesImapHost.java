@@ -81,7 +81,7 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
@@ -197,17 +197,13 @@ public class JamesImapHost
         ImapMailbox toDelete = getMailbox( user, mailboxName, true );
 
         if ( store.getChildren( toDelete ).isEmpty() ) {
-            long[] uids = toDelete.getMessageUids();
-            for ( int i = 0; i < uids.length; i++ ) {
-                long uid = uids[i];
-                SimpleImapMessage imapMessage = toDelete.getMessage( uid );
-                toDelete.deleteMessage( imapMessage.getUid() );
-            }
+            toDelete.deleteAllMessages();
             store.deleteMailbox( toDelete );
         }
         else {
             if ( toDelete.isSelectable() ) {
                 // TODO delete all messages.
+                toDelete.deleteAllMessages();
                 store.setSelectable( toDelete, false );
             }
             else {

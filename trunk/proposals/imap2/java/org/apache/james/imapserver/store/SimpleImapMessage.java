@@ -71,7 +71,7 @@ import java.util.Date;
  * way of handling *all* messages needs to be available for James (maybe MailImpl?)
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class SimpleImapMessage
         extends AbstractLogEnabled implements ImapMessage
@@ -81,6 +81,11 @@ public class SimpleImapMessage
     private Date internalDate;
     private long uid;
     private SimpleMessageAttributes attributes;
+
+    public SimpleImapMessage(MimeMessage mimeMessage, Date internalDate, long uid)
+            throws MessagingException {
+        this(mimeMessage, mimeMessage.getFlags(), internalDate, uid);
+    }
 
     SimpleImapMessage( MimeMessage mimeMessage, Flags flags,
                  Date internalDate, long uid )

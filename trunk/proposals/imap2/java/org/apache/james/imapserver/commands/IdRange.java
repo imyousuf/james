@@ -58,90 +58,34 @@
 
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestLineReader;
-import org.apache.james.imapserver.ImapResponse;
-import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ProtocolException;
-import org.apache.james.imapserver.ImapSessionMailbox;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.SimpleImapMessage;
-
 /**
- * Handles processeing for the COPY imap command.
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
- * @version $Revision: 1.5 $
+ * Represents a range of UID values.
  */
-class CopyCommand extends SelectedStateCommand implements UidEnabledCommand
-{
-    public static final String NAME = "COPY";
-    public static final String ARGS = "<message-set> <mailbox>";
+public class IdRange {
 
-    /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session )
-        throws ProtocolException, MailboxException
-    {
-        doProcess( request, response, session, false );
+    private long _lowVal;
+    private long _highVal;
+
+    public IdRange(long singleVal) {
+        _lowVal = singleVal;
+        _highVal = singleVal;
     }
 
-    public void doProcess( ImapRequestLineReader request,
-                              ImapResponse response,
-                              ImapSession session,
-                              boolean useUids)
-            throws ProtocolException, MailboxException
-    {
-        IdRange[] idSet = parser.parseIdRange( request );
-        String mailboxName = parser.mailbox( request );
-        parser.endLine( request );
-
-        ImapSessionMailbox currentMailbox = session.getSelected();
-        ImapMailbox toMailbox;
-        try {
-            toMailbox = getMailbox( mailboxName, session, true );
-        }
-        catch ( MailboxException e ) {
-            e.setResponseCode( "TRYCREATE" );
-            throw e;
-        }
-
-//        if (! useUids) {
-//            idSet = currentMailbox.toUidSet(idSet);
-//        }
-//        currentMailbox.copyMessages(toMailbox, idSet);
-        long[] uids = currentMailbox.getMessageUids();
-        for ( int i = 0; i < uids.length; i++ ) {
-            long uid = uids[i];
-            boolean inSet;
-            if ( useUids ) {
-                inSet = includes( idSet, uid );
-            }
-            else {
-                int msn = currentMailbox.getMsn( uid );
-                inSet = includes( idSet, msn );
-            }
-
-            if ( inSet ) {
-                currentMailbox.copyMessage(uid, toMailbox);
-            }
-        }
-
-        session.unsolicitedResponses( response );
-        response.commandComplete( this );
+    public IdRange(long lowVal, long highVal) {
+        _lowVal = lowVal;
+        _highVal = highVal;
     }
 
-    /** @see ImapCommand#getName */
-    public String getName()
-    {
-        return NAME;
+    public long getLowVal() {
+        return _lowVal;
     }
 
-    /** @see CommandTemplate#getArgSyntax */
-    public String getArgSyntax()
-    {
-        return ARGS;
+    public long getHighVal() {
+        return _highVal;
     }
+
+    public boolean includes(long uid) {
+        return _lowVal <= uid && uid <= _highVal;
+    }
+
 }

@@ -60,6 +60,7 @@ package org.apache.james.imapserver;
 
 import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.commands.IdSet;
+import org.apache.james.imapserver.commands.IdRange;
 
 import junit.framework.TestCase;
 
@@ -82,7 +83,7 @@ import java.text.DateFormat;
  * TODO: atom, literal, other (not yet implemented) arguments
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class CommandParserTest
         extends TestCase
@@ -229,35 +230,45 @@ public class CommandParserTest
         String testRequest = "8 25 1:4 33:* 2,3,4 1,4:6,8:* ";
         ImapRequestLineReader request = getRequest( testRequest );
 
-        IdSet idSet;
-        idSet = parser.set( request );
+        IdRange[] idSet;
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{8}, new long[]{0, 2, 7, 9, 20, Long.MAX_VALUE } );
 
-        idSet = parser.set( request );
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{ 25 }, new long[]{ 0, 5, 20, 30, Long.MAX_VALUE } );
 
-        idSet = parser.set( request );
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{ 1, 2, 3, 4 }, new long[]{0, 5, 10 } );
 
-        idSet = parser.set( request );
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{ 33, 35, 100, 1000, Long.MAX_VALUE}, new long[]{0, 1, 32});
 
-        idSet = parser.set( request );
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{ 2,3,4}, new long[]{0, 1, 5,8 });
 
-        idSet = parser.set( request );
+        idSet = parser.parseIdRange( request );
         checkSet( idSet, new long[]{ 1,4,5,6,8,100,1000,Long.MAX_VALUE}, new long[]{0,2,3,7});
 
     }
 
-    private void checkSet( IdSet idSet, long[] includes, long[] excludes )
+    private void checkSet( IdRange[] idSet, long[] includes, long[] excludes )
     {
         for ( int i = 0; i < includes.length; i++ ) {
-            assertTrue( idSet.includes( includes[i] ));
+            assertTrue( includes( idSet, includes[i] ));
         }
         for ( int i = 0; i < excludes.length; i++ ) {
-            assertTrue( ! idSet.includes( excludes[i] ));
+            assertTrue( ! includes( idSet, excludes[i] ));
         }
+    }
+
+    private boolean includes(IdRange[] idSet, long value) {
+        for (int i = 0; i < idSet.length; i++) {
+            IdRange idRange = idSet[i];
+            if (idRange.includes(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -61,21 +61,14 @@ package org.apache.james.imapserver.store;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.imapserver.ImapConstants;
+import org.apache.james.imapserver.commands.IdSet;
+import org.apache.james.imapserver.commands.IdRange;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 import javax.mail.MessagingException;
 import javax.mail.Flags;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.List;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
@@ -83,7 +76,7 @@ import java.util.LinkedList;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class InMemoryStore
         extends AbstractLogEnabled
@@ -250,7 +243,7 @@ public class InMemoryStore
         protected String name;
         private boolean isSelectable = false;
 
-        private Map mailMessages = new TreeMap();
+        private List mailMessages = new LinkedList();
         private long nextUid = 1;
         private long uidValidity;
 
@@ -302,13 +295,8 @@ public class InMemoryStore
             return parent.getFullName() + HIERARCHY_DELIMITER_CHAR + name;
         }
 
-        public Flags getAllowedFlags()
-        {
-            return PERMANENT_FLAGS;
-        }
-
         public Flags getPermanentFlags() {
-            return getAllowedFlags();
+            return PERMANENT_FLAGS;
         }
 
         public int getMessageCount()
@@ -329,9 +317,8 @@ public class InMemoryStore
         public int getUnseenCount()
         {
             int count = 0;
-            Iterator iter = mailMessages.values().iterator();
-            while (iter.hasNext()) {
-                SimpleImapMessage message = (SimpleImapMessage) iter.next();
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
                 if (! message.getFlags().contains(Flags.Flag.SEEN)) {
                     count++;
                 }
@@ -339,13 +326,12 @@ public class InMemoryStore
             return count;
         }
 
-        public long getFirstUnseen()
+        public int getFirstUnseen()
         {
-            Iterator iter = mailMessages.values().iterator();
-            while (iter.hasNext()) {
-                SimpleImapMessage message = (SimpleImapMessage) iter.next();
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
                 if (! message.getFlags().contains(Flags.Flag.SEEN)) {
-                    return message.getUid();
+                    return i + 1;
                 }
             }
             return -1;
@@ -358,12 +344,10 @@ public class InMemoryStore
 
         public int getMsn( long uid ) throws MailboxException
         {
-            Collection keys = mailMessages.keySet();
-            Iterator iterator = keys.iterator();
-            for ( int msn = 1; iterator.hasNext(); msn++ ) {
-                Long messageUid = ( Long ) iterator.next();
-                if ( messageUid.longValue() == uid ) {
-                    return msn;
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
+                if (message.getUid() == uid) {
+                    return i + 1;
                 }
             }
             throw new MailboxException( "No such message." );
@@ -379,7 +363,7 @@ public class InMemoryStore
             isSelectable = selectable;
         }
 
-        public SimpleImapMessage createMessage( MimeMessage message,
+        public long appendMessage( MimeMessage message,
                                           Flags flags,
                                           Date internalDate )
         {
@@ -391,28 +375,64 @@ public class InMemoryStore
                                                        internalDate, uid );
             setupLogger( imapMessage );
 
-            mailMessages.put( new Long( uid ), imapMessage );
-            
-            // Notify all the listeners of the pending delete
+            mailMessages.add(imapMessage);
+            int newMsn = mailMessages.size();
+
+            // Notify all the listeners of the new message
             synchronized (_mailboxListeners) {
                 for (int j = 0; j < _mailboxListeners.size(); j++) {
                     MailboxListener listener = (MailboxListener) _mailboxListeners.get(j);
                     listener.added(uid);
                 }
             }
-            
-            return imapMessage;
+
+            return uid;
         }
 
-        public void updateMessage( SimpleImapMessage message )
-                throws MailboxException
-        {
-
-            Long key = new Long( message.getUid() );
-            if ( ! mailMessages.containsKey( key ) ) {
+        public void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException {
+            SimpleImapMessage message = getMessage(uid);
+            if (message == null) {
                 throw new MailboxException( "Message doesn't exist" );
             }
-            mailMessages.put( key, message );
+
+            if (value) {
+                message.getFlags().add(flags);
+            } else {
+                message.getFlags().remove(flags);
+            }
+
+            // TODO - this doesn't send silent updates to *any* listeners
+            // I think "silence" is supposed to be restricted to the session sending the command?.
+            if (! silent) {
+                notifyFlagUpdate(uid, message.getFlags());
+            }
+        }
+
+        private void notifyFlagUpdate(long uid, Flags flags) throws MailboxException {
+            synchronized(_mailboxListeners) {
+                for (int i = 0; i < _mailboxListeners.size(); i++) {
+                    MailboxListener listener = (MailboxListener) _mailboxListeners.get(i);
+
+                    listener.flagsUpdated(uid, flags);
+                }
+            }
+        }
+
+        public void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException {
+            SimpleImapMessage message = getMessage(uid);
+            if (message == null) {
+                throw new MailboxException( "Message doesn't exist" );
+            }
+            message.getFlags().remove(MessageFlags.ALL_FLAGS);
+            message.getFlags().add(flags);
+
+            if (! silent) {
+                notifyFlagUpdate(uid, message.getFlags());
+            }
+        }
+
+        public void deleteAllMessages() {
+            mailMessages.clear();
         }
 
         public void store( MailImpl mail )
@@ -421,38 +441,41 @@ public class InMemoryStore
             MimeMessage message = mail.getMessage();
             Date internalDate = new Date();
             Flags flags = new Flags();
-            createMessage( message, flags, internalDate );
+            appendMessage( message, flags, internalDate );
         }
 
         public SimpleImapMessage getMessage( long uid )
         {
-            return (SimpleImapMessage)mailMessages.get( new Long(uid ) );
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
+                if (message.getUid() == uid) {
+                    return message;
+                }
+            }
+            return null;
         }
 
         public long[] getMessageUids()
         {
             long[] uids = new long[ mailMessages.size() ];
-            Collection keys = mailMessages.keySet();
-            Iterator iterator = keys.iterator();
-            for ( int i = 0; iterator.hasNext(); i++ ) {
-                Long key = ( Long ) iterator.next();
-                uids[i] = key.longValue();
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
+                uids[i] = message.getUid();
             }
             return uids;
         }
 
-        public void deleteMessage( long uid )
+        private void deleteMessage( long uid )
         {
-            mailMessages.remove( new Long( uid ) );
+            SimpleImapMessage message = getMessage(uid);
+            mailMessages.remove(message);
         }
 
         public long[] search(SearchTerm searchTerm) {
             ArrayList matchedMessages = new ArrayList();
 
-            long[] allUids = getMessageUids();
-            for ( int i = 0; i < allUids.length; i++ ) {
-                long uid = allUids[i];
-                SimpleImapMessage message = getMessage( uid );
+            for (int i = 0; i < mailMessages.size(); i++) {
+                SimpleImapMessage message = (SimpleImapMessage) mailMessages.get(i);
                 if ( searchTerm.match( message.getMimeMessage() ) ) {
                     matchedMessages.add( message );
                 }
@@ -483,7 +506,7 @@ public class InMemoryStore
             newFlags.add( originalMessage.getFlags() );
             Date newDate = originalMessage.getInternalDate();
 
-            toMailbox.createMessage( newMime, newFlags, newDate);
+            toMailbox.appendMessage( newMime, newFlags, newDate);
         }
 
         public void expunge() throws MailboxException {
@@ -494,7 +517,6 @@ public class InMemoryStore
                 SimpleImapMessage message = getMessage(uid);
                 if (message.getFlags().contains(Flags.Flag.DELETED)) {
                     expungeMessage(uid);
-
                 }
             }
         }

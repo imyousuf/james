@@ -59,6 +59,8 @@
 package org.apache.james.imapserver.store;
 
 import org.apache.james.core.MailImpl;
+import org.apache.james.imapserver.commands.IdSet;
+import org.apache.james.imapserver.commands.IdRange;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
@@ -74,7 +76,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public interface ImapMailbox
 {
@@ -82,8 +84,6 @@ public interface ImapMailbox
 
     String getFullName();
 
-    Flags getAllowedFlags();
-    
     Flags getPermanentFlags();
 
     int getMessageCount();
@@ -92,19 +92,23 @@ public interface ImapMailbox
 
     long getUidValidity();
 
-    long getFirstUnseen();
+    int getFirstUnseen();
 
-    int getMsn( long uid ) throws MailboxException;
+    int getUnseenCount();
 
     boolean isSelectable();
 
     long getUidNext();
 
-    int getUnseenCount();
+    long appendMessage( MimeMessage message, Flags flags, Date internalDate );
 
-    SimpleImapMessage createMessage( MimeMessage message, Flags flags, Date internalDate );
+    void deleteAllMessages();
 
-    void updateMessage( SimpleImapMessage message ) throws MailboxException;
+    void expunge() throws MailboxException;
+
+    void addListener(MailboxListener listener);
+
+    void removeListener(MailboxListener listener);
 
     void store( MailImpl mail) throws Exception;
 
@@ -112,17 +116,15 @@ public interface ImapMailbox
 
     long[] getMessageUids();
 
-    void deleteMessage( long uid );
-    
-    void expunge() throws MailboxException;
-
-    void addListener(MailboxListener listener);
-
-    void removeListener(MailboxListener listener);
-
     long[] search(SearchTerm searchTerm);
 
     void copyMessage( long uid, ImapMailbox toMailbox )
             throws MailboxException;
+
+    void setFlags(Flags flags, boolean value, long uid, boolean silent) throws MailboxException;
+
+    void replaceFlags(Flags flags, long uid, boolean silent) throws MailboxException;
+
+    int getMsn( long uid ) throws MailboxException;
 
 }

@@ -59,14 +59,20 @@
 package org.apache.james.imapserver;
 
 import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.mailet.User;
 import org.apache.mailet.UsersRepository;
+
+import javax.mail.Flags;
+import java.util.Map;
+import java.util.Iterator;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
@@ -100,23 +106,39 @@ public final class ImapSessionImpl implements ImapSession
         return imapHost;
     }
 
-    public void unsolicitedResponses( ImapResponse request )
-    {
+    public void unsolicitedResponses( ImapResponse request ) throws MailboxException {
+        unsolicitedResponses(request, false);
+    }
+
+    public void unsolicitedResponses( ImapResponse request, boolean omitExpunged ) throws MailboxException {
         ImapSessionMailbox selected = getSelected();
         if (selected != null) {
-            
-            // Expunge response
-            int[] expunged = selected.getExpunged();
-            for (int i = 0; i < expunged.length; i++) {
-                int msn = expunged[i];
-                request.expungeResponse(msn);
-            }
-            
-            // New message response 
+            // New message response
             // TODO: need RECENT...
             if (selected._sizeChanged) {
                 request.existsResponse(selected.getMessageCount());
                 selected._sizeChanged = false;
+            }
+
+            Map flagUpdates = selected.getFlagUpdates();
+            Iterator iter = flagUpdates.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                int msn = ((Integer) entry.getKey()).intValue();
+                Flags updatedFlags = (Flags) entry.getValue();
+                StringBuffer out = new StringBuffer( "FLAGS " );
+                out.append( MessageFlags.format(updatedFlags) );
+                request.fetchResponse(msn, out.toString());
+
+            }
+
+            if (! omitExpunged) {
+                // Expunge response - TODO can't send on certain commands
+                int[] expunged = selected.getExpunged();
+                for (int i = 0; i < expunged.length; i++) {
+                    int msn = expunged[i];
+                    request.expungeResponse(msn);
+                }
             }
         }
     }

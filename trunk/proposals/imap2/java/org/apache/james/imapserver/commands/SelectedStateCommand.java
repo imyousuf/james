@@ -65,7 +65,7 @@ import org.apache.james.imapserver.ImapSessionState;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 abstract class SelectedStateCommand extends CommandTemplate
 {
@@ -76,5 +76,15 @@ abstract class SelectedStateCommand extends CommandTemplate
     public boolean validForState( ImapSessionState state )
     {
         return ( state == ImapSessionState.SELECTED );
+    }
+
+    protected boolean includes(IdRange[] idSet, long id) {
+        for (int i = 0; i < idSet.length; i++) {
+            IdRange idRange = idSet[i];
+            if (idRange.includes(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

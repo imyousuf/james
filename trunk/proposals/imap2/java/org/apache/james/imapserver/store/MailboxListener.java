@@ -57,9 +57,13 @@
  */
 package org.apache.james.imapserver.store;
 
+import javax.mail.Flags;
+
 public interface MailboxListener {
     // TODO shouldn't have exceptions here
     void expunged(long uid) throws MailboxException;
     
     void added(long uid);
+
+    void flagsUpdated(long uid, Flags flags) throws MailboxException;
 }

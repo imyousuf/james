@@ -71,7 +71,7 @@ import org.apache.james.imapserver.ImapSessionMailbox;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 class SelectCommand extends AuthenticatedStateCommand
 {
@@ -92,12 +92,12 @@ class SelectCommand extends AuthenticatedStateCommand
         selectMailbox(mailboxName, session);
 
         ImapSessionMailbox mailbox = session.getSelected();
-        response.flagsResponse( mailbox.getAllowedFlags() );
+        response.flagsResponse( mailbox.getPermanentFlags() );
         response.existsResponse( mailbox.getMessageCount() );
         response.recentResponse( mailbox.getRecentCount() );
         response.okResponse( "UIDVALIDITY " + mailbox.getUidValidity(), null );
 
-        long firstUnseen = mailbox.getFirstUnseen();
+        int firstUnseen = mailbox.getFirstUnseen();
         if ( firstUnseen > 0 ) {
             int msnUnseen = mailbox.getMsn( firstUnseen );
             response.okResponse( "UNSEEN " + msnUnseen,
@@ -107,7 +107,7 @@ class SelectCommand extends AuthenticatedStateCommand
             response.okResponse( null, "No messages unseen" );
         }
         
-        response.permanentFlagsResponse(mailbox.getAllowedFlags());
+        response.permanentFlagsResponse(mailbox.getPermanentFlags());
 
         if ( mailbox.isReadonly() ) {
             response.commandComplete( this, "READ-ONLY" );

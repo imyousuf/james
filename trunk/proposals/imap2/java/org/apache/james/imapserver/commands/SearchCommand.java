@@ -73,7 +73,7 @@ import javax.mail.Message;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 {
@@ -120,7 +120,8 @@ class SearchCommand extends SelectedStateCommand implements UidEnabledCommand
 
         response.commandResponse( this, idList.toString() );
 
-        session.unsolicitedResponses( response );
+        boolean omitExpunged = (!useUids);
+        session.unsolicitedResponses( response, omitExpunged );
         response.commandComplete( this );
     }
 
