@@ -8,6 +8,9 @@
 package org.apache.james.userrepository;
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import org.apache.james.services.User;
 
 /**
@@ -16,18 +19,18 @@ import org.apache.james.services.User;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:00:35 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/05/23 09:21:32 $
+ * $Revision: 1.2 $
  */
 
 public class DefaultUser implements User, Serializable {
 
     private String userName;
-    private String password;
+    private byte[] hashedPassword;
 
     public DefaultUser(String name, String pass) {
 	userName = name;
-	password = pass;
+	hashedPassword = hashString(pass);
     }
 
     public String getUserName() {
@@ -35,7 +38,8 @@ public class DefaultUser implements User, Serializable {
     }
 
     public boolean verifyPassword(String pass) {
-	return pass.equals(password);
+	byte[] hashGuess = hashString(pass);
+	return Arrays.equals(hashedPassword, hashGuess);
     }
 
     protected boolean setPass(String newPass) {
@@ -44,9 +48,25 @@ public class DefaultUser implements User, Serializable {
 	if (rtClass.equals("org.apache.james.userrepository.DefaultUser")) {
 	    throw new RuntimeException("Attempt to call setPassword in DefaultUSer");
 	} else {
-	    password = newPass;
+	    hashedPassword = hashString(newPass);
 	    return true;
 	}
     }
+
+    protected byte[] getHashedPassword() {
+	return hashedPassword;
+    }
+
+    private static byte[] hashString(String pass) {
+	MessageDigest sha;
+        try {
+             sha = MessageDigest.getInstance("SHA");
+	} catch (NoSuchAlgorithmException e) {
+	    throw new RuntimeException("Can't hash passwords!" + e);
+	}
+	sha.update(pass.getBytes());
+	return sha.digest();
+    }
+
 
 }
