@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.9 $ Committed on $Date: 2003/05/29 05:05:33 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.10 $ Committed on $Date: 2003/06/07 00:25:50 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -211,7 +211,7 @@
 
          <!-- If you want to notify the sender their message generated an error, uncomment this       -->
          <!--
-         <mailet match="All" class="NotifySender"/>
+         <mailet match="All" class="Bounce"/>
          -->
          <!-- If you want to notify the postmaster that a message generated an error, uncomment this  -->
          <!--
@@ -311,7 +311,7 @@
 
          <!-- To notify the sender their message was marked as spam, uncomment this matcher/mailet configuration -->
          <!--
-         <mailet match="All" class="NotifySender"/>
+         <mailet match="All" class="Bounce"/>
          -->
 
          <!-- To notify the postmaster that a message was marked as spam, uncomment this matcher/mailet configuration -->
