@@ -439,7 +439,7 @@ public class AvalonMailRepository
         // the keyset before getting an iterator
         final Collection clone;
         synchronized(keys) {
-            clone = new ArrayList(keys);
+            clone = new java.util.ArrayList(keys);
         }
         return clone.iterator();
     }
