@@ -31,8 +31,8 @@ import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 
 /**
- * Server which creates connection handlers. All new James servers must
- * inherit from this abstract server by implementing its
+ * Server which creates connection handlers. All new James service must
+ * inherit from this abstract implementation.
  *
  * @author <a href="mailto:myfam@surfeu.fi">Andrei Ivanov</a>
  * @author <a href="farsight@alum.mit.edu">Peter M. Goldstein</a>
@@ -41,10 +41,19 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     implements Component, Composable, Configurable,
                Disposable, Initializable, ConnectionHandlerFactory {
 
-    public static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
+    /**
+     * The default value for the connection timeout.
+     */
+    protected static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
 
-    public static final String TIMEOUT_NAME = "connectiontimeout";
+    /**
+     * The name of the parameter defining the connection timeout.
+     */
+    protected static final String TIMEOUT_NAME = "connectiontimeout";
 
+    /**
+     * The name of the parameter defining the service hello name.
+     */
     public static final String HELLO_NAME = "helloName";
 
     /**
@@ -213,7 +222,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(hostName);
         getLogger().info(infoBuffer.toString());
 
-        Configuration helloConf = handlerConfiguration.getChild("helloName");
+        Configuration helloConf = handlerConfiguration.getChild(HELLO_NAME);
         boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
         if (autodetect) {
             helloName = hostName;
@@ -260,8 +269,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                 .append(" connections.");
             getLogger().info(infoBuffer.toString());
         }
-
-
     }
 
     /**
