@@ -89,15 +89,9 @@ import java.util.StringTokenizer;
  * Provides a really rude network interface to administer James.
  * Allow to add accounts.
  * TODO: -improve protocol
- *       -add remove user
  *       -much more...
- * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.21.4.4 $
+ * @version $Revision: 1.21.4.5 $
  *
  */
 public class RemoteManagerHandler
@@ -145,6 +139,11 @@ public class RemoteManagerHandler
     private static final String COMMAND_SETFORWARDING = "SETFORWARDING";
 
     /**
+     * The text string for the SHOWFORWARDING command
+     */
+    private static final String COMMAND_SHOWFORWARDING = "SHOWFORWARDING";
+
+    /**
      * The text string for the UNSETFORWARDING command
      */
     private static final String COMMAND_UNSETFORWARDING = "UNSETFORWARDING";
@@ -153,6 +152,11 @@ public class RemoteManagerHandler
      * The text string for the SETALIAS command
      */
     private static final String COMMAND_SETALIAS = "SETALIAS";
+
+    /**
+     * The text string for the SHOWALIAS command
+     */
+    private static final String COMMAND_SHOWALIAS = "SHOWALIAS";
 
     /**
      * The text string for the UNSETALIAS command
@@ -455,6 +459,10 @@ public class RemoteManagerHandler
             return doSETALIAS(argument);
         } else if (command.equals(COMMAND_SETFORWARDING)) {
             return doSETFORWARDING(argument);
+        } else if (command.equals(COMMAND_SHOWALIAS)) {
+            return doSHOWALIAS(argument);
+        } else if (command.equals(COMMAND_SHOWFORWARDING)) {
+            return doSHOWFORWARDING(argument);
         } else if (command.equals(COMMAND_UNSETALIAS)) {
             return doUNSETALIAS(argument);
         } else if (command.equals(COMMAND_UNSETFORWARDING)) {
@@ -695,8 +703,10 @@ public class RemoteManagerHandler
         out.println("deluser [username]                      delete existing user");
         out.println("setpassword [username] [password]       sets a user's password");
         out.println("setalias [user] [alias]                 locally forwards all email for 'user' to 'alias'");
+        out.println("showalias [username]                    shows a user's current email alias");
         out.println("unsetalias [user]                       unsets an alias for 'user'");
         out.println("setforwarding [username] [emailaddress] forwards a user's email to another email address");
+        out.println("showforwarding [username]               shows a user's current email forwarding");
         out.println("unsetforwarding [username]              removes a forward");
         out.println("user [repositoryname]                   change to another user repository");
         out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
@@ -815,6 +825,78 @@ public class RemoteManagerHandler
             getLogger().error("Error setting forwarding");
         }
         out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an SHOWALIAS command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the user name
+     */
+    private boolean doSHOWALIAS(String username) {
+        if ( username == null || username.equals("") ) {
+            writeLoggedFlushedResponse("Usage: showalias [username]");
+            return true;
+        }
+
+        JamesUser user = (JamesUser)users.getUserByName(username);
+        if ( user == null ) {
+            writeLoggedFlushedResponse("No such user " + username);
+            return true;
+        }
+
+        if ( !user.getAliasing() ) {
+            writeLoggedFlushedResponse("User " + username + " does not currently have an alias");
+            return true;
+        }
+
+        String alias = user.getAlias();
+
+        if ( alias == null || alias.equals("") ) {    //  defensive programming -- neither should occur
+            String errmsg = "For user " + username + ", the system indicates that aliasing is set but no alias was found";
+            out.println(errmsg);
+            getLogger().error(errmsg);
+            return true;
+        }
+
+        writeLoggedFlushedResponse("Current alias for " + username + " is: " + alias);
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an SHOWFORWARDING command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the user name
+     */
+    private boolean doSHOWFORWARDING(String username) {
+        if ( username == null || username.equals("") ) {
+            writeLoggedFlushedResponse("Usage: showforwarding [username]");
+            return true;
+        }
+
+        JamesUser user = (JamesUser)users.getUserByName(username);
+        if ( user == null ) {
+            writeLoggedFlushedResponse("No such user " + username);
+            return true;
+        }
+
+        if ( !user.getForwarding() ) {
+            writeLoggedFlushedResponse("User " + username + " is not currently being forwarded");
+            return true;
+        }
+
+        MailAddress fwdAddr = user.getForwardingDestination();
+
+        if ( fwdAddr == null ) {    //  defensive programming -- should not occur
+            String errmsg = "For user " + username + ", the system indicates that forwarding is set but no forwarding destination was found";
+            out.println(errmsg);
+            getLogger().error(errmsg);
+            return true;
+        }
+
+        writeLoggedFlushedResponse("Current forwarding destination for " + username + " is: " + fwdAddr);
         return true;
     }
 
