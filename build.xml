@@ -116,17 +116,20 @@ All theese package are in current distribution.
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src">
-    <javac srcdir="${build.src}" destdir="${build.dest}" classpath="${classpath}" debug="${debug}"/>
-    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml" dest="${build.dest}/conf/${name}.conf.xml"/>
+    <javac srcdir="${build.src}" destdir="${build.dest}" classpath="${classpath}"
+           debug="${debug}"
+           deprecation="on"/>
+    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml"
+              dest="${build.dest}/conf/${name}.conf.xml"/>
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" items="org,conf"/>
+    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**"/>
   </target>
-
+ 
   <!-- =================================================================== -->
   <!-- Creates the distribution                                            -->
   <!-- =================================================================== -->
