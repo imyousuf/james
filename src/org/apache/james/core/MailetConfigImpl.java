@@ -14,8 +14,8 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.mailet.*;
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 
 /**
  *
@@ -36,13 +36,16 @@ public class MailetConfigImpl implements MailetConfig {
     public String getInitParameter(String name) {
 	try {
 	    String result = null;
-	    for (Iterator it = configuration.getChildren(name); it.hasNext(); ) {
+
+            final Configuration[] values = configuration.getChildren( name );
+            for ( int i = 0; i < values.length; i++ )
+            {
 		if (result == null) {
 		    result = "";
 		} else {
 		    result += ",";
 		}
-		Configuration conf = (Configuration)it.next();
+		Configuration conf = values[i];
 		result += conf.getValue();
 	    }
 	    return result;

@@ -18,9 +18,9 @@ import org.apache.avalon.ComponentNotFoundException;
 import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.Composer;
 import org.apache.avalon.ComponentManager;
-import org.apache.avalon.Configurable;
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.Initializable;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
@@ -63,9 +63,10 @@ public class AvalonMailStore
         repositories = new HashMap();
         models = new HashMap();
         classes = new HashMap();
-        Iterator registeredClasses = configuration.getChild("repositories").getChildren("repository");
-        while (registeredClasses.hasNext()) {
-            registerRepository((Configuration) registeredClasses.next());
+        Configuration[] registeredClasses = configuration.getChild("repositories").getChildren("repository");
+        for ( int i = 0; i < registeredClasses.length; i++ )
+        {
+            registerRepository((Configuration) registeredClasses[i]);
         }
         getLogger().info("James RepositoryManager ...init");
     }
@@ -73,15 +74,21 @@ public class AvalonMailStore
     public void registerRepository(Configuration repConf) throws ConfigurationException {
         String className = repConf.getAttribute("class");
         getLogger().info("Registering Repository " + className);
-        Iterator protocols = repConf.getChild("protocols").getChildren("protocol");
-        Iterator types = repConf.getChild("types").getChildren("type");
-        Iterator models = repConf.getChild("models").getChildren("model");
-        while (protocols.hasNext()) {
-            String protocol = ((Configuration) protocols.next()).getValue();
-            while (types.hasNext()) {
-                String type = ((Configuration) types.next()).getValue();
-                while (models.hasNext()) {
-                    String model = ((Configuration) models.next()).getValue();
+        Configuration[] protocols = repConf.getChild("protocols").getChildren("protocol");
+        Configuration[] types = repConf.getChild("types").getChildren("type");
+        Configuration[] models = repConf.getChild("models").getChildren("model");
+        for ( int i = 0; i < protocols.length; i++ )
+        {
+            final String protocol = protocols[i].getValue();
+
+            for ( int j = 0; j < types.length; j++ )
+            {
+                final String type = types[i].getValue();
+
+                for ( int k = 0; k < models.length; k++ )
+                {
+                    final String model = models[i].getValue();
+
                     classes.put(protocol + type + model, className);
                     getLogger().info("   for " + protocol + "," + type + "," + model);
                 }

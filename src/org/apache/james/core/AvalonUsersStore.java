@@ -16,9 +16,9 @@ import org.apache.avalon.Component;
 import org.apache.avalon.ComponentManager;
 import org.apache.avalon.ComponentManagerException;
 import org.apache.avalon.Composer;
-import org.apache.avalon.Configurable;
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.Initializable;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -52,9 +52,10 @@ public class AvalonUsersStore
         getLogger().info("AvalonUsersStore init...");
         repositories = new HashMap();
      
-        Iterator repConfs = configuration.getChildren("repository");
-        while (repConfs.hasNext()) {
-            Configuration repConf = (Configuration) repConfs.next();
+        Configuration[] repConfs = configuration.getChildren("repository");
+        for ( int i = 0; i < repConfs.length; i++ )
+        {
+            Configuration repConf = repConfs[i];
             String repName = repConf.getAttribute("name");
             String repClass = repConf.getAttribute("class");
 
