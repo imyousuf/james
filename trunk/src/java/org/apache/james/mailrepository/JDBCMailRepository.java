@@ -260,7 +260,11 @@ public class JDBCMailRepository
             }
 
         } finally {
-            conn.close();
+            try {
+                conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -576,6 +580,7 @@ public class JDBCMailRepository
     protected Connection getConnection() {
         int attempts = 0;
         while (attempts < 1000) {
+            //System.err.println("trying " + attempts + " time");
             try {
                 return datasource.getConnection();
             } catch (SQLException e1) {
