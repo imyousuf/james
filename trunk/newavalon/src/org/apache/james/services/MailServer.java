@@ -25,6 +25,11 @@ import org.apache.avalon.services.Service;
 
 public interface MailServer extends Service {
 
+    /**
+     * Reserved system name for multi-user mailboxes
+     */
+    public static final String MDA = "JamesMDA"; 
+
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
     throws MessagingException;
 
