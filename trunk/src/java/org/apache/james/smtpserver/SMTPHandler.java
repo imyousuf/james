@@ -43,17 +43,17 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
-
- * This is $Revision: 1.23 $
- * Committed on $Date: 2002/08/23 08:53:36 $ by: $Author: pgoldstein $
-
+ * This is $Revision: 1.24 $
+ * Committed on $Date: 2002/09/11 07:30:41 $ by: $Author: pgoldstein $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Initializable, Target {
 
-    /**SMTP Server identification string used in SMTP headers*/
-    private static final String softwaretype = "JAMES SMTP Server "
+    /**
+     * SMTP Server identification string used in SMTP headers
+     */
+    private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
 
     // Keys used to store/lookup data in the internal state hash map
@@ -73,17 +73,32 @@ public class SMTPHandler
                                                               // the connection
     private final static String AUTH = "AUTHENTICATED";        // The authenticated user id
 
-    // The character array that indicates termination of an SMTP connection
+    /**
+     * The character array that indicates termination of an SMTP connection
+     */
     private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
-    // Static Random instance used to generate SMTP ids
-    private static final Random random = new Random();
+    /**
+     * Static Random instance used to generate SMTP ids
+     */
+    private final static Random random = new Random();
+
+    /**
+     * Static RFC822DateFormat used to generate date headers
+     */
+    private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     private Socket socket;    // The TCP/IP socket over which the SMTP 
                               // dialogue is occurring
 
-    private DataInputStream in; // The incoming stream of bytes coming from the socket.
+    private InputStream in;     // The incoming stream of bytes coming from the socket.
     private PrintWriter out;    // The writer to which outgoing messages are written.
+
+    /**
+     * A Reader wrapper for the incoming stream of bytes coming from the socket.
+     */
+    private BufferedReader inReader;
+
     private String remoteHost;  // The remote host name obtained by lookup on the socket.
     private String remoteIP;    // The remote IP address of the socket.
     private String smtpID;      // The id associated with this particular SMTP interaction.
@@ -184,9 +199,11 @@ public class SMTPHandler
     public void handleConnection(Socket connection) throws IOException {
         try {
             this.socket = connection;
-            final InputStream bufferedInput =
-                new BufferedInputStream(socket.getInputStream(), 1024);
-            in = new DataInputStream(bufferedInput);
+            in = new BufferedInputStream(socket.getInputStream(), 1024);
+            // An ASCII encoding can be used because all transmissions other
+            // that those in the DATA command are guaranteed
+            // to be ASCII
+            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"));
             out = new InternetPrintWriter(socket.getOutputStream(), true);
             remoteHost = socket.getInetAddress().getHostName();
             remoteIP = socket.getInetAddress().getHostAddress();
@@ -228,15 +245,15 @@ public class SMTPHandler
                     .append("220 ")
                     .append(this.helloName)
                     .append(" SMTP Server (")
-                    .append(softwaretype)
+                    .append(SOFTWARE_TYPE)
                     .append(") ready ")
-                    .append(RFC822DateFormat.toString(new Date()));
+                    .append(rfc822DateFormat.format(new Date()));
             String responseString = responseBuffer.toString();
             out.println(responseString);
             out.flush();
             logResponseString(responseString);
 
-            while (parseCommand(in.readLine())) {
+            while (parseCommand(inReader.readLine())) {
                 scheduler.resetTrigger(this.toString());
             }
             getLogger().debug("Closing socket.");
@@ -310,7 +327,7 @@ public class SMTPHandler
         String user = (String) state.get(AUTH);
         state.clear();
         state.put(SERVER_NAME, this.helloName);
-        state.put(SERVER_TYPE, softwaretype);
+        state.put(SERVER_TYPE, SOFTWARE_TYPE);
         state.put(REMOTE_NAME, remoteHost);
         state.put(REMOTE_IP, remoteIP);
         state.put(SMTP_ID, smtpID);
@@ -336,6 +353,8 @@ public class SMTPHandler
     private boolean parseCommand(String command) throws Exception {
         String argument = null;
         String argument1 = null;
+        boolean returnValue = true;
+
         if (command == null) {
             return false;
         }
@@ -352,27 +371,29 @@ public class SMTPHandler
             }
         }
         command = command.toUpperCase(Locale.US);
-        if (command.equals("HELO"))
+        if (command.equals("HELO")) {
             doHELO(command, argument, argument1);
-        else if (command.equals("EHLO"))
+        } else if (command.equals("EHLO")) {
             doEHLO(command, argument, argument1);
-        else if (command.equals("AUTH"))
+        } else if (command.equals("AUTH")) {
             doAUTH(command, argument, argument1);
-        else if (command.equals("MAIL"))
+        } else if (command.equals("MAIL")) {
             doMAIL(command, argument, argument1);
-        else if (command.equals("RCPT"))
+        } else if (command.equals("RCPT")) {
             doRCPT(command, argument, argument1);
-        else if (command.equals("NOOP"))
+        } else if (command.equals("NOOP")) {
             doNOOP(command, argument, argument1);
-        else if (command.equals("RSET"))
+        } else if (command.equals("RSET")) {
             doRSET(command, argument, argument1);
-        else if (command.equals("DATA"))
+        } else if (command.equals("DATA")) {
             doDATA(command, argument, argument1);
-        else if (command.equals("QUIT"))
+        } else if (command.equals("QUIT")) {
             doQUIT(command, argument, argument1);
-        else
+            returnValue = false;
+        } else {
             doUnknownCmd(command, argument, argument1);
-        return (command.equals("QUIT") == false);
+        }
+        return returnValue;
     }
 
     /**
@@ -452,6 +473,7 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
+            // Extension defined in RFC 1870
             if (maxmessagesize > 0) {
                 responseString = "250-SIZE " + maxmessagesize;
                 out.println(responseString);
@@ -516,7 +538,7 @@ public class SMTPHandler
                     out.println(responseString);
                     out.flush();
                     logResponseString(responseString);
-                    userpass = in.readLine().trim();
+                    userpass = inReader.readLine().trim();
                 } else {
                     userpass = argument1.trim();
                 }
@@ -558,7 +580,7 @@ public class SMTPHandler
                     out.println(responseString);
                     out.flush();
                     logResponseString(responseString);
-                    user = in.readLine().trim();
+                    user = inReader.readLine().trim();
                 } else {
                     user = argument1.trim();
                 }
@@ -575,7 +597,7 @@ public class SMTPHandler
                 out.println(responseString);
                 out.flush();
                 logResponseString(responseString);
-                pass = in.readLine().trim();
+                pass = inReader.readLine().trim();
                 if (pass != null) {
                     try {
                         pass = Base64.decodeAsString(pass);
@@ -663,6 +685,7 @@ public class SMTPHandler
                             state.put(MESG_SIZE, new Integer(size));
                         }
                     } catch (Exception e) {
+                        // TODO: Comment what specific exceptions this is handling
                     }
                 }
                 //cut off the extra bit in the sender string
@@ -903,16 +926,15 @@ public class SMTPHandler
             out.flush();
             logResponseString(responseString);
             try {
-                //Setup the input stream to notify the scheduler periodically
+                // Setup the input stream to notify the scheduler periodically
                 InputStream msgIn =
                     new SchedulerNotifyInputStream(in, scheduler, this.toString(), 20000);
-                // parse headers
+                // Look for data termination
                 msgIn = new CharTerminatedInputStream(msgIn, SMTPTerminator);
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
                 if (maxmessagesize > 0) {
-                    if (getLogger().isDebugEnabled())
-                    {
+                    if (getLogger().isDebugEnabled()) {
                         StringBuffer logBuffer = 
                             new StringBuffer(128)
                                     .append("Using SizeLimitedInputStream ")
@@ -929,7 +951,7 @@ public class SMTPHandler
                 // if headers do not contains minimum REQUIRED headers fields,
                 // add them
                 if (!headers.isSet("Date")) {
-                    headers.setHeader("Date", RFC822DateFormat.toString(new Date()));
+                    headers.setHeader("Date", rfc822DateFormat.format(new Date()));
                 }
                 if (!headers.isSet("From") && state.get(SENDER) != null) {
                     headers.setHeader("From", state.get(SENDER).toString());
@@ -954,11 +976,11 @@ public class SMTPHandler
                 Enumeration headerLines = headers.getAllHeaderLines();
                 headers = new MailHeaders();
                 //Put the Return-Path first
-                headers.addHeaderLine("Return-Path: " + returnPath);
+                headers.addHeaderLine("Return-Path" + ": " + returnPath);
                 //Put our Received header next
                 StringBuffer headerLineBuffer = 
                     new StringBuffer(128)
-                            .append("Received: from ")
+                            .append("Received" + ": from ")
                             .append(state.get(REMOTE_NAME))
                             .append(" ([")
                             .append(state.get(REMOTE_IP))
@@ -971,7 +993,7 @@ public class SMTPHandler
                             .append("          by ")
                             .append(this.helloName)
                             .append(" (")
-                            .append(softwaretype)
+                            .append(SOFTWARE_TYPE)
                             .append(") with SMTP ID ")
                             .append(state.get(SMTP_ID));
 
@@ -991,7 +1013,7 @@ public class SMTPHandler
                     headerLineBuffer.append(";");
                     headers.addHeaderLine(headerLineBuffer.toString());
                 }
-                headers.addHeaderLine("          " + RFC822DateFormat.toString(new Date()));
+                headers.addHeaderLine("          " + rfc822DateFormat.format(new Date()));
 
                 //Add all the original message headers back in next
                 while (headerLines.hasMoreElements()) {
