@@ -99,6 +99,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 rcpt = (MailAddress)i.next();
                 addr[j] = rcpt.toInternetAddress();
             }
+            Exception e = null;
 
             if (addr.length > 0) {
                 //Lookup the possible targets
@@ -108,17 +109,42 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
-                        Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
+                        Properties props = (Properties)System.getProperties().clone();
+                        props.setProperty("mail.smtp.from", mail.getSender().toString());
+                        props.setProperty("mail.debug", "false");
+
+                        //"mail.smtp.ehlo"  //default true
+                        //"mail.smtp.auth"  //default false
+                        //"mail.smtp.port"  //default 25
+                        //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
+                        //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
+                        //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
+
+                        Transport transport = Session.getDefaultInstance(props, null).getTransport(urlname);
                         transport.connect();
                         transport.sendMessage(message, addr);
                         transport.close();
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
                     } catch (MessagingException me) {
-                        if (!i.hasNext()) {
-                            throw me;
+                        e = me;
+                    /*
+                    } catch (java.net.SocketException se) {
+                        //Only remember this exception if we received no other exception
+                        if (e == null) {
+                            e = se;
                         }
+                    } catch (java.net.UnknownHostException uhe) {
+                        //Only remember this exception if we received no other exception
+                        if (e == null) {
+                            e = uhe;
+                        }
+                    */
                     }
+                }
+                //If we encountered an exception while looping through, send the last exception we got
+                if (e != null) {
+                    throw e;
                 }
                 throw new MessagingException("No route found to " + host);
             } else {
@@ -142,7 +168,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param reason java.lang.String
      */
     private void failMessage(MailImpl mail, String reason, Exception ex) {
-        log("Exception delivering mail (" + mail.getName() + ": " + ex.toString());
+        StringWriter sout = new StringWriter();
+        PrintWriter pout = new PrintWriter(sout, true);
+        ex.printStackTrace(pout);
+        log("Exception delivering mail (" + mail.getName() + ": " + sout.toString());
         if (!mail.getState().equals(Mail.ERROR)) {
             mail.setState(Mail.ERROR);
             mail.setErrorMessage("0");
