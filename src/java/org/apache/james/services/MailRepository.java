@@ -60,6 +60,9 @@ package org.apache.james.services;
 
 import org.apache.james.core.MailImpl;
 
+import javax.mail.MessagingException;
+
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -83,7 +86,7 @@ public interface MailRepository {
      *
      * @param mc the mail message to store
      */
-    void store(MailImpl mc);
+    void store(MailImpl mc) throws MessagingException;
 
     /**
      * List string keys of messages in repository.
@@ -91,7 +94,7 @@ public interface MailRepository {
      * @return an <code>Iterator</code> over the list of keys in the repository
      *
      */
-    Iterator list();
+    Iterator list() throws MessagingException;
 
     /**
      * Retrieves a message given a key. At the moment, keys can be obtained
@@ -100,21 +103,29 @@ public interface MailRepository {
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    MailImpl retrieve(String key);
+    MailImpl retrieve(String key) throws MessagingException;
 
     /**
      * Removes a specified message
      *
      * @param mail the message to be removed from the repository
      */
-    void remove(MailImpl mail);
+    void remove(MailImpl mail) throws MessagingException;
+
+    /**
+     * Remove the messages in the collection mails from the repository
+     *
+     * @param mails
+     * @since 2.2.0
+     */
+     void remove(Collection mails) throws MessagingException;
 
     /**
      * Removes a message identified by key.
      *
      * @param key the key of the message to be removed from the repository
      */
-    void remove(String key);
+    void remove(String key) throws MessagingException;
 
     /**
      * Obtains a lock on a message identified by key
@@ -123,7 +134,7 @@ public interface MailRepository {
      *
      * @return true if successfully obtained the lock, false otherwise
      */
-    boolean lock(String key);
+    boolean lock(String key) throws MessagingException;
 
     /**
      * Releases a lock on a message identified the key
@@ -132,5 +143,5 @@ public interface MailRepository {
      *
      * @return true if successfully released the lock, false otherwise
      */
-    boolean unlock(String key);
+    boolean unlock(String key) throws MessagingException;
 }

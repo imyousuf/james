@@ -74,11 +74,11 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
 
 import java.io.OutputStream;
 import java.util.*;
+import javax.mail.MessagingException;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -106,7 +106,6 @@ public class AvalonMailRepository
     private Store store;
     private StreamRepository sr;
     private ObjectRepository or;
-    private MailStore mailstore;
     private String destination;
     private Set keys;
 
@@ -277,7 +276,7 @@ public class AvalonMailRepository
      *
      * @param mc the mail message to store
      */
-    public void store(MailImpl mc) {
+    public void store(MailImpl mc) throws MessagingException {
         try {
             String key = mc.getName();
             //Remember whether this key was locked
@@ -352,7 +351,7 @@ public class AvalonMailRepository
         } catch (Exception e) {
             getLogger().error("Exception storing mail: " + e);
             e.printStackTrace();
-            throw new RuntimeException("Exception caught while storing Message Container: " + e);
+            throw new MessagingException("Exception caught while storing Message Container: " + e);
         }
     }
 
@@ -363,7 +362,7 @@ public class AvalonMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public MailImpl retrieve(String key) {
+    public MailImpl retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
         }
@@ -387,7 +386,7 @@ public class AvalonMailRepository
             return mc;
         } catch (Exception me) {
             getLogger().error("Exception retrieving mail: " + me);
-            throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+            throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
         }
     }
 
@@ -396,8 +395,22 @@ public class AvalonMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(MailImpl mail) {
+    public void remove(MailImpl mail) throws MessagingException {
         remove(mail.getName());
+    }
+
+
+    /**
+     * Removes a list of mails from the repository
+     * @param mails The list of <code>MailImpl</code>'s to delete
+     * @throws MessagingException
+     * @since 2.2.0
+     */
+    public void remove(Collection mails) throws MessagingException {
+        Iterator delList = mails.iterator();
+        while (delList.hasNext()) {
+            remove((MailImpl)delList.next());
+        }
     }
 
     /**
@@ -405,7 +418,7 @@ public class AvalonMailRepository
      *
      * @param key the key of the message to be removed from the repository
      */
-    public void remove(String key) {
+    public void remove(String key) throws MessagingException {
         if (lock(key)) {
             try {
                 keys.remove(key);
@@ -420,7 +433,7 @@ public class AvalonMailRepository
                         .append("Cannot lock ")
                         .append(key)
                         .append(" to remove it");
-            throw new RuntimeException(exceptionBuffer.toString());
+            throw new MessagingException(exceptionBuffer.toString());
         }
     }
 

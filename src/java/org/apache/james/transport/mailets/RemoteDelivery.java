@@ -119,7 +119,7 @@ import org.apache.mailet.MailAddress;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.33.4.12 $ $Date: 2003/06/18 15:50:33 $
+ * @version CVS $Revision: 1.33.4.13 $ $Date: 2003/08/28 16:22:37 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -639,7 +639,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      *
      * @param mail org.apache.mailet.Mail
      */
-    public void service(Mail genericmail) throws AddressException {
+    public void service(Mail genericmail) throws MessagingException{
         MailImpl mail = (MailImpl)genericmail;
 
         // Do I want to give the internal key, or the message's Message ID
