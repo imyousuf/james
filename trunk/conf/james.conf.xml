@@ -65,12 +65,10 @@
     a Block in this xml file.   -->
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
-    <provide name="sockets" role="org.apache.cornerstone.services.SocketServer"/>
-    <provide name="sockets2" role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="sockets" role="org.apache.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections" 
              role="org.apache.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler2" role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
-    <provide name="scheduler" role="org.apache.cornerstone.services.Scheduler"/>
+    <provide name="scheduler" role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
 
     <!-- Configuration section begins here -->
     <!-- Note trailing file searator in destinationURL for repositories -->
@@ -103,7 +101,7 @@
       being provided then use must be 'basic' (default) . At some stage POP3 will, 
       hopefully, be able to use IMAP storage as well.  This choice is
       irrelevant if the only service provided is SMTP. -->
-      <storage>Basic</storage>
+      <storage>basic</storage>
 
       <!-- If storage is set to IMAP, systemClass and hostClass must point to the
       appropriate classes. -->
@@ -163,10 +161,10 @@
         <!--<bind></bind> uncomment this if you want to bind to a specific inetaddress -->
         <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
         <smtphandler>
-          <connectiontimeout> 360000 </connectiontimeout>
+          <connectiontimeout>360000</connectiontimeout>
           <!-- This sets the maximum allowed message size  for the smtphandler in KBytes.
           The value defaults to 0, which means no limit.
-          <maxmessagesize> 2000 </maxmessagesize>
+          <maxmessagesize>2000</maxmessagesize>
            -->
         </smtphandler>
       </smtpServer>
@@ -178,7 +176,7 @@
         <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
         <pop3handler>
-          <connectiontimeout> 120000 </connectiontimeout>
+          <connectiontimeout>120000</connectiontimeout>
         </pop3handler>
       </pop3Server>
 
@@ -189,7 +187,7 @@
         <!-- <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
         <imaphandler>
-          <connectiontimeout> 1800000 </connectiontimeout>
+          <connectiontimeout>1800000</connectiontimeout>
         </imaphandler>
       </imapServer>
 
@@ -487,7 +485,7 @@
   </block>
 
   <!-- The Socket Manager block -->
-  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager" name="sockets2" >
+  <block class="org.apache.cornerstone.blocks.sockets.DefaultSocketManager" name="sockets" >
     <configuration>
       <server-sockets>
         <factory name="plain"
@@ -514,41 +512,9 @@
     </configuration>
   </block>
 
-  <!-- The Socket Manager block -->
-  <!-- Used in James but deprecated -->
-  <block class="org.apache.cornerstone.blocks.serversocket.SocketManager" name="sockets" >
-
-       <configuration>
-          <listenerDefinition help="These are default socket listener. An
-                application can implement an use its own lstener to perform
-                specific task (ex. MD5Listener etc.)" >
-            <listener type="DEFAULT" class="org.apache.cornerstone.blocks.serversocket.ServerSocketAcceptor">
-            </listener>
-            <listener type="IPFILTERING" class="org.apache.cornerstone.blocks.serversocket.AuthenticatedServerSocketAcceptor">
-                <denied></denied>
-            </listener>
-            <!-- Uncomment this listener, if you want TLS support -->
-            <!--
-                <listener type="TLS"
-                          class="org.apache.cornerstone.blocks.serversocket.TLSServerSocketAcceptor">
-                    <serverKeysFile>avalonTestKeys</serverKeysFile>
-                </listener>
-            -->
-            <!-- End TLS section -->
-          </listenerDefinition>
-        </configuration>
-
-    </block>
-
-    <!-- The Time Manager block -->
-    <block class="org.apache.cornerstone.blocks.eventserver.EventServer" name="scheduler" >
-        <configuration>
-        </configuration>
-    </block>
-
-    <!-- The Time Manager block -->
-    <block class="org.apache.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
-           name="scheduler2"/>
+  <!-- The Time Manager block -->
+  <block class="org.apache.cornerstone.blocks.scheduler.DefaultTimeScheduler" 
+         name="scheduler"/>
 
 </avalon>
 

@@ -28,14 +28,6 @@
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
     <dependency>
-      <role>org.apache.cornerstone.services.SocketServer</role>
-      <service name="org.apache.cornerstone.services.SocketServer" version="1.0"/>
-    </dependency>
-    <dependency>
-      <role>org.apache.cornerstone.services.Scheduler</role>
-      <service name="org.apache.cornerstone.services.Scheduler" version="1.0"/>
-    </dependency>
-    <dependency>
       <role>org.apache.cornerstone.services.connection.ConnectionManager</role>
       <service name="org.apache.cornerstone.services.connection.ConnectionManager" 
                version="1.0"/>
