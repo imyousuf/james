@@ -164,6 +164,11 @@ All theese package are in current distribution.
     <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
     <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
 
+    <chmod dir="${dist.dir}" perm="go-rwx" />
+    <chmod file="${dist.bin}/run.sh" perm="u+x"/>
+    <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
+    <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
+
     <copyfile src="./res/maildatabase-odbc" dest="${dist.dir}/var/maildatabase-odbc"/>
     <copyfile src="./res/maildatabase-sqlserver" dest="${dist.dir}/var/maildatabase-sqlserver"/>
     <copyfile src="./res/maildatabase-mysql" dest="${dist.dir}/var/maildatabase-mysql"/>
