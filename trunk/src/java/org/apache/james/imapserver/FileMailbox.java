@@ -1574,8 +1574,6 @@ public class FileMailbox
      *
      * @param username String represnting user
      * @returns List of Integers wrapping uids of message
-     * @throws AccessControlException if user does not have lookup rights for
-     * this mailbox.
      */
     public List listUIDs(String user) {
         return new ArrayList(Collections.unmodifiableList(sequence));

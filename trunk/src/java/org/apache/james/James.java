@@ -48,13 +48,12 @@ import org.apache.avalon.phoenix.BlockContext;
  * <br> 2) Handles interactions between components
  * <br> 3) Provides container services for Mailets
  *
- * @version
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2001/06/21 17:20:20 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2001/06/24 12:14:31 $ by: $Author: charlesb $ 
  */
 public class James
     extends AbstractLoggable
