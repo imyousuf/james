@@ -29,7 +29,7 @@ public interface MailRepository {
      * Stores a message in this repository. Shouldn't this return the key
      * under which it is stored?
      */
-    void store( MailImpl mc );
+    void store(MailImpl mc);
 
     /**
      * List string keys of messages in repository.
@@ -41,15 +41,25 @@ public interface MailRepository {
      * Retrieves a message given a key. At the moment, keys can be obtained
      * from list() in superinterface Store.Repository
      */
-    MailImpl retrieve( String key );
+    MailImpl retrieve(String key);
 
     /**
      * Removes a specified message
      */
-    void remove( MailImpl mail );
+    void remove(MailImpl mail);
 
     /**
-     * Removes a message identifed by key.
+     * Removes a message identified by key.
      */
-    void remove( String key );
+    void remove(String key);
+
+    /**
+     * Obtains a lock on a message identified by key
+     */
+    boolean lock(String key);
+
+    /**
+     * Releases a lock on a message identified the key
+     */
+    boolean unlock(String key);
 }
