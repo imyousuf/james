@@ -1,4 +1,5 @@
 org.apache.james
+org.apache.james.context
 org.apache.james.core
 org.apache.james.dnsserver
 org.apache.james.mailrepository
