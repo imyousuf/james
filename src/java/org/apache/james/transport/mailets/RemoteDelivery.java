@@ -30,7 +30,7 @@ import java.net.*;
 import java.util.*;
 
 /**
- * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
+ * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
  * store it in the "outgoing" Repository and set an Alarm. After "delayTime" the
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
@@ -45,12 +45,12 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.21 $
- * Committed on $Date: 2002/08/07 23:26:38 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.22 $
+ * Committed on $Date: 2002/08/09 06:04:22 $ by: $Author: pgoldstein $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
-    private SpoolRepository outgoing;
+    private SpoolRepository outgoing; // The spool of outgoing mail
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
     private int maxRetries = 5; // default number of retries
     private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery

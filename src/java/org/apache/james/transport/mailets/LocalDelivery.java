@@ -17,8 +17,8 @@ import java.util.Iterator;
 import java.util.Vector;
 
 /**
- * Receive  a Mail from JamesSpoolManager and takes care of delivery
- * the message to local inboxes.
+ * Receives a Mail from JamesSpoolManager and takes care of delivery
+ * of the message to local inboxes.
  *
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  * @author Serge Knystautas <sergek@lokitech.com>
