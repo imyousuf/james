@@ -155,7 +155,7 @@ public class JDBCListserv extends GenericListserv {
         } catch (Exception e) {
             throw new MessagingException("Error initializing JDBCListserv", e);
         } finally {
-            closeJdbcConnection(conn);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
@@ -242,11 +242,11 @@ public class JDBCListserv extends GenericListserv {
                 ResultSet localRS = rs;
                 // Clear reference to result set
                 rs = null;
-                closeJdbcResultSet(localRS);
+                theJDBCUtil.closeJDBCResultSet(localRS);
                 Statement localStmt = stmt;
                 // Clear reference to statement
                 stmt = null;
-                closeJdbcStatement(localStmt);
+                theJDBCUtil.closeJDBCStatement(localStmt);
             }
 
             stmt = conn.prepareStatement(listservQuery);
@@ -286,65 +286,13 @@ public class JDBCListserv extends GenericListserv {
         } catch (SQLException sqle) {
             throw new MailetException("Problem loading settings", sqle);
         } finally {
-            closeJdbcResultSet(rs);
-            closeJdbcStatement(stmt);
-            closeJdbcConnection(conn);
+            theJDBCUtil.closeJDBCResultSet(rs);
+            theJDBCUtil.closeJDBCStatement(stmt);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
     }
 
     public String getMailetInfo() {
         return "JDBC listserv mailet";
     }
-
-    /**
-     * Closes database connection and prints to the log if an error
-     * is encountered
-     *
-     * @conn the connection to be closed
-     */
-    private void closeJdbcConnection(Connection conn) {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException sqle) {
-            // Log exception and continue
-            log("JDBCListserv : Unexpected exception while closing database connection.");
-        }
-    }
-
-    /**
-     * Closes database statement and prints to the log if an error
-     * is encountered
-     *
-     * @stmt the statement to be closed
-     */
-    private void closeJdbcStatement(Statement stmt) {
-        try {
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException sqle) {
-            // Log exception and continue
-            log("JDBCListserv : Unexpected exception while closing database statement.");
-        }
-    }
-
-    /**
-     * Closes database result set and prints to the log if an error
-     * is encountered
-     *
-     * @aResultSet the result set to be closed
-     */
-    private void closeJdbcResultSet(ResultSet aResultSet ) {
-        try {
-            if (aResultSet != null) {
-                aResultSet.close();
-            }
-        } catch (SQLException sqle) {
-            // Log exception and continue
-            log("JDBCListserv : Unexpected exception while closing database result set.");
-        }
-    }
-
 }
