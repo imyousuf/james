@@ -36,8 +36,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2001/09/20 01:11:06 $ by: $Author: donaldp $
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2001/10/25 12:36:16 $ by: $Author: serge $
  */
 public class JamesSpoolManager
     extends AbstractLoggable
@@ -65,7 +65,7 @@ public class JamesSpoolManager
         this.context = new DefaultContext( context );
     }
 
-    public void compose(ComponentManager comp) 
+    public void compose(ComponentManager comp)
         throws ComponentException {
         threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
         compMgr = new DefaultComponentManager(comp);
@@ -141,7 +141,11 @@ public class JamesSpoolManager
                         // **** Do better job printing out exception
                         getLogger().error( "Unable to init matcher "
                                            + matcherName + ": " + ex.toString(), ex );
-                        throw ex;
+                        System.err.println("Unable to init mailet " + matcherName);
+                        System.err.println("Check spool manager logs for more details.");
+                        //ex.printStackTrace();
+                        System.exit(1);
+                        //throw ex;
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName,
@@ -152,7 +156,11 @@ public class JamesSpoolManager
                         // **** Do better job printing out exception
                         getLogger().error("Unable to init mailet "
                                           + mailetClassName + ": " + ex.getMessage());
-                        throw ex;
+                        System.err.println("Unable to init mailet " + mailetClassName);
+                        System.err.println("Check spool manager logs for more details.");
+                        //ex.printStackTrace();
+                        System.exit(1);
+                        //throw ex;
                     }
                     //Add this pair to the proces
                     processor.add(matcher, mailet);
