@@ -73,7 +73,7 @@ public class MailetLoader implements Component, Configurable {
                     configImpl.setConfiguration(configuration);
                     configImpl.setMailetContext(context);
 
-                    Mailet mailet = (Mailet) Class.forName(className).newInstance();
+                    Mailet mailet = (Mailet) this.getClass().getClassLoader().loadClass(className).newInstance();
                     mailet.init(configImpl);
                     return mailet;
                 } catch (ClassNotFoundException cnfe) {
