@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.7 $
-    Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
+    This is $Revision: 1.8 $
+    Committed on $Date: 2001/08/01 03:58:31 $ by: $Author: serge $
 -->
 <config>
 
@@ -62,7 +62,7 @@
           <otherusersNamespace separator=".">#users</otherusersNamespace>
           <sharedNamespace separator=".">#shared</sharedNamespace>
         </namespaces>
-      </imapHost> 
+      </imapHost>
 
 
 
@@ -73,12 +73,10 @@
         </repository>
       </inboxRepository>
 
-      <!-- Alternative inbox repository definition for Town use
+      <!-- Alternative inbox repository definition for DB use. Note you must create the inbox.properties file
       <inboxRepository>
-        <repository destinationURL="town://inbox"
+        <repository destinationURL="db://conf/inbox.properties"
                     type="SPOOL">
-          <conn>file:///dev/james/dist/var/maildatabase</conn>
-          <table>Message</table>
         </repository>
       </inboxRepository>
       -->
@@ -102,9 +100,9 @@
         <!-- Processor CONFIGURATION SAMPLE:
              root is the first processor all mails enter -->
         <processor name="root">
-          <!-- Checks that the MAIL FROM command was for a valid domain. 
+          <!-- Checks that the MAIL FROM command was for a valid domain.
           Important for spam prevention. -->
-          <!-- 
+          <!--
           <mailet match="SenderInFakeDomain" class="ToProcessor">
             <processor> spam </processor>
           </mailet>
@@ -112,7 +110,7 @@
           <!-- Important check to avoid race conditions -->
           <mailet match="RelayLimit=30" class="Null">
           </mailet>
-          
+
           <!-- Check for delivery from a known spam server -->
           <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org"
                   class="ToProcessor">
@@ -157,30 +155,30 @@
           </mailet>
         </processor>
 
-        <!-- Processor CONFIGURATION SAMPLE: error is the processor mails with 
+        <!-- Processor CONFIGURATION SAMPLE: error is the processor mails with
         failure conditions enter -->
         <processor name="error">
           <!-- Logs any messages to the repository specified -->
           <mailet match="All" class="ToRepository">
             <repositoryPath> file://var/mail/error/</repositoryPath>
-            <!-- <repositoryPath> town://mail-error </repositoryPath>-->
+            <!-- <repositoryPath> db://conf/mail-error.properties </repositoryPath>-->
             <passThrough> true </passThrough>
           </mailet>
 
           <!-- If you want to notify the sender their message was marked as
           spam, uncomment this
           <mailet match="All" class="NotifySender">
-          </mailet> 
+          </mailet>
           -->
 
           <!-- If you want to notify the postmaster that a message was marked
           as spam, uncomment this
           <mailet match="All" class="NotifyPostmaster">
-          </mailet> 
+          </mailet>
           -->
         </processor>
 
-        <!--  Processor CONFIGURATION SAMPLE: transport is a sample custom 
+        <!--  Processor CONFIGURATION SAMPLE: transport is a sample custom
         processor for local or remote delivery -->
         <processor name="transport">
           <!-- Is the recipient is for a local account, deliver it locally -->
@@ -193,18 +191,18 @@
             <processor>error</processor>
           </mailet>
 
-<!-- CHECKME! 
-    Anti-relay mailet: Add your network address here, 
+<!-- CHECKME!
+    Anti-relay mailet: Add your network address here,
     e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
 -->
 
           <!-- This matcher-mailet pair can prevent relaying... if you change
           this,  you risk making your mail server an open relay point for
           spammers .
-          NOTE 1: the order of matcher-mailets is important: it must come after 
-          valid local recipients have been dealt with but before any attempt is 
+          NOTE 1: the order of matcher-mailets is important: it must come after
+          valid local recipients have been dealt with but before any attempt is
           made to delivery the mail remotely.
-          NOTE 2: Add your own network, if you want to relay mail outwards 
+          NOTE 2: Add your own network, if you want to relay mail outwards
           NOTE 3: If you use SMTP AUTH, you may want to comment this
           so users who are on the road can still use the server -->
           <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
@@ -217,7 +215,7 @@
           retries -->
           <mailet match="All" class="RemoteDelivery">
             <outgoing> file://var/mail/outgoing/ </outgoing>
-            <!-- <outgoing> town://mail-outgoing </outgoing>-->
+            <!-- <outgoing> db://conf/mail-outgoing.properties </outgoing>-->
             <delayTime> 21600000 </delayTime>
             <maxRetries> 5 </maxRetries>
           </mailet>
@@ -230,25 +228,25 @@
           <!-- If you wanted, you could just destroy messages, uncomment this
           matcher/mailet
           <mailet match="All" class="Null">
-          </mailet> 
+          </mailet>
           -->
 
-          <!-- If you want to notify the sender their message was marked as 
+          <!-- If you want to notify the sender their message was marked as
           spam, uncomment this
           <mailet match="All" class="NotifySender">
-          </mailet> 
+          </mailet>
           -->
 
           <!-- If you want to notify the postmaster that a message was marked
           as  spam, uncomment this
           <mailet match="All" class="NotifyPostmaster">
-          </mailet> 
+          </mailet>
           -->
 
           <!-- Out of the box, this will log the message to a repository -->
           <mailet match="All" class="ToRepository">
             <repositoryPath>file://var/mail/spam/</repositoryPath>
-            <!-- <repositoryPath> town://spam </repositoryPath> -->
+            <!-- <repositoryPath> db://conf/spam.properties </repositoryPath> -->
           </mailet>
         </processor>
   </spoolmanager>
@@ -357,7 +355,7 @@
           <!-- This sets the maximum allowed message size for the smtphandler
           in KBytes. The value defaults to 0, which means no limit.  -->
           <maxmessagesize>0</maxmessagesize>
-         
+
         </handler>
   </smtpserver>
 
@@ -402,7 +400,7 @@
 	    <spoolPath>file:///var/nntp/spool</spoolPath>
 	    <!-- number of threads that process spooler related tasks -->
 	    <threadCount>1</threadCount>
-	    <!-- the spool thread(s) should idle for some time, 
+	    <!-- the spool thread(s) should idle for some time,
 	        if it has nothing to do  -->
 	    <threadIdleTime>1000</threadIdleTime>
           </configuration>
@@ -432,13 +430,21 @@
         </repository>
 
         <repository
-            class="org.apache.james.mailrepository.TownSpoolRepository">
+            class="org.apache.james.mailrepository.JDBCMailRepository">
           <protocols>
-            <protocol>town</protocol>
+            <protocol>db</protocol>
+          </protocols>
+          <types>
+            <type>MAIL</type>
+          </types>
+        </repository>
+        <repository
+            class="org.apache.james.mailrepository.JDBCSpoolRepository">
+          <protocols>
+            <protocol>db</protocol>
           </protocols>
           <types>
             <type>SPOOL</type>
-            <type>MAIL</type>
           </types>
         </repository>
       </repositories>
@@ -452,17 +458,15 @@
         </repository>
       </spoolRepository>
 
-      <!-- Alternative spool repository definition for Town use
+      <!-- Alternative spool repository definition for JDBC use
       <spoolRepository>
-        <repository destinationURL="town://mainspool"
+        <repository destinationURL="db://conf/spool.properties"
                     type="SPOOL">
-          <conn>file:///dev/james/dist/var/maildatabase</conn>
-          <table>Message</table>
         </repository>
       </spoolRepository>
       -->
   </mailstore>
-       
+
   <!-- The User Storage block -->
   <users-store>
 
@@ -476,7 +480,7 @@
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/users/"/>
       </repository>
-      
+
       <!-- Uncomment this to store users in an RDBMS
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersTownRepository">
@@ -501,7 +505,7 @@
             </destination>
       </repository>
       -->
-      
+
       <!-- MySQL server via ODBC
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersJDBCRepository">
@@ -588,22 +592,22 @@
         <factory name="plain"
                  class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
         <!--
-        <factory name="ssl" 
+        <factory name="ssl"
                  class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
           <keystore>
-            <file>conf/keystore</file> 
-            <password>secret</password> 
-            <type>JKS</type> 
-            <protocol>TLS</protocol> 
-            <algorithm>SunX509</algorithm> 
-            <authenticate-client>false</authenticate-client> 
+            <file>conf/keystore</file>
+            <password>secret</password>
+            <type>JKS</type>
+            <protocol>TLS</protocol>
+            <algorithm>SunX509</algorithm>
+            <authenticate-client>false</authenticate-client>
           </keystore>
         </factory>
         -->
       </server-sockets>
 
       <client-sockets>
-        <factory name="plain" 
+        <factory name="plain"
                  class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory" />
       </client-sockets>
   </sockets>
