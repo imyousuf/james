@@ -7,14 +7,15 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.StringTokenizer;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Replaces incoming recipients with those specified.

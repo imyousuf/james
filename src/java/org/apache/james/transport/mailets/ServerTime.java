@@ -7,15 +7,16 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Returns the current time for the mail server.  Sample configuration:

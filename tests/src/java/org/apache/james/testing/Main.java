@@ -7,12 +7,18 @@
  */
 package org.apache.james.testing;
 
-import junit.framework.*;
-import junit.extensions.*;
-import junit.textui.*;
-import java.io.*;
-import org.apache.avalon.framework.configuration.*;
-import java.lang.reflect.*;
+import java.io.File;
+import java.lang.reflect.Constructor;
+
+import junit.extensions.ActiveTestSuite;
+import junit.extensions.RepeatedTest;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
 /**
  * Run tests. 
