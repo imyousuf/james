@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import org.apache.avalon.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.core.EnhancedMimeMessage;

@@ -9,11 +9,11 @@ package org.apache.james.pop3server;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.apache.avalon.configuration.Configuration;
-import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.cornerstone.services.connection.AbstractService;
-import org.apache.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.cornerstone.services.connection.DefaultHandlerFactory;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.cornerstone.services.connection.AbstractService;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
+import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
 
 /**
  * @version 1.0.0, 24/04/1999

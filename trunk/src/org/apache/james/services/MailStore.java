@@ -7,7 +7,7 @@
  */
 package org.apache.james.services;
 
-import org.apache.cornerstone.services.store.Store;
+import org.apache.avalon.cornerstone.services.store.Store;
 
 /**
  * Interface for an object which provides MailRepositories or SpoolRepositories

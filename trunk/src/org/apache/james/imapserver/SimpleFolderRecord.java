@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
-import org.apache.avalon.activity.Initializable;
+import org.apache.avalon.framework.activity.Initializable;
 
 /**
  * Object representing the record of a folder in an IMAP on an IMAP Host.

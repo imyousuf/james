@@ -8,10 +8,10 @@
 package org.apache.james.transport.mailets;
 
 import java.util.*;
-import org.apache.avalon.component.ComponentException;
-import org.apache.avalon.component.ComponentException;
-import org.apache.avalon.component.ComponentManager;
-import org.apache.avalon.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentException;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.MailRepository;

@@ -9,7 +9,7 @@ package org.apache.james.mailrepository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.cornerstone.services.store.StreamRepository;
+import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.JamesMimeMessageInputStream;
 
 public class FileMimeMessageInputStream 
