@@ -285,6 +285,7 @@ public class POP3Handler
         if (commandRaw == null) {
             return false;
         }
+        boolean returnValue = true;
         String command = commandRaw.trim();
         commandRaw = command;
         StringTokenizer commandLine = new StringTokenizer(command, " ");
@@ -311,31 +312,33 @@ public class POP3Handler
             argument1 = commandLine.nextToken();
         }
 
-        if (command.equals("USER"))
+        if (command.equals("USER")) {
             doUSER(command,argument,argument1);
-        else if (command.equals("PASS"))
+        } else if (command.equals("PASS")) {
             doPASS(command,argument,argument1);
-        else if (command.equals("STAT"))
+        } else if (command.equals("STAT")) {
             doSTAT(command,argument,argument1);
-        else if (command.equals("LIST"))
+        } else if (command.equals("LIST")) {
             doLIST(command,argument,argument1);
-        else if (command.equals("UIDL"))
+        } else if (command.equals("UIDL")) {
             doUIDL(command,argument,argument1);
-        else if (command.equals("RSET"))
+        } else if (command.equals("RSET")) {
             doRSET(command,argument,argument1);
-        else if (command.equals("DELE"))
+        } else if (command.equals("DELE")) {
             doDELE(command,argument,argument1);
-        else if (command.equals("NOOP"))
+        } else if (command.equals("NOOP")) {
             doNOOP(command,argument,argument1);
-        else if (command.equals("RETR"))
+        } else if (command.equals("RETR")) {
             doRETR(command,argument,argument1);
-        else if (command.equals("TOP"))
+        } else if (command.equals("TOP")) {
             doTOP(command,argument,argument1);
-        else if (command.equals("QUIT"))
+        } else if (command.equals("QUIT")) {
+            returnValue = false;
             doQUIT(command,argument,argument1);
-        else
+        } else {
             doUnknownCmd(command,argument,argument1);
-        return (command.equals("QUIT") == false);
+        }
+        return returnValue;
     }
 
     /**
