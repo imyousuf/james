@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.6 $
- * Committed on $Date: 2001/06/24 12:14:31 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.7 $
+ * Committed on $Date: 2001/08/11 21:31:18 $ by: $Author: serge $
  */
 public class James
     extends AbstractLoggable
@@ -94,8 +94,7 @@ public class James
     protected BlockContext           blockContext;
 
 
-    public void contextualize( final Context context )
-    {
+    public void contextualize(final Context context) {
         this.blockContext = (BlockContext)context;
     }
 
@@ -152,9 +151,8 @@ public class James
 
         final Configuration[] serverNameConfs =
             conf.getChild( "servernames" ).getChildren( "servername" );
-        for ( int i = 0; i < serverNameConfs.length; i++ )
-        {
-            serverNames.add( serverNameConfs[i].getValue() );
+        for ( int i = 0; i < serverNameConfs.length; i++ ) {
+            serverNames.add( serverNameConfs[i].getValue());
         }
         if (serverNames.isEmpty()) {
             throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
@@ -175,18 +173,18 @@ public class James
         if (userNamesConf.getAttribute("ignoreCase").equals("TRUE")) {
             ignoreCase = true;
         } else {
-	    ignoreCase = false;
-	}
+            ignoreCase = false;
+        }
         if (userNamesConf.getAttribute("enableAliases").equals("TRUE")) {
             enableAliases = true;
         } else {
-	    enableAliases = false;
-	}
+            enableAliases = false;
+        }
         if (userNamesConf.getAttribute("enableForwarding").equals("TRUE")) {
             enableForwarding = true;
         } else {
-	    enableForwarding = false;
-	}
+            enableForwarding = false;
+        }
 
         //Get localusers
         try {
@@ -203,9 +201,9 @@ public class James
         if (conf.getChild("storage").getValue().equals("IMAP")) {
             useIMAPstorage = true;
         }
-        
-        //IMAPServer instance is controlled via assembly.xml. 
-        //Assumption is that assembly.xml will set the correct IMAP Store 
+
+        //IMAPServer instance is controlled via assembly.xml.
+        //Assumption is that assembly.xml will set the correct IMAP Store
         //if IMAP is enabled.
         //if (provideIMAP && (! useIMAPstorage)) {
         //    throw new ConfigurationException ("Fatal configuration error: IMAP service requires IMAP storage ");
@@ -272,7 +270,6 @@ public class James
         getLogger().info("JAMES ...init end");
     }
 
-
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
         Collection recipients = new HashSet();
@@ -283,37 +280,33 @@ public class James
         sendMail(sender, recipients, message);
     }
 
-
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
-        throws MessagingException {
+            throws MessagingException {
         //FIX ME!!! we should validate here MimeMessage.  - why? (SK)
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
-
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
-        throws MessagingException {
-        //FIX ME!!! we should validate here MimeMessage.
+            throws MessagingException {
+        //FIX ME!!! we should validate here MimeMessage. - why? (SK)
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         mail.setState(state);
         sendMail(mail);
     }
 
-
     public synchronized void sendMail(MailAddress sender, Collection recipients, InputStream msg)
         throws MessagingException {
-
         // parse headers
         MailHeaders headers = new MailHeaders(msg);
+
         // if headers do not contains minimum REQUIRED headers fields throw Exception
         if (!headers.isValid()) {
             throw new MessagingException("Some REQURED header field is missing. Invalid Message");
         }
-        //        headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
+        // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
         sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
-
 
     public synchronized void sendMail(Mail mail) throws MessagingException {
         MailImpl mailimpl = (MailImpl)mail;
@@ -333,7 +326,6 @@ public class James
      * For POP3 server only - at the momment.
      */
     public synchronized MailRepository getUserInbox(String userName) {
-
         MailRepository userInbox = (MailRepository) null;
 
         userInbox = (MailRepository) mailboxes.get(userName);
@@ -448,11 +440,11 @@ public class James
     }
 
     public boolean isLocalUser(String name) {
-	if (ignoreCase) {
-	    return localusers.containsCaseInsensitive(name);
-	} else {
+        if (ignoreCase) {
+            return localusers.containsCaseInsensitive(name);
+        } else {
             return localusers.contains(name);
-	}
+        }
     }
 
     public MailAddress getPostmaster() {
@@ -460,35 +452,34 @@ public class James
     }
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
-
         String username;
         if (ignoreCase) {
             username = localusers.getRealName(recipient.getUser());
         } else {
             username = recipient.getUser();
         }
-	JamesUser user;
-	if (enableAliases || enableForwarding) {
-	    user = (JamesUser) localusers.getUserByName(username);
-	    if (enableAliases && user.getAliasing()) {
-	        username = user.getAlias();
-	    }
-	    if (enableForwarding && user.getForwarding()) {
-		MailAddress forwardTo = user.getForwardingDestination();
-		Collection recipients = new HashSet();
-		recipients.add(forwardTo);
-		try {
-		    sendMail(sender, recipients, message);
-		    getLogger().info("Mail for " + username + " forwarded to "
-                                 +  forwardTo.toString());
-		    return;
-		} catch (MessagingException me) {
-		    getLogger().error("Error forwarding mail to "
-				      + forwardTo.toString()
-				      + "attempting local delivery");
-		}
-	    }
-	}
+        JamesUser user;
+        if (enableAliases || enableForwarding) {
+            user = (JamesUser) localusers.getUserByName(username);
+            if (enableAliases && user.getAliasing()) {
+                username = user.getAlias();
+            }
+            if (enableForwarding && user.getForwarding()) {
+                MailAddress forwardTo = user.getForwardingDestination();
+                Collection recipients = new HashSet();
+                recipients.add(forwardTo);
+                try {
+                    sendMail(sender, recipients, message);
+                    getLogger().info("Mail for " + username + " forwarded to "
+                                         +  forwardTo.toString());
+                    return;
+                } catch (MessagingException me) {
+                    getLogger().error("Error forwarding mail to "
+                              + forwardTo.toString()
+                              + "attempting local delivery");
+                }
+            }
+        }
 
         if (useIMAPstorage) {
             ACLMailbox mbox = null;
@@ -525,7 +516,7 @@ public class James
     }
 
     public int getMinorVersion() {
-        return 2;
+        return 3;
     }
 
     public boolean isLocalServer( final String serverName ) {
@@ -533,14 +524,16 @@ public class James
     }
 
     public String getServerInfo() {
-        return "JAMES/1.2";
+        return "JAMES/1.3-dev";
     }
 
     private Logger getMailetLogger() {
-        if ( mailetLogger == null )
+        if (mailetLogger == null) {
             mailetLogger = getLogger().getChildLogger("Mailet");
+        }
         return mailetLogger;
     }
+
     public void log(String message) {
         getMailetLogger().info(message);
     }
@@ -563,10 +556,10 @@ public class James
      * @returns boolean true if user added succesfully, else false.
      */
     public boolean addUser(String userName, String password) {
-	boolean success;
-	DefaultJamesUser user = new DefaultJamesUser(userName, "SHA");
-	user.setPassword(password);
-	user.initialize();
+        boolean success;
+        DefaultJamesUser user = new DefaultJamesUser(userName, "SHA");
+        user.setPassword(password);
+        user.initialize();
         success = localusers.addUser(user);
         if (useIMAPstorage && success) {
             JamesHost jh = (JamesHost) imapHost;
@@ -576,5 +569,4 @@ public class James
         }
         return success;
     }
-
 }
