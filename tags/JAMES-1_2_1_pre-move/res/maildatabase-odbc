@@ -1,0 +1,7 @@
+# Change the DSN and username/password to match your configuration
+jdbcDriver=sun.jdbc.odbc.JdbcOdbcDriver
+jdbcURL=jdbc:odbc:MyDSN
+jdbcUsername=sa
+jdbcPassword=mypassword
+minconn=1
+maxconn=2

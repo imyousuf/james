@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Created-By: Apache Avalon Project
+
+Name: org/apache/james/James.class
+Avalon-Block: true
+
+Name: org/apache/james/core/AvalonMailStore.class
+Avalon-Block: true
+
+Name: org/apache/james/core/AvalonUsersStore.class
+Avalon-Block: true
+
+Name: org/apache/james/filestorage/RepositoryManager.class
+Avalon-Block: true

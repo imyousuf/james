@@ -1,0 +1,10 @@
+# A 2 connection limit version of this driver is available
+# at http://www.inetsoftware.de and allows direct access
+# to MS SQL Server 6.5/7.0/2k and Sybase 11
+# This only requires the JDBC 1.22 UNA driver
+jdbcDriver=com.inet.tds.TdsDriver
+jdbcURL=jdbc:inetdae:myhost.domain.com?database=MyDatabase
+jdbcUsername=sa
+jdbcPassword=mypassword
+minconn=1
+maxconn=2
