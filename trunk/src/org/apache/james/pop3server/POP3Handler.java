@@ -101,11 +101,8 @@ public class POP3Handler implements Contextualizable, Stoppable, Recyclable {
             r_out = socket.getOutputStream();
             out = new PrintWriter(r_out, true);
     
-            remoteHost = "pippo";
-            remoteIP = "192.168.1.3";
-//            remoteHost = socket.getInetAddress ().getHostName ();
-//            remoteIP = socket.getInetAddress ().getHostAddress ();
-
+            remoteHost = socket.getInetAddress ().getHostName ();
+            remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
         }
 
@@ -146,8 +143,7 @@ public class POP3Handler implements Contextualizable, Stoppable, Recyclable {
         } else if (command.startsWith("PASSW")) {
             if (state == USERSET) {
                 passw = command.substring(6);
-                String serverpassw = (String) userRepository.get(user);
-                if (passw.equals(serverpassw)) {
+                if (userRepository.test(user, passw)) {
                     state = AUTHENTICATED;
                     out.println("OK. Welcome " + user);
                     out.flush();

@@ -73,18 +73,14 @@ public class POP3Server implements SocketHandler, Block {
         this.conf = context.getConfiguration();
         this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);
         logger.log("POP3Server init...", "POP3Server", logger.INFO);
-System.out.println("ThreadManager");
         this.threadManager = (ThreadManager) context.getImplementation(Interfaces.THREADMANAGER);
-System.out.println("Store");
         this.store = (Store) context.getImplementation(Interfaces.STORE);
-System.out.println("SimpleContext");
 
         SimpleContext pop3HandlerContext = new SimpleContext(conf.getChild("pop3handler"));
         pop3HandlerContext.put(Interfaces.LOGGER, logger);
         pop3HandlerContext.put(Interfaces.STORE, store);
         pop3HandlerPool = new ContextualizableContainer();
         pop3HandlerContext.put("pool", pop3HandlerPool);
-System.out.println("levelController");
         String levelController = conf.getChild("pop3handlerpool").getChild("levelcontroller").getValueAsString();
         int capacity = conf.getChild("pop3handlerpool").getChild("capacity").getValueAsInt();
         RecycleBin container = new ControlledContainer(new Container(), ControllerFactory.create(levelController));
@@ -96,11 +92,11 @@ System.out.println("levelController");
     public void parseRequest(Socket s) {
 
         try {
-            logger.log("Retriving POP3Handler form pool.", "POP3Server", logger.DEBUG);
+//            logger.log("Retriving POP3Handler form pool.", "POP3Server", logger.DEBUG);
             Stoppable handler = (Stoppable) pop3HandlerPool.getRecyclable();
-            logger.log("POP3Handler = " + handler, "POP3Server", logger.DEBUG);
+//            logger.log("POP3Handler = " + handler, "POP3Server", logger.DEBUG);
             ((POP3Handler) handler).parseRequest(s);
-            logger.log("Executing handler.", "POP3Server", logger.DEBUG);
+//            logger.log("Executing handler.", "POP3Server", logger.DEBUG);
             threadManager.execute(handler);
         } catch (SecurityException e) {
             logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "POP3Server", logger.ERROR);
