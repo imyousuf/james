@@ -31,7 +31,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
- * $Id: Loader.java,v 1.10 2004/01/30 02:22:11 noel Exp $
+ * $Id: Loader.java,v 1.11 2004/07/09 03:37:43 mcconnell Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
@@ -49,14 +49,21 @@ public class Loader implements Contextualizable {
      */
     public void contextualize(final Context context) throws ContextException 
     {
-        try 
+        try
         {
-            baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
-        } 
-        catch (Throwable e) 
+            baseDirectory = ((File)context.get( "urn:avalon:home") ).getCanonicalPath();
+        }
+        catch( Throwable ie )
         {
-            logger.error( "can't get base directory for mailet loader" );
-            throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
+            try 
+            {
+                baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
+            }
+            catch (Throwable e ) 
+            {
+                logger.error( "can't get base directory for mailet loader" );
+                throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
+            }
         }
     }
 
