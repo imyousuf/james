@@ -185,6 +185,17 @@ public class LinearProcessor
         Mailet terminatingMailet = 
             new GenericMailet() {
                 public void service(Mail mail) {
+                    if (!(Mail.ERROR.equals(mail.getState()))) {
+                        // Don't complain if we fall off the end of the
+                        // error processor.  That is currently the
+                        // normal situation for James, and the message
+                        // will show up in the error store.
+                        StringBuffer warnBuffer = new StringBuffer(256)
+                                              .append("Message ")
+                                              .append(((MailImpl)mail).getName())
+                                              .append(" reached the end of this processor, and is automatically deleted.  This may indicate a configuration error.");
+                        LinearProcessor.this.getLogger().warn(warnBuffer.toString());
+                    }
                     mail.setState(Mail.GHOST);
                 }
             
@@ -266,13 +277,14 @@ public class LinearProcessor
             //  so we clear that spot to allow garbage collection of the
             //  objects.
             //
-            //  Please note that the presence of the Null Mailet at the end
+            //  Please note that the presence of the terminating mailet at the end
             //  of the chain is critical to the proper operation
             //  of the LinearProcessor code.  If this mailet is not placed
-            //  at the end of the chain with an "All" matcher, there is a 
+            //  at the end of the chain with a terminating matcher, there is a 
             //  potential for configuration or implementation errors to 
             //  lead to mails trapped in the spool.  This matcher/mailet
-            //  combination is added in JamesSpoolManager
+            //  combination is added when the closeProcessorList method
+            //  is called.
             unprocessed[unprocessed.length - 1].clear();
 
             //initialize the mail reference we will be searching on
@@ -373,7 +385,7 @@ public class LinearProcessor
                 mail = null;
                 continue;
             } else {
-                //Ok, we made it through with the same state... move it to the next
+                // Ok, we made it through with the same state... move it to the next
                 //  spot in the array
                 unprocessed[i + 1].add(mail);
             }
