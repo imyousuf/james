@@ -1,0 +1,3 @@
+C: abcd CAPABILITY
+S: * CAPABILITY IMAP4rev1
+S: abcd OK CAPABILITY completed

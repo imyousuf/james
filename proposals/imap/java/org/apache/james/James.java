@@ -53,13 +53,15 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.1 $
- * Committed on $Date: 2001/10/31 14:06:57 $ by: $Author: serge $
+ * This is $Revision: 1.2 $
+ * Committed on $Date: 2002/01/15 08:38:25 $ by: $Author: darrell $
  */
 public class James
     extends AbstractLoggable
     implements Block, Contextualizable, Composable, Configurable,
                Initializable, MailServer, MailetContext {
+
+    //and this is a mistake
 
     private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     private final static boolean DEEP_DEBUG = true;
@@ -90,7 +92,6 @@ public class James
 
     // IMAP related fields
     private boolean useIMAPstorage = false;
-    private IMAPSystem imapSystem;
     private Host imapHost;
     protected BlockContext           blockContext;
 
@@ -211,34 +212,9 @@ public class James
 
         // Get the LocalInbox repository
         if (useIMAPstorage) {
-            Configuration imapSetup = conf.getChild("imapSetup");
-            String imapSystemClass = imapSetup.getAttribute("systemClass");
-            String imapHostClass = imapSetup.getAttribute("hostClass");
-
             try {
                 // We will need to use a no-args constructor for flexibility
-                imapSystem = (IMAPSystem) Class.forName(imapSystemClass).newInstance();
-                //imapSystem = new SimpleSystem();
-                imapSystem.configure(conf.getChild("imapHost"));
-                imapSystem.contextualize(context);
-                imapSystem.compose(compMgr);
-                if (imapSystem instanceof Initializable) {
-                    ((Initializable)imapSystem).initialize();
-                }
-                compMgr.put( IMAPSystem.ROLE, (Component)imapSystem);
-                getLogger().info("Using SimpleSystem.");
-
-                imapHost = (Host) Class.forName(imapHostClass).newInstance();
-                //imapHost = new JamesHost();
-                setupLogger(imapHost, "IMAPhost");
-                imapHost.configure(conf.getChild("imapHost"));
-                imapHost.contextualize(context);
-                imapHost.compose(compMgr);
-                if (imapHost instanceof Initializable) {
-                    ((Initializable)imapHost).initialize();
-                }
-                compMgr.put( Host.ROLE, (Component)imapHost);
-                getLogger().info("Using: " + imapHostClass);
+                imapHost = (Host) compMgr.lookup( Host.ROLE );
             } catch (Exception e) {
                 getLogger().error("Exception in IMAP Storage init: " + e.getMessage());
                 throw e;
@@ -316,7 +292,7 @@ public class James
                 spool.remove(mailimpl);
             } catch (Exception ignored) {
             }
-            throw new MessagingException("Exception spooling message: " + e.getMessage());
+            throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
         getLogger().info("Mail " + mailimpl.getName() + " pushed in spool");
     }
@@ -338,7 +314,7 @@ public class James
         } else {
             // need mailbox object
             getLogger().info("Need inbox for " + userName );
-            String destination = inboxRootURL + userName + File.separator;;
+            String destination = inboxRootURL + userName + "/";
             DefaultConfiguration mboxConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
             mboxConf.setAttribute("destinationURL", destination);
@@ -347,6 +323,7 @@ public class James
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
+                e.printStackTrace();
                 getLogger().error("Cannot open user Mailbox" + e);
                 throw new RuntimeException("Error in getUserInbox." + e);
             }
@@ -432,7 +409,7 @@ public class James
             reply.setContent(multipart);
             reply.setHeader("Content-Type", multipart.getContentType());
         } catch (IOException ioe) {
-            throw new MessagingException("Unable to create multipart body");
+            throw new MessagingException("Unable to create multipart body", ioe);
         }
         //Send it off...
         sendMail(bouncer, recipients, reply);
@@ -483,7 +460,7 @@ public class James
         if (useIMAPstorage) {
             ACLMailbox mbox = null;
             try {
-                String folderName = "#users." + username + ".INBOX";
+                String folderName = "#user." + username + ".INBOX";
                 getLogger().debug("Want to store to: " + folderName);
                 mbox = imapHost.getMailbox(MailServer.MDA, folderName);
                 if(mbox.store(message,MailServer.MDA)) {
@@ -561,8 +538,7 @@ public class James
         user.initialize();
         success = localusers.addUser(user);
         if (useIMAPstorage && success) {
-            JamesHost jh = (JamesHost) imapHost;
-            if (jh.createPrivateMailAccount(userName)) {
+            if ( imapHost.createPrivateMailAccount(userName) ) {
                 getLogger().info("New MailAccount created for" + userName);
             }
         }

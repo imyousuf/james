@@ -60,6 +60,18 @@ public interface RecordRepository {
      * @returns boolean True if there is a record for the specified folder.
      */
     boolean containsRecord( String folderAbsoluteName );
+
+    /**
+     * Returns the a unique UID validity value for this Host.
+     * UID validity values are used to differentiate messages in 2 mailboxes with the same names
+     * (when one is deleted).
+     */
+    int nextUIDValidity();
+
+    /**
+     * Deletes the FolderRecord from the repository.
+     */
+    void deleteRecord( FolderRecord record );
 }
 
     

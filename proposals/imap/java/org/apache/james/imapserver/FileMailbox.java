@@ -17,11 +17,14 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
+import org.apache.james.util.Assert;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.mailet.Mail;
 
 /**
@@ -118,7 +121,7 @@ public class FileMailbox
         = {'-', 'l', 'r', 's', 'w', 'i', 'p', 'c', 'd', 'a'};
 
     /* Transient fields - reInit must be called on recover from disc. */
-    private transient Context context;
+    private transient BlockContext context;
     private transient Configuration conf;
     private transient ComponentManager compMgr;
     private transient UsersRepository localUsers;
@@ -150,44 +153,42 @@ public class FileMailbox
     //map of user String to Integer uid, 0 for no unseen messages
     private Map oldestUnseenMessage;
 
+    // Set of subscribed users.
+    private Set subscribedUsers = new HashSet(1000);
+
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
     }
 
     public void contextualize(Context context) {
-        this.context = context;
+        this.context = (BlockContext)context;
     }
 
     public void compose(ComponentManager comp) {
         compMgr = comp;
     }
 
-    public void prepareMailbox(String user, String absName,
-                               String initialAdminUser) {
-        if (user != null && (user.length() > 0)) {
-            owner = user;
-        } else {
-            throw new RuntimeException("Incorrect user argument  for a"
-                                       + " FileMailbox constructor.");
-        }
-        if (absName != null && (absName.length() > 0)) {
-            absoluteName = absName;
-        } else {
-            throw new RuntimeException("Incorrect absoluteName argument for a"
-                                       + " FileMailbox constructor.");
-        }
-        if (initialAdminUser != null && (initialAdminUser.length() > 0)) {
-            acl = new HashMap(7);
-            acl.put(initialAdminUser, ALL_RIGHTS);
-            //acl = new SimpleACL(initialAdminUser);
-        } else {
-            throw new RuntimeException("Incorrect initialAdminUser argument"
-                                       + " for a FileMailbox constructor.");
-        }
+    public void prepareMailbox(String user,
+                               String absName,
+                               String initialAdminUser,
+                               int uidValidity )
+    {
+        Assert.isTrue( user != null && user.length() > 0 );
+        owner = user;
+
+        Assert.isTrue( absName != null && (absName.length() > 0));
+        absoluteName = absName;
+
+        Assert.isTrue( initialAdminUser != null && initialAdminUser.length() > 0 );
+        acl = new HashMap(7);
+        acl.put(initialAdminUser, ALL_RIGHTS);
+        //acl = new SimpleACL(initialAdminUser);
+
+        Assert.isTrue( uidValidity > 0 );
+        this.uidValidity = uidValidity;
     }
 
     public void initialize() throws Exception {
-        uidValidity = 1;
         highestUID = 0;
         mailboxSize = 0;
         inferiorsAllowed = true;
@@ -199,49 +200,56 @@ public class FileMailbox
         recentMessages = new HashSet();
         messagesForDeletion = new HashSet();
         getLogger().info("FileMailbox init for " + absoluteName);
-        localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
-        String rootPath
-            = conf.getChild("mailboxRepository").getValue();
+        UsersStore usersStore = (UsersStore)compMgr.lookup( "org.apache.james.services.UsersStore" );
+        localUsers = usersStore.getRepository("LocalUsers");
+//        String rootPath = context.getBaseDirectory().getAbsolutePath() + File.separator
+//                + conf.getChild("mailboxRepository").getValue();
+        String rootPath = conf.getChild("mailboxRepository").getValue();
         if (!rootPath.endsWith(File.separator)) {
             rootPath = rootPath + File.separator;
         }
-        Configuration namespaces = conf.getChild("namespaces");
-        String namespaceToken = namespaces.getAttribute("token");
-        String privateNamespace
-            = namespaces.getChild("privateNamespace").getValue();
-        String privateNamespaceSeparator
-            = namespaces.getChild("privateNamespace").getAttribute("separator");
-        String sharedNamespace
-            = namespaces.getChild("sharedNamespace").getValue();
-        String sharedNamespaceSeparator
-            = namespaces.getChild("sharedNamespace").getAttribute("separator");
-        if (absoluteName.startsWith(privateNamespace)) {
-            String path1
-                = absoluteName.substring(privateNamespace.length()
-                                         + privateNamespaceSeparator.length()
-                                         + owner.length());
-            path = rootPath + owner
-                + path1.replace(privateNamespaceSeparator.charAt(0),
-                                File.separatorChar);
-            name = absoluteName.substring(absoluteName.lastIndexOf(privateNamespaceSeparator) + 1);
-            if (name.equals(owner)) {
-                name = "";
-            }
-        } else if (absoluteName.startsWith(sharedNamespace)) {
-            String path2 = absoluteName.substring(namespaceToken.length());
-            path = rootPath + path2.replace(sharedNamespaceSeparator.charAt(0),
-                                            File.separatorChar);
-            name = absoluteName.substring(absoluteName.lastIndexOf(sharedNamespaceSeparator) + 1);
-            if (name.equals(sharedNamespace)) {
-                name = "";
-            }
-        } else {
-            getLogger().error("FileMailbox init error: unknown namespace - "
-                         + absoluteName);
-            throw new RuntimeException("Unknown namespace for absoluteName"
-                                       +" argument for a FileMailbox"
-                                       +" constructor." + absoluteName);
+
+//        Configuration namespaces = conf.getChild("namespaces");
+//        String namespaceToken = namespaces.getAttribute("token");
+//        String privateNamespace
+//            = namespaces.getChild("privateNamespace").getValue();
+//        String privateNamespaceSeparator
+//            = namespaces.getChild("privateNamespace").getAttribute("separator");
+//        String sharedNamespace
+//            = namespaces.getChild("sharedNamespace").getValue();
+//        String sharedNamespaceSeparator
+//            = namespaces.getChild("sharedNamespace").getAttribute("separator");
+
+        path = getPath( absoluteName, owner, rootPath );
+        name = absoluteName.substring(absoluteName.lastIndexOf( JamesHost.HIERARCHY_SEPARATOR ) + 1);
+        if (name.equals(owner)) {
+            name = "";
         }
+
+//        if ( absoluteName.startsWith( JamesHost.USER_NAMESPACE_PREFIX )) {
+//            String path1
+//                = absoluteName.substring(privateNamespace.length()
+//                                         + privateNamespaceSeparator.length()
+//                                         + owner.length());
+//            path = rootPath + owner
+//                + path1.replace(privateNamespaceSeparator.charAt(0),
+//                                File.separatorChar);
+//        } else if (absoluteName.startsWith(sharedNamespace)) {
+//            String path2 = absoluteName.substring(namespaceToken.length());
+//            path = rootPath + path2.replace(sharedNamespaceSeparator.charAt(0),
+//                                            File.separatorChar);
+//            name = absoluteName.substring(absoluteName.lastIndexOf(sharedNamespaceSeparator) + 1);
+//            if (name.equals(sharedNamespace)) {
+//                name = "";
+//            }
+//        } else {
+//            getLogger().error("FileMailbox init error: unknown namespace - "
+//                         + absoluteName);
+//            throw new RuntimeException("Unknown namespace for absoluteName"
+//                                       +" argument for a FileMailbox"
+//                                       +" constructor." + absoluteName);
+//        }
+
         //Check for writable directory
         File mailboxDir = new File(path);
         if (mailboxDir.exists()) {
@@ -255,6 +263,42 @@ public class FileMailbox
         getLogger().info("FileMailbox init complete: " + absoluteName);
     }
 
+
+
+    /**
+     * Return the file-system path to a given absoluteName mailbox.
+     *
+     * @param absoluteName the user-independent name of the mailbox
+     * @param owner string name of owner of mailbox
+     */
+    private String getPath( String absoluteName, String owner, String rootPath )
+    {
+        Assert.isTrue( absoluteName.startsWith( JamesHost.NAMESPACE_TOKEN ) );
+
+        // Remove the leading '#' and replace Hierarchy separators with file separators.
+        String filePath = absoluteName.substring( JamesHost.NAMESPACE_TOKEN.length() );
+        filePath = filePath.replace( JamesHost.HIERARCHY_SEPARATOR_CHAR, File.separatorChar );
+        return rootPath + filePath;
+
+//        String path;
+//        if (absoluteName.startsWith(privateNamespace)) {
+//            String path1 = rootPath + owner;
+//            String path2
+//                = absoluteName.substring(privateNamespace.length()
+//                                         + privateNamespaceSeparator.length()
+//                                         + owner.length());
+//            path = path1 + path2.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
+//        } else if (absoluteName.startsWith(sharedNamespace)) {
+//            String path3 = absoluteName.substring(namespaceToken.length());
+//            path = rootPath + File.separator + path3.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
+//        } else {
+//            path = null;
+//        }
+//        return path;
+    }
+
+
+
     /**
      * Re-initialises mailbox after reading from file-system. Cannot assume that this is the same instance of James that wrote it.
      *
@@ -263,7 +307,8 @@ public class FileMailbox
     public void reinitialize() throws Exception {
         listeners = new HashSet();
         getLogger().info("FileMailbox reInit for " + absoluteName);
-        localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
+        UsersStore usersStore = (UsersStore)compMgr.lookup( "org.apache.james.services.UsersStore" );
+        localUsers = usersStore.getRepository("LocalUsers");
         String rootPath
             = conf.getChild("mailboxRepository").getValue();
         if (!rootPath.endsWith(File.separator)) {
@@ -279,6 +324,26 @@ public class FileMailbox
     public void dispose() {
         writeMailbox();
         getLogger().info("FileMailbox object destroyed: " + absoluteName);
+    }
+
+    /**
+     * Permanently deletes the mailbox.
+     */
+    public void removeMailbox()
+    {
+        // First delete the mailbox file
+        String mailboxRecordFile = path + File.separator + MAILBOX_FILE_NAME;
+        File mailboxRecord = new File( mailboxRecordFile );
+        Assert.isTrue( mailboxRecord.exists() &&
+                       mailboxRecord.isFile() );
+        mailboxRecord.delete();
+
+        // Check for empty directory before deleting.
+        File mailboxDir = new File(path);
+        Assert.isTrue( mailboxDir.exists() );
+        Assert.isTrue( mailboxDir.isDirectory() );
+        Assert.isTrue( mailboxDir.list().length == 0 );
+        mailboxDir.delete();
     }
 
     /**
@@ -436,7 +501,7 @@ public class FileMailbox
         if (oldestUnseenMessage.containsKey(user)) {
             Integer uidObj = ((Integer)oldestUnseenMessage.get(user));
             if (! (uidObj.intValue() == 0)) {
-                response = sequence.indexOf(uidObj);
+                response = sequence.indexOf(uidObj) + 1;
             }
         } else {
             if (sequence.size() > 0) {
@@ -894,7 +959,7 @@ public class FileMailbox
      */
     public  synchronized  boolean isSelectable(String username)
         throws AccessControlException {
-        return (!notSelectableByAnyone && hasReadRights(username));
+        return ( ! notSelectableByAnyone && hasReadRights(username) );
     }
 
     /**
@@ -1166,6 +1231,7 @@ public class FileMailbox
             throw new AuthorizationException("Not authorized to delete.");
         }
 
+        Assert.notImplemented();
         //TBD
         return false;
     }
@@ -1188,6 +1254,7 @@ public class FileMailbox
             throw new AuthorizationException("Not authorized to delete.");
         }
 
+        Assert.notImplemented();
         //TBD
         return false;
     }
@@ -1550,14 +1617,25 @@ public class FileMailbox
     private void writeMailbox() {
         String mailboxRecordFile = path + File.separator + MAILBOX_FILE_NAME;
         ObjectOutputStream out = null;
+        FileOutputStream fout = null;
         try {
-            out = new ObjectOutputStream( new FileOutputStream(mailboxRecordFile));
+            fout = new FileOutputStream( mailboxRecordFile );
+            out = new ObjectOutputStream( fout );
             out.writeObject(this);
+            out.flush();
             out.close();
+            fout.flush();
+            fout.close();
         } catch(Exception e) {
             if (out != null) {
                 try {
                     out.close();
+                } catch (Exception ignored) {
+                }
+            }
+            if (fout != null) {
+                try {
+                    fout.close();
                 } catch (Exception ignored) {
                 }
             }
@@ -1672,6 +1750,30 @@ public class FileMailbox
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns true if the named user is subscribed to this Mailbox.
+     */
+    public boolean isSubscribed( String userName )
+    {
+        return subscribedUsers.contains( userName.toLowerCase() );
+    }
+
+    /**
+     * Subscribes a user to this Mailbox.
+     */
+    public void subscribe( String userName )
+    {
+        subscribedUsers.add( userName.toLowerCase() );
+    }
+
+    /**
+     * Unsubscrive a user from this Mailbox.
+     */
+    public void unsubscribe( String userName )
+    {
+        subscribedUsers.remove( userName.toLowerCase() );
     }
 }
 

@@ -15,17 +15,19 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.commands.ImapCommand;
 //import org.apache.james.core.EnhancedMimeMessage;
 
 /**
- * Implements the IMAP FETCH command for a given ImapRequest.
+ * Implements the IMAP FETCH command for a given ImapRequestImpl.
  *
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 17 Jan 2001
  */
 public class CommandStore
-    extends BaseCommand {
+    extends BaseCommand implements ImapCommand
+{
     //mainly to switch on stack traces and catch responses;
     private static final boolean DEEP_DEBUG = true;
 
@@ -45,6 +47,23 @@ public class CommandStore
     private String user;
     private SingleThreadedConnectionHandler caller;
     private String currentFolder;
+    
+    public boolean validForState( int state )
+    {
+        return ( state == ImapConstants.SELECTED );
+    }
+
+
+    public boolean process( ImapRequest request, ImapSession session )
+    {
+        setRequest( request );
+        if ( request.arguments() < 5 ) {
+            session.badResponse( "Command should be <tag> <STORE> <message set> <message data item names> <value for message data item>" );
+            return true;
+        }
+        service();
+        return true;
+    }
 
     /**
      * Debugging method - will probably disappear
@@ -64,8 +83,8 @@ public class CommandStore
     }
 
     /**
-     * Implements IMAP store commands given an ImapRequest.
-     * <p>Warning - maybecome service(ImapRequest request)
+     * Implements IMAP store commands given an ImapRequestImpl.
+     * <p>Warning - maybecome service(ImapRequestImpl request)
      */
     public void service() {
         List set;

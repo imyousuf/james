@@ -10,6 +10,7 @@ package org.apache.james.imapserver;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.component.Component;
 
 /**
  * Interface for objects representing an IMAP4rev1 mailbox (folder) with
@@ -22,7 +23,7 @@ import org.apache.avalon.framework.context.Contextualizable;
  * @see ACL
  */
 public interface ACLMailbox
-    extends ACL, Mailbox, Contextualizable, Initializable, Disposable {
+    extends ACL, Mailbox, Component, Contextualizable, Initializable, Disposable {
 
     /**
      * Set the details particular to this Mailbox. Should only be called once,
@@ -32,7 +33,7 @@ public interface ACLMailbox
      * @param abName String absolute, ie user-independent, name of mailbox.
      * @param initialAdminUser String email local-part of a user who will be assigned admin rights on this mailbox
      */
-    void prepareMailbox( String user, String absName, String initialAdminUser );
+    void prepareMailbox( String user, String absName, String initialAdminUser, int uidValidity );
 
     /**
      * Re-initialises mailbox when restored from storage. Must be called after
@@ -41,6 +42,11 @@ public interface ACLMailbox
      */
     void reinitialize()
         throws Exception;
+
+    /**
+     * Permanently deletes the mailbox.
+     */
+    void removeMailbox();
 }
 
 

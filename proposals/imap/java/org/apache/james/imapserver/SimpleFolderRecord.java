@@ -22,7 +22,7 @@ import org.apache.avalon.framework.activity.Initializable;
 public class SimpleFolderRecord 
     implements FolderRecord, Serializable, Initializable {
 
-    private final String fullName; 
+    private final String fullName;
     private final String owner;
     private final String absoluteName;
 
@@ -46,11 +46,12 @@ public class SimpleFolderRecord
      * @param user String a user. An empty user parameter indicates that the 
      * mailbox name is absolute.
      */
-    public SimpleFolderRecord(String mailboxName, String user,
-                              String absName) {
-        fullName = mailboxName;
+    public SimpleFolderRecord( String user,
+                               String absName) {
+        //fullName = mailboxName;
         owner = user;
         absoluteName = absName;
+        fullName = absName;
     }
 
     public void initialize() {

@@ -10,6 +10,7 @@ package org.apache.james.imapserver;
 import java.io.*;
 import java.util.*;
 import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.james.util.Assert;
 
 
 /**
@@ -25,6 +26,39 @@ public class DefaultRecordRepository
  
     private String path;
     private File repository;
+
+    /**
+     * Returns the a unique UID validity value for this Host.
+     * UID validity values are used to differentiate messages in 2 mailboxes with the same names
+     * (when one is deleted).
+     */
+    public int nextUIDValidity()
+    {
+        // TODO - make this a better unique value
+        // ( although this will probably never break in practice,
+        //  should be incrementing a persisted value.
+        return Math.abs( Calendar.getInstance().hashCode() );
+    }
+
+    /**
+     * Deletes the FolderRecord from the repository.
+     */
+    public synchronized void deleteRecord( FolderRecord fr )
+    {
+        try {
+            String key = path + File.separator + fr.getAbsoluteName();
+            File record = new File( key );
+            Assert.isTrue( record.exists() );
+            record.delete();
+            getLogger().info("Record deleted for: " + fr.getAbsoluteName());
+            notifyAll();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new
+                RuntimeException("Exception caught while storing Folder Record: " + e);
+        }
+    }
 
     public void setPath(final String rootPath) {
         if (path != null) {

@@ -20,7 +20,7 @@
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager" 
+      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager"
                version="1.0"/>
     </dependency>
     <dependency>
@@ -28,9 +28,17 @@
     </dependency>
     <dependency>
       <service name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" version="1.0"/>
-    </dependency> 
+    </dependency>
     <dependency>
       <service name="org.apache.james.services.MailServer" version="1.0"/>
-    </dependency> 
-  </dependencies>  
+    </dependency>
+
+    <dependency>
+      <service name="org.apache.james.imapserver.IMAPSystem" version="1.0"/>
+    </dependency>
+    <dependency>
+        <service name="org.apache.james.imapserver.Host" version="1.0"/>
+    </dependency>
+
+  </dependencies>
 </blockinfo>

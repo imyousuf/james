@@ -7,16 +7,11 @@
  */
 package org.apache.james.imapserver;
 
-import java.util.Collection;
-import java.util.List;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.phoenix.Service;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * A host machine that has an IMAP4rev1 messaging server. There should be one
@@ -35,7 +30,7 @@ import org.apache.james.AuthorizationException;
  * @see RecordRepository
  */
 public interface Host
-    extends Configurable, Composable, Contextualizable, Service {
+{
 
     String ROLE = "org.apache.james.imapserver.Host";
 
@@ -50,7 +45,7 @@ public interface Host
      * @returns true if inbox (and private mailfolders) are accessible through
      * this host.
      */
-    boolean isHomeServer (String username);
+    boolean isHomeServer( String username );
 
     /**
      * Establishes if the specified user can access any mailboxes on this host.
@@ -61,7 +56,7 @@ public interface Host
      * @returns true if the specified user has at least read access to any
      * mailboxes on this host.
      */
-    boolean hasLocalAccess (String username);
+    boolean hasLocalAccess( String username );
 
     /**
      * Returns a reference to an existing Mailbox. The requested mailbox
@@ -75,8 +70,8 @@ public interface Host
      * lookup rights.
      * @throws MailboxException if mailbox does not exist locally.
      */
-    ACLMailbox getMailbox(String user, String mailboxName)
-        throws AccessControlException, MailboxException;
+    ACLMailbox getMailbox( String user, String mailboxName )
+            throws AccessControlException, MailboxException;
 
 
     /**
@@ -101,8 +96,8 @@ public interface Host
      * user does not have create rights.
      * @see FolderRecord
      */
-    ACLMailbox createMailbox(String user, String mailboxName)
-        throws AccessControlException, AuthorizationException, MailboxException;
+    ACLMailbox createMailbox( String user, String mailboxName )
+            throws AccessControlException, AuthorizationException, MailboxException;
 
 
     /**
@@ -121,8 +116,8 @@ public interface Host
      * not have rights to delete it.
      * @see FolderRecord
      */
-    boolean deleteMailbox(String user, String mailboxName)
-        throws MailboxException, AuthorizationException;
+    boolean deleteMailbox( String user, String mailboxName )
+            throws MailboxException, AuthorizationException, AccessControlException;
 
 
     /**
@@ -151,7 +146,7 @@ public interface Host
     boolean renameMailbox( String user,
                            String oldMailboxName,
                            String newMailboxName )
-        throws MailboxException, AuthorizationException;
+            throws MailboxException, AuthorizationException;
 
     /**
      * Releases a reference to a mailbox, allowing Host to do any housekeeping.
@@ -226,7 +221,7 @@ public interface Host
                               String referenceName,
                               String mailboxName,
                               boolean subscribedOnly )
-        throws MailboxException, AccessControlException;
+            throws MailboxException, AccessControlException;
 
     /**
      * Subscribes a user to a mailbox. The mailbox must exist locally and the
@@ -240,7 +235,7 @@ public interface Host
      * @throws MailboxException if the mailbox does not exist locally.
      */
     boolean subscribe( String username, String mailbox )
-        throws MailboxException, AccessControlException;
+            throws MailboxException, AccessControlException;
 
     /**
      * Unsubscribes from a given mailbox.
@@ -250,7 +245,7 @@ public interface Host
      * @returns true if unsubscribe completes successfully
      */
     boolean unsubscribe( String username, String mailbox )
-        throws MailboxException, AccessControlException;
+            throws MailboxException, AccessControlException;
 
     /**
      * Returns a string giving the status of a mailbox on requested criteria.
@@ -275,6 +270,9 @@ public interface Host
     String getMailboxStatus( String username,
                              String mailboxName,
                              List dataItems )
-        throws MailboxException, AccessControlException;
+            throws MailboxException, AccessControlException;
+
+
+    boolean createPrivateMailAccount( String username );
 }
 
