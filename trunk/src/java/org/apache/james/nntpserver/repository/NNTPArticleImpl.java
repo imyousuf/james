@@ -84,6 +84,20 @@ class NNTPArticleImpl implements NNTPArticle {
         } catch(IOException ex) { throw new NNTPException(ex); }
     }
 
+    // rfc2980: 2.8 XOVER
+    // requires newline and tab to be converted to space
+    private String cleanHeader(String field) {
+        if ( field == null )
+            field = "";
+        StringBuffer sb = new StringBuffer(field);
+        for( int i=0 ; i<sb.length() ; i++ ) {
+            char c = sb.charAt(i);
+            if( (c=='\n') || (c=='\t') ) 
+                sb.setCharAt(i, ' ');
+        }
+        return sb.toString();
+    }
+    
     public void writeOverview(PrintWriter prt) {
         try {
             FileInputStream fin = new FileInputStream(f);
@@ -97,14 +111,16 @@ class NNTPArticleImpl implements NNTPArticle {
             String references = hdr.getHeader("References",null);
             long byteCount = f.length();
             long lineCount = -1;
-            prt.print(articleNumber + "\t");
-            prt.print((subject==null?"":subject) + "\t");
-            prt.print((author==null?"":author) + "\t");
-            prt.print((date==null?"":date) + "\t");
-            prt.print((msgId==null?"":msgId) + "\t");
-            prt.print((references==null?"":references) + "\t");
-            prt.print(byteCount + "\t");
-            prt.println(lineCount + "");
+            StringBuffer line=new StringBuffer(128)
+                .append(articleNumber + "\t")
+                .append(cleanHeader(subject))    .append("\t")
+                .append(cleanHeader(author))     .append("\t")
+                .append(cleanHeader(date))       .append("\t")
+                .append(cleanHeader(msgId))      .append("\t")
+                .append(cleanHeader(references)) .append("\t")         
+                .append(byteCount + "\t")
+                .append(lineCount + "");
+            prt.println(line.toString());
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
     public String getHeader(String header) {
