@@ -54,7 +54,7 @@ import java.util.*;
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
-    implements Component, Contextualizable, Composable, Configurable, Initializable
+    implements Contextualizable, Composable, Configurable, Initializable
 {
     /**
      * The Avalon context used by the instance
