@@ -115,7 +115,7 @@ public class DNSServer
     public void initialize()
         throws Exception {
 
-        getLogger().info("DNSServer init...");
+        getLogger().debug("DNSServer init...");
 
         // If no DNS servers were configured, default to local host
         if (dnsServers.isEmpty()) {
@@ -144,7 +144,7 @@ public class DNSServer
 
         cache = new Cache (DClass.IN);
 
-        getLogger().info("DNSServer ...init end");
+        getLogger().debug("DNSServer ...init end");
     }
 
     /**
@@ -173,7 +173,7 @@ public class DNSServer
 
             for (int i = 0; i < mxAnswers.length; i++) {
                 servers.add(mxAnswers[i].getTarget ().toString ());
-                getLogger().info(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
+                getLogger().debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
             }
             return Collections.unmodifiableCollection(servers);
         } finally {
@@ -239,7 +239,7 @@ public class DNSServer
 
         SetResponse cached = cache.lookupRecords(name, type, dnsCredibility);
         if (cached.isSuccessful()) {
-            getLogger().info(new StringBuffer(256)
+            getLogger().debug(new StringBuffer(256)
                              .append("Retrieving MX record for ")
                              .append(name).append(" from cache")
                              .toString());
@@ -266,7 +266,7 @@ public class DNSServer
             return null;
         }
         else {
-            getLogger().info(new StringBuffer(256)
+            getLogger().debug(new StringBuffer(256)
                              .append("Looking up MX record for ")
                              .append(name)
                              .toString());
