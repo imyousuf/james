@@ -41,12 +41,13 @@ import java.util.Vector;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.4 $ $Date: 2002/01/18 02:48:40 $
+ * @version CVS $Revision: 1.5 $ $Date: 2002/04/18 14:13:53 $
  * @since 4.0
  */
 public class JdbcDataSource
     extends AbstractLogEnabled implements Configurable, Runnable, Disposable, DataSourceComponent
 {
+    private static final boolean DEEP_DEBUG = false;
     /**
      * Configure and set up DB connection.  Here we set the connection
      * information needed to create the Connection objects.
@@ -88,8 +89,8 @@ public class JdbcDataSource
                 throw new ConfigurationException("You need to specify a valid JDBC connection string, e.g., <dburl>jdbc:driver:database</dburl>");
             }
 
-            if (maxConn < 1) {
-                throw new ConfigurationException("Maximum number of connections specified must be at least 1.");
+            if (maxConn < 0) {
+                throw new ConfigurationException("Maximum number of connections specified must be at least 1 (0 means no limit).");
             }
 
             getLogger().debug("Starting connection pooler");
@@ -143,7 +144,7 @@ public class JdbcDataSource
     private String      jdbcPassword;
 
     // Maximum number of connections to have open at any point
-    private int         maxConn = -1;
+    private int         maxConn = 0;
 
     // collection of connection objects
     private Vector      pool;
@@ -192,10 +193,11 @@ public class JdbcDataSource
             long now = System.currentTimeMillis();
             if (now - connLastCreated < 1000 * pool.size()) {
                 //We don't want to scale up too quickly...
+                System.err.println("We don't want to scale up too quickly");
                 return null;
             }
 
-            if (maxConn == -1 || pool.size() < maxConn) {
+            if (maxConn == 0 || pool.size() < maxConn) {
                 connCreationsInProgress++;
                 connLastCreated = now;
             } else {
@@ -312,16 +314,20 @@ public class JdbcDataSource
         //If we find one, book it.
 
         int count = total_served++;
-        //System.out.println(new java.util.Date() + " trying to get a connection (" + count + ")");
+        if (DEEP_DEBUG) {
+            System.out.println(new java.util.Date() + " trying to get a connection (" + count + ")");
+        }
         for (int attempts = 1; attempts <= 100; attempts++) {
             synchronized (pool) {
                 for (int i = 0; i < pool.size(); i++) {
-                    PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
+                    PoolConnEntry entry = (PoolConnEntry) pool.elementAt(i);
                     //Set the appropriate flags to make this connection
                     //marked as in use
                     try {
                         if (entry.lock()) {
-                            //System.out.println(new java.util.Date() + " return a connection (" + count + ")");
+                            if (DEEP_DEBUG) {
+                                System.out.println(new java.util.Date() + " return a connection (" + count + ")");
+                            }
                             return entry;
                         }
                     } catch (SQLException se) {
@@ -335,12 +341,17 @@ public class JdbcDataSource
             }
 
             //If we have 0, create another
+            if (DEEP_DEBUG) {
+                System.out.println(pool.size());
+            }
             try {
                 if (pool.size() == 0) {
                     //create a connection
                     PoolConnEntry entry = createConn();
                     if (entry != null) {
-                        //System.out.println(new java.util.Date() + " returning new connection (" + count + ")");
+                        if (DEEP_DEBUG) {
+                            System.out.println(new java.util.Date() + " returning new connection (" + count + ")");
+                        }
                         return entry;
                     }
                     //looks like a connection was already created
@@ -351,10 +362,12 @@ public class JdbcDataSource
 
                     //if we've hit the 3rd attempt without getting a connection,
                     //  let's create another to anticipate a slow down
-                    if (attempts == 20 && (pool.size() < maxConn || maxConn == -1)) {
+                    if (attempts == 2 && (pool.size() < maxConn || maxConn == 0)) {
                         PoolConnEntry entry = createConn();
                         if (entry != null) {
-                            //System.out.println(" returning new connection (" + count + "(");
+                            if (DEEP_DEBUG) {
+                                System.out.println(" returning new connection (" + count + "(");
+                            }
                             return entry;
                         } else {
                             attempts = 1;
@@ -370,7 +383,7 @@ public class JdbcDataSource
                 getLogger().error(sout.toString());
             }
 
-            //otherwise sleep 20ms 10 times, then create a connection
+            //otherwise sleep 50ms 10 times, then create a connection
             try {
                 Thread.currentThread().sleep(50);
             } catch (InterruptedException ie) {
