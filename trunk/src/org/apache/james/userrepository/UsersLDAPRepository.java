@@ -13,7 +13,15 @@ import javax.naming.*;
 import javax.naming.directory.*;
 import java.util.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Loggable;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Initializable;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
@@ -63,7 +71,7 @@ public class UsersLDAPRepository  implements UsersRepository, Loggable, Configur
     }
 
     public void configure(Configuration conf)
-        throws org.apache.avalon.ConfigurationException {
+        throws ConfigurationException {
 
 	LDAPHost = conf.getChild("LDAPServer").getValue();
         rootNodeDN = conf.getChild("LDAPRoot").getValue();

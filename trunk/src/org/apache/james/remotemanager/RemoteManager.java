@@ -11,8 +11,13 @@ package org.apache.james.remotemanager;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.apache.avalon.*;
 import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Component;
 import org.apache.cornerstone.services.Scheduler;
 import org.apache.cornerstone.services.SocketServer;
 import org.apache.james.*;
@@ -83,8 +88,10 @@ public class RemoteManager
         
         Configuration adm = conf.getChild("administrator_accounts");
         admaccount = new HashMap();
-        for (Iterator it = adm.getChildren("account"); it.hasNext();) {
-            Configuration c = (Configuration) it.next();
+        final Configuration[] accountConfs = adm.getChildren( "account" );
+        for ( int i = 0; i < accountConfs.length; i++ )
+        {
+            Configuration c = accountConfs[i];
             admaccount.put(c.getAttribute("login"), c.getAttribute("password"));
         }
         if (admaccount.isEmpty()) {

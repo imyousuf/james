@@ -10,9 +10,9 @@ package org.apache.james.transport;
 import java.util.*;
 import javax.mail.*;
 import org.apache.avalon.Component;
-import org.apache.avalon.Configurable;
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 
 import org.apache.mailet.*;
 import org.apache.james.core.*;
@@ -29,8 +29,10 @@ public class MailetLoader implements Component, Configurable {
     public void configure(Configuration conf) throws ConfigurationException {
         mailetPackages = new Vector();
         mailetPackages.addElement("");
-        for (Iterator it = conf.getChildren("mailetpackage"); it.hasNext(); ) {
-            Configuration c = (Configuration) it.next();
+        final Configuration[] pkgConfs = conf.getChildren( "mailetpackage" );
+        for ( int i = 0; i < pkgConfs.length; i++ )
+        {
+            Configuration c = pkgConfs[i];
             String packageName = c.getValue();
             if (!packageName.endsWith(".")) {
                 packageName += ".";

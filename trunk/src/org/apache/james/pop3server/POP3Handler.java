@@ -8,26 +8,33 @@
 
 package org.apache.james.pop3server;
 
+
+
+
+
+
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
-
-import org.apache.avalon.*;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Stoppable;
 import org.apache.avalon.util.*;
 import org.apache.cornerstone.services.Scheduler;
-
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.james.util.InternetPrintWriter;
-
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-
 import org.apache.mailet.*;
 
 /**
@@ -35,7 +42,7 @@ import org.apache.mailet.*;
  * @version 0.9
  */
 public class POP3Handler implements Composer, Stoppable, Configurable,
-       Scheduler.Target, Contextualizable, Runnable {
+    Scheduler.Target, Contextualizable, Runnable {
 
     private ComponentManager compMgr;
     private Configuration conf;
@@ -73,7 +80,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable,
      */
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
-	timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
+        timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
     }
 
     public void  contextualize(Context context) {
@@ -86,19 +93,19 @@ public class POP3Handler implements Composer, Stoppable, Configurable,
 
     public void init() throws Exception {
 
-	try {
-	    mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-	    scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
-	    softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
-	    servername = (String) context.get(Constants.HELO_NAME);
-	    userMailbox = new Vector();
+        try {
+            mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
+            users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
+            scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
+            softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
+            servername = (String) context.get(Constants.HELO_NAME);
+            userMailbox = new Vector();
 
-	} catch (Exception e) {
-	    logger.error("Exception initializing a PO3Handler was : " + e);
-	    e.printStackTrace();
-	    throw e;
-	}
+        } catch (Exception e) {
+            logger.error("Exception initializing a PO3Handler was : " + e);
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public void parseRequest(Socket socket) {
@@ -120,7 +127,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable,
     public void run() {
 
         try {
-	    scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
+            scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
             state = AUTHENTICATION_READY;
             user = "unknown";
             out.println(OK_RESPONSE + " " + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
@@ -418,7 +425,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable,
     }
 
     public void stop() {
-            // todo
+        // todo
         logger.error("Stop POP3Handler");
     }
 
