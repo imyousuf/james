@@ -148,38 +148,38 @@ public class James implements MailServer, Block, MailetContext {
         comp.put(Constants.USERS_MANAGER, userManager);
         */
         String usersRepository = conf.getConfiguration("userRepository").getValue("file://../var/users/");
-	if(usersRepository.startsWith("ldap")) {
-	    try {
-		UsersLDAPRepository rootRepository = new UsersLDAPRepository();
-		rootRepository.setConfiguration(conf.getConfiguration("usersLDAP"));
-		rootRepository.setContext(context);
-		rootRepository.setComponentManager(comp);
-		rootRepository.setServerRoot();
-		rootRepository.init();
-		//get or create LocalUsers directory entry
-		String usersName
-		    =  rootRepository.getChildDestination("LocalUsers");
-		UsersLDAPRepository usersRep = new UsersLDAPRepository();
-		usersRep.setConfiguration(conf.getConfiguration("usersLDAP"));
-		usersRep.setContext(context);
-		usersRep.setComponentManager(comp);
-		usersRep.setBase(usersName);
-		usersRep.init();
-		rootRepository.dispose();
-		this.users = (UsersRepository) usersRep;
-	    } catch (Exception e) {
-            logger.log("Exception in UsersLDAPRepository init: " + e.getMessage(), "JamesSystem", logger.ERROR);
-            throw e;
-	    }
+        if(usersRepository.startsWith("ldap")) {
+            try {
+            UsersLDAPRepository rootRepository = new UsersLDAPRepository();
+            rootRepository.setConfiguration(conf.getConfiguration("usersLDAP"));
+            rootRepository.setContext(context);
+            rootRepository.setComponentManager(comp);
+            rootRepository.setServerRoot();
+            rootRepository.init();
+            //get or create LocalUsers directory entry
+            String usersName
+                =  rootRepository.getChildDestination("LocalUsers");
+            UsersLDAPRepository usersRep = new UsersLDAPRepository();
+            usersRep.setConfiguration(conf.getConfiguration("usersLDAP"));
+            usersRep.setContext(context);
+            usersRep.setComponentManager(comp);
+            usersRep.setBase(usersName);
+            usersRep.init();
+            rootRepository.dispose();
+            this.users = (UsersRepository) usersRep;
+            } catch (Exception e) {
+                logger.log("Exception in UsersLDAPRepository init: " + e.getMessage(), "JamesSystem", logger.ERROR);
+                throw e;
+            }
 
-	} else {
-	    try {
-		this.users = (UsersRepository) store.getPrivateRepository(usersRepository, UsersRepository.USER, Store.ASYNCHRONOUS);
-	    } catch (Exception e) {
-		logger.log("Cannot open private UserRepository", "JamesSystem", logger.ERROR);
-		throw e;
-	    }
-	}
+        } else {
+            try {
+                this.users = (UsersRepository) store.getPrivateRepository(usersRepository, UsersRepository.USER, Store.ASYNCHRONOUS);
+            } catch (Exception e) {
+                logger.log("Cannot open private UserRepository", "JamesSystem", logger.ERROR);
+                throw e;
+            }
+        }
         comp.put(Constants.LOCAL_USERS, users);
 
 

@@ -18,10 +18,10 @@ import java.util.*;
 public class IsSingleRecipient extends GenericMatcher {
 
     public Collection match(Mail mail) {
-		if (mail.getRecipients().size() == 1) {
-			return mail.getRecipients();
-		} else {
-			return null;
+        if (mail.getRecipients().size() == 1) {
+            return mail.getRecipients();
+        } else {
+            return null;
         }
     }
 }

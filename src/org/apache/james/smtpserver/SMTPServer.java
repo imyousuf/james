@@ -24,20 +24,20 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
     private Logger logger;
     private ThreadManager threadManager;
     private Context context;
-    
+
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
     }
-    
+
     public void setContext(Context context) {
         this.context = context;
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("SMTPServer init...", "SMTP", logger.INFO);
@@ -77,4 +77,4 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
     throws Exception {
     }
 }
-    
+

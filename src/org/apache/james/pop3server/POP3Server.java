@@ -30,16 +30,16 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
     }
-    
+
     public void setContext(Context context) {
         this.context = context;
     }
-    
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("POP3Server init...", "POP3", logger.INFO);
@@ -55,16 +55,16 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
         } catch (ConfigurationException e) {
         }
 
-	String type = SocketServer.DEFAULT;
-	try {
-	    if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-	} catch (ConfigurationException e) {
-	}
-	String typeMsg = "POP3Listener using " + type + " on port " + port;
+        String type = SocketServer.DEFAULT;
+        try {
+            if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+        } catch (ConfigurationException e) {
+        }
+        String typeMsg = "POP3Listener using " + type + " on port " + port;
         logger.log(typeMsg, "POP3", logger.INFO);
 
         socketServer.openListener("POP3Listener", type, port, bind, this);
-      
+
         logger.log("POP3Server ...init end", "POP3", logger.INFO);
     }
 
@@ -86,4 +86,4 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
     public void destroy() {
     }
 }
-    
+
