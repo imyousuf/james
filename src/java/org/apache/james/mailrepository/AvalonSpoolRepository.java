@@ -7,6 +7,7 @@
  */
 package org.apache.james.mailrepository;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import javax.mail.MessagingException;
 import org.apache.james.util.Lock;
@@ -37,24 +38,26 @@ public class AvalonSpoolRepository
             getLogger().debug("Method accept() called");
         }
         while (true) {
-            for(Iterator it = list(); it.hasNext(); ) {
-
-                String s = it.next().toString();
-        		if (DEEP_DEBUG) {
-                    getLogger().debug("Found item " + s
-                                                  + " in spool.");
-                }
-                if (lock(s)) {
-		            if (DEEP_DEBUG) {
-                        getLogger().debug("accept() has locked: "
-                                                      + s);
-                    }
-                    return s;
-                }
-            }
             try {
+                for(Iterator it = list(); it.hasNext(); ) {
+
+                    String s = it.next().toString();
+                    if (DEEP_DEBUG) {
+                        getLogger().debug("Found item " + s
+                                                      + " in spool.");
+                    }
+                    if (lock(s)) {
+                        if (DEEP_DEBUG) {
+                            getLogger().debug("accept() has locked: "
+                                                          + s);
+                        }
+                        return s;
+                    }
+                }
+
                 wait();
             } catch (InterruptedException ignored) {
+            } catch (ConcurrentModificationException ignoredAlso) {
             }
         }
     }
