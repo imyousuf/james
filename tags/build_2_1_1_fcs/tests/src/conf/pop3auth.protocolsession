@@ -1,0 +1,12 @@
+# note \ before '+'. '+' needs to be escaped
+S: \+OK.*
+C: USER test
+S: \+OK.*
+C: PASS invalidpwd
+S: -ERR.*
+C: USER test
+S: \+OK.*
+C: PASS test
+S: \+OK.*
+C: QUIT
+S: \+OK.*

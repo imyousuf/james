@@ -1,0 +1,6 @@
+C: a023 LOGOUT extra stuff
+S: a023 BAD Expected end-of-line, found more characters. Command should be '<tag> LOGOUT'
+
+C: A023 LOGOUT
+S: \* BYE IMAP4rev1 Server logging out
+S: A023 OK LOGOUT completed

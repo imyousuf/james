@@ -1,0 +1,210 @@
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
+package org.apache.james.nntpserver.repository;
+
+import org.apache.james.nntpserver.NNTPException;
+import org.apache.avalon.excalibur.io.IOUtil;
+
+import javax.mail.internet.InternetHeaders;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+
+/**
+ * Please see NNTPArticle for comments
+ *
+ */
+class NNTPArticleImpl implements NNTPArticle {
+
+    /**
+     * The file that stores the article data
+     */
+    private final File articleFile;
+
+    /**
+     * The newsgroup containing this article.
+     */
+    private final NNTPGroup group;
+
+    /**
+     * The sole constructor for this class.
+     *
+     * @param group the news group containing this article
+     * @param f the file that stores the article data
+     */
+    NNTPArticleImpl(NNTPGroup group, File f) {
+        articleFile = f;
+        this.group = group;
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getGroup()
+     */
+    public NNTPGroup getGroup() {
+        return group;
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getArticleNumber()
+     */
+    public int getArticleNumber() {
+        return Integer.parseInt(articleFile.getName());
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getUniqueID()
+     */
+    public String getUniqueID() {
+        FileInputStream fin = null;
+        try {
+            fin = new FileInputStream(articleFile);
+            InternetHeaders headers = new InternetHeaders(fin);
+            String[] idheader = headers.getHeader("Message-Id");
+            return ( idheader.length > 0 ) ? idheader[0] : null;
+        } catch(Exception ex) { 
+            throw new NNTPException(ex); 
+        } finally {
+            IOUtil.shutdownStream(fin);
+        }
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeArticle(PrintWriter)
+     */
+    public void writeArticle(PrintWriter prt) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(articleFile));
+            String line = null;
+            while ( ( line = reader.readLine() ) != null ) {
+                // add extra dot if line starts with '.'
+                // '.' indicates end of article.
+                if ( line.startsWith(".") )
+                    prt.print(".");
+                prt.println(line);
+            }
+        } catch(IOException ex) {
+            throw new NNTPException(ex);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException ioe) {
+                throw new NNTPException(ioe);
+            }
+        }
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeHead(PrintWriter)
+     */
+    public void writeHead(PrintWriter prt) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(articleFile));
+            String line = null;
+            while ( ( line = reader.readLine() ) != null ) {
+                if ( line.trim().length() == 0 )
+                    break;
+                if ( line.startsWith(".") )
+                    prt.print(".");
+                prt.println(line);
+            }
+            reader.close();
+        } catch(IOException ex) { throw new NNTPException(ex); }
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeBody(PrintWriter)
+     */
+    public void writeBody(PrintWriter prt) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(articleFile));
+            String line = null;
+            boolean startWriting = false;
+            while ( ( line = reader.readLine() ) != null ) {
+                if ( startWriting ) {
+                    if ( line.startsWith(".") )
+                        prt.print(".");
+                    prt.println(line);
+                } else
+                    startWriting = ( line.trim().length() == 0 );
+            }
+            reader.close();
+        } catch(IOException ex) { throw new NNTPException(ex); }
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeOverview(PrintWriter)
+     */
+    public void writeOverview(PrintWriter prt) {
+        try {
+            FileInputStream fin = new FileInputStream(articleFile);
+            InternetHeaders hdr = new InternetHeaders(fin);
+            fin.close();
+            String subject = hdr.getHeader("Subject",null);
+            String author = hdr.getHeader("From",null);
+            String date = hdr.getHeader("Date",null);
+            String msgId = hdr.getHeader("Message-Id",null);
+            String references = hdr.getHeader("References",null);
+            long byteCount = articleFile.length();
+            // TODO: Address the line count issue.
+            long lineCount = -1;
+            StringBuffer line=new StringBuffer(256)
+                .append(getArticleNumber())      .append("\t")
+                .append(cleanHeader(subject))    .append("\t")
+                .append(cleanHeader(author))     .append("\t")
+                .append(cleanHeader(date))       .append("\t")
+                .append(cleanHeader(msgId))      .append("\t")
+                .append(cleanHeader(references)) .append("\t")
+                .append(byteCount)               .append("\t")
+                .append(lineCount);
+            prt.println(line.toString());
+        } catch(Exception ex) { throw new NNTPException(ex); }
+    }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getHeader(String)
+     */
+    public String getHeader(String header) {
+        try {
+            FileInputStream fin = new FileInputStream(articleFile);
+            InternetHeaders hdr = new InternetHeaders(fin);
+            fin.close();
+            return hdr.getHeader(header,null);
+        } catch(Exception ex) {
+            throw new NNTPException(ex);
+        }
+    }
+
+    /**
+     * Strips out newlines and tabs, converting them to spaces.
+     * rfc2980: 2.8 XOVER requires newline and tab to be converted to spaces
+     *
+     * @param the input String
+     *
+     * @return the cleaned string
+     */
+    private String cleanHeader(String field) {
+        if ( field == null )
+            field = "";
+        StringBuffer sb = new StringBuffer(field);
+        for( int i=0 ; i<sb.length() ; i++ ) {
+            char c = sb.charAt(i);
+            if( (c=='\n') || (c=='\t') || (c=='\r') ) {
+                sb.setCharAt(i, ' ');
+            }
+        }
+        return sb.toString();
+    }
+}
