@@ -56,3 +56,12 @@ NNTP Working group: http://www.academ.com/academ/nntp/
 
 LDAP
 ----
+RFC 3377 : Lightweight Directory Access Protocol (v3): Technical Specification
+RFC 2251 : Lightweight Directory Access Protocol (v3)
+RFC 2252 : Lightweight Directory Access Protocol (v3): Attribute Syntax Definitions
+RFC 2253 : Lightweight Directory Access Protocol (v3): UTF-8 String Representation of Distinguished Names
+RFC 2254 : The String Representation of LDAP Search Filters
+RFC 2255 : The LDAP URL Format
+RFC 2256 : A Summary of the X.500(96) User Schema for use with LDAPv3
+RFC 2829 : Authentication Methods for LDAP
+RFC 2830 : Lightweight Directory Access Protocol (v3): Extension for Transport Layer Security

@@ -59,6 +59,15 @@
 <a href="http://www.academ.com/academ/nntp/">NNTP Working Group</a><br/>
 </subsection>
 <subsection name="LDAP RFCs">
+<a href="rfclist/ldap/rfc3377.txt">RFC 3377 : Lightweight Directory Access Protocol (v3): Technical Specification</a><br/>
+<a href="rfclist/ldap/rfc2251.txt">RFC 2251 : Lightweight Directory Access Protocol (v3)</a><br/>
+<a href="rfclist/ldap/rfc2252.txt">RFC 2252 : Lightweight Directory Access Protocol (v3): Attribute Syntax Definitions</a><br/>
+<a href="rfclist/ldap/rfc2253.txt">RFC 2253 : Lightweight Directory Access Protocol (v3): UTF-8 String Representation of Distinguished Names</a><br/>
+<a href="rfclist/ldap/rfc2254.txt">RFC 2254 : The String Representation of LDAP Search Filters</a><br/>
+<a href="rfclist/ldap/rfc2255.txt">RFC 2255 : The LDAP URL Format</a><br/>
+<a href="rfclist/ldap/rfc2256.txt">RFC 2256 : A Summary of the X.500(96) User Schema for use with LDAPv3</a><br/>
+<a href="rfclist/ldap/rfc2829.txt">RFC 2829 : Authentication Methods for LDAP</a><br/>
+<a href="rfclist/ldap/rfc2830.txt">RFC 2830 : Lightweight Directory Access Protocol (v3): Extension for Transport Layer Security</a><br/>
 </subsection>
 </section>
 </body>
