@@ -65,7 +65,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Vector;
 
 import javax.mail.MessagingException;
 
@@ -371,18 +370,23 @@ public class LinearProcessor
                 recipients = matcher.match(mail);
                 if (recipients == null) {
                     //In case the matcher returned null, create an empty Vector
-                    recipients = new Vector();
+                    recipients = new ArrayList(0);
+                } else if (recipients != mail.getRecipients()) {
+                    //Make sure all the objects are MailAddress objects
+                    verifyMailAddresses(recipients);
                 }
-                //Make sure all the objects are MailAddress objects
-                verifyMailAddresses(recipients);
             } catch (MessagingException me) {
                 handleException(me, mail, matcher.getMatcherConfig().getMatcherName());
             }
             // Split the recipients into two pools.  notRecipients will contain the
             // recipients on the message that the matcher did not return.
-            Collection notRecipients = new Vector();
-            notRecipients.addAll(mail.getRecipients());
-            notRecipients.removeAll(recipients);
+            Collection notRecipients;
+            if (recipients == mail.getRecipients() || recipients.size() == 0) {
+                notRecipients = new ArrayList(0);
+            } else {
+                notRecipients = new ArrayList(mail.getRecipients());
+                notRecipients.removeAll(recipients);
+            }
 
             if (recipients.size() == 0) {
                 //Everything was not a match... store it in the next spot in the array
