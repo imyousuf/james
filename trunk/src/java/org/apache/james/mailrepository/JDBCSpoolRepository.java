@@ -190,7 +190,11 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
                 listMessages.setString(1, repositoryName);
                 rsListMessages = listMessages.executeQuery();
-                while (rsListMessages.next()) {
+                //Continue to have it loop through the list of messages until we hit
+                //  a possible message, or we retrieve 1000 messages.  This 1000 cap is to
+                //  avoid loading thousands or hundreds of thousands of messages when the
+                //  spool is enourmous.
+                while (rsListMessages.next() && pendingMessages.size() < 1000) {
                     String key = rsListMessages.getString(1);
                     String state = rsListMessages.getString(2);
                     long lastUpdated = rsListMessages.getTimestamp(3).getTime();
