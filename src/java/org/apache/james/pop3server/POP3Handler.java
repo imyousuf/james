@@ -214,7 +214,6 @@ public class POP3Handler
             while (parseCommand(in.readLine())) {
                 scheduler.resetTrigger(this.toString());
             }
-            scheduler.removeTrigger(this.toString());
             if (getLogger().isInfoEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(128)
@@ -241,9 +240,12 @@ public class POP3Handler
             getLogger().error(exceptionBuffer.toString(), e );
             try {
                 socket.close();
-            } catch (IOException ioe) {
-            }
-            // TODO: In the error condition, shouldn't we be removing the trigger?
+            } catch (IOException ioe) {  }
+
+            // release from scheduler.
+            try {
+                scheduler.removeTrigger(this.toString());
+            } catch(Throwable t) { }
         }
     }
 
