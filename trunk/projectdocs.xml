@@ -54,7 +54,7 @@ Legal:
     <pathelement location="lib/activation.jar"/>
     <pathelement location="lib/jmxri.jar"/>
     <pathelement location="lib/jmxtools.jar"/>
-    <pathelement location="lib/mail_1_3.jar"/>
+    <pathelement location="lib/mail-1.3.1.jar"/>
     <pathelement location="lib/jakarta-oro-2.0.1.jar"/>
     <pathelement location="lib/town.jar"/>
 
