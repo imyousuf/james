@@ -164,7 +164,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.13 $ $Date: 2003/06/27 14:34:37 $
+ * @version CVS $Revision: 1.1.2.14 $ $Date: 2003/06/30 09:42:07 $
  * @since 2.2.0
  */
 
@@ -464,10 +464,12 @@ public abstract class AbstractRedirect extends GenericMailet {
 
         StringTokenizer st = new StringTokenizer(addressList, ",", false);
         while(st.hasMoreTokens()) {
+            String token = null;
             try {
-                newRecipients.add(new MailAddress(st.nextToken()));
+                token = st.nextToken();
+                newRecipients.add(new MailAddress(token));
             } catch(Exception e) {
-                log("add recipient failed in getRecipients");
+                throw new MessagingException("Exception thrown in getRecipients() parsing: " + token, e);
             }
         }
         return newRecipients;
@@ -480,12 +482,13 @@ public abstract class AbstractRedirect extends GenericMailet {
      *
      * @return {@link #getRecipients()},
      * replacing <CODE>SpecialAddress.SENDER</CODE> if applicable with the original sender
-     * and <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
+     * and <CODE>SpecialAddress.UNALTERED</CODE>
+     * and <CODE>SpecialAddress.RECIPIENTS</CODE> if applicable with null
      */
     protected Collection getRecipients(Mail originalMail) throws MessagingException {
         Collection recipients = (isStatic()) ? this.recipients : getRecipients();
         if (recipients != null && recipients.size() == 1) {
-            if (recipients.contains(SpecialAddress.UNALTERED)) {
+            if (recipients.contains(SpecialAddress.UNALTERED) || recipients.contains(SpecialAddress.RECIPIENTS)) {
                 recipients = null;
             } else if (recipients.contains(SpecialAddress.SENDER)) {
                 recipients = new ArrayList();
@@ -558,7 +561,7 @@ public abstract class AbstractRedirect extends GenericMailet {
                 tokenx     = rec.nextToken();
                 iaarray[i] = new InternetAddress(tokenx);
             } catch(Exception e) {
-                log("Internet address exception in getTo()");
+                throw new MessagingException("Exception thrown in getTo() parsing: " + tokenx, e);
             }
         }
         return iaarray;
@@ -583,6 +586,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      *      </LI>
      *      <LI>
      *          If <CODE>getTo()</CODE> returns <CODE>SpecialAddress.UNALTERED</CODE>
+     *                                          or <CODE>SpecialAddress.TO</CODE>
      *          it returns the original <I>TO:</I>.
      *      </LI>
      *      <LI>
@@ -595,7 +599,9 @@ public abstract class AbstractRedirect extends GenericMailet {
      * </UL>
      *
      * @return {@link #getTo()}, replacing <CODE>SpecialAddress.SENDER</CODE>,
-     * <CODE>SpecialAddress.SENDER</CODE> and <CODE>SpecialAddress.UNALTERED</CODE> if applicable
+     * <CODE>SpecialAddress.SENDER</CODE>,
+     * <CODE>SpecialAddress.TO</CODE>,
+     * and <CODE>SpecialAddress.UNALTERED</CODE> if applicable
      */
     protected InternetAddress[] getTo(Mail originalMail) throws MessagingException {
         InternetAddress[] apparentlyTo = (isStatic()) ? this.apparentlyTo : getTo();
@@ -618,7 +624,8 @@ public abstract class AbstractRedirect extends GenericMailet {
                     apparentlyTo = new InternetAddress[1];
                     apparentlyTo[0] = mailAddress.toInternetAddress();
                 }
-            } else if (apparentlyTo[0].equals(SpecialAddress.UNALTERED.toInternetAddress())) {
+            } else if (apparentlyTo[0].equals(SpecialAddress.UNALTERED.toInternetAddress())
+                       || apparentlyTo[0].equals(SpecialAddress.TO.toInternetAddress())) {
                 apparentlyTo = (InternetAddress[]) originalMail.getMessage().getRecipients(Message.RecipientType.TO);
             } else if (apparentlyTo[0].equals(SpecialAddress.RETURN_PATH.toInternetAddress())) {
                 MailAddress mailAddress = getExistingReturnPath(originalMail);
@@ -683,7 +690,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
-                log("Parse error in getReplyTo: " + addressString);
+                throw new MessagingException("Exception thrown in getReplyTo() parsing: " + addressString, e);
             }
         }
 
@@ -697,12 +704,15 @@ public abstract class AbstractRedirect extends GenericMailet {
      *
      * @return {@link #getReplyTo()}
      * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
+     * and <CODE>SpecialAddress.SENDER</CODE> with the original mail sender
      */
     protected MailAddress getReplyTo(Mail originalMail) throws MessagingException {
         MailAddress replyTo = (isStatic()) ? this.replyTo : getReplyTo();
         if (replyTo != null) {
             if (replyTo == SpecialAddress.UNALTERED) {
                 replyTo = null;
+            } else if (replyTo == SpecialAddress.SENDER) {
+                replyTo = originalMail.getSender();
             }
         }
         return replyTo;
@@ -710,25 +720,12 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     /**
      * <P>Sets the "Reply-To:" header of <I>newMail</I> to <I>replyTo</I>.</P>
-     * <P>If the requested value is <CODE>SpecialAddress.SENDER</CODE> will use the original "From:" header;
-     * if this header is empty will use the original "Sender:" header;
-     * if this header is empty will use the original sender.
      * If the requested value is <CODE>SpecialAddress.NULL</CODE> will remove the "Reply-To:" header.
      * If the requested value is null does nothing.</P>
      * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setReplyTo(Mail newMail, MailAddress replyTo, Mail originalMail) throws MessagingException {
         if(replyTo != null) {
-            if (replyTo == SpecialAddress.SENDER) {
-                replyTo = getSafeApparentSender(originalMail);
-
-                // if still null give up.
-                if (replyTo == null) {
-                    return;
-                }
-            }
-            
-            // do the job
             InternetAddress[] iart = null;
             if (replyTo != SpecialAddress.NULL) {
                 iart = new InternetAddress[1];
@@ -769,7 +766,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
-                log("Parse error in getReturnPath: " + addressString);
+                throw new MessagingException("Exception thrown in getReturnPath() parsing: " + addressString, e);
             }
         }
 
@@ -783,13 +780,15 @@ public abstract class AbstractRedirect extends GenericMailet {
      *
      * @return {@link #getReturnPath()},
      * replacing <CODE>SpecialAddress.SENDER</CODE> if applicable with the original sender,
-     * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null,
+     * replacing <CODE>SpecialAddress.UNALTERED</CODE>
+     * and <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null,
      * but not replacing <CODE>SpecialAddress.NULL</CODE>
+     * that will be handled by {@link #setReturnPath}
      */
     protected MailAddress getReturnPath(Mail originalMail) throws MessagingException {
         MailAddress returnPath = (isStatic()) ? this.returnPath : getReturnPath();
         if (returnPath != null) {
-            if (returnPath == SpecialAddress.UNALTERED) {
+            if (returnPath == SpecialAddress.UNALTERED || returnPath == SpecialAddress.RETURN_PATH) {
                 returnPath = null;
             }
             else if (returnPath == SpecialAddress.SENDER) {
@@ -844,7 +843,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             try {
                 return new MailAddress(addressString);
             } catch(Exception e) {
-                log("Parse error in getSender: " + addressString);
+                throw new MessagingException("Exception thrown in getSender() parsing: " + addressString, e);
             }
         }
 
@@ -857,12 +856,13 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Is a "getX(Mail)" method.
      *
      * @return {@link #getSender()}
-     * replacing <CODE>SpecialAddress.UNALTERED</CODE> if applicable with null
+     * replacing <CODE>SpecialAddress.UNALTERED</CODE>
+     * and <CODE>SpecialAddress.SENDER</CODE> if applicable with null
      */
     protected MailAddress getSender(Mail originalMail) throws MessagingException {
         MailAddress sender = (isStatic()) ? this.sender : getSender();
         if (sender != null) {
-            if (sender == SpecialAddress.UNALTERED) {
+            if (sender == SpecialAddress.UNALTERED || sender == SpecialAddress.SENDER) {
                 sender = null;
             }
         }
@@ -870,35 +870,14 @@ public abstract class AbstractRedirect extends GenericMailet {
     }
 
     /**
-     * <P>Sets the sender and the "From:" header of <I>newMail</I> to <I>sender</I>.</P>
-     * <P>If the requested value is <CODE>SpecialAddress.SENDER</CODE> will use the original "From:" header;
-     * if this header is empty will use the original "Sender:" header;
-     * if this header is empty will use the original sender.
-     * If the requested value is null does nothing.</P>
+     * Sets the sender and the "From:" header of <I>newMail</I> to <I>sender</I>.
+     * If the requested value is null does nothing.
      * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setSender(Mail newMail, MailAddress sender, Mail originalMail) throws MessagingException {
         if (sender != null) {
-            if (sender == SpecialAddress.SENDER) {
-                MailAddress newSender = getSafeApparentSender(originalMail);
-                String newFromHeader = getSafeFromHeader(originalMail);
-                
-                if (!newFromHeader.trim().equals("")) {
-                    newMail.getMessage().setHeader(RFC2822Headers.FROM, newFromHeader);
-                }
-                
-                if (newSender != null) {
-                    ((MailImpl) newMail).setSender(newSender);
-                }
-                
-                // The new code should be compatible with and extend the previous code:
-//                MailAddress originalSender = new MailAddress(((InternetAddress) originalMail.getMessage().getFrom()[0]).getAddress());
-//                newMail.getMessage().setHeader(RFC2822Headers.FROM, originalMail.getMessage().getHeader(RFC2822Headers.FROM, ","));
-//                ((MailImpl) newMail).setSender(originalSender);
-            } else {
-                newMail.getMessage().setFrom(sender.toInternetAddress());
-                ((MailImpl) newMail).setSender(sender);
-            }
+            newMail.getMessage().setFrom(sender.toInternetAddress());
+            ((MailImpl) newMail).setSender(sender);
             
             if (isDebug) {
                 log("sender set to: " + sender);
@@ -906,44 +885,6 @@ public abstract class AbstractRedirect extends GenericMailet {
         }
     }
     
-    /**
-     * <P>Gets a safe "apparent" sender using the original "From:" header if possible.</P>
-     * <P>Will use the original "From:" header;
-     * if this header is empty will use the original "Sender:" header;
-     * if this header is empty will use the original sender.</P>
-     */
-    private MailAddress getSafeApparentSender(Mail originalMail) throws MessagingException {
-        MailAddress sender = null;
-        InternetAddress from = (InternetAddress) originalMail.getMessage().getFrom()[0];
-        
-        if (from == null) {
-            // perhaps this is redundant, but just in case ...
-            from = originalMail.getSender().toInternetAddress();
-        }
-        if (from != null) {
-            sender = new MailAddress(from.getAddress());
-        }
-        
-        return sender;
-    }
-
-    /**
-     * <P>Gets a safe "From:" header using the original if possible.</P>
-     * <P>Will use the original "From:" header;
-     * if this header is empty will use the original "Sender:" header;
-     * if this header is empty will use the original sender.</P>
-     */
-    private String getSafeFromHeader(Mail originalMail) throws MessagingException {
-        MailAddress sender = getSafeApparentSender(originalMail);
-        String fromHeader = originalMail.getMessage().getHeader(RFC2822Headers.FROM, ",");
-        
-        if (fromHeader.trim().equals("") && sender != null) {
-            fromHeader = sender.toInternetAddress().toString();
-        }
-
-        return fromHeader;
-    }
-
     /**
      * Gets the <CODE>subject</CODE> property.
      * Returns a string for the new message subject.
@@ -980,7 +921,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected String getSubjectPrefix() throws MessagingException {
         if(getInitParameter("prefix") == null) {
-            return "";
+            return null;
         } else {
             return getInitParameter("prefix");
         }
@@ -1001,18 +942,33 @@ public abstract class AbstractRedirect extends GenericMailet {
     /**
      * Builds the subject of <I>newMail</I> appending the subject
      * of <I>originalMail</I> to <I>subjectPrefix</I>.
+     * Is a "setX(Mail, Tx, Mail)" method.
      */
     protected void setSubjectPrefix(Mail newMail, String subjectPrefix, Mail originalMail) throws MessagingException {
         String subject = getSubject(originalMail);
-        if (subject == null) {
-            subject = originalMail.getMessage().getSubject();
-        }
-        if (subject == null) {
-            subject = "";
-        }
-        newMail.getMessage().setSubject(subjectPrefix + subject);
-        if (isDebug) {
-            log("subjectPrefix set to: " + subjectPrefix);
+        if ((subjectPrefix != null && subjectPrefix.length() > 0) || subject != null) {
+            if (subject == null) {
+                subject = originalMail.getMessage().getSubject();
+            } else {
+                // replacing the subject
+                if (isDebug) {
+                    log("subject set to: " + subject);
+                }
+            }
+            // Was null in original?
+            if (subject == null) {
+                subject = "";
+            }
+            
+            if (subjectPrefix != null) {
+                subject = subjectPrefix + subject;
+                // adding a prefix
+                if (isDebug) {
+                    log("subjectPrefix set to: " + subjectPrefix);
+                }
+            }
+//            newMail.getMessage().setSubject(subject);
+            changeSubject(newMail.getMessage(), subject);
         }
     }
 
@@ -1194,8 +1150,6 @@ public abstract class AbstractRedirect extends GenericMailet {
             // handle the new message if altered
             buildAlteredMessage(newMail, originalMail);
 
-            setTo(newMail, getTo(originalMail), originalMail);
-
         } else {
             // if we need the original, create a copy of this message to redirect
             if (getPassThrough(originalMail)) {
@@ -1217,6 +1171,8 @@ public abstract class AbstractRedirect extends GenericMailet {
         //Set additional headers
 
         setRecipients(newMail, getRecipients(originalMail), originalMail);
+
+        setTo(newMail, getTo(originalMail), originalMail);
 
         setSubjectPrefix(newMail, getSubjectPrefix(originalMail), originalMail);
 
@@ -1248,9 +1204,9 @@ public abstract class AbstractRedirect extends GenericMailet {
                                     .append(((MailImpl) originalMail).getName())
                                     .append(". Invalid sender domain for ")
                                     .append(newMail.getSender())
-                                    .append(". Consider using the Redirect mailet ")
+                                    .append(". Consider using the Resend mailet ")
                                     .append("using a different sender.");
-            log(logBuffer.toString());
+            throw new MessagingException(logBuffer.toString());
         }
 
         if(!getPassThrough(originalMail)) {
@@ -1330,7 +1286,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Gets the MailAddress corresponding to the existing "Return-Path" header of
      * <I>mail</I>.
      * If empty returns <CODE>SpecialAddress.NULL</CODE>,
-     * if missing return <CODE>SpecialAddress.SENDER</CODE>.
+     * if missing return <CODE>null</CODE>.
      */
     protected MailAddress getExistingReturnPath(Mail mail) throws MessagingException {
         MailAddress mailAddress = null;
@@ -1467,11 +1423,25 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected void buildAlteredMessage(Mail newMail, Mail originalMail) throws MessagingException {
 
-        MimeMessage message = originalMail.getMessage();
+        MimeMessage originalMessage = originalMail.getMessage();
+        MimeMessage newMessage = newMail.getMessage();
+
+        // Copy the relevant headers
+        String[] relevantHeaderNames =
+            {RFC2822Headers.DATE,
+             RFC2822Headers.FROM,
+             RFC2822Headers.REPLY_TO,
+             RFC2822Headers.TO,
+             RFC2822Headers.SUBJECT,
+             RFC2822Headers.RETURN_PATH};
+        Enumeration headerEnum = originalMessage.getMatchingHeaderLines(relevantHeaderNames);
+        while (headerEnum.hasMoreElements()) {
+            newMessage.addHeaderLine((String) headerEnum.nextElement());
+        }
 
         StringWriter sout = new StringWriter();
         PrintWriter out   = new PrintWriter(sout, true);
-        String head = getMessageHeaders(message);
+        String head = getMessageHeaders(originalMessage);
         boolean all = false;
 
         String messageText = getMessage(originalMail);
@@ -1494,7 +1464,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             case BODY: //BODY:
                 out.println("Message:");
                 try {
-                    out.println(getMessageBody(message));
+                    out.println(getMessageBody(originalMessage));
                 } catch(Exception e) {
                     out.println("body unavailable");
                 }
@@ -1530,7 +1500,7 @@ public abstract class AbstractRedirect extends GenericMailet {
                         break;
                     case BODY: //BODY:
                         try {
-                            part.setText(getMessageBody(message));
+                            part.setText(getMessageBody(originalMessage));
                         } catch(Exception e) {
                             part.setText("body unavailable");
                         }
@@ -1540,15 +1510,15 @@ public abstract class AbstractRedirect extends GenericMailet {
                             new StringBuffer(1024)
                                 .append(head)
                                 .append("\r\nMessage:\r\n")
-                                .append(getMessageBody(message));
+                                .append(getMessageBody(originalMessage));
                         part.setText(textBuffer.toString());
                         break;
                     case MESSAGE: //MESSAGE:
-                        part.setContent(message, "message/rfc822");
+                        part.setContent(originalMessage, "message/rfc822");
                         break;
                 }
-                if ((message.getSubject() != null) && (message.getSubject().trim().length() > 0)) {
-                    part.setFileName(message.getSubject().trim());
+                if ((originalMessage.getSubject() != null) && (originalMessage.getSubject().trim().length() > 0)) {
+                    part.setFileName(originalMessage.getSubject().trim());
                 } else {
                     part.setFileName("No Subject");
                 }
@@ -1703,6 +1673,91 @@ public abstract class AbstractRedirect extends GenericMailet {
             throw new MessagingException("Unexpected init parameters found: "
                                          + arrayToString(bad.toArray()));
         }
+    }
+
+    /**
+     * It changes the subject of the supplied message to to supplied value 
+     * but it also tries to preserve the original charset information.
+     * 
+     * This method was needed to avoid sending the subject using a charset
+     * (usually the default charset on the server) which doesn't contain
+     * the characters in the subject, resulting in the loss of these characters. 
+     * The most simple method would be to either send it in ASCII unencoded 
+     * or in UTF-8 if non-ASCII characters are present but unfortunately UTF-8 
+     * is not yet a MIME standard and not all email clients 
+     * are supporting it. The optimal method would be to determine the best 
+     * charset by analyzing the actual characters. That would require much 
+     * more work (exept if an open source library already exists for this). 
+     * However there is nothing to stop somebody to add a detection algorithm
+     * for a specific charset. 
+     * 
+     * The current algorithm works correctly if only ASCII characters are 
+     * added to an existing subject.
+     * 
+     * If the new value is ASCII only, then it doesn't apply any encoding to
+     * the subject header. (This is provided by MimeMessage.setSubject()).
+     * 
+     * Possible enhancement:  under java 1.4 java.nio the system can determine if the
+     * suggested charset fits or not (if there is untranslatable
+     * characters). If the charset doesn't fit the new value, it
+     * can fall back to UTF-8.
+     * 
+     * @param message the message of which subject is changed 
+     * @param newValue the new (unencoded) value of the subject. It must
+     *   not be null.
+     * @throws MessagingException - according to the JavaMail doc most likely
+     *    this is never thrown
+     */
+    public static void changeSubject(MimeMessage message, String newValue)
+            throws MessagingException
+    {
+        String rawSubject = message.getHeader(RFC2822Headers.SUBJECT, null);
+        String mimeCharset = determineMailHeaderEncodingCharset(rawSubject);
+        if (mimeCharset == null) { // most likely ASCII
+            // it uses the system charset or the value of the
+            // mail.mime.charset property if set  
+            message.setSubject(newValue);
+            return;
+        } else { // original charset determined 
+            String javaCharset = javax.mail.internet.MimeUtility.javaCharset(mimeCharset);
+            try {
+                message.setSubject(newValue, javaCharset);
+            } catch (MessagingException e) {
+                // known, but unsupported encoding
+                // this should be logged, the admin may setup a more i18n
+                // capable JRE, but the log API cannot be accessed from here  
+                //if (charset != null) log(charset + 
+                //      " charset unsupported by the JRE, email subject may be damaged");
+                message.setSubject(newValue); // recover
+            }
+        }
+    }
+     
+    /**
+     * It attempts to determine the charset used to encode an "unstructured" 
+     * RFC 822 header (like Subject). The encoding is specified in RFC 2047.
+     * If it cannot determine or the the text is not encoded then it returns null.
+     *
+     * Here is an example raw text: 
+     * Subject: =?iso-8859-2?Q?leg=FAjabb_pr=F3ba_l=F5elemmel?=
+     *
+     * @param rawText the raw (not decoded) value of the header
+     * @return the MIME charset name or null if no encoding applied
+     */
+    static private String determineMailHeaderEncodingCharset(String rawText)
+    {
+        int iEncodingPrefix = rawText.indexOf("=?");
+        if (iEncodingPrefix == -1) return null;
+        int iCharsetBegin = iEncodingPrefix + 2; 
+        int iSecondQuestionMark = rawText.indexOf('?', iCharsetBegin);
+        if (iSecondQuestionMark == -1) return null;
+        // safety checks
+        if (iSecondQuestionMark == iCharsetBegin) return null; // empty charset? impossible
+        int iThirdQuestionMark = rawText.indexOf('?', iSecondQuestionMark + 1);
+        if (iThirdQuestionMark == -1) return null; // there must be one after encoding
+        if (-1 == rawText.indexOf("?=", iThirdQuestionMark + 1)) return null; // closing tag
+        String mimeCharset = rawText.substring(iCharsetBegin, iSecondQuestionMark);
+        return mimeCharset;
     }
 
 }

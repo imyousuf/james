@@ -196,90 +196,6 @@ public abstract class GenericListserv extends GenericMailet {
 
         return subject.toString();
     }
-
-    /**
-     * It attempts to determine the charset used to encode an "unstructured" 
-     * RFC 822 header (like Subject). The encoding is specified in RFC 2047.
-     * If it cannot determine or the the text is not encoded then it returns null.
-     *
-     * Under Java 1.4 it further checks if the encoding is supported under the
-     * current runtime environment.
-     * 
-     * In some cases it returns UTF-8 as a fallback charset. This is not 
-     * an official MIME standard yet, and most importantly not all email client
-     * support it, but it is likely better then the server default. 
-     *
-     * Here is an example raw text: 
-     * Subject: =?iso-8859-2?Q?leg=FAjabb_pr=F3ba_l=F5elemmel?=
-     *
-     * Possible enhancement:  under java 1.4 java.nio the system can determine if the
-     * suggested charset fits or not (if there is untranslatable
-     * characters). If the charset doesn't fit the new value, it
-     * can fall back to UTF-8.
-     *
-     * @param rawText the raw (not decoded) value of the header
-     * @return the java charset name or null if no encoding applied
-     */
-    static private String determineMailHeaderEncodingCharset(String rawText)
-    {
-        int iEncodingPrefix = rawText.indexOf("=?");
-        if (iEncodingPrefix == -1) return null;
-        int iCharsetBegin = iEncodingPrefix + 2; 
-        int iSecondQuestionMark = rawText.indexOf('?', iCharsetBegin);
-        if (iSecondQuestionMark == -1) return null;
-        // safety checks
-        if (iSecondQuestionMark == iCharsetBegin) return null; // empty charset? impossible
-        int iThirdQuestionMark = rawText.indexOf('?', iSecondQuestionMark + 1);
-        if (iThirdQuestionMark == -1) return null; // there must be one after encoding
-        if (-1 == rawText.indexOf("?=", iThirdQuestionMark + 1)) return null; // closing tag
-        
-        String mimeCharset = rawText.substring(iCharsetBegin, iSecondQuestionMark);
-        String javaCharset = javax.mail.internet.MimeUtility.javaCharset(mimeCharset);
-        
-        // using reflection for a JRE 1.4 function
-        if (charsetIsSupportedMethod == null) return javaCharset; // pre 1.4 runtime
-
-        try {
-            String[] arguments = { javaCharset };
-            Boolean isSupported = (Boolean)charsetIsSupportedMethod.invoke(null, arguments);
-            if (isSupported.booleanValue()) 
-                return javaCharset;
-            else 
-                // UTF-8 must be supported by every JRE, and it is better then server default,
-                // even if a few clients don't support it yet.
-                // I use UTF-8 instead of UTF8 because there is no java-MIME mapping,
-                // and official MIME code yet, so this will be directly used as a MIME
-                // code, and it is the quasi-standard MIME code (OE uses this).
-                return "UTF-8"; 
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            // it was thrown by Charset.isSupported, illegal charset name
-            return "UTF-8"; 
-        } catch (Exception e) {
-            // impossible
-            return javaCharset; 
-        }
-    }
-    
-    /** 
-     * JRE 1.4 specific method, java.nio.charset.Charset.isSupported(String).
-     * This field is initialized by the static initialization block and
-     * is used by the determineMailHeaderEncodingCharset method.
-     * James doesn't require JRE 1.4 so we must use reflection.
-     */
-    static private java.lang.reflect.Method charsetIsSupportedMethod;
-    
-    /**
-     * class initialization, it initializes the charsetIsSupportedMethod member
-     */
-    static {
-        try {
-            Class charsetClass = Class.forName("java.nio.charset.Charset");
-            Class[] parameterTypes = { String.class };
-            charsetIsSupportedMethod = charsetClass.getMethod("isSupported", parameterTypes);
-        } catch (Exception e) {
-            charsetIsSupportedMethod = null; // pre 1.4 runtime
-        }
-    }
     
     /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
@@ -334,21 +250,12 @@ public abstract class GenericListserv extends GenericMailet {
                             .append("] ");
                     prefix = prefixBuffer.toString();
                 }
-                String rawSubject = message.getHeader(RFC2822Headers.SUBJECT, null);
-                String charset = determineMailHeaderEncodingCharset(rawSubject);
                 String subj = message.getSubject();
                 if (subj == null) {
                     subj = "";
                 }
                 subj = normalizeSubject(subj, prefix);
-                try {
-                    message.setSubject(subj, charset);
-                } catch (MessagingException e) {
-                    // known, but unsupported encoding
-                    if (charset != null) log(charset + 
-                            " charset unsupported by the JRE, email subject may be damaged");
-                    message.setSubject(subj); // recover
-                }
+                AbstractRedirect.changeSubject(message, subj);
             }
 
             //If replies should go to this list, we need to set the header

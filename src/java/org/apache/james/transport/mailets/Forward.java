@@ -94,7 +94,7 @@ import java.util.StringTokenizer;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.6.4.8 $ $Date: 2003/06/27 14:34:37 $
+ * @version CVS $Revision: 1.6.4.9 $ $Date: 2003/06/30 09:42:07 $
  */
 public class Forward extends AbstractRedirect {
 
@@ -204,7 +204,7 @@ public class Forward extends AbstractRedirect {
      * @return ""
      */
     protected String getSubjectPrefix() throws MessagingException {
-        return "";
+        return null;
     }
 
     /**
