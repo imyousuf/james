@@ -19,20 +19,30 @@ import java.io.InputStream;
  */
 public abstract class MimeMessageSource {
     /**
-     * Returns a unique String ID that represents where this file is loaded
-     * from.  This will be used to identify where the data is, primarily to
-     * avoid situations where this data would get overwritten.
+     * Returns a unique String ID that represents the location from where 
+     * this file is loaded.  This will be used to identify where the data 
+     * is, primarily to avoid situations where this data would get overwritten.
+     *
+     * @return the String ID
      */
     public abstract String getSourceId();
 
     /**
-     * Return an input stream to the data
+     * Get an input stream to retrieve the data stored in the datasource
+     *
+     * @return a <code>InputStream</code> containing the data
+     *
+     * @throws IOException if an error occurs while generating the
+     *                     InputStream
      */
     public abstract InputStream getInputStream() throws IOException;
 
     /**
      * Return the size of all the data.
      * Default implementation... others can override to do this much faster
+     *
+     * @return the size of the data represented by this source
+     * @throws IOException if an error is encountered while computing the message size
      */
     public long getMessageSize() throws IOException {
         int size = 0;

@@ -26,9 +26,24 @@ import java.io.*;
  */
 public class MimeMessageInputStreamSource extends MimeMessageSource {
 
+    /**
+     * A temporary file used to hold the message stream
+     */
     File file = null;
+
+    /**
+     * The full path of the temporary file
+     */
     String sourceId = null;
 
+    /**
+     * Construct a new MimeMessageInputStreamSource from an
+     * <code>InputStream</code> that contains the bytes of a
+     * MimeMessage.
+     *
+     * @param key the prefix for the name of the temp file
+     * @param in the stream containing the MimeMessage
+     */
     public MimeMessageInputStreamSource(String key, InputStream in) {
         //We want to immediately read this into a temporary file
         //Create a temp file and channel the input stream into it
@@ -63,31 +78,42 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
                 // Ignored - logging unavailable to log this non-fatal error.
             }
         }
-              
-            
     }
 
     /**
      * Returns the unique identifier of this input stream source
+     *
+     * @return the unique identifier for this MimeMessageInputStreamSource
      */
     public String getSourceId() {
         return sourceId;
     }
 
     /**
-     * Return an input stream to the data
+     * Get an input stream to retrieve the data stored in the temporary file
+     *
+     * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
         return new BufferedInputStream(new FileInputStream(file));
     }
 
     /**
-     * Return the size of the temp file
+     * Get the size of the temp file
+     *
+     * @return the size of the temp file
+     *
+     * @throws IOException if an error is encoutered while computing the size of the message
      */
     public long getMessageSize() throws IOException {
         return file.length();
     }
 
+    /**
+     * <p>Finalizer that closes and deletes the temp file.  Very bad.</p>
+     * <p>TODO: Should be replaced with a more robust cleanup mechanism</p>
+     *
+     */
     public void finalize() {
         try {
             if (file != null && file.exists()) {
@@ -96,5 +122,6 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
         } catch (Exception e) {
             //ignore
         }
+        file = null;
     }
 }
