@@ -38,11 +38,11 @@ public class AvalonSpoolRepository
      *
      * @return the key for the mail
      */
-    public synchronized String accept() {
+    public synchronized String accept() throws InterruptedException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept() called");
         }
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 for(Iterator it = list(); it.hasNext(); ) {
 
@@ -64,11 +64,14 @@ public class AvalonSpoolRepository
                 }
 
                 wait();
-            } catch (InterruptedException ignored) {
-            } catch (ConcurrentModificationException ignoredAlso) {
+            } catch (InterruptedException ex) {
+                throw ex;
+            } catch (ConcurrentModificationException cme) {
                // Should never get here now that list methods clones keyset for iterator
+                getLogger().error("CME in spooler - please report to http://james.apache.org", cme);
             }
         }
+        throw new InterruptedException();
     }
 
     /**
@@ -82,11 +85,11 @@ public class AvalonSpoolRepository
      *
      * @return the key for the mail
      */
-    public synchronized String accept(long delay) {
+    public synchronized String accept(long delay) throws InterruptedException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept(delay) called");
         }
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             long youngest = 0;
             for (Iterator it = list(); it.hasNext(); ) {
                 String s = it.next().toString();
@@ -137,10 +140,13 @@ public class AvalonSpoolRepository
                 } else {
                     wait(youngest - System.currentTimeMillis());
                 }
-            } catch (InterruptedException ignored) {
-            } catch (ConcurrentModificationException ignoredAlso) {
+            } catch (InterruptedException ex) {
+                throw ex;
+            } catch (ConcurrentModificationException cme) {
                // Should never get here now that list methods clones keyset for iterator
+                getLogger().error("CME in spooler - please report to http://james.apache.org", cme);
             }
         }
+        throw new InterruptedException();
     }
 }
