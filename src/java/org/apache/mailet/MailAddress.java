@@ -47,6 +47,7 @@ import javax.mail.internet.ParseException;
  * @version 1.0
  * @author Roberto Lo Giacco <rlogiacco@mail.com>
  * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Gabriel Bucher <gabriel.bucher@razor.ch>
  */
 public class MailAddress implements java.io.Serializable {
     //We hardcode the serialVersionUID so that from James 1.2 on,
@@ -118,7 +119,7 @@ public class MailAddress implements java.io.Serializable {
             if (hostSB.toString().length() == 0) {
                 throw new ParseException("No domain found at position " + (pos + 1));
             }
-        } catch (ArrayIndexOutOfBoundsException aioobe) {
+        } catch (IndexOutOfBoundsException ioobe) {
             throw new ParseException("Out of data at position " + (pos + 1));
         }
 
