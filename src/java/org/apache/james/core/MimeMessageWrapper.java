@@ -262,9 +262,9 @@ public class MimeMessageWrapper
             MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
             wrapper.writeTo(headerOs, bodyOs, ignoreList);
         } else {
-			if(message.getMessageID() == null) {
-				message.saveChanges();
-			}
+            if(message.getMessageID() == null) {
+                message.saveChanges();
+            }
 
             //Write the headers (minus ignored ones)
             Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
@@ -920,7 +920,7 @@ public class MimeMessageWrapper
         if (message == null) {
             loadMessage();
         }
-		modified = true;
+        modified = true;
         message.saveChanges();
     }
 
