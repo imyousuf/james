@@ -60,7 +60,7 @@
 
                 <servletpackages>
                     <servletpackage>org.apache.james.transport.servlet</servletpackage>
-                <servletpackages>
+                </servletpackages>
 <!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
                 <servlets>
 
