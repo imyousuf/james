@@ -53,10 +53,11 @@ public class LocalDelivery extends GenericMailet {
 
         MimeMessage message = mail.getMessage();
 
-        // Create a new InternetHeader collection
-        InternetHeaders newHeaders = new InternetHeaders();
-        // Set our Return-Path header
-        newHeaders.setHeader(RFC2822Headers.RETURN_PATH, mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">");
+        // Create an InternetHeader collection with only our Return-Path
+        // header.  The InternetHeader() constructor creates an
+        // InternetHeader instance with invisible placehoders for
+        // various headers.
+        InternetHeaders newHeaders = new InternetHeaders(new java.io.ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": " + (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">\r\n")).getBytes()));
         // Remove all Return-Path headers from the message
         message.removeHeader(RFC2822Headers.RETURN_PATH);
         // Copy all remaining header lines from the message to our new header set
