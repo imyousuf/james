@@ -24,37 +24,34 @@ public interface MailRepository {
      * Define a MAIL repository. MAILS are stored in the specified
      * destination.
      */
-    public final static String MAIL = "MAIL";
+    String MAIL = "MAIL";
 
 
     /**
      * Stores a message in this repository. Shouldn't this return the key
      * under which it is stored?
      */
-    public void store(MailImpl mc) ;
-
+    void store( MailImpl mc );
 
     /**
      * List string keys of messages in repository.
      *
      */
-    public Iterator list();
-
+    Iterator list();
 
     /**
      * Retrieves a message given a key. At the moment, keys can be obtained
      * from list() in superinterface Store.Repository
      */
-    public MailImpl retrieve(String key);
+    MailImpl retrieve(String key);
 
     /**
      * Removes a specified message
      */
-    public void remove(MailImpl mail);
+    void remove( MailImpl mail );
 
     /**
      * Removes a message identifed by key.
      */
-    public void remove(String key) ;
-
+    void remove( String key );
 }

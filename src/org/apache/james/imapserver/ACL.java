@@ -5,7 +5,6 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
-
 package org.apache.james.imapserver;
 
 import java.io.*;
@@ -13,7 +12,6 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 
@@ -41,25 +39,25 @@ import org.apache.james.AuthorizationException;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1  on 14 Dec 2000
  */
-
 public interface ACL extends Serializable {
 
-    public static final char LOOKUP_RIGHTS = 'l';
-    public static final char READ_RIGHTS = 'r';
-    public static final char KEEP_SEEN_RIGHTS = 's';
-    public static final char WRITE_RIGHTS = 'w';
-    public static final char INSERT_RIGHTS = 'i';
-    public static final char POST_RIGHTS = 'p';
-    public static final char CREATE_RIGHTS = 'c';
-    public static final char DELETE_RIGHTS = 'd';
-    public static final char ADMIN_RIGHTS = 'a';
-    public static final char ADD_RIGHTS = '+';
-    public static final char REMOVE_RIGHTS = '-';
-    public static final char[] RIGHTS
-	= {LOOKUP_RIGHTS, READ_RIGHTS, KEEP_SEEN_RIGHTS, WRITE_RIGHTS,
-	   INSERT_RIGHTS, POST_RIGHTS, CREATE_RIGHTS, DELETE_RIGHTS,
-	   ADMIN_RIGHTS};
-
+    char LOOKUP_RIGHTS = 'l';
+    char READ_RIGHTS = 'r';
+    char KEEP_SEEN_RIGHTS = 's';
+    char WRITE_RIGHTS = 'w';
+    char INSERT_RIGHTS = 'i';
+    char POST_RIGHTS = 'p';
+    char CREATE_RIGHTS = 'c';
+    char DELETE_RIGHTS = 'd';
+    char ADMIN_RIGHTS = 'a';
+    char ADD_RIGHTS = '+';
+    char REMOVE_RIGHTS = '-';
+    char[] RIGHTS = 
+    {
+        LOOKUP_RIGHTS, READ_RIGHTS, KEEP_SEEN_RIGHTS, WRITE_RIGHTS,
+        INSERT_RIGHTS, POST_RIGHTS, CREATE_RIGHTS, DELETE_RIGHTS,
+        ADMIN_RIGHTS
+    };
 
     /**
      * Store access rights for a given identity.
@@ -86,11 +84,10 @@ public interface ACL extends Serializable {
      * administer right (ie the right to write ACL rights), or if the result
      * of this method would leave no identities with admin rights.
      */
-    public boolean setRights(String setter, String identifier,
-			  String modification)
-	throws AccessControlException, AuthorizationException;
-
-
+    boolean setRights( String setter, 
+                       String identifier,
+                       String modification)
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Retrieve access rights for a specific identity.
@@ -106,9 +103,8 @@ public interface ACL extends Serializable {
      * @throws AuthorizationException if implementation does not wish to expose
      * ACL for this identity to this getter.
      */
-    public String getRights(String getter, String identity)
-	throws AccessControlException, AuthorizationException ;
-
+    String getRights( String getter, String identity )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Retrieves a String of one or more <identity space rights> who have
@@ -122,9 +118,8 @@ public interface ACL extends Serializable {
      * @throws AuthorizationException if implementation does not wish to expose
      * ACL to this getter.
      */
-    public String getAllRights(String getter)
-	throws AccessControlException, AuthorizationException;
-
+    String getAllRights( String getter )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Retrieve rights which will always be granted to the specified identity.
@@ -140,9 +135,8 @@ public interface ACL extends Serializable {
      * @throws AuthorizationException if implementation does not wish to expose
      * ACL for this identity to this getter.
      */
-    public String getRequiredRights(String getter, String identity)
-	throws AccessControlException, AuthorizationException ;
-
+    String getRequiredRights( String getter, String identity )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Retrieve rights which may be granted to the specified identity.
@@ -157,9 +151,8 @@ public interface ACL extends Serializable {
      * @throws AuthorizationException if implementation does not wish to expose
      * ACL for this identity to this getter.
      */
-    public String getOptionalRights(String getter, String identity)
-	throws AccessControlException, AuthorizationException ;
-
+    String getOptionalRights( String getter, String identity )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Helper boolean methods.
@@ -171,25 +164,21 @@ public interface ACL extends Serializable {
      * &throws AccessControlException if username does not have lookup rights.
      * (Except for hasLookupRights which just returns false.
      */
+    boolean hasReadRights( String username )
+        throws AccessControlException;
+    boolean hasKeepSeenRights( String username )
+        throws AccessControlException;
+    boolean hasWriteRights( String username )
+        throws AccessControlException;
+    boolean hasInsertRights( String username )
+        throws AccessControlException;
+    boolean hasDeleteRights( String username )
+        throws AccessControlException;
+    boolean hasAdminRights( String username )
+        throws AccessControlException;
 
+    Set getUsersWithLookupRights();
 
-    public boolean hasReadRights(String username)
-	throws AccessControlException;
-    public boolean hasKeepSeenRights(String username)
-	throws AccessControlException;
-    public boolean hasWriteRights(String username)
-	throws AccessControlException;
-    public boolean hasInsertRights(String username)
-	throws AccessControlException;
-    public boolean hasDeleteRights(String username)
-	throws AccessControlException ;
-    public boolean hasAdminRights(String username)
-	throws AccessControlException;
-
-
-    public Set getUsersWithLookupRights();
-
-    public Set getUsersWithReadRights();
-
+    Set getUsersWithReadRights();
 }
 

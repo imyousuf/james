@@ -38,7 +38,7 @@ public interface MailetContext {
      * @param mail - the message that is to be bounced and sender to whom to return the message
      * @param message - a descriptive message as to why the message bounced
      */
-    public void bounce(Mail mail, String message) throws MessagingException;
+    void bounce(Mail mail, String message) throws MessagingException;
 
     /**
      * Bounces the email message using the provided email address as the
@@ -48,7 +48,7 @@ public interface MailetContext {
      * @param message - a descriptive message as to why the message bounced
      * @param bouncer - the address to give as the sender of the bounced message
      */
-    public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException;
+    void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException;
 
     /**
      * Returns a Collection of Strings of hostnames or ip addresses that
@@ -59,14 +59,14 @@ public interface MailetContext {
      * @param host - the domain name for which to find mail servers
      * @return a Collection of Strings of hostnames, sorted by priority
      */
-    public Collection getMailServers(String host);
+    Collection getMailServers(String host);
 
     /**
      * Returns the postmaster's address for this mailet context.
      *
      * @return a MailAddress of the Postmaster's address
      */
-    public MailAddress getPostmaster();
+    MailAddress getPostmaster();
 
     /**
      * Returns the mailet container attribute with the given name, or null
@@ -83,7 +83,7 @@ public interface MailetContext {
      * @return an Object containing the value of the attribute, or null if no attribute
      *      exists matching the given name
      */
-    public Object getAttribute(String name);
+    Object getAttribute(String name);
 
     /**
      * Returns an Iterator containing the attribute names available within
@@ -92,7 +92,7 @@ public interface MailetContext {
      *
      * @return an Iterator of attribute names
      */
-    public Iterator getAttributeNames();
+    Iterator getAttributeNames();
 
     /**
      * Returns the minor version of the Mailet API that this mailet
@@ -101,7 +101,7 @@ public interface MailetContext {
      *
      * @return 1
      */
-    public int getMajorVersion();
+    int getMajorVersion();
 
     /**
      * Returns the minor version of the Mailet API that this mailet
@@ -110,7 +110,7 @@ public interface MailetContext {
      *
      * @return 2
      */
-    public int getMinorVersion();
+    int getMinorVersion();
 
     /**
      * Returns the name and version of the mailet container on which
@@ -124,7 +124,7 @@ public interface MailetContext {
      *
      * @return a String containing at least the mailet container name and version number
      */
-    public String getServerInfo();
+    String getServerInfo();
 
     /**
      * Returns a Collection of the server names that are considered "local"
@@ -132,7 +132,7 @@ public interface MailetContext {
      *
      * @return a Collection of Strings of hostnames that are considered "local"
      */
-    public Collection getServerNames();
+    Collection getServerNames();
 
     /**
      * Returns a Collection of the local user accounts within this mailet
@@ -140,7 +140,7 @@ public interface MailetContext {
      *
      * @return a Collection of Strings of usernames that are considered "local"
      */
-    public Collection getLocalUsers();
+    Collection getLocalUsers();
 
     /**
      * Writes the specified message to a mailet log file, usually an event
@@ -149,7 +149,7 @@ public interface MailetContext {
      *
      * @param msg - a String specifying the message to be written to the log file
      */
-    public void log(String message);
+    void log(String message);
 
     /**
      * Writes an explanatory message and a stack trace for a given Throwable
@@ -158,7 +158,7 @@ public interface MailetContext {
      * @param message - a String that describes the error or exception
      * @param throwable - the Throwable error or exception
      */
-    public void log(String message, Throwable t);
+    void log(String message, Throwable t);
 
     /**
      * Removes the attribute with the given name from the mailet context.  After
@@ -167,7 +167,7 @@ public interface MailetContext {
      *
      * @param name - a String specifying the name of the attribute to be removed
      */
-    public void removeAttribute(String name);
+    void removeAttribute(String name);
 
     /**
      * Send an outgoing message to the top of this mailet container's root queue.
@@ -177,7 +177,8 @@ public interface MailetContext {
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @throws MessagingException - if the message fails to parse
      */
-    public void sendMail(MimeMessage msg) throws MessagingException;
+    void sendMail(MimeMessage msg) 
+        throws MessagingException;
 
     /**
      * Send an outgoing message to the top of this mailet container's root queue.
@@ -188,7 +189,8 @@ public interface MailetContext {
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @throws MessagingException - if the message fails to parse
      */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException;
+    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) 
+        throws MessagingException;
 
     /**
      * Send an outgoing message to the top of this mailet container queue for the
@@ -200,7 +202,8 @@ public interface MailetContext {
      * @param state - the state of the message, indicates which processor to use
      * @throws MessagingException - if the message fails to parse
      */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) throws MessagingException;
+    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) 
+        throws MessagingException;
 
     /**
      * Binds an object to a given attribute name in this mailet context.  If the name
@@ -213,7 +216,7 @@ public interface MailetContext {
      * @param name - a String specifying the name of the attribute
      * @param object - an Object representing the attribute to be bound
      */
-    public void setAttribute(String name, Object object);
+    void setAttribute(String name, Object object);
 
     /**
      * Stores mail into local accounts (POP3 by default, or the IMAP4 Inbox)
@@ -223,5 +226,6 @@ public interface MailetContext {
      * @param msg - the MimeMessage to store in a local mailbox
      * @throws MessagingException - if the message fails to parse
      */
-    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException;
+    void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) 
+        throws MessagingException;
 }

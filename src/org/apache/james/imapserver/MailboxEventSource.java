@@ -29,14 +29,14 @@ public interface MailboxEventSource  {
      *
      * @param mel MailboxEventListener to be registered with this source.
      */
-    public void addMailboxEventListener(MailboxEventListener mel) ;
+    void addMailboxEventListener( MailboxEventListener mel );
 
     /**
      * Deregisters a MailboxEventListener.
      *
      * @param mel MailboxEventListener to be deregistered from this source.
      */
-    public void removeMailboxEventListener(MailboxEventListener mel);
+    void removeMailboxEventListener( MailboxEventListener mel );
 }
  
 

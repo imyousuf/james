@@ -68,7 +68,7 @@ public interface Matcher {
      * are being held (for example, memory, file handles, threads) and make sure
      * that any persistent state is synchronized with the matcher's current state in memory.
      */
-    public void destroy();
+    void destroy();
 
     /**
      * Returns a MatcherConfig object, which contains initialization and
@@ -80,7 +80,7 @@ public interface Matcher {
      *
      * @return the MatcherConfig object that initializes this matcher
      */
-    public MatcherConfig getMatcherConfig();
+    MatcherConfig getMatcherConfig();
 
     /**
      * Returns information about the matcher, such as author, version, and copyright.
@@ -90,7 +90,7 @@ public interface Matcher {
      *
      * @return a String containing matcher information
      */
-    public String getMatcherInfo();
+    String getMatcherInfo();
 
     /**
      * Called by the mailet container to indicate to a matcher that the
@@ -105,7 +105,7 @@ public interface Matcher {
      * @throws javax.mail.MessagingException - if an exception has occurred that
      *          interferes with the matcher's normal operation
      */
-    public void init(MatcherConfig config) throws javax.mail.MessagingException;
+    void init( MatcherConfig config ) throws javax.mail.MessagingException;
 
     /**
      * Takes a Mail message, looks at any pertinent information, and then returns a subset
@@ -126,6 +126,5 @@ public interface Matcher {
      * @throws MessagingException - if an message or address parsing exception occurs or
      *      an exception that interferes with the matcher's normal operation
      */
-    public Collection match(Mail mail) throws javax.mail.MessagingException;
-
+    Collection match( Mail mail ) throws javax.mail.MessagingException;
 }

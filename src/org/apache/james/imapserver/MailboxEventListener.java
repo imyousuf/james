@@ -21,6 +21,5 @@ import java.util.EventListener;
  */
 public interface MailboxEventListener extends EventListener, Serializable {
 
-    public void receiveEvent(MailboxEvent me);
-
+    void receiveEvent( MailboxEvent me );
 }
