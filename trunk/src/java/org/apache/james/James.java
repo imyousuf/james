@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.14 $
- * Committed on $Date: 2001/11/01 17:44:26 $ by: $Author: serge $
+ * This is $Revision: 1.15 $
+ * Committed on $Date: 2001/12/07 21:53:27 $ by: $Author: serge $
  */
 public class James
     extends AbstractLoggable
@@ -264,7 +264,7 @@ public class James
                 spool.remove(mailimpl);
             } catch (Exception ignored) {
             }
-            throw new MessagingException("Exception spooling message: " + e.getMessage());
+            throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
         getLogger().info("Mail " + mailimpl.getName() + " pushed in spool");
     }
@@ -381,7 +381,7 @@ public class James
             reply.setContent(multipart);
             reply.setHeader("Content-Type", multipart.getContentType());
         } catch (IOException ioe) {
-            throw new MessagingException("Unable to create multipart body");
+            throw new MessagingException("Unable to create multipart body", ioe);
         }
         //Send it off...
         sendMail(bouncer, recipients, reply);
