@@ -104,7 +104,7 @@ public abstract class AbstractUsersRepository
      * Adds a user to the repository with the specified User object.
      * Users names must be unique-case-insensitive in the repository.
      *
-     * @returns true if succesful, false otherwise
+     * @return true if succesful, false otherwise
      * @since James 1.2.2
      */
     public boolean addUser(User user)
@@ -142,7 +142,7 @@ public abstract class AbstractUsersRepository
      * Update the repository with the specified user object. A user object
      * with this username must already exist.
      *
-     * @returns true if successful.
+     * @return true if successful.
      */
     public boolean updateUser(User user)
     {
@@ -274,7 +274,7 @@ public abstract class AbstractUsersRepository
     /**
      * List users in repository.
      *
-     * @returns Iterator over a collection of Strings, each being one user in the repository.
+     * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     public Iterator list()
     {

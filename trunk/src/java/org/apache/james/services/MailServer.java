@@ -21,8 +21,8 @@ import java.util.Collection;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2002/01/18 02:48:37 $ by: $Author: darrell $
+ * This is $Revision: 1.8 $
+ * Committed on $Date: 2002/07/30 10:38:35 $ by: $Author: danny $
  */
 public interface MailServer
 {
@@ -79,7 +79,7 @@ public interface MailServer
      * is their (sole) mailbox.
      *
      * @param sender - the name of the user
-     * @returns a reference to an initialised mailbox
+     * @return a reference to an initialised mailbox
      */
     MailRepository getUserInbox(String userName);
 
@@ -90,7 +90,7 @@ public interface MailServer
      * this may only involve adding the user to the UsersStore.
      *
      * @param sender - the name of the user
-     * @returns a reference to an initialised mailbox
+     * @return a reference to an initialised mailbox
      */
     boolean addUser(String userName, String password);
 

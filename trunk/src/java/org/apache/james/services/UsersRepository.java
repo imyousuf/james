@@ -18,8 +18,8 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: donaldp $ on $Date: 2001/09/06 13:19:32 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
+ * $Revision: 1.4 $
  */
 public interface UsersRepository {
 
@@ -30,7 +30,7 @@ public interface UsersRepository {
     /**
      * Adds a user to the repository with the specified User object.
      *
-     * @returns true if succesful, false otherwise
+     * @return true if succesful, false otherwise
      * @since James 1.2.2
      */
     boolean addUser(User user);
@@ -75,7 +75,7 @@ public interface UsersRepository {
      * Update the repository with the specified user object. A user object
      * with this username must already exist.
      *
-     * @returns true if successful.
+     * @return true if successful.
      */
     boolean updateUser(User user);
 
@@ -120,7 +120,7 @@ public interface UsersRepository {
     /**
      * List users in repository.
      *
-     * @returns Iterator over a collection of Strings, each being one user in the repository.
+     * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     Iterator list();
 

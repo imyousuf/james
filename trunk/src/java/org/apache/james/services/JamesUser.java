@@ -14,8 +14,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:32 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
+ * $Revision: 1.2 $
  */
 
 public interface JamesUser extends User {
@@ -61,7 +61,7 @@ public interface JamesUser extends User {
     /**
      * Set local address to which email should be delivered.
      *
-     * @returns true if successful
+     * @return true if successful
      */
     boolean setAlias(String address);
 
