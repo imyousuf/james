@@ -52,6 +52,7 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
 
@@ -440,7 +441,7 @@ public class JDBCMailRepository
      * Store this message to the database.  Optionally stores the message
      * body to the filesystem and only writes the headers to the database.
      */
-    public void store(MailImpl mc) {
+    public void store(Mail mc) {
         Connection conn = null;
         try {
             conn = datasource.getConnection();

@@ -7,11 +7,10 @@
  */
 package org.apache.james.transport.mailets;
 
-import javax.mail.internet.MimeMessage ;
+import javax.mail.internet.MimeMessage;
 
-import org.apache.james.core.MailImpl ;
-import org.apache.mailet.GenericMailet ;
-import org.apache.mailet.Mail ;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /**
  * Adds a specified header and value to the message.
