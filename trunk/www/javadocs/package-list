@@ -2,6 +2,7 @@ org.apache.james
 org.apache.james.context
 org.apache.james.core
 org.apache.james.dnsserver
+org.apache.james.fetchmail
 org.apache.james.fetchpop
 org.apache.james.mailrepository
 org.apache.james.mailrepository.filepair
@@ -22,3 +23,4 @@ org.apache.james.util.connection
 org.apache.james.util.mordred
 org.apache.james.util.watchdog
 org.apache.mailet
+org.apache.mailet.dates
