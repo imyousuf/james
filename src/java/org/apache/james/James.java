@@ -53,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.26 $
- * Committed on $Date: 2002/08/18 07:32:38 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.27 $
+ * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -98,7 +98,12 @@ public class James
      * thread safety and to ensure that all threads see the latest value.
      */
     private static long count;
+
+    /**
+     * The address of the postmaster for this server
+     */
     private MailAddress postmaster;
+
     private Map mailboxes; //Not to be shared!
 
     /**
@@ -267,6 +272,14 @@ public class James
         getLogger().info("JAMES ...init end");
     }
 
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param message the message to send
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
+     */
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
         Collection recipients = new HashSet();
@@ -277,11 +290,32 @@ public class James
         sendMail(sender, recipients, message);
     }
 
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param sender the sender of the mail
+     * @param recipients the recipients of the mail
+     * @param message the message to send
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
+     */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
             throws MessagingException {
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param sender the sender of the mail
+     * @param recipients the recipients of the mail
+     * @param message the message to send
+     * @param state the state of the message
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
+     */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
             throws MessagingException {
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
@@ -289,6 +323,16 @@ public class James
         sendMail(mail);
     }
 
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param sender the sender of the mail
+     * @param recipients the recipients of the mail
+     * @param msg an <code>InputStream</code> containing the message
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
+     */
     public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
             throws MessagingException {
         // parse headers
@@ -302,6 +346,14 @@ public class James
         sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
 
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param mail the mail to place on the spool
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
+     */
     public void sendMail(Mail mail) throws MessagingException {
         MailImpl mailimpl = (MailImpl)mail;
         try {
@@ -324,7 +376,13 @@ public class James
     }
 
     /**
-     * For POP3 server only - at the momment.
+     * <p>Retrieve the mail repository for a user</p>
+     *
+     * <p>For POP3 server only - at the moment.</p>
+     *
+     * @param userName the name of the user whose inbox is to be retrieved
+     *
+     * @return the POP3 inbox for the user
      */
     public synchronized MailRepository getUserInbox(String userName) {
         MailRepository userInbox = (MailRepository) null;
@@ -365,6 +423,11 @@ public class James
         }
     }
 
+    /**
+     * Return a new mail id.
+     *
+     * @return a new mail id
+     */
     public String getId() {
         long localCount = -1;
         synchronized (James.class) {
@@ -379,6 +442,12 @@ public class James
         return idBuffer.toString();
     }
 
+    /**
+     * The main method.  Should never be invoked, as James must be called
+     * from within an Avalon framework container.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         System.out.println("ERROR!");
         System.out.println("Cannot execute James as a stand alone application.");
@@ -479,6 +548,10 @@ public class James
 
     /**
      * Returns whether that account has a local inbox on this server
+     *
+     * @param name the name to be checked
+     *
+     * @return whether the account has a local inbox
      */
     public boolean isLocalUser(String name) {
         if (ignoreCase) {
@@ -490,6 +563,8 @@ public class James
 
     /**
      * Returns the address of the postmaster for this server.
+     *
+     * @return the <code>MailAddress</code> for the postmaster
      */
     public MailAddress getPostmaster() {
         return postmaster;
@@ -542,22 +617,49 @@ public class James
         getUserInbox(username).store(mailImpl);
     }
 
+    /**
+     * Return the major version number for the server
+     *
+     * @return the major vesion number for the server
+     */
     public int getMajorVersion() {
         return 2;
     }
 
+    /**
+     * Return the minor version number for the server
+     *
+     * @return the minor vesion number for the server
+     */
     public int getMinorVersion() {
         return 1;
     }
 
+    /**
+     * Check whether the mail domain in question is to be 
+     * handled by this server.
+     *
+     * @param serverName the name of the server to check
+     * @return whether the server is local
+     */
     public boolean isLocalServer( final String serverName ) {
         return serverNames.contains(serverName.toLowerCase(Locale.US));
     }
 
+    /**
+     * Return the type of the server
+     *
+     * @return the type of the server
+     */
     public String getServerInfo() {
         return "Apache Jakarta JAMES";
     }
 
+    /**
+     * Return the logger for the Mailet API
+     *
+     * @return the logger for the Mailet API
+     */
     private Logger getMailetLogger() {
         if (mailetLogger == null) {
             mailetLogger = getLogger().getChildLogger("Mailet");
@@ -565,10 +667,21 @@ public class James
         return mailetLogger;
     }
 
+    /**
+     * Log a message to the Mailet logger
+     *
+     * @param message the message to pass to the Mailet logger
+     */
     public void log(String message) {
         getMailetLogger().info(message);
     }
 
+    /**
+     * Log a message and a Throwable to the Mailet logger
+     *
+     * @param message the message to pass to the Mailet logger
+     * @param t the <code>Throwable</code> to be logged
+     */
     public void log(String message, Throwable t) {
         //System.err.println(message);
         //t.printStackTrace(); //DEBUG

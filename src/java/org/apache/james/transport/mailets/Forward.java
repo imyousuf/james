@@ -34,6 +34,13 @@ public class Forward extends GenericMailet {
         }
     }
 
+    /**
+     * Forwards a mail to a particular recipient.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error occurs while forwarding the mail
+     */
     public void service(Mail mail) throws MessagingException {
        if (mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0) {
            // If we do not do this check, and somone uses Forward in a
@@ -59,6 +66,11 @@ public class Forward extends GenericMailet {
        }
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Forward Mailet";
     }

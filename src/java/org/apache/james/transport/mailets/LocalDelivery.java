@@ -25,6 +25,13 @@ import java.util.Vector;
  */
 public class LocalDelivery extends GenericMailet {
 
+    /**
+     * Delivers a mail to a local mailbox.
+     *
+     * @param mail the mail being processed
+     *
+     * @throws MessagingException if an error occurs while storing the mail
+     */
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
@@ -48,6 +55,11 @@ public class LocalDelivery extends GenericMailet {
         mail.setState(Mail.GHOST);
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Local Delivery Mailet";
     }

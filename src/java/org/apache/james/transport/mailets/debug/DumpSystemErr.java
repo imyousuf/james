@@ -21,6 +21,13 @@ import java.io.IOException;
  */
 public class DumpSystemErr extends GenericMailet {
 
+    /**
+     * Writes the message to System.err .
+     *
+     * @param mail the mail to process
+     *
+     * @throws MessagingException if an error occurs while writing the message
+     */
     public void service(Mail mail) throws MessagingException {
         try {
             MimeMessage message = mail.getMessage();
@@ -30,6 +37,11 @@ public class DumpSystemErr extends GenericMailet {
         }
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "Dumps message to System.err";
     }

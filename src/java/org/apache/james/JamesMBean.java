@@ -7,7 +7,17 @@
  */
 package org.apache.james;
 
+/**
+ * An interface to expose James management functionality through JMX.  At
+ * the time of this writing, this interface is just an example.
+ */
 public interface JamesMBean {
 
-	boolean addUser(String userName, String password);
+    /**
+     * Adds a user to this mail server.
+     *
+     * @param userName the name of the user being added
+     * @param password the password of the user being added
+     */
+    boolean addUser(String userName, String password);
 }

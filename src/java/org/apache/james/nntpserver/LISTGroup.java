@@ -22,7 +22,11 @@ interface LISTGroup {
 
     void show(NNTPGroup group);
 
+    /**
+     * An inner class used as a LISTGroup factory class.
+     */
     class Factory {
+
         static LISTGroup ACTIVE(final PrintWriter prt) {
             return new LISTGroup() {
                     public void show(NNTPGroup group) {

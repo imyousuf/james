@@ -24,15 +24,30 @@ import org.apache.mailet.Mail;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2002/08/07 23:26:38 $ by: $Author: pgoldstein $ 
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $ 
  */
 public class ToRepository extends GenericMailet {
 
+    /**
+     * The repository where this mailet stores mail.
+     */
     private MailRepository repository;
+
+    /**
+     * Whether this mailet should allow mails to be processed by additional mailets
+     * or mark it as finished.
+     */
     private boolean passThrough = false;
+
+    /**
+     * The path to the repository
+     */
     private String repositoryPath;
 
+    /**
+     * Initialize the mailet, loading configuration information.
+     */
     public void init() {
         repositoryPath = getInitParameter("repositoryPath");
         try {
@@ -56,6 +71,11 @@ public class ToRepository extends GenericMailet {
 
     }
 
+    /**
+     * Store a mail in a particular repository.
+     *
+     * @param mail the mail to process
+     */
     public void service(Mail genericmail) {
         MailImpl mail = (MailImpl)genericmail;
         StringBuffer logBuffer =
@@ -71,6 +91,11 @@ public class ToRepository extends GenericMailet {
         }
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "ToRepository Mailet";
     }

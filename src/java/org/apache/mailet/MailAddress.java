@@ -14,24 +14,24 @@ import javax.mail.internet.ParseException;
 /**
  * A representation of an email address.
  * <p>This class encapsulates functionalities to access to different
- * parts of an email address without dealing with its parsing.
- * <p>
- * A MailAddress is an address specified in the MAIL FROM and
+ * parts of an email address without dealing with its parsing.</p>
+ * 
+ * <p>A MailAddress is an address specified in the MAIL FROM and
  * RCPT TO commands in SMTP sessions.  These are either passed by
  * an external server to the mailet-compliant SMTP server, or they
  * are created programmatically by the mailet-compliant server to
  * send to another (external) SMTP server.  Mailets and matchers
  * use the MailAddress for the purpose of evaluating the sender
- * and recipient(s) of a message.
- * <p>
- * MailAddress parses an email address as defined in RFC 821
+ * and recipient(s) of a message.</p>
+ * 
+ * <p>MailAddress parses an email address as defined in RFC 821
  * (SMTP) p. 30 and 31 where addresses are defined in BNF convention.
  * As the mailet API does not support the aged "SMTP-relayed mail"
  * addressing protocol, this leaves all addresses to be a <mailbox>,
  * as per the spec.  The MailAddress's "user" is the <local-part> of
- * the <mailbox> and "host" is the <domain> of the mailbox.
- * <p>
- * This class is a good way to validate email addresses as there are
+ * the <mailbox> and "host" is the <domain> of the mailbox.</p>
+ * 
+ * <p>This class is a good way to validate email addresses as there are
  * some valid addresses which would fail with a simpler approach
  * to parsing address.  It also removes parsing burden from
  * mailets and matchers that might not realize the flexibility of an
@@ -39,11 +39,11 @@ import javax.mail.internet.ParseException;
  * SMTP address (the quoted text serge@home is the user and
  * lokitech.com is the host).  This means all current parsing to date
  * is incorrect as we just find the first @ and use that to separate
- * user from host.
- * <p>
- * This parses an address as per the BNF specification for <mailbox>
+ * user from host.</p>
+ * 
+ * <p>This parses an address as per the BNF specification for <mailbox>
  * from RFC 821 on page 30 and 31, section 4.1.2. COMMAND SYNTAX.
- * http://www.freesoft.org/CIE/RFC/821/15.htm
+ * http://www.freesoft.org/CIE/RFC/821/15.htm</p>
  *
  * @version 1.0
  * @author Roberto Lo Giacco <rlogiacco@mail.com>
@@ -65,8 +65,9 @@ public class MailAddress implements java.io.Serializable {
     private int pos = 0;
 
     /**
-     * Construct a MailAddress parsing the provided <code>String</code> object.
-     * <p>The <code>personal</code> variable is left empty.
+     * <p>Construct a MailAddress parsing the provided <code>String</code> object.</p>
+     *
+     * <p>The <code>personal</code> variable is left empty.</p>
      *
      * @param   address the email address compliant to the RFC822 format
      * @throws  ParseException    if the parse failed
@@ -407,11 +408,11 @@ public class MailAddress implements java.io.Serializable {
         //  in upper case and a through z in lower case
         //<d> ::= any one of the ten digits 0 through 9
 
-        //basically, this is a series of letters, digits, and hyphens,
+        // basically, this is a series of letters, digits, and hyphens,
         // but it can't start with a digit or hypthen
         // and can't end with a hyphen
 
-        //by practice though, we should relax this as domain names can start
+        // in practice though, we should relax this as domain names can start
         // with digits as well as letters.  So only check that doesn't start
         // or end with hyphen.
         while (true) {

@@ -30,8 +30,8 @@ import java.util.Vector;
  * <br>&lt;subjectprefix&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.3 $
- * Committed on $Date: 2002/01/18 02:48:37 $ by: $Author: darrell $ 
+ * @version This is $Revision: 1.4 $
+ * Committed on $Date: 2002/08/19 18:57:07 $ by: $Author: pgoldstein $ 
  */
 public class AvalonListserv extends GenericListserv {
 
@@ -93,6 +93,11 @@ public class AvalonListserv extends GenericListserv {
         return subjectPrefix;
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "AvalonListserv Mailet";
     }

@@ -16,8 +16,7 @@ import java.util.Vector;
  * GenericMatcher makes writing recipient based matchers easier. It provides
  * simple versions of the lifecycle methods init and destroy and of the methods
  * in the MatcherConfig interface. GenericMatcher also implements the log method,
- * declared in the
- * MatcherContext interface.
+ * declared in the MatcherContext interface.
  *
  * @version 1.0.0, 24/04/1999
  * @author Federico Barbieri <scoobie@pop.systemy.it>

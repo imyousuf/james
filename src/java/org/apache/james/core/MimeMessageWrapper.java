@@ -67,7 +67,10 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     /**
-     * Instantiate the headers
+     * Load the message headers from the internal source.
+     *
+     * @throws MessagingException if an error is encountered while 
+     *                            loading the headers
      */
     private synchronized void loadHeaders() throws MessagingException {
         if (headers != null) {
@@ -85,7 +88,10 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     /**
-     * Internal implementations
+     * Load the complete MimeMessage from the internal source.
+     *
+     * @throws MessagingException if an error is encountered while 
+     *                            loading the message
      */
     private synchronized void loadMessage() throws MessagingException {
         if (message != null) {

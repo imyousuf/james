@@ -74,6 +74,11 @@ public class UseHeaderRecipients extends GenericMailet {
     }
 
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "UseHeaderRecipients Mailet";
     }

@@ -252,9 +252,9 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-     * Add Description
+     * Return a string describing this mailet.
      *
-     * @return Document return!
+     * @return a string describing this mailet
      */
     public String getMailetInfo() {
         return "Resend Mailet";

@@ -170,6 +170,11 @@ public class JDBCAlias extends GenericMailet {
         recipients.addAll(recipientsToAdd);
     }
 
+    /**
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
+     */
     public String getMailetInfo() {
         return "JDBC aliasing mailet";
     }

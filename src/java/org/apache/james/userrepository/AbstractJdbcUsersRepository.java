@@ -129,19 +129,21 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * Configures the UserRepository for JDBC access.
-     * 
-     * Requires a configuration element in the .conf.xml file of the form:
-     * 
-     *  <repository name="LocalUsers"
-     *              class="org.apache.james.userrepository.JamesUsersJdbcRepository">
-     *      <!-- Name of the datasource to use -->
-     *      <data-source>MailDb</data-source>
-     *      <!-- File to load the SQL definitions from -->
-     *      <sqlFile>dist/conf/sqlResources.xml</sqlFile>
-     *      <!-- replacement parameters for the sql file -->
-     *      <sqlParameters table="JamesUsers"/>
-     *  </repository>
+     * Configures the UserRepository for JDBC access.<br>
+     * <br>
+     * Requires a configuration element in the .conf.xml file of the form:<br>
+     * <br>
+     * <pre>
+     *  &lt;repository name="LocalUsers"
+     *      class="org.apache.james.userrepository.JamesUsersJdbcRepository"&gt;
+     *      &lt;!-- Name of the datasource to use --&gt;
+     *      &lt;data-source&gt;MailDb&lt;/data-source&gt;
+     *      &lt;!-- File to load the SQL definitions from -->
+     *      &lt;sqlFile>dist/conf/sqlResources.xml&lt;/sqlFile&gt;
+     *      &lt;!-- replacement parameters for the sql file --&gt;
+     *      &lt;sqlParameters table="JamesUsers"/&gt;
+     *  &lt;/repository&gt;
+     * </pre>
      */
     public void configure(Configuration configuration) throws ConfigurationException 
     {
@@ -217,12 +219,12 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * Initialises the JDBC repository.
-     * 1) Tests the connection to the database.
-     * 2) Loads SQL strings from the SQL definition file,
+     * <p>Initialises the JDBC repository.</p>
+     * <p>1) Tests the connection to the database.</p>
+     * <p>2) Loads SQL strings from the SQL definition file,
      *     choosing the appropriate SQL for this connection, 
-     *     and performing paramter substitution,
-     * 3) Initialises the database with the required tables, if necessary.
+     *     and performing parameter substitution,</p>
+     * <p>3) Initialises the database with the required tables, if necessary.</p>
      * 
      * @throws Exception if an error occurs
      */
