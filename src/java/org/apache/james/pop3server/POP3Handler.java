@@ -260,6 +260,11 @@ public class POP3Handler
         for (Iterator it = userInbox.list(); it.hasNext(); ) {
             String key = (String) it.next();
             MailImpl mc = userInbox.retrieve(key);
+            // Retrieve can return null if the mail is no longer in the store.
+            // In this case we simply continue to the next key
+            if (mc == null) {
+                continue;
+            }
             userMailbox.addElement(mc);
         }
         backupUserMailbox = (Vector) userMailbox.clone();
