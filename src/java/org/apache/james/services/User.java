@@ -12,8 +12,8 @@ package org.apache.james.services;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:32 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: donaldp $ on $Date: 2001/09/19 11:32:36 $
+ * $Revision: 1.2 $
  */
 
 public interface User {
@@ -35,6 +35,5 @@ public interface User {
      * @param newPass the String that is the new password.
      * @returns true if newPass successfully added
      */
-    public boolean setPassword(String newPass);
-
+    boolean setPassword(String newPass);
 }

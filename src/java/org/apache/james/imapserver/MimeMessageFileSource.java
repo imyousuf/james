@@ -15,7 +15,7 @@ import org.apache.james.core.MimeMessageSource;
 public class MimeMessageFileSource extends MimeMessageSource {
 
     //Define how to get to the data
-    String filename = null;;
+    String filename = null;
 
     public MimeMessageFileSource(String filename) {
         this.filename = filename;
