@@ -99,7 +99,7 @@ import java.lang.reflect.Array;
  * Therefore this implementation is best suited to people who wish to use the mbox format
  * for taking data out of James and into something else (IMAP server or mail list displayer)
  *
- * @version CVS $Revision: 1.1.2.4 $
+ * @version CVS $Revision: 1.1.2.5 $
  */
 
 
@@ -546,6 +546,10 @@ public class MBoxMailRepository
      */
     public Iterator list() {
         loadKeys();
+        // find the first message.  This is a trick to make sure that if
+        // the file is changed out from under us, we will detect it and
+        // correct for it BEFORE we return the iterator.
+        findMessage((String) mList.keySet().iterator().next());
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer =
                     new StringBuffer(128)
