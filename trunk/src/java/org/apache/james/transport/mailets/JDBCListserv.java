@@ -27,6 +27,7 @@ import org.apache.james.Constants;
  * to use.  For example,
  * &lt;mailet match="All" class="JDBCAlias"&gt;
  *   &lt;data_source&gt;maildb&lt;/datasource&gt;
+ *   &lt;listserv_id&gt;mylistserv&lt;/listserv_id&gt;
  *   &lt;listserv_table&gt;source_email_address&lt;/listserv_table&gt;
  *   &lt;members_table&gt;target_email_address&lt;/members_table&gt;
  * &lt;/mailet&gt;
@@ -219,7 +220,7 @@ public class JDBCListserv extends GenericListserv {
             attachmentsAllowed = rs.getBoolean("attachments_allowed");
             replyToList = rs.getBoolean("reply_to_list");
             subjectPrefix = rs.getString("subject_prefix");
-            String address = rs.getString("listserv_address");
+            String address = rs.getString("list_address");
             if (address == null) {
                 listservAddress = null;
             } else {
