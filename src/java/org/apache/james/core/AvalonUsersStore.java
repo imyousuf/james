@@ -26,34 +26,78 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
+ * Provides a registry of user repositories.
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable, Initializable, UsersStore {
+    implements Component, Contextualizable, Composable, Configurable, Initializable, UsersStore {
 
+    // A mapping of respository identifiers to actual repositories
+    // This mapping is obtained from the component configuration
     private HashMap repositories;
+
+    /**
+     * The Avalon context used by the instance
+     */
     protected Context                context;
+
+    /**
+     * The Avalon configuration used by the instance
+     */
     protected Configuration          configuration;
+
+    /**
+     * The Avalon component manager used by the instance
+     */
     protected ComponentManager       componentManager;
 
-
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
 
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
-        this.configuration = configuration;
-    }
-
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
         this.componentManager = componentManager;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure( final Configuration configuration )
+        throws ConfigurationException {
+        this.configuration = configuration;
+    }
+
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize()
         throws Exception {
 
@@ -100,14 +144,29 @@ public class AvalonUsersStore
     }
 
 
-    public UsersRepository getRepository(String request) {
-        UsersRepository response = (UsersRepository) repositories.get(request);
+    /** 
+     * Get the repository, if any, whose name corresponds to
+     * the argument parameter
+     *
+     * @param name the name of the desired repository
+     *
+     * @return the UsersRepository corresponding to the name parameter
+     */
+    public UsersRepository getRepository(String name) {
+        UsersRepository response = (UsersRepository) repositories.get(name);
         if ((response == null) && (getLogger().isWarnEnabled())) {
-            getLogger().warn("No users repository called: " + request);
+            getLogger().warn("No users repository called: " + name);
         }
         return response;
     }
 
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
+     */
     public Iterator getRepositoryNames() {
         return this.repositories.keySet().iterator();
     }
