@@ -1,18 +1,20 @@
 package org.apache.james.mailrepository;
 
 import java.io.*;
-import com.workingdogs.town.*;
-import org.apache.james.core.*;
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.avalon.utils.*;
 
-public class AvalonMimeMessageInputStream extends JamesMimeMessageInputStream {
+import org.apache.james.core.*;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.Store;
+import org.apache.avalon.blocks.*;
+//import org.apache.avalon.utils.*;
+
+public class FileMimeMessageInputStream extends JamesMimeMessageInputStream {
     //Define how to get to the data
     Store.StreamRepository sr = null;
     String key = null;
 
-    public AvalonMimeMessageInputStream(Store.StreamRepository sr, String key) throws IOException {
+    public FileMimeMessageInputStream(Store.StreamRepository sr, String key) throws IOException {
         this.sr = sr;
         this.key = key;
     }
@@ -26,12 +28,12 @@ public class AvalonMimeMessageInputStream extends JamesMimeMessageInputStream {
     }
 
     protected synchronized InputStream openStream() throws IOException {
-        return sr.retrieve(key);
+        return sr.get(key);
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof AvalonMimeMessageInputStream) {
-            AvalonMimeMessageInputStream in = (AvalonMimeMessageInputStream)obj;
+        if (obj instanceof FileMimeMessageInputStream) {
+            FileMimeMessageInputStream in = (FileMimeMessageInputStream)obj;
             return in.getStreamStore().equals(sr) && in.getKey().equals(key);
         }
         return false;
