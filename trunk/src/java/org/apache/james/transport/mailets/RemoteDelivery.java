@@ -45,8 +45,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2001/06/21 16:04:53 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2001/08/11 21:33:17 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -109,8 +109,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      *
      * Creation date: (2/24/00 11:25:00 PM)
      * @param Mail org.apache.mailet.Mail
+     * @param Session javax.mail.Session
+     * @return boolean Whether the delivery was successful and the message can be deleted
      */
-    private void deliver(MailImpl mail, Session session) {
+    private boolean deliver(MailImpl mail, Session session) {
         try {
             log("attempting to deliver " + mail.getName());
             MimeMessage message = mail.getMessage();
@@ -135,8 +137,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 targetServers = getMailetContext().getMailServers(host);
                 if (targetServers.size() == 0) {
 					log("No mail server found for: " + host);
-					failMessage(mail, new MessagingException("No route found to " + host), true);
-					return;
+					return failMessage(mail, new MessagingException("No route found to " + host), true);
 				}
 			} else {
 				targetServers = new Vector();
@@ -155,8 +156,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
                         Properties props = session.getProperties();
                         //This was an older version of JavaMail
-                        props.put("mail.smtp.user", mail.getSender().toString());
-                        props.put("mail.smtp.from", mail.getSender().toString());
+                        if (mail.getSender() == null) {
+                            props.put("mail.smtp.user", "<>");
+                            props.put("mail.smtp.from", "<>");
+                        } else {
+                            props.put("mail.smtp.user", mail.getSender().toString());
+                            props.put("mail.smtp.from", mail.getSender().toString());
+                        }
                         props.put("mail.debug", "false");
 
                         //Many of these properties are only in later JavaMail versions
@@ -173,7 +179,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         transport.sendMessage(message, addr);
                         transport.close();
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
-                        return;
+                        return true;
 					} catch (SendFailedException sfe) {
 						throw sfe;
                     } catch (MessagingException me) {
@@ -183,11 +189,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 							lastError = me;
 							continue;
 						} else {
-							failMessage(mail, me, true);
-							return;
+							return failMessage(mail, me, true);
 						}
                     }
-                }// end while
+                } // end while
                 //If we encountered an exception while looping through, send the last exception we got
                 if (lastError != null) {
                     throw lastError;
@@ -211,8 +216,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 					}
 				}
 			}
-			failMessage(mail, sfe, true);
-			return;
+			return failMessage(mail, sfe, true);
         } catch (MessagingException ex) {
             //We should do a better job checking this... if the failure is a general
             //connect exception, this is less descriptive than more specific SMTP command
@@ -220,24 +224,26 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             //possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            failMessage(mail, ex, false);
-            return;
+            return failMessage(mail, ex, false);
         }
+        return true;
     }
 
     /**
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
-     * @param mail org.apache.mailet.Mail
+     * @param mail org.apache.mailet.MailImpl
      * @param exception java.lang.Exception
+     * @param boolean permanent
+     * @return boolean Whether the message failed fully and can be deleted
      */
-    private void failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
+    private boolean failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter pout = new PrintWriter(sout, true);
         if (permanent) {
-			pout.println("Permanent");
+			pout.print("Permanent");
 		} else {
-			pout.println("Temporary");
+			pout.print("Temporary");
 		}
         pout.print(" exception delivering mail (" + mail.getName() + ": ");
         ex.printStackTrace(pout);
@@ -249,17 +255,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 			}
 			int retries = Integer.parseInt(mail.getErrorMessage());
 			if (retries < maxRetries) {
-				//Change the name (unique identifier) of this message... we want to save a new copy
-				// of it, so change the unique idea for restoring
-				mail.setName(mail.getName() + retries);
 				log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
 				++retries;
 				mail.setErrorMessage(retries + "");
-				outgoing.store(mail);
-				return;
+				return false;
 			}
 		}
 		bounce(mail, ex);
+        return true;
     }
 
     private void bounce(MailImpl mail, MessagingException ex) {
@@ -356,8 +359,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 String key = outgoing.accept(delayTime);
                 log(Thread.currentThread().getName() + " will process mail " + key);
                 MailImpl mail = outgoing.retrieve(key);
-                deliver(mail, session);
-                outgoing.remove(key);
+                if (deliver(mail, session)) {
+                    //Message was successfully delivered/fully failed... delete it
+                    outgoing.remove(key);
+                } else {
+                    //Something happened that will delay delivery.  Store any updates
+                    outgoing.store(mail);
+                }
+                //Clear the object handle to make sure it recycles this object.
                 mail = null;
             } catch (Exception e) {
                 log("Exception caught in RemoteDelivery.run(): " + e);
