@@ -44,7 +44,7 @@ public class TestAuthenticated
     /**
      * Provides all tests which should be run in the authenicated state. Each test name
      * corresponds to a protocol session file.
-     */ 
+     */
     public static Test suite() throws Exception
     {
         TestSuite suite = new TestSuite();
@@ -60,7 +60,7 @@ public class TestAuthenticated
         suite.addTest( new TestAuthenticated( "ListNamespace" ) );
         suite.addTest( new TestAuthenticated( "ListMailboxes" ) );
         suite.addTest( new TestAuthenticated( "Status" ) );
-//        suite.addTest( new TestAuthenticated( "StringArgs" ) );
+        suite.addTest( new TestAuthenticated( "StringArgs" ) );
 
         // Run delete last, because many of the tests depend on created mailboxes.
         suite.addTest( new TestAuthenticated( "Delete" ) );

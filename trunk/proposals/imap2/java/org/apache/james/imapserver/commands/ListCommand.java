@@ -24,7 +24,7 @@ import java.util.Iterator;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class ListCommand extends AuthenticatedStateCommand
 {
@@ -39,7 +39,7 @@ class ListCommand extends AuthenticatedStateCommand
                               ImapSession session )
             throws ProtocolException, MailboxException
     {
-        String referenceName = parser.astring( request );
+        String referenceName = parser.mailbox( request );
         String mailboxPattern = parser.listMailbox( request );
         parser.endLine( request );
 

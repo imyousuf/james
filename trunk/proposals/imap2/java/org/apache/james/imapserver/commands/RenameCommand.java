@@ -19,7 +19,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class RenameCommand extends AuthenticatedStateCommand
 {
@@ -32,8 +32,8 @@ class RenameCommand extends AuthenticatedStateCommand
                               ImapSession session )
             throws ProtocolException, MailboxException, AuthorizationException
     {
-        String existingName = parser.astring( request );
-        String newName = parser.astring( request );
+        String existingName = parser.mailbox( request );
+        String newName = parser.mailbox( request );
         parser.endLine( request );
 
         session.getHost().renameMailbox( session.getUser(), existingName, newName );

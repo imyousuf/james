@@ -19,7 +19,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 class StatusCommand extends CommandTemplate
 {
@@ -40,7 +40,7 @@ class StatusCommand extends CommandTemplate
                               ImapSession session )
             throws ProtocolException, MailboxException
     {
-        String mailboxName = parser.astring( request );
+        String mailboxName = parser.mailbox( request );
         StatusDataItems statusDataItems = parser.statusDataItems( request );
         parser.endLine( request );
 
