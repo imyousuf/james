@@ -51,7 +51,7 @@ Sample block descriptor that demonstrates the James mailsever application as a c
          </fileset>
          <fileset dir="../build/lib">
            <include name="mailet.jar"/>
-           <include name="james-3.0.jar"/>
+           <include name="james.jar"/>
          </fileset>
        </classpath>
      </engine>

@@ -108,7 +108,7 @@
     <mkdir dir="${build.lib}"/>
     <mkdir dir="${build.gen}"/>
 
-    <jar jarfile="${build.lib}/${name}-${package-version}.jar"
+    <jar jarfile="${build.lib}/${name}.jar"
          basedir="${build.classes}" includes="org/apache/james/**" >
 
       <fileset dir="${java.dir}">

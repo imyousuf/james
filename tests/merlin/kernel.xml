@@ -5,9 +5,10 @@
 
    <!--
    To log to a file, change "default" to "kernel".
+   To log to screen, change "kernel" to "default".
    -->
 
-   <logging target="default" priority="WARN">
+   <logging target="kernel" priority="WARN">
       <category name="/sys/logger" priority="WARN"/>
       <target name="kernel">
         <file location="kernel.log" />

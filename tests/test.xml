@@ -67,7 +67,7 @@
     <pathelement path="${java.class.path}" />
 
     <fileset dir="../build/lib">
-      <include name="james-3.0.jar"/>
+      <include name="james.jar"/>
       <include name="mailet.jar"/>
     </fileset>
 
