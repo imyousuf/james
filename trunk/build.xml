@@ -552,11 +552,12 @@ All these package are in current distribution.
   -->
   <target name="site-docs" depends="local-xdocs">
 
-    <!-- delete all old documents but keep CVS directories -->
+    <!-- delete old documents but keep CVS directories, rfclist and mailet
+         api -->
     <!-- note that by doing an include the defaultexcludes (CVS dirs) will be kept -->
     <delete>
       <fileset dir="${www.dir}">
-        <include name="**"/>
+        <include name="*"/>
       </fileset>
     </delete>
 
