@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -46,7 +47,7 @@ import java.io.InputStream;
  * <P>If '<CODE>-z</CODE>' is coded, the check will be non-recursively applied
  * to the contents of any attached '*.zip' file.</P>
  *
- * @version CVS $Revision: 1.1.2.5 $ $Date: 2004/07/11 20:54:44 $
+ * @version CVS $Revision: 1.1.2.6 $ $Date: 2004/07/16 12:24:59 $
  * @since 2.2.0
  */
 public class AttachmentFileNameIs extends GenericMatcher {
@@ -121,67 +122,79 @@ public class AttachmentFileNameIs extends GenericMatcher {
      */
     public Collection match(Mail mail) throws MessagingException {
         
-        Exception anException = null;
-        
         try {
             MimeMessage message = mail.getMessage();
-            Object content;
             
-            /*
-             * if there is an attachment and no inline text,
-             * the content type can be anything
-             */
-            if (message.getContentType() == null) {
-                return null;
-            }
-            
-            content = message.getContent();
-            if (content instanceof Multipart) {
-                Multipart multipart = (Multipart) content;
-                for (int i = 0; i < multipart.getCount(); i++) {
-                    try {
-                        Part part = multipart.getBodyPart(i);
-                        if (matchFound(part)) {
-                            return mail.getRecipients(); // matching file found
-                        }
-                    } catch (MessagingException e) {
-                        anException = e;
-                    } // ignore any messaging exception and process next bodypart
-                }
+            if (matchFound(message)) {
+                return mail.getRecipients(); // matching file found
             } else {
-                if (matchFound(message)) {
-                    return mail.getRecipients(); // matching file found
-                }
+                return null; // no matching attachment found
             }
+            
         } catch (Exception e) {
-            anException = e;
+            if (isDebug) {
+                log("Malformed message", e);
+            }
+            throw new MessagingException("Malformed message", e);
         }
-        
-        // if no matching attachment was found and at least one exception was catched rethrow it up
-        if (anException != null) {
-            throw new MessagingException("Malformed message", anException);
-        }
-        
-        return null; // no matching attachment found
     }
     
     /**
      * Checks if <I>part</I> matches with at least one of the <CODE>masks</CODE>.
      */
-    protected boolean matchFound(Part part) throws MessagingException, IOException {
-        String fileName = part.getFileName();
-        if (fileName != null) {
-            fileName = cleanFileName(fileName);
-            // check the file name
-            if (matchFound(fileName)) {
-                if (isDebug) {
-                    log("matched " + fileName);
+    protected boolean matchFound(Part part) throws Exception {
+        
+        /*
+         * if there is an attachment and no inline text,
+         * the content type can be anything
+         */
+        if (part.getContentType() == null) {
+            return false;
+        }
+        
+        Object content;
+        
+        try {
+            content = part.getContent();
+        } catch (UnsupportedEncodingException uee) {
+            // in this case it is not an attachment, so ignore it
+            return false;
+        }
+        
+        Exception anException = null;
+        
+        if (content instanceof Multipart) {
+            Multipart multipart = (Multipart) content;
+            for (int i = 0; i < multipart.getCount(); i++) {
+                try {
+                    Part bodyPart = multipart.getBodyPart(i);
+                    if (matchFound(bodyPart)) {
+                        return true; // matching file found
+                    }
+                } catch (MessagingException e) {
+                    anException = e;
+                } // remember any messaging exception and process next bodypart
+            }
+        } else {
+            String fileName = part.getFileName();
+            if (fileName != null) {
+                fileName = cleanFileName(fileName);
+                // check the file name
+                if (matchFound(fileName)) {
+                    if (isDebug) {
+                        log("matched " + fileName);
+                    }
+                    return true;
                 }
-                return true;
+                if (unzipIsRequested && fileName.endsWith(ZIP_SUFFIX) && matchFoundInZip(part)){
+                    return true;
+                }
             }
-            if (unzipIsRequested && fileName.endsWith(ZIP_SUFFIX)) {
-                return matchFoundInZip(part);
-            }
+        }
+        
+        // if no matching attachment was found and at least one exception was catched rethrow it up
+        if (anException != null) {
+            throw anException;
         }
         
         return false;
@@ -215,8 +228,11 @@ public class AttachmentFileNameIs extends GenericMatcher {
         ZipInputStream zis = new ZipInputStream(part.getInputStream());
         
         try {
-            while (zis.available() > 0) {
+            while (true) {
                 ZipEntry zipEntry = zis.getNextEntry();
+                if (zipEntry == null) {
+                    break;
+                }
                 String fileName = zipEntry.getName();
                 if (matchFound(fileName)) {
                     if (isDebug) {
