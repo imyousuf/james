@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.oro.text.perl.Perl5Util;
+import org.apache.james.util.CRLFPrintWriter;
 
 /**
  * <pre>
@@ -53,78 +54,124 @@ import org.apache.oro.text.perl.Perl5Util;
  *   S: \+OK.*
  *   C: PASS test
  *   S: \+OK.*
+ *   C: QUIT
+ *   S: \+OK.*
  * </pre>
  */
 public class ProtocolSimulator {
 
+    /** starts test run */
+    public static void main(String[] args) throws Exception {
+        ProtocolSimulatorOptions params = ProtocolSimulatorOptions.getOptions(args);
+        if ( params == null )
+            return;
+        new ProtocolSimulator(params).start();
+    }
+    
+    // -------- constants shared by protocol simulators -----------
     private static final String COMMENT_TAG = "#";
     private static final String CLIENT_TAG = "C: ";
     private static final String SERVER_TAG = "S: ";
     private static final int CLIENT_TAG_LEN = CLIENT_TAG.length();
     private static final int SERVER_TAG_LEN = SERVER_TAG.length();
-    private static final Perl5Util perl = new Perl5Util();
 
-    /** 
-     * Start the protocol simulator . <br>
-     * Usage: ProtocolSimulator 'host' 'port' 'template'
-     */
-    public static void main(String[] args) throws Exception {
-        System.out.println("Usage: ProtocolSimulator <host> <port> <template>");
-        String host = args[0];
-        int port = new Integer(args[1]).intValue();
-        File template = new File(args[2]);
-        System.out.println("Testing against "+host+":"+port+
-                           " using template: "+template.getAbsolutePath());
 
-        // read socket. Ensure that lines written end with CRLF. 
-        Socket sock = new Socket(host,port);
-        InputStream inp  = sock.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inp));
-        PrintWriter writer = new PrintWriter(new BufferedOutputStream(sock.getOutputStream())) {
-                public void println() {
-                    try {
-                        out.write("\r\n");
-                        out.flush();
-                    } catch(IOException ex) {
-                        throw new RuntimeException(ex.toString());
+    private final ProtocolSimulatorOptions params;
+    private final Perl5Util perl = new Perl5Util();
+
+    /** @params options Options to control Protocol Simulator run */
+    public ProtocolSimulator(ProtocolSimulatorOptions options) {
+        this.params = options;
+    }
+
+    /** start simulation run */
+    public void start() throws IOException, InterruptedException {
+        System.out.println("Testing Against Server "+params.host+":"+params.port);
+        System.out.println("Simulation Template: "+params.template);
+        System.out.println("Number Of Workers="+params.workers+
+                           ", Iterations Per Worker="+params.iterations);
+
+        // create protocol simulation commands and fire simulation.
+        Command simulation = getSimulationCmd(params.template);
+        runSimulation(simulation);
+    }
+    
+    /** represents a single protocol interaction */
+    private static interface Command {
+        /** 
+         * do something. Either write to or read from and validate 
+         * @param reader Input from protocol server
+         * @param writer Output to protocol Server 
+         */
+        public void execute(BufferedReader reader,PrintWriter writer) throws Throwable;
+    }
+    
+    // ---- methods to fire off simulation ---------
+
+    /** Starts simulation threads. Blocks till simulation threads are done. */
+    private void runSimulation(final Command simulation) 
+        throws InterruptedException
+    {
+        Thread[] t = new Thread[params.workers];
+        for ( int i = 0 ; i < t.length ; i++ ) {
+            final int workerID = i;
+            t[i] = new Thread("protocol-simulator-"+workerID) {
+                    public void run() {
+                        try {
+                            for ( int i = 0 ; i < params.iterations ; i++ )
+                                runSingleSimulation(simulation);
+                        } catch(Throwable t) {
+                            System.out.println("Terminating "+workerID+" Reason="+t.toString());
+                            t.printStackTrace();
+                        }
                     }
-                }
-            };
-        
-        
+                };
+        }
+        for ( int i = 0 ; i < t.length ; i++ )
+            t[i].start();
+        for ( int i = 0 ; i < t.length ; i++ )
+            t[i].join();
+    }
+
+    /** run single simulation. called per thread per interation */
+    private void runSingleSimulation(Command simulation) throws Throwable {
+        Socket sock = null;
+        try {
+            sock = new Socket(params.host,params.port);
+            InputStream inp  = sock.getInputStream();
+            OutputStream out = sock.getOutputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inp));
+            PrintWriter writer = new CRLFPrintWriter(new BufferedOutputStream(out),true);
+            simulation.execute(reader,writer);
+        } finally {
+            if ( sock != null )
+                try { sock.close(); } catch(Throwable t) { }
+        }
+    }
+    
+    // --------- helper methods --------------
+    
+    /** read template and convert into single protocol interaction command
+     */
+    private Command getSimulationCmd(String template)
+        throws IOException 
+    {
         BufferedReader templateReader = new BufferedReader(new FileReader(template));
         try {
-            Line[] line = readTemplate(templateReader,reader,writer);
-            for ( int i = 0 ; i < line.length ; i++ ) {
-                try {
-                    line[i].process();
-                } catch(Throwable t) {
-                    System.out.println("Failed on line: "+i);
-                    t.printStackTrace();
-                    break;
-                }
-            }
+            return getSimulationCmd(templateReader);
         } finally {
-            // try your be to cleanup.
+            // try your best to cleanup.
             try { templateReader.close(); } catch(Throwable t) { }
-            try { sock.close(); } catch(Throwable t) { }
         }
     }
 
-    /** represents a single line of protocol interaction */
-    private static interface Line {
-        /** do something with the line. Either send or validate */
-        public void process() throws IOException;
-    }
-
-
-    /** read template and convert into protocol interaction line
-     * elements */
-    private static Line[] readTemplate(BufferedReader templateReader,
-                                       final BufferedReader reader,
-                                       final PrintWriter writer) throws Exception 
+    /** read template and convert into a single protocol interaction command.
+     */
+    private Command getSimulationCmd(BufferedReader templateReader)
+        throws IOException 
     {
-        List list = new ArrayList();
+        // convert template lines into Protocol interaction commands.
+        final List list = new ArrayList();
         while ( true ) {
             final String templateLine = templateReader.readLine();
             if ( templateLine == null )
@@ -135,16 +182,20 @@ public class ProtocolSimulator {
             if ( templateLine.startsWith(COMMENT_TAG) )
                 continue;
             if ( templateLine.startsWith(CLIENT_TAG) ) {
-                list.add(new Line() {
+                list.add(new Command() {
                         // just send the client data
-                        public void process() {
+                        public void execute(BufferedReader reader,PrintWriter writer) 
+                            throws Throwable 
+                        {
                             writer.println(templateLine.substring(CLIENT_TAG_LEN));
                         }
                     });
             } else if ( templateLine.startsWith(SERVER_TAG) ) {
-                list.add(new Line() {
+                list.add(new Command() {
                         // read server line and validate
-                        public void process() throws IOException {
+                        public void execute(BufferedReader reader,PrintWriter writer) 
+                            throws Throwable 
+                        {
                             String line = reader.readLine();
                             String pattern = templateLine.substring(SERVER_TAG_LEN);
                             System.out.println(pattern+":"+line);
@@ -155,8 +206,24 @@ public class ProtocolSimulator {
                         }
                     });
             } else
-                throw new Exception("Invalid template line: "+templateLine);
+                throw new IOException("Invalid template line: "+templateLine);
         }
-        return (Line[])list.toArray(new Line[0]);
+        
+        // aggregate all commands into a single simulation command
+        Command simulation = new Command() {
+                public void execute(BufferedReader reader,PrintWriter writer) 
+                    throws Throwable 
+                {
+                    for ( int i = 0 ; i < list.size() ; i++ ) {
+                        try {
+                            ((Command)list.get(i)).execute(reader,writer);
+                        } catch(Throwable t) {
+                            System.out.println("Failed on line: "+i);
+                            throw t;
+                        }
+                    }
+                }
+            };
+        return simulation;
     }
 }
