@@ -78,7 +78,7 @@ public abstract class AbstractUsersRepository
     /**
      * Gets a user by name, ignoring case if specified.
      * This implementation gets the entire set of users,
-     *  and scrolls through searching for one matching <code>name</code>.
+     * and scrolls through searching for one matching <code>name</code>.
      */
     protected User getUserByName(String name, boolean ignoreCase)
     {

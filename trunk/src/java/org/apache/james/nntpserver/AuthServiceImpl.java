@@ -17,6 +17,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
+import java.util.Locale;
+
 /**
  * Provides Authentication State. 
  * Authenticates users.
@@ -40,12 +42,13 @@ public class AuthServiceImpl extends AbstractLogEnabled
     protected boolean passwordSet = false;
 
     public boolean isAuthorized(String command) {
+        command = command.toUpperCase(Locale.US);
         boolean allowed = isAuthenticated();
         // some commads are authorized, even if the user is not authenticated
-        allowed = allowed || command.equalsIgnoreCase("AUTHINFO");
-        allowed = allowed || command.equalsIgnoreCase("AUTHINFO");
-        allowed = allowed || command.equalsIgnoreCase("MODE");
-        allowed = allowed || command.equalsIgnoreCase("QUIT");
+        allowed = allowed || command.equals("AUTHINFO");
+        allowed = allowed || command.equals("AUTHINFO");
+        allowed = allowed || command.equals("MODE");
+        allowed = allowed || command.equals("QUIT");
         return allowed;
     }
 
@@ -59,7 +62,9 @@ public class AuthServiceImpl extends AbstractLogEnabled
     public void configure( Configuration configuration ) throws ConfigurationException {
         authRequired =
             configuration.getChild("authRequired").getValueAsBoolean(false);
-        getLogger().debug("Auth required state is :" + authRequired);
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Auth required state is :" + authRequired);
+        }
     }
 
     public boolean isAuthenticated() {

@@ -67,11 +67,22 @@ public class MatchLoader implements Component, Configurable {
                     //do this so we loop through all the packages
                 }
             }
-            throw new ClassNotFoundException("Requested matcher not found: " + matchName + ".  looked in " + matcherPackages.toString());
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Requested matcher not found: ")
+                        .append(matchName)
+                        .append(".  looked in ")
+                        .append(matcherPackages.toString());
+            throw new ClassNotFoundException(exceptionBuffer.toString());
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            throw new MailetException("Could not load matcher (" + matchName + ")", e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Could not load matcher (")
+                        .append(matchName)
+                        .append(")");
+            throw new MailetException(exceptionBuffer.toString(), e);
         }
     }
 }

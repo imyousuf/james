@@ -615,17 +615,6 @@ public class MimeMessageWrapper extends MimeMessage {
         in.close();
     }
 
-
-
-
-
-
-
-
-
-
-
-
     /*
      * Various writer methods
      */

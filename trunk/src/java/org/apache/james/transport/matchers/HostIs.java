@@ -11,6 +11,7 @@ import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -26,11 +27,11 @@ public class HostIs extends GenericRecipientMatcher {
         StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         hosts = new Vector();
         while (st.hasMoreTokens()) {
-            hosts.add(st.nextToken().toLowerCase());
+            hosts.add(st.nextToken().toLowerCase(Locale.US));
         }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        return hosts.contains(recipient.getHost().toLowerCase());
+        return hosts.contains(recipient.getHost().toLowerCase(Locale.US));
     }
 }

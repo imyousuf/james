@@ -24,16 +24,28 @@ interface LISTGroup {
         static LISTGroup ACTIVE(final PrintWriter prt) {
             return new LISTGroup() {
                     public void show(NNTPGroup group) {
-                        prt.println(group.getName()+" "+group.getFirstArticleNumber()+" "+
-                                    group.getLastArticleNumber()+" "+
-                                    (group.isPostAllowed()?"y":"n"));
+                        StringBuffer showBuffer =
+                            new StringBuffer(128)
+                                    .append(group.getName())
+                                    .append(" ")
+                                    .append(group.getFirstArticleNumber())
+                                    .append(" ")
+                                    .append(group.getLastArticleNumber())
+                                    .append(" ")
+                                    .append((group.isPostAllowed() ? "y":"n"));
+                        prt.println(showBuffer.toString());
                     }
                 };
         }
         static LISTGroup NEWSGROUPS(final PrintWriter prt) {
             return new LISTGroup() {
                     public void show(NNTPGroup group) {
-                        prt.println(group.getName()+" "+group.getDescription());
+                        StringBuffer showBuffer =
+                            new StringBuffer(128)
+                                    .append(group.getName())
+                                    .append(" ")
+                                    .append(group.getDescription());
+                        prt.println(showBuffer.toString());
                     }
                 };
         }

@@ -58,12 +58,17 @@ public class AvalonMailRepository
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
-        getLogger().debug("AvalonMailRepository.destinationURL: " + destination);
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("AvalonMailRepository.destinationURL: " + destination);
+        }
         String checkType = conf.getAttribute("type");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-            getLogger().warn( "Attempt to configure AvalonMailRepository as " +
-                              checkType);
-            throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
+            String exceptionString = "Attempt to configure AvalonMailRepository as " +
+                                     checkType;
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn(exceptionString);
+            }
+            throw new ConfigurationException(exceptionString);
         }
         // ignore model
     }
@@ -130,8 +135,14 @@ public class AvalonMailRepository
             for (Iterator i = or.list(); i.hasNext(); ) {
                 keys.add(i.next());
             }
-
-            getLogger().debug(this.getClass().getName() + " created in " + destination);
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer logBuffer =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(" created in ")
+                            .append(destination);
+                getLogger().debug(logBuffer.toString());
+            }
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -181,10 +192,21 @@ public class AvalonMailRepository
                     MimeMessageWrapper wrapper = (MimeMessageWrapper) mc.getMessage();
                     if (DEEP_DEBUG) {
                         System.out.println("Retrieving from: " + wrapper.getSourceId());
-                        System.out.println("Saving to:       " + destination + "/" + mc.getName());
+                        StringBuffer debugBuffer =
+                            new StringBuffer(64)
+                                    .append("Saving to:       ")
+                                    .append(destination)
+                                    .append("/")
+                                    .append(mc.getName());
+                        System.out.println(debugBuffer.toString());
                         System.out.println("Modified: " + wrapper.isModified());
                     }
-                    if (wrapper.getSourceId().equals(destination + "/" + mc.getName()) && !wrapper.isModified()) {
+                    StringBuffer destinationBuffer =
+                        new StringBuffer(128)
+                            .append(destination)
+                            .append("/")
+                            .append(mc.getName());
+                    if (wrapper.getSourceId().equals(destinationBuffer.toString()) && !wrapper.isModified()) {
                         //We're trying to save to the same place, and it's not modified... we shouldn't save.
                         //More importantly, if we try to save, we will create a 0-byte file since we're
                         //retrying to retrieve from a file we'll be overwriting.
@@ -192,9 +214,13 @@ public class AvalonMailRepository
                     }
                 }
                 if (saveStream) {
-                    OutputStream out = sr.put(key);
-                    mc.writeMessageTo(out);
-                    out.close();
+                    OutputStream out = null;
+                    try {
+                        out = sr.put(key);
+                        mc.writeMessageTo(out);
+                    } finally {
+                        out.close();
+                    }
                 }
                 //Always save the header information
                 or.put(key, mc);
@@ -205,8 +231,13 @@ public class AvalonMailRepository
                 }
             }
 
-            if (DEEP_DEBUG) {
-                getLogger().debug("Mail " + key + " stored." );
+            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                StringBuffer logBuffer =
+                    new StringBuffer(64)
+                            .append("Mail ")
+                            .append(key)
+                            .append(" stored.");
+                getLogger().debug(logBuffer.toString());
             }
 
             synchronized (this) {
@@ -220,7 +251,7 @@ public class AvalonMailRepository
     }
 
     public MailImpl retrieve(String key) {
-        if (DEEP_DEBUG) {
+        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
@@ -228,7 +259,12 @@ public class AvalonMailRepository
             try {
                 mc = (MailImpl) or.get(key);
             } catch (RuntimeException re) {
-                getLogger().error("Exception retrieving mail: " + re + ", so we're deleting it... good ridance!");
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Exception retrieving mail: ")
+                            .append(re.toString())
+                            .append(", so we're deleting it... good riddance!");
+                getLogger().error(exceptionBuffer.toString());
                 remove(key);
                 return null;
             }
@@ -256,7 +292,12 @@ public class AvalonMailRepository
                 unlock(key);
             }
         } else {
-            throw new RuntimeException("Cannot lock " + key + " to remove it");
+            StringBuffer exceptionBuffer =
+                new StringBuffer(64)
+                        .append("Cannot lock ")
+                        .append(key)
+                        .append(" to remove it");
+            throw new RuntimeException(exceptionBuffer.toString());
         }
     }
 

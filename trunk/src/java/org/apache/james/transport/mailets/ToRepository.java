@@ -24,8 +24,8 @@ import org.apache.mailet.Mail;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2002/01/18 02:48:38 $ by: $Author: darrell $ 
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2002/08/07 23:26:38 $ by: $Author: pgoldstein $ 
  */
 public class ToRepository extends GenericMailet {
 
@@ -58,7 +58,13 @@ public class ToRepository extends GenericMailet {
 
     public void service(Mail genericmail) {
         MailImpl mail = (MailImpl)genericmail;
-        log("Storing mail " + mail.getName() + " in " + repositoryPath);
+        StringBuffer logBuffer =
+            new StringBuffer(160)
+                    .append("Storing mail ")
+                    .append(mail.getName())
+                    .append(" in ")
+                    .append(repositoryPath);
+        log(logBuffer.toString());
         repository.store(mail);
         if (!passThrough) {
             mail.setState(Mail.GHOST);

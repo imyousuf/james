@@ -56,12 +56,17 @@ public class POP3Server
     }
 
     public void initialize() throws Exception {
-
         getLogger().info( "POP3Server init..." );
-        getLogger().info( "POP3Listener using " + m_serverSocketType + " on port " + m_port );
+        StringBuffer logBuffer =
+            new StringBuffer(128)
+                .append("POP3Listener using ")
+                .append(m_serverSocketType)
+                .append(" on port ")
+                .append(m_port);
+        getLogger().info( logBuffer.toString() );
         super.initialize();
         getLogger().info( "POP3Server ...init end" );
-        System.out.println("Started POP3 Server "+m_connectionName);
+        System.out.println("Started POP3 Server " + m_connectionName);
     }
 }
 

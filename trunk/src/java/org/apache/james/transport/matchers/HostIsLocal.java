@@ -9,6 +9,7 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
+import java.util.Locale;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -18,6 +19,6 @@ import org.apache.mailet.MailAddress;
 public class HostIsLocal extends GenericRecipientMatcher {
 
     public boolean matchRecipient(MailAddress recipient) {
-        return getMailetContext().isLocalServer(recipient.getHost().toLowerCase());
+        return getMailetContext().isLocalServer(recipient.getHost().toLowerCase(Locale.US));
     }
 }

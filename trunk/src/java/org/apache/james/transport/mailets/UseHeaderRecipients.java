@@ -87,7 +87,12 @@ public class UseHeaderRecipients extends GenericMailet {
      * @return the collection of MailAddress objects.
      */
     private Collection getHeaderMailAddresses(MimeMessage message, String name) throws MessagingException {
-        log("Checking " + name + " headers");
+        StringBuffer logBuffer =
+            new StringBuffer(64)
+                    .append("Checking ")
+                    .append(name)
+                    .append(" headers");
+        log(logBuffer.toString());
         Collection addresses = new Vector();
         String[] headers = message.getHeader(name);
         String addressString;

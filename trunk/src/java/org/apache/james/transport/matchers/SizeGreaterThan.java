@@ -15,6 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Locale;
 
 /**
  * Checks whether the message (entire message, not just content) is greater
@@ -29,7 +30,7 @@ public class SizeGreaterThan extends GenericMatcher {
     int cutoff = 0;
 
     public void init() {
-        String amount = getCondition().trim().toLowerCase();
+        String amount = getCondition().trim().toLowerCase(Locale.US);
         if (amount.endsWith("k")) {
             amount = amount.substring(0, amount.length() - 1);
             cutoff = Integer.parseInt(amount) * 1024;

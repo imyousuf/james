@@ -31,7 +31,7 @@ public class NNTPServer extends AbstractService implements Component {
     public void configure( final Configuration configuration )
         throws ConfigurationException
     {
-        //System.out.println(getClass().getName()+": configure");
+        //System.out.println(getClass().getName() + ": configure");
         m_port = configuration.getChild( "port" ).getValueAsInteger( 119 );
 
         try {
@@ -49,11 +49,13 @@ public class NNTPServer extends AbstractService implements Component {
         }
 
         super.configure( configuration.getChild( "handler" ) );
-        getLogger().info("configured NNTPServer to run at : "+m_port);
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("configured NNTPServer to run at : " + m_port);
+        }
     }
 
     public void initialize() throws Exception {
-        //System.out.println(getClass().getName()+": init");
+        //System.out.println(getClass().getName() + ": init");
         super.initialize();
         System.out.println("Started NNTP Server "+m_connectionName);
     }

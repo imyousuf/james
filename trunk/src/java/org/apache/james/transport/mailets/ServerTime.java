@@ -32,7 +32,12 @@ public class ServerTime extends GenericMailet {
         log("Sending timestamp");
         MimeMessage response = (MimeMessage)mail.getMessage().reply(false);
         response.setSubject("The time is now...");
-        response.setText("This mail server thinks it's " + new java.util.Date() + ".");
+        StringBuffer textBuffer =
+            new StringBuffer(128)
+                    .append("This mail server thinks it's ")
+                    .append((new java.util.Date()).toString())
+                    .append(".");
+        response.setText(textBuffer.toString());
 
         Set recipients = new HashSet();
         Address addresses[] = response.getAllRecipients();

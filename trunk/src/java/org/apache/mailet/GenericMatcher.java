@@ -126,7 +126,12 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * @param msg - a String specifying the message to be written to the log file
      */
     public void log(String message) {
-        getMailetContext().log(getMatcherName() + ": " + message);
+        StringBuffer logBuffer = 
+            new StringBuffer(256)
+                    .append(getMatcherName())
+                    .append(": ")
+                    .append(message);
+        getMailetContext().log(logBuffer.toString());
     }
 
     /**
@@ -137,7 +142,12 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * @param t - the java.lang.Throwable error or exception
      */
     public void log(String message, Throwable t) {
-        getMailetContext().log(getMatcherName() + ": " + message, t);
+        StringBuffer logBuffer = 
+            new StringBuffer(256)
+                    .append(getMatcherName())
+                    .append(": ")
+                    .append(message);
+        getMailetContext().log(logBuffer.toString(), t);
     }
 
     /**

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Insert the type's description here.
  * Creation date: (8/24/99 11:41:10 AM)
- * @author: Serge Knystautas <sergek@lokitech.com>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class PoolConnEntry implements java.sql.Connection{
     private static final boolean DEEP_DEBUG = false;
@@ -105,7 +105,12 @@ public class PoolConnEntry implements java.sql.Connection{
         try {
             SQLWarning currSQLWarning = connection.getWarnings();
             while (currSQLWarning != null) {
-                container.debug("Warnings on connection " + id + " " + currSQLWarning);
+                StringBuffer logBuffer =
+                    new StringBuffer(256)
+                            .append("Warnings on connection ")
+                            .append(id)
+                            .append(currSQLWarning);
+                container.debug(logBuffer.toString());
                 currSQLWarning = currSQLWarning.getNextWarning();
             }
             connection.clearWarnings();
@@ -178,7 +183,12 @@ public class PoolConnEntry implements java.sql.Connection{
         try {
             connection.close();
         } catch (SQLException ex) {
-            container.warn("Cannot close connection " + id + " on finalize");
+            StringBuffer warnBuffer =
+                new StringBuffer(64)
+                    .append("Cannot close connection ")
+                    .append(id)
+                    .append(" on finalize");
+            container.warn(warnBuffer.toString());
         }
         // Dump the stack trace of whoever created this connection
         if (getTrace() != null) {
@@ -189,7 +199,12 @@ public class PoolConnEntry implements java.sql.Connection{
     }
 
     public String getString() {
-        return getId() + ": " + connection.toString();
+        StringBuffer poolConnStringBuffer =
+            new StringBuffer(64)
+                    .append(getId())
+                    .append(": ")
+                    .append(connection.toString());
+        return poolConnStringBuffer.toString();
     }
 
 

@@ -55,7 +55,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     }
 
     public void configure( Configuration configuration ) throws ConfigurationException {
-        //System.out.println(getClass().getName()+": configure");
+        //System.out.println(getClass().getName() + ": configure");
         //NNTPUtil.show(configuration,System.out);
         readOnly = configuration.getChild("readOnly").getValueAsBoolean(false);
         rootPath = NNTPUtil.getDirectory(context, configuration, "rootPath");
@@ -84,7 +84,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         getLogger().debug("repository configuration done");
     }
     public void initialize() throws Exception {
-        //System.out.println(getClass().getName()+": init");
+        //System.out.println(getClass().getName() + ": init");
         if ( rootPath.exists() == false )
             rootPath.mkdirs();
         for ( int i = 0 ; i < addGroups.length ; i++ ) {
@@ -122,7 +122,12 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
 //         return ( group == null ) ? null : group.getArticleFromID(name);
     }
     public void createArticle(NNTPLineReader reader) {
-        File f = new File(tempPath,System.currentTimeMillis()+"."+Math.random());
+        StringBuffer fileBuffer =
+            new StringBuffer(32)
+                    .append(System.currentTimeMillis())
+                    .append(".")
+                    .append(Math.random());
+        File f = new File(tempPath, fileBuffer.toString());
         try {
             FileOutputStream fout = new FileOutputStream(f);
             PrintStream prt = new PrintStream(fout,true);
