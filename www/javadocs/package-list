@@ -20,6 +20,7 @@ org.apache.james.transport.matchers
 org.apache.james.userrepository
 org.apache.james.util
 org.apache.james.util.connection
+org.apache.james.util.dbcp
 org.apache.james.util.mordred
 org.apache.james.util.watchdog
 org.apache.mailet
