@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.10 $ Committed on $Date: 2003/06/07 00:25:50 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.11 $ Committed on $Date: 2003/06/16 05:33:02 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -198,17 +198,6 @@
       <!-- By default configuration all email that generates an error in placed in -->
       <!-- an error repository. -->
       <processor name="error">
-
-         <!-- Logs any messages to the repository specified -->
-         <mailet match="All" class="ToRepository">
-            <repositoryPath> file://var/mail/error/</repositoryPath>
-            <!-- An alternative database repository example follows. -->
-            <!--
-            <repositoryPath> db://maildb/deadletter/error </repositoryPath>
-            -->
-            <passThrough> true </passThrough>
-         </mailet>
-
          <!-- If you want to notify the sender their message generated an error, uncomment this       -->
          <!--
          <mailet match="All" class="Bounce"/>
@@ -217,6 +206,15 @@
          <!--
          <mailet match="All" class="NotifyPostmaster"/>
          -->
+
+         <!-- Logs any messages to the repository specified -->
+         <mailet match="All" class="ToRepository">
+            <repositoryPath> file://var/mail/error/</repositoryPath>
+            <!-- An alternative database repository example follows. -->
+            <!--
+            <repositoryPath> db://maildb/deadletter/error </repositoryPath>
+            -->
+         </mailet>
       </processor>
 
       <!-- Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or -->
@@ -229,7 +227,8 @@
          <!-- If the host is handled by this server and it did not get -->
          <!-- locally delivered, this is an invalid recipient -->
          <mailet match="HostIsLocal" class="ToProcessor">
-            <processor>error</processor>
+            <processor> local-address-error </processor>
+            <notice>550 - Requested action not taken: no such user here</notice>
          </mailet>
 
 <!-- CHECKME! -->
@@ -239,7 +238,7 @@
          <!-- rejected as spam.  This is one method of preventing your -->
          <!-- server from being used as an open relay.  Make sure you understand -->
          <!-- how to prevent your server from becoming an open relay before -->
-         <!-- changing this configuration. -->
+         <!-- changing this configuration. See also <authorizedAddresses> in SMTP Server -->
          <!-- -->
          <!-- This matcher/mailet combination must come after local delivery has -->
          <!-- been performed.  Otherwise local users will not be able to receive -->
@@ -254,7 +253,8 @@
          <!-- If you are using SMTP authentication then you can (and generally -->
          <!-- should) disable this matcher/mailet pair. -->
          <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
-            <processor> spam </processor>
+            <processor> relay-denied </processor>
+            <notice>550 - Requested action not taken: relaying denied</notice>
          </mailet>
 
          <!-- Attempt remote delivery using the specified repository for the spool, -->
@@ -330,6 +330,56 @@
             <!-- configuration. -->
             <!--
             <repositoryPath> db://maildb/deadletter/spam </repositoryPath>
+            -->
+         </mailet>
+      </processor>
+
+      <!-- This processor handles messages that are for local domains, where the user is unknown -->
+      <processor name="local-address-error">
+         <!-- To notify the sender the address was invalid, uncomment this matcher/mailet configuration -->
+         <!-- The original message is not attached to keep the bounce processor from deliverying spam -->
+         <!--
+         <mailet match="All" class="Bounce">
+            <attachment>none</attachment>
+         </mailet>
+         -->
+
+         <!-- To notify the postmaster that a message had an invalid address, uncomment this matcher/mailet configuration -->
+         <!--
+         <mailet match="All" class="NotifyPostmaster"/>
+         -->
+
+         <mailet match="All" class="ToRepository">
+            <repositoryPath> file://var/mail/address-error/</repositoryPath>
+            <!-- An alternative database repository example follows. -->
+            <!--
+            <repositoryPath> db://maildb/deadletter/address-error </repositoryPath>
+            -->
+         </mailet>
+      </processor>
+
+      <!-- This processor handles messages that are for foreign domains, where relaying is denied -->
+      <!-- As of James v2.2, this processor can be deprecated by using the <authorizedAddresses> tag
+           in the SMTP Server, and rejecting the message in the protocol transaction.  -->
+      <processor name="relay-denied">
+         <!-- To notify the sender the address was invalid, uncomment this matcher/mailet configuration -->
+         <!-- The original message is not attached to keep the bounce processor from deliverying spam -->
+         <!--
+         <mailet match="All" class="Bounce">
+            <attachment>none</attachment>
+         </mailet>
+         -->
+
+         <!-- To notify the postmaster that a relay request was denied, uncomment this matcher/mailet configuration -->
+         <!--
+         <mailet match="All" class="NotifyPostmaster"/>
+         -->
+
+         <mailet match="All" class="ToRepository">
+            <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
+            <!-- An alternative database repository example follows. -->
+            <!--
+            <repositoryPath> db://maildb/deadletter/relay-denied </repositoryPath>
             -->
          </mailet>
       </processor>
@@ -449,6 +499,7 @@
          <authRequired>true</authRequired>
          -->
 
+<!-- CHECKME! -->
          <!--  Uncomment this if you want to authorize specific addresses/networks.
                If you use SMTP AUTH, addresses that match those specified here will
                be permitted to relay without SMTP AUTH.  If you do not use SMTP
@@ -459,10 +510,11 @@
                optional netmask, e.g.,
 
                127.*, 127.0.0.0/8, 127.0.0.0/255.0.0.0, and localhost/8 are all the same
+
+               See also the RemoteAddrNotInNetwork matcher in the transport processor.
+               You would generally use one OR the other approach.
          -->
-         <!--
          <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
-         -->
 
          <!--  Uncomment this if you want to verify sender addresses, ensuring that -->
          <!--  the sender address matches the user who has authenticated. -->
@@ -522,6 +574,10 @@
       <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
 
       <!-- The news groups hosted in this NNTP repository. -->
+      <!-- Groups here will be added to those found in the file system,
+           but removing groups from here will NOT remove them from the
+           server.  Change <newsgroups> to <newsgroups only="true"> to
+           restrict newsgroups to ONLY those found in this list.  -->
       <newsgroups>
          <newsgroup>org.apache.james.dev</newsgroup>
          <newsgroup>org.apache.james.user</newsgroup>
