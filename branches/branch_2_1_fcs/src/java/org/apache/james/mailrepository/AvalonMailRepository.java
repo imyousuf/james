@@ -68,6 +68,7 @@ public class AvalonMailRepository
     private String destination;
     private Set keys;
     private boolean fifo;
+    private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
 
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
@@ -96,6 +97,7 @@ public class AvalonMailRepository
             throw new ConfigurationException(exceptionString);
         }
         fifo = conf.getAttributeAsBoolean("FIFO", false);
+        cacheKeys = conf.getAttributeAsBoolean("CACHEKEYS", true);
         // ignore model
     }
 
@@ -125,7 +127,7 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
-            keys = Collections.synchronizedSet(new HashSet());
+            if (cacheKeys) keys = Collections.synchronizedSet(new HashSet());
 
 
             //Finds non-matching pairs and deletes the extra files
@@ -152,11 +154,13 @@ public class AvalonMailRepository
                 remove(key);
             }
 
-            //Next get a list from the object repository
-            //  and use that for the list of keys
-            keys.clear();
-            for (Iterator i = or.list(); i.hasNext(); ) {
-                keys.add(i.next());
+            if (keys != null) {
+                // Next get a list from the object repository
+                // and use that for the list of keys
+                keys.clear();
+                for (Iterator i = or.list(); i.hasNext(); ) {
+                    keys.add(i.next());
+                }
             }
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
@@ -248,7 +252,7 @@ public class AvalonMailRepository
                 lock.lock(key);
             }
             try {
-                if (!keys.contains(key)) {
+                if (keys != null && !keys.contains(key)) {
                     keys.add(key);
                 }
                 boolean saveStream = true;
@@ -381,7 +385,7 @@ public class AvalonMailRepository
     public void remove(String key) throws MessagingException {
         if (lock(key)) {
             try {
-                keys.remove(key);
+                if (keys != null) keys.remove(key);
                 sr.remove(key);
                 or.remove(key);
             } finally {
@@ -407,8 +411,13 @@ public class AvalonMailRepository
         // Fix ConcurrentModificationException by cloning 
         // the keyset before getting an iterator
         final ArrayList clone;
-        synchronized(keys) {
+        if (keys != null) synchronized(keys) {
             clone = new ArrayList(keys);
+        } else {
+            clone = new ArrayList();
+            for (Iterator i = or.list(); i.hasNext(); ) {
+                clone.add(i.next());
+            }
         }
         if (fifo) Collections.sort(clone); // Keys is a HashSet; impose FIFO for apps that need it
         return clone.iterator();

@@ -33,7 +33,7 @@ import org.apache.mailet.Mail;
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
  *
- * @version This is $Revision: 1.8.4.4 $
+ * @version This is $Revision: 1.8.4.5 $
  */
 public class ToRepository extends GenericMailet {
 
@@ -71,6 +71,7 @@ public class ToRepository extends GenericMailet {
                 = new DefaultConfiguration("repository", "generated:ToRepository");
             mailConf.setAttribute("destinationURL", repositoryPath);
             mailConf.setAttribute("type", "MAIL");
+            mailConf.setAttribute("CACHEKEYS", getInitParameter("CACHEKEYS") == null ? "TRUE" : getInitParameter("CACHEKEYS"));
             repository = (MailRepository) mailstore.select(mailConf);
         } catch (ComponentException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
