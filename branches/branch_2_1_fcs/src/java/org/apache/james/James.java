@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.5 $
+ * @version This is $Revision: 1.35.4.6 $
 
  */
 public class James
@@ -676,7 +676,7 @@ public class James
         //If there is a Return-Path header,
         String[] returnPathHeaders = orig.getHeader(RFC2822Headers.RETURN_PATH);
         String returnPathHeader = null;
-        if (returnPathHeader != null) {
+        if (returnPathHeaders != null) {
             // TODO: Take a look at the JavaMail spec to see if the originating header
             //       is guaranteed to be at position 0
             returnPathHeader = returnPathHeaders[0];
