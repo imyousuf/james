@@ -7,12 +7,12 @@
  */
 package org.apache.james.testing;
 
-import junit.framework.TestCase;
+import junit.framework.TestCase;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
-/**
+/**
  * Base Test class. Can run a set of method tests.
  */
 public class BaseTest extends TestCase implements Configurable {
@@ -40,13 +40,13 @@ public class BaseTest extends TestCase implements Configurable {
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration configuration) 
-        throws ConfigurationException {
+            throws ConfigurationException {
         // list of test methods
         Configuration testseq = configuration.getChild("testsequence");
-        showStat = testseq.getAttributeAsBoolean("showStat", true);
+        showStat = testseq.getAttributeAsBoolean("showStat", true);
         Configuration[] testconf = testseq.getChildren("testmethod");
-        testMethod = new TestMethod[testconf.length];
-        for ( int i = 0 ; i < testMethod.length ; i++ ) {
+        testMethod = new TestMethod[testconf.length];
+        for (int i = 0; i < testMethod.length; i++) {
             testMethod[i] = new TestMethod(testconf[i].getValue());
         }
     }
@@ -65,26 +65,26 @@ public class BaseTest extends TestCase implements Configurable {
      * Displays statistics if the showStat configuration param was true.
      */
     protected final void runTest() throws Throwable {
-        for ( int i = 0 ; i < testMethod.length ; i++ ) {
+        for (int i = 0; i < testMethod.length; i++) {
             testMethod[i].invoke(this);
-            if ( showStat ) {
-                System.out.println("stat: "+getName()+", "+testMethod[i]);
+            if (showStat) {
+                System.out.println("stat: " + getName() + ", " + testMethod[i]);
             }
         }
     }
 
     // ------------ helper methods ----------------------
 
-    /** 
+    /**
      * @param conf Test configuration
      * @param name Child name
      * @return String values of child elements 
      */
-    protected String[] getChildrenValues(Configuration conf,String name) throws ConfigurationException {
+    protected String[] getChildrenValues(Configuration conf, String name) throws ConfigurationException {
         Configuration[] childconf = conf.getChildren(name);
         String[] val = new String[childconf.length];
-        for ( int i = 0 ; i < childconf.length ; i++ )
-            val[i] = childconf[i].getValue();
+        for (int i = 0; i < childconf.length; i++) {
+            val[i] = childconf[i].getValue();        }
         return val;
     }
 }

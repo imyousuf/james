@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import java.util.Properties;
+import java.util.Properties;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -19,11 +19,10 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-/**
+/**
  * Program that can be run multiple times to recreate the
  * "stuck file" issue in Windows.
  *
- * @author Prasanna Uppaladadium <prasanna@vayusphere.com>
  */
 public class POP3Hammering {
 
@@ -42,7 +41,6 @@ public class POP3Hammering {
      * The password of the user account being used to send the test emails.
      */
     private String password;
-
 
     /**
      * The prefix for the test message body.  The body will correspond
@@ -75,18 +73,16 @@ public class POP3Hammering {
     void sendMail() {
         try {
             Properties prop = new Properties();
-            prop.put("java.smtp.host", mailHost);
+            prop.put("java.smtp.host", mailHost);
             Session session = Session.getDefaultInstance(prop, null);
             // Transport transport = session.getTransport("smtp");
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(user + "@localhost"));
+            msg.setFrom(new InternetAddress(user + "@localhost"));
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user + "@localhost"));
             msg.setContent(body + ++mailNumber, "text/plain");
             Transport.send(msg);
             // transport.close();
-            System.out.println("Sent message : " + msg.getContent() +
-                    " from: " + msg.getFrom()[0] + " To: " +
-                    msg.getAllRecipients()[0]);
+            System.out.println("Sent message : " + msg.getContent() + " from: " + msg.getFrom()[0] + " To: " + msg.getAllRecipients()[0]);
         } catch (Throwable e) {
             e.printStackTrace();
             System.exit(0);
@@ -101,16 +97,16 @@ public class POP3Hammering {
     void receiveMail(boolean delete) {
         Store store = null;
         Folder folder = null;
-        try {
+        try {
             Properties prop = new Properties();
-            prop.put("java.smtp.host", mailHost);
+            prop.put("java.smtp.host", mailHost);
             Session session = Session.getDefaultInstance(prop, null);
-            store = session.getStore("pop3");
+            store = session.getStore("pop3");
             store.connect(mailHost, user, password);
 
             folder = store.getFolder("INBOX");
 
-            if(folder == null || !folder.exists()) {
+            if (folder == null || !folder.exists()) {
                 System.out.println("This folder does not exist.");
                 return;
             }
@@ -118,14 +114,14 @@ public class POP3Hammering {
             folder.open(Folder.READ_WRITE);
 
             Message[] msgs = folder.getMessages();
-            System.out.println("Received " + msgs.length + " messages for " + user);
+            System.out.println("Received " + msgs.length + " messages for " + user);
             Message msg = msgs[0];
-            System.out.println("From: " + msg.getFrom()[0].toString());
+            System.out.println("From: " + msg.getFrom()[0].toString());
             System.out.println("To: " + msg.getRecipients(Message.RecipientType.TO)[0]);
             System.out.println("-------------------");
             System.out.println(msg.getContent().toString());
 
-            if(delete) {
+            if (delete) {
                 msg.setFlag(Flags.Flag.DELETED, true);
                 System.out.println("Deleted.");
             }
@@ -161,7 +157,7 @@ public class POP3Hammering {
      */
     public static void main(String[] args) throws Throwable {
         POP3Hammering tester = new POP3Hammering(args[0], args[1], args[2]);
-        tester.sendMail();
+        tester.sendMail();
         tester.sendMail();
 
         tester.receiveMail(true);

@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import java.io.PrintStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -19,7 +19,7 @@ import org.apache.commons.net.smtp.SMTP;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.mailet.dates.RFC822DateFormat;
 
-/**
+/**
  * Send email. Can be configured and extended to test specific SMTP
  * operations.
  */
@@ -42,13 +42,13 @@ public class SMTPTest extends BaseTest {
 
     /** mail from */
     private String from;
-    /** mail to */
+    /** mail to */
     private String[] to;
-    /** send mail msg copy to */
+    /** send mail msg copy to */
     private String[] cc;
-    /** send mail msg blind copy to */
+    /** send mail msg blind copy to */
     private String[] bcc;
-    /** mail message */
+    /** mail message */
     private String mailMsg;
 
     /**
@@ -64,17 +64,17 @@ public class SMTPTest extends BaseTest {
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration configuration) 
-        throws ConfigurationException {
+            throws ConfigurationException {
         this.host = configuration.getChild("host").getValue();
         this.username = configuration.getChild("username").getValue(null);
         this.password = configuration.getChild("password").getValue(null);
         this.from = configuration.getChild("from").getValue();
-        this.to = getChildrenValues(configuration,"to");
-        this.cc = getChildrenValues(configuration,"cc");
-        this.bcc = getChildrenValues(configuration,"bcc");
+        this.to = getChildrenValues(configuration, "to");
+        this.cc = getChildrenValues(configuration, "cc");
+        this.bcc = getChildrenValues(configuration, "bcc");
         int msgSize = configuration.getChild("msgsize").getValueAsInteger(1000);
         String subject = configuration.getChild("subject").getValue("");
-        this.mailMsg = createMailMsg(subject,msgSize);
+        this.mailMsg = createMailMsg(subject, msgSize);
         super.configure(configuration);
     }
 
@@ -110,56 +110,56 @@ public class SMTPTest extends BaseTest {
             client.connect(host);
             // HBNOTE: extend this to do to, cc, bcc.
             client.sendSimpleMessage("postmaster@localhost", to[0], mailMsg);
-            System.out.println("msgs sent="+(++msgSentCounter));
-        } catch( Throwable t) {
-            System.out.println("msg send failures="+(++failureCounter));
+            System.out.println("msgs sent=" + (++msgSentCounter));
+        } catch (Throwable t) {
+            System.out.println("msg send failures=" + (++failureCounter));
         } finally {
             try {
                 client.disconnect();
-            } catch(Throwable t) { }
+            } catch (Throwable t) {}
         }
     }
 
     // ------ helper methods ------
 
-    /** 
+    /**
      * @param arr of strings
      * @param sep separator character.
      * @return concatenates a an array of strings. 
      */
-    private String toString(String[] arr,char sep) {
+    private String toString(String[] arr, char sep) {
         StringBuffer buf = new StringBuffer();
-        for ( int i = 0 ; i < arr.length ; i++ ) {
-            if ( i > 0 )
-                buf.append(sep);
+        for (int i = 0; i < arr.length; i++) {
+            if (i > 0) {
+                buf.append(sep);            }
             buf.append(arr[i]);
         }
         return buf.toString();
     }
-    private String createMailMsg(String subject,int msgSize) {
+    private String createMailMsg(String subject, int msgSize) {
         StringWriter str = new StringWriter();
         final char[] CRLF = new char[] { '\r', '\n' };
         PrintWriter prt = new PrintWriter(str) {
-                public void println() {
-                    write(CRLF,0,CRLF.length);
-                    flush();
-                }
-            };
-        prt.println("From: "+from);
-        String to = toString(this.to,';');
-        if ( to.length() > 0 )
-            prt.println("To: "+to);
-        String cc = toString(this.cc,';');
-        if ( cc.length() > 0 )
-            prt.println("CC: "+cc);
-        prt.println("Subject: "+subject);
-        prt.println("Date: "+RFC822DateFormat.toString(new Date()));
+            public void println() {
+                write(CRLF, 0, CRLF.length);
+                flush();
+            }
+        };
+        prt.println("From: " + from);
+        String to = toString(this.to, ';');
+        if (to.length() > 0) {
+            prt.println("To: " + to);        }
+        String cc = toString(this.cc, ';');
+        if (cc.length() > 0) {
+            prt.println("CC: " + cc);        }
+        prt.println("Subject: " + subject);
+        prt.println("Date: " + RFC822DateFormat.toString(new Date()));
         prt.println("MIME-Version: 1.0");
         prt.println("Content-Type: text/plain; charset=\"iso-8859-1\"");
         prt.println();
         char[] ca = new char[msgSize];
-        for (int i = 0; i < msgSize; i++)
-            ca[i] = 'm';
+        for (int i = 0; i < msgSize; i++) {
+            ca[i] = 'm';        }
         prt.print(new String(ca));
         prt.flush();
         return str.toString();

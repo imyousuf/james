@@ -7,7 +7,7 @@
  */
 package org.apache.james.testing;
 
-import javax.mail.Message;
+import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -17,10 +17,9 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
 
-/**
+/**
  * Creates numerous threads
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MultiThreadDeliveryPounder extends Thread {
 
@@ -60,32 +59,26 @@ public class MultiThreadDeliveryPounder extends Thread {
         try {
             Properties prop = new Properties();
             Session session = Session.getDefaultInstance(prop, null);
-            // Transport transport = session.getTransport("smtp");
+            // Transport transport = session.getTransport("smtp");
 
             for (int i = 0; i < loops; i++) {
                 MimeMessage msg = new MimeMessage(session);
-                msg.setFrom(new InternetAddress(user + "@localhost"));
+                msg.setFrom(new InternetAddress(user + "@localhost"));
                 msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user + "@localhost"));
                 msg.setContent(body + i, "text/plain");
                 Transport.send(msg);
                 StringBuffer outputBuffer =
-                    new StringBuffer(256)
-                        .append("Sent message : ")
-                        .append(msg.getContent())
-                        .append(" from: ")
-                        .append(msg.getFrom()[0])
-                        .append(" To: ")
-                        .append(msg.getAllRecipients()[0]);
-                System.out.println(outputBuffer.toString());
+                        new StringBuffer(256).append("Sent message : ").append(msg.getContent()).append(" from: ").append(msg.getFrom()[0]).append(" To: ").append(msg.getAllRecipients()[0]);
+                System.out.println(outputBuffer.toString());
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            //System.exit(1);
+            // System.exit(1);
         }
     }
 
     /**
-     * Executes the test, creating a number of worker threads, each of whom 
+     * Executes the test, creating a number of worker threads, each of whom
      * will loop a fixed number of times, sending emails to the specified user
      * on each loop.
      *
@@ -104,15 +97,15 @@ public class MultiThreadDeliveryPounder extends Thread {
 
         Collection threads = new Vector();
         long start = System.currentTimeMillis();
-        for (int i = 0; i < threadCount; i++) {
+        for (int i = 0; i < threadCount; i++) {
             threads.add(new MultiThreadDeliveryPounder(loops, user));
         }
 
-        for (Iterator i = threads.iterator(); i.hasNext(); ) {
-            Thread t = (Thread)i.next();
-            t.join();
+        for (Iterator i = threads.iterator(); i.hasNext();) {
+            Thread t = (Thread) i.next();
+            t.join();
         }
         long end = System.currentTimeMillis();
-        System.out.println((end - start) + " milliseconds");
+        System.out.println((end - start) + " milliseconds");
     }
 }
