@@ -7,6 +7,7 @@
     <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
     <person name="Charles Benett" email="charles@benett1.demon.co.uk" id="CB"/>
+    <person name="Harmeet Bedi" email="hbedi@yahoo.com" id="HB"/>
  </devs>
 
 <!-- Actions are grouped by priority
@@ -80,8 +81,8 @@
 
   <actions priority="low">
     <action context="code">
-      Write an NNTP server
-      <work>lots</work>
+      Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.
+      <work>some</work>
     </action>
     <action context="code">
       Add support for DRAC login/relay allowing
