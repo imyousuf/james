@@ -21,7 +21,7 @@ import java.util.Collection;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.10 $
+ * @version This is $Revision: 1.11 $
  */
 public interface MailServer
 {
@@ -65,16 +65,20 @@ public interface MailServer
         throws MessagingException;
 
     /**
-     * Pass a Mail to this MailServer for processing
-     *
-     * @param sender - the sender of the message
-     * @param recipients - a Collection of String objects of recipients
-     * @param msg - an InputStream containing the headers and body content of
-     * the outgoing message
-     * @throws MessagingException - if the message fails to parse
+     *  Pass a Mail to this MailServer for processing
+     * @param mail the Mail to be processed
+     * @throws MessagingException
      */
     void sendMail(Mail mail)
         throws MessagingException;
+        
+    /**
+     * Pass a MimeMessage to this MailServer for processing
+     * @param message the message
+     * @throws MessagingException
+     */
+    void sendMail(MimeMessage message)
+        throws MessagingException;        
 
     /**
      * Retrieve the primary mailbox for userName. For POP3 style stores this
