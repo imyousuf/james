@@ -81,24 +81,33 @@ import java.util.Locale;
  * Implements a processor for mails, directing the mail down
  * the chain of matchers/mailets.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Steve Short <sshort@postx.com>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- *
  *  SAMPLE CONFIGURATION
- *  <processor name="try" onerror="return,log">
- *      <mailet match="RecipientIsLocal" class="LocalDelivery">
- *      </mailet>
- *      <mailet match="All" class="RemoteDelivery">
- *          <delayTime>21600000</delayTime>
- *          <maxRetries>5</maxRetries>
- *      </mailet>
- *  </processor>
+ *  &lt;processor name="try" onerror="return,log"&gt;
+ *      &lt;mailet match="RecipientIsLocal" class="LocalDelivery"&gt;
+ *      &lt;/mailet&gt;
+ *      &lt;mailet match="All" class="RemoteDelivery"&gt;
+ *          &lt;delayTime&gt;21600000&lt;/delayTime&gt;
+ *          &lt;maxRetries&gt;5&lt;/maxRetries&gt;
+ *      &lt;/mailet&gt;
+ *  &lt;/processor&gt;
  *
  * Note that the 'onerror' attribute is not yet supported.
  *
- * <P>CVS $Id: LinearProcessor.java,v 1.10.4.4 2003/06/16 05:25:28 noel Exp $</P>
+ * As of James v2.2.0a5, 'onerror' functionality is implemented, but
+ * it is implemented on the &lt;mailet&gt; tag.  The specification is:
+ *
+ *   &lt;mailet match="..." class="..."
+ *       [onMatchException="{noMatch|matchAll|error|&lt;aProcessorName&gt;}"] 
+ *       [onMailetException="{ignore|error|&lt;aProcessorName&gt;}"]&gt;
+ *
+ * noMatch:   no addresses are considered to match
+ * matchAll:  all addresses are considered to match
+ * error:     as before, send the message to the ERROR processor
+ *
+ * Otherwise, a processor name can be specified, and the message will
+ * be sent there.
+ *
+ * <P>CVS $Id: LinearProcessor.java,v 1.10.4.5 2003/10/20 03:32:45 noel Exp $</P>
  * @version 2.2.0
  */
 public class LinearProcessor 
