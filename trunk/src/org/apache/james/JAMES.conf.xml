@@ -28,6 +28,10 @@
     <account login="root" password="[my password]"/>
     Note that you cannot leave a blank password.  If the password is blank, the admin account is disabled.
 
+    Anti-relay mailet: Add your network address here, e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
+   <processor name="transport"> 
+       <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+                      
 
     OPTIONAL, and interesting
 
@@ -181,11 +185,6 @@
                     <mailet match="SenderInFakeDomain" class="ToProcessor">
                         <processor> spam </processor>
                     </mailet>
-                <!-- This added to prevent relaying... if you change this, you risk making your mail
-                    server an open relay point for spammers -->
-                    <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
-                        <processor> spam </processor>
-                    </mailet>
                 <!-- Important check to avoid race conditions -->
                     <mailet match="RelayLimit=30" class="Null">
                     </mailet>
@@ -230,7 +229,15 @@
                     <mailet match="HostIsLocal" class="ToProcessor">
                         <processor>error</processor>
                     </mailet>
-                <!-- Attempt local delivery using the specified repository for the spool, using delay time to retry delivery and the maximum number of retries -->
+                <!-- This matcher-mailet pair can prevent relaying... if you change this, you risk making your mail
+                    server an open relay point for spammers .
+		    NOTE 1: the order of matcher-mailets is important: it must come after valid local recipients have
+		     been dealt with but before any attempt is made to delivery the mail remotely.
+		     NOTE 2: Add your own network, if you want to relay mail outwards -->
+                    <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+                        <processor> spam </processor>
+                    </mailet>
+                <!-- Attempt remote delivery using the specified repository for the spool, using delay time to retry delivery and the maximum number of retries -->
                     <mailet match="All" class="RemoteDelivery">
                         <outgoing> file://../var/mail/outgoing/ </outgoing>
                         <!-- <outgoing> town://mail-outgoing </outgoing>-->
