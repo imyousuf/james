@@ -18,7 +18,7 @@
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
   <!-- The James Spool Manager block  -->
@@ -101,7 +101,7 @@
     <provide name="objectstorage"
              role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
   <!-- The User Storage block -->
@@ -110,7 +110,7 @@
     <provide name="objectstorage"
              role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="database-connections"
-             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
   </block>
 
 

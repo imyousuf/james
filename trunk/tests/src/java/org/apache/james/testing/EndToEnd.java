@@ -28,7 +28,7 @@ import examples.IOUtil;
  * A class to do end to end load SMTP testing on James.
  *
  *
- * $Id: EndToEnd.java,v 1.5 2003/02/08 04:12:28 mcconnell Exp $
+ * $Id: EndToEnd.java,v 1.6 2003/02/08 06:03:54 mcconnell Exp $
  */
 public class EndToEnd extends TestCase {
 
@@ -108,9 +108,9 @@ public class EndToEnd extends TestCase {
             client.disconnect();
             SMTPTest();
             POP3Test();
-            client.connect("127.0.0.1", 4555);
-            runTelnetScript(client, script2);
-            client.disconnect();
+            //client.connect("127.0.0.1", 4555);
+            //runTelnetScript(client, script2);
+            //client.disconnect();
 
         } catch (SocketException e) {
             e.printStackTrace();

@@ -190,8 +190,8 @@
 
   <target name="patch">
     <replace dir="." summary="true" defaultexcludes="yes"
-       token="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector"
-       value="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector">
+       token="org.apache.avalon.cornerstone.services.datasources."
+       value="org.apache.avalon.cornerstone.services.datasources.">
      <include name="**/*.xinfo"/>
      <include name="**/*.xml"/>
      <include name="**/*.java"/>
