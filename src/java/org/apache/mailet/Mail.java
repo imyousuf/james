@@ -70,7 +70,7 @@ import java.util.Date;
  * which processor in the mailet container it is currently running.
  * Special processor names are "root" and "error".
  *
- * @version 0.9
+ * @version CVS $Revision: 1.10 $ $Date: 2003/07/15 10:11:59 $
  */
 public interface Mail extends Serializable, Cloneable {
     String GHOST = "ghost";
@@ -189,6 +189,10 @@ public interface Mail extends Serializable, Cloneable {
      */
     Iterator getAttributeNames();
     /**
+     * @return true if this Mail instance has any attributes set.
+     **/
+    boolean hasAttributes();
+    /**
      * Removes the attribute with the given name from this Mail instance. After
      * removal, subsequent calls to getAttribute(java.lang.String) to retrieve
      * the attribute's value will return null.
@@ -199,6 +203,10 @@ public interface Mail extends Serializable, Cloneable {
      * was bound to the name)
      */
     Serializable removeAttribute(String name);
+    /**
+     * Removes all the attributes associated with this Mail instance.  
+     **/
+    void removeAllAttributes();
     /**
      * Binds an object to a given attribute name in this Mail instance. If the name
      * specified is already used for an attribute, this method will remove the old

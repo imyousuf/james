@@ -171,14 +171,34 @@
     <!-- Statements used to update the body of a message stored in this repository. -->
     <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
 
+    <!-- Statements used to update the attributes of a message stored in this repository. -->
+    <!-- Uncomment this statement to activate the attributes support.
+    <sql name="updateMessageAttributesSQL">UPDATE ${table} SET message_attributes = ? WHERE message_name = ? AND repository_name = ?</sql>
+    -->
+
     <!-- Statements used to insert a message into this repository. -->
-    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
+    repository_name, message_state, error_message, sender, recipients,
+    remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+
+    <!-- Statements used to insert a message with attributes into this repository. -->
+    <!-- Uncomment this statement and comment the previous one to activate the attributes support.
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
+    repository_name, message_state, error_message, sender, recipients,
+    remote_host, remote_addr, last_updated, message_body,
+    message_attributes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    -->
 
     <!-- Statements used to retrieve a message stored in this repository. -->
     <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to retrieve the body of a message stored in this repository. -->
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to retrieve the attributes of a message stored in this repository. -->
+    <!-- Uncomment this statement to activate the attributes support.
+    <sql name="retrieveMessageAttributesSQL">SELECT message_attributes FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+     -->
 
     <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
     <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
@@ -205,6 +225,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
+            message_attributes longblob NOT NULL ,
             last_updated datetime NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -220,6 +241,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body varchar NOT NULL ,
+            message_attributes varchar NOT NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -235,6 +257,7 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
+            [message_attributes] [image] NOT NULL ,
             [last_updated] [datetime] NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -250,6 +273,7 @@
         remote_host varchar2(100) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
+        message_attributes long raw NOT NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (repository_name, message_name)
         )
@@ -266,6 +290,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body bytea NOT NULL ,
+            message_attributes bytea NOT NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -281,6 +306,7 @@
             remote_host varchar (100) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body long byte NOT NULL ,
+            message_attributes long byte NOT NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (repository_name, message_name)
         )
@@ -302,8 +328,21 @@
     <!-- Statements used to update the body of a message stored in this repository. -->
     <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
 
+    <!-- Statements used to update the attributes of a message stored in this repository. -->
+    <!-- Uncomment this statement to activate the attributes support.
+    <sql name="updateMessageAttributesSQL">UPDATE ${table} SET message_attributes = ? WHERE message_name = ? AND repository_name = ?</sql>
+    -->
+
     <!-- Statements used to insert a message into this repository. -->
     <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    
+    <!-- Statements used to insert a message with attributes into this repository. -->
+    <!-- Uncomment this statement and comment the previous one to activate the attributes support.
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name,
+    repository_name, message_state, error_message, sender, recipients,
+    remote_host, remote_addr, last_updated, message_body,
+    message_attributes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    -->
 
     <!-- Statements used to retrieve a message stored in this repository. -->
     <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -311,6 +350,11 @@
     <!-- Statements used to retrieve the body of a message stored in this repository. -->
     <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
+    <!-- Statements used to retrieve the attributes of a message stored in this repository. -->
+    <!-- Uncomment this statement to activate the attributes support.
+    <sql name="retrieveMessageAttributesSQL">SELECT message_attributes FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    -->
+    
     <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
     <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -336,6 +380,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body varchar NOT NULL ,
+            message_attributes varchar NOT NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -351,6 +396,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
+            message_attributes longblob NOT NULL ,
             last_updated datetime NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -366,6 +412,7 @@
             [remote_host] [varchar] (255) NOT NULL ,
             [remote_addr] [varchar] (20) NOT NULL ,
             [message_body] [image] NOT NULL ,
+            [message_attributes] [image] NOT NULL ,
             [last_updated] [datetime] NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -381,6 +428,7 @@
         remote_host varchar2(255) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
+        message_attributes long raw NOT NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (message_name, repository_name)
         )
@@ -396,6 +444,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body bytea NOT NULL ,
+            message_attributes bytea NOT NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
@@ -411,6 +460,7 @@
             remote_host varchar (255) NOT NULL ,
             remote_addr varchar (20) NOT NULL ,
             message_body long byte NOT NULL ,
+            message_attributes long byte NOT NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (message_name, repository_name)
         )
