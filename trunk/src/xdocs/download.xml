@@ -124,6 +124,23 @@ using</p>
 
 </section>
 
+<section name="Test Builds">
+
+<p>The software listed above represents the latest Release Build
+available from the Apache James Project.  From time to time, we also
+make available Test Builds.  These Test Builds are <u>periodic
+snapshots during development</u>.  Generally, these are considered
+stable snapshots, but they have not undergone as much testing as a
+Release Build, nor have they been voted upon for release by the
+developer community.  These are simply convenient test builds.
+Sometimes the purpose for a Test Build could be soliciting feedback on
+a specific change.  Test Builds are announced on the General mailing
+list (general&#64;james.apache.org).</p>
+
+<a href="http://cvs.apache.org/builds/james-server/test-build/">Latest Test Build</a>
+
+</section>
+
 </section>
 </body>
 </document>
