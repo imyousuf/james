@@ -63,6 +63,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.*;
 
@@ -74,6 +75,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Implements a processor for mails, directing the mail down
@@ -95,6 +97,9 @@ import java.util.Iterator;
  *  </processor>
  *
  * Note that the 'onerror' attribute is not yet supported.
+ *
+ * <P>CVS $Id: LinearProcessor.java,v 1.10.4.4 2003/06/16 05:25:28 noel Exp $</P>
+ * @version 2.2.0
  */
 public class LinearProcessor 
     extends AbstractLogEnabled
@@ -375,7 +380,23 @@ public class LinearProcessor
                     verifyMailAddresses(recipients);
                 }
             } catch (MessagingException me) {
-                handleException(me, mail, matcher.getMatcherConfig().getMatcherName());
+                // look in the matcher's mailet's init attributes
+                MailetConfig mailetConfig = ((Mailet) mailets.get(i)).getMailetConfig();
+                String onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
+                if (onMatchException == null) {
+                    onMatchException = Mail.ERROR;
+                } else {
+                    onMatchException = onMatchException.trim().toLowerCase(Locale.US);
+                }
+                if (onMatchException.compareTo("nomatch") == 0) {
+                    //In case the matcher returned null, create an empty Collection
+                    recipients = new ArrayList(0);
+                } else if (onMatchException.compareTo("matchall") == 0) {
+                    recipients = mail.getRecipients();
+                    // no need to verify addresses
+                } else {
+                    handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException);
+                }
             }
 
             // Split the recipients into two pools.  notRecipients will contain the
@@ -419,7 +440,20 @@ public class LinearProcessor
                 // Make sure all the recipients are still MailAddress objects
                 verifyMailAddresses(mail.getRecipients());
             } catch (MessagingException me) {
-                handleException(me, mail, mailet.getMailetConfig().getMailetName());
+                MailetConfig mailetConfig = mailet.getMailetConfig();
+                String onMailetException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMailetException");
+                if (onMailetException == null) {
+                    onMailetException = Mail.ERROR;
+                } else {
+                    onMailetException = onMailetException.trim().toLowerCase(Locale.US);
+                }
+                if (onMailetException.compareTo("ignore") == 0) {
+                    // ignore the exception and continue
+                    // this option should not be used if the mail object can be changed by the mailet
+                    verifyMailAddresses(mail.getRecipients());
+                } else {
+                    handleException(me, mail, mailet.getMailetConfig().getMailetName(), onMailetException);
+                }
             }
 
             // See if the state was changed by the mailet
@@ -482,12 +516,13 @@ public class LinearProcessor
      * @param me the exception to be handled
      * @param mail the mail being processed when the exception was generated
      * @param offendersName the matcher or mailet than generated the exception
+     * @param nextState the next state to set
      *
      * @throws MessagingException thrown always, rethrowing the passed in exception
      */
-    private void handleException(MessagingException me, Mail mail, String offendersName) throws MessagingException {
+    private void handleException(MessagingException me, Mail mail, String offendersName, String nextState) throws MessagingException {
         System.err.println("exception! " + me);
-        mail.setState(Mail.ERROR);
+        mail.setState(nextState);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         StringBuffer exceptionBuffer =
