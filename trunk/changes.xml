@@ -8,7 +8,10 @@
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
   </devs>
 
-<release version="1.0" date="23-Feb-2000">
+<release version="1.0" date="26-Feb-2000">
+  <action dev="SKFB" type="code">
+    Added DNS stuff to remote delivery.
+  </action>
   <action dev="FB" type="code">
     Add some autodetect support for easier configuration.
   </action>

@@ -26,8 +26,6 @@ import org.apache.james.MessageContainerRepository;
  */
 public interface MailServlet extends Configurable, Service {
 
-    public MailServletContext getContext();
-
     public MessageContainer service(MessageContainer mc);
     
     public String getServletInfo();

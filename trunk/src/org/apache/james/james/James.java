@@ -26,18 +26,18 @@ import org.apache.mail.MessageContainer;
  */
 public class James implements MailServer, Block {
 
-    private ComponentManager comp;
+    private SimpleComponentManager comp;
     private Configuration conf;
-    private SimpleComponentManager smtpServerCM;
+    private SimpleComponentManager spoolManagerCM;
+    private SimpleContext context;
     private Logger logger;
     private ThreadManager threadManager;
     private Store store;
     private MessageContainerRepository spool;
-    private Store.Repository localInbox;
+    private MessageContainerRepository localInbox;
     private Store.Repository mailUsers;
-    
+    private String mailboxName;
     private static long count;
-    
     private String serverName;
     
     public James() {
@@ -48,39 +48,45 @@ public class James implements MailServer, Block {
     }
     
     public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
+        this.comp = new SimpleComponentManager(comp);
     }
 
 	public void init() throws Exception {
 
-        smtpServerCM = new SimpleComponentManager(comp);
+        spoolManagerCM = new SimpleComponentManager(comp);
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JAMES init...", "JAMES", logger.INFO);
-        try {
-            this.serverName = conf.getConfiguration("servername").getValue();
-        } catch (ConfigurationException ce) {
-            serverName = "";
+        context = new SimpleContext();
+        Vector serverNames = new Vector();
+        for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
+            serverNames.addElement(((Configuration) e.nextElement()).getValue());
         }
-        if (serverName.equals("")) {
+        if (serverNames.isEmpty()) {
             try {
-                serverName = InetAddress.getLocalHost().getHostName();
+                serverNames.addElement(InetAddress.getLocalHost().getHostName());
             } catch (UnknownHostException ue) {
-                serverName = "localhost";
             }
         }
+        serverNames.addElement("localhost");
+        serverName = (String) serverNames.elementAt(1);
+        context.put(Constants.SERVER_NAMES, serverNames);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
 
         try {
-            this.localInbox = (Store.Repository) store.getPublicRepository("localInbox");
+            this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
+            this.localInbox = (MessageContainerRepository) store.getPublicRepository(mailboxName);
         } catch (RuntimeException e) {
             logger.log("Cannot open public Repository LocalInbox", "JAMES", logger.ERROR);
             throw e;
         }
         logger.log("Public Repository LocalInbox opened", "JAMES", logger.INFO);
-        smtpServerCM.put("localInbox", localInbox);
+        context.put(Constants.INBOX_ROOT, mailboxName);
 
+        String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
+        context.put(Constants.POSTMASTER, postmaster);
+        
         try {
             this.mailUsers = (Store.Repository) store.getPublicRepository("MailUsers");
         } catch (RuntimeException e) {
@@ -88,7 +94,7 @@ public class James implements MailServer, Block {
             throw e;
         }
         logger.log("Public Repository MailUsers opened", "JAMES", logger.INFO);
-        smtpServerCM.put("mailUsers", mailUsers);
+        spoolManagerCM.put(Constants.USERS_REPOSITORY, mailUsers);
 
         String spoolRepository = conf.getConfiguration("spoolRepository", ".").getValue();
         try {
@@ -98,16 +104,17 @@ public class James implements MailServer, Block {
             throw e;
         }
         logger.log("Private MessageContainerRepository Spool opened", "JAMES", logger.INFO);
-        smtpServerCM.put("spool", spool);
+        spoolManagerCM.put(Constants.SPOOL_REPOSITORY, spool);
 
         int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
         while (threads-- > 0) {
             try {
                 JamesSpoolManager spoolMgr = new JamesSpoolManager();
                 spoolMgr.setConfiguration(conf.getConfiguration("spoolmanager"));
-                spoolMgr.setComponentManager(smtpServerCM);
+                spoolMgr.setContext(context);
+                spoolMgr.setComponentManager(spoolManagerCM);
                 spoolMgr.init();
-                threadManager.execute((Stoppable) spoolMgr);
+                threadManager.execute(spoolMgr);
             } catch (Exception e) {
                 logger.log("Exception in SpoolManager thread-" + threads + " init: " + e.getMessage(), "JAMES", logger.ERROR);
                 throw e;
@@ -116,11 +123,6 @@ public class James implements MailServer, Block {
         }
         logger.log("JAMES ...init end", "JAMES", logger.INFO);
     }
-
-/*    public OutputStream sendMail(String sender, Vector recipients) {
-
-        return spool.addMessage(getMessageId(), sender, recipients);
-    }*/
 
     public void sendMail(String sender, Vector recipients, MimeMessage message) {
         try {
@@ -139,6 +141,23 @@ public class James implements MailServer, Block {
             sendMail(sender, recipients, msg);
         } catch (Exception e) {
         }
+    }
+
+    public MessageContainerRepository getInbox() {
+        return localInbox;
+    }
+
+    public MessageContainerRepository getUserInbox(String userName) {
+
+        MessageContainerRepository userInbox = (MessageContainerRepository) null;
+        String repositoryName = mailboxName + userName;
+        try {
+            userInbox = (MessageContainerRepository) comp.getComponent(repositoryName);
+        } catch (ComponentNotFoundException ex) {
+            userInbox = (MessageContainerRepository) store.getPublicRepository(repositoryName);
+            comp.put(repositoryName, userInbox);
+        }
+        return userInbox;
     }
 
     public void destroy()

@@ -14,23 +14,23 @@ import org.apache.arch.*;
 import org.apache.james.*;
 import org.apache.avalon.blocks.*;
 import org.apache.mail.*;
-
+import org.apache.james.james.*;
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery 
  * the message to local inboxs.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class LocalDelivery extends GenericAvalonMailServlet {
+public class LocalDelivery extends GenericMailServlet {
 
-    private ComponentManager comp;
     private Store store;
     private String inboxRootName;
 
     public void init() 
     throws Exception {
-        comp = getComponentManager();
-        inboxRootName = getConfiguration("repository").getValue();
+        ComponentManager comp = getComponentManager();
+        Context context = getContext();
+        inboxRootName = (String) context.get(Constants.INBOX_ROOT);
         store = (Store) comp.getComponent(Interfaces.STORE);
     }
     
@@ -52,7 +52,8 @@ public class LocalDelivery extends GenericAvalonMailServlet {
             return (MessageContainer) null;
         } else {
             mc.setRecipients(errors);
-            mc.setState("ERROR_UNABLE_TO_STORE");
+            mc.setState(MessageContainer.ERROR);
+            mc.setErrorMessage("Unable to delivery locally message");
             return mc;
         }
     }

@@ -6,17 +6,26 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.mail.servlet;
+package org.apache.james.james.match;
+
+import javax.mail.internet.*;
+import javax.mail.Session;
+import org.apache.mail.MessageContainer;
+import java.util.*;
+import org.apache.arch.*;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri   <scoobie@pop.systemy.it>
- * @author  Stefano Mazzocchi   <stefano@apache.org>
- * @author  Pierpaolo Fumagalli <pier@apache.org>
- * @author  Serge Knystautas    <sergek@lokitech.com>
+ * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface MailServletContext {
+public abstract class AbstractMatch implements Match {
+    
+    public abstract Vector match(MessageContainer mc, String condition);
+    
+    public void setComponentManager(ComponentManager comp) {
+    }
 
-    public static final String CONTEXT = "CONTEXT";
-
+    public void setContext(Context context) {
+    }
 }
+    

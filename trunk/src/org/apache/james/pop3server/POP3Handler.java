@@ -29,9 +29,9 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private SimpleComponentManager comp;
     private Configuration conf;
     private Logger logger;
-    private Store store;
-    private Store.ObjectRepository userRepository;
+    private MailServer mailServer;
     private MessageContainerRepository userInbox;
+    private Store.ObjectRepository userRepository;
     private TimeServer timeServer;
 
     private Socket socket;
@@ -45,7 +45,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private int state;
     private String user;
     private Vector userMailbox;
-    private String mailboxName;
     private Vector backupUserMailbox;
     private static final MessageContainer DELETED = new MessageContainer();
     
@@ -73,11 +72,10 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     throws Exception {
         
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        this.store = (Store) comp.getComponent(Interfaces.STORE);
+        this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.servername = (String) comp.get("servername");
-        this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
         this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
         this.userMailbox = new Vector();
     }
@@ -160,7 +158,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 if (userRepository.test(user, argument)) {
                     state = TRANSACTION;
                     out.println("+OK. Welcome " + user);
-                    userInbox = getUserMailbox(user);
+                    userInbox = mailServer.getUserInbox(user);
                     stat();
                 } else {
                     state = AUTHENTICATION_READY;
@@ -402,19 +400,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         logger.log("Destroy SMTPHandler", "POP3Server", logger.ERROR);
     }
        
-    private MessageContainerRepository getUserMailbox(String userName) {
-
-        MessageContainerRepository userInbox = (MessageContainerRepository) null;
-        String repositoryName = mailboxName + userName;
-        try {
-            userInbox = (MessageContainerRepository) comp.getComponent(repositoryName);
-        } catch (ComponentNotFoundException ex) {
-            userInbox = (MessageContainerRepository) store.getPublicRepository(repositoryName);
-            comp.put(repositoryName, userInbox);
-        }
-        return userInbox;
-    }
-    
     private void stat() {
         userMailbox = new Vector();
         userMailbox.addElement(DELETED);

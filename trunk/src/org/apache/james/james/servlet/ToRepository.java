@@ -22,16 +22,15 @@ import org.apache.mail.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class ToRepository extends GenericAvalonMailServlet {
+public class ToRepository extends GenericMailServlet {
 
-    private ComponentManager comp;
     private MessageContainerRepository repository;
-    private String repositoryPath;
     private boolean passThrough;
+    private String repositoryPath;
 
     public void init() {
-        comp = getComponentManager();
-        repositoryPath = getConfiguration("repository").getValue();
+        ComponentManager comp = getComponentManager();
+        repositoryPath = getConfiguration("repositoryPath").getValue();
         passThrough = getConfiguration("passThrough", "false").getValueAsBoolean();
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         repository = (MessageContainerRepository) store.getPrivateRepository(repositoryPath, MessageContainerRepository.MESSAGE_CONTAINER, Store.ASYNCHRONOUS);

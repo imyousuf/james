@@ -40,7 +40,7 @@ All theese package are in current distribution.
   <property name="debug" value="off"/>
   <property name="optimize" value="on"/>
   <property name="deprecation" value="off"/>
-  <property name="classpath" value="./lib/Avalon.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar"/>
+  <property name="classpath" value="./lib/Avalon.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
 
   <property name="src.dir" value="./src"/>
   <property name="dtd.dir" value="./dtd"/>
@@ -122,7 +122,7 @@ All theese package are in current distribution.
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org"/>
+    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" items="org"/>
   </target>
 
   <!-- =================================================================== -->
@@ -145,6 +145,7 @@ All theese package are in current distribution.
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail.jar" dest="${dist.dir}/lib/mail.jar"/>
     <copyfile src="./lib/xerces_1_0_1.jar" dest="${dist.dir}/lib/xerces_1_0_1.jar"/>
+    <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
 
     <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
     <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
@@ -157,7 +158,6 @@ All theese package are in current distribution.
     <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
     <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/>
-    <deltree dir="${build.dir}"/>
   </target>
 
   <!-- =================================================================== -->

@@ -15,7 +15,6 @@ import org.apache.avalon.blocks.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
 import org.apache.mail.*;
-import org.apache.mail.servlet.MailServletContext;
 import org.apache.james.james.servlet.*;
 import org.apache.james.james.match.*;
 
@@ -23,14 +22,14 @@ import org.apache.james.james.match.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */ 
-public class JamesSpoolManager implements Component, Composer, Configurable, Stoppable, Service {
+public class JamesSpoolManager implements Component, Composer, Configurable, Stoppable, Service, Contextualizable {
 
     private SimpleComponentManager comp;
     private Configuration conf;
+    private Context context;
     private MessageContainerRepository spool;
     private Logger logger;
     private Vector servlets;
-    private Vector servletConfigurations;
     private Vector servletMatchs;
     private String servletsRootPath;
     
@@ -48,6 +47,10 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         this.conf = conf;
     }
     
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public void setComponentManager(ComponentManager comp) {
         this.comp = new SimpleComponentManager(comp);
     }
@@ -56,10 +59,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
-        this.spool = (MessageContainerRepository) comp.getComponent("spool");
-        SimpleComponentManager scomp = new SimpleComponentManager(comp);
-//        scomp.put(MailServletContext.CONTEXT, (MailServletContext) new GenericMailServletContext());
-        this.servletConfigurations = new Vector();
+        this.spool = (MessageContainerRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
         servletsRootPath = conf.getConfiguration("servlets").getAttribute("rootpath");
@@ -70,18 +70,17 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             try {
                 GenericMailServlet servlet = (GenericMailServlet) Class.forName(className).newInstance();
                 servlet.setConfiguration(c);
-                servlet.setComponentManager(scomp);
+                servlet.setContext(context);
+                servlet.setComponentManager(comp);
                 servlet.init();
                 servlets.addElement(servlet);
                 servletMatchs.addElement(match);
-                servletConfigurations.addElement(c);
             } catch (Exception ex) {
                 logger.log("Unable to init mail servlet " + className + ": " + ex, "JAMES", logger.INFO);
                 ex.printStackTrace();
             }
         }
     }
-
 
     /**
      * This routinely checks the message spool for messages, and processes them as necessary
@@ -103,7 +102,6 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 logger.log("==== Begin processing mail " + mc.getMessageId() + " ====", "JAMES", logger.INFO);
                 unprocessed.insertElementAt(mc, 0);
 // ---- Reactor begin ----
-// Uncomment (o) lines to extend log and see the processor pipe working...
                 printPipe(unprocessed);
                 for (int i = 0; true ; i++) {
                     logger.log("===== i = " + i + " =====", "JAMES", logger.DEBUG);
@@ -189,7 +187,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Vector singleMatch(MessageContainer mc, String conditions) {
         boolean opNot = conditions.startsWith(OP_NOT);
         if (opNot) {
-            conditions.substring(1);
+            conditions = conditions.substring(1);
         }
         String matchClass = "org.apache.james.james.match." + conditions;
         String param = "";
@@ -198,15 +196,22 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             matchClass = "org.apache.james.james.match." + conditions.substring(0, sep);
             param = conditions.substring(sep + 1);
         }
+        Match match = (Match) null;
         try {
-            Match match = (Match) Class.forName(matchClass).newInstance();
-            comp.put(matchClass, match);
-            if (opNot) return VectorUtils.subtract(mc.getRecipients(), match.match(mc, param));
-            else return match.match(mc, param);
-        } catch (Exception ex) {
-            logger.log("Exception in match : " + ex, "JAMES", logger.ERROR);
-            return (Vector) null;
+            match = (Match) comp.getComponent(matchClass);
+        } catch (ComponentNotFoundException cnfe) {
+            try {
+                match = (Match) Class.forName(matchClass).newInstance();
+                match.setContext(context);
+                match.setComponentManager(comp);
+                comp.put(matchClass, match);
+            } catch (Exception ex) {
+                logger.log("Exception instantiationg match " + matchClass + " : " + ex, "JAMES", logger.ERROR);
+                return (Vector) null;
+            }
         }
+        if (opNot) return VectorUtils.subtract(mc.getRecipients(), match.match(mc, param));
+        else return match.match(mc, param);
     }
     
     private boolean isEmpty(MessageContainer mc) {

@@ -11,6 +11,7 @@ package org.apache.avalon.blocks;
 import javax.mail.internet.*;
 import java.util.*;
 import org.apache.arch.*;
+import org.apache.james.*;
 
 /**
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -21,6 +22,10 @@ public interface MailServer {
     public void sendMail(String sender, Vector recipients, MimeMessage msg);
     
     public void sendMail(String sender, Vector recipients, String body);
+
+    public MessageContainerRepository getInbox();
+
+    public MessageContainerRepository getUserInbox(String userName);
 
     /* to be extended with methods like
 
