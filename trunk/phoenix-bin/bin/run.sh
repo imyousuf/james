@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Phoenix start script.
 #
-# Author: Peter Donald <peter@apache.org>
+# Author: Peter Donald <peter at apache.org>
 
 # Environment Variable Prequisites
 #
