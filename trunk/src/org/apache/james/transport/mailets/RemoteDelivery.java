@@ -130,6 +130,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
                     } catch (MessagingException me) {
+			log("Exception caught in RemoteDelivery.deliver() : " + me);
                         e = me;
                     /*
                     } catch (java.net.SocketException se) {
@@ -274,6 +275,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 outgoing.remove(key);
                 mail = null;
             } catch (Exception e) {
+		log("Exception caught in RemoteDelivery.run(): " + e);
             }
         }
     }
