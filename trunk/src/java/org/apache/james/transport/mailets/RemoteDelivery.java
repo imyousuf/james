@@ -33,7 +33,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.james.Constants;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -64,7 +63,7 @@ import org.apache.mailet.SpoolRepository;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.36 $
+ * This is $Revision: 1.37 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
