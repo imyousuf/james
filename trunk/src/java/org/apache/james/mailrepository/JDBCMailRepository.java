@@ -481,12 +481,14 @@ public class JDBCMailRepository
             retrieveMessage.close();
             return mc;
         } catch (SQLException sqle) {
-            System.err.println("Error retrieving message");
-            System.err.println(sqle.getMessage());
-            System.err.println(sqle.getErrorCode());
-            System.err.println(sqle.getSQLState());
-            System.err.println(sqle.getNextException());
-            sqle.printStackTrace();
+            synchronized (System.err) {
+                System.err.println("Error retrieving message");
+                System.err.println(sqle.getMessage());
+                System.err.println(sqle.getErrorCode());
+                System.err.println(sqle.getSQLState());
+                System.err.println(sqle.getNextException());
+                sqle.printStackTrace();
+            }
             throw new RuntimeException("Exception while retrieving mail: " + sqle.getMessage());
         } catch (Exception me) {
             me.printStackTrace();
@@ -525,7 +527,6 @@ public class JDBCMailRepository
             } catch (Exception me) {
                 throw new RuntimeException("Exception while removing mail: " + me.getMessage());
             } finally {
-                unlock(key);
                 if (conn != null) {
                     try {
                         conn.close();
@@ -533,6 +534,7 @@ public class JDBCMailRepository
                         //ignore
                     }
                 }
+                unlock(key);
             }
         }
     }
@@ -572,13 +574,26 @@ public class JDBCMailRepository
      * Opens a database connection.
      */
     protected Connection getConnection() {
-        try {
-            return datasource.getConnection();
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
-            throw new CascadingRuntimeException(
-                "An exception occurred getting a database connection.", sqle);
+        int attempts = 0;
+        while (attempts < 1000) {
+            try {
+                return datasource.getConnection();
+            } catch (SQLException e1) {
+                if (e1.getMessage().equals("Could not create enough Components to service your request.")) {
+                    //stupid pool
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ie) {
+                        //ignore
+                    }
+                    attempts++;
+                } else {
+                    throw new CascadingRuntimeException(
+                        "An exception occurred getting a database connection.", e1);
+                }
+            }
         }
+        throw new RuntimeException("Failed to get a connection after " + attempts + " attempts");
     }
 
     public boolean equals(Object obj) {
