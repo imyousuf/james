@@ -152,6 +152,5 @@
   <block class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" 
          name="thread-manager" />
 
-
 </assembly>
 

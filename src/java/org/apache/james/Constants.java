@@ -14,8 +14,8 @@ package org.apache.james;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.3 $
- * Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
+ * @version This is $Revision: 1.4 $
+ * Committed on $Date: 2001/09/25 04:51:19 $ by: $Author: donaldp $ 
  */
 public class Constants {
 
@@ -36,5 +36,4 @@ public class Constants {
     public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
 
     public static final String BUILD_DATE = "@@DATE@@";
-
 }

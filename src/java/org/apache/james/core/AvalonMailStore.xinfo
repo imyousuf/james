@@ -2,14 +2,10 @@
 
 <blockinfo>
 
-  <meta>
-
-    <contributors>
-      <author name="Federico Barbier" email="fede@apache.org"/>
-      <author name="Charles Benett" email="charle@benett1.demon.co.uk"/>
-    </contributors>
-
-  </meta>
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
 
   <!-- services that are offered by this block -->
   <services>
@@ -18,11 +14,9 @@
 
   <dependencies>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.store.Store</role>
       <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
     </dependency>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.datasource.DataSourceSelector</role>
       <service name="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" version="1.0"/>
     </dependency>
   </dependencies>
