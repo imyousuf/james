@@ -27,7 +27,7 @@ import java.util.Iterator;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.4 2003/02/08 04:12:25 mcconnell Exp $
+ * $Id: FetchScheduler.java,v 1.5 2003/02/21 01:35:45 noel Exp $
  *
  *  @see org.apache.james.fetchmail.FetchMail#configure(Configuration) FetchMail
  *  
@@ -89,6 +89,7 @@ public class FetchScheduler
                 fetcher.configure(fetchConf);
                 Integer interval = new Integer(fetchConf.getChild("interval").getValue());
                 PeriodicTimeTrigger fetchTrigger = new PeriodicTimeTrigger(0, interval.intValue());
+
                 scheduler.addTrigger(fetchTaskName, fetchTrigger, fetcher );
                 theFetchTaskNames.add(fetchTaskName);
             }
