@@ -85,7 +85,7 @@ import javax.mail.internet.*;
  *    &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/23 18:50:04 $
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/07 22:53:42 $
  * @since 2.2.0
  */
 public class CompareNumericHeaderValue extends GenericMatcher {
@@ -99,7 +99,7 @@ public class CompareNumericHeaderValue extends GenericMatcher {
     private final static int GE = +1;
     private final static int GT = +2;
     
-    private double headerValue;
+    private Double headerValue;
 
     public void init() throws MessagingException {
         StringTokenizer st = new StringTokenizer(getCondition(), " \t", false);
@@ -144,7 +144,7 @@ public class CompareNumericHeaderValue extends GenericMatcher {
         if (st.hasMoreTokens()) {
             String headerValueString = st.nextToken().trim();
             try {
-                headerValue = Double.parseDouble(headerValueString);
+                headerValue = Double.valueOf(headerValueString);
             }
             catch (NumberFormatException nfe) {
                 throw new MessagingException("Bad header comparison value: \""
@@ -167,8 +167,7 @@ public class CompareNumericHeaderValue extends GenericMatcher {
         String [] headerArray = message.getHeader(headerName);
         if (headerArray != null && headerArray.length > 0) {
             try {
-                double messageHeaderValue = Double.parseDouble(headerArray[0].trim());
-                int comparison = Double.compare(messageHeaderValue, headerValue);
+                int comparison = Double.valueOf(headerArray[0].trim()).compareTo(headerValue);
                 switch (comparisonOperator) {
                     case LT:
                         if (comparison < 0) {
