@@ -49,6 +49,7 @@
             <smtpServer>
                 <port>25</port>
 <!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
+<!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <smtphandler>
                     <connectiontimeout> 360000 </connectiontimeout>
                 </smtphandler>
