@@ -5,10 +5,10 @@
     <title>Download</title>
   </properties>
 <body>
-<section id="Download" name="Downloading the Apache James Mail Server">
+<section name="Downloading the Apache James Mail Server">
 
 <p>Use the links below to download the Apache James Mail Server from one of
-our mirrors.  You <strong>must</strong> <a href="#verify">verify the
+our mirrors.  You <strong>must</strong> <a href="#Verify the integrity of the files">verify the
 integrity</a> of the downloaded files using signatures downloaded from
 our main distribution directory.</p>
 
@@ -17,7 +17,7 @@ distribution site and its mirrors.  Older releases are available from
 the <a href="http://archive.apache.org/dist/james/">archive download
 site.</a></p>
 
-<section id="mirror" name="Mirror">
+<section name="Mirror">
 
 <p>[if-any logo]
 <a href="[link]"><img align="right" src="[logo]" border="0" /></a>[end]
@@ -46,7 +46,7 @@ list of mirrors</a>.</p>
 
 </section>
 
-<section id="latest" name="Apache James 2.1.3 is the best available version">
+<section name="Apache James 2.1.3 is the best available version">
 
 <p>This release has many enhancements and bug fixes over the previous
 release.  See the <a
@@ -94,7 +94,7 @@ Binaries</a></li>
 
 </section>
 
-<section id="verify" name="Verify the integrity of the files">
+<section name="Verify the integrity of the files">
 
 <p>It is essential that you verify the integrity of the downloaded
 files using the PGP or MD5 signatures.</p>
