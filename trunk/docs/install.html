@@ -23,11 +23,14 @@ WIDTH="609"></h2>
 
 <h3>Startup Configuration</h3>
 <blockquote>
-    <p>In the distribution you'll find configuration file "/conf/avalon.conf.xml".
-    Edit /conf/avalon.conf.xml and fill it with needed configuration follwing
+    <p>In the distribution you'll find configuration file "/conf/james.conf.xml".
+    Edit /conf/james.conf.xml and fill it with needed configuration follwing
     instructions inside. The configuration file is filled with defaults. Values 
     which cannot be set as default needs to be filled. Basically to make it work 
-    just replace any FILL ME tag with the appropiate value.</p> 
+    just replace any FILL ME tag with the appropiate value. All other .conf files
+    you'll ifng in the same folder belong to others Blocks that cohoperate with
+    JAMES (Block) to make it work. They do not need specific configurations since 
+    they are filled with defaults but a fast look may help.</p> 
 </blockquote>    
 
 <h3>Run</h3>
@@ -58,7 +61,7 @@ WIDTH="609"></h2>
     Try now to retrive that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
     Action that will be taken by JAMES on incoming mail are configurated in the servlet
-    pipe line (/conf/avalon.conf.xml). Look there if you want to understand what's appening.</p>
+    pipe line (/conf/james.conf.xml). Look there if you want to understand what's appening.</p>
   
 </blockquote>    
 <p>  Good luck :)</p>
