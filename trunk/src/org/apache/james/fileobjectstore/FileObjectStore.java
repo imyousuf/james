@@ -64,17 +64,19 @@ import org.apache.james.util.*;
  *
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  * @author <a href="mailto:scoobie@systemy.it">Federico Barbieri</a>
- * @version $Revision: 1.1 $ $Date: 1999/08/18 09:20:07 $
+ * @version $Revision: 1.2 $ $Date: 1999/09/07 15:52:17 $
  */
 
 public class FileObjectStore implements ObjectStore {
-    
+
     private String path;
-    
-    private String ext = ".store";
-    
-    private FilenameFilter filter = new ExtensionFileFilter(ext);
-    
+
+    private String storeExt = ".store";
+    private String tempExt = ".temp";
+
+    private FilenameFilter storeFilter = new ExtensionFileFilter(storeExt);
+    private FilenameFilter tempFilter = new ExtensionFileFilter(tempExt);
+
     private static final char[] hexDigits = {
         '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
@@ -85,13 +87,13 @@ public class FileObjectStore implements ObjectStore {
 System.out.println("repository: " + path);
         if (!(new File(path)).exists()) throw new Exception("Path \"" + path + "\" not found");
     }
-    
+
     /**
      * Get the object associated to the given unique key.
      */
-    public synchronized Object get(Object key) {
+    public Object get(Object key) {
         try {
-            String filename = this.encode(key);
+            String filename = this.encode(key) + storeExt;
             ObjectInputStream stream = new ObjectInputStream(new FileInputStream(filename));
             Object object = stream.readObject();
             stream.close();
@@ -100,52 +102,69 @@ System.out.println("repository: " + path);
             throw new RuntimeException("Exception caught while retrieving an object: " + e);
         }
     }
-   
+
     /**
      * Store the given object and associates it to the given key
-     */ 
-    public synchronized void store(Object key, Object value) {
+     */
+    public void store(Object key, Object value) {
         try {
-            String filename = this.encode(key);
-            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(filename));
+            String tempFilename = this.encode(key) + tempExt;
+            String storeFilename = this.encode(key) + storeExt;
+            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(tempFilename));
             stream.writeObject(value);
             stream.close();
+
+			while (storeFilename.exists()) {
+				storeFilename.delete();
+				sleep();
+			}
+			while (!tempFilename.renameTo(storeFilename)) {
+				sleep();
+			}
+			while (tempFilename.exists()) {
+				sleep();
+			}
+
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing an object: " + e);
         }
     }
-    
+
     /**
      * Remove the object associated to the given key.
      */
-    public synchronized void remove(Object key) {
+    public void remove(Object key) {
         try {
-            File file = new File(this.encode(key));
+            File file = new File(this.encode(key) + storeExt);
             file.delete();
+            sleep ();
+			while (file.exists()) {
+				sleep();
+			}
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while removing an object: " + e);
         }
     }
-    
+
     /**
      * Indicates if the given key is associated to a contained object.
      */
-    public synchronized boolean containsKey(Object key) {
+    public boolean containsKey(Object key) {
         try {
-            File file = new File(this.encode(key));
+            File file = new File(this.encode(key) + storeExt);
             return file.exists();
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while searching an object: " + e);
         }
     }
-    
+
     /**
      * Returns the list of used keys.
      */
     public Enumeration list() {
-        
+
         File storeDir = new File(path);
-        String[] names = storeDir.list(filter);
+        String[] names = storeDir.list(storeFilter);
         Vector v = new Vector();
         for (int i = 0; i < names.length; i++) {
             v.addElement(decode(names[i]));
@@ -175,25 +194,35 @@ System.out.println("repository: " + path);
         buffer.append(path);
         buffer.append("/");
         buffer.append(buf);
-        buffer.append(ext);
         return buffer.toString();
     }
-    
+
     /**
      * Inverse of encode exept it do not use path.
      * So decode(encode(s) - path) = s.
-     * In other words it returns a String that can be used as key to retive 
+     * In other words it returns a String that can be used as key to retive
      * the record contained in the 'filename' file.
      */
     private String decode(String filename) {
-
-        filename = filename.substring(0, filename.length() - ext.length());        
+		if (filename.endsWith (storeExt))
+	        filename = filename.substring(0, filename.length() - storeExt.length());
         byte[] b = new byte[filename.length() / 2];
         for (int i = 0, j = 0; i < filename.length(); j++) {
             b[j] = Byte.parseByte(filename.substring(i, i + 2), 16);
             i +=2;
         }
         return new String(b);
+    }
+
+    /**
+     * Simple routine to sleep, catching exceptions
+     */
+    private void sleep(long ms) {
+        //System.out.println("Sleeping for 20s...");
+
+        try {
+            Thread.sleep(20l);
+        } catch (InterruptedException ie) {}
     }
 
 }
