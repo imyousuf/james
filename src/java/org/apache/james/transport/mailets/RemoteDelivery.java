@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2001/09/27 21:14:37 $ by: $Author: serge $
+ * This is $Revision: 1.8 $
+ * Committed on $Date: 2001/10/04 18:22:17 $ by: $Author: danny $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -267,7 +267,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private void bounce(MailImpl mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
         PrintWriter pout = new PrintWriter(sout, true);
-        pout.println("Hi. This is the James mail server (we don't know where)."); // at " + InetAddress.getLocalHost() + ".");
+        String machine ="[unknown]";
+        try{
+        	InetAddress me = InetAddress.getLocalHost();
+        	machine = me.getHostName();
+        }catch(Exception e){
+        	machine = "[address unknown]";
+        }
+        pout.println("Hi. This is the James mail server at " + machine + ".");
         pout.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
         pout.println("This is a permanent error; I've given up. Sorry it didn't work out.");
         pout.println();
