@@ -48,14 +48,17 @@ public class SMTPServer
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
-        super.configure( configuration.getChild( "smtphandler" ) );
+        final String useTLS = configuration.getChild("useTLS").getValue( "" );
+        if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
+ 
+       super.configure( configuration.getChild( "smtphandler" ) );
     }
 
     public void init() throws Exception {
         getLogger().info("SMTPServer init...");
         super.init();
         getLogger().info("SMTPServer ...init end");
-        System.out.println("Started SMTP Server");
+        System.out.println("Started SMTP Server "+m_connectionName);
     }
 }
     
