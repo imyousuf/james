@@ -531,6 +531,7 @@ public class Redirect extends GenericMailet {
             }
             reply.setContent(multipart);
             reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
+            reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
         } else {
             // if we need the original, create a copy of this message to redirect
             reply = getPassThrough() ? new MimeMessage(message) : message;
@@ -542,8 +543,8 @@ public class Redirect extends GenericMailet {
             reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
         
-        reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
-        
+        //
+         
         if(replyTo != null) {
             InternetAddress[] iart = new InternetAddress[1];
             iart[0] = replyTo.toInternetAddress();
