@@ -152,11 +152,16 @@ public class SMTPServer extends AbstractJamesService implements Component {
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
             maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
-            if (getLogger().isInfoEnabled()) {
+            if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
+            } else {
+                getLogger().info("No maximum message size is enforced for this server.");
             }
-            //how many bytes to read before updating the timer that data is being transfered
+            // How many bytes to read before updating the timer that data is being transfered
             lengthReset = configuration.getChild("lengthReset").getValueAsInteger(lengthReset);
+            if (lengthReset <= 0) {
+                throw new ConfigurationException("The configured value for the idle timeout reset, " + lengthReset + ", is not valid.");
+            }
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
