@@ -18,10 +18,12 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:32 $
- * $Revision: 1.2 $
+ * Last changed by: $Author: donaldp $ on $Date: 2001/09/06 13:19:32 $
+ * $Revision: 1.3 $
  */
 public interface UsersRepository {
+
+    String ROLE = "org.apache.james.services.UsersRepository";
 
     String USER = "USER";
 

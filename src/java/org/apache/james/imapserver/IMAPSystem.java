@@ -28,6 +28,8 @@ import org.apache.james.AuthenticationException;
 public interface IMAPSystem
     extends Configurable, Contextualizable, Composable {
 
+    String ROLE = "org.apache.james.imapserver.IMAPSystem";
+
     String IMAP_SYSTEM = "IMAP_SYSTEM";
     String PRIVATE = "Private";
     String OTHER_USERS = "OtherUsers";

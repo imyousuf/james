@@ -10,5 +10,7 @@ package org.apache.james.services;
 import java.util.Collection;
 
 public interface DNSServer {
+    String ROLE = "org.apache.james.services.DNSServer";
+
     Collection findMXRecords(String hostname);
 }

@@ -37,6 +37,8 @@ import org.apache.james.AuthorizationException;
 public interface Host
     extends Configurable, Composable, Contextualizable, Service {
 
+    String ROLE = "org.apache.james.imapserver.Host";
+
     String IMAP_HOST = "IMAP_HOST";
 
     /**

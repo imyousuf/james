@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2001/08/11 21:31:18 $ by: $Author: serge $
+ * This is $Revision: 1.8 $
+ * Committed on $Date: 2001/09/06 13:19:32 $ by: $Author: donaldp $
  */
 public class James
     extends AbstractLoggable
@@ -119,15 +119,13 @@ public class James
         // BlockContext that is set up in server.xml
         // workerPool = blockContext.getThreadPool( "default" );
         try {
-            mailstore = (MailStore) compMgr.lookup(
-                                    "org.apache.james.services.MailStore");
+            mailstore = (MailStore) compMgr.lookup( MailStore.ROLE );
         } catch (Exception e) {
             getLogger().warn("Can't get Store: " + e);
         }
         getLogger().debug("Using MailStore: " + mailstore.toString());
         try {
-            usersStore = (UsersStore) compMgr.lookup(
-                                      "org.apache.james.services.UsersStore");
+            usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
         } catch (Exception e) {
             getLogger().warn("Can't get Store: " + e);
         }
@@ -194,7 +192,7 @@ public class James
             throw e;
         }
         //}
-        compMgr.put("org.apache.james.services.UsersRepository", (Component)localusers);
+        compMgr.put( UsersRepository.ROLE, (Component)localusers);
         getLogger().info("Local users repository opened");
 
         // Get storage system
@@ -225,7 +223,7 @@ public class James
                 if (imapSystem instanceof Initializable) {
                     ((Initializable)imapSystem).initialize();
                 }
-                compMgr.put("org.apache.james.imapserver.IMAPSystem", (Component)imapSystem);
+                compMgr.put( IMAPSystem.ROLE, (Component)imapSystem);
                 getLogger().info("Using SimpleSystem.");
                 imapHost = (Host) Class.forName(imapHostClass).newInstance();
                 //imapHost = new JamesHost();
@@ -235,7 +233,7 @@ public class James
                 if (imapHost instanceof Initializable) {
                     ((Initializable)imapHost).initialize();
                 }
-                compMgr.put("org.apache.james.imapserver.Host", (Component)imapHost);
+                compMgr.put( Host.ROLE, (Component)imapHost);
                 getLogger().info("Using: " + imapHostClass);
             } catch (Exception e) {
                 getLogger().error("Exception in IMAP Storage init: " + e.getMessage());
@@ -255,7 +253,7 @@ public class James
         getLogger().info("Private Repository LocalInbox opened");
 
         // Add this to comp
-        compMgr.put("org.apache.james.services.MailServer", this);
+        compMgr.put( MailServer.ROLE, this);
 
         spool = mailstore.getInboundSpool();
         if (DEEP_DEBUG) getLogger().debug("Got spool");
@@ -371,7 +369,7 @@ public class James
     public Collection getMailServers(String host) {
         DNSServer dnsServer = null;
         try {
-            dnsServer = (DNSServer) compMgr.lookup("org.apache.james.services.DNSServer");
+            dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
         } catch ( final ComponentException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");

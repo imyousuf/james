@@ -21,5 +21,7 @@ import org.apache.avalon.phoenix.Service;
 public interface UsersStore 
     extends Service {
 
+    String ROLE = "org.apache.james.services.UsersStore";
+
     UsersRepository getRepository( String name );
 }
