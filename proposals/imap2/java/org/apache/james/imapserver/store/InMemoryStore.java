@@ -11,11 +11,15 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.imapserver.store.ImapStore;
 import org.apache.james.imapserver.ImapConstants;
 
+import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A simple in-memory implementation of {@link ImapStore}, used for testing
@@ -23,7 +27,7 @@ import java.util.StringTokenizer;
  * 
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class InMemoryStore implements ImapStore, ImapConstants
 {
@@ -184,11 +188,17 @@ public class InMemoryStore implements ImapStore, ImapConstants
         protected String name;
         private boolean isSelectable = false;
 
-        public HierarchicalMailbox( HierarchicalMailbox parent, String name )
+        private Map mailMessages = new HashMap();
+        private long nextUid = 1;
+        private long uidValidity;
+
+        public HierarchicalMailbox( HierarchicalMailbox parent,
+                                    String name )
         {
             this.name = name;
             this.children = new ArrayList();
             this.parent = parent;
+            this.uidValidity = System.currentTimeMillis();
         }
 
         public Collection getChildren()
@@ -235,7 +245,7 @@ public class InMemoryStore implements ImapStore, ImapConstants
 
         public int getMessageCount()
         {
-            return 0;
+            return mailMessages.size();
         }
 
         public int getRecentCount()
@@ -243,14 +253,14 @@ public class InMemoryStore implements ImapStore, ImapConstants
             return 0;
         }
 
-        public int getUidValidity()
+        public long getUidValidity()
         {
-            return 0;
+            return uidValidity;
         }
 
-        public int getUidNext()
+        public long getUidNext()
         {
-            return 0;
+            return nextUid;
         }
 
         public int getUnseenCount()
@@ -278,38 +288,43 @@ public class InMemoryStore implements ImapStore, ImapConstants
             isSelectable = selectable;
         }
 
-        // TODO implement these methods.
-        public void store( MailImpl mc )
+        public ImapMessage createMessage( MimeMessage message,
+                                          MessageFlags flags,
+                                          Date internalDate )
         {
+            long uid = nextUid;
+            nextUid++;
+
+            ImapMessage imapMessage = new ImapMessage( message, flags,
+                                                       internalDate, uid );
+
+            mailMessages.put( new Long( uid ), imapMessage );
+            return imapMessage;
         }
 
-        public Iterator list()
+        public void storeMessage( ImapMessage message )
         {
-            return null;
+            Long key = new Long( message.getUid() );
+            mailMessages.put( key, message );
         }
 
-        public MailImpl retrieve( String key )
+        public void store( MailImpl mail )
+                throws Exception
         {
-            return null;
+            MimeMessage message = mail.getMessage();
+            Date internalDate = new Date();
+            MessageFlags flags = new MessageFlags();
+            createMessage( message, flags, internalDate );
         }
 
-        public void remove( MailImpl mail )
+        public ImapMessage getMessage( long uid )
         {
+            return (ImapMessage)mailMessages.get( new Long(uid ) );
         }
 
-        public void remove( String key )
+        public Collection getMessages()
         {
-        }
-
-        public boolean lock( String key )
-        {
-            return false;
-        }
-
-        public boolean unlock( String key )
-        {
-            return false;
+            return Collections.unmodifiableCollection( mailMessages.values() );
         }
     }
-
 }

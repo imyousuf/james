@@ -11,6 +11,7 @@ package org.apache.james.imapserver.store;
 /**
  * The set of flags associated with a message.
  * TODO - should store SEEN flag on a peruser basis (not required, but nice)
+ * TODO - why not use javax.mail.Flags instead of having our own.
  *
  * <p>Reference: RFC 2060 - para 2.3
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>

@@ -22,7 +22,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class CommandParser
 {
@@ -184,6 +184,8 @@ public class CommandParser
     /**
      * Reads an argument of type "literal" from the request, in the format:
      *      "{" charCount "}" CRLF *CHAR8
+     * Note before calling, the request should be positioned so that nextChar
+     * is '{'. Leading whitespace is not skipped in this method.
      */
     protected String consumeLiteral( ImapRequestLineReader request )
             throws ProtocolException

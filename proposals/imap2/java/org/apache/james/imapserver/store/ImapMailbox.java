@@ -8,6 +8,11 @@
 package org.apache.james.imapserver.store;
 
 import org.apache.james.services.MailRepository;
+import org.apache.james.core.MailImpl;
+
+import javax.mail.internet.MimeMessage;
+import java.util.Date;
+import java.util.Collection;
 
 /**
  * Represents a mailbox within an {@link org.apache.james.imapserver.store.ImapStore}.
@@ -18,9 +23,9 @@ import org.apache.james.services.MailRepository;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
-public interface ImapMailbox extends MailRepository
+public interface ImapMailbox
 {
     String getName();
 
@@ -32,7 +37,7 @@ public interface ImapMailbox extends MailRepository
 
     int getRecentCount();
 
-    int getUidValidity();
+    long getUidValidity();
 
     int getFirstUnseen();
 
@@ -40,8 +45,19 @@ public interface ImapMailbox extends MailRepository
 
     boolean isSelectable();
 
-    int getUidNext();
+    long getUidNext();
 
     int getUnseenCount();
-    
+
+    ImapMessage createMessage( MimeMessage message, MessageFlags flags, Date internalDate );
+
+    void storeMessage( ImapMessage message );
+
+    void store( MailImpl mail) throws Exception;
+
+    ImapMessage getMessage( long uid );
+
+    Collection getMessages();
+
+
 }

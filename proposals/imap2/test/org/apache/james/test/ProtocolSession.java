@@ -21,7 +21,7 @@ import java.util.List;
  * the server response against the expected values.
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ProtocolSession
 {
@@ -134,7 +134,9 @@ public class ProtocolSession
          */
         public void testProtocol( PrintWriter out, BufferedReader in )
         {
-            out.println( message );
+            out.print( message );
+            out.write( '\r' );
+            out.write( '\n' );
         }
     }
 

@@ -18,10 +18,11 @@ import java.util.StringTokenizer;
 /**
  * Wraps the client input reader with a bunch of convenience methods, allowing lookahead=1
  * on the underlying character stream.
+ * TODO need to look at encoding, and whether we should be wrapping an InputStream instead.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ImapRequestLineReader
 {
@@ -80,8 +81,6 @@ public class ImapRequestLineReader
             if ( next == -1 ) {
                 throw new ProtocolException( "Unexpected end of stream." );
             }
-            else {
-           }
 
             nextSeen = true;
             nextChar = ( char ) next;
