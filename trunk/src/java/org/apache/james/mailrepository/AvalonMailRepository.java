@@ -183,10 +183,12 @@ public class AvalonMailRepository
             } finally {
                 unlock(key);
             }
+        } else {
+            throw new RuntimeException("Cannot lock " + key + " to remove it");
         }
     }
 
     public Iterator list() {
-        return sr.list();
+        return or.list();
     }
 }
