@@ -69,7 +69,7 @@ All these package are in current distribution.
 
   <target name="init">
 
-    <property name="classpath" value="./lib/avalonapi.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
+    <property name="classpath" value="./lib/avalonapi.jar;./lib/logkit.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
 
     <property name="src.dir" value="src"/>
     <property name="conf.dir" value="conf"/>
