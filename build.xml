@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
+  <!DOCTYPE project [
+    <!ENTITY check-targets SYSTEM "file:check-targets.ent">
+  ]>
+
 <!-- ==========================================================================
 
- James build file $Revision: 1.125 $  Committed on $Date: 2003/02/09 03:41:15 $ by: $Author: mcconnell $
+ James build file $Revision: 1.126 $  Committed on $Date: 2003/02/09 14:49:06 $ by: $Author: mcconnell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -63,9 +67,18 @@ Legal:
         </fileset>
         <pathelement path="${build.classes}"/>
     </path>
+
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="project.class.path"/>
     </taskdef>
+
+    <!--
+    ===================================================================
+                                Dependency Check
+    ===================================================================
+    -->
+    &check-targets;
+    <target name="test" depends="javamail-check,activation-check,junit-check"/>
 
     <!--
     ===================================================================
