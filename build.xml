@@ -269,6 +269,9 @@ All these package are in current distribution.
       <fileset dir="lib">
         <include name="phoenix-client.jar"/>
         <include name="avalonapi.jar"/>
+        <include name="avalon-jmx.jar"/>
+        <include name="jmxri.jar"/>
+        <include name="jmxtools.jar"/>
         <include name="logkit.jar"/>
         <include name="xerces.jar"/>
       </fileset>
