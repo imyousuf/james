@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2001/06/19 16:00:45 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2001/06/25 17:00:25 $ by: $Author: charlesb $ 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -77,7 +77,6 @@ public class SMTPHandler
     private boolean authRequired = false;
     private boolean verifyIdentity = false;
 
-    //    private Configuration conf;
     private TimeScheduler scheduler;
     private UsersRepository users;
     private MailServer mailServer;
@@ -277,15 +276,16 @@ public class SMTPHandler
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
+	    if (authRequired) {
+	        out.println("250-AUTH LOGIN PLAIN");
+            }
             out.println( "250 " + state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
 	    if (maxmessagesize > 0) {
 	        //    out.println("250 SIZE " + maxmessagesize);
             }
-	    if (authRequired) {
-	        out.println("250 AUTH LOGIN PLAIN");
-            }
+
         }
 
 
