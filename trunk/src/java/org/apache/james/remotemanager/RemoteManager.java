@@ -103,8 +103,8 @@ public class RemoteManager
         super.dispose();
        
         // This is needed to make sure that sockets are released promptly on Windows 2000
-	    System.gc();
-	
-    	getLogger().info( "RemoteManager ...dispose end" );
+        System.gc();
+    
+        getLogger().info( "RemoteManager ...dispose end" );
     }
 }
