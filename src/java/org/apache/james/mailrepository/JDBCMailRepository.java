@@ -69,26 +69,69 @@ public class JDBCMailRepository
      */
     private static final boolean DEEP_DEBUG = false;
 
+    /**
+     * The Avalon componentManager used by the instance
+     */
+    private ComponentManager componentManager;
 
     /**
      * The Avalon context used by the instance
      */
     protected Context context;
 
+    /**
+     * A lock used to control access to repository elements, locking access
+     * based on the key 
+     */
     private Lock lock;
 
     // Configuration elements
+
+    /**
+     * Destination URL for the repository.  See class description for more info
+     */
     protected String destination;
+
+    /**
+     * The table name parsed from the destination URL
+     */
     protected String tableName;
+
+    /**
+     * The repository name parsed from the destination URL
+     */
     protected String repositoryName;
+
+    /**
+     * The name of the filestore to be used to store mail when configured to use dbfile mode.
+     */
     protected String filestore;
+
+    /**
+     * The name of the SQL configuration file to be used to configure this repository.
+     */
     protected String sqlFileName;
 
+    /**
+     * The stream repository used in dbfile mode
+     */
     private StreamRepository sr = null;
 
     //The data-source for this repository
+
+    /**
+     * The selector used to obtain the JDBC datasource
+     */
     protected DataSourceSelector datasources;
+
+    /**
+     * The JDBC datasource that provides the JDBC connection
+     */
     protected DataSourceComponent datasource;
+
+    /**
+     * The name of the datasource used by this repository
+     */
     protected String datasourceName;
 
     /**
@@ -135,41 +178,8 @@ public class JDBCMailRepository
         }
         // Get the DataSourceSelector service
         datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
+        this.componentManager = componentManager;
 
-        try {
-            if (filestore != null) {
-                Store store = (Store)componentManager.
-                        lookup("org.apache.avalon.cornerstone.services.store.Store");
-                //prepare Configurations for stream repositories
-                DefaultConfiguration streamConfiguration
-                    = new DefaultConfiguration( "repository",
-                                                "generated:JDBCMailRepository.compose()" );
-
-                streamConfiguration.setAttribute( "destinationURL", filestore );
-                streamConfiguration.setAttribute( "type", "STREAM" );
-                streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
-                sr = (StreamRepository) store.select(streamConfiguration);
-
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
-                }
-            }
-
-            lock = new Lock();
-            if (getLogger().isDebugEnabled()) {
-                logBuffer =
-                    new StringBuffer(128)
-                            .append(this.getClass().getName())
-                            .append(" created according to ")
-                            .append(destination);
-                getLogger().debug(logBuffer.toString());
-            }
-        } catch (Exception e) {
-            final String message = "Failed to retrieve Store component:" + e.getMessage();
-            getLogger().error(message, e);
-            e.printStackTrace();
-            throw new ComponentException(message, e);
-        }
     }
 
     /**
@@ -245,6 +255,40 @@ public class JDBCMailRepository
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
                 ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
+        }
+        try {
+            if (filestore != null) {
+                Store store = (Store)componentManager.
+                        lookup("org.apache.avalon.cornerstone.services.store.Store");
+                //prepare Configurations for stream repositories
+                DefaultConfiguration streamConfiguration
+                    = new DefaultConfiguration( "repository",
+                                                "generated:JDBCMailRepository.configure()" );
+
+                streamConfiguration.setAttribute( "destinationURL", filestore );
+                streamConfiguration.setAttribute( "type", "STREAM" );
+                streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
+                sr = (StreamRepository) store.select(streamConfiguration);
+
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
+                }
+            }
+
+            lock = new Lock();
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer logBuffer =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(" created according to ")
+                            .append(destination);
+                getLogger().debug(logBuffer.toString());
+            }
+        } catch (Exception e) {
+            final String message = "Failed to retrieve Store component:" + e.getMessage();
+            getLogger().error(message, e);
+            e.printStackTrace();
+            throw new ConfigurationException(message, e);
         }
     }
 
@@ -354,6 +398,13 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Releases a lock on a message identified by a key
+     *
+     * @param key the key of the message to be unlocked
+     *
+     * @return true if successfully released the lock, false otherwise
+     */
     public synchronized boolean unlock(String key) {
         if (lock.unlock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -374,6 +425,13 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Obtains a lock on a message identified by a key
+     *
+     * @param key the key of the message to be locked
+     *
+     * @return true if successfully obtained the lock, false otherwise
+     */
     public synchronized boolean lock(String key) {
         if (lock.lock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -572,6 +630,13 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Retrieves a message given a key. At the moment, keys can be obtained
+     * from list()
+     *
+     * @param key the key of the message to retrieve
+     * @return the mail corresponding to this key, null if none exists
+     */
     public MailImpl retrieve(String key) {
         if (DEEP_DEBUG) {
             System.err.println("retrieving " + key);
@@ -646,10 +711,20 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Removes a specified message
+     *
+     * @param mail the message to be removed from the repository
+     */
     public void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
+    /**
+     * Removes a message identified by a key.
+     *
+     * @param key the key of the message to be removed from the repository
+     */
     public void remove(String key) {
         //System.err.println("removing " + key);
         if (lock(key)) {
@@ -676,6 +751,11 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Gets a list of message keys stored in this repository.
+     *
+     * @return an Iterator of the message keys
+     */
     public Iterator list() {
         //System.err.println("listing messages");
         Connection conn = null;
@@ -703,10 +783,19 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Gets the SQL connection to be used by this JDBCMailRepository
+     *
+     * @return the connection
+     * @throws SQLException if there is an issue with getting the connection
+     */
     protected Connection getConnection() throws SQLException {
         return datasource.getConnection();
     }
 
+    /**
+     * @see java.lang.Object#equals(Object)
+     */
     public boolean equals(Object obj) {
         if (!(obj instanceof JDBCMailRepository)) {
             return false;
