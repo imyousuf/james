@@ -37,10 +37,11 @@ import java.util.Iterator;
  *
  * &lt;mailet match="RecipientIs=respool@localhost" class="FromRepository"&gt;
  *    &lt;repositoryPath&gt; <i>repository path</i> &lt;/repositoryPath&gt;
- *    &lt;delete [true|<b>false</b>] &lt;/delete&gt;
+ *    &lt;processor&gt; <i>target processor</i> &lt;/repositoryPath&gt;
+ *    &lt;delete&t; [true|<b>false</b>] &lt;/delete&gt;
  * &lt;/mailet&gt;
  *
- * @version This is $Revision: 1.1.2.3 $
+ * @version This is $Revision: 1.1.2.4 $
  */
 public class FromRepository extends GenericMailet {
 
@@ -52,7 +53,7 @@ public class FromRepository extends GenericMailet {
     /**
      * Whether this mailet should delete messages after being spooled
      */
-    private boolean delete = true;
+    private boolean delete = false;
 
     /**
      * The path to the repository
@@ -60,14 +61,21 @@ public class FromRepository extends GenericMailet {
     private String repositoryPath;
 
     /**
+     * The processor that will handle the re-spooled message(s)
+     */
+    private String processor;
+
+    /**
      * Initialize the mailet, loading configuration information.
      */
     public void init() {
         repositoryPath = getInitParameter("repositoryPath");
+        processor = (getInitParameter("processor") == null) ? Mail.DEFAULT : getInitParameter("processor");
+
         try {
-            delete = (getInitParameter("delete") == null) ? true : new Boolean(getInitParameter("delete")).booleanValue();
+            delete = (getInitParameter("delete") == null) ? false : new Boolean(getInitParameter("delete")).booleanValue();
         } catch (Exception e) {
-            // Ignore exception, default to true
+            // Ignore exception, default to false
         }
 
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
@@ -83,7 +91,6 @@ public class FromRepository extends GenericMailet {
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
-
     }
 
     /**
@@ -114,6 +121,7 @@ public class FromRepository extends GenericMailet {
                     */
 
                     mail.setAttribute("FromRepository", Boolean.TRUE);
+                    mail.setState(processor);
                     getMailetContext().sendMail(mail);
                     if (delete) processed.add(key);
                 }
