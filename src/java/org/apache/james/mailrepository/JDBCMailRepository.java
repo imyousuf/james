@@ -274,6 +274,10 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Store this message to the database.  Optionally stores the message
+     * body to the filesystem and only writes the headers to the database.
+     */
     public void store(MailImpl mc) {
         //System.err.println("storing " + mc.getName());
         Connection conn = null;
