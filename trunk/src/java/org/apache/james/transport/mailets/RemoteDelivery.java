@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.18 $
- * Committed on $Date: 2002/04/17 16:22:58 $ by: $Author: serge $
+ * This is $Revision: 1.19 $
+ * Committed on $Date: 2002/04/18 14:14:53 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -406,11 +406,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     // Need to synchronize to get object monitor for notifyAll()
     public synchronized void destroy() {
         //Wake up all threads from waiting for an accept
-        notifyAll();
         for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
             Thread t = (Thread)i.next();
             t.interrupt();
         }
+        notifyAll();
     }
 
     /**
