@@ -20,7 +20,7 @@ import org.apache.mailet.MailRepository;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.11 $
+ * @version This is $Revision: 1.12 $
  */
 public class ToRepository extends GenericMailet {
 
@@ -51,13 +51,13 @@ public class ToRepository extends GenericMailet {
             // Ignore exception, default to false
         }
 
-       
+
             try {
                 repository = getMailetContext().getMailRepository(repositoryPath);
             } catch (MessagingException e) {
                 log("Initialisation failed can't get repository "+repositoryPath);
             }
-        
+
 
     }
 
@@ -67,7 +67,7 @@ public class ToRepository extends GenericMailet {
      * @param mail the mail to process
      */
     public void service(Mail mail) {
-        
+
         StringBuffer logBuffer =
             new StringBuffer(160)
                     .append("Storing mail ")

@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
- * Reads and translates client data. After this translation, 
+ * Reads and translates client data. After this translation,
  * the data can be streamed into server repository.
  * Handles Dot Stuffing.
  *

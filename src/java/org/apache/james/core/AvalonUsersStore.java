@@ -122,7 +122,7 @@ public class AvalonUsersStore
             }
             repositories.put(repName, rep);
             if (getLogger().isInfoEnabled()) {
-                StringBuffer logBuffer = 
+                StringBuffer logBuffer =
                     new StringBuffer(64)
                             .append("UsersRepository ")
                             .append(repName)
@@ -134,7 +134,7 @@ public class AvalonUsersStore
     }
 
 
-    /** 
+    /**
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
@@ -150,7 +150,7 @@ public class AvalonUsersStore
         return response;
     }
 
-    /** 
+    /**
      * Yield an <code>Iterator</code> over the set of repository
      * names managed internally by this store.
      *

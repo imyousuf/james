@@ -18,7 +18,7 @@ import javax.mail.internet.InternetHeaders;
 
 import org.apache.james.nntpserver.NNTPException;
 
-/** 
+/**
  * Please see NNTPArticle for comments
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>

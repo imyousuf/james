@@ -25,7 +25,7 @@ import javax.mail.internet.MimeUtility;
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class DigestUtil {
 
@@ -38,12 +38,12 @@ public class DigestUtil {
 
         String alg = "SHA";
         boolean file = false;
-    
+
         if (args.length == 0 || args.length > 4) {
             printUsage();
             return;
         }
-    
+
         for (int i = 0; i < args.length; i++) {
             String currArg = args[i].toLowerCase(Locale.US);
             if (currArg.equals("-help")
@@ -58,7 +58,7 @@ public class DigestUtil {
                 file = true;
             }
         }
-    
+
         if (file) {
             digestFile(args[args.length - 1], alg);
             return ;
@@ -77,7 +77,7 @@ public class DigestUtil {
      * Print the command line usage string.
      */
     public static void printUsage() {
-        System.out.println("Usage: " 
+        System.out.println("Usage: "
                            + "java org.apache.james.security.DigestUtil"
                            + " [-alg algorithm]"
                            + " [-file] filename|string");

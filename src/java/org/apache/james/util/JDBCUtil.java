@@ -17,7 +17,7 @@ import java.util.Locale;
 /**
  * <p>Helper class for managing common JDBC tasks.</p>
  *
- * <p>This class is abstract to allow implementations to 
+ * <p>This class is abstract to allow implementations to
  * take advantage of different logging capabilities/interfaces in
  * different parts of the code.</p>
  *

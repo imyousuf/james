@@ -45,7 +45,7 @@ public class ServerConnection extends AbstractLogEnabled
      * This is a hack to deal with the fact that there appears to be
      * no platform-independent way to break out of a ServerSocket
      * accept() call.  On some platforms closing either the ServerSocket
-     * itself, or its associated InputStream, causes the accept 
+     * itself, or its associated InputStream, causes the accept
      * method to exit.  Unfortunately, this behavior is not consistent
      * across platforms.  The deal with this, we introduce a polling
      * loop of 20 seconds for the server socket.  This introduces a
@@ -95,7 +95,7 @@ public class ServerConnection extends AbstractLogEnabled
     /**
      * A collection of client connection runners.
      */
-    private final ArrayList clientConnectionRunners = new ArrayList();    
+    private final ArrayList clientConnectionRunners = new ArrayList();
 
     /**
      * The current number of open client connections.
@@ -142,7 +142,7 @@ public class ServerConnection extends AbstractLogEnabled
     }
 
     /**
-     * The dispose operation is called by the owning ConnectionManager 
+     * The dispose operation is called by the owning ConnectionManager
      * at the end of its lifecycle.  Cleans up the server connection, forcing
      * everything to finish.
      */
@@ -163,7 +163,7 @@ public class ServerConnection extends AbstractLogEnabled
                 try {
                     serverSocket.close();
                 } catch (IOException ie) {
-                    // Ignored - we're doing this to break out of the 
+                    // Ignored - we're doing this to break out of the
                     // accept.  This minimizes the time required to
                     // shutdown the server.  Unfortunately, this is
                     // not guaranteed to work on all platforms.  See
@@ -385,8 +385,8 @@ public class ServerConnection extends AbstractLogEnabled
 
         /**
          * Provides the body for the thread of execution dealing with a particular client
-         * connection.  An appropriate ConnectionHandler is created, applied, executed, 
-         * and released. 
+         * connection.  An appropriate ConnectionHandler is created, applied, executed,
+         * and released.
          */
         public void run() {
             ConnectionHandler handler = null;

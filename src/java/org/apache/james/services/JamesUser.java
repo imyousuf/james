@@ -15,7 +15,7 @@ import org.apache.mailet.User;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 public interface JamesUser extends User {
@@ -36,7 +36,7 @@ public interface JamesUser extends User {
      */
     void setForwarding(boolean forward);
 
-    /** 
+    /**
      * Return true if mail for this user should be forwarded
      */
     boolean getForwarding();

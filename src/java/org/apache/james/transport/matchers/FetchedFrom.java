@@ -19,8 +19,8 @@ import java.util.Collection;
  * This is used to match all mail fetched from a specific pop account.
  * Once the condition is met the header is stripped from the message to prevent looping if the mail is re-inserted into the spool.
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
- * 
- * $Id: FetchedFrom.java,v 1.2 2002/09/27 14:08:00 danny Exp $
+ *
+ * $Id: FetchedFrom.java,v 1.3 2003/01/12 22:38:33 serge Exp $
  */
 
 public class FetchedFrom extends GenericMatcher {

@@ -14,7 +14,7 @@ import java.util.Collection;
 
 /**
  * Does a DNS lookup (MX and A/CNAME records) on the sender's domain.  If
- * there are no entries, the domain is considered fake and the match is 
+ * there are no entries, the domain is considered fake and the match is
  * successful.
  *
  * @author  Serge Knystautas <sergek@lokitech.com>

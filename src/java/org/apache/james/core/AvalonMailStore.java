@@ -198,8 +198,8 @@ public class AvalonMailStore
      *
      * @return the selected repository
      *
-     * @throws ComponentException if any error occurs while parsing the 
-     *                            Configuration or retrieving the 
+     * @throws ComponentException if any error occurs while parsing the
+     *                            Configuration or retrieving the
      *                            MailRepository
      */
     public synchronized Component select(Object hint) throws ComponentException {

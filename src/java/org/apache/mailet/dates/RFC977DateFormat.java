@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * A thread-safe date formatting class to produce dates formatted in accord with the 
+ * A thread-safe date formatting class to produce dates formatted in accord with the
  * specifications of RFC 977.
  *
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
@@ -39,7 +39,7 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
     }
 
     /**
-     * This method returns the long form of the RFC977 Date 
+     * This method returns the long form of the RFC977 Date
      *
      * @return java.lang.String
      * @param d Date

@@ -609,7 +609,7 @@ public class UsersLDAPRepository
             SearchControls ctls = new SearchControls();
             ctls.setReturningAttributes(returnAttrs);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            StringBuffer filterBuffer = 
+            StringBuffer filterBuffer =
                 new StringBuffer(128)
                         .append(mailAddressAttr)
                         .append("=")
@@ -625,7 +625,7 @@ public class UsersLDAPRepository
 
             try {
                 rootCtx = new InitialDirContext(env);
-    
+
                 NamingEnumeration enum  = rootCtx.search("", filter, ctls);
                 if (enum.hasMore()) { // ie User is in Directory
                     SearchResult sr = (SearchResult)enum.next();
@@ -648,7 +648,7 @@ public class UsersLDAPRepository
                         .append("Problem finding user ")
                         .append(name)
                         .append(" for password test.")
-                        .append(e); 
+                        .append(e);
             getLogger().error(exceptionBuffer.toString());
             //e.getMessage();
             //e.printStackTrace();
@@ -675,7 +675,7 @@ public class UsersLDAPRepository
                             .append("Attempt to authenticate with incorrect password for ")
                             .append(name)
                             .append(" : ")
-                            .append(ae); 
+                            .append(ae);
                 getLogger().error(exceptionBuffer.toString());
                 //System.out.println(exceptionBuffer.toString());
                 //System.out.println(ae.getMessage());
@@ -686,7 +686,7 @@ public class UsersLDAPRepository
                             .append("Problem checking password for ")
                             .append(name)
                             .append(" : ")
-                            .append(e); 
+                            .append(e);
                 getLogger().error(exceptionBuffer.toString());
                 //System.out.println(exceptionBuffer.toString());
                 //System.out.println(e.getMessage());

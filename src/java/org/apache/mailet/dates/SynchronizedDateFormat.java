@@ -16,11 +16,11 @@ import java.util.TimeZone;
 
 
 /**
- * This class is designed to be a synchronized wrapper for a 
+ * This class is designed to be a synchronized wrapper for a
  * <code>java.text.DateFormat</code> subclass.  In general,
  * these subclasses (most notably the <code>java.text.SimpleDateFormat</code>
- * classes are not thread safe, so we need to synchronize on the 
- * internal DateFormat for all delegated calls.   
+ * classes are not thread safe, so we need to synchronize on the
+ * internal DateFormat for all delegated calls.
  *
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */

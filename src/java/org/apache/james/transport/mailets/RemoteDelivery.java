@@ -63,7 +63,7 @@ import org.apache.mailet.SpoolRepository;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.38 $
+ * This is $Revision: 1.39 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -80,7 +80,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private String gatewayServer = null; // the server to send all email to
     private String gatewayPort = null;  //the port of the gateway server to send all email to
     private Collection deliveryThreads = new Vector();
-    
+
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
     /**
@@ -111,8 +111,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         gatewayServer = getInitParameter("gateway");
         gatewayPort = getInitParameter("gatewayPort");
-        
-        
+
+
         outgoing = getMailetContext().getMailSpool(getInitParameter("outgoing"));
 
         //Start up a number of threads
@@ -449,7 +449,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @return org.apache.mailet.MessageContainer
      */
     public void service(Mail mail) throws AddressException {
-        
+
         // Do I want to give the internal key, or the message's Message ID
         if (isDebug) {
             log("Remotely delivering mail " + mail.getName());

@@ -32,8 +32,8 @@ public class MatchLoader extends Loader implements Component, Configurable {
            getPackages(conf,MATCHER_PACKAGE);
            configureMailetClassLoader();
     }
-    
-    
+
+
     /**
      * Get a new Matcher with the specified name acting
      * in the specified context.
@@ -81,5 +81,5 @@ public class MatchLoader extends Loader implements Component, Configurable {
             throw new MailetException(exceptionBuffer.toString(), e);
         }
     }
-    
+
 }

@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
-/** 
+/**
  * ArticleIDRepository: contains one file for each article.
  * the file name is Base64 encoded article ID
  * The first line of the file is '# <create date of file>
@@ -25,7 +25,7 @@ import java.util.Properties;
  * Allows fast lookup of a message by message id.
  *
  * This class allows a process to iterate and synchronize messages with other NNTP Servers.
- * This may be inefficient. It may be better to use an alternate, more 
+ * This may be inefficient. It may be better to use an alternate, more
  * efficient process for synchronization and this class for sanity check.
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>

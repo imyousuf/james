@@ -16,10 +16,10 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
-public class DefaultJamesUser 
+public class DefaultJamesUser
         extends DefaultUser
         implements JamesUser, Initializable {
 
@@ -83,7 +83,7 @@ public class DefaultJamesUser
         return forwarding;
     }
 
-    
+
     /**
      * Set the destination address to which mail to this user
      * will be forwarded.

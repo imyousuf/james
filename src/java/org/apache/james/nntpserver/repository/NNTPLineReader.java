@@ -16,7 +16,7 @@ package org.apache.james.nntpserver.repository;
  */
 public interface NNTPLineReader {
 
-    /** 
+    /**
      * Reads a line of data.
      *
      * @return null indicates end of data

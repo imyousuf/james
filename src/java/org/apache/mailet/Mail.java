@@ -106,7 +106,7 @@ public interface Mail extends Serializable, Cloneable {
     void setName(String name);
     /**
      * Method setLastUpdated. Used to set the internal timestamp of the Mail during processing.
-     * @param date 
+     * @param date
      */
     void setLastUpdated(Date date);
     /**

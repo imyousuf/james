@@ -91,7 +91,7 @@ public class POP3Handler
     private MailRepository userInbox;
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
@@ -133,7 +133,7 @@ public class POP3Handler
      */
     private Vector userMailbox = new Vector();
 
-    private Vector backupUserMailbox;            // A snapshot list representing the set of 
+    private Vector backupUserMailbox;            // A snapshot list representing the set of
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
@@ -373,7 +373,7 @@ public class POP3Handler
      * Implements a "stat".  If the handler is currently in
      * a transaction state, this amounts to a rollback of the
      * mailbox contents to the beginning of the transaction.
-     * This method is also called when first entering the 
+     * This method is also called when first entering the
      * transaction state to initialize the handler copies of the
      * user inbox.
      *
@@ -1017,7 +1017,7 @@ public class POP3Handler
     }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the POP3 client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -1044,7 +1044,7 @@ public class POP3Handler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client

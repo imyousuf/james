@@ -41,12 +41,12 @@ import org.apache.mailet.User;
 /**
  * An abstract base class for creating UserRepository implementations
  * which use a database for persistence.
- * 
+ *
  * To implement a new UserRepository using by extending this class,
  * you need to implement the 3 abstract methods defined below,
  * and define the required SQL statements in an SQLResources
  * file.
- * 
+ *
  * The SQL statements used by this implementation are:
  * <TABLE>
  * <TH><TD><B>Required</B></TD></TH>
@@ -58,7 +58,7 @@ import org.apache.mailet.User;
  * <TH><TD><B>Optional</B></TD></TH>
  * <TR><TD>selectByLowercaseName</TD><TD>Select a user by name (case-insensitive lowercase).</TD></TR>
  * </TABLE>
- * 
+ *
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
@@ -81,11 +81,11 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
     // Fetches all Users from the db.
     private String m_getUsersSql;
-    
+
     // This fetch a user by name, ensuring case-insensitive matching.
     private String m_userByNameCaseInsensitiveSql;
 
-    // Insert, update and delete sql statements are not guaranteed 
+    // Insert, update and delete sql statements are not guaranteed
     //  to be case-insensitive; this is handled in code.
     private String m_insertUserSql;
     private String m_updateUserSql;
@@ -121,7 +121,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             getLogger().debug( logBuffer.toString() );
         }
 
-        m_datasources = 
+        m_datasources =
             (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
     }
 
@@ -142,7 +142,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      *  &lt;/repository&gt;
      * </pre>
      */
-    public void configure(Configuration configuration) throws ConfigurationException 
+    public void configure(Configuration configuration) throws ConfigurationException
     {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
@@ -153,7 +153,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             getLogger().debug( logBuffer.toString() );
         }
 
-        // Parse the DestinationURL for the name of the datasource, 
+        // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
         String destUrl = configuration.getAttribute("destinationURL");
         // normalise the destination, to simplify processing.
@@ -196,7 +196,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                         .append("'");
             getLogger().debug(logBuffer.toString());
         }
-        
+
         // Get the SQL file location
         m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
         if (!m_sqlFileName.startsWith("file://")) {
@@ -219,13 +219,13 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * <p>Initialises the JDBC repository.</p>
      * <p>1) Tests the connection to the database.</p>
      * <p>2) Loads SQL strings from the SQL definition file,
-     *     choosing the appropriate SQL for this connection, 
+     *     choosing the appropriate SQL for this connection,
      *     and performing parameter substitution,</p>
      * <p>3) Initialises the database with the required tables, if necessary.</p>
-     * 
+     *
      * @throws Exception if an error occurs
      */
-    public void initialize() throws Exception 
+    public void initialize() throws Exception
     {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
@@ -272,7 +272,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             }
 
             SqlResources sqlStatements = new SqlResources();
-            sqlStatements.init(sqlFile, this.getClass().getName(), 
+            sqlStatements.init(sqlFile, this.getClass().getName(),
                                conn, m_sqlParameters);
 
             // Create the SQL Strings to use for this table.
@@ -281,7 +281,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
             // Get a user by lowercase name. (optional)
             // If not provided, the entire list is iterated to find a user.
-            m_userByNameCaseInsensitiveSql = 
+            m_userByNameCaseInsensitiveSql =
                 sqlStatements.getSqlString("selectByLowercaseName");
 
             // Insert, update and delete are not guaranteed to be case-insensitive
@@ -296,9 +296,9 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             // Check if the required table exists. If not, create it.
             // The table name is defined in the SqlResources.
             String tableName = sqlStatements.getSqlString("tableName", true);
-            
+
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
-            // NB this should work, but some drivers (eg mm MySQL) 
+            // NB this should work, but some drivers (eg mm MySQL)
             // don't return the right details, hence the hackery below.
             /*
             String tableName = m_tableName;
@@ -311,7 +311,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             */
 
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (! theJDBCUtil.tableExists(dbMetaData, tableName)) 
+            if (! theJDBCUtil.tableExists(dbMetaData, tableName))
             {
                 // Users table doesn't exist - create it.
                 PreparedStatement createStatement = null;
@@ -335,7 +335,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                     getLogger().debug("Using table: " + tableName);
                 }
             }
-        
+
         }
         finally {
             theJDBCUtil.closeJDBCConnection( conn );
@@ -357,7 +357,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         ResultSet rsUsers = null;
         try {
             // Get a ResultSet containing all users.
-            getUsersStatement = 
+            getUsersStatement =
                 conn.prepareStatement(m_getUsersSql);
             rsUsers = getUsersStatement.executeQuery();
 
@@ -393,7 +393,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         // Insert into the database.
         try {
             // Get a PreparedStatement for the insert.
-            addUserStatement = 
+            addUserStatement =
                 conn.prepareStatement(m_insertUserSql);
 
             setUserForInsertStatement(user, addUserStatement);
@@ -500,7 +500,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             while ( rsUsers.next() ) {
                 User rowUser = readUserFromResultSet(rsUsers);
                 String actualName = rowUser.getUserName();
-                    
+
                 // Check case before we assume it's the right one.
                 if ( ignoreCase || actualName.equals(name) ) {
                     user = rowUser;
@@ -526,7 +526,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * Subclass implementations of this method must have knowledge of the fields
      * presented by the "select" and "selectByLowercaseName" SQL statements.
      * These implemenations may generate a subclass-specific User instance.
-     * 
+     *
      * @param rsUsers A ResultSet with a User record in the current row.
      * @return A User instance
      * @throws SQLException
@@ -536,18 +536,18 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         throws SQLException;
 
     /**
-     * Set parameters of a PreparedStatement object with 
+     * Set parameters of a PreparedStatement object with
      * property values from a User instance.
      * Implementations of this method have knowledge of the parameter
      * ordering of the "insert" SQL statement definition.
-     * 
+     *
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userInsert a PreparedStatement initialised with SQL taken from the "insert" SQL definition.
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected abstract void setUserForInsertStatement(User user, 
+    protected abstract void setUserForInsertStatement(User user,
                                                       PreparedStatement userInsert)
         throws SQLException;
 
@@ -556,14 +556,14 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      * property values from a User instance.
      * Implementations of this method have knowledge of the parameter
      * ordering of the "update" SQL statement definition.
-     * 
+     *
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userUpdate a PreparedStatement initialised with SQL taken from the "update" SQL definition.
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected abstract void setUserForUpdateStatement(User user, 
+    protected abstract void setUserForUpdateStatement(User user,
                                                       PreparedStatement userUpdate)
         throws SQLException;
 
@@ -583,6 +583,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                 "An exception occurred getting a database connection.", sqle);
         }
     }
-}    
+}
 
 

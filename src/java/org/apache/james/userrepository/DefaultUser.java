@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version CVS $Revision: 1.7 $
+ * @version CVS $Revision: 1.8 $
  */
 
 public class DefaultUser implements User, Serializable {
@@ -64,7 +64,7 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     *  Method to verify passwords. 
+     *  Method to verify passwords.
      *
      * @param pass the String that is claimed to be the password for this user
      * @return true if the hash of pass with the current algorithm matches

@@ -9,13 +9,13 @@ package org.apache.mailet;
 
 /**
  * Interface for a Repository for Spooling Mails.
- * A spool repository is a transitory repository which should empty itself 
+ * A spool repository is a transitory repository which should empty itself
  * if inbound deliveries stop.
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface SpoolRepository 
+public interface SpoolRepository
     extends MailRepository {
 
     /**
@@ -26,7 +26,7 @@ public interface SpoolRepository
 
     /**
      * Returns the key for an arbitrarily selected mail deposited in this Repository.
-     * Usage: SpoolManager calls accept() to see if there are any unprocessed 
+     * Usage: SpoolManager calls accept() to see if there are any unprocessed
      * mails in the spool repository.
      *
      * @return the key for the mail

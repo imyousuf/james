@@ -198,7 +198,7 @@ public class NNTPHandler
     private final static String AUTHINFO_PARAM_PASS = "PASS";
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
@@ -630,13 +630,13 @@ public class NNTPHandler
      */
     private void doNEWGROUPS(String argument) {
         // see section 11.3
-        // both draft-ietf-nntpext-base-15.txt and rfc977 have only group names 
-        // in response lines, but INN sends 
+        // both draft-ietf-nntpext-base-15.txt and rfc977 have only group names
+        // in response lines, but INN sends
         // '<group name> <last article> <first article> <posting allowed>'
         // NOTE: following INN over either document.
         //
         // TODO: Check this.  Audit at http://www.academ.com/pipermail/ietf-nntp/2001-July/002185.html
-        // doesn't mention the supposed discrepancy.  Consider changing code to 
+        // doesn't mention the supposed discrepancy.  Consider changing code to
         // be in line with spec.
         Date theDate = null;
         try {
@@ -1132,9 +1132,9 @@ public class NNTPHandler
         } else {
             group = newGroup;
             // if the number of articles in group == 0
-            // then the server may return this information in 3 ways, 
+            // then the server may return this information in 3 ways,
             // The clients must honor all those 3 ways.
-            // our response is: 
+            // our response is:
             // highWaterMark == lowWaterMark and number of articles == 0
             int articleCount = group.getNumberOfArticles();
             int lowWaterMark = group.getFirstArticleNumber();
@@ -1257,7 +1257,7 @@ public class NNTPHandler
     }
 
     /**
-     * Get the values of the headers for the selected newsgroup, 
+     * Get the values of the headers for the selected newsgroup,
      * with an optional range modifier.
      *
      * @param argument the argument passed in with the XHDR command.
@@ -1267,7 +1267,7 @@ public class NNTPHandler
     }
 
     /**
-     * Get the values of the headers for the selected newsgroup, 
+     * Get the values of the headers for the selected newsgroup,
      * with an optional range modifier.
      *
      * @param argument the argument passed in with the HDR command.
@@ -1512,7 +1512,7 @@ public class NNTPHandler
    }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the SMTP client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -1539,7 +1539,7 @@ public class NNTPHandler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client

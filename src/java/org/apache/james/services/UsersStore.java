@@ -14,20 +14,20 @@ import org.apache.mailet.UsersRepository;
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore
  * contains one or more UserRepositories. Multiple UserRepositories may or may
- * not have overlapping membership. 
+ * not have overlapping membership.
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public interface UsersStore 
+public interface UsersStore
 {
     /**
      * The component role used by components implementing this service
      */
     String ROLE = "org.apache.james.services.UsersStore";
 
-    /** 
+    /**
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
@@ -37,7 +37,7 @@ public interface UsersStore
      */
     UsersRepository getRepository( String name );
 
-    /** 
+    /**
      * Yield an <code>Iterator</code> over the set of repository
      * names managed internally by this store.
      *

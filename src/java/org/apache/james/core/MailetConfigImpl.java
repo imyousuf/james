@@ -79,7 +79,7 @@ public class MailetConfigImpl implements MailetConfig {
      * Returns an iterator over the set of configuration parameter names.
      *
      * @throws UnsupportedOperationException in all cases, as this is not implemented
-     */ 
+     */
     public Iterator getInitParameterNames() {
         throw new UnsupportedOperationException("Not yet implemented");
         //return params.keySet().iterator();

@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * A partial implementation of a Repository to store users.
- * <p>This implements common functionality found in different UsersRespository 
+ * <p>This implements common functionality found in different UsersRespository
  * implementations, and makes it easier to create new User repositories.</p>
  *
  * @author Darrell DeBoer <dd@bigdaz.com>
@@ -119,7 +119,7 @@ public abstract class AbstractUsersRepository
         if ( containsCaseInsensitive(username) ) {
             return false;
         }
-        
+
         doAddUser(user);
         return true;
     }
@@ -137,7 +137,7 @@ public abstract class AbstractUsersRepository
             newbie.setPassword( (String) attributes );
             addUser(newbie);
         } else {
-            throw new RuntimeException("Improper use of deprecated method" 
+            throw new RuntimeException("Improper use of deprecated method"
                                        + " - use addUser(User user)");
         }
     }
