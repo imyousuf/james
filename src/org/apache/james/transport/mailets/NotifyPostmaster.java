@@ -125,7 +125,7 @@ public class NotifyPostmaster extends GenericMailet {
             multipart.addBodyPart(part);
 
             //if set, attach the full stack trace
-            if (attachStackTrace) {
+            if (attachStackTrace && mail.getErrorMessage() != null) {
                 part = new MimeBodyPart();
                 part.setContent(mail.getErrorMessage(), "text/plain");
                 part.setHeader("Content-Type", "text/plain");
