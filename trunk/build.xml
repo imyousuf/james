@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.106 $  Committed on $Date: 2002/09/22 10:01:09 $ by: $Author: danny $
+ James build file $Revision: 1.107 $  Committed on $Date: 2002/09/23 19:05:24 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -166,7 +166,10 @@ Legal:
                 <include name="README"/>
             </fileset>
         </copy>
-        <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf"/>
+        <fixcrlf srcdir="${java.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.sh" eol="lf"/>
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.bat" eol="crlf"/>
         <chmod perm="+x">
@@ -357,7 +360,7 @@ Legal:
         <!-- Make james.jar-->
         <jar jarfile="${build.lib}/${name}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
-            <exclude name="org/apache/mailet/**"/>
+            <include name="org/apache/mailet/**"/>
         </jar>
         <!-- Make sar file-->
         <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml" environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
@@ -372,6 +375,10 @@ Legal:
                 <include name="avalon-framework-20020713.jar"/>
                 <include name="cornerstone.jar"/>
                 <include name="excalibur-datasource-1.0.jar"/>
+            </lib>
+            <lib dir="${phoenix.lib.dir}">
+                <include name="mail_1_2.jar"/>
+                <include name="activation.jar"/>
             </lib>
             <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
                 <include name="sqlResources.xml"/>
