@@ -25,6 +25,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
     private Logger logger;
     private ThreadManager threadManager;
     private SimpleComponentManager SMTPCM;
+    private SimpleContext context;
     
     public SMTPServer() {
     }
@@ -56,7 +57,8 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
             }
         }
         logger.log("Localhost name set to: " + servername, "SMTPServer", logger.INFO);
-        SMTPCM.put("servername", servername);
+        context = new SimpleContext();
+        context.put("servername", servername);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
@@ -68,6 +70,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
         try {
             SMTPHandler smtpHandler = new SMTPHandler();
             smtpHandler.setConfiguration(conf.getConfiguration("smtphandler"));
+            smtpHandler.setContext(context);
             smtpHandler.setComponentManager(SMTPCM);
             smtpHandler.parseRequest(s);
             threadManager.execute(smtpHandler);
