@@ -72,11 +72,10 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
 import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 
-import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
@@ -110,7 +109,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * The ConnectionManager that spawns and manages service connections.
      */
-    private ConnectionManager connectionManager;
+    private JamesConnectionManager connectionManager;
 
     /**
      * The name of the thread group to be used by this service for 
@@ -184,7 +183,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     public void compose(ComponentManager comp) throws ComponentException {
         super.compose(comp);
         compMgr = comp;
-        connectionManager = (ConnectionManager) compMgr.lookup(ConnectionManager.ROLE);
+        connectionManager = (JamesConnectionManager) compMgr.lookup(JamesConnectionManager.ROLE);
     }
 
     /**
@@ -298,7 +297,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         final String location = "generated:" + getServiceType();
 
-        if (connectionManager instanceof SimpleConnectionManager) {
+        if (connectionManager instanceof JamesConnectionManager) {
             String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
             if (connectionLimitString != null) {
                 try {
@@ -311,7 +310,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     throw new ConfigurationException("Connection limit value cannot be less than zero.");
                 }
             } else {
-                connectionLimit = new Integer(((SimpleConnectionManager)connectionManager).getMaximumNumberOfOpenConnections());
+                connectionLimit = new Integer(((JamesConnectionManager)connectionManager).getMaximumNumberOfOpenConnections());
             }
             infoBuffer = new StringBuffer(128)
                 .append(getServiceType())
@@ -360,12 +359,12 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
 
         if ((connectionLimit != null) &&
-            (connectionManager instanceof SimpleConnectionManager)) {
+            (connectionManager instanceof JamesConnectionManager)) {
             if (null != threadPool) {
-                ((SimpleConnectionManager)connectionManager).connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
+                ((JamesConnectionManager)connectionManager).connect(connectionName, serverSocket, this, threadPool, connectionLimit.intValue());
             }
             else {
-                ((SimpleConnectionManager)connectionManager).connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
+                ((JamesConnectionManager)connectionManager).connect(connectionName, serverSocket, this, connectionLimit.intValue()); // default pool
             }
         } else {
             if (null != threadPool) {

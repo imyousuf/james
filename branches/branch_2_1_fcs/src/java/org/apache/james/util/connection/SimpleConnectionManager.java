@@ -64,7 +64,7 @@ import java.util.HashMap;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
+import org.apache.james.services.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentException;
@@ -87,7 +87,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class SimpleConnectionManager extends AbstractLogEnabled
-    implements ConnectionManager, Composable, Configurable, Disposable {
+    implements JamesConnectionManager, Composable, Configurable, Disposable {
 
     /**
      * The default value for client socket idle timeouts.  The
