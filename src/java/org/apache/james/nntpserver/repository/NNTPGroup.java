@@ -41,21 +41,6 @@ public interface NNTPGroup {
     boolean isPostAllowed();
 
     /**
-     * Returns the current article number.
-     *
-     * @return A return value of less than zero 
-     *         indicates invalid/unknown value
-     */
-    int getCurrentArticleNumber();
-
-    /**
-     * Sets the current article number.
-     *
-     * @param the new current article number
-     */
-    void setCurrentArticleNumber(int articleNumber);
-
-    /**
      * Gets the number of articles in the group.
      *
      * @return the number of articles in the group.
@@ -75,13 +60,6 @@ public interface NNTPGroup {
      * @return the last article number in the group.
      */
     int getLastArticleNumber();
-
-    /**
-     * Gets the current article.
-     *
-     * @return the current article
-     */
-    NNTPArticle getCurrentArticle();
 
     /**
      * Gets the article with the specified article number.

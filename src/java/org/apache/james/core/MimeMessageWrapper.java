@@ -16,15 +16,21 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
+
+import org.apache.avalon.framework.activity.Disposable;
+
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
  * object when needed.  Also tracks if changes were made to reduce
  * unnecessary saves.
  */
-public class MimeMessageWrapper extends MimeMessage {
+public class MimeMessageWrapper
+    extends MimeMessage
+    implements Disposable {
 
     /**
      * Can provide an input stream to the data
@@ -164,6 +170,9 @@ public class MimeMessageWrapper extends MimeMessage {
         if (message == null || !isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
+
+            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+            //       allow simultaneous read/writes would be a substantial improvement
             byte[] block = new byte[1024];
             int read = 0;
             InputStream in = source.getInputStream();
@@ -199,14 +208,14 @@ public class MimeMessageWrapper extends MimeMessage {
             //First handle the headers
             InputStream in = source.getInputStream();
             InternetHeaders headers = new InternetHeaders(in);
-            PrintStream pos = new PrintStream(headerOs);
+            PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
             for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
                 String header = (String)e.nextElement();
-                pos.print(header);
-                pos.print("\r\n");
+                pos.println(header);
             }
-            pos.print("\r\n");
-            pos.flush();
+            pos.println();
+            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+            //       allow simultaneous read/writes would be a substantial improvement
             byte[] block = new byte[1024];
             int read = 0;
             while ((read = in.read(block)) > 0) {
@@ -239,12 +248,10 @@ public class MimeMessageWrapper extends MimeMessage {
 
             //Write the headers (minus ignored ones)
             Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
-            PrintStream pos = new PrintStream(headerOs);
+            PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
             while (headers.hasMoreElements()) {
-                pos.print((String)headers.nextElement());
-                pos.print("\r\n");
+                pos.println((String)headers.nextElement());
             }
-            pos.flush();
 
             //Write the message without any headers
 
@@ -623,6 +630,8 @@ public class MimeMessageWrapper extends MimeMessage {
             loadMessage();
         }
         InputStream in = getContentStream();
+        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+        //       allow simultaneous read/writes would be a substantial improvement
         byte block[] = new byte[1024];
         int len = 0;
         while ((len = in.read(block)) > -1) {
@@ -886,6 +895,15 @@ public class MimeMessageWrapper extends MimeMessage {
         }
         modified = true;
         message.setRecipients(type, addresses);
+    }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     */
+    public void dispose() {
+        if (source instanceof Disposable) {
+            ((Disposable)source).dispose();
+        }
     }
 
 }

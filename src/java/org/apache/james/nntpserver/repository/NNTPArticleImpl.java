@@ -133,7 +133,6 @@ class NNTPArticleImpl implements NNTPArticle {
             FileInputStream fin = new FileInputStream(articleFile);
             InternetHeaders hdr = new InternetHeaders(fin);
             fin.close();
-            int articleNumber = getArticleNumber();
             String subject = hdr.getHeader("Subject",null);
             String author = hdr.getHeader("From",null);
             String date = hdr.getHeader("Date",null);
@@ -142,12 +141,11 @@ class NNTPArticleImpl implements NNTPArticle {
             long byteCount = articleFile.length();
             long lineCount = -1;
             StringBuffer line=new StringBuffer(128)
-                .append(articleNumber + "\t")
                 .append(cleanHeader(subject))    .append("\t")
                 .append(cleanHeader(author))     .append("\t")
                 .append(cleanHeader(date))       .append("\t")
                 .append(cleanHeader(msgId))      .append("\t")
-                .append(cleanHeader(references)) .append("\t")         
+                .append(cleanHeader(references)) .append("\t")
                 .append(byteCount + "\t")
                 .append(lineCount + "");
             prt.println(line.toString());

@@ -75,4 +75,11 @@ public interface NNTPRepository {
      * @return whether this repository is read only
      */
     boolean isReadOnly();
+
+    /**
+     * Returns the ordered array of header names (including the trailing colon on each)
+     * returned in overview format for articles stored in this repository.
+     */
+    String[] getOverviewFormat();
+
 }

@@ -8,23 +8,18 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.BaseConnectionHandler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.*;
+import org.apache.james.util.watchdog.BytesReadResetInputStream;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailAddress;
 import javax.mail.MessagingException;
 import java.io.*;
@@ -42,11 +37,11 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.31 $
+ * @version This is $Revision: 1.32 $
  */
 public class SMTPHandler
-    extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Target {
+    extends AbstractLogEnabled
+    implements ConnectionHandler, Poolable {
 
     /**
      * SMTP Server identification string used in SMTP headers
@@ -60,7 +55,7 @@ public class SMTPHandler
     private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address 
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
     private final static String MESG_SIZE = "MESG_SIZE";       // The size of the message
-    private final static String RCPT_VECTOR = "RCPT_VECTOR";   // The message recipients
+    private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
 
     /**
      * The character array that indicates termination of an SMTP connection
@@ -152,7 +147,6 @@ public class SMTPHandler
      */
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
-
     /**
      * The TCP/IP socket over which the SMTP 
      * dialogue is occurring.
@@ -195,48 +189,9 @@ public class SMTPHandler
     private String smtpID;
 
     /**
-     * Whether authentication is required to use
-     * this SMTP server.
+     * The per-service configuration data that applies to all handlers
      */
-    private boolean authRequired = false;
-
-
-    /**
-     * Whether the server verifies that the user
-     * actually sending an email matches the
-     * authentication credentials attached to the
-     * SMTP interaction.
-     */
-    private boolean verifyIdentity = false;
-
-
-    /**
-     * The maximum message size allowed by this SMTP server.  The default
-     * value, 0, means no limit.
-     */
-    private long maxmessagesize = 0;
-
-    /**
-     * The number of bytes to read before resetting the connection timeout
-     * timer.  Defaults to 20,000 bytes.
-     */
-    private int lengthReset = 20000;
-                                    
-    /**
-     * The scheduler used to handle timeouts for the SMTP interaction.
-     */
-    private TimeScheduler scheduler;
-
-    /**
-     * The user repository for this server - used to authenticate
-     * users.
-     */
-    private UsersRepository users;
-
-    /**
-     * The internal mail server service.
-     */
-    private MailServer mailServer;
+    private SMTPHandlerConfigurationData theConfigData;
 
     /**
      * The hash map that holds variables for the SMTP message transfer in progress.
@@ -248,50 +203,81 @@ public class SMTPHandler
     private HashMap state = new HashMap();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * The watchdog being used by this handler to deal with idle timeouts.
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
-        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
-        scheduler =
-            (TimeScheduler) componentManager.lookup(
-                "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
-        UsersStore usersStore =
-            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
-        users = usersStore.getRepository("LocalUsers");
-     }
+    Watchdog theWatchdog;
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * The watchdog target that idles out this handler.
      */
-    public void configure(Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
-        authRequired = configuration.getChild("authRequired").getValueAsBoolean(false);
-        verifyIdentity = configuration.getChild("verifyIdentity").getValueAsBoolean(false);
-        // get the message size limit from the conf file and multiply
-        // by 1024, to put it in bytes
-        maxmessagesize = configuration.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Max message size is: " + maxmessagesize);
+    WatchdogTarget theWatchdogTarget = new SMTPWatchdogTarget();
+
+    /**
+     * The per-handler response buffer used to marshal responses.
+     */
+    StringBuffer responseBuffer = new StringBuffer(256);
+
+        public SMTPHandler() {
+            System.out.println("Creating SMTPHandler");
         }
-        //how many bytes to read before updating the timer that data is being transfered
-        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
+
+
+    /**
+     * Set the configuration data for the handler
+     *
+     * @param theData the per-service configuration data for this handler
+     */
+    void setConfigurationData(SMTPHandlerConfigurationData theData) {
+        theConfigData = theData;
+    }
+
+    /**
+     * Set the Watchdog for use by this handler.
+     *
+     * @param theWatchdog the watchdog
+     */
+    void setWatchdog(Watchdog theWatchdog) {
+        this.theWatchdog = theWatchdog;
+    }
+
+    /**
+     * Gets the Watchdog Target that should be used by Watchdogs managing
+     * this connection.
+     *
+     * @return the WatchdogTarget
+     */
+    WatchdogTarget getWatchdogTarget() {
+        return theWatchdogTarget;
+    }
+
+    /**
+     * Idle out this connection
+     */
+    void idleClose() {
+        if (getLogger() != null) {
+            getLogger().error("SMTP Connection has idled out.");
+        }
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
+            // ignored
+        }
     }
 
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection(Socket connection) throws IOException {
+
         try {
             this.socket = connection;
             in = new BufferedInputStream(socket.getInputStream(), 1024);
             // An ASCII encoding can be used because all transmissions other
             // that those in the DATA command are guaranteed
             // to be ASCII
-            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"));
-            out = new InternetPrintWriter(socket.getOutputStream(), true);
+            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
@@ -322,25 +308,26 @@ public class SMTPHandler
         }
 
         try {
+
+            out = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 1024), false);
+
             // Initially greet the connector
             // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
 
-            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
-            scheduler.addTrigger( this.toString(), trigger, this );
-            StringBuffer responseBuffer =
-                new StringBuffer(192)
-                    .append("220 ")
-                    .append(this.helloName)
-                    .append(" SMTP Server (")
-                    .append(SOFTWARE_TYPE)
-                    .append(") ready ")
-                    .append(rfc822DateFormat.format(new Date()));
-            String responseString = responseBuffer.toString();
+            responseBuffer.append("220 ")
+                          .append(theConfigData.getHelloName())
+                          .append(" SMTP Server (")
+                          .append(SOFTWARE_TYPE)
+                          .append(") ready ")
+                          .append(rfc822DateFormat.format(new Date()));
+            String responseString = clearResponseBuffer();
             writeLoggedFlushedResponse(responseString);
 
+            theWatchdog.start();
             while (parseCommand(readCommandLine())) {
-                scheduler.resetTrigger(this.toString());
+                theWatchdog.reset();
             }
+            theWatchdog.stop();
             getLogger().debug("Closing socket.");
         } catch (SocketException se) {
             if (getLogger().isDebugEnabled()) {
@@ -382,38 +369,56 @@ public class SMTPHandler
                                    + e.getMessage(), e );
             }
         } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Exception closing socket: "
-                                      + e.getMessage());
-                }
-            }
-            // release from scheduler.
-            try {
-                scheduler.removeTrigger(this.toString());
-            } catch(Throwable t) { }
+            resetHandler();
         }
     }
 
     /**
-     * Callback method called when the the PeriodicTimeTrigger in 
-     * handleConnection is triggered.  In this case the trigger is
-     * being used as a timeout, so the method simply closes the connection.
-     *
-     * @param triggerName the name of the trigger
-     *
-     * TODO: Remove this interface from the class and change the mechanism
+     * Resets the handler data to a basic state.
      */
-    public void targetTriggered(final String triggerName) {
-        getLogger().error("Connection timeout on socket with " + remoteHost + " (" + remoteIP + ")");
-        try {
-            out.println("Connection timeout. Closing connection");
-            socket.close();
-        } catch (IOException e) {
-            // Ignored
+    private void resetHandler() {
+        resetState();
+
+        clearResponseBuffer();
+        in = null;
+        inReader = null;
+        out = null;
+        remoteHost = null;
+        remoteIP = null;
+        authenticatedUser = null;
+        smtpID = null;
+
+        if (theWatchdog != null) {
+            if (theWatchdog instanceof Disposable) {
+                ((Disposable)theWatchdog).dispose();
+            }
+            theWatchdog = null;
         }
+
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Exception closing socket: "
+                                  + e.getMessage());
+            }
+        } finally {
+            socket = null;
+        }
+
+    }
+
+    /**
+     * Clears the response buffer, returning the String of characters in the buffer.
+     *
+     * @return the data in the response buffer
+     */
+    private String clearResponseBuffer() {
+        String responseString = responseBuffer.toString();
+        responseBuffer.delete(0,responseBuffer.length());
+        return responseString;
     }
 
     /**
@@ -488,6 +493,10 @@ public class SMTPHandler
      *
      */
     private void resetState() {
+        ArrayList recipients = (ArrayList)state.get(RCPT_LIST);
+        if (recipients != null) {
+            recipients.clear();
+        }
         state.clear();
     }
 
@@ -568,14 +577,13 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            StringBuffer responseBuffer = new StringBuffer(256);
-            if (authRequired) {
+            if (theConfigData.isAuthRequired()) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
                 responseBuffer.append("250 ");
             }
-            responseBuffer.append(helloName)
+            responseBuffer.append(theConfigData.getHelloName())
                           .append(" Hello ")
                           .append(argument)
                           .append(" (")
@@ -583,16 +591,13 @@ public class SMTPHandler
                           .append(" [")
                           .append(remoteIP)
                           .append("])");
-            responseString = responseBuffer.toString();
-            out.println(responseString);
-            if (authRequired) {
-                logResponseString(responseString);
+            responseString = clearResponseBuffer();
+            if (theConfigData.isAuthRequired()) {
+                writeLoggedResponse(responseString);
                 responseString = "250 AUTH LOGIN PLAIN";
-                out.println(responseString);
             }
         }
-        out.flush();
-        logResponseString(responseString);
+            writeLoggedFlushedResponse(responseString);
     }
 
     /**
@@ -611,18 +616,18 @@ public class SMTPHandler
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_EHLO);
             // Extension defined in RFC 1870
-            if (maxmessagesize > 0) {
-                responseString = "250-SIZE " + maxmessagesize;
+            long maxMessageSize = theConfigData.getMaxMessageSize();
+            if (maxMessageSize > 0) {
+                responseString = "250-SIZE " + maxMessageSize;
                 writeLoggedResponse(responseString);
             }
-            StringBuffer responseBuffer = new StringBuffer(256);
-            if (authRequired) {
+            if (theConfigData.isAuthRequired()) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
                 responseBuffer.append("250 ");
             }
-            responseBuffer.append(helloName)
+            responseBuffer.append(theConfigData.getHelloName())
                            .append(" Hello ")
                            .append(argument)
                            .append(" (")
@@ -630,8 +635,8 @@ public class SMTPHandler
                            .append(" [")
                            .append(remoteIP)
                            .append("])");
-            responseString = responseBuffer.toString();
-            if (authRequired) {
+            responseString = clearResponseBuffer();
+            if (theConfigData.isAuthRequired()) {
                 writeLoggedResponse(responseString);
                 responseString = "250 AUTH LOGIN PLAIN";
             }
@@ -698,6 +703,7 @@ public class SMTPHandler
                 StringTokenizer authTokenizer = new StringTokenizer(userpass, "\0");
                 user = authTokenizer.nextToken();
                 pass = authTokenizer.nextToken();
+                authTokenizer = null;
             }
         }
         catch (Exception e) {
@@ -708,7 +714,7 @@ public class SMTPHandler
         if ((user == null) || (pass == null)) {
             responseString = "501 Could not decode parameters for AUTH PLAIN";
             writeLoggedFlushedResponse(responseString);
-        } else if (users.test(user, pass)) {
+        } else if (theConfigData.getUsersRepository().test(user, pass)) {
             setUser(user);
             responseString = "235 Authentication Successful";
             writeLoggedFlushedResponse(responseString);
@@ -760,7 +766,7 @@ public class SMTPHandler
         // Authenticate user
         if ((user == null) || (pass == null)) {
             responseString = "501 Could not decode parameters for AUTH LOGIN";
-        } else if (users.test(user, pass)) {
+        } else if (theConfigData.getUsersRepository().test(user, pass)) {
             setUser(user);
             responseString = "235 Authentication Successful";
             if (getLogger().isDebugEnabled()) {
@@ -900,12 +906,10 @@ public class SMTPHandler
                 }
             }
             state.put(SENDER, senderAddress);
-            StringBuffer responseBuffer = 
-                new StringBuffer(128)
-                        .append("250 Sender <")
-                        .append(sender)
-                        .append("> OK");
-            responseString = responseBuffer.toString();
+            responseBuffer.append("250 Sender <")
+                          .append(sender)
+                          .append("> OK");
+            responseString = clearResponseBuffer();
             writeLoggedFlushedResponse(responseString);
         }
     }
@@ -935,7 +939,8 @@ public class SMTPHandler
                     .append(".");
                     getLogger().debug(debugBuffer.toString());
         }
-        if ((maxmessagesize > 0) && (size > maxmessagesize)) {
+        long maxMessageSize = theConfigData.getMaxMessageSize();
+        if ((maxMessageSize > 0) && (size > maxMessageSize)) {
             // Let the client know that the size limit has been hit.
             String responseString = "552 Message size exceeds fixed maximum message size";
             writeLoggedFlushedResponse(responseString);
@@ -950,7 +955,7 @@ public class SMTPHandler
                     .append(") of size ")
                     .append(size)
                     .append(" exceeding system maximum message size of ")
-                    .append(maxmessagesize)
+                    .append(maxMessageSize)
                     .append("based on SIZE option.");
             getLogger().error(errorBuffer.toString());
             return false;
@@ -961,7 +966,6 @@ public class SMTPHandler
         }
         return true;
     }
-
 
     /**
      * Handler method called upon receipt of a RCPT command.
@@ -986,9 +990,9 @@ public class SMTPHandler
             responseString = "501 Usage: RCPT TO:<recipient>";
             writeLoggedFlushedResponse(responseString);
         } else {
-            Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
+            Collection rcptColl = (Collection) state.get(RCPT_LIST);
             if (rcptColl == null) {
-                rcptColl = new Vector();
+                rcptColl = new ArrayList();
             }
             recipient = recipient.trim();
             int lastChar = recipient.lastIndexOf('>');
@@ -1021,6 +1025,7 @@ public class SMTPHandler
                         getLogger().debug(debugBuffer.toString());
                     }
                 }
+                optionTokenizer = null;
             }
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                 responseString = "501 Syntax error in parameters or arguments";
@@ -1058,12 +1063,12 @@ public class SMTPHandler
                 }
                 return;
             }
-            if (authRequired) {
+            if (theConfigData.isAuthRequired()) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
                 if (getUser() == null) {
                     String toDomain = recipientAddress.getHost();
-                    if (!mailServer.isLocalServer(toDomain)) {
+                    if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
                         responseString = "530 Authentication Required";
                         writeLoggedFlushedResponse(responseString);
                         getLogger().error("Rejected message - authentication is required for mail request");
@@ -1071,13 +1076,13 @@ public class SMTPHandler
                     }
                 } else {
                     // Identity verification checking
-                    if (verifyIdentity) {
+                    if (theConfigData.isVerifyIdentity()) {
                         String authUser = (getUser()).toLowerCase(Locale.US);
                         MailAddress senderAddress = (MailAddress) state.get(SENDER);
                         boolean domainExists = false;
 
                         if ((!authUser.equals(senderAddress.getUser())) ||
-                            (!mailServer.isLocalServer(senderAddress.getHost()))) {
+                            (!theConfigData.getMailServer().isLocalServer(senderAddress.getHost()))) {
                             responseString = "503 Incorrect Authentication for Specified Email Address";
                             writeLoggedFlushedResponse(responseString);
                             if (getLogger().isErrorEnabled()) {
@@ -1095,13 +1100,11 @@ public class SMTPHandler
                 }
             }
             rcptColl.add(recipientAddress);
-            state.put(RCPT_VECTOR, rcptColl);
-            StringBuffer responseBuffer = 
-                new StringBuffer(96)
-                        .append("250 Recipient <")
-                        .append(recipient)
-                        .append("> OK");
-            responseString = responseBuffer.toString();
+            state.put(RCPT_LIST, rcptColl);
+            responseBuffer.append("250 Recipient <")
+                          .append(recipient)
+                          .append("> OK");
+            responseString = clearResponseBuffer();
             writeLoggedFlushedResponse(responseString);
         }
     }
@@ -1126,8 +1129,8 @@ public class SMTPHandler
     private void doRSET(String argument) {
         String responseString = "";
         if ((argument == null) || (argument.length() == 0)) {
-            resetState();
             responseString = "250 OK";
+            resetState();
         } else {
             responseString = "500 Unexpected argument provided with RSET command";
         }
@@ -1150,125 +1153,39 @@ public class SMTPHandler
         if (!state.containsKey(SENDER)) {
             responseString = "503 No sender specified";
             writeLoggedFlushedResponse(responseString);
-        } else if (!state.containsKey(RCPT_VECTOR)) {
+        } else if (!state.containsKey(RCPT_LIST)) {
             responseString = "503 No recipients specified";
             writeLoggedFlushedResponse(responseString);
         } else {
             responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
             writeLoggedFlushedResponse(responseString);
+            InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
             try {
-                // Setup the input stream to notify the scheduler periodically
-                InputStream msgIn =
-                    new SchedulerNotifyInputStream(in, scheduler, this.toString(), 20000);
-                // Look for data termination
-                msgIn = new CharTerminatedInputStream(msgIn, SMTPTerminator);
+                msgIn = new BytesReadResetInputStream(msgIn,
+                                                      theWatchdog,
+                                                      theConfigData.getResetLength());
+
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
-                if (maxmessagesize > 0) {
+                long maxMessageSize = theConfigData.getMaxMessageSize();
+                if (maxMessageSize > 0) {
                     if (getLogger().isDebugEnabled()) {
                         StringBuffer logBuffer = 
                             new StringBuffer(128)
                                     .append("Using SizeLimitedInputStream ")
                                     .append(" with max message size: ")
-                                    .append(maxmessagesize);
+                                    .append(maxMessageSize);
                         getLogger().debug(logBuffer.toString());
                     }
-                    msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
+                    msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
                 }
                 // Removes the dot stuffing
                 msgIn = new SMTPInputStream(msgIn);
                 // Parse out the message headers
                 MailHeaders headers = new MailHeaders(msgIn);
-                // If headers do not contains minimum REQUIRED headers fields,
-                // add them
-                if (!headers.isSet(RFC2822Headers.DATE)) {
-                    headers.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-                }
-                if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
-                    headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
-                }
-                // Determine the Return-Path
-                String returnPath = headers.getHeader(RFC2822Headers.RETURN_PATH, "\r\n");
-                headers.removeHeader(RFC2822Headers.RETURN_PATH);
-                if (returnPath == null) {
-                    if (state.get(SENDER) == null) {
-                        returnPath = "<>";
-                    } else {
-                        StringBuffer returnPathBuffer = 
-                            new StringBuffer(64)
-                                    .append("<")
-                                    .append(state.get(SENDER))
-                                    .append(">");
-                        returnPath = returnPathBuffer.toString();
-                    }
-                }
-                // We will rebuild the header object to put Return-Path and our
-                // Received header at the top
-                Enumeration headerLines = headers.getAllHeaderLines();
-                headers = new MailHeaders();
-                // Put the Return-Path first
-                headers.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + returnPath);
-                // Put our Received header next
-                StringBuffer headerLineBuffer = 
-                    new StringBuffer(128)
-                            .append(RFC2822Headers.RECEIVED + ": from ")
-                            .append(remoteHost)
-                            .append(" ([")
-                            .append(remoteIP)
-                            .append("])");
-
-                headers.addHeaderLine(headerLineBuffer.toString());
-
-                headerLineBuffer = 
-                    new StringBuffer(256)
-                            .append("          by ")
-                            .append(this.helloName)
-                            .append(" (")
-                            .append(SOFTWARE_TYPE)
-                            .append(") with SMTP ID ")
-                            .append(smtpID);
-
-                if (((Collection) state.get(RCPT_VECTOR)).size() == 1) {
-                    // Only indicate a recipient if they're the only recipient
-                    // (prevents email address harvesting and large headers in
-                    //  bulk email)
-                    headers.addHeaderLine(headerLineBuffer.toString());
-                    headerLineBuffer = 
-                        new StringBuffer(256)
-                                .append("          for <")
-                                .append(((Vector) state.get(RCPT_VECTOR)).get(0).toString())
-                                .append(">;");
-                    headers.addHeaderLine(headerLineBuffer.toString());
-                } else {
-                    // Put the ; on the end of the 'by' line
-                    headerLineBuffer.append(";");
-                    headers.addHeaderLine(headerLineBuffer.toString());
-                }
-                headers.addHeaderLine("          " + rfc822DateFormat.format(new Date()));
-
-                // Add all the original message headers back in next
-                while (headerLines.hasMoreElements()) {
-                    headers.addHeaderLine((String) headerLines.nextElement());
-                }
-                ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
-                MailImpl mail =
-                    new MailImpl(
-                        mailServer.getId(),
-                        (MailAddress) state.get(SENDER),
-                        (Vector) state.get(RCPT_VECTOR),
-                        new SequenceInputStream(headersIn, msgIn));
-                // If the message size limit has been set, we'll
-                // call mail.getSize() to force the message to be
-                // loaded. Need to do this to enforce the size limit
-                if (maxmessagesize > 0) {
-                    mail.getMessageSize();
-                }
-                mail.setRemoteHost(remoteHost);
-                mail.setRemoteAddr(remoteIP);
-                mailServer.sendMail(mail);
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Successfully sent mail to spool: " + mail.getName());
-                }
+                headers = processMailHeaders(headers);
+                processMail(headers, msgIn);
+                headers = null;
             } catch (MessagingException me) {
                 // Grab any exception attached to this one.
                 Exception e = me.getNextException();
@@ -1293,7 +1210,7 @@ public class SMTPHandler
                             .append(" (")
                             .append(remoteIP)
                             .append(") exceeding system maximum message size of ")
-                            .append(maxmessagesize);
+                            .append(theConfigData.getMaxMessageSize());
                     getLogger().error(errorBuffer.toString());
                 } else {
                     responseString = "451 Error processing message: "
@@ -1302,11 +1219,188 @@ public class SMTPHandler
                 }
                 writeLoggedFlushedResponse(responseString);
                 return;
+            } finally {
+                if (msgIn != null) {
+                    try {
+                        msgIn.close();
+                    } catch (Exception e) {
+                        // Ignore close exception
+                    }
+                    msgIn = null;
+                }
             }
             resetState();
             responseString = "250 Message received";
             writeLoggedFlushedResponse(responseString);
         }
+    }
+
+    private MailHeaders processMailHeaders(MailHeaders headers)
+        throws MessagingException {
+        // If headers do not contains minimum REQUIRED headers fields,
+        // add them
+        if (!headers.isSet(RFC2822Headers.DATE)) {
+            headers.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
+        }
+        if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
+            headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
+        }
+        // Determine the Return-Path
+        String returnPath = headers.getHeader(RFC2822Headers.RETURN_PATH, "\r\n");
+        headers.removeHeader(RFC2822Headers.RETURN_PATH);
+        StringBuffer headerLineBuffer = new StringBuffer(512);
+        if (returnPath == null) {
+            if (state.get(SENDER) == null) {
+                returnPath = "<>";
+            } else {
+                headerLineBuffer.append("<")
+                                .append(state.get(SENDER))
+                                .append(">");
+                returnPath = headerLineBuffer.toString();
+                headerLineBuffer.delete(0, headerLineBuffer.length());
+            }
+        }
+        // We will rebuild the header object to put Return-Path and our
+        // Received header at the top
+        Enumeration headerLines = headers.getAllHeaderLines();
+        MailHeaders newHeaders = new MailHeaders();
+        // Put the Return-Path first
+        newHeaders.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + returnPath);
+        // Put our Received header next
+        headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
+                        .append(remoteHost)
+                        .append(" ([")
+                        .append(remoteIP)
+                        .append("])");
+
+        newHeaders.addHeaderLine(headerLineBuffer.toString());
+        headerLineBuffer.delete(0, headerLineBuffer.length());
+
+        headerLineBuffer.append("          by ")
+                        .append(theConfigData.getHelloName())
+                        .append(" (")
+                        .append(SOFTWARE_TYPE)
+                        .append(") with SMTP ID ")
+                        .append(smtpID);
+
+        if (((Collection) state.get(RCPT_LIST)).size() == 1) {
+            // Only indicate a recipient if they're the only recipient
+            // (prevents email address harvesting and large headers in
+            //  bulk email)
+            newHeaders.addHeaderLine(headerLineBuffer.toString());
+            headerLineBuffer.delete(0, headerLineBuffer.length());
+            headerLineBuffer.append("          for <")
+                            .append(((List) state.get(RCPT_LIST)).get(0).toString())
+                            .append(">;");
+            newHeaders.addHeaderLine(headerLineBuffer.toString());
+            headerLineBuffer.delete(0, headerLineBuffer.length());
+        } else {
+            // Put the ; on the end of the 'by' line
+            headerLineBuffer.append(";");
+            newHeaders.addHeaderLine(headerLineBuffer.toString());
+            headerLineBuffer.delete(0, headerLineBuffer.length());
+        }
+        headerLineBuffer = null;
+        newHeaders.addHeaderLine("          " + rfc822DateFormat.format(new Date()));
+
+        // Add all the original message headers back in next
+        while (headerLines.hasMoreElements()) {
+            newHeaders.addHeaderLine((String) headerLines.nextElement());
+        }
+        return newHeaders;
+    }
+
+    /**
+     * Processes the mail message coming in off the wire.  Reads the
+     * content and delivers to the spool.
+     *
+     * @param headers the headers of the mail being read
+     * @param msgIn the stream containing the message content
+     */
+    private void processMail(MailHeaders headers, InputStream msgIn)
+        throws MessagingException {
+        ByteArrayInputStream headersIn = null;
+        MailImpl mail = null;
+        List recipientCollection = null;
+        try {
+            headersIn = new ByteArrayInputStream(headers.toByteArray());
+            recipientCollection = (List) state.get(RCPT_LIST);
+            mail =
+                new MailImpl(theConfigData.getMailServer().getId(),
+                             (MailAddress) state.get(SENDER),
+                             recipientCollection,
+                             new SequenceInputStream(headersIn, msgIn));
+            // Call mail.getSize() to force the message to be
+            // loaded. Need to do this to enforce the size limit
+            if (theConfigData.getMaxMessageSize() > 0) {
+                mail.getMessageSize();
+            }
+            mail.setRemoteHost(remoteHost);
+            mail.setRemoteAddr(remoteIP);
+            theConfigData.getMailServer().sendMail(mail);
+            Collection theRecipients = mail.getRecipients();
+            String recipientString = "";
+            if (theRecipients != null) {
+                recipientString = theRecipients.toString();
+            }
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer debugBuffer =
+                    new StringBuffer(256)
+                        .append("Successfully spooled mail )")
+                        .append(mail.getName())
+                        .append(" from ")
+                        .append(mail.getSender())
+                        .append(" for ")
+                        .append(recipientString);
+                getLogger().debug(debugBuffer.toString());
+            } else if (getLogger().isInfoEnabled()) {
+                StringBuffer infoBuffer =
+                    new StringBuffer(256)
+                        .append("Successfully spooled mail from ")
+                        .append(mail.getSender())
+                        .append(" for ")
+                        .append(recipientString);
+                getLogger().info(infoBuffer.toString());
+            }
+        } finally {
+            if (recipientCollection != null) {
+                recipientCollection.clear();
+            }
+            recipientCollection = null;
+            if (mail != null) {
+                mail.dispose();
+            }
+            mail = null;
+            if (headersIn != null) {
+                try {
+                    headersIn.close();
+                } catch (IOException ioe) {
+                    // Ignore exception on close.
+                }
+            }
+            headersIn = null;
+        }
+    }
+
+    /**
+     * Handler method called upon receipt of a QUIT command.
+     * This method informs the client that the connection is
+     * closing.
+     *
+     * @param argument the argument passed in with the command by the SMTP client
+     */
+    private void doQUIT(String argument) {
+
+        String responseString = "";
+        if ((argument == null) || (argument.length() == 0)) {
+            responseBuffer.append("221 ")
+                          .append(theConfigData.getHelloName())
+                          .append(" Service closing transmission channel");
+            responseString = clearResponseBuffer();
+        } else {
+            responseString = "500 Unexpected argument provided with QUIT command";
+        }
+        writeLoggedFlushedResponse(responseString);
     }
 
     /**
@@ -1317,7 +1411,6 @@ public class SMTPHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doVRFY(String argument) {
-
         String responseString = "502 VRFY is not supported";
         writeLoggedFlushedResponse(responseString);
     }
@@ -1349,29 +1442,6 @@ public class SMTPHandler
     }
 
     /**
-     * Handler method called upon receipt of a QUIT command.
-     * This method informs the client that the connection is
-     * closing.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doQUIT(String argument) {
-
-        String responseString = "";
-        if ((argument == null) || (argument.length() == 0)) {
-            StringBuffer responseBuffer =
-                new StringBuffer(128)
-                        .append("221 ")
-                        .append(helloName)
-                        .append(" Service closing transmission channel");
-            responseString = responseBuffer.toString();
-        } else {
-            responseString = "500 Unexpected argument provided with QUIT command";
-        }
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
@@ -1379,13 +1449,29 @@ public class SMTPHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doUnknownCmd(String command, String argument) {
-        StringBuffer responseBuffer =
-            new StringBuffer(128)
-                    .append("500 ")
-                    .append(helloName)
-                    .append(" Syntax error, command unrecognized: ")
-                    .append(command);
-        String responseString = responseBuffer.toString();
+        responseBuffer.append("500 ")
+                      .append(theConfigData.getHelloName())
+                      .append(" Syntax error, command unrecognized: ")
+                      .append(command);
+        String responseString = clearResponseBuffer();
         writeLoggedFlushedResponse(responseString);
     }
+
+    /**
+     * A private inner class which serves as an adaptor
+     * between the WatchdogTarget interface and this
+     * handler class.
+     */
+    private class SMTPWatchdogTarget
+        implements WatchdogTarget {
+
+        /**
+         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
+         */
+        public void execute() {
+            SMTPHandler.this.idleClose();
+        }
+
+    }
+
 }

@@ -8,30 +8,34 @@
 package org.apache.james.nntpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.BaseConnectionHandler;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.RFC977DateFormat;
 import org.apache.james.util.RFC2980DateFormat;
 import org.apache.james.util.SimplifiedDateFormat;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -49,8 +53,9 @@ import java.util.*;
  * @author Harmeet <hbedi@apache.org>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
-public class NNTPHandler extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Target {
+public class NNTPHandler
+    extends AbstractLogEnabled
+    implements ConnectionHandler, Poolable {
 
     /**
      * used to calculate DATE from - see 11.3
@@ -68,9 +73,134 @@ public class NNTPHandler extends BaseConnectionHandler
     public static final long UTC_OFFSET = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
 
     /**
-     * Timeout controller
+     * The text string for the NNTP MODE command.
      */
-    private TimeScheduler scheduler;
+    private final static String COMMAND_MODE = "MODE";
+
+    /**
+     * The text string for the NNTP LIST command.
+     */
+    private final static String COMMAND_LIST = "LIST";
+
+    /**
+     * The text string for the NNTP GROUP command.
+     */
+    private final static String COMMAND_GROUP = "GROUP";
+
+    /**
+     * The text string for the NNTP NEXT command.
+     */
+    private final static String COMMAND_NEXT = "NEXT";
+
+    /**
+     * The text string for the NNTP LAST command.
+     */
+    private final static String COMMAND_LAST = "LAST";
+
+    /**
+     * The text string for the NNTP ARTICLE command.
+     */
+    private final static String COMMAND_ARTICLE = "ARTICLE";
+
+    /**
+     * The text string for the NNTP HEAD command.
+     */
+    private final static String COMMAND_HEAD = "HEAD";
+
+    /**
+     * The text string for the NNTP BODY command.
+     */
+    private final static String COMMAND_BODY = "BODY";
+
+    /**
+     * The text string for the NNTP STAT command.
+     */
+    private final static String COMMAND_STAT = "STAT";
+
+    /**
+     * The text string for the NNTP POST command.
+     */
+    private final static String COMMAND_POST = "POST";
+
+    /**
+     * The text string for the NNTP IHAVE command.
+     */
+    private final static String COMMAND_IHAVE = "IHAVE";
+
+    /**
+     * The text string for the NNTP QUIT command.
+     */
+    private final static String COMMAND_QUIT = "QUIT";
+
+    /**
+     * The text string for the NNTP DATE command.
+     */
+    private final static String COMMAND_DATE = "DATE";
+
+    /**
+     * The text string for the NNTP HELP command.
+     */
+    private final static String COMMAND_HELP = "HELP";
+
+    /**
+     * The text string for the NNTP NEWGROUPS command.
+     */
+    private final static String COMMAND_NEWGROUPS = "NEWGROUPS";
+
+    /**
+     * The text string for the NNTP NEWNEWS command.
+     */
+    private final static String COMMAND_NEWNEWS = "NEWNEWS";
+
+    /**
+     * The text string for the NNTP LISTGROUP command.
+     */
+    private final static String COMMAND_LISTGROUP = "LISTGROUP";
+
+    /**
+     * The text string for the NNTP OVER command.
+     */
+    private final static String COMMAND_OVER = "OVER";
+
+    /**
+     * The text string for the NNTP XOVER command.
+     */
+    private final static String COMMAND_XOVER = "XOVER";
+
+    /**
+     * The text string for the NNTP HDR command.
+     */
+    private final static String COMMAND_HDR = "HDR";
+
+    /**
+     * The text string for the NNTP XHDR command.
+     */
+    private final static String COMMAND_XHDR = "XHDR";
+
+    /**
+     * The text string for the NNTP AUTHINFO command.
+     */
+    private final static String COMMAND_AUTHINFO = "AUTHINFO";
+
+    /**
+     * The text string for the NNTP MODE READER parameter.
+     */
+    private final static String MODE_TYPE_READER = "READER";
+
+    /**
+     * The text string for the NNTP MODE STREAM parameter.
+     */
+    private final static String MODE_TYPE_STREAM = "STREAM";
+
+    /**
+     * The text string for the NNTP AUTHINFO USER parameter.
+     */
+    private final static String AUTHINFO_PARAM_USER = "USER";
+
+    /**
+     * The text string for the NNTP AUTHINFO PASS parameter.
+     */
+    private final static String AUTHINFO_PARAM_PASS = "PASS";
 
     /**
      * The TCP/IP socket over which the POP3 interaction
@@ -94,19 +224,15 @@ public class NNTPHandler extends BaseConnectionHandler
     private NNTPGroup group;
 
     /**
-     * The repository that stores the news articles for this NNTP server.
+     * The current newsgroup.
      */
-    private NNTPRepository repo;
+    private int currentArticleNumber = -1;
 
     /**
-     * The repository that stores the local users.  Used for authentication.
+     * Per-service configuration data that applies to all handlers
+     * associated with the service.
      */
-    private UsersRepository userRepository = null;
-
-    /**
-     * Whether authentication is required to access this NNTP server
-     */
-    private boolean authRequired = false;
+    private NNTPHandlerConfigurationData theConfigData;
 
     /**
      * The user id associated with the NNTP dialogue
@@ -118,133 +244,155 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private String password;
 
+    /**
+     * The watchdog being used by this handler to deal with idle timeouts.
+     */
+    private Watchdog theWatchdog;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * The watchdog target that idles out this handler.
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException
-    {
-        getLogger().debug("NNTPHandler compose...begin");
-        UsersStore usersStore = (UsersStore)componentManager.lookup(UsersStore.ROLE);
-        userRepository = usersStore.getRepository("LocalUsers");
+    private WatchdogTarget theWatchdogTarget = new NNTPWatchdogTarget();
 
-        scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
-
-        repo = (NNTPRepository)componentManager
-            .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
-        getLogger().debug("NNTPHandler compose...end");
+    /**
+     * Set the configuration data for the handler
+     *
+     * @param theData configuration data for the handler
+     */
+    void setConfigurationData(NNTPHandlerConfigurationData theData) {
+        theConfigData = theData;
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * Set the Watchdog for use by this handler.
+     *
+     * @param theWatchdog the watchdog
      */
-    public void configure(Configuration configuration)
-            throws ConfigurationException {
-        super.configure(configuration);
-        getLogger().debug("NNTPHandler configure...begin");
-        authRequired =
-            configuration.getChild("authRequired").getValueAsBoolean(false);
-        getLogger().debug("NNTPHandler configure...end");
+    void setWatchdog(Watchdog theWatchdog) {
+        this.theWatchdog = theWatchdog;
+    }
+
+    /**
+     * Gets the Watchdog Target that should be used by Watchdogs managing
+     * this connection.
+     *
+     * @return the WatchdogTarget
+     */
+    WatchdogTarget getWatchdogTarget() {
+        return theWatchdogTarget;
+    }
+
+    /**
+     * Idle out this connection
+     */
+    void idleClose() {
+        if (getLogger() != null) {
+            getLogger().error("Remote Manager Connection has idled out.");
+        }
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
+            // ignored
+        }
     }
 
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection( Socket connection ) throws IOException {
+
         try {
             this.socket = connection;
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream()) {
-                // TODO: This implementation is sensitive to details of the PrintWriter
-                //       implementation.  Specifically, that println(String) calls println().
-                //       This should be corrected so that this sensitivity is removed.
-                    public void println() {
-                        // lines must end with CRLF, irrespective of the OS
-                        print("\r\n");
-                        flush();
-                    }
-                    public void println(String s) {
-                        super.println(s);
-                        if (getLogger().isDebugEnabled()) {
-                            getLogger().debug("Sent: " + s);
-                        }
-                    }
-                };
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 1024);
+            writer = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 1024), true);
         } catch (Exception e) {
             getLogger().error( "Cannot open connection from: " + e.getMessage(), e );
         }
 
-        String triggerId = this.toString();
-
         try {
-            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
-            scheduler.addTrigger( triggerId, trigger, this );
-
             // section 7.1
-            if ( repo.isReadOnly() ) {
+            if ( theConfigData.getNNTPRepository().isReadOnly() ) {
                 StringBuffer respBuffer =
                     new StringBuffer(128)
                         .append("201 ")
-                        .append(helloName)
+                        .append(theConfigData.getHelloName())
                         .append(" NNTP Service Ready, posting prohibited");
                 writer.println(respBuffer.toString());
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(128)
                             .append("200 ")
-                            .append(helloName)
+                            .append(theConfigData.getHelloName())
                             .append(" NNTP Service Ready, posting permitted");
                 writer.println(respBuffer.toString());
             }
 
+            theWatchdog.start();
             while (parseCommand(reader.readLine())) {
-                scheduler.resetTrigger(triggerId);
+                theWatchdog.reset();
             }
+            theWatchdog.stop();
 
             getLogger().info("Connection closed");
         } catch (Exception e) {
             doQUIT(null);
             getLogger().error( "Exception during connection:" + e.getMessage(), e );
         } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException ioe) {
-                getLogger().warn("NNTPHandler: Unexpected exception occurred while closing reader: " + ioe);
-            }
-
-            if (writer != null) {
-                writer.close();
-            }
-
-            scheduler.removeTrigger(triggerId);
-
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException ioe) {
-                getLogger().warn("NNTPHandler: Unexpected exception occurred while closing socket: " + ioe);
-            }
+            resetHandler();
         }
     }
 
     /**
-     * Callback method called when the the PeriodicTimeTrigger in 
-     * handleConnection is triggered.  In this case the trigger is
-     * being used as a timeout, so the method simply closes the connection.
-     *
-     * @param triggerName the name of the trigger
+     * Resets the handler data to a basic state.
      */
-    public void targetTriggered( final String triggerName ) {
-        getLogger().error("Connection timeout on socket");
+    private void resetHandler() {
+
+        // Clear the Watchdog
+        if (theWatchdog != null) {
+            if (theWatchdog instanceof Disposable) {
+                ((Disposable)theWatchdog).dispose();
+            }
+            theWatchdog = null;
+        }
+
+        // Clear the streams
         try {
-            writer.println("Connection timeout. Closing connection");
-            socket.close();
-        } catch (IOException e) { }
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().warn("NNTPHandler: Unexpected exception occurred while closing reader: " + ioe);
+        } finally {
+            reader = null;
+        }
+
+        if (writer != null) {
+            writer.close();
+            writer = null;
+        }
+
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().warn("NNTPHandler: Unexpected exception occurred while closing socket: " + ioe);
+        } finally {
+            socket = null;
+        }
+
+        // Clear the selected group, article info
+        group = null;
+        currentArticleNumber = -1;
+
+        // Clear the authentication info
+        user = null;
+        password = null;
+
+        // Clear the config data
+        theConfigData = null;
     }
 
     /**
@@ -281,57 +429,57 @@ public class NNTPHandler extends BaseConnectionHandler
             getLogger().debug("Command not allowed.");
             return true;
         }
-        if ((command.equals("MODE")) && (argument != null) &&
-            argument.toUpperCase(Locale.US).equals("READER")) {
+        if ((command.equals(COMMAND_MODE)) && (argument != null) &&
+            argument.toUpperCase(Locale.US).equals(MODE_TYPE_READER)) {
             doMODEREADER(argument);
-        } else if ( command.equals("LIST")) {
+        } else if ( command.equals(COMMAND_LIST)) {
             doLIST(argument);
-        } else if ( command.equals("GROUP") ) {
+        } else if ( command.equals(COMMAND_GROUP) ) {
             doGROUP(argument);
-        } else if ( command.equals("NEXT") ) {
+        } else if ( command.equals(COMMAND_NEXT) ) {
             doNEXT(argument);
-        } else if ( command.equals("LAST") ) {
+        } else if ( command.equals(COMMAND_LAST) ) {
             doLAST(argument);
-        } else if ( command.equals("ARTICLE") ) {
+        } else if ( command.equals(COMMAND_ARTICLE) ) {
             doARTICLE(argument);
-        } else if ( command.equals("HEAD") ) {
+        } else if ( command.equals(COMMAND_HEAD) ) {
             doHEAD(argument);
-        } else if ( command.equals("BODY") ) {
+        } else if ( command.equals(COMMAND_BODY) ) {
             doBODY(argument);
-        } else if ( command.equals("STAT") ) {
+        } else if ( command.equals(COMMAND_STAT) ) {
             doSTAT(argument);
-        } else if ( command.equals("POST") ) {
+        } else if ( command.equals(COMMAND_POST) ) {
             doPOST(argument);
-        } else if ( command.equals("IHAVE") ) {
+        } else if ( command.equals(COMMAND_IHAVE) ) {
             doIHAVE(argument);
-        } else if ( command.equals("QUIT") ) {
+        } else if ( command.equals(COMMAND_QUIT) ) {
             doQUIT(argument);
-        } else if ( command.equals("DATE") ) {
+        } else if ( command.equals(COMMAND_DATE) ) {
             doDATE(argument);
-        } else if ( command.equals("HELP") ) {
+        } else if ( command.equals(COMMAND_HELP) ) {
             doHELP(argument);
-        } else if ( command.equals("NEWGROUPS") ) {
+        } else if ( command.equals(COMMAND_NEWGROUPS) ) {
             doNEWGROUPS(argument);
-        } else if ( command.equals("NEWNEWS") ) {
+        } else if ( command.equals(COMMAND_NEWNEWS) ) {
             doNEWNEWS(argument);
-        } else if ( command.equals("LISTGROUP") ) {
+        } else if ( command.equals(COMMAND_LISTGROUP) ) {
             doLISTGROUP(argument);
-        } else if ( command.equals("OVER") ) {
+        } else if ( command.equals(COMMAND_OVER) ) {
             doOVER(argument);
-        } else if ( command.equals("XOVER") ) {
+        } else if ( command.equals(COMMAND_XOVER) ) {
             doXOVER(argument);
+        } else if ( command.equals(COMMAND_HDR) ) {
+            doHDR(argument);
+        } else if ( command.equals(COMMAND_XHDR) ) {
+            doXHDR(argument);
+        } else if ( command.equals(COMMAND_AUTHINFO) ) {
+            doAUTHINFO(argument);
         } else if ( command.equals("PAT") ) {
             doPAT(argument);
-        } else if ( command.equals("HDR") ) {
-            doHDR(argument);
-        } else if ( command.equals("XHDR") ) {
-            doXHDR(argument);
-        } else if ( command.equals("AUTHINFO") ) {
-            doAUTHINFO(argument);
         } else {
             doUnknownCommand(command, argument);
         }
-        return (command.equals("QUIT") == false);
+        return (command.equals(COMMAND_QUIT) == false);
     }
 
     /**
@@ -350,7 +498,7 @@ public class NNTPHandler extends BaseConnectionHandler
                     .append(argument);
             getLogger().debug(logBuffer.toString());
         }
-        writer.println("501 Syntax error");
+        writer.println("500 Unknown command");
     }
 
     /**
@@ -374,10 +522,10 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println("501 Syntax error");
             return;
         }
-        if ( command.equals("USER") ) {
+        if ( command.equals(AUTHINFO_PARAM_USER) ) {
             user = value;
             writer.println("381 More authentication information required");
-        } else if ( command.equals("PASS") ) {
+        } else if ( command.equals(AUTHINFO_PARAM_PASS) ) {
             password = value;
             if ( isAuthenticated() ) {
                 writer.println("281 Authentication accepted");
@@ -399,8 +547,16 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doNEWNEWS(String argument) {
         // see section 11.4
+        Date theDate = null;
+        try {
+            theDate = getDateFrom(argument);
+        } catch (NNTPException nntpe) {
+            getLogger().error("NEWNEWS had an invalid argument", nntpe);
+            writer.println("501 Syntax error");
+            return;
+        }
+        Iterator iter = theConfigData.getNNTPRepository().getArticlesSince(theDate);
         writer.println("230 list of new articles by message-id follows");
-        Iterator iter = repo.getArticlesSince(getDateFrom(argument));
         while ( iter.hasNext() ) {
             StringBuffer iterBuffer =
                 new StringBuffer(64)
@@ -421,26 +577,35 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doNEWGROUPS(String argument) {
         // see section 11.3
-        // there seeem to be few differences.
-        // draft-ietf-nntpext-base-15.txt mentions 231 in section 11.3.1, 
-        // but examples have response code 230. rfc977 has 231 response code.
         // both draft-ietf-nntpext-base-15.txt and rfc977 have only group names 
         // in response lines, but INN sends 
         // '<group name> <last article> <first article> <posting allowed>'
         // NOTE: following INN over either document.
+        //
+        // TODO: Check this.  Audit at http://www.academ.com/pipermail/ietf-nntp/2001-July/002185.html
+        // doesn't mention the supposed discrepancy.  Consider changing code to 
+        // be in line with spec.
+        Date theDate = null;
+        try {
+            theDate = getDateFrom(argument);
+        } catch (NNTPException nntpe) {
+            getLogger().error("NEWGROUPS had an invalid argument", nntpe);
+            writer.println("501 Syntax error");
+            return;
+        }
+        Iterator iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
         writer.println("231 list of new newsgroups follows");
-        Iterator iter = repo.getGroupsSince(getDateFrom(argument));
         while ( iter.hasNext() ) {
-            NNTPGroup group = (NNTPGroup)iter.next();
+            NNTPGroup currentGroup = (NNTPGroup)iter.next();
             StringBuffer iterBuffer =
                 new StringBuffer(128)
-                    .append(group.getName())
+                    .append(currentGroup.getName())
                     .append(" ")
-                    .append(group.getLastArticleNumber())
+                    .append(currentGroup.getLastArticleNumber())
                     .append(" ")
-                    .append(group.getFirstArticleNumber())
+                    .append(currentGroup.getFirstArticleNumber())
                     .append(" ")
-                    .append((group.isPostAllowed()?"y":"n"));
+                    .append((currentGroup.isPostAllowed()?"y":"n"));
             writer.println(iterBuffer.toString());
         }
         writer.println(".");
@@ -462,8 +627,6 @@ public class NNTPHandler extends BaseConnectionHandler
      * @param argument the argument passed in with the DATE command
      */
     private void doDATE(String argument) {
-        //Calendar c = Calendar.getInstance();
-        //long UTC_OFFSET = c.get(c.ZONE_OFFSET) + c.get(c.DST_OFFSET);
         Date dt = new Date(System.currentTimeMillis()-UTC_OFFSET);
         String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
         writer.println("111 "+dtStr);
@@ -528,7 +691,7 @@ public class NNTPHandler extends BaseConnectionHandler
             }
         }
 
-        Iterator iter = repo.getMatchedGroups(wildmat);
+        Iterator iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
         writer.println("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup theGroup = (NNTPGroup)iter.next();
@@ -549,11 +712,11 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doIHAVE(String id) {
         // see section 9.3.2.1
-        if (!(id.startsWith("<") && id.endsWith(">"))) {
+        if (!isMessageId(id)) {
             writer.println("501 command syntax error");
             return;
         }
-        NNTPArticle article = repo.getArticleFromID(id);
+        NNTPArticle article = theConfigData.getNNTPRepository().getArticleFromID(id);
         if ( article != null ) {
             writer.println("435 article not wanted - do not send it");
         } else {
@@ -566,41 +729,150 @@ public class NNTPHandler extends BaseConnectionHandler
     /**
      * Posts an article to the news server.
      *
-     * @param argument the argument passed in with the AUTHINFO command
+     * @param argument the argument passed in with the POST command
      */
     private void doPOST(String argument) {
         // see section 9.3.1.1
+        if ( argument != null ) {
+            writer.println("501 Syntax error - unexpected parameter");
+        }
         writer.println("340 send article to be posted. End with <CR-LF>.<CR-LF>");
         createArticle();
         writer.println("240 article received ok");
     }
 
     /**
-     * Sets the current article pointer.
+     * Executes the STAT command.  Sets the current article pointer,
+     * returns article information.
      *
-     * @param the argument passed in to the HEAD command,
+     * @param the argument passed in to the STAT command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
      */
     private void doSTAT(String param) {
-        doARTICLE(param,ArticleWriter.Factory.STAT(writer));
+        // section 9.2.4
+        NNTPArticle article = null;
+        if (isMessageId(param)) {
+            article = theConfigData.getNNTPRepository().getArticleFromID(param);
+            if ( article == null ) {
+                writer.println("430 no such article");
+                return;
+            } else {
+                StringBuffer respBuffer =
+                    new StringBuffer(64)
+                            .append("223 0 ")
+                            .append(param);
+                writer.println(respBuffer.toString());
+            }
+        } else {
+            int newArticleNumber = currentArticleNumber;
+            if ( group == null ) {
+                writer.println("412 no newsgroup selected");
+                return;
+            } else {
+                if ( param == null ) {
+                    if ( currentArticleNumber < 0 ) {
+                        writer.println("420 no current article selected");
+                        return;
+                    } else {
+                        article = group.getArticle(currentArticleNumber);
+                    }
+                }
+                else {
+                    newArticleNumber = Integer.parseInt(param);
+                    article = group.getArticle(newArticleNumber);
+                }
+                if ( article == null ) {
+                    writer.println("423 no such article number in this group");
+                    return;
+                } else {
+                    currentArticleNumber = newArticleNumber;
+                    String articleID = article.getUniqueID();
+                    if (articleID == null) {
+                        articleID = "<0>";
+                    }
+                    StringBuffer respBuffer =
+                        new StringBuffer(128)
+                                .append("223 ")
+                                .append(article.getArticleNumber())
+                                .append(" ")
+                                .append(articleID);
+                    writer.println(respBuffer.toString());
+                }
+            }
+        }
     }
 
     /**
-     * Displays the body of a particular article.
+     * Executes the BODY command.  Sets the current article pointer,
+     * returns article information and body.
      *
-     * @param the argument passed in to the HEAD command,
+     * @param the argument passed in to the BODY command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
      */
     private void doBODY(String param) {
-        doARTICLE(param,ArticleWriter.Factory.BODY(writer));
+        // section 9.2.3
+        NNTPArticle article = null;
+        if (isMessageId(param)) {
+            article = theConfigData.getNNTPRepository().getArticleFromID(param);
+            if ( article == null ) {
+                writer.println("430 no such article");
+                return;
+            } else {
+                StringBuffer respBuffer =
+                    new StringBuffer(64)
+                            .append("222 0 ")
+                            .append(param);
+                writer.println(respBuffer.toString());
+            }
+        } else {
+            int newArticleNumber = currentArticleNumber;
+            if ( group == null ) {
+                writer.println("412 no newsgroup selected");
+                return;
+            } else {
+                if ( param == null ) {
+                    if ( currentArticleNumber < 0 ) {
+                        writer.println("420 no current article selected");
+                        return;
+                    } else {
+                        article = group.getArticle(currentArticleNumber);
+                    }
+                }
+                else {
+                    newArticleNumber = Integer.parseInt(param);
+                    article = group.getArticle(newArticleNumber);
+                }
+                if ( article == null ) {
+                    writer.println("423 no such article number in this group");
+                } else {
+                    currentArticleNumber = newArticleNumber;
+                    String articleID = article.getUniqueID();
+                    if (articleID == null) {
+                        articleID = "<0>";
+                    }
+                    StringBuffer respBuffer =
+                        new StringBuffer(128)
+                                .append("222 ")
+                                .append(article.getArticleNumber())
+                                .append(" ")
+                                .append(articleID);
+                    writer.println(respBuffer.toString());
+                }
+            }
+        }
+        if (article != null) {
+            article.writeBody(writer);
+            writer.println(".");
+        }
     }
 
     /**
-     * Displays the header of a particular article.
+     * Executes the HEAD command.  Sets the current article pointer,
+     * returns article information and headers.
      *
      * @param the argument passed in to the HEAD command,
      *        which should be an article number or message id.
@@ -608,78 +880,126 @@ public class NNTPHandler extends BaseConnectionHandler
      *        article is used.
      */
     private void doHEAD(String param) {
-        doARTICLE(param,ArticleWriter.Factory.HEAD(writer));
+        // section 9.2.2
+        NNTPArticle article = null;
+        if (isMessageId(param)) {
+            article = theConfigData.getNNTPRepository().getArticleFromID(param);
+            if ( article == null ) {
+                writer.println("430 no such article");
+                return;
+            } else {
+                StringBuffer respBuffer =
+                    new StringBuffer(64)
+                            .append("221 0 ")
+                            .append(param);
+                writer.println(respBuffer.toString());
+            }
+        } else {
+            int newArticleNumber = currentArticleNumber;
+            if ( group == null ) {
+                writer.println("412 no newsgroup selected");
+                return;
+            } else {
+                if ( param == null ) {
+                    if ( currentArticleNumber < 0 ) {
+                        writer.println("420 no current article selected");
+                        return;
+                    } else {
+                        article = group.getArticle(currentArticleNumber);
+                    }
+                }
+                else {
+                    newArticleNumber = Integer.parseInt(param);
+                    article = group.getArticle(newArticleNumber);
+                }
+                if ( article == null ) {
+                    writer.println("423 no such article number in this group");
+                } else {
+                    currentArticleNumber = newArticleNumber;
+                    String articleID = article.getUniqueID();
+                    if (articleID == null) {
+                        articleID = "<0>";
+                    }
+                    StringBuffer respBuffer =
+                        new StringBuffer(128)
+                                .append("221 ")
+                                .append(article.getArticleNumber())
+                                .append(" ")
+                                .append(articleID);
+                    writer.println(respBuffer.toString());
+                }
+            }
+        }
+        if (article != null) {
+            article.writeHead(writer);
+            writer.println(".");
+        }
     }
 
     /**
-     * Displays the header and body of a particular article.
+     * Executes the ARTICLE command.  Sets the current article pointer,
+     * returns article information and contents.
      *
-     * @param the argument passed in to the HEAD command,
+     * @param the argument passed in to the ARTICLE command,
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
      */
     private void doARTICLE(String param) {
-        doARTICLE(param,ArticleWriter.Factory.ARTICLE(writer));
-    }
-
-    /**
-     * The implementation of the method body for the ARTICLE, STAT,
-     * HEAD, and BODY commands.
-     *
-     * @param the argument passed in to the command,
-     *        which should be an article number or message id.
-     *        If no parameter is provided, the current selected
-     *        article is used.
-     * @param articleWriter the writer that determines the output
-     *                      written to the client.
-     */
-    private void doARTICLE(String param,ArticleWriter articleWriter) {
         // section 9.2.1
         NNTPArticle article = null;
-        if ( (param != null) && param.startsWith("<") && param.endsWith(">") ) {
-            article = repo.getArticleFromID(param);
+        if (isMessageId(param)) {
+            article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
                 writer.println("430 no such article");
+                return;
             } else {
                 StringBuffer respBuffer =
                     new StringBuffer(64)
                             .append("220 0 ")
-                            .append(param)
-                            .append(" article retrieved and follows");
+                            .append(param);
                 writer.println(respBuffer.toString());
             }
         } else {
+            int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
                 writer.println("412 no newsgroup selected");
+                return;
             } else {
                 if ( param == null ) {
-                    if ( group.getCurrentArticleNumber() < 0 ) {
+                    if ( currentArticleNumber < 0 ) {
                         writer.println("420 no current article selected");
+                        return;
                     } else {
-                        article = group.getCurrentArticle();
+                        article = group.getArticle(currentArticleNumber);
                     }
                 }
                 else {
-                    article = group.getArticle(Integer.parseInt(param));
+                    newArticleNumber = Integer.parseInt(param);
+                    article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
                     writer.println("423 no such article number in this group");
                 } else {
+                    currentArticleNumber = newArticleNumber;
+                    String articleID = article.getUniqueID();
+                    if (articleID == null) {
+                        articleID = "<0>";
+                    }
                     StringBuffer respBuffer =
                         new StringBuffer(128)
                                 .append("220 ")
                                 .append(article.getArticleNumber())
                                 .append(" ")
-                                .append(article.getUniqueID())
-                                .append(" article retrieved and follows");
+                                .append(articleID);
                     writer.println(respBuffer.toString());
                 }
             }
         }
-        if ( article != null ) {
-            articleWriter.write(article);
-        }   
+        if (article != null) {
+            article.writeArticle(writer);
+            writer.println(".");
+        }
     }
 
     /**
@@ -689,15 +1009,17 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doNEXT(String argument) {
         // section 9.1.1.3.1
-        if ( group == null ) {
+        if ( argument != null ) {
+            writer.println("501 Syntax error - unexpected parameter");
+        } else if ( group == null ) {
             writer.println("412 no newsgroup selected");
-        } else if ( group.getCurrentArticleNumber() < 0 ) {
+        } else if ( currentArticleNumber < 0 ) {
             writer.println("420 no current article has been selected");
-        } else if ( group.getCurrentArticleNumber() >= group.getLastArticleNumber() ) {
+        } else if ( currentArticleNumber >= group.getLastArticleNumber() ) {
             writer.println("421 no next article in this group");
         } else {
-            group.setCurrentArticleNumber(group.getCurrentArticleNumber()+1);
-            NNTPArticle article = group.getCurrentArticle();
+            currentArticleNumber++;
+            NNTPArticle article = group.getArticle(currentArticleNumber);
             StringBuffer respBuffer =
                 new StringBuffer(64)
                         .append("223 ")
@@ -709,22 +1031,24 @@ public class NNTPHandler extends BaseConnectionHandler
     }
 
     /**
-     * Advances the currently selected article pointer to the last article
-     * in the selected group.
+     * Moves the currently selected article pointer to the article
+     * previous to the currently selected article in the selected group.
      *
      * @param argument the argument passed in with the LAST command
      */
     private void doLAST(String argument) {
         // section 9.1.1.2.1
-        if ( group == null ) {
+        if ( argument != null ) {
+            writer.println("501 Syntax error - unexpected parameter");
+        } else if ( group == null ) {
             writer.println("412 no newsgroup selected");
-        } else if ( group.getCurrentArticleNumber() < 0 ) {
+        } else if ( currentArticleNumber < 0 ) {
             writer.println("420 no current article has been selected");
-        } else if ( group.getCurrentArticleNumber() <= group.getFirstArticleNumber() ) {
+        } else if ( currentArticleNumber <= group.getFirstArticleNumber() ) {
             writer.println("422 no previous article in this group");
         } else {
-            group.setCurrentArticleNumber(group.getCurrentArticleNumber()-1);
-            NNTPArticle article = group.getCurrentArticle();
+            currentArticleNumber--;
+            NNTPArticle article = group.getArticle(currentArticleNumber);
             StringBuffer respBuffer =
                 new StringBuffer(64)
                         .append("223 ")
@@ -741,7 +1065,11 @@ public class NNTPHandler extends BaseConnectionHandler
      * @param group the name of the group being selected.
      */
     private void doGROUP(String groupName) {
-        NNTPGroup newGroup = repo.getGroup(groupName);
+        if (groupName == null) {
+            writer.println("501 Syntax error - missing required parameter");
+            return;
+        }
+        NNTPGroup newGroup = theConfigData.getNNTPRepository().getGroup(groupName);
         // section 9.1.1.1
         if ( newGroup == null ) {
             writer.println("411 no such newsgroup");
@@ -755,6 +1083,15 @@ public class NNTPHandler extends BaseConnectionHandler
             int articleCount = group.getNumberOfArticles();
             int lowWaterMark = group.getFirstArticleNumber();
             int highWaterMark = group.getLastArticleNumber();
+
+            // Set the current article pointer.  If no
+            // articles are in the group, the current article
+            // pointer should be explicitly unset.
+            if (articleCount != 0) {
+                currentArticleNumber = lowWaterMark;
+            } else {
+                currentArticleNumber = -1;
+            }
             StringBuffer respBuffer =
                 new StringBuffer(128)
                         .append("211 ")
@@ -792,7 +1129,10 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doMODEREADER(String argument) {
         // 7.2
-        writer.println(repo.isReadOnly()
+        if ( argument != null ) {
+            writer.println("501 Syntax error - unexpected parameter");
+        }
+        writer.println(theConfigData.getNNTPRepository().isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
 
@@ -806,18 +1146,29 @@ public class NNTPHandler extends BaseConnectionHandler
         // 9.5.1.1.1
         if (groupName==null) {
             if ( group == null) {
-                writer.println("412 not currently in newsgroup");
+                writer.println("412 no news group currently selected");
                 return;
             }
         }
         else {
-            group = repo.getGroup(groupName);
+            group = theConfigData.getNNTPRepository().getGroup(groupName);
             if ( group == null ) {
                 writer.println("411 no such newsgroup");
                 return;
             }
         }
         if ( group != null ) {
+            this.group = group;
+
+            // Set the current article pointer.  If no
+            // articles are in the group, the current article
+            // pointer should be explicitly unset.
+            if (group.getNumberOfArticles() > 0) {
+                currentArticleNumber = group.getFirstArticleNumber();
+            } else {
+                currentArticleNumber = -1;
+            }
+
             writer.println("211 list of article numbers follow");
 
             Iterator iter = group.getArticles();
@@ -826,8 +1177,6 @@ public class NNTPHandler extends BaseConnectionHandler
                 writer.println(article.getArticleNumber());
             }
             writer.println(".");
-            this.group = group;
-            group.setCurrentArticleNumber(group.getFirstArticleNumber());
         }
     }
 
@@ -836,8 +1185,12 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doLISTOVERVIEWFMT() {
         // 9.5.3.1.1
-        // 503 means information is not available as per 9.5.2.1
-        writer.println("503 program error, function not performed");
+        writer.println("215 Information follows");
+        String[] overviewHeaders = theConfigData.getNNTPRepository().getOverviewFormat();
+        for (int i = 0;  i < overviewHeaders.length; i++) {
+            writer.println(overviewHeaders[i]);
+        }
+        writer.println(".");
     }
 
     /**
@@ -868,12 +1221,23 @@ public class NNTPHandler extends BaseConnectionHandler
      */
     private void doHDR(String argument) {
         // 9.5.3
+        if (argument == null) {
+            writer.println("501 Syntax error - missing required parameter");
+        }
         String hdr = argument;
         String range = null;
-        int spaceIndex = argument.indexOf(" ");
+        int spaceIndex = hdr.indexOf(" ");
         if (spaceIndex >= 0 ) {
             range = hdr.substring(spaceIndex + 1);
             hdr = hdr.substring(0, spaceIndex);
+        }
+        if (group == null ) {
+            writer.println("412 No news group currently selected.");
+            return;
+        }
+        if ((range == null) && (currentArticleNumber < 0)) {
+            writer.println("420 No current article selected");
+            return;
         }
         NNTPArticle[] article = getRange(range);
         if ( article == null ) {
@@ -920,14 +1284,23 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println("412 No newsgroup selected");
             return;
         }
+        if ((range == null) && (currentArticleNumber < 0)) {
+            writer.println("420 No current article selected");
+            return;
+        }
         NNTPArticle[] article = getRange(range);
-        ArticleWriter articleWriter = ArticleWriter.Factory.OVER(writer);
         if ( article.length == 0 ) {
             writer.println("420 No article(s) selected");
         } else {
             writer.println("224 Overview information follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
-                articleWriter.write(article[i]);
+                article[i].writeOverview(writer);
+                if (i % 100 == 0) {
+                    // Reset the watchdog ever hundred headers or so
+                    // to ensure the connection doesn't timeout for slow
+                    // clients
+                    theWatchdog.reset();
+                }
             }
             writer.println(".");
         }
@@ -937,7 +1310,7 @@ public class NNTPHandler extends BaseConnectionHandler
      * Handles the transaction for getting the article data.
      */
     private void createArticle() {
-        repo.createArticle(new NNTPLineReaderImpl(reader));
+        theConfigData.getNNTPRepository().createArticle(new NNTPLineReaderImpl(reader));
     }
 
     /**
@@ -949,7 +1322,13 @@ public class NNTPHandler extends BaseConnectionHandler
      * @param argument the date string
      */
     private Date getDateFrom(String argument) {
+        if (argument == null) {
+            throw new NNTPException("Date argument was absent.");
+        }
         StringTokenizer tok = new StringTokenizer(argument, " ");
+        if (tok.countTokens() < 2) {
+            throw new NNTPException("Date argument was ill-formed.");
+        }
         String date = tok.nextToken();
         String time = tok.nextToken();
         boolean utc = ( tok.hasMoreTokens() );
@@ -968,7 +1347,7 @@ public class NNTPHandler extends BaseConnectionHandler
         } catch ( ParseException pe ) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
-                    .append("date extraction failed: ")
+                    .append("Date extraction failed: ")
                     .append(date)
                     .append(",")
                     .append(time)
@@ -980,35 +1359,38 @@ public class NNTPHandler extends BaseConnectionHandler
 
     /**
      * Returns the list of articles that match the range.
+     *
+     * A precondition of this method is that the selected
+     * group be non-null.  The current article pointer must
+     * be valid if no range is explicitly provided.
+     *
      * @return null indicates insufficient information to
      * fetch the list of articles
      */
     private NNTPArticle[] getRange(String range) {
         // check for msg id
-        if ( range != null && range.startsWith("<") ) {
-            NNTPArticle article = repo.getArticleFromID(range);
+        if ( isMessageId(range)) {
+            NNTPArticle article = theConfigData.getNNTPRepository().getArticleFromID(range);
             return ( article == null )
                 ? new NNTPArticle[0] : new NNTPArticle[] { article };
         }
 
-        if ( group == null ) {
-            return null;
-        }
         if ( range == null ) {
-            range = "" + group.getCurrentArticleNumber();
+            range = "" + currentArticleNumber;
         }
 
         int start = -1;
         int end = -1;
         int idx = range.indexOf('-');
         if ( idx == -1 ) {
-            start = end = Integer.parseInt(range);
+            start = Integer.parseInt(range);
+            end = start;
         } else {
             start = Integer.parseInt(range.substring(0,idx));
-            if ( idx+1 == range.length() ) {
+            if ( (idx + 1) == range.length() ) {
                 end = group.getLastArticleNumber();
             } else {
-                end = Integer.parseInt(range.substring(idx+1));
+                end = Integer.parseInt(range.substring(idx + 1));
             }
         }
         List list = new ArrayList();
@@ -1046,9 +1428,9 @@ public class NNTPHandler extends BaseConnectionHandler
      * @return whether the connection has been authenticated.
      */
     private boolean isAuthenticated() {
-        if ( authRequired ) {
-            if  ((user != null) && (password != null) && (userRepository != null)) {
-                return userRepository.test(user,password);
+        if ( theConfigData.isAuthRequired() ) {
+            if  ((user != null) && (password != null) && (theConfigData.getUsersRepository() != null)) {
+                return theConfigData.getUsersRepository().test(user,password);
             } else {
                 return false;
             }
@@ -1057,4 +1439,38 @@ public class NNTPHandler extends BaseConnectionHandler
         }
     }
 
+    /**
+     * Tests a string to see whether it is formatted as a message
+     * ID.
+     *
+     * @param testString the string to test
+     *
+     * @return whether the string is a candidate message ID
+     */
+    private static boolean isMessageId(String testString) {
+        if ((testString != null) &&
+            (testString.startsWith("<")) &&
+            (testString.endsWith(">"))) {
+            return true;
+        } else {
+            return false;
+        }
+   }
+
+    /**
+     * A private inner class which serves as an adaptor
+     * between the WatchdogTarget interface and this
+     * handler class.
+     */
+    private class NNTPWatchdogTarget
+        implements WatchdogTarget {
+
+        /**
+         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
+         */
+        public void execute() {
+            NNTPHandler.this.idleClose();
+        }
+
+    }
 }
