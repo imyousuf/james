@@ -85,7 +85,7 @@ import javax.mail.internet.*;
  *    &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/23 18:43:32 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/23 18:50:04 $
  * @since 2.2.0
  */
 public class CompareNumericHeaderValue extends GenericMatcher {

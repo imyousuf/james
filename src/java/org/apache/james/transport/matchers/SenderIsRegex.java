@@ -87,7 +87,7 @@ import javax.mail.MessagingException;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/23 18:44:29 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/23 18:51:14 $
  * @since 2.2.0
  */
 public class SenderIsRegex extends GenericMatcher {
