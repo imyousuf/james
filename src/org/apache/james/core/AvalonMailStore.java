@@ -7,62 +7,72 @@
  */
 package org.apache.james.core;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
-import org.apache.avalon.Initializable;
-import org.apache.avalon.Composer;
-import org.apache.avalon.Configurable;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.Component;
 import org.apache.avalon.ComponentNotAccessibleException;
 import org.apache.avalon.ComponentNotFoundException;
-import org.apache.phoenix.AbstractBlock;
-//import org.apache.cornerstone.services.Store;
-
-import org.apache.james.services.MailStore;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.Initializable;
 import org.apache.james.services.MailRepository;
-
+import org.apache.james.services.MailStore;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-
+import org.apache.phoenix.Block;
 
 /**
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonMailStore extends AbstractBlock implements MailStore, Initializable {
-
-    protected final static boolean       LOG       = true;
-    protected final static boolean       DEBUG     = LOG && false;
-
+public class AvalonMailStore 
+    extends AbstractLoggable 
+    implements Block, Composer, Configurable, MailStore, Initializable {
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;
     private HashMap repositories;
     private HashMap models;
     private HashMap classes;
+    protected Configuration          configuration;
+    protected ComponentManager       componentManager;
+
+    public void compose( final ComponentManager componentManager )
+        throws ComponentManagerException
+    {
+        this.componentManager = componentManager;
+    }
+
+    public void configure( final Configuration configuration )
+        throws ConfigurationException
+    {
+        this.configuration = configuration;
+    }
     
     public void init() 
         throws Exception {
     
-        m_logger.info("JamesMailStore init...");
+        getLogger().info("JamesMailStore init...");
         repositories = new HashMap();
         models = new HashMap();
         classes = new HashMap();
-        Iterator registeredClasses = m_configuration.getChild("repositories").getChildren("repository");
+        Iterator registeredClasses = configuration.getChild("repositories").getChildren("repository");
         while (registeredClasses.hasNext()) {
             registerRepository((Configuration) registeredClasses.next());
         }
-        m_logger.info("James RepositoryManager ...init");
+        getLogger().info("James RepositoryManager ...init");
     }
     
     public void registerRepository(Configuration repConf) throws ConfigurationException {
         String className = repConf.getAttribute("class");
-        m_logger.info("Registering Repository " + className);
+        getLogger().info("Registering Repository " + className);
         Iterator protocols = repConf.getChild("protocols").getChildren("protocol");
         Iterator types = repConf.getChild("types").getChildren("type");
         Iterator models = repConf.getChild("models").getChildren("model");
@@ -73,7 +83,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore, Initial
                 while (models.hasNext()) {
                     String model = ((Configuration) models.next()).getValue();
                     classes.put(protocol + type + model, className);
-                    m_logger.info("   for " + protocol + "," + type + "," + model);
+                    getLogger().info("   for " + protocol + "," + type + "," + model);
                 }
             }
         }
@@ -113,8 +123,8 @@ public class AvalonMailStore extends AbstractBlock implements MailStore, Initial
                 String protocol = destination.getProtocol();
                 String repClass = (String) classes.get( protocol + type + model );
 
-                m_logger.debug( "Need instance of " + repClass + 
-                                        " to handle: " + protocol + type + model );
+                getLogger().debug( "Need instance of " + repClass + 
+                                   " to handle: " + protocol + type + model );
 
                 try {
                     reply = (MailRepository) Class.forName(repClass).newInstance();
@@ -122,7 +132,7 @@ public class AvalonMailStore extends AbstractBlock implements MailStore, Initial
                         ((Configurable) reply).configure(repConf);
                     }
                     if (reply instanceof Composer) {
-                        ((Composer) reply).compose( m_componentManager );
+                        ((Composer) reply).compose( componentManager );
                     }
 /*                if (reply instanceof Contextualizable) {
                   ((Contextualizable) reply).contextualize(context);
@@ -132,23 +142,23 @@ public class AvalonMailStore extends AbstractBlock implements MailStore, Initial
                     }
                     repositories.put(repID, reply);
                     models.put(repID, model);
-                    m_logger.info( "New instance of " + repClass + 
-                                           " created for " + destination );
+                    getLogger().info( "New instance of " + repClass + 
+                                      " created for " + destination );
                     return (Component)reply;
                 } catch (Exception e) {
-                    m_logger.warn( "Exception while creating repository:" +
-                                           e.getMessage(), e );
+                    getLogger().warn( "Exception while creating repository:" +
+                                      e.getMessage(), e );
 
                     throw new 
                         ComponentNotAccessibleException( "Cannot find or init repository", e );
                 }
-	    }
-	} catch( final ConfigurationException ce ) {
-	    throw new ComponentNotAccessibleException( "Malformed configuration", ce );
-	}
+            }
+        } catch( final ConfigurationException ce ) {
+            throw new ComponentNotAccessibleException( "Malformed configuration", ce );
+        }
     }
         
     public static final String getName() {
-	return REPOSITORY_NAME + id++;
+        return REPOSITORY_NAME + id++;
     }
 }
