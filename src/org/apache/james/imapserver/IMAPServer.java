@@ -12,8 +12,16 @@ package org.apache.james.imapserver;
 
 import java.net.*;
 import java.util.Date;
-import org.apache.avalon.*;
+import org.apache.avalon.Loggable;
 import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Component;
 import org.apache.avalon.util.lang.*;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.cornerstone.services.SocketServer;

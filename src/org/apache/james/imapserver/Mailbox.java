@@ -14,7 +14,8 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Composer;
+import org.apache.avalon.configuration.Configurable;
 //import org.apache.avalon.services.Service;
 
 import org.apache.james.AccessControlException;
@@ -80,7 +81,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns String name of mailbox relative to its immeadiate parent in
      * the mailbox hierarchy.
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns absolute, that is user-independent, hierarchical name of
@@ -89,7 +90,7 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @returns String name of mailbox in absolute form
      */
-    public String getAbsoluteName();
+    String getAbsoluteName();
 
     /** Returns namespace starting with namespace token.
      * Example: '#mail'
@@ -104,21 +105,21 @@ public interface Mailbox extends Configurable, Composer {
      * @param name possible name for this Mailbox
      * @returns true if name matches either getName() or getAbsoluteName()
      */
-    public boolean matchesName(String name);
+    boolean matchesName(String name);
 
     /**
      * Returns the current unique id validity value of this mailbox.
      *
      * @returns int current 32 bit unique id validity value of this mailbox
      */
-    public int getUIDValidity();
+    int getUIDValidity();
 
     /**
      * Returns the 32 bit uid available for the next message.
      *
      * @returns int the next UID that would be used.
      */
-    public int getNextUID();
+    int getNextUID();
 
     /**
      * Returns mailbox size in octets. Should only include actual messages
@@ -126,7 +127,7 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @returns int mailbox size in octets
      */
-    public int getMailboxSize();
+    int getMailboxSize();
 
     /**
      * Indicates if child folders may be created. It does not indicate which
@@ -134,7 +135,7 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @returns boolean TRUE if inferiors aree allowed
      */
-    public boolean getInferiorsAllowed();
+    boolean getInferiorsAllowed();
 
     /**
      * Indicates if this folder may be selected by the specified user.
@@ -146,7 +147,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns boolean TRUE if specified user can Select mailbox.
      * @throws AccessControlException if username does not have lookup rights
      */
-    public boolean isSelectable(String username) throws AccessControlException;
+    boolean isSelectable(String username) throws AccessControlException;
 
     /**
      * Indicates that messages have been added since this mailbox was last
@@ -155,8 +156,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns boolean TRUE if new messages since any user last selected
      * mailbox
      */
-    public boolean isMarked();
-
+    boolean isMarked();
 
     /**
      * Returns all flags supported by this mailbox.
@@ -165,8 +165,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns String a space seperated list of message flags which are
      * supported by this mailbox.
      */
-    public String getSupportedFlags();
-
+    String getSupportedFlags();
 
     /**
      * Indicates if specified user can change any flag on a permanent basis,
@@ -176,7 +175,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns true if specified user can change all flags permanently.
      * @throws AccessControlException if username does not have lookup rights
      */
-    public boolean allFlags(String username) throws AccessControlException;
+    boolean allFlags(String username) throws AccessControlException;
 
     /**
      * Indicates which flags this user can change permanently. If allFlags()
@@ -187,7 +186,7 @@ public interface Mailbox extends Configurable, Composer {
      * @returns String a space seperated list of message flags which this user
      * can set permanently
      */
-    public String getPermanentFlags(String username)
+    String getPermanentFlags( String username )
         throws AccessControlException;
 
     /**
@@ -195,21 +194,21 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @returns int number of messages
      */
-    public int getExists();
+    int getExists();
 
     /**
      * Indicates no of messages with \Recent flag set
      *
      * @returns int no of messages with \Recent flag set
      */
-    public int getRecent();
+    int getRecent();
 
 
     /**
      * Remove \Recent flag from all messages in mailbox. Should be called
      * whenever a user session finishes.
      */
-    public void unsetRecent();
+    void unsetRecent();
 
     /** 
      * Indicates the oldest unseen message for the specified user. 
@@ -219,14 +218,14 @@ public interface Mailbox extends Configurable, Composer {
      * <br> -1 means all messages have \Seen flag set for this user.
      * <br> 0 means no message (Seen or unseen) in this mailbox.
      */
-    public int getOldestUnseen(String user);
+    int getOldestUnseen( String user );
 
    /** 
      * Indicates the number of  unseen messages for the specified user. 
      *
      * @returns int number of messages without \Seen flag set for this User.
      */
-    public int getUnseen(String user);
+    int getUnseen( String user );
 
     /**
      * Indicates state in which  the mailbox will be opened by specified user.
@@ -242,8 +241,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AccessControlException if the user can not open this mailbox
      * at least Read-Only.
      */
-    public boolean isReadOnly(String username) throws AccessControlException;
-
+    boolean isReadOnly( String username ) 
+        throws AccessControlException;
 
     /**
      * Mailbox Events are used to inform registered listeners of events in the
@@ -251,8 +250,8 @@ public interface Mailbox extends Configurable, Composer {
      * Example if mail is delivered to an Inbox or if another user appends/ 
      * deletes a message.
      */
-    public void addMailboxEventListener(MailboxEventListener mel) ;
-    public void removeMailboxEventListener(MailboxEventListener mel);
+    void addMailboxEventListener( MailboxEventListener mel );
+    void removeMailboxEventListener( MailboxEventListener mel );
 
     /**
      * Stores a message in this mailbox. User must have insert rights.
@@ -263,9 +262,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AccessControlException if username does not have lookup rights for this mailbox.
      * @throws AuthorizationException if username has lookup rights but does not have insert rights.
      */
-    public boolean store(MimeMessage message, String username)
-	throws AccessControlException, AuthorizationException,
-	       IllegalArgumentException ;
+    boolean store( MimeMessage message, String username )
+        throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Stores a message in this mailbox, using passed MessageAttributes and
@@ -281,10 +279,11 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if username has lookup rights but does
      * not have insert rights.
      */
-    public boolean store(MimeMessage message, String username,
-			 MessageAttributes attrs, Flags flags)
-	throws AccessControlException, AuthorizationException,
-	       IllegalArgumentException ;
+    boolean store( MimeMessage message, 
+                   String username,
+                   MessageAttributes attrs, 
+                   Flags flags )
+        throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Retrieves a message given a message sequence number.
@@ -298,8 +297,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public EnhancedMimeMessage retrieve(int msn, String user)
-	throws AccessControlException, AuthorizationException ;
+    EnhancedMimeMessage retrieve( int msn, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Retrieves a message given a unique identifier.
@@ -313,8 +312,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public EnhancedMimeMessage retrieveUID(int uid, String user)
-	throws AccessControlException, AuthorizationException ;
+    EnhancedMimeMessage retrieveUID( int uid, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Marks a message for deletion given a message sequence number.
@@ -327,9 +326,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public boolean markDeleted(int msn, String user)
-	throws AccessControlException, AuthorizationException ;
-
+    boolean markDeleted( int msn, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Marks a message for deletion given a unique identifier.
@@ -343,8 +341,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public boolean markDeletedUID(int uid, String user)
-	throws AccessControlException, AuthorizationException ;
+    boolean markDeletedUID( int uid, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Returns the message attributes for a message.
@@ -359,8 +357,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public MessageAttributes getMessageAttributes(int msn, String user)
-	throws AccessControlException, AuthorizationException ;
+    MessageAttributes getMessageAttributes( int msn, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Returns the message attributes for a message.
@@ -375,8 +373,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public MessageAttributes getMessageAttributesUID(int uid, String user)
-	throws AccessControlException, AuthorizationException ;
+    MessageAttributes getMessageAttributesUID( int uid, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Updates the attributes of a message.
@@ -387,9 +385,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public boolean updateMessageAttributes(MessageAttributes attrs, String user)
-	throws AccessControlException, AuthorizationException ;
-
+    boolean updateMessageAttributes( MessageAttributes attrs, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Get the IMAP-formatted String of flags for specified message.
@@ -402,8 +399,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public String getFlags(int msn, String user)
-	throws AccessControlException, AuthorizationException;
+    String getFlags( int msn, String user )
+        throws AccessControlException, AuthorizationException;
 
    /**
      * Get the IMAP-formatted String of flags for specified message.
@@ -416,10 +413,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    public String getFlagsUID(int uid, String user)
-	throws AccessControlException, AuthorizationException;
-
-
+    String getFlagsUID(int uid, String user)
+        throws AccessControlException, AuthorizationException;
     
     /**
      * Updates the flags of a message. 
@@ -432,8 +427,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public boolean setFlags(int msn, String user, String request)
-	throws AccessControlException, AuthorizationException, IllegalArgumentException ;
+    boolean setFlags( int msn, String user, String request )
+        throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Updates the flags of a message. 
@@ -446,10 +441,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public boolean setFlagsUID(int uid, String user, String request)
-	throws AccessControlException, AuthorizationException, IllegalArgumentException ;
-
-
+    boolean setFlagsUID( int uid, String user, String request )
+        throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Returns the Internet Headers for a message.  These are the top-level
@@ -466,9 +459,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public InternetHeaders getInternetHeaders(int msn, String user)
-	throws AccessControlException, AuthorizationException ;
-
+    InternetHeaders getInternetHeaders( int msn, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Returns the Internet Headers for a message.  These are the top-level
@@ -485,16 +477,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has lookup rights but does not
      * have delete rights.
      */
-    public InternetHeaders getInternetHeadersUID(int uid, String user)
-	throws AccessControlException, AuthorizationException ;
-
-
-
-
-
-
-
-
+    InternetHeaders getInternetHeadersUID( int uid, String user )
+        throws AccessControlException, AuthorizationException;
 
     /**
      * Removes all messages marked Deleted.  User must have delete rights.
@@ -506,8 +490,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AuthorizationException if user has delete rights but does not
      * have delete rights.
      */
-    public boolean expunge(String user)
-	throws AccessControlException, AuthorizationException, IllegalArgumentException ;
+    boolean expunge( String user )
+        throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Establishes if specified user has lookup rights for this mailbox.
@@ -515,7 +499,7 @@ public interface Mailbox extends Configurable, Composer {
      * @param username String represnting user
      * @returns true if user has at least lookup rights
      */
-    public boolean hasLookupRights(String user);
+    boolean hasLookupRights( String user );
 	
     /**
      * Establishes if specified user has create rights for this mailbox.
@@ -525,8 +509,8 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      */
-    public boolean hasCreateRights(String user)
-	throws AccessControlException;
+    boolean hasCreateRights( String user )
+        throws AccessControlException;
 
     /**
      * Lists uids of messages in mailbox indexed by MSN.
@@ -536,8 +520,7 @@ public interface Mailbox extends Configurable, Composer {
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      */
-    public List listUIDs(String user);
-
+    List listUIDs( String user );
 
     /**
      * Returns true once this Mailbox has been checkpointed.
@@ -546,7 +529,7 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @returns true if check completes normally, false otherwise.
      */
-    public boolean checkpoint();
+    boolean checkpoint();
 
     /**
      * Mark this mailbox as not selectable by anyone. 
@@ -554,17 +537,16 @@ public interface Mailbox extends Configurable, Composer {
      *
      * @param state true if folder is not selectable by anyone
      */
-    public void setNotSelectableByAnyone(boolean state);
+    void setNotSelectableByAnyone( boolean state );
 
-    public boolean isNotSelectableByAnyone();
+    boolean isNotSelectableByAnyone();
 
     /**
      * Gets map of users to number of unseen messages. User key will only be
      * present if getOldestUnseen() has been called, usually as a result of
      * an IMAP SELECT or EXAMINE.
      */
-    public Map getUnseenByUser() ;
-
+    Map getUnseenByUser();
 }
  
 

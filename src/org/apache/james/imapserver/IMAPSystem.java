@@ -9,8 +9,11 @@
 package org.apache.james.imapserver;
 
 import java.util.Iterator;
-import org.apache.avalon.*;
-//import org.apache.phoenix.Service;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.configuration.Configurable;
 
 import org.apache.james.AuthenticationException;
 
@@ -29,18 +32,17 @@ import org.apache.james.AuthenticationException;
 
 public interface IMAPSystem extends Configurable, Contextualizable, Composer {
 
-
-    public static final String IMAP_SYSTEM = "IMAP_SYSTEM";
-    public static final String PRIVATE = "Private";
-    public static final String OTHER_USERS = "OtherUsers";
-    public static final String SHARED = "Shared";
+    String IMAP_SYSTEM = "IMAP_SYSTEM";
+    String PRIVATE = "Private";
+    String OTHER_USERS = "OtherUsers";
+    String SHARED = "Shared";
 
     /**
      * Returns the token indicating a namespace.  Implementation dependent but
      * by convention, '#'.
      * Example: #news.org.apache vs #mail.org.apache
      */
-    public String getNamespaceToken();
+    String getNamespaceToken();
 
 
     /**
@@ -54,8 +56,8 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      * @throws AuthenticationException if this System does not recognise
      * the user.
      */
-    public String getHomeServer(String username)
-	throws AuthenticationException;
+    String getHomeServer( String username )
+        throws AuthenticationException;
 
 
     /**
@@ -68,8 +70,7 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      * @param namespace String identifying a namespace
      * @returns char, usually '.', '/', or '\'
      */
-    public String getHierarchySeperator(String namespace);
-
+    String getHierarchySeperator( String namespace );
 
     /**
      * Provides the set of namesapces a given user can access. Implementations
@@ -82,8 +83,7 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      * <personal namespaces(s)> space <other users' namespace(s)> space
      * <shared namespace(s)>, per RFC2342
      */
-    public String getNamespaces(String username);
-
+    String getNamespaces( String username );
 
     /**
      * Returns an iterator over the collection of servers on which this user
@@ -93,6 +93,5 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      * @param username String identifying a user
      * @return iterator over a collection of strings
      */
-    public Iterator getAccessibleServers(String username);
-
+    Iterator getAccessibleServers( String username );
 }
