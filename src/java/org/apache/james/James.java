@@ -53,8 +53,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.11 $
- * Committed on $Date: 2001/09/25 16:27:07 $ by: $Author: charlesb $
+ * This is $Revision: 1.12 $
+ * Committed on $Date: 2001/10/25 03:08:41 $ by: $Author: serge $
  */
 public class James
     extends AbstractLoggable
@@ -284,20 +284,18 @@ public class James
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
             throws MessagingException {
-        //FIX ME!!! we should validate here MimeMessage.  - why? (SK)
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
             throws MessagingException {
-        //FIX ME!!! we should validate here MimeMessage. - why? (SK)
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         mail.setState(state);
         sendMail(mail);
     }
 
-    public synchronized void sendMail(MailAddress sender, Collection recipients, InputStream msg)
-        throws MessagingException {
+    public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
+            throws MessagingException {
         // parse headers
         MailHeaders headers = new MailHeaders(msg);
 
@@ -305,12 +303,11 @@ public class James
         if (!headers.isValid()) {
             throw new MessagingException("Some REQURED header field is missing. Invalid Message");
         }
-        // headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
         sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
 
-    public synchronized void sendMail(Mail mail) throws MessagingException {
+    public void sendMail(Mail mail) throws MessagingException {
         MailImpl mailimpl = (MailImpl)mail;
         try {
             spool.store(mailimpl);
