@@ -110,12 +110,13 @@ All these package are in current distribution.
     <echo message=" available targets are:"/>
     <echo message=""/>
     <echo message="   block-archive  --> generates the James.bar file (default)"/>
-    <echo message="   auxiliary-jars  --> generates the mailet.jar"/>
-    <echo message="   compile  --> compiles the source code"/>
-    <echo message="   dist     --> generates the JAMES distribution"/>
-    <echo message="   clean    --> cleans up the directory"/>
-    <echo message="   javadoc  --> creates the Javadoc"/>
-    <echo message="   javadocmailet --> creates the Javadoc for the mailet API"/>
+    <echo message="   auxiliary-jars --> generates the mailet.jar"/>
+    <echo message="   compile        --> compiles the source code"/>
+    <echo message="   dist           --> generates the JAMES distribution"/>
+    <echo message="   clean          --> cleans up the directory"/>
+    <echo message="   docs           --> created the documentaion for James"/>
+    <echo message="   javadoc        --> creates the Javadoc"/>
+    <echo message="   javadocmailet  --> creates the Javadoc for the mailet API"/>
     <echo message=""/>
     <echo message=" See the comments inside the build.xml file for more details."/>
     <echo message="-------------------------------------------------------------"/>
@@ -333,7 +334,9 @@ All these package are in current distribution.
         />
   </target>
 
-
+  <!-- =================================================================== -->
+  <!-- Generates the documentation for James                               -->
+  <!-- =================================================================== -->
   <target name="docs" depends="prepare-error" if="AnakiaTask.present">
     <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
     <anakia basedir="${docs.src}" destdir="${docs.dest}/"
