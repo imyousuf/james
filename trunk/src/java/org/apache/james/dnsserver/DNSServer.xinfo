@@ -1,17 +1,15 @@
 <?xml version="1.0"?>
 
 <blockinfo>
-  <meta>
-    <contributors>
-        <author name="Serge" email="sergek@lokitech.com"/>
-        <author name="Harmeet" email="harmeet@kodemuse.com"/>
-    </contributors>
-  </meta>
 
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
+
+  <!-- services that are offered by this block -->
   <services>
     <service name="org.apache.james.services.DNSServer" version="1.0"/>
   </services>
 
-  <dependencies>
-  </dependencies>  
 </blockinfo>

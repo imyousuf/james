@@ -2,13 +2,10 @@
 
 <blockinfo>
 
-  <meta>
-
-    <contributors>
-      <author name="Charles Benett" email="charles@benett1.demon.co.uk"/>
-    </contributors>
-
-  </meta>
+  <!-- section to describe block -->
+  <block>
+    <version>1.0</version>
+  </block>
 
   <!-- services that are offered by this block -->
   <services>
@@ -17,11 +14,9 @@
 
   <dependencies>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.store.Store</role>
       <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
     </dependency>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.datasource.DataSourceSelector</role>
       <service name="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" version="1.0"/>
     </dependency>
   </dependencies>

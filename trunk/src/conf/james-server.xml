@@ -51,25 +51,6 @@
 
     </logs>
 
-    <threads>
-      <thread-group>
-        <name>default</name>
-
-        <!-- normal priority == 5, max-priority = 10 -->
-        <priority>5</priority> 
-
-        <!-- are threads deamon threads ? -->
-        <is-daemon>false</is-daemon>
-
-        <max-threads>40</max-threads>
-        <!-- these are ignored at the moment but will be fixed in later revisions -->
-        <min-threads>20</min-threads>
-        <min-spare-threads>20</min-spare-threads>
-
-      </thread-group>
-
-    </threads>
-
     <policy>
       <grant code-base="file:${app.home}${/}blocks${/}*">
         <permission class="java.security.AllPermission" />

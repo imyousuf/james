@@ -109,10 +109,10 @@ Legal:
   <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20010919.jar"/>
   <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20010919.jar"/>
   <property name="logkit.jar" value="${lib.dir}/logkit-20010912.jar"/>
-  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20010919.bar"/>
-  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20010919.jar"/>
-  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20010919.jar"/>
-  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20010919.jar"/>
+  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20010925.bar"/>
+  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20010925.jar"/>
+  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20010925.jar"/>
+  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20010925.jar"/>
   <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20010919.jar"/>
 
   <!--
