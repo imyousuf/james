@@ -62,6 +62,7 @@ public class ExtraDotOutputStream extends FilterOutputStream {
                 }
                 break;
             default:
+				// we're  no longer at the start of a line
                 countLast0A0D = 0;
                 break;
         }
