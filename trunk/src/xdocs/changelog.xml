@@ -44,6 +44,7 @@
 <li>[SS4] (code) DNS service can auto-discover DNS servers</li>
 <li>[SS4] (code) return an unmodifiable Collection from findMXRecords()</li>
 <li>[SS4] (code) Added some more logging to DNS service</li>
+<li>[SH] (code) Implemented MailetConfig.getInitParameterNames()</li>
 </section>
 
 <section name="Version 2.1.3">
