@@ -138,14 +138,13 @@ All these package are in current distribution.
            optimize="${optimize}"
            deprecation="${deprecation}"/>
 
-    <copydir src="${build.src}" dest="${build.classes}">
-      <include name="**/*.properties"/>
-      <include name="**/*.xinfo"/>
-    </copydir>
-<!--
-    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml"
-              dest="${build.dest}/conf/${name}.conf.xml"/>
--->
+    <copy todir="${build.classes}">
+      <fileset dir="${build.src}">
+        <include name="**/*.properties"/>
+        <include name="**/*.xinfo"/>
+      </fileset>
+    </copy>
+
   </target>
 
   <!-- =================================================================== -->
@@ -153,16 +152,12 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <target name="block-archive" depends="compile">
     <jar jarfile="${build.dir}/${name}.bar" basedir="${build.classes}">
-<!--
-     manifest="${build.src}/Manifest.mf">
--->
-        <include name="org/**"/>
+       <include name="org/**"/>
 
-      <fileset dir="${build.BARINF}" prefix="BAR-INF/">
-        <include name="${conf.file}"/>
-        <include name="${blockdefs.file}"/>
-      </fileset>
-  
+       <fileset dir="${build.BARINF}" prefix="BAR-INF/">
+         <include name="${conf.file}"/>
+         <include name="${blockdefs.file}"/>
+       </fileset>
     </jar>
   </target>
 
@@ -170,7 +165,8 @@ All these package are in current distribution.
   <!-- Creates the mailet.jar                                              -->
   <!-- =================================================================== -->
   <target name="auxiliary-jars" depends="compile">
-    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
+    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}"
+         manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
   <!-- =================================================================== -->
@@ -185,9 +181,12 @@ All these package are in current distribution.
     <mkdir dir="${dist.dir}/conf"/>
     <mkdir dir="${dist.dir}/docs"/>
 
-    <copydir src="${build.src}" dest="${dist.dir}/src" excludes="james.conf.xml"/>
-    <copydir src="./docs/" dest="${dist.dir}/docs"/>
-
+    <copy todir="${dist.dir}/src">
+      <fileset dir="${build.src}" excludes="james.conf.xml"/>
+    </copy>
+    <copy todir="${dist.dir}/docs">
+      <fileset dir="./docs/"/>
+    </copy>
     <copyfile src="${build.dir}/${name}.bar" dest="${dist.dir}/bin/blocks/${name}.bar"/>
     <copyfile src="./lib/avalon-core-blocks.bar" dest="${dist.dir}/bin/blocks/avalon-core-blocks.bar"/>
     <copyfile src="./lib/avalon-engine.jar" dest="${dist.dir}/bin/avalon-engine.jar"/>
