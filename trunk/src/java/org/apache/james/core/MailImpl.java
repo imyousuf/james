@@ -87,7 +87,7 @@ import org.apache.mailet.RFC2822Headers;
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple
  * API enhancements.
- * @version 0.9
+ * @version CVS $Revision: 1.26 $ $Date: 2003/07/15 10:11:58 $
  */
 public class MailImpl implements Disposable, Mail {
     /**
@@ -238,6 +238,7 @@ public class MailImpl implements Disposable, Mail {
             newMail.setRemoteHost(remoteHost);
             newMail.setRemoteAddr(remoteAddr);
             newMail.setLastUpdated(lastUpdated);
+            newMail.setAttributesRaw((HashMap) attributes.clone());
             return newMail;
         } catch (MessagingException me) {
             // Ignored.  Return null in the case of an error.
@@ -569,6 +570,30 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
+     * This method is necessary, when Mail repositories needs to deal
+     * explicitly with storing Mail attributes as a Serializable
+     * Note: This method is not exposed in the Mail interface,
+     * it is for internal use by James only.
+     * @return Serializable of the entire attributes collection
+     **/
+    public HashMap getAttributesRaw ()
+    {
+        return attributes;
+    }
+    
+    /**
+     * This method is necessary, when Mail repositories needs to deal
+     * explicitly with retriving Mail attributes as a Serializable
+     * Note: This method is not exposed in the Mail interface,
+     * it is for internal use by James only.
+     * @return Serializable of the entire attributes collection
+     **/
+    public void setAttributesRaw (HashMap attr)
+    {
+        this.attributes = (attr == null) ? new HashMap() : attr;
+    }
+
+    /**
      * @see org.apache.mailet.Mail#getAttribute(String)
      */
     public Serializable getAttribute(String key) {
@@ -587,9 +612,21 @@ public class MailImpl implements Disposable, Mail {
         return (Serializable)attributes.remove(key);
     }
     /**
+     * @see org.apache.mailet.Mail#removeAllAttributes()
+     */
+    public void removeAllAttributes() {
+        attributes.clear();
+    }
+    /**
      * @see org.apache.mailet.Mail#getAttributeNames()
      */
     public Iterator getAttributeNames() {
         return attributes.keySet().iterator();
+    }
+    /**
+     * @see org.apache.mailet.Mail#hasAttributes()
+     */
+    public boolean hasAttributes() {
+        return !attributes.isEmpty();
     }
 }
