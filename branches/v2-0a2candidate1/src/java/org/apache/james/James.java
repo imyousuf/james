@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.15 $
- * Committed on $Date: 2001/12/07 21:53:27 $ by: $Author: serge $
+ * This is $Revision: 1.15.2.1 $
+ * Committed on $Date: 2002/02/04 10:04:09 $ by: $Author: danny $
  */
 public class James
     extends AbstractLoggable
@@ -141,7 +141,7 @@ public class James
         serverNames = new Vector();
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
-            serverNames.add(hostName);
+            serverNames.add(hostName.toLowerCase());
         }
 
         final Configuration[] serverNameConfs =
@@ -444,7 +444,7 @@ public class James
     }
 
     public boolean isLocalServer( final String serverName ) {
-        return serverNames.contains( serverName );
+        serverNames.contains(serverName.toLowerCase());
     }
 
     public String getServerInfo() {
