@@ -57,9 +57,20 @@ public abstract class GenericListserv extends GenericMailet {
     }
 
     /**
-     * An optional subject prefix which will be surrounded by [].
+     * An optional subject prefix.
      */
     public abstract String getSubjectPrefix() throws MessagingException;
+
+    /**
+     * Should the subject prefix be automatically surrounded by [].
+     *
+     * @return whether the subject prefix will be surrounded by []
+     *
+     * @throws MessagingException never, for this implementation
+     */
+    public boolean isPrefixAutoBracketed() throws MessagingException {
+        return true; // preserve old behavior unless subclass overrides.
+    }
 
     /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
@@ -105,13 +116,16 @@ public abstract class GenericListserv extends GenericMailet {
             }
 
             //Set the subject if set
-            if (getSubjectPrefix() != null) {
-                StringBuffer prefixBuffer =
-                    new StringBuffer(64)
-                        .append("[")
-                        .append(getSubjectPrefix())
-                        .append("]");
-                String prefix = prefixBuffer.toString();
+            String prefix = getSubjectPrefix();
+            if (prefix != null) {
+                if (isPrefixAutoBracketed()) {
+                    StringBuffer prefixBuffer =
+                        new StringBuffer(64)
+                            .append("[")
+                            .append(prefix)
+                            .append("]");
+                    prefix = prefixBuffer.toString();
+                }
                 String subj = message.getSubject();
                 if (subj == null) {
                     subj = "";
