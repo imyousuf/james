@@ -42,18 +42,24 @@ public class ExtraDotOutputStream extends FilterOutputStream {
      */
     public void write(int b) throws IOException {
         out.write(b);
-        if (b == '.') {
-            if (countLast0A0D > 1) {
-                // add extra dot
-                out.write('.');
-            }
-            countLast0A0D = 0;
-        } else {
-            if (b == '\r' || b == '\n') {
-                countLast0A0D++;
-            } else {
+        switch (b) {
+            case '.':
+                if (countLast0A0D == 2) {
+                    // add extra dot
+                    out.write('.');
+                }
                 countLast0A0D = 0;
-            }
+                break;
+            case '\r':
+                countLast0A0D = 1;
+                break;
+            case '\n':
+                if (countLast0A0D == 1) {
+                    countLast0A0D = 2;
+                } else {
+                    countLast0A0D = 0;
+                }
+                break;
         }
     }
 
