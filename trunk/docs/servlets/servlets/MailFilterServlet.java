@@ -3,7 +3,7 @@
  */
 
 import javax.servlet.*;
-import javax.servlet.mail.*;
+import org.apache.servlet.mail.*;
 import java.io.*;
 
 /**
