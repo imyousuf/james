@@ -22,7 +22,7 @@ public class SenderInFakeDomain extends GenericMatcher {
 
     public Collection match(Mail mail) {
         if (mail.getSender() == null) {
-            return mail.getRecipients();
+            return null;
         }
         String domain = mail.getSender().getHost();
         //DNS Lookup for this domain
