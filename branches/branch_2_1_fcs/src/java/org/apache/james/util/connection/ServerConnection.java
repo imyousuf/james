@@ -93,8 +93,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
  * The connection manager will spawn a single ServerConnection for each
  * server socket that the connection manager is managing.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class ServerConnection extends AbstractLogEnabled
     implements Component, Initializable, Runnable {
@@ -103,7 +101,7 @@ public class ServerConnection extends AbstractLogEnabled
      * This is a hack to deal with the fact that there appears to be
      * no platform-independent way to break out of a ServerSocket
      * accept() call.  On some platforms closing either the ServerSocket
-     * itself, or its associated InputStream, causes the accept 
+     * itself, or its associated InputStream, causes the accept
      * method to exit.  Unfortunately, this behavior is not consistent
      * across platforms.  The deal with this, we introduce a polling
      * loop of 20 seconds for the server socket.  This introduces a
@@ -153,12 +151,7 @@ public class ServerConnection extends AbstractLogEnabled
     /**
      * A collection of client connection runners.
      */
-    private final ArrayList clientConnectionRunners = new ArrayList();    
-
-    /**
-     * The current number of open client connections.
-     */
-     private int openConnections = 0;
+    private final ArrayList clientConnectionRunners = new ArrayList();
 
     /**
      * The thread used to manage this server connection.
@@ -200,7 +193,7 @@ public class ServerConnection extends AbstractLogEnabled
     }
 
     /**
-     * The dispose operation is called by the owning ConnectionManager 
+     * The dispose operation is called by the owning ConnectionManager
      * at the end of its lifecycle.  Cleans up the server connection, forcing
      * everything to finish.
      */
@@ -221,7 +214,7 @@ public class ServerConnection extends AbstractLogEnabled
                 try {
                     serverSocket.close();
                 } catch (IOException ie) {
-                    // Ignored - we're doing this to break out of the 
+                    // Ignored - we're doing this to break out of the
                     // accept.  This minimizes the time required to
                     // shutdown the server.  Unfortunately, this is
                     // not guaranteed to work on all platforms.  See
@@ -253,7 +246,6 @@ public class ServerConnection extends AbstractLogEnabled
                 runner = null;
             }
             clientConnectionRunners.clear();
-            openConnections = 0;
         }
 
         getLogger().debug("Cleaned up clients - " + this.toString());
@@ -270,9 +262,8 @@ public class ServerConnection extends AbstractLogEnabled
         synchronized (clientConnectionRunners) {
             ClientConnectionRunner clientConnectionRunner = (ClientConnectionRunner)runnerPool.get();
             clientConnectionRunners.add(clientConnectionRunner);
-            openConnections++;
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Adding one connection for a total of " + openConnections);
+                getLogger().debug("Adding one connection for a total of " + clientConnectionRunners.size());
             }
             return clientConnectionRunner;
         }
@@ -286,9 +277,8 @@ public class ServerConnection extends AbstractLogEnabled
     private void removeClientConnectionRunner(ClientConnectionRunner clientConnectionRunner) {
         synchronized (clientConnectionRunners) {
             if (clientConnectionRunners.remove(clientConnectionRunner)) {
-                openConnections--;
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Releasing one connection, leaving a total of " + openConnections);
+                    getLogger().debug("Releasing one connection, leaving a total of " + clientConnectionRunners.size());
                 }
                 runnerPool.put(clientConnectionRunner);
             }
@@ -340,9 +330,16 @@ public class ServerConnection extends AbstractLogEnabled
                 }
                 ClientConnectionRunner runner = null;
                 synchronized (clientConnectionRunners) {
-                    if ((maxOpenConn > 0) && (openConnections >= maxOpenConn)) {
+                    if ((maxOpenConn > 0) && (clientConnectionRunners.size() >= maxOpenConn)) {
                         if (getLogger().isWarnEnabled()) {
-                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + openConnections);
+                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
+                           if (getLogger().isWarnEnabled()) {
+                               Iterator runnerIterator = clientConnectionRunners.iterator();
+                               getLogger().info("Connections: ");
+                               while( runnerIterator.hasNext() ) {
+                                   getLogger().info("    " + ((ClientConnectionRunner)runnerIterator.next()).toString());
+                               }
+                           }
                         }
                         try {
                             clientSocket.close();
@@ -391,8 +388,6 @@ public class ServerConnection extends AbstractLogEnabled
      * An inner class to provide the actual body of the thread of execution
      * that occurs upon a client connection.
      *
-     * @author Andrei Ivanov
-     * @author Peter M. Goldstein <farsight@alum.mit.edu>
      */
     class ClientConnectionRunner extends AbstractLogEnabled
         implements Component, Poolable, Runnable  {
@@ -406,6 +401,13 @@ public class ServerConnection extends AbstractLogEnabled
          * The thread of execution associated with this client connection.
          */
         private Thread clientSocketThread;
+
+        /**
+         * Returns string for diagnostic logging
+         */
+        public String toString() {
+            return getClass().getName() + " for " + clientSocket + " on " + clientSocketThread;
+        }
 
         public ClientConnectionRunner() {
         }
@@ -444,8 +446,8 @@ public class ServerConnection extends AbstractLogEnabled
 
         /**
          * Provides the body for the thread of execution dealing with a particular client
-         * connection.  An appropriate ConnectionHandler is created, applied, executed, 
-         * and released. 
+         * connection.  An appropriate ConnectionHandler is created, applied, executed,
+         * and released.
          */
         public void run() {
             ConnectionHandler handler = null;
