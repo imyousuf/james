@@ -31,8 +31,6 @@ import java.util.HashMap;
  * Provides a registry of mail repositories. A mail repository is uniquely
  * identified by its destinationURL, type and model.
  *
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class AvalonMailStore
     extends AbstractLogEnabled

@@ -20,10 +20,6 @@ import java.util.Iterator;
  * method.
  *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri   <scoobie@pop.systemy.it>
- * @author  Stefano Mazzocchi   <stefano@apache.org>
- * @author  Pierpaolo Fumagalli <pier@apache.org>
- * @author  Serge Knystautas    <sergek@lokitech.com>
  */
 public abstract class GenericMailet implements Mailet, MailetConfig {
     private MailetConfig config = null;

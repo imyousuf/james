@@ -24,7 +24,6 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * This is based on a sample filter.cfg for a Netscape Mail Server to stop
  * spam.
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class NESSpamCheck extends GenericMatcher {
 

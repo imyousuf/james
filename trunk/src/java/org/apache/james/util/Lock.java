@@ -12,7 +12,6 @@ import java.util.Hashtable;
 /**
  * Provides Lock functionality
  *
- * @author Federico Barbieri <fede@apache.org>
  */
 public class Lock {
     /**

@@ -13,7 +13,6 @@ import org.apache.mailet.Mail;
 /**
  * Opposite of Null Mailet. It let any incoming mail untouched. Used only for
  * debugging.
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class Identity extends GenericMailet {
 

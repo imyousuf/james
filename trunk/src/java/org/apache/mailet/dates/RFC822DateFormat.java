@@ -15,8 +15,6 @@ import javax.mail.internet.MailDateFormat;
 /**
  * A thread safe wrapper for the <code>javax.mail.internet.MailDateFormat</code> class.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RFC822DateFormat extends SynchronizedDateFormat {
     /**

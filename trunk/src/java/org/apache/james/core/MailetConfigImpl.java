@@ -17,7 +17,6 @@ import java.util.Iterator;
 /**
  * Implements the configuration object for a Mailet.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailetConfigImpl implements MailetConfig {
 

@@ -14,7 +14,6 @@ import java.io.InputStream;
   * Wraps an underlying input stream, limiting the allowable size
   * of incoming data. The size limit is configured in the conf file,
   * and when the limit is reached, a MessageSizeException is thrown.
-  * @author Matthew Pangaro <mattp@lokitech.com>
   */
 public class SizeLimitedInputStream extends InputStream {
     /**

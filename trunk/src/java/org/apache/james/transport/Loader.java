@@ -20,9 +20,8 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 /**
- * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *
- * $Id: Loader.java,v 1.2 2003/01/12 22:38:32 serge Exp $
+ * $Id: Loader.java,v 1.3 2003/01/14 13:41:55 serge Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;

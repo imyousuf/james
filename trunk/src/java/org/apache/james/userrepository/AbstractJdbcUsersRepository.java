@@ -59,7 +59,6 @@ import org.apache.mailet.User;
  * <TR><TD>selectByLowercaseName</TD><TD>Select a user by name (case-insensitive lowercase).</TD></TR>
  * </TABLE>
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
     implements Contextualizable, Composable, Configurable, Initializable

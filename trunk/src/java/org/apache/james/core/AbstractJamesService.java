@@ -38,8 +38,6 @@ import org.apache.james.util.watchdog.WatchdogFactory;
  * Server which creates connection handlers. All new James service must inherit
  * from this abstract implementation.
  *
- * @author <a href="mailto:myfam@surfeu.fi">Andrei Ivanov</a>
- * @author <a href="farsight@alum.mit.edu">Peter M. Goldstein</a>
  */
 public abstract class AbstractJamesService extends AbstractHandlerFactory
     implements Component,Composable,Configurable,Disposable,Initializable,

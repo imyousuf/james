@@ -60,10 +60,8 @@ import org.apache.mailet.SpoolRepository;
  *
  * as well as other places.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.39 $
+ * This is $Revision: 1.40 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 

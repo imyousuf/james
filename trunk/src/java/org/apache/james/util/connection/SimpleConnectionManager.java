@@ -32,8 +32,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * idle timeouts and a configurable value for the maximum number of
  * client connections to a particular port.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class SimpleConnectionManager extends AbstractLogEnabled
     implements ConnectionManager, Composable, Configurable, Disposable {

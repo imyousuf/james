@@ -24,7 +24,6 @@ import org.apache.mailet.MailetContext;
  * spool processor.  All recipients mapped to postmaster@<servernames> are
  * changed to the postmaster account as specified in the server conf.
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class PostmasterAlias extends GenericMailet {
 

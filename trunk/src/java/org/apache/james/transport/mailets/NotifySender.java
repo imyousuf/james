@@ -41,9 +41,6 @@ import org.apache.mailet.dates.RFC822DateFormat;
  *   <notice>Notice attached to the message (optional)</notice>
  * </mailet>
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
- * @author  Ivan Seskar <iseskar@upsideweb.com>
- * @author  Danny Angus <danny@thought.co.uk>
  */
 public class NotifySender extends GenericMailet {
 

@@ -185,7 +185,6 @@ import org.apache.mailet.dates.RFC822DateFormat;
 *&lt;static&gt;TRUE&lt;/static&gt;<BR>
 *&lt;/mailet&gt;</P>
  *
- * @author  Danny Angus   <danny@thought.co.uk>
  *
  */
 public class Redirect extends GenericMailet {

@@ -13,7 +13,6 @@ import javax.mail.MessagingException;
  * Defines a general exception a mailet can throw when it encounters difficulty.
  *
  * @version 1.0.0, 24/04/1999
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailetException extends MessagingException {
 

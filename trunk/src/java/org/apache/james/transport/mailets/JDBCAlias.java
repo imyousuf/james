@@ -40,7 +40,6 @@ import org.apache.mailet.MailetException;
  *   &lt;target_column&gt;target_email_address&lt;/target_column&gt;
  * &lt;/mailet&gt;
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class JDBCAlias extends GenericMailet {
 

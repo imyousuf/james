@@ -13,7 +13,6 @@ import org.apache.mailet.Mail;
 /**
  * Simplest Mailet which destroys any incoming messages.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class Null extends GenericMailet {
 

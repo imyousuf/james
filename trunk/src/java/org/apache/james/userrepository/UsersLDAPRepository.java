@@ -46,7 +46,6 @@ import org.apache.mailet.UsersRepository;
  * This clas is a dummy for the proposal!
  *
  * @version 1.0.0, 24/04/1999
- * @author  Charles Bennett
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled

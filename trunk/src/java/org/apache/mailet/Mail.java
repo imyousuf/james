@@ -18,8 +18,6 @@ import java.util.Date;
  * which processor in the mailet container it is currently running.
  * Special processor names are "root" and "error".
  *
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
  * @version 0.9
  */
 public interface Mail extends Serializable, Cloneable {

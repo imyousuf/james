@@ -23,7 +23,6 @@ import java.util.Locale;
  * In other words, "1m" is the same as writing "1024k", which is the same as
  * "1048576".
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class SizeGreaterThan extends GenericMatcher {
 

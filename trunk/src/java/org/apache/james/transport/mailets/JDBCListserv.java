@@ -43,7 +43,6 @@ import org.apache.mailet.MailetException;
  * it to reload for each message, add the init parameter
  * &lt;cache_settings&gt;false&lt;/cache_settings&gt;
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class JDBCListserv extends GenericListserv {
 

@@ -33,8 +33,6 @@ import org.apache.avalon.phoenix.BlockContext;
 /**
  * This an abstract class implementing functionality for creating a file-store.
  *
- * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
 public abstract class AbstractFileRepository
     extends AbstractLogEnabled

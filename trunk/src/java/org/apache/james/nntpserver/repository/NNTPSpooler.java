@@ -29,7 +29,6 @@ import java.util.Properties;
  * Processes entries and sends to appropriate groups.
  * Eats up inappropriate entries.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 class NNTPSpooler extends AbstractLogEnabled
         implements Contextualizable, Configurable, Initializable {

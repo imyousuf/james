@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 /**
  * Contract exposed by a NewsGroup Article
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPArticle {
 

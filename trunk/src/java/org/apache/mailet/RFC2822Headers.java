@@ -10,7 +10,6 @@ package org.apache.mailet;
 /**
  * This utility class provides the set of header names explicitly defined in RFC 2822
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RFC2822Headers  {
 

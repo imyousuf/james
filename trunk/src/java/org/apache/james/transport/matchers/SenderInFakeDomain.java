@@ -17,7 +17,6 @@ import java.util.Collection;
  * there are no entries, the domain is considered fake and the match is
  * successful.
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class SenderInFakeDomain extends GenericMatcher {
 

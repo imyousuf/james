@@ -39,16 +39,10 @@ import java.net.UnknownHostException;
  *
  * <p>Also responsible for loading and parsing SMTP specific configuration.</p>
  *
- * @version 1.1.0, 06/02/2001
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  Matthew Pangaro <mattp@lokitech.com>
- * @author  <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- */
-/*
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
+ *
+ * @version 1.1.0, 06/02/2001
  */
 public class SMTPServer extends AbstractJamesService implements Component {
 

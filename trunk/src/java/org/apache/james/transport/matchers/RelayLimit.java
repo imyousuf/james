@@ -18,7 +18,6 @@ import java.util.Enumeration;
 
 /**
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  * @version 1.0.0, 1/5/2000
  */
 

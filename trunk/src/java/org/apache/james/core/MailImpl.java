@@ -34,9 +34,6 @@ import org.apache.mailet.RFC2822Headers;
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple
  * API enhancements.
- * @author Federico Barbieri <scoobie@systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
  * @version 0.9
  */
 public class MailImpl implements Disposable, Mail {

@@ -46,10 +46,6 @@ import javax.mail.internet.ParseException;
  * http://www.freesoft.org/CIE/RFC/821/15.htm</p>
  *
  * @version 1.0
- * @author Roberto Lo Giacco <rlogiacco@mail.com>
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Gabriel Bucher <gabriel.bucher@razor.ch>
- * @author Stuart Roebuck <stuart.roebuck@adolos.com>
  */
 public class MailAddress implements java.io.Serializable {
     //We hardcode the serialVersionUID so that from James 1.2 on,

@@ -51,8 +51,6 @@ import java.util.Collection;
  * and copyright.
  *
  * @version 1.0.0, 24/04/1999
- * @author Federico Barbieri <scoobie@pop.systemy.it>
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public interface Matcher {
 

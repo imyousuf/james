@@ -22,7 +22,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
  * This class is a factory to produce Watchdogs, each of which is associated
  * with a single thread.
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class ThreadPerWatchdogFactory
     extends AbstractLogEnabled

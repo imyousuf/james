@@ -13,7 +13,6 @@ import org.apache.mailet.MatcherConfig;
 /**
  * Implements the configuration object for a Matcher.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MatcherConfigImpl implements MatcherConfig {
 

@@ -28,7 +28,6 @@ import java.util.Iterator;
 /**
  * Provides a registry of user repositories.
  *
- * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled

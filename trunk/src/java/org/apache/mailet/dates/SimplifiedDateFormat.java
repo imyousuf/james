@@ -22,7 +22,6 @@ import java.util.TimeZone;
  * rather than inheritance.  In general classes that implement this
  * interface will delegate these calls to an internal DateFormat object.</p>
  *
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public interface SimplifiedDateFormat {
 

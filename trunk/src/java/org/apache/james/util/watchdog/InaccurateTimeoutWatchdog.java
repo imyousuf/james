@@ -19,8 +19,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * the time of the Watchdog trigger is not critical, and a high number
  * of resets are expected.
  *
- * @author Andrei Ivanov
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class InaccurateTimeoutWatchdog
     extends AbstractLogEnabled

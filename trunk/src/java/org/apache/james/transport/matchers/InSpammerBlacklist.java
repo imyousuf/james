@@ -30,7 +30,6 @@ import java.util.StringTokenizer;
  *   &lt;processor&gt;spam&lt;/processor&gt;
  * &lt;/mailet&gt;
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class InSpammerBlacklist extends GenericMatcher {
     String network = null;

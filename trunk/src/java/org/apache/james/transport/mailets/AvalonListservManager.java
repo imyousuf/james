@@ -20,8 +20,7 @@ import org.apache.mailet.UsersRepository;
  * <br>&lt;repositoryName&gt;name of user repository configured in UsersStore block &lt;/repositoryName&gt;
  * <br>&lt;/mailet&gt;
  *
- * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.8 $
+ * @version This is $Revision: 1.9 $
  */
 public class AvalonListservManager extends GenericListservManager {
 

@@ -17,7 +17,6 @@ import java.io.IOException;
  * the data can be streamed into server repository.
  * Handles Dot Stuffing.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPLineReaderImpl implements NNTPLineReader {
 

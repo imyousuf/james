@@ -36,9 +36,6 @@ import org.apache.mailet.UsersRepository;
  *       -add remove user
  *       -much more...
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class RemoteManager
     extends AbstractJamesService implements Component {

@@ -13,7 +13,6 @@ import java.util.Iterator;
 /**
  * Abstraction of entire NNTP Repository.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPRepository {
 

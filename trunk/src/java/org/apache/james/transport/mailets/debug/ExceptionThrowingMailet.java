@@ -16,7 +16,6 @@ import javax.mail.MessagingException;
 /**
  * Debugging purpose Mailet. Just throws an exception.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class ExceptionThrowingMailet extends GenericMailet {
 

@@ -50,7 +50,6 @@ import java.util.Collection;
  * bears the Habeas mark.
  * -----------------------------------
  *
- * @author  Noel J. Bergman <noel@devtech.com>
  */
 
 public class HasHabeasWarrantMark extends GenericMatcher

@@ -58,7 +58,6 @@ import org.apache.mailet.Mail ;
  * That's absolutely perfect!
  * -----------------------------------
  *
- * @author  Noel J. Bergman <noel@devtech.com>
  */
 
 public class AddHabeasWarrantMark extends GenericMailet

@@ -40,7 +40,6 @@ import org.apache.mailet.MailAddress;
  * </pre>
  *
  * @version 1.0.0, 24/11/2000
- * @author Stuart Roebuck <stuart.roebuck@adolos.com>
  */
 public class UseHeaderRecipients extends GenericMailet {
 

@@ -44,8 +44,6 @@ import org.apache.mailet.MailRepository;
  * Requires a logger called MailRepository.
  *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author Charles Benett <charles@benett1.demon.co.uk>
  */
 public class AvalonMailRepository
     extends AbstractLogEnabled

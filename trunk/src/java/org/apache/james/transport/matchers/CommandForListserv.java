@@ -17,7 +17,6 @@ import javax.mail.MessagingException;
  * if my listserv is james@list.working-dogs.com, this matcher will return true
  * for james-on@list.working-dogs.com and james-off@list.working-dogs.com.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class CommandForListserv extends GenericRecipientMatcher {
 

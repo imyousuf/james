@@ -39,7 +39,6 @@ import org.xbill.DNS.Type;
  * inside James
  *
  * @version 1.0.0, 18/06/2000
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class DNSServer
     extends AbstractLogEnabled

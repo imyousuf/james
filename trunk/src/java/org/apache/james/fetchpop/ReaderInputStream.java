@@ -17,8 +17,7 @@ import java.io.Reader;
  *
  *
  * Simple class to allow a cast from a java.io.Reader to a java.io.InputStream<br>
- * <br>$Id: ReaderInputStream.java,v 1.2 2003/01/12 22:38:30 serge Exp $
- * @author <A href="mailto:danny@apache.org">Danny Angus</a>
+ * <br>$Id: ReaderInputStream.java,v 1.3 2003/01/14 13:41:48 serge Exp $
  *
  */
 public class ReaderInputStream extends InputStream {

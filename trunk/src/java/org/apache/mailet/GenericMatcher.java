@@ -20,7 +20,6 @@ import java.util.Collection;
  * <p>To write a generic matcher, you need only override the abstract match method.</p>
  *
  * @version 1.0.0, 24/04/1999
- * @author Serge Knystautas <sergek@lokitech.com>
  */
 public abstract class GenericMatcher implements Matcher, MatcherConfig {
     MatcherConfig config = null;

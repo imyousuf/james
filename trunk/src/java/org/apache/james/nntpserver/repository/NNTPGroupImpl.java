@@ -27,7 +27,6 @@ import java.util.List;
  * Group is represented by a directory.
  * Articles are stored in files with the name of file == article number
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
 

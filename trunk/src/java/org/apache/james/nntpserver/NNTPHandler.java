@@ -44,9 +44,6 @@ import org.apache.mailet.dates.SimplifiedDateFormat;
  *
  * Common NNTP extensions are in RFC 2980.
  *
- * @author Fedor Karpelevitch
- * @author Harmeet <hbedi@apache.org>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class NNTPHandler
     extends AbstractLogEnabled

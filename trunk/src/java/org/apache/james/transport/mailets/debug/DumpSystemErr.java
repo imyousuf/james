@@ -17,7 +17,6 @@ import java.io.IOException;
 /**
  * Debugging purpose Mailet.  Sends the message to System.err
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class DumpSystemErr extends GenericMailet {
 

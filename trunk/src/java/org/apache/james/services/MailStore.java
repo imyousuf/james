@@ -20,10 +20,8 @@ import org.apache.mailet.SpoolRepository;
  * <p>This configuration, including any included child elements, is used to
  * configure the returned component.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.8 $
+ * @version This is $Revision: 1.9 $
  */
 public interface MailStore
     extends Store {

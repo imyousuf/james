@@ -16,9 +16,8 @@ import java.io.InputStreamReader;
 
 /**
  * Simple Base64 string decoding function
- * @author Jason Borden <jborden@javasense.com>
  *
- * @version This is $Revision: 1.5 $
+ * @version This is $Revision: 1.6 $
  */
 
 public class Base64 {

@@ -18,9 +18,8 @@ import java.util.Collection;
  * fetchpop sets X-fetched-by to the "name" of the fetchpop fetch task.<br>
  * This is used to match all mail fetched from a specific pop account.
  * Once the condition is met the header is stripped from the message to prevent looping if the mail is re-inserted into the spool.
- * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *
- * $Id: FetchedFrom.java,v 1.3 2003/01/12 22:38:33 serge Exp $
+ * $Id: FetchedFrom.java,v 1.4 2003/01/14 13:41:58 serge Exp $
  */
 
 public class FetchedFrom extends GenericMatcher {

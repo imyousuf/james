@@ -24,8 +24,6 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * example - convert into java.util.Date: Date usedate = new RFC822Date("3 Oct 2001 08:32:44 -0000").getDate()<br>
  * example - convert to timezone: String yourdate = new RFC822Date("3 Oct 2001 08:32:44 -0000", "GMT+02:00").toString()<br>
  * example - convert to local timezone: String mydate = new RFC822Date("3 Oct 2001 08:32:44 -0000").toString()<br>
- * @author Danny Angus (danny) <Danny@thought.co.uk><br>
- * @author Peter M. Goldstein <farsight@alum.mit.edu><br>
  *
  * @deprecated Use java.util.Date in combination with org.apache.james.util.RFC822DateFormat.
  */

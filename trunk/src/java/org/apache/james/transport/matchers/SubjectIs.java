@@ -15,7 +15,6 @@ import java.util.Collection;
 
 /**
  *
- * @author  Dino Fancellu <dino.fancellu@ntlworld.com>
  * @version 1.0.0, 1/5/2000
  */
 

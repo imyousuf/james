@@ -21,7 +21,6 @@ import java.util.Collection;
  * TODO: support lists of headers and values, e.g, match="{<header>[=value]}+"
  *       [will require a complete rewrite from the current trivial one-liner]
  *
- * @author  Noel J. Bergman <noel@devtech.com>
  */
 public class HasHeader extends GenericMatcher {
 

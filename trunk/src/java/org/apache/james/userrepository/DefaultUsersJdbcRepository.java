@@ -21,7 +21,6 @@ import java.sql.SQLException;
  * like <CODE>DefaultJamesUser</CODE>, only properties from
  * the DefaultUser class are persisted.
  *
- * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
 {

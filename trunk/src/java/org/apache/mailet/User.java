@@ -10,9 +10,8 @@ package org.apache.mailet;
 /**
  * Interface for objects representing users.
  *
- * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 public interface User {
