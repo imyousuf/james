@@ -15,7 +15,7 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
-import org.apache.james.core.EnhancedMimeMessage;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.mailet.Mail;
 
 /**
@@ -28,7 +28,7 @@ import org.apache.mailet.Mail;
  * shouldn't get thrown because the Host will have checked access before
  * returning a reference to this mailbox. However, having the methods here
  * throw this exception allows the acl to be changed while a mailbox is
- * selected. 
+ * selected.
  *
  * Mailbox Related Flags (rfc2060 name attributes)
  *     \Noinferiors   It is not possible for any child levels of hierarchy to
@@ -42,7 +42,7 @@ import org.apache.mailet.Mail;
  *      \Unmarked      The mailbox does not contain any additional messages
  * since the last time the mailbox was selected.
  *
- * Message related flags. 
+ * Message related flags.
  * The flags allowed per message are specific to each mailbox.
  * The minimum list (rfc2060 system flags) is:
  *  \Seen       Message has been read
@@ -58,15 +58,15 @@ import org.apache.mailet.Mail;
  * is the first session to be notified about a message, then that message
  * SHOULD be considered recent.
  *
- * Reference: RFC 2060 
+ * Reference: RFC 2060
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public interface Mailbox 
+public interface Mailbox
     extends Configurable, Composable {
 
     String SYSTEM_FLAGS = "\\Seen \\Answered \\Flagged \\Deleted \\Draft";
-    String RECENT_FLAG =  "\\Recent"; 
+    String RECENT_FLAG =  "\\Recent";
 
     /**
      * Returns name of this mailbox relative to its parent in the mailbox
@@ -205,8 +205,8 @@ public interface Mailbox
      */
     void unsetRecent();
 
-    /** 
-     * Indicates the oldest unseen message for the specified user. 
+    /**
+     * Indicates the oldest unseen message for the specified user.
      *
      * @returns int Message Sequence Number of first message without \Seen
      * flag set for this User.
@@ -215,8 +215,8 @@ public interface Mailbox
      */
     int getOldestUnseen( String user );
 
-   /** 
-     * Indicates the number of  unseen messages for the specified user. 
+   /**
+     * Indicates the number of  unseen messages for the specified user.
      *
      * @returns int number of messages without \Seen flag set for this User.
      */
@@ -236,13 +236,13 @@ public interface Mailbox
      * @throws AccessControlException if the user can not open this mailbox
      * at least Read-Only.
      */
-    boolean isReadOnly( String username ) 
+    boolean isReadOnly( String username )
         throws AccessControlException;
 
     /**
      * Mailbox Events are used to inform registered listeners of events in the
      * Mailbox.
-     * Example if mail is delivered to an Inbox or if another user appends/ 
+     * Example if mail is delivered to an Inbox or if another user appends/
      * deletes a message.
      */
     void addMailboxEventListener( MailboxEventListener mel );
@@ -274,16 +274,16 @@ public interface Mailbox
      * @throws AuthorizationException if username has lookup rights but does
      * not have insert rights.
      */
-    boolean store( MimeMessage message, 
+    boolean store( MimeMessage message,
                    String username,
-                   MessageAttributes attrs, 
+                   MessageAttributes attrs,
                    Flags flags )
         throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
      * Retrieves a message given a message sequence number.
      *
-     * @param msn the message sequence number 
+     * @param msn the message sequence number
      * @param username String represnting user
      * @returns a Mail object containing the message, null if no message with
      * the given msn.
@@ -292,7 +292,7 @@ public interface Mailbox
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    EnhancedMimeMessage retrieve( int msn, String user )
+    MimeMessageWrapper retrieve( int msn, String user )
         throws AccessControlException, AuthorizationException;
 
     /**
@@ -307,13 +307,13 @@ public interface Mailbox
      * @throws AuthorizationException if user has lookup rights but does not
      * have read rights.
      */
-    EnhancedMimeMessage retrieveUID( int uid, String user )
+    MimeMessageWrapper retrieveUID( int uid, String user )
         throws AccessControlException, AuthorizationException;
 
     /**
      * Marks a message for deletion given a message sequence number.
      *
-     * @param msn the message sequence number 
+     * @param msn the message sequence number
      * @param username String represnting user
      * @returns boolean true if successful.
      * @throws AccessControlException if user does not have read rights for
@@ -410,9 +410,9 @@ public interface Mailbox
      */
     String getFlagsUID(int uid, String user)
         throws AccessControlException, AuthorizationException;
-    
+
     /**
-     * Updates the flags of a message. 
+     * Updates the flags of a message.
      *
      * @param msn message sequence number for a message in this mailbox
      * @param username String represnting user
@@ -426,7 +426,7 @@ public interface Mailbox
         throws AccessControlException, AuthorizationException, IllegalArgumentException;
 
     /**
-     * Updates the flags of a message. 
+     * Updates the flags of a message.
      *
      * @param uid UniqueIdentifier for a message in this mailbox
      * @param username String represnting user
@@ -495,7 +495,7 @@ public interface Mailbox
      * @returns true if user has at least lookup rights
      */
     boolean hasLookupRights( String user );
-        
+
     /**
      * Establishes if specified user has create rights for this mailbox.
      *
@@ -525,7 +525,7 @@ public interface Mailbox
     boolean checkpoint();
 
     /**
-     * Mark this mailbox as not selectable by anyone. 
+     * Mark this mailbox as not selectable by anyone.
      * Example folders at the roots of hierarchies, e. #mail for each user.
      *
      * @param state true if folder is not selectable by anyone
@@ -541,5 +541,5 @@ public interface Mailbox
      */
     Map getUnseenByUser();
 }
- 
+
 
