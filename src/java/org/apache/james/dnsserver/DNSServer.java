@@ -350,38 +350,64 @@ public class DNSServer
         }
     }
 
-    /**
-     * Performs DNS lookups as needed to find servers which should or might
-     * support SMTP.  Returns one SMTPHostAddresses for each such host
-     * discovered by DNS.  If no host is found for domainName, the Iterator
-     * returned will be empty and the first call to hasNext() will return
-     * false.
-     * @param domainName the String domain for which SMTP host addresses are
-     * sought.
-     * @return an Enumeration in which the Objects returned by next()
-     * are instances of SMTPHostAddresses.
+    /*
+     * Returns an Iterator over org.apache.mailet.HostAddress, a
+     * specialized subclass of javax.mail.URLName, which provides
+     * location information for servers that are specified as mail
+     * handlers for the given hostname.  This is done using MX records,
+     * and the HostAddress instances are returned sorted by MX priority.
+     * If no host is found for domainName, the Iterator returned will be
+     * empty and the first call to hasNext() will return false.  The
+     * Iterator is a nested iterator: the outer iteration is over the
+     * results of the MX record lookup, and the inner iteration is over
+     * potentially multiple A records for each MX record.  DNS lookups
+     * are deferred until actually needed.
+     *
+     * @since v2.2.0a16-unstable
+     * @param domainName - the domain for which to find mail servers
+     * @return an Iterator over HostAddress instances, sorted by priority
      */
     public Iterator getSMTPHostAddresses(final String domainName) {
         return new Iterator() {
-                private Iterator mxHosts = new MxSorter(domainName);
-                
-                public boolean hasNext(){
-                    return mxHosts.hasNext();
-                }
-                
-                public Object next(){
-                    String nextHostname = (String)mxHosts.next();
-                    Record[] aRecords = lookup(nextHostname, Type.A);
-                    return new SMTPHostAddressesImpl(aRecords, nextHostname);
-                }
+            private Iterator mxHosts = new MxSorter(domainName);
+            private Iterator addresses = null;
 
-                public void remove () {
-                    throw new UnsupportedOperationException ("remove not supported by this iterator");
+            public boolean hasNext() {
+                return mxHosts.hasNext();
+            }
+
+            public Object next() {
+                if (addresses == null || !addresses.hasNext())
+                {
+                    final String nextHostname = (String)mxHosts.next();
+                    addresses = new Iterator() {
+                        private Record[] aRecords = lookup(nextHostname, Type.A);
+                        int i = 0;
+
+                        public boolean hasNext() {
+                            return aRecords != null && i < aRecords.length;
+                        }
+
+                        public Object next() {
+                            return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ((ARecord)aRecords[i++]).getAddress().getHostAddress());
+                        }
+
+                        public void remove() {
+                            throw new UnsupportedOperationException ("remove not supported by this iterator");
+                        }
+                    };
                 }
-            };
+                return addresses.next();
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException ("remove not supported by this iterator");
+            }
+        };
     }
 
-    /** A way to get mail hosts to try.  If any MX hosts are found for the
+    /**
+     * A way to get mail hosts to try.  If any MX hosts are found for the
      * domain name with which this is constructed, then these MX hostnames
      * are returned in priority sorted order, lowest priority numbers coming
      * first.  And, whenever multiple hosts have the same priority then these
@@ -396,13 +422,14 @@ public class DNSServer
      * its hasNext() will return false.
      *
      * This behavior attempts to satisfy the requirements of RFC 2821, Section 5.
+     * @since v2.2.0a16-unstable
      */
     private class MxSorter implements Iterator {
         private int priorListPriority = Integer.MIN_VALUE;
         private ArrayList equiPriorityList = new ArrayList();
         private Record[] mxRecords;
         private Random rnd = new Random ();
-        
+
         /* The implementation of this class attempts to achieve efficiency by
          * performing no more sorting of the rawMxRecords than necessary. In the
          * large majority of cases the first attempt, made by a client of this class
@@ -424,7 +451,7 @@ public class DNSServer
                 }
             }
         }
-        
+
         /**
          * Sets presentPriorityList to contain all hosts
          * which have the least priority greater than pastPriority.
@@ -456,7 +483,7 @@ public class DNSServer
             }
             priorListPriority = leastPriorityFound;
         }
-        
+
         public boolean hasNext(){
             if (equiPriorityList.size() > 0){
                 return true;
@@ -467,7 +494,7 @@ public class DNSServer
                 return false;
             }
         }
-        
+
         public Object next(){
             if (hasNext()){
                 /* this randomization is done to comply with RFC-2821 */
@@ -480,10 +507,9 @@ public class DNSServer
                 throw new NoSuchElementException();
             }
         }
-        
+
         public void remove () {
             throw new UnsupportedOperationException ("remove not supported by this iterator");
         }
     }
-    
 }

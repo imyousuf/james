@@ -17,11 +17,11 @@
 
 package org.apache.mailet;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 import java.util.Iterator;
-import java.net.InetAddress;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 /**
  * Defines a set of methods that a mailet or matcher uses to communicate
@@ -241,6 +241,8 @@ public interface MailetContext {
      * Stores the message is in the local repository associated with
      * recipient for later retrieval, e.g., by a POP3 or IMAP service.
      *
+     * @deprecated - use sparingly.  Service will be replaced with
+     * resource acquired via JNDI.
      * @param sender - the sender of the incoming message
      * @param recipient - the user who is receiving this message (as a complete email address)
      * @param msg - the MimeMessage to store in a local mailbox
@@ -249,41 +251,18 @@ public interface MailetContext {
     void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg)
         throws MessagingException;
 
-   /**
-    * Performs DNS lookups as needed to find servers which should or might
-    * support SMTP.
-    * Returns one SMTPHostAddresses for each such host discovered
-    * by DNS.  If no host is found for domainName, the Iterator
-    * returned will be empty and the first call to hasNext() will return
-    * false.
-    * @param domainName the String domain for which SMTP host addresses are
-    * sought.
-    * @return an Iterator in which the Objects returned by next()
-    * are instances of SMTPHostAddresses.
-    */
-    Iterator getSMTPHostAddresses(String domainName);
-
     /**
-     * The Iterator returned by getSMTPHostAddresses(host) holds instances
-     * of this interface.
+     * Returns an Iterator over HostAddress, a specialized subclass of
+     * javax.mail.URLName, which provides location information for
+     * servers that are specified as mail handlers for the given
+     * hostname.  This is done using MX records, and the HostAddress
+     * instances are returned sorted by MX priority.  If no host is
+     * found for domainName, the Iterator returned will be empty and the
+     * first call to hasNext() will return false.
+     *
+     * @since Mailet API v3.0-unstable
+     * @param domainName - the domain for which to find mail servers
+     * @return an Iterator over HostAddress instances, sorted by priority
      */
-    interface SMTPHostAddresses {
-        /**
-         *  @return the hostName of the SMTP server (from the MX record lookup)
-         */
-        String getHostname();
-        
-        /**
-         * @return an array with the ip addresses of the hostname. An array is
-         * used because a host can have multiple homes (addresses)
-         */
-        InetAddress[] getAddresses();
-        
-        /**
-         * @param address for which we need the port to use in SMTP connection
-         * @return the port number to use for the given address (this will usually be 25 for SMTP)
-         */
-        int getPort(InetAddress address);
-    }
-
+    Iterator getSMTPHostAddresses(String domainName);
 }
