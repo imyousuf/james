@@ -203,7 +203,7 @@ public class Mail implements Serializable, Cloneable {
         BufferedReader br;
         if(message != null) {
             br = new BufferedReader(new InputStreamReader(message.getInputStream()));
-            while(lines-- >= 0) {
+            while(lines-- > 0) {
                 if((line = br.readLine()) == null)  break;
                 line += "\r\n";
                 out.write(line.getBytes());
@@ -211,7 +211,7 @@ public class Mail implements Serializable, Cloneable {
         } else {
             messageIn.mark(Integer.MAX_VALUE);
             br  = new BufferedReader(new InputStreamReader(messageIn));
-            while(lines-- >= 0)  {
+            while(lines-- > 0)  {
                 if((line = br.readLine()) == null) break;
                 line += "\r\n";
                 out.write(line.getBytes());
