@@ -27,7 +27,6 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
-import org.apache.james.util.LockException;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
