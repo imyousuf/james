@@ -146,8 +146,9 @@ public class ProtocolSimulator {
                         // read server line and validate
                         public void process() throws IOException {
                             String line = reader.readLine();
-                            String pattern = "m/"+templateLine.substring(SERVER_TAG_LEN)+"/";
+                            String pattern = templateLine.substring(SERVER_TAG_LEN);
                             System.out.println(pattern+":"+line);
+                            pattern = "m/"+pattern+"/";
                             if ( line == null || !perl.match(pattern,line) )
                                 throw new IOException
                                     ("Protocol Failure: got=["+line+"] expected=["+templateLine+"]");
