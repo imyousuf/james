@@ -9,6 +9,7 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.mailet.*;
+import javax.mail.*;
 
 /**
  * Debugging purpose Mailet. Just throws an exception.
@@ -17,7 +18,7 @@ import org.apache.mailet.*;
  */
 public class ExceptionThrowingMailet extends GenericMailet {
 
-    public void service(Mail mail) throws MailetException {
+    public void service(Mail mail) throws MessagingException {
         throw new MailetException("General protection fault");
     }
 

@@ -36,7 +36,7 @@ public abstract class GenericListservManager extends GenericMailet {
      * Processes the message.  Checks which command was sent based on the
      * recipient address, and does the appropriate action.
      */
-    public final void service(Mail mail) throws MailetException, MessagingException {
+    public final void service(Mail mail) throws MessagingException {
         if (mail.getRecipients().size() != 1) {
             getMailetContext().bounce(mail, "You can only send one command at a time to this listserv manager.");
             return;

@@ -25,37 +25,41 @@ public abstract class GenericListserv extends GenericMailet {
     /**
      * Returns a Collection of MailAddress objects of members to receive this email
      */
-    public abstract Collection getMembers() throws ParseException;
+    public abstract Collection getMembers() throws MessagingException;
 
     /**
      * Returns whether this list should restrict to senders only
      */
-    public abstract boolean isMembersOnly();
+    public abstract boolean isMembersOnly() throws MessagingException;
 
     /**
      * Returns whether this listserv allow attachments
      */
-    public abstract boolean isAttachmentsAllowed();
+    public abstract boolean isAttachmentsAllowed() throws MessagingException;
 
     /**
      * Returns whether listserv should add reply-to header
      */
-    public abstract boolean isReplyToList();
+    public abstract boolean isReplyToList() throws MessagingException;
 
     /**
-     * The email address that this listserv processes on
+     * The email address that this listserv processes on.  If returns null, will use the
+     * recipient of the message, which hopefully will be the correct email address assuming
+     * the matcher was properly specified.
      */
-    public abstract MailAddress getListservAddress() throws ParseException;
+    public MailAddress getListservAddress() throws MessagingException {
+        return null;
+    }
 
     /**
      * An optional subject prefix which will be surrounded by [].
      */
-    public abstract String getSubjectPrefix();
+    public abstract String getSubjectPrefix() throws MessagingException;
 
     /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
      */
-    public final void service(Mail mail) throws MailetException, MessagingException {
+    public final void service(Mail mail) throws MessagingException {
         try {
             Collection members = new Vector();
             members.addAll(getMembers());
@@ -105,7 +109,7 @@ public abstract class GenericListserv extends GenericMailet {
             //Kill the old message
             mail.setState(Mail.GHOST);
         } catch (IOException ioe) {
-            throw new MailetException(ioe);
+            throw new MailetException("Error creating listserv message", ioe);
         }
     }
 }

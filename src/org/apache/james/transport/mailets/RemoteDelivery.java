@@ -15,6 +15,7 @@ import java.net.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.mailrepository.*;
 import org.apache.james.transport.*;
 import org.apache.mailet.*;
 import org.apache.avalon.blocks.*;
@@ -39,14 +40,13 @@ import javax.mail.internet.*;
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private SpoolRepository outgoing;
-    //private TimeServer timeServer;
-    private long delayTime = 21600000; // default is 6*60*60*1000 mills
+    private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
     private int maxRetries = 5; // default number of retries
     private int deliveryThreadCount = 1; // default number of delivery threads
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
 
-    public void init() throws MailetException {
+    public void init() throws MessagingException {
         try {
             delayTime = Long.parseLong(getInitParameter("delayTime"));
         } catch (Exception e) {
@@ -56,25 +56,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
         }
         ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        //timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
 
-        // Instanziate the a MailRepository for outgoing mails
+        // Instantiate the a MailRepository for outgoing mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
             outgoingPath = "file:///../var/mail/outgoing";
         }
         outgoing = (SpoolRepository) store.getPrivateRepository(outgoingPath, SpoolRepository.SPOOL, Store.ASYNCHRONOUS);
-
-        /*
-        int i = 0;
-        //Viewing list of outgoing messages, and queueing them up to be sent... need to change this
-        for (Enumeration e = outgoing.list(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
-            timeServer.setAlarm(key, this, ++i * 10000);
-            log("outgoing message " + key + " set for delivery in " + (i * 10) + " seconds");
-        }
-        */
 
         //Start up a number of threads
         try {
@@ -90,7 +79,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     /**
      * We can assume that the recipients of this message are all going to the same
-     * mail server.  We will now rely on SmartTransport to do DNS MX record lookup
+     * mail server.  We will now rely on the DNS server to do DNS MX record lookup
      * and try to deliver to the multiple mail servers.  If it fails, it should
      * throw an exception.
      *
@@ -102,13 +91,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("attempting to deliver " + mail.getName());
             MimeMessage message = mail.getMessage();
             Collection recipients = mail.getRecipients();
-            MailAddress rec = (MailAddress) recipients.iterator().next();
-            String host = rec.getHost();
+            MailAddress rcpt = (MailAddress) recipients.iterator().next();
+            String host = rcpt.getHost();
             InternetAddress addr[] = new InternetAddress[recipients.size()];
             int j = 0;
             for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
-                rec = (MailAddress)i.next();
-                addr[j] = rec.toInternetAddress();
+                rcpt = (MailAddress)i.next();
+                addr[j] = rcpt.toInternetAddress();
             }
 
             if (addr.length > 0) {
@@ -142,8 +131,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             //possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            ex.printStackTrace();
-            failMessage(mail, "Delivery failure: " + ex.toString());
+            failMessage(mail, "Delivery failure: " + ex.toString(), ex);
         }
     }
 
@@ -153,14 +141,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param mail org.apache.mailet.Mail
      * @param reason java.lang.String
      */
-    private void failMessage(MailImpl mail, String reason) {
-        log("Exception delivering mail (" + mail.getName() + ": " + reason);
+    private void failMessage(MailImpl mail, String reason, Exception ex) {
+        log("Exception delivering mail (" + mail.getName() + ": " + ex.toString());
         if (!mail.getState().equals(Mail.ERROR)) {
             mail.setState(Mail.ERROR);
-            mail.setErrorMessage("1");
+            mail.setErrorMessage("0");
         }
         int retries = Integer.parseInt(mail.getErrorMessage());
-        if (retries > maxRetries) {
+        if (retries >= maxRetries) {
             log("Sending back message " + mail.getName() + " after max (" + retries + ") retries reached");
             try {
                 getMailetContext().bounce(mail, reason);
@@ -175,7 +163,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             ++retries;
             mail.setErrorMessage(retries + "");
             outgoing.store(mail);
-            //timeServer.setAlarm(mail.getName(), this, delayTime);
         }
     }
 
@@ -224,8 +211,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             mail.setRecipients(rec);
             mail.setName(name + "-to-" + host);
             outgoing.store(mail);
-            //Set it to try to deliver (in a separate thread) immediately
-            //timeServer.setAlarm(mail.getName(), this, 0);
+            //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
         }
         mail.setState(Mail.GHOST);
     }
@@ -233,12 +219,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     public void destroy() {
         //Wake up all threads from waiting for an accept
         notifyAll();
-        /*
         for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
             Thread t = (Thread)i.next();
             t.stop();
         }
-        */
     }
 
     public void wake(String name, String memo) {

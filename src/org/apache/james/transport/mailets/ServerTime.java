@@ -26,7 +26,7 @@ public class ServerTime extends GenericMailet {
     /**
      * Sends a message back to the sender indicating what time the server thinks it is.
      */
-    public void service(Mail mail) throws MailetException, MessagingException {
+    public void service(Mail mail) throws javax.mail.MessagingException {
         log("Sending timestamp");
         MimeMessage response = (MimeMessage)mail.getMessage().reply(false);
         response.setSubject("The time is now...");
