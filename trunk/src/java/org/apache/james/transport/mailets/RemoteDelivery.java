@@ -10,10 +10,12 @@ package org.apache.james.transport.mailets;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.URLName;
+import javax.mail.SendFailedException;
 import javax.mail.internet.*;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentException;
@@ -36,7 +38,7 @@ import org.apache.mailet.*;
  *
  * TO DO (in priority):
  * 1. Support a gateway (a single server where all mail will be delivered) (DONE)
- * 2. Provide better failure messages
+ * 2. Provide better failure messages (DONE)
  * 3. More efficiently handle numerous recipients
  * 4. Migrate to use Phoenix for the delivery threads
  *
@@ -131,22 +133,23 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 //Lookup the possible targets
                 targetServers = getMailetContext().getMailServers(host);
                 if (targetServers.size() == 0) {
-					log("No mail serves found for: " + host);
-					throw new Exception("No route found to " + host);
+					log("No mail server found for: " + host);
+					failMessage(mail, new MessagingException("No route found to " + host), true);
+					return;
 				}
 			} else {
 				targetServers = new Vector();
 				targetServers.add(gatewayServer);
 			}
 
-            Exception lastError = null;
+            MessagingException lastError = null;
 
             if (addr.length > 0) {
 				Iterator i = targetServers.iterator();
                 while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
-                        log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
+                        log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver + " to " + Arrays.asList(addr));
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
                         Properties props = session.getProperties();
@@ -170,21 +173,18 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         transport.close();
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
+					} catch (SendFailedException sfe) {
+						throw sfe;
                     } catch (MessagingException me) {
-                        log("Exception caught in RemoteDelivery.deliver() : " + me);
-                        lastError = me;
-                        /*
-                          } catch (java.net.SocketException se) {
-                          //Only remember this exception if we received no other exception
-                          if (e == null) {
-                          e = se;
-                          }
-                          } catch (java.net.UnknownHostException uhe) {
-                          //Only remember this exception if we received no other exception
-                          if (e == null) {
-                          e = uhe;
-                          }
-                        */
+						log("Exception delivering message (" + mail.getName() + ") - " + me.getMessage());
+						if (me.getNextException() != null && me.getNextException() instanceof java.io.IOException) {
+							//This is more than likely a temporary failure
+							lastError = me;
+							continue;
+						} else {
+							failMessage(mail, me, true);
+							return;
+						}
                     }
                 }// end while
                 //If we encountered an exception while looping through, send the last exception we got
@@ -194,14 +194,33 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             } else {
                 log("no recipients specified... not sure how this could have happened.");
             }
-        } catch (Exception ex) {
+		} catch (SendFailedException sfe) {
+			//Would like to log all the types of email addresses
+			if (sfe.getValidSentAddresses() != null) {
+				Address[] validSent = sfe.getValidSentAddresses();
+				Collection recipients = mail.getRecipients();
+				//Remove these addresses for the recipients
+				for (int i = 0; i < validSent.length; i++) {
+					try {
+						MailAddress addr = new MailAddress(validSent[i].toString());
+						recipients.remove(addr);
+					} catch (ParseException pe) {
+						//ignore once debugging done
+						pe.printStackTrace();
+					}
+				}
+			}
+			failMessage(mail, sfe, true);
+			return;
+        } catch (MessagingException ex) {
             //We should do a better job checking this... if the failure is a general
             //connect exception, this is less descriptive than more specific SMTP command
             //failure... have to lookup and see what are the various Exception
             //possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            failMessage(mail, "Delivery failure: " + ex.toString(), ex);
+            failMessage(mail, ex, false);
+            return;
         }
     }
 
@@ -209,35 +228,60 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
      * @param mail org.apache.mailet.Mail
-     * @param reason java.lang.String
+     * @param exception java.lang.Exception
      */
-    private void failMessage(MailImpl mail, String reason, Exception ex) {
+    private void failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter pout = new PrintWriter(sout, true);
+        if (permanent) {
+			pout.println("Permanent");
+		} else {
+			pout.println("Temporary");
+		}
+        pout.print(" exception delivering mail (" + mail.getName() + ": ");
         ex.printStackTrace(pout);
-        log("Exception delivering mail (" + mail.getName() + ": " + sout.toString());
-        if (!mail.getState().equals(Mail.ERROR)) {
-            mail.setState(Mail.ERROR);
-            mail.setErrorMessage("0");
-        }
-        int retries = Integer.parseInt(mail.getErrorMessage());
-        if (retries >= maxRetries) {
-            log("Sending back message " + mail.getName() + " after max (" + retries + ") retries reached");
-            try {
-                getMailetContext().bounce(mail, reason);
-            } catch (MessagingException me) {
-                log("encountered unexpected messaging exception while bouncing message: " + me.getMessage());
-            }
-        } else {
-            //Change the name (unique identifier) of this message... we want to save a new copy
-            // of it, so change the unique idea for restoring
-            mail.setName(mail.getName() + retries);
-            log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
-            ++retries;
-            mail.setErrorMessage(retries + "");
-            outgoing.store(mail);
-        }
+        log(sout.toString());
+        if (!permanent) {
+			if (!mail.getState().equals(Mail.ERROR)) {
+				mail.setState(Mail.ERROR);
+				mail.setErrorMessage("0");
+			}
+			int retries = Integer.parseInt(mail.getErrorMessage());
+			if (retries < maxRetries) {
+				//Change the name (unique identifier) of this message... we want to save a new copy
+				// of it, so change the unique idea for restoring
+				mail.setName(mail.getName() + retries);
+				log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
+				++retries;
+				mail.setErrorMessage(retries + "");
+				outgoing.store(mail);
+				return;
+			}
+		}
+		bounce(mail, ex);
     }
+
+    private void bounce(MailImpl mail, MessagingException ex) {
+		StringWriter sout = new StringWriter();
+		PrintWriter pout = new PrintWriter(sout, true);
+		pout.println("Hi. This is the James mail server (we don't know where)."); // at " + InetAddress.getLocalHost() + ".");
+		pout.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
+		pout.println("This is a permanent error; I've given up. Sorry it didn't work out.");
+		pout.println();
+		for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
+			pout.println(i.next());
+		}
+		pout.println(ex.getMessage().trim());
+		pout.println();
+		pout.println("The original message is attached.");
+
+		log("Sending failure message " + mail.getName());
+		try {
+			getMailetContext().bounce(mail, sout.toString());
+		} catch (MessagingException me) {
+			log("encountered unexpected messaging exception while bouncing message: " + me.getMessage());
+		}
+	}
 
     public String getMailetInfo() {
         return "RemoteDelivery Mailet";
@@ -297,8 +341,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             t.interrupt();
         }
     }
-
-
 
     /**
      * Handles checking the outgoing spool for new mail and delivering them if
