@@ -17,7 +17,7 @@ reasons for wanting to take this step.
 Introduction to James:
 ----------------------------------------------------------------------
 
-James is a 100% java Mail and news server.
+James is a 100% Java mail and news server.
 
 James provides highly configurable SMTP mail transport and local
 delivery into POP3 or IMAP accounts, utilising file system or database
@@ -28,7 +28,7 @@ The Mailet API is a Java API providing a framework for the conditional
 processing of mail and news messages.
 
 James implements the Mailet API, and as such is itself a platform for
-Mailet applications. Applications providing bespoke/custom mail
+Mailet applications. Applications providing custom mail
 processing, such as listservers, or providing gateways into other
 systems, messaging systems such as NNTP, SMS or proprietery messaging,
 or insertion into non-standard storage media.
@@ -53,39 +53,57 @@ than its platform, would suit James well.
 The proposals being discussed on reorg & community include the notion
 of federated projects. We would like to think that we wouldn't be
 leaving Jakarta, just growing up.
+
 We also know that James would continue to rely on Jakarta for code,
 insight and knowekdge, but we don't need to be a Jakarta sub-project
 to benefit from that.
+
 ----------------------------------------------------------------------
         Project Management:
 ----------------------------------------------------------------------
 This proposal is more about management than web-site and mail
-addresses, we don't believe that james.apache.org will bring many
+addresses.  We don't expect that james.apache.org will bring many
 direct benefits, but we do think that normalising our relationship
 with Jakarta by becoming a sibling rather than a child, and taking
 official control of all the issues we currently inherit and
 "interpret" from Jakarta would benefit James.
 
 James has a small yet mature self-sustaining community, we seldom seek 
-recourse to the jakarta PMC, and equally seldom are we scrutinised by 
+recourse to the Jakarta PMC, and equally seldom are we scrutinised by 
 them. We are perhaps not the most active project, and some of us may 
 feel that this sometimes causes James to be disregarded. Likewise, 
-apart from Avalon, we have few direct ties with other jakarta projects.
+apart from Avalon, we have few direct ties with other Jakarta projects.
 
 ----------------------------------------------------------------------
         Profile:
 ----------------------------------------------------------------------
-As outline above James is composed of three main
+As outline above James is composed of three main areas.
 
+        JAMES server
         Sub-Projects:
-                Mailet API:
-                Mailet Applications:
+                Mailet API
+                Mailet Applications
 
 
 ----------------------------------------------------------------------
         History:
 ----------------------------------------------------------------------
-### TODO: SERGE you must know most of the history..? ###
+JAMES was originally envisioned and placed as a holding page on
+java.apache.org, before Jakarta was organized.  Individuals
+(unfortunately names forgotten at this point) had submitted a proposal
+to the (HTTP) servlets group at Sun to provide mail handling.  They
+rejected the proposal due to technical reasons.
+
+Serge Knystautas later donated a Java SMTP server implementation that
+became the original codebase for JAMES.  The mailet API was heavily
+discussed and finalized, the original code was massively refactored
+and improved, and a POP3 implementation was added.
+
+JAMES was later refactored to use the new Avalon codebase.  JAMES also
+received a donation of an NNTP implementation.  JAMES has slowly added
+new mailets, improved reliability and scalability, SMTP AUTH,
+FetchPOP, and other small feature enhancements since then.
+
 ----------------------------------------------------------------------
 	Future:
 ----------------------------------------------------------------------
@@ -105,14 +123,16 @@ feedback from Mailet API users and Mailet developers.
 3/ To build on James' Mailet packages in order to provide more, and
 more sophisticated, behaviours which would be available to any
 application implementing the Mailet API. 
+
 These plans include:
-Providing functionality capable of reproducing services provided by
+- Providing functionality capable of reproducing services provided by
 commercial and open source competitors such as Microsoft Exchange, or
 ezmlm.
-Implementing a number of related services defined by RFC's, such as
+- Implementing a number of related services defined by RFC's, such as
 the email aspects of Icalendar, Vcard to name but two.
-And offering greater interoperability with other mail applications, 
+- And offering greater interoperability with other mail applications, 
 such as sendmail.
+
 ----------------------------------------------------------------------
 Our Community:
 ----------------------------------------------------------------------
@@ -121,7 +141,7 @@ comprised of six active commiters, and six currently inactive.
 Only one of the active commiters, Serge Knystautas has been associated 
 with the project since it started, and the continued success of James 
 is no longer dependant on his continued participation.
-(Sorry Serge, mate, but thats a *good* thing!)
+(DA: Sorry Serge, mate, but thats a *good* thing!  SK: Amen!)
 
 Our developer community includes a number of Avalon contributers and 
 commiters, and a number of people who are working with or on James in 
