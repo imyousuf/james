@@ -30,3 +30,6 @@ Avalon-Block: true
 
 Name: org/apache/james/transport/JamesSpoolManager.class
 Avalon-Block: true
+
+Name: org/apache/james/nntpserver/AuthServiceImpl.class
+Avalon-Block: true
