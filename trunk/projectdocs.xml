@@ -29,7 +29,7 @@ Legal:
   <property name="build.src" value="${build.dir}/src"/>
   <property name="build.javadocs" value="${build.dir}/javadocs"/>
 
-  <property name="james.src.dir" value="src"/>
+  <property name="james.src.dir" value="src/java"/>
   <property name="avalon.src.dir" value="../jakarta-avalon/src/java"/>
   <property name="scratchpad.src.dir" value="../jakarta-avalon/src/scratchpad"/>
   <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
