@@ -107,6 +107,7 @@ public class AvalonUsersStore
         repositories = new HashMap();
 
         Configuration[] repConfs = configuration.getChildren("repository");
+        ClassLoader theClassLoader = null;
         for ( int i = 0; i < repConfs.length; i++ )
         {
             Configuration repConf = repConfs[i];
@@ -116,7 +117,12 @@ public class AvalonUsersStore
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Starting " + repClass);
             }
-            UsersRepository rep = (UsersRepository) this.getClass().getClassLoader().loadClass(repClass).newInstance();
+
+            if (theClassLoader == null) {
+                theClassLoader = this.getClass().getClassLoader();
+            }
+
+            UsersRepository rep = (UsersRepository) theClassLoader.loadClass(repClass).newInstance();
 
             setupLogger((Component)rep);
 

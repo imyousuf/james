@@ -71,6 +71,7 @@ public class MatchLoader implements Component, Configurable {
                 condition = matchName.substring(i + 1);
                 matchName = matchName.substring(0, i);
             }
+            ClassLoader theClassLoader = null;
             for (i = 0; i < matcherPackages.size(); i++) {
                 String className = (String)matcherPackages.elementAt(i) + matchName;
                 try {
@@ -79,7 +80,11 @@ public class MatchLoader implements Component, Configurable {
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(context);
 
-                    Matcher matcher = (Matcher) this.getClass().getClassLoader().loadClass(className).newInstance();
+                    if (theClassLoader == null) {
+                        theClassLoader = this.getClass().getClassLoader();
+                    }
+
+                    Matcher matcher = (Matcher) theClassLoader.loadClass(className).newInstance();
                     matcher.init(configImpl);
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {
