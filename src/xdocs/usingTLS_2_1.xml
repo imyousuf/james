@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.1 - Using TLS</title>
+ </properties>
+
+<body>
+
+<section name="James 2.1 - Using TLS">
+
+<p>
+This document explains how to enable James 2.1 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
+</section>
+
+<subsection name="Making TLS/SSL Server Sockets Available Inside James">
+<p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 
+sockets.  JSSE comes packaged with several vendor Java distributions (i.e. Sun Java 1.4.x, 
+IBM Java 1.3.x).  For these distributions, please follow the vendor provided instructions for
+configuring the JVM to use JSSE services.</p>
+
+<p>If you are using a Java distribution that does not include JSSE as part of the 
+distribution you will need to download the JSSE package separately.  It can be obtained from 
+<a href="http://java.sun.com/jsse">here</a>.  Please follow Sun's instructions for installation 
+and configuration of JSSE.</p>
+<p>In either case, you will need to statically define a JSSE TLS provider.  In general, this 
+is the default installation.</p>
+<p>Once you've installed JSSE, James still needs to be configured to take advantage of the JSSE
+functionality.</p>
+</subsection>
+<section name="Enable TLS">
+
+  <p>
+    Using JAMES with TLS. You need to do three things over and above the
+    normal operation of James: 
+    <ul>
+      <li>In config.xml, uncomment the TLS listener defintion.</li>
+      <li>In config.xml, uncomment the &lt;useTLS&gt;TRUE&lt;/useTLS&gt; element
+        for the service you want to use TLS. It is currently available for
+        remote manager and POP3. (If using POP3 over TLS, it is probably best
+        to change port to 995, which is the IANA designated POP3S port).</li>
+      <li> Ensure that avalonTestKeys is in the conf directory. You may need
+        to manually extract this from the Avalon.jar (with: jar xvf Avalon.jar
+        conf/avalonTestKeys). Note that this is a self-signed certificate for
+        test purposes only. You can specify a different server certificate in
+        the config.xml file.</li>
+    </ul>
+  </p>
+  <p>
+    Start James
+  </p>
+</section>
+
+<section name="Verifying a TLS-enabled James Service">
+<p>After you've configured a particular service to use TLS/SSL connections, it should no longer 
+accept normal TCP/IP connections.  You can execute this negative test case by using a telnet 
+client to directly connect to the service port.  The telnet connection should simply hang until 
+the client times out.</p>
+<p>
+    (Positive Test) Use an SSL client to open a socket to the appropriate port.
+    I used openssl from www.openssl.org to test this.
+    E.g. openssl s_client -connect localhost:4555. You should see the normal
+    remote manager or POP3 server greeting and have normal operation. 
+    <br>
+      - If, using openssl s_client, you get a connection refused/ error no
+      111, just try again. This probably means you got to the port before it
+      was ready.
+    </br>
+ </p>
+</section>
+
+</body>
+</document>

@@ -50,7 +50,8 @@ GenericMailet.</p>
 method is invoked each time a mail message is to be processed by the mailet.  The message is 
 passed in as an instance of the Mail interface, which is part of the Mailet API.</p>
 <p>The Mail interface is essentially a light wrapper around JavaMail's MimeMessage class with a 
-few important differences..</p>
+few important differences.  See the Javadoc for the interface for a description of the additional
+methods available on this wrapper.</p>
 </subsection>
 <subsection name="Destruction">
 <p>As part of the Mailet lifecycle, a Mailet is guaranteed to be destroyed when the container 

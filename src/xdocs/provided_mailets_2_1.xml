@@ -35,6 +35,39 @@ Mailets and use them in the James SpoolManager can be found <a href="/spoolmanag
 </ul>
 </p>
 </subsection>
+<subsection name="AvalonListserv">
+<p>Provides basic list server functionality.  Implements basic filters for emails sent to the list, 
+including restriction of senders to members, diallowing attachments in list messages, and subject line 
+processing</p>
+<p>Parameters:
+<ul>
+<li><strong>repositoryName</strong> (required) - the name of the user repository that contains the users 
+for this list.</li>
+<li><strong>membersonly</strong> (optional) - whether only members of the list can send messages to this 
+list.  Defaults to false.</li>
+<li><strong>attachmentsallowed</strong> (optional) - whether attachments are allowed in messages sent to this 
+list.  Defaults to true.</li>
+<li><strong>replytolist</strong> (optional) - whether the reply-to address for all messages sent to this 
+list is set to the list address.  Defaults to true.</li>
+<li><strong>subjectprefix</strong> (optional) - a String value.  If set, this value is prepended to the subject
+line of all messages sent to the list.</li>
+<li><strong>autobracket</strong> (optional) - a boolean value.  If a subjectprefix is set, this value determines 
+whether the prefix is bracketed before being prepended to the subject line.  Defaults to true.</li>
+</ul>
+</p>
+</subsection>
+<subsection name="AvalonListservManager">
+<p>Processes list management commands of the form &lt;list-name&gt;-on@&lt;host&gt; and 
+&lt;list-name&gt;-off@&lt;host&gt; where &lt;list-name&gt; and lt;host&gt; are arbitrary.  Note 
+that this should be used in tandem with a CommandForListserv matcher to ensure that only commands 
+intended for a specific list are processed.</p>
+<p>Parameters:
+<ul>
+<li><strong>repositoryName</strong> (required) - the name of the user repository that contains the users 
+for this list.</li>
+</ul>
+</p>
+</subsection>
 <subsection name="Forward">
 <p>Description: This mailet forwards the message to a set of recipients.</p>
 <p>Parameters:
@@ -52,6 +85,18 @@ Mailets and use them in the James SpoolManager can be found <a href="/spoolmanag
 of the data-source in config.xml that is to be used.</li>
 <li><strong>source_column</strong> (required) - the column containing the aliases.</li>
 <li><strong>target_column</strong> (required) - the column containing the alias targets.</li>
+</ul>
+</p>
+</subsection>
+<subsection name="JDBCVirtualUserTable">
+<p>Description: This mailet does complex alias translation for email addresses stored in a database table.</p>
+<p>Parameters:
+<ul>
+<li><strong>table</strong> (required) - the URL describing the database table.  This URL has the form 
+db://&lt;data-source&gt;/&lt;table&gt; where &lt;data-source&gt; and &lt;table&gt; are the names of 
+the data-source as defined in config.xml and the table in the database.</li>
+<li><strong>sqlquery</strong> (optional) - the text of the SQL query used by the mailet to do user
+lookup.  The default is "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1"</li>
 </ul>
 </p>
 </subsection>
@@ -93,6 +138,20 @@ of the domains managed by this James server and substitutes the configured James
 the original recipient address.  This mailet is inserted automatically by James at the head of the root
 processor.</p>
 <p>Parameters: None.</p>
+</subsection>
+<subsection name="Redirect">
+<p>Description: This mailet provides configurable redirection services.  Users are encouraged to consult 
+the source and subclass this Mailet to produce a variety of effects.</p>
+<p>Parameters:
+<ul>
+<li><strong>prefix</strong> (optional) - an prefix for the subject line of the redirected message.  If set, this is 
+prepended to the original subject line.  If unset, the subject line is left unchanged.</li>
+<li><strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether 
+processing should continue on the message is on.  If false, the original message is GHOSTed.  Defaults to false.</li>
+<li><strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is 
+on.  Defaults to false.</li>
+</ul>
+</p>
 </subsection>
 <subsection name="RemoteDelivery">
 <p>Manages delivery of messages to recipients on remote SMTP hosts.</p>
