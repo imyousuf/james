@@ -31,9 +31,18 @@
 
     OPTIONAL, and interesting
 
-    !!TODO!!
-    - Quickly mention where to look to configure for TLS support
-    - Quickly mention where to look to configure for LDAP services
+    For TLS support on POP3 or RemoteManager, enable the TLS Listener in AVALON.conf.xml, then uncomment
+    the <useTLS>TRUE</useTLS> elements for the appropriate protocol/ service. Please check
+    docs/usingTLS.html for requirements.
+
+
+    For LDAP support for users, change the  <userRepository> element from:
+    <userRepository>file://../var/users/ </userRepository> to: <userRepository>ldap </userRepository>
+    then set the parameteers for your LDAP server.  Please check docs/usingLDAP.html for requirements.
+
+
+    !!TODO!
+   
     - Quickly mention where to look to configure for database storage
 -->
 <avalon>
@@ -90,9 +99,28 @@
             <inboxRepository> town://inbox </inboxRepository>
             -->
 
-            <!-- This is to specify the user repository for the server.  You can optionally
-                configure this using an ldap server. -->
+            <!-- This is to specify the user repository for the server.
+	      Optionally, to use the experimental LDAP implementation,
+	       enter 'ldap' here.  -->
             <userRepository> file://../var/users/ </userRepository>
+	    <!-- If you are going to use the LDAP implementation for a
+	      UserRepository, you must configure this section with your LDAP
+	       server's information -->
+	    <usersLDAP class="org.apache.james.userrepository.UsersLDAPRepository">
+	        <LDAPServer>ldap://localhost:389</LDAPServer>
+                <LDAPRoot>dc=apache, dc=org</LDAPRoot>
+                <ThisServerRDN>cn=mailserver.apache.org</ThisServerRDN>
+                <MailAddressAttribute>mail</MailAddressAttribute>
+                <IdentityAttribute>uid</IdentityAttribute>
+                <AuthenticationType>simple</AuthenticationType>
+                <Principal> <!-- FILL ME!!! --> </Principal>
+                <Password> <!-- FILL ME!!! --> </Password>
+                <MembersAttribute>member</MembersAttribute>
+	        <ManageGroupAttribute>TRUE</ManageGroupAttribute>
+                <GroupAttribute>memberOfGroup</GroupAttribute>
+                <ManagePasswordAttribute>FALSE</ManagePasswordAttribute>
+                <PasswordAttribute>userpassword</PasswordAttribute>
+            </usersLDAP>
 
             <smtpServer>
                 <port>25</port>
@@ -268,26 +296,7 @@
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.userrepository.UsersFileRepository"/>
-                <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
-                    destination="ldap://"
-                    class="org.apache.james.userrepository.UsersLDAPRepository">
-
-                <!-- If you are going to use the LDAP implementation for a UserRepository,
-                    you must configure this section with your LDAP server's information -->
-                    <LDAPServer>ldap://localhost:389</LDAPServer>
-                    <LDAPRoot>dc=apache, dc=org</LDAPRoot>
-                    <ThisServerRDN>cn=mailserver.apache.org</ThisServerRDN>
-                    <MailAddressAttribute>mail</MailAddressAttribute>
-                    <IdentityAttribute>uid</IdentityAttribute>
-                    <AuthenticationType>simple</AuthenticationType>
-                    <Principal> <!-- FILL ME!!! --> </Principal>
-                    <Password> <!-- FILL ME!!! --> </Password>
-                    <MembersAttribute>member</MembersAttribute>
-                    <ManageGroupAttribute>TRUE</ManageGroupAttribute>
-                    <GroupAttribute>memberOfGroup</GroupAttribute>
-                    <ManagePasswordAttribute>FALSE</ManagePasswordAttribute>
-                    <PasswordAttribute>userpassword</PasswordAttribute>
-                </repository>
+          
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will

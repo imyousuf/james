@@ -89,7 +89,8 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
             if (result.hasMore()) {
                 destination = "cn=" + childName + ", " + baseNodeDN;
-                logger.log("Pre-exisisting LDAP node: " + destination, "UserManager", logger.INFO);
+                logger.log("Pre-exisisting LDAP node: " + destination,
+			   "UserManager", logger.INFO);
             } else {
                 Attributes attrs = new BasicAttributes(true);
                 Attribute objclass = new BasicAttribute("objectclass");
@@ -111,7 +112,8 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
 
                 destination = "cn=" + childName + ", " + baseNodeDN;
-                logger.log("Created new LDAP node: " + destination, "UserManager", logger.INFO);
+                logger.log("Created new LDAP node: " + destination,
+			   "UserManager", logger.INFO);
             }
         } catch (NamingException e) {
             System.out.println("Problem with child nodes " + e.getMessage());
@@ -128,7 +130,8 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
        String[] attrIDs = {membersAttr};
 
         try {
-            Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
+            Attribute members
+		= ctx.getAttributes("", attrIDs).get(membersAttr);
             if (members != null) {
                 NamingEnumeration enum = members.getAll();
                 while (enum.hasMore()) {
@@ -136,8 +139,10 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 }
             }
         } catch (NamingException e) {
-            logger.log("Problem listing mailboxes. " + e , "UserManager", logger.ERROR);
-            //System.out.println(    "Problem listing mailboxes. "  + e.getMessage());
+            logger.log("Problem listing mailboxes. " + e ,
+		       "UserManager", logger.ERROR);
+            //System.out.println(    "Problem listing mailboxes. "  +
+	    // e.getMessage());
         }
        return result.elements();
     }
@@ -148,17 +153,20 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
         LDAPHost = conf.getConfiguration("LDAPServer").getValue();
         rootNodeDN = conf.getConfiguration("LDAPRoot").getValue();
         serverRDN = conf.getConfiguration("ThisServerRDN").getValue();
-        mailAddressAttr = conf.getConfiguration("MailAddressAttribute").getValue();
+        mailAddressAttr
+	    = conf.getConfiguration("MailAddressAttribute").getValue();
         identAttr = conf.getConfiguration("IdentityAttribute").getValue();
         authType = conf.getConfiguration("AuthenticationType").getValue();
         principal = conf.getConfiguration("Principal").getValue();
         password = conf.getConfiguration("Password").getValue();
 
         membersAttr = conf.getConfiguration("MembersAttribute").getValue();
-        manageGroupAttr = conf.getConfiguration("ManageGroupAttribute").getValue().equals("TRUE");
+        manageGroupAttr
+	    = conf.getConfiguration("ManageGroupAttribute").getValue().equals("TRUE");
         groupAttr = conf.getConfiguration("GroupAttribute").getValue();
         managePasswordAttr = conf.getConfiguration("ManagePasswordAttribute").getValue().equals("TRUE");
         passwordAttr = conf.getConfiguration("PasswordAttribute").getValue();
+	
     }
 
     public void setContext(org.apache.avalon.Context context) {
@@ -178,17 +186,19 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
     }
 
     public void init() throws Exception {
-        setServerRoot();
+        //setServerRoot();
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         rootURL = LDAPHost + "/" + rootNodeDN;
         baseURL = LDAPHost + "/" + baseNodeDN;
 
-        logger.log("Creating initial context from " + baseURL, "UserManager", logger.INFO);
+        logger.log("Creating initial context from " + baseURL, "UserManager",
+		   logger.INFO);
         //System.out.println("Creating initial context from " + baseURL);
 
         Hashtable env = new Hashtable();
-        env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
+		"com.sun.jndi.ldap.LdapCtxFactory");
         env.put(javax.naming.Context.PROVIDER_URL, baseURL);
 
         try {
@@ -198,8 +208,11 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
             e.printStackTrace();
         }
 
-        Collection serverNames = (Collection) context.get(Constants.SERVER_NAMES);
+        Collection serverNames
+	    = (Collection) context.get(Constants.SERVER_NAMES);
         usersDomain = (String) serverNames.iterator().next();
+	logger.log("Initial context initialised from " + baseURL,
+		   "UserManager", logger.INFO);
     }
 
     // Methods from interface UsersRepository --------------------------
@@ -541,6 +554,14 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
     public String getDomains() {
         return usersDomain;
+    }
+
+    /**
+     * Disposes of all open directory contexts.
+     * Based on signature from interface Disposable in new Avalon
+     */
+    public void dispose() throws Exception {
+	ctx.close();
     }
 
 }
