@@ -110,11 +110,11 @@ import java.util.Iterator;
  *
  */
 public abstract class AbstractNotify extends AbstractRedirect {
-    
+
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
      * @return true, as all notifications should
      */
@@ -128,14 +128,14 @@ public abstract class AbstractNotify extends AbstractRedirect {
     protected int getInLineType() {
         return NONE;
     }
-    
+
     /**
      * @return <CODE>MESSAGE</CODE>
      */
     protected int getAttachmentType() {
         return MESSAGE;
     }
-    
+
     /**
      * @return the <CODE>notice</CODE> init parameter
      */
@@ -146,7 +146,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
             return getInitParameter("notice");
         }
     }
-    
+
     /**
      * @return the full message to append, built from the Mail object
      */
@@ -154,7 +154,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
         MimeMessage message = originalMail.getMessage();
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        
+
         // First add the "local" notice
         // (either from conf or generic error message)
         out.println(getMessage());
@@ -208,10 +208,10 @@ public abstract class AbstractNotify extends AbstractRedirect {
         if (message.getLineCount() >= 0) {
             out.println("  Number of lines: " + message.getLineCount());
         }
-        
+
         return sout.toString();
     }
-    
+
     /**
      * @return the value of the <CODE>sendingAddress</CODE> init parameter if not null,
      * the postmaster address otherwise
@@ -223,7 +223,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
             return new MailAddress(getInitParameter("sendingAddress"));
         }
     }
-    
+
     /**
      * @return the <CODE>attachStackTrace</CODE> init parameter
      */
@@ -236,7 +236,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
         }
         return attachStackTrace;
     }
-    
+
     /**
      * @return true
      */
@@ -247,6 +247,5 @@ public abstract class AbstractNotify extends AbstractRedirect {
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
-    
-}
 
+}
