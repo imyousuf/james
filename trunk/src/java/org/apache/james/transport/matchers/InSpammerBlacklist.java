@@ -43,14 +43,18 @@ public class InSpammerBlacklist extends GenericMatcher {
         String host = mail.getRemoteAddr();
         try {
             //Have to reverse the octets first
+            StringBuffer sb = new StringBuffer();
             StringTokenizer st = new StringTokenizer(host, " .", false);
-            host = network;
+
             while (st.hasMoreTokens()) {
-                host = st.nextToken() + ".";
+                sb.insert(0, st.nextToken() + ".");
             }
 
+            //Add the network prefix for this blacklist
+            sb.append(network);
+
             //Try to look it up
-            InetAddress.getByName(host);
+            InetAddress.getByName(sb.toString());
 
             //If we got here, that's bad... it means the host
             //  was found in the blacklist
