@@ -43,8 +43,8 @@ import org.apache.mailet.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2001/06/14 15:55:39 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2001/06/15 12:48:13 $ by: $Author: charlesb $ 
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -81,7 +81,6 @@ public class SMTPHandler
     private TimeScheduler scheduler;
     private UsersRepository users;
     private MailServer mailServer;
-    private James parentJames;
 
     private String softwaretype = "JAMES SMTP Server "
                                    + Constants.SOFTWARE_VERSION;
@@ -110,8 +109,6 @@ public class SMTPHandler
         throws ComponentException {
         mailServer = (MailServer)componentManager.lookup(
                                  "org.apache.james.services.MailServer");
-        parentJames = (James)componentManager.lookup(
-                             "org.apache.james.services.MailServer");
         scheduler = (TimeScheduler)componentManager.lookup(
             "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         UsersStore usersStore = (UsersStore)componentManager.lookup(
@@ -260,23 +257,38 @@ public class SMTPHandler
     private void doHELO(String command,String argument,String argument1) {
         if (state.containsKey(CURRENT_HELO_MODE)) {
             out.println("250 " + state.get(SERVER_NAME)
-                        + " Duplicate HELO/EHLO");
+                        + " Duplicate HELO");
         } else if (argument == null) {
             out.println("501 domain address required: " + command);
         } else {
             state.put(CURRENT_HELO_MODE, command);
             state.put(NAME_GIVEN, argument);
-            out.println(((authRequired) ? "250-AUTH LOGIN PLAIN\r\n" : "")
-                        + "250 " + state.get(SERVER_NAME) + " Hello "
+            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
                         + argument + " (" + state.get(REMOTE_NAME)
                         + " [" + state.get(REMOTE_IP) + "])");
         }
     }
     private void doEHLO(String command,String argument,String argument1) {
-        doHELO(command,argument,argument1);
-	if (maxmessagesize > 0) {
-	    //    out.println("250 SIZE " + maxmessagesize);
+        if (state.containsKey(CURRENT_HELO_MODE)) {
+            out.println("250 " + state.get(SERVER_NAME)
+                        + " Duplicate EHLO");
+        } else if (argument == null) {
+            out.println("501 domain address required: " + command);
+        } else {
+            state.put(CURRENT_HELO_MODE, command);
+            state.put(NAME_GIVEN, argument);
+            out.println( "250 " + state.get(SERVER_NAME) + " Hello "
+                        + argument + " (" + state.get(REMOTE_NAME)
+                        + " [" + state.get(REMOTE_IP) + "])");
+	    if (maxmessagesize > 0) {
+	        //    out.println("250 SIZE " + maxmessagesize);
+            }
+	    if (authRequired) {
+	        out.println("250 AUTH LOGIN PLAIN");
+            }
         }
+
+
     }
 
     private void doAUTH(String command,String argument,String argument1)
@@ -406,7 +418,7 @@ public class SMTPHandler
                     String toDomain
                          = recipient.substring(recipient.indexOf('@') + 1);
                     
-                    if (!parentJames.isLocalServer(toDomain)) {
+                    if (!mailServer.isLocalServer(toDomain)) {
                         out.println("530 Authentication Required");
                         getLogger().error(
                             "Authentication is required for mail request");
@@ -428,7 +440,7 @@ public class SMTPHandler
                             + senderAddress);
                         return;
                       }                        
-                      if (!parentJames.isLocalServer(
+                      if (!mailServer.isLocalServer(
                                        senderAddress.getHost())) {
                         out.println("503 Incorrect Authentication for Specified Email Address");
                         getLogger().error("User " + authUser
