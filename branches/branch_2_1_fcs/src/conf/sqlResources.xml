@@ -199,8 +199,7 @@
             remote_addr varchar (20) NOT NULL ,
             message_body longblob NOT NULL ,
             last_updated datetime NOT NULL,
-            PRIMARY KEY (message_name, repository_name),
-            KEY repo (repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="hypersonic">
@@ -215,7 +214,7 @@
             remote_addr varchar (20) NOT NULL ,
             message_body varchar NOT NULL ,
             last_updated timestamp NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
@@ -234,8 +233,8 @@
         ALTER TABLE [${table}] WITH NOCHECK ADD
             CONSTRAINT [PK_${table}] PRIMARY KEY
             (
-                [message_name],
-                [repository_name]
+                [repository_name],
+                [message_name]
             )
     </sql>
     <sql name="createTable" db="oracle">
@@ -250,7 +249,7 @@
         remote_addr varchar2(20) NOT NULL ,
         message_body long raw NOT NULL ,
         last_updated date NOT NULL ,
-        PRIMARY KEY (message_name, repository_name)
+        PRIMARY KEY (repository_name, message_name)
         )
         TABLESPACE system
     </sql>
@@ -266,7 +265,7 @@
             remote_addr varchar (20) NOT NULL ,
             message_body bytea NOT NULL ,
             last_updated timestamp NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="sapdb">
@@ -281,7 +280,7 @@
             remote_addr varchar (20) NOT NULL ,
             message_body long byte NOT NULL ,
             last_updated date NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
 </sqlDefs>
