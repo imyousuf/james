@@ -20,11 +20,17 @@ import java.util.TimeZone;
  * java.util.Date object and returns a nicely formatted String version of this, formatted as per the
  * RFC822 mail date format.
  * @author Serge Knystautas <sergek@lokitech.com>
- * @version 0.9
  */
 public class RFC822DateFormat {
     private static DateFormat df;
     private static DecimalFormat tz;
+    private static TimeZone defaultTZ;
+
+    static {
+        df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.US);
+        tz = new DecimalFormat("00");
+        defaultTZ = TimeZone.getDefault();
+    }
 
     /**
      * SimpleDateFormat will handle most of this for us, but the
@@ -34,18 +40,15 @@ public class RFC822DateFormat {
      * @param d Date
      */
     public static String toString(Date d) {
-        if (df == null) {
-            df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss",Locale.US);
-        }
-        if (tz == null) {
-            tz = new DecimalFormat("00");
-        }
-
         StringBuffer sb = new StringBuffer(df.format(d));
 
         sb.append(' ');
 
         int min = TimeZone.getDefault().getRawOffset() / 1000 / 60;
+
+        if (defaultTZ.useDaylightTime() && defaultTZ.inDaylightTime(d)) {
+            min += 60;
+        }
 
         if (min >= 0) {
             sb.append('+');
