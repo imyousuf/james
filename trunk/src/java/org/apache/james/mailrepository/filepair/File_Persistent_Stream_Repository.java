@@ -108,7 +108,7 @@ public class File_Persistent_Stream_Repository
         }
     }
 
-    public void remove( final String key )
+    public synchronized void remove( final String key )
     {
         Object o = m_inputs.remove( key );
         if( null != o )
