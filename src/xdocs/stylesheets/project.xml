@@ -26,7 +26,7 @@
         <item name="Mailet API"     href="/mailet/index.html"/>
         <item name="James and sendmail"     href="/james_and_sendmail.html"/>
 
-        <item name="Useful RFCs (web)"   href="http://jakarta.apache.org/james/rfclist"/>
+        <item name="Useful RFCs"   href="/rfclist.html"/>
     </menu>
 
     <menu name="Older Documentation">
