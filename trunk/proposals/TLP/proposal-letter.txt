@@ -71,11 +71,10 @@ them. We are perhaps not the most active project, and some of us may
 feel that this sometimes causes James to be disregarded. Likewise, 
 apart from Avalon, we have few direct ties with other jakarta projects.
 
-We believe think that normalizing our relationship with the ASF Board
-by becoming a direct subordinate rather than a distant step-child, and
+We believe that normalizing our relationship with the ASF Board
+by becoming reporting directly  rather than through the Jakarta PMC, and
 taking official control of all the issues we currently inherit and
 "interpret" from Jakarta would benefit James.
-
 
 ----------------------------------------------------------------------
         Profile:
