@@ -245,6 +245,12 @@ public class NNTPHandler
     private String password;
 
     /**
+     * Whether the user for this session has already authenticated.
+     * Used to optimize authentication checks
+     */
+    boolean isAlreadyAuthenticated = false;
+
+    /**
      * The watchdog being used by this handler to deal with idle timeouts.
      */
     private Watchdog theWatchdog;
@@ -390,6 +396,7 @@ public class NNTPHandler
         // Clear the authentication info
         user = null;
         password = null;
+        isAlreadyAuthenticated = false;
 
         // Clear the config data
         theConfigData = null;
@@ -1411,7 +1418,7 @@ public class NNTPHandler
      * @return whether the command is authorized
      */
     private boolean isAuthorized(String command) {
-        boolean allowed = isAuthenticated();
+        boolean allowed = isAlreadyAuthenticated || isAuthenticated();
         if (allowed) {
             return true;
         }
