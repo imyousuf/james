@@ -213,31 +213,36 @@ public abstract class GenericListserv extends GenericMailet {
      * Here is an example raw text: 
      * Subject: =?iso-8859-2?Q?leg=FAjabb_pr=F3ba_l=F5elemmel?=
      *
+     * Possible enhancement:  under java 1.4 java.nio the system can determine if the
+     * suggested charset fits or not (if there is untranslatable
+     * characters). If the charset doesn't fit the new value, it
+     * can fall back to UTF-8.
+     *
      * @param rawText the raw (not decoded) value of the header
      * @return the java charset name or null if no encoding applied
      */
     static private String determineMailHeaderEncodingCharset(String rawText)
     {
-        if (!rawText.startsWith("=?")) return null;
-        int iSecondQuestionMark = rawText.indexOf('?', 2);
+        int iEncodingPrefix = rawText.indexOf("=?");
+        if (iEncodingPrefix == -1) return null;
+        int iCharsetBegin = iEncodingPrefix + 2; 
+        int iSecondQuestionMark = rawText.indexOf('?', iCharsetBegin);
         if (iSecondQuestionMark == -1) return null;
         // safety checks
-        if (iSecondQuestionMark == 2) return null; // empty charset? impossible
+        if (iSecondQuestionMark == iCharsetBegin) return null; // empty charset? impossible
         int iThirdQuestionMark = rawText.indexOf('?', iSecondQuestionMark + 1);
         if (iThirdQuestionMark == -1) return null; // there must be one after encoding
         if (-1 == rawText.indexOf("?=", iThirdQuestionMark + 1)) return null; // closing tag
         
-        String mimeCharset = rawText.substring(2, iSecondQuestionMark);
+        String mimeCharset = rawText.substring(iCharsetBegin, iSecondQuestionMark);
         String javaCharset = javax.mail.internet.MimeUtility.javaCharset(mimeCharset);
         
-        // currently we don't require java 1.4, but it is very useful here,
-        // so use reflection
+        // using reflection for a JRE 1.4 function
+        if (charsetIsSupportedMethod == null) return javaCharset; // pre 1.4 runtime
+
         try {
-            Class charsetClass = Class.forName("java.nio.charset.Charset");
-            Class[] parameterTypes = { String.class };
-            java.lang.reflect.Method method = charsetClass.getMethod("isSupported", parameterTypes);
             String[] arguments = { javaCharset };
-            Boolean isSupported = (Boolean)method.invoke(null, arguments);
+            Boolean isSupported = (Boolean)charsetIsSupportedMethod.invoke(null, arguments);
             if (isSupported.booleanValue()) 
                 return javaCharset;
             else 
@@ -247,13 +252,33 @@ public abstract class GenericListserv extends GenericMailet {
                 // and official MIME code yet, so this will be directly used as a MIME
                 // code, and it is the quasi-standard MIME code (OE uses this).
                 return "UTF-8"; 
-        } catch (ClassNotFoundException e) {
-            return javaCharset; // pre 1.4 runtime
         } catch (java.lang.reflect.InvocationTargetException e) {
             // it was thrown by Charset.isSupported, illegal charset name
             return "UTF-8"; 
         } catch (Exception e) {
-            return javaCharset; // impossible
+            // impossible
+            return javaCharset; 
+        }
+    }
+    
+    /** 
+     * JRE 1.4 specific method, java.nio.charset.Charset.isSupported(String).
+     * This field is initialized by the static initialization block and
+     * is used by the determineMailHeaderEncodingCharset method.
+     * James doesn't require JRE 1.4 so we must use reflection.
+     */
+    static private java.lang.reflect.Method charsetIsSupportedMethod;
+    
+    /**
+     * class initialization, it initializes the charsetIsSupportedMethod member
+     */
+    static {
+        try {
+            Class charsetClass = Class.forName("java.nio.charset.Charset");
+            Class[] parameterTypes = { String.class };
+            charsetIsSupportedMethod = charsetClass.getMethod("isSupported", parameterTypes);
+        } catch (Exception e) {
+            charsetIsSupportedMethod = null; // pre 1.4 runtime
         }
     }
     
