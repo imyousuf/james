@@ -9,7 +9,6 @@ package org.apache.james.transport.mailets;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
@@ -21,7 +20,7 @@ import org.apache.mailet.MailRepository;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  *
- * @version This is $Revision: 1.10 $
+ * @version This is $Revision: 1.11 $
  */
 public class ToRepository extends GenericMailet {
 
@@ -67,8 +66,8 @@ public class ToRepository extends GenericMailet {
      *
      * @param mail the mail to process
      */
-    public void service(Mail genericmail) {
-        MailImpl mail = (MailImpl)genericmail;
+    public void service(Mail mail) {
+        
         StringBuffer logBuffer =
             new StringBuffer(160)
                     .append("Storing mail ")
