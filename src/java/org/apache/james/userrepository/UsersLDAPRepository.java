@@ -60,6 +60,7 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -84,12 +85,11 @@ import java.util.*;
  *
  * This clas is a dummy for the proposal!
  *
- * @version 1.0.0, 24/04/1999
- * @author  Charles Bennett
+ * @version This is $Revision: 1.9.4.3 $
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Composable, Configurable, Contextualizable, Initializable{
 
     private ComponentManager comp;
 
@@ -133,7 +133,7 @@ public class UsersLDAPRepository
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(ComponentManager compMgr) {
-        this.comp = comp;
+        this.comp = compMgr;
     }
 
     /**
