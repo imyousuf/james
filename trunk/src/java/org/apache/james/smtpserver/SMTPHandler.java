@@ -37,7 +37,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.33 $
+ * @version This is $Revision: 1.34 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -216,11 +216,6 @@ public class SMTPHandler
      * The per-handler response buffer used to marshal responses.
      */
     StringBuffer responseBuffer = new StringBuffer(256);
-
-        public SMTPHandler() {
-            System.out.println("Creating SMTPHandler");
-        }
-
 
     /**
      * Set the configuration data for the handler
