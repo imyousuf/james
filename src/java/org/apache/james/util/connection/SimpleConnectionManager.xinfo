@@ -11,7 +11,7 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <service name="org.apache.james.services.JamesConnectionManager"/>
   </services>
 
   <!-- services that are required by this block -->

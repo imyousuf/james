@@ -20,7 +20,7 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
+import org.apache.james.services.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
@@ -39,7 +39,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  */
 public class SimpleConnectionManager
     extends AbstractLogEnabled
-    implements ConnectionManager, Serviceable, Configurable, Disposable {
+    implements JamesConnectionManager, Serviceable, Configurable, Disposable {
     /**
      * The default value for client socket idle timeouts.  The
      * Java default is 0, meaning no timeout.  That's dangerous
