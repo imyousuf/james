@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.3 2003/01/27 08:32:41 danny Exp $ -->
+<!-- $Id: site.xsl,v 1.4 2003/01/27 11:49:58 danny Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -60,8 +60,8 @@
       <meta name="author" value="{$name}"/>
       <meta name="email" value="{$email}"/>
     </xsl:for-each>
-<meta name="keywords" content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux."/>
-<meta name="description" content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux."/>
+<meta name="keywords" content="mail,email,news,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux."/>
+<meta name="description" content="Free (Open Source) Java mail server (mailserver) from Apache. Providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux."/>
 <meta name="ROBOTS" content="ALL"/>
 
     <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style" />
