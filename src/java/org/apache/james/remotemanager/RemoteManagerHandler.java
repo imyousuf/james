@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -44,8 +45,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: serge $ on $Date: 2002/04/17 04:23:36 $
- * $Revision: 1.10 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/08 00:46:56 $
+ * $Revision: 1.11 $
  *
  */
 public class RemoteManagerHandler
@@ -117,7 +118,17 @@ public class RemoteManagerHandler
         try {
             in = new BufferedReader(new InputStreamReader( socket.getInputStream() ));
             out = new PrintWriter( socket.getOutputStream(), true);
-            getLogger().info( "Access from " + remoteHost + "(" + remoteIP + ")" );
+            if (getLogger().isInfoEnabled())
+            {
+                StringBuffer infoBuffer =
+                    new StringBuffer(128)
+                            .append("Access from ")
+                            .append(remoteHost)
+                            .append("(")
+                            .append(remoteIP)
+                            .append(")");
+                getLogger().info( infoBuffer.toString() );
+            }
             out.println( "JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION );
             out.println("Please enter your login and password");
             String login = null;
@@ -137,8 +148,21 @@ public class RemoteManagerHandler
 
             scheduler.resetTrigger(this.toString());
 
-            out.println( "Welcome " + login + ". HELP for a list of commands" );
-            getLogger().info("Login for " + login + " succesful");
+            StringBuffer messageBuffer =
+                new StringBuffer(64)
+                        .append("Welcome ")
+                        .append(login)
+                        .append(". HELP for a list of commands");
+            out.println( messageBuffer.toString() );
+            if (getLogger().isInfoEnabled())
+            {
+                StringBuffer infoBuffer =
+                    new StringBuffer(128)
+                            .append("Login for ")
+                            .append(login)
+                            .append(" successful");
+                getLogger().info(infoBuffer.toString());
+            }
 
             try {
                 while (parseCommand(in.readLine())) {
@@ -150,14 +174,27 @@ public class RemoteManagerHandler
                 System.out.println("Exception: " + thr.getMessage());
                 thr.printStackTrace();
             }
-            getLogger().info("Logout for " + login + ".");
+            StringBuffer infoBuffer =
+                new StringBuffer(64)
+                        .append("Logout for ")
+                        .append(login)
+                        .append(".");
+            getLogger().info(infoBuffer.toString());
             socket.close();
 
         } catch ( final IOException e ) {
             out.println("Error. Closing connection");
             out.flush();
-            getLogger().error( "Exception during connection from " + remoteHost +
-                               " (" + remoteIP + ")");
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Exception during connection from ")
+                            .append(remoteHost)
+                            .append(" (")
+                            .append(remoteIP)
+                            .append(")");
+                getLogger().error(exceptionBuffer.toString());
+            }
         }
 
         scheduler.removeTrigger(this.toString());
@@ -173,13 +210,15 @@ public class RemoteManagerHandler
     }
 
     private boolean parseCommand( String command ) {
-        if (command == null) return false;
+        if (command == null) {
+            return false;
+        }
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
             return true;
         } else if(arguments > 0) {
-            command = commandLine.nextToken();
+            command = commandLine.nextToken().toUpperCase(Locale.US);
         }
         String argument = (String) null;
         if(arguments > 1) {
@@ -189,7 +228,7 @@ public class RemoteManagerHandler
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
         }
-        if (command.equalsIgnoreCase("ADDUSER")) {
+        if (command.equals("ADDUSER")) {
             String username = argument;
             String passwd = argument1;
             try {
@@ -204,7 +243,13 @@ public class RemoteManagerHandler
 
             boolean success = false;
             if (users.contains(username)) {
-                out.println("user " + username + " already exist");
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(username)
+                            .append(" already exists");
+                String response = responseBuffer.toString();
+                out.println(response);
             }
             else if ( inLocalUsers ) {
                 success = mailServer.addUser(username, passwd);
@@ -215,43 +260,55 @@ public class RemoteManagerHandler
                 success = users.addUser(user);
             }
             if ( success ) {
-                out.println("User " + username + " added");
-                getLogger().info("User " + username + " added");
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(username)
+                            .append(" added");
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
             }
             else {
                 out.println("Error adding user " + username);
                 getLogger().info("Error adding user " + username);
             }
             out.flush();
-        } else if (command.equalsIgnoreCase("SETPASSWORD")) {
-        if (argument == null || argument1 == null) {
+        } else if (command.equals("SETPASSWORD")) {
+            if (argument == null || argument1 == null) {
                 out.println("usage: setpassword [username] [password]");
                 return true;
-        }
+            }
             String username = argument;
             String passwd = argument1;
             if (username.equals("") || passwd.equals("")) {
                 out.println("usage: adduser [username] [password]");
                 return true;
-        }
-        User user = users.getUserByName(username);
-        if (user == null) {
-        out.println("No such user");
-        return true;
-        }
-        boolean success;
-        success = user.setPassword(passwd);
-        if (success){
-        users.updateUser(user);
-                out.println("Password for " + username + " reset");
-                getLogger().info("Password for " + username + " reset");
-        } else {
+            }
+            User user = users.getUserByName(username);
+            if (user == null) {
+                out.println("No such user");
+                return true;
+            }
+            boolean success;
+            success = user.setPassword(passwd);
+            if (success) {
+                users.updateUser(user);
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("Password for ")
+                            .append(username)
+                            .append(" reset");
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
+            } else {
                 out.println("Error resetting password");
                 getLogger().info("Error resetting password");
-        }
+            }
             out.flush();
-        return true;
-        } else if (command.equalsIgnoreCase("DELUSER")) {
+            return true;
+        } else if (command.equals("DELUSER")) {
             String user = argument;
             if (user.equals("")) {
                 out.println("usage: deluser [username]");
@@ -260,31 +317,55 @@ public class RemoteManagerHandler
             try {
                 users.removeUser(user);
             } catch (Exception e) {
-                out.println("Error deleting user " + user + " : " + e.getMessage());
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Error deleting user ")
+                            .append(user)
+                            .append(" : ")
+                            .append(e.getMessage());
+                out.println(exceptionBuffer.toString());
                 return true;
             }
-            out.println("User " + user + " deleted");
-            getLogger().info("User " + user + " deleted");
-        } else if (command.equalsIgnoreCase("LISTUSERS")) {
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("User ")
+                        .append(user)
+                        .append(" deleted");
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else if (command.equals("LISTUSERS")) {
             out.println("Existing accounts " + users.countUsers());
             for (Iterator it = users.list(); it.hasNext();) {
                 out.println("user: " + (String) it.next());
             }
-        } else if (command.equalsIgnoreCase("COUNTUSERS")) {
+        } else if (command.equals("COUNTUSERS")) {
             out.println("Existing accounts " + users.countUsers());
-        } else if (command.equalsIgnoreCase("VERIFY")) {
+        } else if (command.equals("VERIFY")) {
             String user = argument;
             if (user.equals("")) {
                 out.println("usage: verify [username]");
                 return true;
             }
             if (users.contains(user)) {
-                out.println("User " + user + " exist");
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(user)
+                            .append(" exists");
+                String response = responseBuffer.toString();
+                out.println(response);
             } else {
-                out.println("User " + user + " does not exist");
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("User ")
+                            .append(user)
+                            .append(" does not exist");
+                String response = responseBuffer.toString();
+                out.println(response);
             }
-        } else if (command.equalsIgnoreCase("HELP")) {
-            out.println("Currently implemented commans:");
+        } else if (command.equals("HELP")) {
+            out.println("Currently implemented commands:");
             out.println("help                                    display this help");
             out.println("listusers                               display existing accounts");
             out.println("countusers                              display the number of existing accounts");
@@ -299,123 +380,141 @@ public class RemoteManagerHandler
             out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
             out.println("quit                                    close connection");
             out.flush();
-        } else if (command.equalsIgnoreCase("SETALIAS")) {
-        if (argument == null || argument1 == null) {
+        } else if (command.equals("SETALIAS")) {
+            if (argument == null || argument1 == null) {
                 out.println("usage: setalias [username] [alias]");
                 return true;
-        }
+            }
             String username = argument;
             String alias = argument1;
             if (username.equals("") || alias.equals("")) {
                 out.println("usage: adduser [username] [alias]");
                 return true;
-        }
-        JamesUser user = (JamesUser) users.getUserByName(username);
-        if (user == null) {
-        out.println("No such user");
-        return true;
-        }
-        JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
-        if (aliasUser == null) {
-        out.println("Alias unknown to server"
+            }
+            JamesUser user = (JamesUser) users.getUserByName(username);
+            if (user == null) {
+                out.println("No such user");
+                return true;
+            }
+            JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+            if (aliasUser == null) {
+                out.println("Alias unknown to server"
                             + " - create that user first.");
-        return true;
-        }
+                return true;
+            }
 
-        boolean success;
-        success = user.setAlias(alias);
-        if (success){
-            user.setAliasing(true);
-        users.updateUser(user);
-                out.println("Alias for " + username + " set to:" + alias);
-                getLogger().info("Alias for " + username + " set to:" + alias);
-        } else {
+            boolean success;
+            success = user.setAlias(alias);
+            if (success) {
+                user.setAliasing(true);
+                users.updateUser(user);
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("Alias for ")
+                            .append(username)
+                            .append(" set to:")
+                            .append(alias);
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
+            } else {
                 out.println("Error setting alias");
                 getLogger().info("Error setting alias");
-        }
+            }
             out.flush();
-        return true;
-        } else if (command.equalsIgnoreCase("SETFORWARDING")) {
-        if (argument == null || argument1 == null) {
+            return true;
+        } else if (command.equals("SETFORWARDING")) {
+            if (argument == null || argument1 == null) {
                 out.println("usage: setforwarding [username] [emailaddress]");
                 return true;
-        }
+            }
             String username = argument;
             String forward = argument1;
             if (username.equals("") || forward.equals("")) {
                 out.println("usage: adduser [username] [emailaddress]");
                 return true;
-        }
-        // Verify user exists
-        User baseuser = users.getUserByName(username);
-        if (baseuser == null) {
-        out.println("No such user");
-        return true;
-        }
+            }
+            // Verify user exists
+            User baseuser = users.getUserByName(username);
+            if (baseuser == null) {
+                out.println("No such user");
+                return true;
+            }
             else if (! (baseuser instanceof JamesUser ) ) {
                 out.println("Can't set forwarding for this user type.");
                 return true;
             }
             JamesUser user = (JamesUser)baseuser;
-        // Veriy acceptable email address
-        MailAddress forwardAddr;
+            // Verify acceptable email address
+            MailAddress forwardAddr;
             try {
                  forwardAddr = new MailAddress(forward);
             } catch(ParseException pe) {
-        out.println("Parse exception with that email address: "
+                out.println("Parse exception with that email address: "
                             + pe.getMessage());
-        out.println("Forwarding address not added for " + username);
-            return true;
-        }
+                out.println("Forwarding address not added for " + username);
+                return true;
+            }
 
-        boolean success;
-        success = user.setForwardingDestination(forwardAddr);
-        if (success){
-            user.setForwarding(true);
-        users.updateUser(user);
-                out.println("Forwarding destination for " + username
-                             + " set to:" + forwardAddr.toString());
-                getLogger().info("Forwarding destination for " + username
-                                 + " set to:" + forwardAddr.toString());
-        } else {
+            boolean success;
+            success = user.setForwardingDestination(forwardAddr);
+            if (success) {
+                user.setForwarding(true);
+                users.updateUser(user);
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("Forwarding destination for ")
+                            .append(username)
+                            .append(" set to:")
+                            .append(forwardAddr.toString());
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
+            } else {
                 out.println("Error setting forwarding");
                 getLogger().info("Error setting forwarding");
-        }
+            }
             out.flush();
-        return true;
-        } else if (command.equalsIgnoreCase("UNSETALIAS")) {
-        if (argument == null) {
-                out.println("usage: unsetalias [username]");
-                return true;
-        }
+            return true;
+        } else if (command.equals("UNSETALIAS")) {
+            if (argument == null) {
+                    out.println("usage: unsetalias [username]");
+                    return true;
+            }
             String username = argument;
             if (username.equals("")) {
                 out.println("usage: adduser [username]");
                 return true;
-        }
-        JamesUser user = (JamesUser) users.getUserByName(username);
-        if (user == null) {
-        out.println("No such user");
-        return true;
-        }
+            }
+            JamesUser user = (JamesUser) users.getUserByName(username);
+            if (user == null) {
+                out.println("No such user");
+                return true;
+            }
 
-        if (user.getAliasing()){
-            user.setAliasing(false);
-        users.updateUser(user);
-                out.println("Alias for " + username + " unset");
-                getLogger().info("Alias for " + username + " unset");
-        } else {
+            if (user.getAliasing()){
+                user.setAliasing(false);
+                users.updateUser(user);
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("Alias for ")
+                            .append(username)
+                            .append(" unset");
+                String response = responseBuffer.toString();
+                out.println(response);
+                getLogger().info(response);
+            } else {
                 out.println("Aliasing not active for" + username);
                 getLogger().info("Aliasing not active for" + username);
-        }
+            }
             out.flush();
-        return true;
-        } else if (command.equalsIgnoreCase("USE")) {
-        if (argument == null || argument.equals("")) {
+            return true;
+        } else if (command.equals("USE")) {
+            if (argument == null || argument.equals("")) {
                 out.println("usage: use [repositoryName]");
                 return true;
-        }
-            String repositoryName = argument;
+            }
+            String repositoryName = argument.toLowerCase(Locale.US);
             UsersRepository repos = usersStore.getRepository(repositoryName);
             if ( repos == null ) {
                 out.println("no such repository");
@@ -423,8 +522,13 @@ public class RemoteManagerHandler
             }
             else {
                 users = repos;
-                out.println("Changed to repository '" + repositoryName + "'.");
-                if ( repositoryName.equalsIgnoreCase("localusers") ) {
+                StringBuffer responseBuffer =
+                    new StringBuffer(64)
+                            .append("Changed to repository '")
+                            .append(repositoryName)
+                            .append("'.");
+                out.println(responseBuffer.toString());
+                if ( repositoryName.equals("localusers") ) {
                     inLocalUsers = true;
                 }
                 else {
@@ -433,10 +537,10 @@ public class RemoteManagerHandler
                 return true;
             }
 
-        } else if (command.equalsIgnoreCase("QUIT")) {
+        } else if (command.equals("QUIT")) {
             out.println("bye");
             return false;
-        } else if (command.equalsIgnoreCase("SHUTDOWN")) {
+        } else if (command.equals("SHUTDOWN")) {
             out.println("shuting down, bye bye");
             System.exit(0);
             return false;

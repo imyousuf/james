@@ -45,18 +45,33 @@ public class ArticleIDRepository {
 
     String generateArticleID() {
         int idx = Math.abs(counter++);
-        String unique = Thread.currentThread().hashCode()+"."+
-            System.currentTimeMillis()+"."+idx;
-        return "<"+unique+"@"+articleIDDomainSuffix+">";
+        StringBuffer idBuffer =
+            new StringBuffer(256)
+                    .append("<")
+                    .append(Thread.currentThread().hashCode())
+                    .append(".")
+                    .append(System.currentTimeMillis())
+                    .append(".")
+                    .append(idx)
+                    .append("@")
+                    .append(articleIDDomainSuffix)
+                    .append(">");
+        return idBuffer.toString();
     }
 
     /** @param prop contains the newsgroup name and article number */
     void addArticle(String articleID,Properties prop) throws IOException {
         if ( articleID == null )
             articleID = generateArticleID();
-        FileOutputStream fout = new FileOutputStream(getFileFromID(articleID));
-        prop.store(fout,new Date().toString());
-        fout.close();
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(getFileFromID(articleID));
+            prop.store(fout,new Date().toString());
+        } finally {
+            if (fout != null) {
+                fout.close();
+            }
+        }
     }
 
     File getFileFromID(String articleID) {
@@ -77,10 +92,16 @@ public class ArticleIDRepository {
         File f = getFileFromID(id);
         if ( f.exists() == false )
             return null;
-        FileInputStream fin = new FileInputStream(f);
+        FileInputStream fin = null;
         Properties prop = new Properties();
-        prop.load(fin);
-        fin.close();
+        try {
+            fin = new FileInputStream(f);
+            prop.load(fin);
+        } finally {
+            if (fin != null) {
+                fin.close();
+            }
+        }
         Enumeration enum = prop.keys();
         NNTPArticle article = null;
         while ( article == null && enum.hasMoreElements() ) {
