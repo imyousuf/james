@@ -7,12 +7,8 @@
  */
 package org.apache.james.imapserver;
 
+import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.imapserver.AuthenticationException;
 
 import java.net.InetAddress;
@@ -30,33 +26,20 @@ import java.util.Set;
  * @version 0.1 on 14 Dec 2000
  */
 public class SimpleSystem
-    implements IMAPSystem, Block, Initializable {
+    implements IMAPSystem, Component, Initializable {
 
     private static final String namespaceToken = "#";
-    private static final String hierarchySeperator = ".";
+    private static final String hierarchySeparator = ".";
     private static final String namespace
         = "((\"#mail.\" \".\")) ((\"#users.\" \".\")) ((\"#shared.\" \".\"))";
 
     private static String singleServer;
     private Set servers = new HashSet();
-    private Context context;
-    private Configuration conf;
-    private ComponentManager compMgr;
 
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
-    }
-
-    public void contextualize(Context context) {
-        this.context = context;
-    }
-
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
     public void initialize() throws Exception {
-        // Derive namespace and namespaceToken from conf
         String hostName = null;
         try {
             hostName = InetAddress.getLocalHost().getHostName();
@@ -93,8 +76,8 @@ public class SimpleSystem
     }
 
     /**
-     * Returns the character used as a mail hierarchy seperator in a given
-     * namespace. A namespace must use the same seperator at all levels of
+     * Returns the character used as a mail hierarchy separator in a given
+     * namespace. A namespace must use the same separator at all levels of
      * hierarchy.
      * <p>Recommendations (from rfc 2683) are period (US)/ full stop (Brit),
      * forward slash or backslash.
@@ -103,7 +86,7 @@ public class SimpleSystem
      * @return char, usually '.', '/', or '\'
      */
     public String getHierarchySeperator(String namespace) {
-        return hierarchySeperator;
+        return hierarchySeparator;
     }
 
     /**
@@ -133,7 +116,3 @@ public class SimpleSystem
         return Collections.unmodifiableSet(servers).iterator();
     }
 }
-
-
-
-

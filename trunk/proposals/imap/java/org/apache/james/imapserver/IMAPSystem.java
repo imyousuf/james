@@ -7,9 +7,6 @@
  */
 package org.apache.james.imapserver;
 
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.james.imapserver.AuthenticationException;
 
 import java.util.Iterator;
@@ -24,8 +21,7 @@ import java.util.Iterator;
  * @version 0.1 on 14 Dec 2000
  * @see Host
  */
-public interface IMAPSystem
-    extends Configurable, Contextualizable, Composable {
+public interface IMAPSystem {
 
     String ROLE = "org.apache.james.imapserver.IMAPSystem";
 
@@ -56,8 +52,8 @@ public interface IMAPSystem
         throws AuthenticationException;
 
     /**
-     * Returns the character used as a mail hierarchy seperator in a given
-     * namespace. A namespace must use the same seperator at all levels of
+     * Returns the character used as a mail hierarchy separator in a given
+     * namespace. A namespace must use the same separator at all levels of
      * hierarchy.
      * <p>Recommendations (from rfc 2683) are period (US)/ full stop (Brit),
      * forward slash or backslash.
@@ -68,8 +64,8 @@ public interface IMAPSystem
     String getHierarchySeperator( String namespace );
 
     /**
-     * Provides the set of namesapces a given user can access. Implementations
-     * should but are not required to reveal all namespaces that a user can
+     * Provides the set of namespaces a given user can access. Implementations
+     * should, but are not required to, reveal all namespaces that a user can
      * access. Different namespaces may be handled by different
      * <code>IMAPHosts</code>
      *
