@@ -95,12 +95,12 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * Return the key of a message to process.  This is a message in the spool that is not locked.
      */
-    public String accept() {
-        while (true) {
+    public String accept() throws InterruptedException {
+        while (!Thread.currentThread().isInterrupted()) {
             //Loop through until we are either out of pending messages or have a message
             // that we can lock
             PendingMessage next = null;
-            while ((next = getNextPendingMessage()) != null) {
+            while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
                 if (lock(next.key)) {
                     return next.key;
                 }
@@ -117,9 +117,11 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     //System.err.println(errorBuffer.toString());
                     wait(WAIT_LIMIT);
                 }
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException ex) {
+                throw ex;
             }
         }
+        throw new InterruptedException();
     }
 
     /**
@@ -127,13 +129,13 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * then check the last updated time, and don't try it until the long 'delay' parameter
      * milliseconds has passed.
      */
-    public synchronized String accept(long delay) {
-        while (true) {
+    public synchronized String accept(long delay) throws InterruptedException {
+        while (!Thread.currentThread().isInterrupted()) {
             //Loop through until we are either out of pending messages or have a message
             // that we can lock
             PendingMessage next = null;
             long sleepUntil = 0;
-            while ((next = getNextPendingMessage()) != null) {
+            while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
                 //Check whether this is time to expire
                 boolean shouldProcess = false;
                 if (Mail.ERROR.equals(next.state)) {
@@ -172,10 +174,11 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     //System.err.println(errorBuffer.toString());
                     wait(waitTime);
                 }
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException ex) {
+                throw ex;
             }
-
         }
+        throw new InterruptedException();
     }
 
     /**
@@ -233,7 +236,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 //  a possible message, or we retrieve 1000 messages.  This 1000 cap is to
                 //  avoid loading thousands or hundreds of thousands of messages when the
                 //  spool is enourmous.
-                while (rsListMessages.next() && pendingMessages.size() < 1000) {
+                while (rsListMessages.next() && pendingMessages.size() < 1000 && !Thread.currentThread().isInterrupted()) {
                     String key = rsListMessages.getString(1);
                     String state = rsListMessages.getString(2);
                     long lastUpdated = rsListMessages.getTimestamp(3).getTime();

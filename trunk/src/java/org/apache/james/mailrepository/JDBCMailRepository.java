@@ -755,7 +755,7 @@ public class JDBCMailRepository
             rsListMessages = listMessages.executeQuery();
 
             List messageList = new ArrayList();
-            while (rsListMessages.next() /* && !Thread.currentThread().isInterrupted() -- post 2.1 enable this (NjB) */) {
+            while (rsListMessages.next() && !Thread.currentThread().isInterrupted()) {
                 messageList.add(rsListMessages.getString(1));
             }
             return messageList.iterator();

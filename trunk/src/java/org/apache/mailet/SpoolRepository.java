@@ -30,7 +30,7 @@ public interface SpoolRepository
      *
      * @return the key for the mail
      */
-    String accept();
+    String accept() throws InterruptedException;
 
     /**
      * Returns the key for an arbitrarily select mail deposited in this Repository that
@@ -41,5 +41,5 @@ public interface SpoolRepository
      *
      * @return the key for the mail
      */
-    String accept(long delay);
+    String accept(long delay) throws InterruptedException;
 }
