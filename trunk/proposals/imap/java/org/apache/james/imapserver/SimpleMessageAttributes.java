@@ -9,6 +9,7 @@ package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.RFC822DateFormat;
+import org.apache.log.Logger;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.BodyPart;
@@ -25,8 +26,9 @@ import java.util.*;
  * <p> reinitialize() must be called on deserialization to reset Logger
  *
  * Reference: RFC 2060 - para 2.3
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @version 0.2 on 04 Aug 2002
  */
 public class SimpleMessageAttributes
     extends AbstractLogEnabled
@@ -41,6 +43,9 @@ public class SimpleMessageAttributes
     private final static String MULTIPART = "MULTIPART";
     private final static String MESSAGE = "MESSAGE";
 
+    //Only available in first incarnation of object
+    private transient Logger logger;
+
     private int uid;
     private int messageSequenceNumber;
     private Date internalDate;
@@ -49,7 +54,7 @@ public class SimpleMessageAttributes
     private String envelope;
     private int size;
     private int lineCount;
-    private MessageAttributes[] parts;
+    public MessageAttributes[] parts;
     private List headers;
 
     //rfc822 or MIME header fields
@@ -73,24 +78,35 @@ public class SimpleMessageAttributes
     private String contentEncoding;
 
     SimpleMessageAttributes() {
+	System.out.println("SimpleMessageAttributes()");
+      //  new Throwable().printStackTrace();
     }
 
     void setAttributesFor(MimeMessage msg) throws MessagingException {
+        System.out.println("setAttributesFor msg.class: " + msg.getClass().getName());
+        
         size = msg.getSize();
-
+        System.out.println("setAttributesFor - size: " + size);
         try {
             internalDate = msg.getSentDate();
-            if (DEBUG) getLogger().debug("setAttributes - getSentDate: " + internalDate);
+            if (DEBUG) getLogger().debug("setAttributesFor - getSentDate: " + internalDate);
+            System.out.println("setAttributesFor - getSentDate: " + internalDate);
         } catch (MessagingException me) {
             if (DEBUG) getLogger().debug("Messaging Exception for getSentDate: " + me);
+            System.out.println("Messaging Exception for getSentDate: " + me);
             internalDate = new Date();
         }
 
-        if (DEBUG) {
-            getLogger().debug("HeaderLines recieved were: ");
+        //if (DEBUG) {
+            getLogger().debug("HeaderLines received were: ");
+            System.out.println("HeaderLines received were: ");
             Enumeration enum = msg.getAllHeaderLines();
             while(enum.hasMoreElements()) {
                 getLogger().debug((String)enum.nextElement());
+            }
+            enum = msg.getAllHeaderLines();
+            while(enum.hasMoreElements()) {
+                System.out.println((String)enum.nextElement());
             }
             //  getLogger().debug("Header objects available are:");
             //   Enumeration e = msg.getAllHeaders();
@@ -99,8 +115,9 @@ public class SimpleMessageAttributes
             //getLogger().debug("Name: " + h.getName());
             //getLogger().debug("Value: " + h.getValue());
             //  }
-        }
+      //  }
         internalDateString = RFC822DateFormat.toString(internalDate); // not right format
+        System.out.println("setting msg: "+msg);
         parseMimePart(msg);
         envelope = null;
         bodyStructure = null;
@@ -115,6 +132,7 @@ public class SimpleMessageAttributes
      */
     void parseMimePart(MimePart part) {
         // Section 1 - Message Headers
+        System.out.println("parseMimePart("+part+")");
         if (part instanceof MimeMessage) {
             try {
                 subject = ((MimeMessage)part).getSubject();
@@ -217,42 +235,58 @@ public class SimpleMessageAttributes
         try {
             lineCount = part.getLineCount();
             if (DEBUG) getLogger().debug("parseMessage - Line Count: " + lineCount);
+            System.out.println("parseMessage - Line Count: " + lineCount);
         } catch (MessagingException me) {
             if (DEBUG) getLogger().debug("Messaging Exception for getLineCount(): " + me);
             if (DEBUG) getLogger().debug(me.getMessage());
+            System.out.println("Messaging Exception for getLineCount(): " + me);
+            System.out.println(me.getMessage());
         } catch (Exception e) {
             if (DEBUG) getLogger().debug("Exception for getLineCount(): " + e);
             if (DEBUG) getLogger().debug("Exception message was: " +  e.getMessage());
+            System.out.println("Exception for getLineCount(): " + e);
+            System.out.println("Exception message was: " +  e.getMessage());
+            e.printStackTrace();
         }
 
         // Recurse through any embedded parts
         if (primaryType.equalsIgnoreCase(MULTIPART)) {
             MimeMultipart container;
+            System.out.println("parseMimePart: its a MULTIPART");
             try {
                 container =(MimeMultipart) part.getContent();
                 int count = container.getCount();
                 getLogger().info("This part contains " + count + " parts.");
+                System.out.println("This part contains " + count + " parts.");
                 parts = new SimpleMessageAttributes[count];
                 for (int i = 0; i < count ; i ++) {
                     getLogger().info("Getting embedded part: " + i);
+                    System.out.println("Getting embedded part: " + i);
                     BodyPart nextPart = container.getBodyPart(i);
 
                     if (nextPart instanceof MimePart) {
                         SimpleMessageAttributes partAttrs = new SimpleMessageAttributes();
+                        setupLogger(partAttrs); // reset transient logger
                         partAttrs.parseMimePart((MimePart)nextPart);
                         parts[i] = partAttrs;
 
                     } else {
                         getLogger().info("Found a non-Mime bodyPart");
+                        System.out.println("Found a non-Mime bodyPart");
                     }
                     getLogger().info("Finished with embedded part: " + i);
+                    System.out.println("Finished with embedded part: " + i);
                 }
             } catch (Exception e) {
                 getLogger().debug("Messaging Exception for getContent(): " + e);
+                System.out.println("Messaging Exception for getContent(): " + e);
+                e.printStackTrace();
             }
         } else if (primaryType.equalsIgnoreCase("message")) {
             getLogger().info("This part contains an embedded message of subtype: " + secondaryType);
             getLogger().info("Uses java class: " + part.getClass().getName());
+            System.out.println("This part contains an embedded message of subtype: " + secondaryType);
+            System.out.println("Uses java class: " + part.getClass().getName());
             if (secondaryType.equalsIgnoreCase("RFC822")) {
                 //try {
 
@@ -278,8 +312,13 @@ public class SimpleMessageAttributes
                 //}
             } else {
                 getLogger().info("Unknown subtype of message encountered.");
+                System.out.println("Unknown subtype of message encountered.");
             }
             getLogger().info("Finished with embedded message. " );
+            System.out.println("Finished with embedded message. " );
+        }
+        else {
+            System.out.println("parseMimePart: its just a plain message");
         }
     }
 
@@ -306,6 +345,7 @@ public class SimpleMessageAttributes
         response.add(SP);
         if (sender != null && sender.length >0) {
             if (DEBUG) getLogger().debug("parsingEnvelope - sender[0] is: " + sender[0]);
+            System.out.println("parsingEnvelope - sender[0] is: " + sender[0]);
             //Check for Netscape feature - sender is local part only
             if (sender[0].indexOf("@") == -1) {
                 response.add(LB + (String)response.get(3) + RB); //first From address
@@ -398,6 +438,7 @@ public class SimpleMessageAttributes
      */
     String parseAddress(String address) {
         getLogger().info("Parsing address: " + address);
+        System.out.println("Parsing address: " + address);
         int comma = address.indexOf(",");
         StringBuffer buf = new StringBuffer();
         if (comma == -1) { //single address
@@ -439,9 +480,11 @@ public class SimpleMessageAttributes
      */
     void decodeContentType(String rawLine) {
         if (DEBUG) getLogger().debug("decoding: " + rawLine);
+        System.out.println("decoding: " + rawLine);
         int slash = rawLine.indexOf("/");
         if( slash == -1){
             if (DEBUG) getLogger().debug("decoding ... no slash found");
+            System.out.println("decoding ... no slash found");
             return;
         } else {
             primaryType = rawLine.substring(0, slash).trim();
@@ -449,6 +492,7 @@ public class SimpleMessageAttributes
         int semicolon = rawLine.indexOf(";");
         if (semicolon == -1) {
             if (DEBUG) getLogger().debug("decoding ... no semicolon found");
+            System.out.println("decoding ... no semicolon found");
             secondaryType = rawLine.substring(slash + 1).trim();
             return;
         }
@@ -459,15 +503,18 @@ public class SimpleMessageAttributes
         int nextsemi = rawLine.indexOf(";", pos+1);
         while (nextsemi != -1) {
             if (DEBUG) getLogger().debug("decoding ... found another semicolon");
+            System.out.println("decoding ... found another semicolon");
             String param = rawLine.substring(pos + 1, nextsemi);
             int esign = param.indexOf("=") ;
             if (esign == -1) {
                 if (DEBUG) getLogger().debug("Whacky parameter found: " + param);
+                System.out.println("Whacky parameter found: " + param);
             } else {
                 String name = param.substring(0, esign).trim();
                 String value = param.substring(esign + 1).trim();
                 parameters.add(name + SP + value);
                 if (DEBUG) getLogger().debug("Found parameter: " + name + SP + value);
+                System.out.println("Found parameter: " + name + SP + value);
             }
             pos = nextsemi;
             nextsemi = rawLine.indexOf(";", pos +1);
@@ -476,16 +523,19 @@ public class SimpleMessageAttributes
         int esign = lastParam.indexOf("=") ;
         if (esign == -1) {
             if (DEBUG) getLogger().debug("Whacky parameter found: " + lastParam);
+            System.out.println("Whacky parameter found: " + lastParam);
         } else {
             String name = lastParam.substring(0, esign).trim();
             String value = lastParam.substring(esign + 1).trim();
             parameters.add(Q + name + Q + SP + Q + value + Q);
             if (DEBUG) getLogger().debug("Found parameter: " + name + SP + value);
+            System.out.println("Found parameter: " + name + SP + value);
         }
     }
 
     String parseBodyFields() {
         getLogger().debug("Parsing body fields");
+        System.out.println("Parsing body fields");
         StringBuffer buf = new StringBuffer();
         if (parameters == null || parameters.isEmpty()) {
             buf.append(NIL);
@@ -525,16 +575,29 @@ public class SimpleMessageAttributes
      */
     String parseBodyStructure() {
         getLogger().debug("Parsing bodyStructure.");
+        System.out.println("Parsing bodyStructure.");
+        System.out.println("this.class="+this.getClass().getName());
         try {
             String fields = parseBodyFields();
             StringBuffer buf = new StringBuffer();
             buf.append(LB);
             if (primaryType.equalsIgnoreCase("Text")) {
                 getLogger().debug("Assembling bodystrucuture for type TEXT.");
+                System.out.println("Assembling bodystrucuture for type TEXT.");
+                System.out.println("secondaryType: '"+secondaryType+"'");
+                System.out.println("fields: '"+fields+"'");
+                System.out.println("lineCount: '"+lineCount+"'");
                 buf.append("\"Text\" \"" + secondaryType + "\" ");
-                buf.append(fields + " " + lineCount);
+             //  buf.append(fields + " " + lineCount);
+                buf.append("NIL NIL NIL \"8bit\" 6" + " " + "1");
+             //   buf.append(" NIL NIL NIL");
+                // is:    * 1 FETCH (BODYSTRUCTURE ("Text" "plain" NIL NIL NIL NIL    4  -1))
+                // wants: * 1 FETCH (BODYSTRUCTURE ("text" "plain" NIL NIL NIL "8bit" 6  1  NIL NIL NIL))
+                // or:    * 1 FETCH (BODYSTRUCTURE ("text" "plain" NIL NIL NIL "7bit" 28 1 NIL NIL NIL))
+
             } else if  (primaryType.equalsIgnoreCase(MESSAGE) && secondaryType.equalsIgnoreCase("rfc822")) {
                 getLogger().debug("Assembling bodyStructure for type MESSAGE/FRC822");
+                System.out.println("Assembling bodyStructure for type MESSAGE/FRC822");
                 buf.append("\"MESSAGE\" \"RFC822\" ");
                 buf.append(fields + SP);
                 setupLogger(parts[0]); // reset transient logger
@@ -543,8 +606,10 @@ public class SimpleMessageAttributes
                 buf.append(lineCount);
             } else if (primaryType.equalsIgnoreCase(MULTIPART)) {
                 getLogger().debug("Assembling bodystructure for type MULTIPART");
+                System.out.println("Assembling bodystructure for type MULTIPART");
                 for (int i=0; i<parts.length; i++) {
                     getLogger().debug("Parsing part: " + i);
+                    System.out.println("Parsing part: " + i +  "/"+parts.length+" :"+parts[i]);
                     setupLogger(parts[i]); // reset transient getLogger()
                     buf.append(parts[i].getBodyStructure());
                 }
@@ -554,6 +619,7 @@ public class SimpleMessageAttributes
             return buf.toString();
         } catch (Exception e) {
             getLogger().error("Exception while parsing BodyStrucuture: " + e);
+            System.out.println("Exception while parsing BodyStrucuture: " + e);
             e.printStackTrace();
             throw new RuntimeException("Exception in parseBodyStructure");
         }

@@ -13,6 +13,7 @@ import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.component.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -22,12 +23,13 @@ import java.net.UnknownHostException;
  * ConnectionHandler. In this implementation, each ConnectionHandler runs in
  * its own thread.
  *
- * @version o.1 on 14 Dec 2000
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
- * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
  */
 public class IMAPServer 
-    extends AbstractService {
+    extends AbstractService implements Component {
 
     private Context _context;
 

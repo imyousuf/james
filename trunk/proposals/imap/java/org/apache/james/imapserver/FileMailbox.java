@@ -7,6 +7,8 @@
  */
 package org.apache.james.imapserver;
 
+import org.apache.avalon.cornerstone.services.store.ObjectRepository;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -22,6 +24,7 @@ import org.apache.james.util.Assert;
 
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
 import java.io.*;
 import java.util.*;
 
@@ -83,8 +86,9 @@ import java.util.*;
  * contextualize and reInit must be called before object is ready for use.
  *
  * Reference: RFC 2060
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @version 0.2 on 04 Aug 2002
  */
 public class FileMailbox
     extends AbstractLogEnabled
@@ -127,6 +131,7 @@ public class FileMailbox
 
     /* Serialized fileds */
     private String path; // does not end with File.separator
+    private String rootPath; // does not end with File.separator
     private File directory ;
     private String owner;
     private String absoluteName;
@@ -166,32 +171,26 @@ public class FileMailbox
         compMgr = comp;
     }
 
-    public void prepareMailbox(String user,
-                               String absName,
-                               String initialAdminUser,
-                               int uidValidity )
-    {
-        Assert.isTrue( Assert.ON &&
-                       user != null && user.length() > 0 );
+    public void prepareMailbox(String user, String absName, String initialAdminUser, int uidValidity ) {
+        Assert.isTrue( Assert.ON && user != null && user.length() > 0 );
         owner = user;
 
-        Assert.isTrue( Assert.ON &&
-                       absName != null && (absName.length() > 0));
+        Assert.isTrue( Assert.ON && absName != null && (absName.length() > 0));
         absoluteName = absName;
 
-        Assert.isTrue( Assert.ON &&
-                       initialAdminUser != null && initialAdminUser.length() > 0 );
+        Assert.isTrue( Assert.ON && initialAdminUser != null && initialAdminUser.length() > 0 );
         acl = new HashMap(7);
         acl.put(initialAdminUser, ALL_RIGHTS);
-        //acl = new SimpleACL(initialAdminUser);
 
-        Assert.isTrue( Assert.ON &&
-                       uidValidity > 0 );
+        Assert.isTrue( Assert.ON && uidValidity > 0 );
         this.uidValidity = uidValidity;
     }
 
     public void initialize() throws Exception {
-        highestUID = 0;
+        java.util.Date dt = new java.util.Date();
+        
+        highestUID = (int) dt.getTime();
+        
         mailboxSize = 0;
         inferiorsAllowed = true;
         marked = false;
@@ -204,55 +203,19 @@ public class FileMailbox
         getLogger().info("FileMailbox init for " + absoluteName);
         UsersStore usersStore = (UsersStore)compMgr.lookup( "org.apache.james.services.UsersStore" );
         localUsers = usersStore.getRepository("LocalUsers");
-//        String rootPath = context.getBaseDirectory().getAbsolutePath() + File.separator
-//                + conf.getChild("mailboxRepository").getValue();
-        String rootPath = conf.getChild("mailboxRepository").getValue();
+        rootPath = conf.getChild( "mailboxRepository" ).getValue();
         if (!rootPath.endsWith(File.separator)) {
             rootPath = rootPath + File.separator;
         }
-
-//        Configuration namespaces = conf.getChild("namespaces");
-//        String namespaceToken = namespaces.getAttribute("token");
-//        String privateNamespace
-//            = namespaces.getChild("privateNamespace").getValue();
-//        String privateNamespaceSeparator
-//            = namespaces.getChild("privateNamespace").getAttribute("separator");
-//        String sharedNamespace
-//            = namespaces.getChild("sharedNamespace").getValue();
-//        String sharedNamespaceSeparator
-//            = namespaces.getChild("sharedNamespace").getAttribute("separator");
-
+        
         path = getPath( absoluteName, owner, rootPath );
         name = absoluteName.substring(absoluteName.lastIndexOf( JamesHost.HIERARCHY_SEPARATOR ) + 1);
         if (name.equals(owner)) {
             name = "";
         }
-
-//        if ( absoluteName.startsWith( JamesHost.USER_NAMESPACE_PREFIX )) {
-//            String path1
-//                = absoluteName.substring(privateNamespace.length()
-//                                         + privateNamespaceSeparator.length()
-//                                         + owner.length());
-//            path = rootPath + owner
-//                + path1.replace(privateNamespaceSeparator.charAt(0),
-//                                File.separatorChar);
-//        } else if (absoluteName.startsWith(sharedNamespace)) {
-//            String path2 = absoluteName.substring(namespaceToken.length());
-//            path = rootPath + path2.replace(sharedNamespaceSeparator.charAt(0),
-//                                            File.separatorChar);
-//            name = absoluteName.substring(absoluteName.lastIndexOf(sharedNamespaceSeparator) + 1);
-//            if (name.equals(sharedNamespace)) {
-//                name = "";
-//            }
-//        } else {
-//            getLogger().error("FileMailbox init error: unknown namespace - "
-//                         + absoluteName);
-//            throw new RuntimeException("Unknown namespace for absoluteName"
-//                                       +" argument for a FileMailbox"
-//                                       +" constructor." + absoluteName);
-//        }
-
         //Check for writable directory
+        getLogger().info("MailboxDir " + path);
+        System.out.println("MailboxDir TO WRITE TO " + path);
         File mailboxDir = new File(path);
         if (mailboxDir.exists()) {
             throw new RuntimeException("Error: Attempt to overwrite mailbox directory at " + path);
@@ -282,26 +245,8 @@ public class FileMailbox
         String filePath = absoluteName.substring( JamesHost.NAMESPACE_TOKEN.length() );
         filePath = filePath.replace( JamesHost.HIERARCHY_SEPARATOR_CHAR, File.separatorChar );
         return rootPath + filePath;
-
-//        String path;
-//        if (absoluteName.startsWith(privateNamespace)) {
-//            String path1 = rootPath + owner;
-//            String path2
-//                = absoluteName.substring(privateNamespace.length()
-//                                         + privateNamespaceSeparator.length()
-//                                         + owner.length());
-//            path = path1 + path2.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
-//        } else if (absoluteName.startsWith(sharedNamespace)) {
-//            String path3 = absoluteName.substring(namespaceToken.length());
-//            path = rootPath + File.separator + path3.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
-//        } else {
-//            path = null;
-//        }
-//        return path;
     }
-
-
-
+    
     /**
      * Re-initialises mailbox after reading from file-system. Cannot assume that this is the same instance of James that wrote it.
      *
@@ -312,11 +257,12 @@ public class FileMailbox
         getLogger().info("FileMailbox reInit for " + absoluteName);
         UsersStore usersStore = (UsersStore)compMgr.lookup( "org.apache.james.services.UsersStore" );
         localUsers = usersStore.getRepository("LocalUsers");
-        String rootPath
+        rootPath
             = conf.getChild("mailboxRepository").getValue();
         if (!rootPath.endsWith(File.separator)) {
             rootPath = rootPath + File.separator;
         }
+        path = getPath( absoluteName, owner, rootPath );
     }
 
     /**
@@ -335,6 +281,7 @@ public class FileMailbox
     public void removeMailbox()
     {
         // First delete the mailbox file
+        path = getPath( absoluteName, owner, rootPath );
         String mailboxRecordFile = path + File.separator + MAILBOX_FILE_NAME;
         File mailboxRecord = new File( mailboxRecordFile );
         Assert.isTrue( Assert.ON &&
@@ -352,7 +299,74 @@ public class FileMailbox
                        mailboxDir.list().length == 0 );
         mailboxDir.delete();
     }
+    
+    /**
+     * Renames this Mailbox.
+     * @param usernmae The Username who calles this Command.
+     * @param newmailboxname The new name for this Mailbox.
+     * @returns true if everythink was sucessfully, else false.
+     * @throws MailboxException if mailbox does not exist locally.
+     * @throws AuthorizationException if the user has no rights for changing the name of the Mailbox.
+     */
+    public boolean renameMailbox(String username, String newmailboxname) throws MailboxException, AuthorizationException {
+        try {
+            path = getPath( absoluteName, owner, rootPath );
+            
+            StringTokenizer strt = new StringTokenizer(newmailboxname,".");
+            String lastnameofmailbox="";
+            while(strt.hasMoreTokens())
+                lastnameofmailbox=strt.nextToken();
+            
+            File fle = new File(this.path);
+            fle.renameTo(new File(fle.getParent(), lastnameofmailbox));
+            
+            this.path=fle.getParent()+File.separator+lastnameofmailbox;
+            this.absoluteName = this.absoluteName.substring(0,this.absoluteName.length()-this.name.length())+lastnameofmailbox;
+            this.name=lastnameofmailbox;
+            
+            
+            this.writeMailbox();
+            return true;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * THIS IS AN INTERIM SOLUTION !
+     *
+     * @param usernmae The Username who calles this Command.
+     * @param oldabsolutename The old name of the parent.
+     * @param newabsolutename The new name for the parent.
+     * @returns true if everythink was sucessfully, else false.
+     * @throws MailboxException if mailbox does not exist locally.
+     * @throws AuthorizationException if the user has no rights for changing the name of the Mailbox.
+     */
+    public boolean renameSubMailbox(String username, String oldabsolutename, String newname) {
+        try {
+            System.out.println("renameSubMailbox ABSOLUTE NAME "+this.absoluteName);
+            StringTokenizer strt = new StringTokenizer(oldabsolutename,".");
+            StringBuffer strbuff = new StringBuffer();
+            
+            for(int i=0;i<strt.countTokens();i++){
+                String token = strt.nextToken();
+                if(strbuff.length()>0) strbuff.append(".");
+                strbuff.append(token);
+            }
+            strbuff.append(".");
+            strbuff.append(newname);
 
+            this.absoluteName = strbuff.toString()+this.absoluteName.substring(oldabsolutename.length());
+            System.out.println("renameSubMailbox TOKEN CONVERTED: "+this.absoluteName);            
+            this.writeMailbox();
+            return true;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     /**
      * Returns true once this Mailbox has been checkpointed.
      * This implementation just writes its mailbox record to disc.  Unless something is
@@ -426,7 +440,7 @@ public class FileMailbox
      * @returns true if name matches either getName() or getAbsoluteName()
      */
     public boolean matchesName(String testName) {
-        return (name == testName || name == absoluteName);
+        return (name.equals(testName) || name.equals(absoluteName));
     }
 
     /**
@@ -1107,6 +1121,8 @@ public class FileMailbox
         ObjectOutputStream outAttrs = null;
 
         try {
+            // SK:UPDATE
+            path = getPath( absoluteName, owner, rootPath );
             outMsg = new BufferedOutputStream( new FileOutputStream(path + File.separator + newUID + MESSAGE_EXTENSION));
             message.writeTo(outMsg);
             outMsg.close();
@@ -1196,24 +1212,25 @@ public class FileMailbox
         }
         MimeMessageWrapper response = null;
         if (sequence.contains(new Integer(uid))) {
-            BufferedInputStream inMsg = null;
+            //BufferedInputStream inMsg = null;
             try {
-				MimeMessageFileSource source = new MimeMessageFileSource(path + File.separator + uid + MESSAGE_EXTENSION);
+                path = getPath( absoluteName, owner, rootPath );
+		MimeMessageFileSource source = new MimeMessageFileSource(path + File.separator + uid + MESSAGE_EXTENSION);
                 response = new MimeMessageWrapper(source);
-                inMsg.close();
+             //   inMsg.close();
             } catch(Exception e) {
                 getLogger().error("Error reading message from disc: " + e);
                 e.printStackTrace();
                 throw new
                     RuntimeException("Exception caught while retrieving Mail: "
                                      + e);
-            } finally {
-                try {
-                    inMsg.close();
-                } catch (IOException ie) {
-                    getLogger().error("Error closing streams: " + ie);
-                }
-            }
+            } //finally {
+          //      try {
+            //        inMsg.close();
+          //      } catch (IOException ie) {
+          //          getLogger().error("Error closing streams: " + ie);
+          //      }
+          //  }
             getLogger().info("MimeMessageWrapper " + uid + " read from " + absoluteName);
             return response;
         } else {
@@ -1284,6 +1301,8 @@ public class FileMailbox
         if (!hasReadRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to read.");
         }
+        System.out.println("msn: "+msn);
+        System.out.println("sequence.size: "+sequence.size());
         if (msn > sequence.size()) {
             return null;
         } else {
@@ -1310,12 +1329,29 @@ public class FileMailbox
         if (!hasReadRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to read.");
         }
+        System.out.println("getMessageAttributesUID()");
+        System.out.println("uid: "+uid);
+        System.out.println("user: "+user);
+        System.out.println("sequence.size: "+sequence.size());
         SimpleMessageAttributes response = null;
         if (sequence.contains(new Integer(uid))) {
+                System.out.println("reading from disk");
+
             ObjectInputStream inAttrs = null;
             try {
+                path = getPath( absoluteName, owner, rootPath );
+                System.out.println( "FileInputStream("+(path + File.separator + uid + ATTRIBUTES_EXTENSION));
                 inAttrs = new ObjectInputStream( new FileInputStream(path + File.separator + uid + ATTRIBUTES_EXTENSION));
+                System.out.println("inAttrs="+inAttrs);
                 response = (SimpleMessageAttributes)inAttrs.readObject();
+                System.out.println("response="+response);
+                if (response != null) {
+                System.out.println("response.parts="+response.parts);
+                if (response.parts != null) {
+                System.out.println("response.parts.len="+response.parts.length);
+                System.out.println("response.parts[0]="+response.parts[0]);
+                }
+                }
                 setupLogger(response);
             } catch(Exception e) {
                 getLogger().error("Error reading attributes from disc: " + e);
@@ -1357,6 +1393,7 @@ public class FileMailbox
             // Really, we should check whether the exact change is authorized.
             ObjectOutputStream outAttrs = null;
             try {
+                path = getPath( absoluteName, owner, rootPath );
                 outAttrs = new ObjectOutputStream( new FileOutputStream(path + File.separator + uid + ATTRIBUTES_EXTENSION));
                 outAttrs.writeObject(attrs);
                 outAttrs.close();
@@ -1421,9 +1458,16 @@ public class FileMailbox
         if (!hasReadRights(user)) { //throws AccessControlException
             throw new AuthorizationException("Not authorized to read.");
         }
+        java.util.Iterator it = sequence.iterator();
+        while(it.hasNext()) 
+            System.out.println("FILEMESSAGES...."+it.next().toString());
+            
+        
         if (!sequence.contains(new Integer(uid))) {
+            System.out.println("SEQUENCENOOO");
             return null;
         } else {
+            System.out.println("FLAGSRETURNED");
             Flags flags = readFlags(uid);
             return flags.getFlags(user);
         }
@@ -1517,17 +1561,23 @@ public class FileMailbox
     private int findOldestUnseen(String user, int previousOld)
         throws AccessControlException, AuthorizationException {
         int response = 0; //indicates no unseen messages
-        ListIterator lit = sequence.listIterator(previousOld);
-        boolean found = false;
-        while (!found && lit.hasNext() ) {
-            int uid = ((Integer)lit.next()).intValue();
-            Flags flags = readFlags(uid);
-            if (!flags.isSeen(user)) {
-                response = uid;
-                found = true;
+        try {
+            ListIterator lit = sequence.listIterator(previousOld);
+            boolean found = false;
+            while (!found && lit.hasNext() ) {
+                int uid = ((Integer)lit.next()).intValue();
+                Flags flags = readFlags(uid);
+                if (!flags.isSeen(user)) {
+                    response = uid;
+                    found = true;
+                }
             }
+        }catch(Exception e) { 
+            // (because) BUG: Do nothing. Have investigated an error on fetching sequence.listIterator(previousOld);
+            // with an error - but currently I don't know why :)
+        }finally{
+            return response;
         }
-        return response;
     }
 
     private Flags readFlags(int uid) {
@@ -1535,6 +1585,7 @@ public class FileMailbox
         if (sequence.contains(new Integer(uid))) {
             ObjectInputStream inFlags = null;
             try {
+                path = getPath( absoluteName, owner, rootPath );
                 inFlags = new ObjectInputStream( new FileInputStream(path + File.separator + uid + FLAGS_EXTENSION));
                 response = (Flags)inFlags.readObject();
             } catch(Exception e) {
@@ -1559,6 +1610,7 @@ public class FileMailbox
         if (sequence.contains(new Integer(uid))) {
             ObjectOutputStream outFlags = null;
             try {
+                path = getPath( absoluteName, owner, rootPath );
                 outFlags = new ObjectOutputStream( new FileOutputStream(path + File.separator + uid + FLAGS_EXTENSION));
                 outFlags.writeObject(flags);
                 outFlags.close();
@@ -1576,8 +1628,10 @@ public class FileMailbox
                 }
             }
             getLogger().info("Flags for " + uid + " written in " + absoluteName);
+            writeMailbox();
             return true;
         } else {
+            writeMailbox();
             return false;
         }
     }
@@ -1595,29 +1649,50 @@ public class FileMailbox
     public synchronized boolean expunge(String user)
         throws AccessControlException, AuthorizationException {
         if (!hasDeleteRights(user)) { //throws AccessControlException
-            throw new AuthorizationException("Not authorized to delete.");
+            throw new AuthorizationException("Not authorized to delete for user '" + user + "'.");
         }
         Iterator it = messagesForDeletion.iterator();
+
         while (it.hasNext()) {
             Integer uidObj = (Integer)it.next();
             int uid = uidObj.intValue();
             if (sequence.contains(uidObj)) {
                 try  {
+                    //SAM
+                    try
+                    {
+                        MimeMessageWrapper message = retrieveUID(uid, user);
+                        System.out.println("(before)decrementing mailboxSize ("+getName()+") = " + mailboxSize);
+                        System.out.println("decre message.getMessageSize() = " + (int)message.getMessageSize());
+                        mailboxSize -= (int)message.getMessageSize();
+                        System.out.println("(after)decrementing mailboxSize ("+getName()+") = " + mailboxSize);
+                    }
+                    catch (MessagingException me)
+                    {
+                            //ignore
+                    }
+                    //END
+                    path = getPath( absoluteName, owner, rootPath );
                     final File msgFile = new File(path + File.separator + uid + MESSAGE_EXTENSION );
                     msgFile.delete();
                     final File attrFile = new File(path + File.separator + uid + ATTRIBUTES_EXTENSION );
                     attrFile.delete();
+                    //SAM
+                    final File flagFile = new File(path + File.separator + uid + FLAGS_EXTENSION );
+                    flagFile.delete();
+                    //END
                     sequence.remove(uidObj);
-                    getLogger().debug( "Removed message uid " + uid );
                 } catch ( final Exception e )  {
                     throw new RuntimeException( "Exception caught while removing" +
                                                 " a message: " + e );
                 }
             }
         }
+
         for (int i = 0; i < sequence.size(); i++) {
             System.err.println("Message with msn " + i + " has uid " + sequence.get(i));
         }
+        writeMailbox();
         return true;
     }
 

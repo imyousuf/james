@@ -59,8 +59,9 @@ import java.util.Map;
  * SHOULD be considered recent.
  *
  * Reference: RFC 2060
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @version 0.2 on 04 Aug 2002
  */
 public interface Mailbox
     extends Configurable, Composable {
@@ -478,7 +479,7 @@ public interface Mailbox
     /**
      * Removes all messages marked Deleted.  User must have delete rights.
      *
-     * @param username String represnting user
+     * @param username String representing user
      * @returns true if successful
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -487,7 +488,20 @@ public interface Mailbox
      */
     boolean expunge( String user )
         throws AccessControlException, AuthorizationException, IllegalArgumentException;
-
+    
+    /**
+     * Renames this Mailbox to a new name.
+     *
+     * @param username String representing user
+     * @param newmailboxname String representing the new Mailbox Name
+     * @returns true if successful
+     * @throws MailboxException if the Mailbox can't be renamed
+     * @throws AuthorizationException if user has no write rights
+     */
+    boolean renameMailbox(String username, String newmailboxname)
+        throws MailboxException, AuthorizationException;
+    
+    boolean renameSubMailbox(String username, String oldname, String newmailboxname);
     /**
      * Establishes if specified user has lookup rights for this mailbox.
      *

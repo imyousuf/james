@@ -21,11 +21,11 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.imapserver.ACLMailbox;
-import org.apache.james.imapserver.Host;
 import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.james.util.RFC822DateFormat;
+import org.apache.james.imapserver.ACLMailbox;
+import org.apache.james.imapserver.Host;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -55,15 +55,15 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2002/06/06 13:27:00 $ by: $Author: hammant $
+
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2002/08/09 16:48:05 $ by: $Author: pgoldstein $
+
  */
 public class James
     extends AbstractLogEnabled
     implements Contextualizable, Composable, Configurable,
                Initializable, MailServer, MailetContext, Component {
-
-    //and this is a mistake
 
     private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     private final static boolean DEEP_DEBUG = true;
@@ -95,6 +95,7 @@ public class James
     // IMAP related fields
     private boolean useIMAPstorage = false;
     private Host imapHost;
+    
     protected BlockContext           blockContext;
 
 
@@ -148,8 +149,8 @@ public class James
         // Get the domains and hosts served by this instance
         serverNames = new Vector();
         Configuration serverConf = conf.getChild("servernames");
-        if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
-            serverNames.add(hostName);
+        if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
+            serverNames.add(hostName.toLowerCase());
         }
 
         final Configuration[] serverNameConfs =
@@ -165,6 +166,7 @@ public class James
             getLogger().info("Handling mail for: " + i.next());
         }
         context.put(Constants.SERVER_NAMES, this.serverNames);
+        attributes.put(Constants.SERVER_NAMES, this.serverNames);
 
 
         // Get postmaster
@@ -173,21 +175,9 @@ public class James
         context.put( Constants.POSTMASTER, postmaster );
 
         Configuration userNamesConf = conf.getChild("usernames");
-        if (userNamesConf.getAttribute("ignoreCase").equals("TRUE")) {
-            ignoreCase = true;
-        } else {
-            ignoreCase = false;
-        }
-        if (userNamesConf.getAttribute("enableAliases").equals("TRUE")) {
-            enableAliases = true;
-        } else {
-            enableAliases = false;
-        }
-        if (userNamesConf.getAttribute("enableForwarding").equals("TRUE")) {
-            enableForwarding = true;
-        } else {
-            enableForwarding = false;
-        }
+        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
+        enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
+        enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
 
         //Get localusers
         try {
@@ -200,18 +190,16 @@ public class James
         compMgr.put( UsersRepository.ROLE, (Component)localusers);
         getLogger().info("Local users repository opened");
 
+        try {
         // Get storage system
-        if (conf.getChild("storage").getValue().equals("IMAP")) {
-            useIMAPstorage = true;
+            if (conf.getChild("storage").getValue().equals("IMAP")) {
+                useIMAPstorage = true;
+                getLogger().info("Using IMAP Store-System");
+            }
+        }catch(Exception e) {
+            // No Storage Entry in Config File found
         }
-
-        //IMAPServer instance is controlled via assembly.xml.
-        //Assumption is that assembly.xml will set the correct IMAP Store
-        //if IMAP is enabled.
-        //if (provideIMAP && (! useIMAPstorage)) {
-        //    throw new ConfigurationException ("Fatal configuration error: IMAP service requires IMAP storage ");
-        //}
-
+        
         // Get the LocalInbox repository
         if (useIMAPstorage) {
             try {
@@ -232,6 +220,7 @@ public class James
             }
             inboxRootURL = inboxRepConf.getAttribute("destinationURL");
         }
+        
         getLogger().info("Private Repository LocalInbox opened");
 
         // Add this to comp
@@ -377,14 +366,32 @@ public class James
         return names.iterator();
     }
 
+    /**
+     * This generates a response to the Return-Path address, or the address of
+     * the message's sender if the Return-Path is not available.  Note that
+     * this is different than a mail-client's reply, which would use the
+     * Reply-To or From header. This will send the bounce with the server's
+     * postmaster as the sender.
+     */
     public void bounce(Mail mail, String message) throws MessagingException {
         bounce(mail, message, getPostmaster());
     }
 
+    /**
+     * This generates a response to the Return-Path address, or the address of
+     * the message's sender if the Return-Path is not available.  Note that
+     * this is different than a mail-client's reply, which would use the
+     * Reply-To or From header.
+     */
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         MimeMessage orig = mail.getMessage();
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
+        //If there is a Return-Path header,
+        if (orig.getHeader("Return-Path") != null) {
+            //Return the message to that address, not to the Reply-To address
+            reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(orig.getHeader("Return-Path")[0]));
+        }
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
@@ -417,6 +424,9 @@ public class James
         sendMail(bouncer, recipients, reply);
     }
 
+    /**
+     * Returns whether that account has a local inbox on this server
+     */
     public boolean isLocalUser(String name) {
         if (ignoreCase) {
             return localusers.containsCaseInsensitive(name);
@@ -425,10 +435,13 @@ public class James
         }
     }
 
+    /**
+     * Returns the address of the postmaster for this server.
+     */
     public MailAddress getPostmaster() {
         return postmaster;
     }
-
+    
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
         String username;
         if (ignoreCase) {
@@ -458,7 +471,7 @@ public class James
                 }
             }
         }
-
+        
         if (useIMAPstorage) {
             ACLMailbox mbox = null;
             try {
@@ -498,11 +511,11 @@ public class James
     }
 
     public boolean isLocalServer( final String serverName ) {
-        return serverNames.contains( serverName );
+        return serverNames.contains(serverName.toLowerCase());
     }
 
     public String getServerInfo() {
-        return "JAMES/1.3-dev";
+        return "Apache Jakarta JAMES";
     }
 
     private Logger getMailetLogger() {
@@ -521,7 +534,7 @@ public class James
         //t.printStackTrace(); //DEBUG
         getMailetLogger().info(message,t);
     }
-
+   
     /**
      * Adds a user to this mail server. Currently just adds user to a
      * UsersRepository.

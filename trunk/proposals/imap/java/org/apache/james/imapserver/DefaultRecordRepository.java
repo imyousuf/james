@@ -20,8 +20,9 @@ import java.util.Iterator;
 /**
  * Implementation of a RecordRepository on a FileSystem.
  *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @version 0.2 on 04 Aug 2002
  * @see RecordRepository
  */
 public class DefaultRecordRepository

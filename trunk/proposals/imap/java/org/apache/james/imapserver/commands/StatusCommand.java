@@ -17,14 +17,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ * Implements the Status Command for getting the status of a Mailbox.
+ *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
+ */
 class StatusCommand extends AuthenticatedSelectedStateCommand
 {
     public StatusCommand()
     {
         this.commandName = "STATUS";
 
-        this.getArgs().add( "mailbox" );
-        this.getArgs().add( "status data item" );
+       // this.getArgs().add( "mailbox" );
+       // this.getArgs().add( "status data item" );
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+        this.getArgs().add( new ListArgument( "status data item" ) );
     }
 
     protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
@@ -37,7 +46,7 @@ class StatusCommand extends AuthenticatedSelectedStateCommand
         try {
             String response = session.getImapHost().getMailboxStatus( session.getCurrentUser(), folder,
                                                          dataNames );
-            session.untaggedResponse( " STATUS " + folder + " ("
+            session.untaggedResponse( " STATUS \"" + folder + "\" ("
                                        + response + ")" );
             session.okResponse( command );
         }

@@ -10,13 +10,13 @@ package org.apache.james.imapserver;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.services.MailServer;
@@ -40,33 +40,25 @@ import java.util.*;
  * '#mail.Inbox' or '#shared.finance.Q2Earnings'.
  * <p>An imap Host must keep track of existing and deleted mailboxes.
  *
- * References: rfc 2060, rfc 2193, rfc 2221
+ * References: rfc 2060
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @version 0.2 on 04 Aug 2002
  * @see FolderRecord
  * @see RecordRepository
  */
 public class JamesHost
         extends AbstractLogEnabled
-        implements Host, Component, Configurable, Composable, Contextualizable, Initializable
-{
-
+        implements Host, Block, Configurable, Composable, Contextualizable, Initializable {
+            
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
     private String rootPath; // ends with File.seperator
     private IMAPSystem imapSystem;
-    //private UserManager usersManager;
     private UsersRepository localUsers;
     private RecordRepository recordRep;
     private OpenMailboxes openMailboxes; //maps absoluteName to ACLMailbox
-//    private String namespaceToken;
-//    private String privateNamespace;
-//    private String privateNamespaceSeparator;
-//    private String otherUsersNamespace;
-//    private String otherUsersNamespaceSeparator;
-//    private String sharedNamespace;
-//    private String sharedNamespaceSeparator;
 
     public static final String HIERARCHY_SEPARATOR = ".";
     public static final char HIERARCHY_SEPARATOR_CHAR = '.';
@@ -76,8 +68,7 @@ public class JamesHost
     private static final String SHARE_NAMESPACE = "share";
     public static final String USER_NAMESPACE_PREFIX = NAMESPACE_TOKEN + USER_NAMESPACE;
     public static final String SHARE_NAMESPACE_PREFIX = NAMESPACE_TOKEN + SHARE_NAMESPACE;
-
-
+    
     /*
      * Note on implemented namespaces.
      * 3 namespaces are (partially) implemented.
@@ -153,21 +144,6 @@ public class JamesHost
         String sharePath = getPath( SHARE_NAMESPACE_PREFIX );
         prepareDir( sharePath );
         getLogger().info( "IMAP Mailbox Repository opened at " + rootPath );
-//        Configuration namespaces = conf.getChild("namespaces");
-//        namespaceToken = namespaces.getAttribute("token");
-//        privateNamespace
-//            = namespaces.getChild("privateNamespace").getValue();
-//        privateNamespaceSeparator
-//            = namespaces.getChild("privateNamespace").getAttribute("separator");
-//        otherUsersNamespace
-//            = namespaces.getChild("otherusersNamespace").getValue();
-//        otherUsersNamespaceSeparator
-//            = namespaces.getChild("otherusersNamespace").getAttribute("separator");
-//        sharedNamespace
-//            = namespaces.getChild("sharedNamespace").getValue();
-//        sharedNamespaceSeparator
-//            = namespaces.getChild("sharedNamespace").getAttribute("separator");
-//        getLogger().info("Handling mail for namespaces: "+ privateNamespace + ", " + otherUsersNamespace + ", " + sharedNamespace);
         openMailboxes = new OpenMailboxes(); // how big should this start?
         getLogger().info( "JamesHost ...init end" );
     }
@@ -194,7 +170,7 @@ public class JamesHost
      * the client.
      *
      * @param username an email address
-     * @return true if inbox (and private mailfolders) are accessible through
+     * @returns true if inbox (and private mailfolders) are accessible through
      * this host.
      */
     public boolean isHomeServer( String username )
@@ -208,7 +184,7 @@ public class JamesHost
      * sent to client.
      *
      * @param username an email address
-     * @return true if the specified user has at least read access to any
+     * @returns true if the specified user has at least read access to any
      * mailboxes on this host.
      */
     public boolean hasLocalAccess( String username )
@@ -223,7 +199,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target.
-     * @return an Mailbox reference.
+     * @returns an Mailbox reference.
      * @throws AccessControlException if the user does not have at least
      * lookup rights.
      * @throws MailboxException if mailbox does not exist locally.
@@ -254,6 +230,7 @@ public class JamesHost
         FolderRecord record = null;
 
         // Has a folder with this name ever been created?
+        System.out.println("THISISTHEFUCKING ABSOLUETENAME IN getAbsoluteMailbox "+absoluteName);
         if ( !recordRep.containsRecord( absoluteName ) ) {
             throw new MailboxException( "Mailbox: " + absoluteName + " has never been created.", MailboxException.NOT_LOCAL );
         }
@@ -275,6 +252,8 @@ public class JamesHost
                 String key = getPath( absoluteName );
                 ObjectInputStream in = null;
                 try {
+                    // SK:UPDATE
+                    
                     in = new ObjectInputStream( new FileInputStream( key + File.separator + FileMailbox.MAILBOX_FILE_NAME ) );
                     mailbox = (FileMailbox) in.readObject();
                     setupLogger( mailbox );
@@ -318,7 +297,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target
-     * @return an Mailbox reference.
+     * @returns an Mailbox reference.
      * @throws AccessControlException if the user does not have lookup rights
      * for parent or any needed ancestor folder
      * lookup rights.
@@ -329,38 +308,24 @@ public class JamesHost
      * @see FolderRecord
      */
     public synchronized ACLMailbox createMailbox( String user, String mailboxName )
-            throws AccessControlException, AuthorizationException,
-            MailboxException
-
-    {
+            throws AccessControlException, AuthorizationException, MailboxException {
         Assert.isTrue( Assert.ON &&
                        user != null &&
                        user.length() > 0 &&
                        mailboxName != null );
-//        if (user == null || mailboxName == null) {
-//            getLogger().error("Null parameters received in createMailbox(). " );
-//            throw new RuntimeException("Null parameters received.");
-//        } else if (user.equals("")
-//                   ||(!mailboxName.startsWith(namespaceToken))) {
-//            getLogger().error("Empty/ incorrect parameters received in createMailbox().");
-//            throw new RuntimeException("Empty/incorrect parameters received.");
-//        }
+
         String absoluteName = getAbsoluteMailboxName( user, mailboxName );
         Assert.isTrue( Assert.ON &&
                        absoluteName != null );
-//        if (absoluteName == null) {
-//            getLogger().error("Parameters in createMailbox() cannot be interpreted. ");
-//            throw new RuntimeException("Parameters in createMailbox() cannot be interpreted.");
-//        }
+
         getLogger().debug( "JamesHost createMailbox() for:  " + absoluteName );
 
         return createAbsoluteMailbox( user, absoluteName );
     }
 
     private synchronized ACLMailbox createAbsoluteMailbox( String user, String absoluteName )
-            throws AccessControlException, AuthorizationException,
-            MailboxException
-    {
+            throws AccessControlException, AuthorizationException, MailboxException {
+                
         Assert.isTrue( Assert.ON &&
                        absoluteName.startsWith( NAMESPACE_TOKEN ) &&
                        absoluteName.indexOf( HIERARCHY_SEPARATOR ) != -1 );
@@ -371,30 +336,19 @@ public class JamesHost
 
         // Has a folder with this name ever been created?
         if ( recordRep.containsRecord( absoluteName ) ) {
-//            record = recordRep.retrieve( absoluteName );
-//            if ( !record.isDeleted() ) {
                 getLogger().error( "Attempt to create an existing Mailbox." );
                 throw new MailboxException( "Mailbox already exists", MailboxException.ALREADY_EXISTS_LOCALLY );
-//            }
-        }
-        else {
+        } else {
             // Get the directory holding the new mailbox.
-            String parent
-                    = absoluteName.substring( 0, absoluteName.lastIndexOf( HIERARCHY_SEPARATOR ) );
-//            if (!(parent.startsWith(privateNamespace + privateNamespaceSeparator) || parent.startsWith(sharedNamespace + sharedNamespaceSeparator))) {
-//                getLogger().warn("No such parent: " + parent);
-//                throw new MailboxException("No such parent: " + parent);
-//            }
+            String parent = absoluteName.substring( 0, absoluteName.lastIndexOf( HIERARCHY_SEPARATOR ) );
             //Recurse to a created and not deleted mailbox
             try {
                 parentMailbox = getAbsoluteMailbox( user, parent );
-            }
-            catch ( MailboxException mbe ) {
+            } catch ( MailboxException mbe ) {
                 if ( mbe.getStatus().equals( MailboxException.NOT_LOCAL )
                         || mbe.getStatus().equals( MailboxException.LOCAL_BUT_DELETED ) ) {
                     parentMailbox = createAbsoluteMailbox( user, parent );
-                }
-                else {
+                } else {
                     throw new MailboxException( mbe.getMessage(), mbe.getStatus() );
                 }
             }
@@ -406,6 +360,7 @@ public class JamesHost
                 throw new AuthorizationException( "User does not have create rights." );
             }
             try {
+                //BUG! Here MUST be used a Factory for using FILE / JDBC !!!
                 mailbox = new FileMailbox();
                 setupLogger( mailbox );
                 mailbox.configure( conf );
@@ -431,8 +386,7 @@ public class JamesHost
     /**
      * Releases a reference to a mailbox, allowing Host to do any housekeeping.
      *
-     * @param user a user.
-     * @param mailbox a non-null reference to an ACL Mailbox.
+     * @param mbox a non-null reference to an ACL Mailbox.
      */
     public void releaseMailbox( String user, ACLMailbox mailbox )
     {
@@ -482,7 +436,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target
-     * @return true if mailbox deleted successfully
+     * @returns true if mailbox deleted successfully
      * @throws MailboxException if mailbox does not exist locally or is any
      * identities INBOX.
      * @throws AuthorizationException if mailbox exists locally but user does
@@ -571,19 +525,140 @@ public class JamesHost
      * @param user email address on whose behalf the request is made.
      * @param oldMailboxName String name of the existing mailbox
      * @param newMailboxName String target new name
-     * @return true if rename completed successfully
+     * @returns true if rename completed successfully
      * @throws MailboxException if mailbox does not exist locally, or there
      * is an existing mailbox with the new name.
      * @throws AuthorizationException if user does not have rights to delete
      * the existing mailbox or create the new mailbox.
      * @see FolderRecord
      */
-    public boolean renameMailbox( String user, String oldMailboxName,
-                                  String newMailboxName )
-            throws MailboxException, AuthorizationException
-    {
-        Assert.notImplemented();
-        return false;
+    public boolean renameMailbox( String user, String oldMailboxName, String newMailboxName )
+            throws MailboxException, AuthorizationException {
+        // At first we MUST ensure, that the User has the rights for renaming not only the Directory 
+        // that he wanted to rename, but all subdiretories too.
+        // Also we have to "rename" the subdirectories as well.
+        try {
+            ACLMailbox mailbox = this.getMailbox(user,oldMailboxName);
+            String oldAbsoluteName = getAbsoluteMailboxName(user, oldMailboxName);
+            
+            //trying to get children Mailboxes
+            Collection coll = this.listMailboxes(user,"",oldMailboxName+"*",false);
+            java.util.TreeMap tr = new java.util.TreeMap();
+            Iterator it = coll.iterator();
+            
+            int mindepth=9999;
+            int maxdepth=0;
+            while(it.hasNext()) {
+                // BUG: Whats about Mailbox Names with an Whitespace ?
+                StringTokenizer strl = new StringTokenizer((String) it.next());
+                String mailboxname = "";
+                boolean mbxfound=false;
+                while(strl.hasMoreTokens()) {
+                    String token = strl.nextToken();
+                    if(token.equals("\""+this.HIERARCHY_SEPARATOR+"\"") || mbxfound) {
+                        // This must be the FileSeperator Token. After that comes the name of the Mailbox
+                        if(mbxfound){
+                            mailboxname += " "+token;
+                        }else{
+                            mailboxname += strl.nextToken();
+                        }
+                        mbxfound=true;
+                    }
+                }
+                // StringTokenizer is only used to get the depth of the Mailboxname
+                strl = new StringTokenizer(mailboxname, this.HIERARCHY_SEPARATOR);
+                mailboxname = mailboxname.substring(1,mailboxname.length()-1);
+                System.out.println("RENAME: MAILBOXNAME FOUND: "+mailboxname);
+                // Create Collection (or first try to get one from the Sorted Tree) and then
+                // save this to the TreeMap. The TreeMap is used to order the found Mailbox Names after their
+                // depth. It's needed to first change the Mailbox Properties for all Subdirectories, and update the
+                // FolderRecords. 
+                Object oldcoll = tr.get(new Integer(strl.countTokens()));
+                if (oldcoll==null) {
+                    HashSet hs = new HashSet();
+                    hs.add(mailboxname);
+                    tr.put(new Integer(strl.countTokens()), hs);
+                }else{
+                    HashSet hs = (HashSet) oldcoll;
+                    hs.add(mailboxname);
+                    tr.put(new Integer(strl.countTokens()), hs);
+                }
+                if(maxdepth<strl.countTokens()) maxdepth=strl.countTokens();
+                if(mindepth>strl.countTokens()) mindepth=strl.countTokens();
+            }
+            System.out.println("RENAME: POSSIBLE MAXDEPTH FOUND: "+maxdepth+" THE MINDEPTH IS "+mindepth);
+            for(int i=maxdepth;i>=0;i--) {
+                Collection cole = (Collection) tr.get(new Integer(i));
+                if (cole!=null) {
+                    Iterator ite = cole.iterator();
+                    while(ite.hasNext()) {
+                        String mbxhere = (String) ite.next();
+                        String absoluteName = getAbsoluteMailboxName(user, mbxhere);
+                        System.out.println("RENAME: MAILBOXES FOR INTEGER "+i+ " NAME "+mbxhere+" ABSOLUTE "+absoluteName);
+                        ACLMailbox mmm = this.getAbsoluteMailbox(user,absoluteName);
+                        if (i!=mindepth) {
+                            String suboldabsolutename = mmm.getAbsoluteName();
+                            mmm.renameSubMailbox(user, oldAbsoluteName, newMailboxName);
+                           // THis is the new AbsoluteName with # and so on
+                            String subnewabsolutename = mmm.getAbsoluteName();
+                            // Delete the old FolderRecord
+                            FolderRecord fr = recordRep.retrieve(suboldabsolutename);
+                            recordRep.deleteRecord(fr);
+                            // Create a new FolderRecord and store this in the recordRepository
+                            // Can anybody explain me the use of this repository ???
+                            // I think OpenMailbox and Repository is relatively redundant
+                            fr = new SimpleFolderRecord(user, subnewabsolutename);
+                            fr.setUidValidity( mmm.getUIDValidity() );
+                            fr.setLookupRights( mmm.getUsersWithLookupRights() );
+                            fr.setReadRights( mmm.getUsersWithReadRights() );
+                            fr.setMarked( mmm.isMarked() );
+                            fr.setNotSelectableByAnyone( mmm.isNotSelectableByAnyone() );
+                            fr.setExists( mmm.getExists() );
+                            fr.setRecent( mmm.getRecent() );
+                            fr.setUnseenbyUser( mmm.getUnseenByUser() );
+                            recordRep.store(fr);
+                            // Remove old entry from openMailboxes and create a new one
+                            this.openMailboxes.removeMailbox(suboldabsolutename);
+                            this.openMailboxes.addMailbox(subnewabsolutename,mmm);
+                        }else{
+                            // RENAME MAILBOX MAIN
+                            System.out.println("NEWMAILBOXNAME WILL BE "+newMailboxName);
+                            if (mmm.renameMailbox(user, newMailboxName)) {
+                                // THis is the new AbsoluteName with # and so on
+                                String absolutenewName = getAbsoluteMailboxName(user, newMailboxName);
+                                // Delete the old FolderRecord
+                                FolderRecord fr = recordRep.retrieve(oldAbsoluteName);
+                                recordRep.deleteRecord(fr);
+                                // Create a new FolderRecord and store this in the recordRepository
+                                // Can anybody explain me the use of this repository ???
+                                // I think OpenMailbox and Repository is relatively redundant
+                                fr = new SimpleFolderRecord(user, absolutenewName);
+                                fr.setUidValidity( mmm.getUIDValidity() );
+                                fr.setLookupRights( mmm.getUsersWithLookupRights() );
+                                fr.setReadRights( mmm.getUsersWithReadRights() );
+                                fr.setMarked( mmm.isMarked() );
+                                fr.setNotSelectableByAnyone( mmm.isNotSelectableByAnyone() );
+                                fr.setExists( mmm.getExists() );
+                                fr.setRecent( mmm.getRecent() );
+                                fr.setUnseenbyUser( mmm.getUnseenByUser() );
+                                recordRep.store(fr);
+                                // Remove old entry from openMailboxes and create a new one
+                                this.openMailboxes.removeMailbox(oldAbsoluteName);
+                                mailbox = getAbsoluteMailbox( user, absolutenewName );
+                                this.openMailboxes.addMailbox(absolutenewName,mailbox);
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new AuthorizationException("You have no rights for changing the Mailbox Name");
+        }
     }
 
     /**
@@ -591,7 +666,7 @@ public class JamesHost
      * expicitly request another.
      *
      * @param username String an email address
-     * @return a String of a namespace
+     * @returns a String of a namespace
      */
     public String getDefaultNamespace( String username )
     {
@@ -603,7 +678,7 @@ public class JamesHost
      * existing and deleted folders.
      *
      * @param mailbox String name of the existing mailbox
-     * @return  an integer containing the current UID Validity value.
+     * @returns  an integer containing the current UID Validity value.
      */
     //  public int getUIDValidity(String mailbox);
 
@@ -641,7 +716,7 @@ public class JamesHost
      * @param mailboxName String name of a mailbox possible including a
      * wildcard.
      * @param subscribedOnly only return mailboxes currently subscribed.
-     * @return Collection of strings representing a set of mailboxes.
+     * @returns Collection of strings representing a set of mailboxes.
      * @throws AccessControlException if the user does not have at least
      * lookup rights to at least one mailbox in the set requested.
      * @throws MailboxException if the referenceName is not local or if
@@ -652,9 +727,9 @@ public class JamesHost
                                                   String referenceName,
                                                   String mailboxName,
                                                   boolean subscribedOnly )
-            throws MailboxException, AccessControlException
-    {
+            throws MailboxException, AccessControlException {
         getLogger().debug( "Listing for user: " + username + " ref " + referenceName + " mailbox " + mailboxName );
+        System.out.println( "Listing for user: '" + username + "' ref '" + referenceName + "' mailbox '" + mailboxName + "'");
         List responseList = new ArrayList();
 
         // For mailboxName == ""; return <"."> <namespace-of-reference>
@@ -673,34 +748,7 @@ public class JamesHost
             responseList.add( response );
             return responseList;
         }
-
-//        // If the mailbox name is absolute, ignore the reference
-//        String searchName = mailboxName;
-//        if ( mailboxName.startsWith( NAMESPACE_TOKEN ) ) {
-//            searchName = referenceName + HIERARCHY_SEPARATOR + mailboxName;
-//        }
-//
-//        getLogger().debug( "Refined mailboxName to: " + searchName );
-//
-//        //short-circuit evaluation for namespaces
-//        String mailboxNamespace = getNamespacePrefix( mailboxName );
-//        if ( mailboxNamespace != null &&
-//                mailboxName.equals( mailboxNamespace + "%" ) ) {
-//            String response = "(\\Noselect) \"" + HIERARCHY_SEPARATOR + "\" \"" + mailboxNamespace + "\"";
-//            responseList.add( response );
-//            return responseList;
-//        }
-
-        try { // for debugging purposes
-
-            //Short-circuit for Netscape client calls - remove first % in, e.g. #mail%.%
-            // Eventually we need to handle % anywhere in mailboxname
-//            if ( mailboxNamespace != null &&
-//                    mailboxName.startsWith( mailboxNamespace + "%" ) ) {
-//                mailboxName = mailboxNamespace + mailboxName.substring( mailboxNamespace.length() + 1 );
-//            }
-
-            //mailboxName = mailboxName.substring(0,mailboxName.length() -1);
+        try { 
             getLogger().debug( "Refined mailboxName to: " + mailboxName );
             String userTarget;
             if ( mailboxName.startsWith( NAMESPACE_TOKEN ) ) {
@@ -724,6 +772,8 @@ public class JamesHost
             int firstStar = target.indexOf( "*" );
             getLogger().info( "First percent at index: " + firstPercent );
             getLogger().info( "First star at index: " + firstStar );
+            System.out.println( "First percent at index: " + firstPercent );
+            System.out.println( "First star at index: " + firstStar );
 
             // For now, only handle wildcards as last character of target.
             String targetMatch = target;
@@ -766,52 +816,6 @@ public class JamesHost
                     match = testMailboxName.equals( target );
                     getLogger().debug( "match/ no match at testMailboxName 1" );
                 }
-//                else if (firstStar == -1) {
-//                    // only % wildcards
-//                    if (!testMailboxName.startsWith(target.substring(0, firstPercent))) {
-//                        match = false;
-//                        getLogger().debug("fail match at testMailboxName 2");
-//                    } else if (firstPercent == target.length() -1) {
-//                        // only one % and it is terminating char
-//                        target = target.substring(0, firstPercent);
-//                        getLogger().debug("Refined target to: " + target);
-//                        if (testMailboxName.equals(target)) {
-//                            match = true;
-//                            getLogger().debug("pass match at testMailboxName 3");
-//                        } else if ( (testMailboxName.length() > target.length())
-//                                    &&  (testMailboxName.indexOf('.', target.length())
-//                                         == -1)
-//                                    ) {
-//                            match = true;
-//                            getLogger().debug("pass match at testMailboxName 4");
-//                        } else {
-//                            match = false;
-//                            getLogger().debug("fail match at testMailboxName 5");
-//                        }
-//                    } else {
-//                        int secondPercent = target.indexOf("%", firstPercent + 1);
-//                        match = false; // unfinished
-//                        getLogger().debug("fail match at testMailboxName 6");
-//                    }
-//                } else {
-//                    //at least one star
-//                    int firstWildcard = -1;
-//                    if (firstPercent != -1 && firstStar == -1) {
-//                        firstWildcard = firstPercent;
-//                    } else if (firstStar != -1 && firstPercent == -1) {
-//                        firstWildcard = firstStar;
-//                    } else if (firstPercent < firstStar) {
-//                        firstWildcard = firstPercent;
-//                    } else {
-//                        firstWildcard = firstStar;
-//                    }
-//
-//                    if (!testMailboxName.startsWith(target.substring(0, firstWildcard))) {
-//                        match = false;
-//                    } else {
-//                        match = false;
-//                    }
-//                }
 
                 if ( match && subscribedOnly ) {
                     ACLMailbox mailbox = getAbsoluteMailbox( username, testMailboxName );
@@ -858,8 +862,9 @@ public class JamesHost
                     }
                     buf.append( ") \"" );
                     buf.append(  HIERARCHY_SEPARATOR );
-                    buf.append( "\" " );
+                    buf.append( "\" \"" );
                     buf.append( getUserAwareMailboxName( username, testMailboxName ) );
+                    buf.append( "\"" );
                     matches.add( buf.toString() );
                 }
             }
@@ -889,9 +894,9 @@ public class JamesHost
      * Subscribes a userName to a mailbox. The mailbox must exist locally and the
      * userName must have at least lookup rights to it.
      *
-     * @param userName String representation of an email address
-     * @param mailboxName String representation of a mailbox name.
-     * @return true if subscribe completes successfully
+     * @param username String representation of an email address
+     * @param mailbox String representation of a mailbox name.
+     * @returns true if subscribe completes successfully
      * @throws AccessControlException if the mailbox exists but the userName does
      * not have lookup rights.
      * @throws MailboxException if the mailbox does not exist locally.
@@ -917,9 +922,9 @@ public class JamesHost
     /**
      * Unsubscribes from a given mailbox.
      *
-     * @param userName String representation of an email address
-     * @param mailboxName String representation of a mailbox name.
-     * @return true if unsubscribe completes successfully
+     * @param username String representation of an email address
+     * @param mailbox String representation of a mailbox name.
+     * @returns true if unsubscribe completes successfully
      */
     public boolean unsubscribe( String userName, String mailboxName )
             throws MailboxException, AccessControlException
@@ -953,7 +958,7 @@ public class JamesHost
      * @param mailboxName String name of a mailbox (no wildcards allowed).
      * @param dataItems Vector of one or more Strings each of a single
      * status item.
-     * @return String consisting of space seperated pairs:
+     * @returns String consisting of space seperated pairs:
      * dataItem-space-number.
      * @throws AccessControlException if the user does not have at least
      * lookup rights to the mailbox requested.
@@ -1047,49 +1052,23 @@ public class JamesHost
      * <br> Convert "INBOX" for user "Fred.Flinstone" into
      * absolute name: "#user.Fred.Flintstone.INBOX"
      *
-     * @return String of absoluteName, null if not valid selection
+     * @returns String of absoluteName, null if not valid selection
      */
     private String getAbsoluteMailboxName( String user, String fullMailboxName )
     {
         // First decode the mailbox name as an Atom / String.
 
         if ( fullMailboxName.startsWith( NAMESPACE_TOKEN ) ) {
-            return fullMailboxName.toLowerCase();
+            return fullMailboxName;
         }
         else {
             if ( fullMailboxName.length() == 0 ) {
                 return USER_NAMESPACE_PREFIX + HIERARCHY_SEPARATOR + user;
             }
             else {
-                return USER_NAMESPACE_PREFIX + HIERARCHY_SEPARATOR + user + HIERARCHY_SEPARATOR + fullMailboxName.toLowerCase();
+                return USER_NAMESPACE_PREFIX + HIERARCHY_SEPARATOR + user + HIERARCHY_SEPARATOR + fullMailboxName;
             }
         }
-
-
-//        if (fullMailboxName.equals(privateNamespace)) {
-//            return fullMailboxName + user + privateNamespaceSeparator;
-//        } else if (fullMailboxName.equals(privateNamespace
-//                                          + privateNamespaceSeparator)) {
-//            return fullMailboxName + user + privateNamespaceSeparator;
-//        } else if (fullMailboxName.startsWith(privateNamespace)) {
-//            return new String(privateNamespace + privateNamespaceSeparator
-//                              + user + privateNamespaceSeparator
-//                              + fullMailboxName.substring(privateNamespace.length()  + privateNamespaceSeparator.length()));
-//        } else if (fullMailboxName.equals(otherUsersNamespace)) {
-//            return null;
-//        }else if (fullMailboxName.equals(otherUsersNamespace
-//                                         + otherUsersNamespaceSeparator)) {
-//            return null;
-//        } else if (fullMailboxName.startsWith(otherUsersNamespace)) {
-//
-//            return new String(privateNamespace + privateNamespaceSeparator
-//                              + fullMailboxName.substring(otherUsersNamespace.length() + otherUsersNamespaceSeparator.length()));
-//
-//        } else if (fullMailboxName.startsWith(sharedNamespace)) {
-//            return fullMailboxName;
-//        } else {
-//            return null;
-//        }
     }
 
     /**
@@ -1098,43 +1077,25 @@ public class JamesHost
      * remove this section.
      * Otherwise, return as-is.
      *
-     * @return user-aware mailbox name
+     * @returns user-aware mailbox name
      */
     private String getUserAwareMailboxName( String user, String absoluteName )
     {
         String userPrefix = USER_NAMESPACE_PREFIX + HIERARCHY_SEPARATOR + user + HIERARCHY_SEPARATOR;
+        String response;
         if ( absoluteName.startsWith( userPrefix ) ) {
-            return absoluteName.substring( userPrefix.length() );
+            response = absoluteName.substring( userPrefix.length() );
+        } else {
+            response = absoluteName;
         }
-        else {
-            return absoluteName;
-        }
-
-//        if(absoluteName.startsWith(privateNamespace)) {
-//            if (absoluteName.equals(privateNamespace + privateNamespaceSeparator  + user)) {
-//                return new String(privateNamespace );
-//            } else if (absoluteName.startsWith(privateNamespace + privateNamespaceSeparator  + user)){
-//                return new String(privateNamespace
-//                                  + absoluteName.substring(privateNamespace.length()  + privateNamespaceSeparator.length()  + user.length()));
-//            } else {
-//                // It's another users mailbox
-//                // Where is separator between name and mailboxes?
-//                int pos = absoluteName.substring(privateNamespace.length() + privateNamespaceSeparator.length()).indexOf(privateNamespaceSeparator);
-//                return new String(otherUsersNamespace
-//                                  + otherUsersNamespaceSeparator
-//                                  + absoluteName.substring(pos ));
-//            }
-//        } else if (absoluteName.startsWith(sharedNamespace)) {
-//            return absoluteName;
-//        } else {
-//            return null;
-//        }
+        return response;
     }
 
     /**
      * Return the file-system path to a given absoluteName mailbox.
      *
      * @param absoluteName the user-independent name of the mailbox
+     * @param owner string name of owner of mailbox
      */
     String getPath( String absoluteName )
     {
@@ -1145,22 +1106,6 @@ public class JamesHost
         String filePath = absoluteName.substring( NAMESPACE_TOKEN.length() );
         filePath = filePath.replace( HIERARCHY_SEPARATOR_CHAR, File.separatorChar );
         return rootPath + filePath;
-
-//        String path;
-//        if (absoluteName.startsWith(privateNamespace)) {
-//            String path1 = rootPath + owner;
-//            String path2
-//                = absoluteName.substring(privateNamespace.length()
-//                                         + privateNamespaceSeparator.length()
-//                                         + owner.length());
-//            path = path1 + path2.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
-//        } else if (absoluteName.startsWith(sharedNamespace)) {
-//            String path3 = absoluteName.substring(namespaceToken.length());
-//            path = rootPath + File.separator + path3.replace(privateNamespaceSeparator.charAt(0), File.separatorChar);
-//        } else {
-//            path = null;
-//        }
-//        return path;
     }
 
     public boolean createPrivateMailAccount( String user )
@@ -1213,15 +1158,7 @@ public class JamesHost
         userRootRecord.setNotSelectableByAnyone( userRootFolder.isNotSelectableByAnyone() );
         recordRep.store( userRootRecord );
         recordRep.store( userInboxRecord );
-
-        //No one is using these mailboxes
-        //try {
-        //      userRootFolder.destroy();
-        //      userInbox.destroy();
-        //} catch (Exception e) {
-        //    getLogger().error("Exception closing new account mailbox: " + e);
-        //    return false;
-        //}
+        
         userRootFolder = null;
         userInbox = null;
 

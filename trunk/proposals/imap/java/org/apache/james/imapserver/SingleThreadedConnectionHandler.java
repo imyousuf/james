@@ -39,8 +39,9 @@ import java.util.StringTokenizer;
  *
  * <p> Based on SMTPHandler and POP3Handler by Federico Barbieri <scoobie@systemy.it>
  *
- * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 14 Dec 2000
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.3 on 08 Aug 2002
  */
 public class SingleThreadedConnectionHandler
         extends BaseCommand
@@ -75,7 +76,7 @@ public class SingleThreadedConnectionHandler
     private String currentNamespace = null;
     private String currentSeperator = null;
     private String commandRaw;
-
+    
     //currentFolder holds the client-dependent absolute address of the current
     //folder, that is current Namespace and full mailbox hierarchy.
     private String currentFolder = null;
@@ -87,7 +88,9 @@ public class SingleThreadedConnectionHandler
     private int exists;
     private int recent;
     private List sequence;
-
+    
+    private boolean canParseCommand = true;
+    
     public SingleThreadedConnectionHandler()
     {
         _session = this;
@@ -189,7 +192,11 @@ public class SingleThreadedConnectionHandler
                                               + getRemoteHost() + "(" + getRemoteIP()
                                               + ") received by SingleThreadedConnectionHandler" );
                 }
-                while ( parseCommand( in.readLine() ) ) {
+                
+                while ( true ) {
+                    if (this.getCanParseCommand()) {
+                       if(! parseCommand( in.readLine())) break;
+                    }
                     scheduler.resetTrigger( this.toString() );
                 }
             }
@@ -273,17 +280,13 @@ public class SingleThreadedConnectionHandler
         String folder = null;
         String command = null;
         boolean subscribeOnly = false;
-
+        System.out.println("PARSING COMMAND FROM CILENT: "+next);
         if ( commandRaw == null ) return false;
-        //        getLogger().debug("Command recieved: " + commandRaw + " from " + remoteHost
-        //           + "(" + remoteIP  + ")");
-        //String command = commandRaw.trim();
         StringTokenizer commandLine = new StringTokenizer( commandRaw.trim(), " " );
         int arguments = commandLine.countTokens();
         if ( arguments == 0 ) {
             return true;
-        }
-        else {
+        }else {
             tag = commandLine.nextToken();
             if ( tag.length() > 10 ) {
                 // this stops overlong junk.
@@ -300,12 +303,11 @@ public class SingleThreadedConnectionHandler
                 badResponse( "overlong command attempted" );
                 return true;
             }
-        }
-        else {
+        } else {
             badResponse( "no command sent" );
             return true;
         }
-
+        
         // Create ImapRequestImpl object here - is this the right stage?
         ImapRequestImpl request = new ImapRequestImpl( this, command );
         request.setCommandLine( commandLine );
@@ -634,5 +636,12 @@ public class SingleThreadedConnectionHandler
     public List decodeSet( String rawSet, int exists ) throws IllegalArgumentException
     {
         return super.decodeSet( rawSet, exists );
+    }
+    
+    public void setCanParseCommand(boolean canParseCommand) {
+        this.canParseCommand = canParseCommand;
+    }
+    public boolean getCanParseCommand() {
+        return this.canParseCommand;
     }
 }

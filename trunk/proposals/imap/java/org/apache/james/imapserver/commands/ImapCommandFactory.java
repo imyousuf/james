@@ -18,6 +18,10 @@ import java.util.Map;
 
 /**
  * A factory for ImapCommand instances, provided based on the command name.
+ *
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @version 0.2 on 04 Aug 2002
  */
 public final class ImapCommandFactory
         extends AbstractLogEnabled
@@ -53,7 +57,7 @@ public final class ImapCommandFactory
         _imapCommands.put( "LIST", ListCommand.class );
         _imapCommands.put( "LSUB", LsubCommand.class );
         _imapCommands.put( "STATUS", StatusCommand.class );
-        _imapCommands.put( "APPEND", NotImplementedCommand.class );
+        _imapCommands.put( "APPEND", AppendCommand.class );
         // RFC2342 NAMESPACE
         _imapCommands.put( "NAMESPACE", NamespaceCommand.class );
         // RFC2086 GETACL, SETACL, DELETEACL, LISTRIGHTS, MYRIGHTS
@@ -70,6 +74,7 @@ public final class ImapCommandFactory
         _imapCommands.put( "CLOSE", CloseCommand.class );
         _imapCommands.put( "COPY", CopyCommand.class );
         _imapCommands.put( "EXPUNGE", ExpungeCommand.class );
+        _imapCommands.put( "SEARCH", SearchCommand.class );
         _imapCommands.put( "FETCH", CommandFetch.class );
         _imapCommands.put( "STORE", CommandStore.class );
         _imapCommands.put( "UID", UidCommand.class );

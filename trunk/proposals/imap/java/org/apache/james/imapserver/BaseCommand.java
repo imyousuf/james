@@ -8,17 +8,18 @@
 package org.apache.james.imapserver;
 
 import org.apache.james.BaseConnectionHandler;
+import org.apache.james.AccessControlException;
 
 import java.util.*;
 //import org.apache.james.core.EnhancedMimeMessage;
-
 
 /**
  * Provides methods useful for IMAP command objects.
  *
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version 0.1 on 17 Jan 2001
+ * @author <a href="mailto:sascha@kulawik.de">Sascha Kulawik</a>
+ * @version 0.2 on 29 Jul 2002
  */
 
 public abstract class BaseCommand
@@ -45,6 +46,7 @@ public abstract class BaseCommand
             throw new IllegalArgumentException("Empty string argument");
         }
         getLogger().debug(" decodeSet called for: " + rawSet);
+        System.out.println(" decodeSet called for: " + rawSet);
         List response = new ArrayList();
 
         int checkComma = rawSet.indexOf(",");
@@ -60,7 +62,7 @@ public abstract class BaseCommand
                 else {
                     seqNum = new Integer(rawSet.trim());
                     if (seqNum.intValue() < 1) {
-                        throw new IllegalArgumentException("Not a positive integer");
+                        throw new IllegalArgumentException("Not a positive integer1");
                     }
                 }
                 response.add(seqNum);
@@ -72,7 +74,7 @@ public abstract class BaseCommand
                 Integer firstNum = new Integer(rawSet.substring(0, checkColon));
                 int first = firstNum.intValue();
                 if ( first < 1  ) {
-                    throw new IllegalArgumentException("Not a positive integer");
+                    throw new IllegalArgumentException("Not a positive integer2");
                 }
                 response.add( firstNum );
 
@@ -88,7 +90,7 @@ public abstract class BaseCommand
                     lastNum = new Integer(rawSet.substring(checkColon + 1));
                     last = lastNum.intValue();
                     if ( last < 1 ) {
-                        throw new IllegalArgumentException("Not a positive integer");
+                        throw new IllegalArgumentException("Not a positive integer3");
                     }
                     if ( last < first ) {
                         throw new IllegalArgumentException("Not an increasing range");
@@ -99,7 +101,6 @@ public abstract class BaseCommand
                     }
                 }
             }
-
         }
         else {
             // Comma present, compound range.
@@ -136,9 +137,10 @@ public abstract class BaseCommand
             throw new IllegalArgumentException("Empty string argument");
         }
         getLogger().debug(" decodeUIDSet called for: " + rawSet);
+        System.out.println(" decodeUIDSet called for: " + rawSet);
         Iterator it = uidsList.iterator();
         while (it.hasNext()) {
-            getLogger().info ("uids present : " + (Integer)it.next() );
+            System.out.println ("uids present : " + (Integer)it.next() );
         }
         List response = new ArrayList();
         int checkComma = rawSet.indexOf(",");
@@ -147,7 +149,7 @@ public abstract class BaseCommand
             if (checkColon == -1) {
                 Integer seqNum = new Integer(rawSet.trim());
                 if (seqNum.intValue() < 1) {
-                    throw new IllegalArgumentException("Not a positive integer");
+                    throw new IllegalArgumentException("Not a positive integer4");
                 } else {
                     response.add(seqNum);
                 }
@@ -162,33 +164,35 @@ public abstract class BaseCommand
                     lastNum = (Integer)uidsList.get(uidsList.size()-1);
                 }
                 int last;
+                
                 last = lastNum.intValue();
                 if (first < 1 || last < 1) {
                     throw new IllegalArgumentException("Not a positive integer");
                 } else if (first < last) {
-                    response.add(firstNum);
                     Collection uids;
                     if(uidsList.size() > 50) {
                         uids = new HashSet(uidsList);
                     } else {
                         uids = uidsList;
                     }
-                    for (int i = (first + 1); i < last; i++) {
-                        Integer test = new Integer(i);
-                        if (uids.contains(test)) {
-                            response.add(test);
+                    Iterator ite = uids.iterator();
+                    while (ite.hasNext()) {
+                        int uidsint = ((Integer) ite.next()).intValue();
+                        System.out.println("SCHLEIFEN  f "+first+" l "+last+" uidsint "+uidsint);
+                        
+                        if (uidsint >= first && uidsint <= last) {
+                            response.add(new Integer(uidsint));
                         }
                     }
-                    response.add(lastNum);
-
                 } else if (first == last) {
                     response.add(firstNum);
                 } else {
-                    throw new IllegalArgumentException("Not an increasing range");
+                    // Requests as 5:* are requested from Clients like Outlook to check, if there
+                    // are new Mails incoming since the last request.
+                    // So here no response (NULL List) and no error throwing
+                    System.out.println("NULLLIST");
                 }
-
             }
-
         } else {
             try {
                 String firstRawSet = rawSet.substring(0, checkComma);
@@ -200,6 +204,35 @@ public abstract class BaseCommand
                 throw e;
             }
         }
+        System.out.println("RETURNING");
         return response;
+    }
+    
+    protected ACLMailbox getMailbox( ImapSession session, String mailboxName, String command )
+    {
+        if ( session.getState() == ImapSessionState.SELECTED && session.getCurrentFolder().equals( mailboxName ) ) {
+            return session.getCurrentMailbox();
+        }
+        else {
+            try {
+                return session.getImapHost().getMailbox( session.getCurrentUser(), mailboxName );
+            }
+            catch ( MailboxException me ) {
+                if ( me.isRemote() ) {
+                    session.noResponse( "[REFERRAL " + me.getRemoteServer() + "]" + "Remote mailbox" );
+                }
+                else {
+                    session.noResponse( command, "Unknown mailbox" );
+                    getLogger().info( "MailboxException in method getBox for user: "
+                                      + session.getCurrentUser() + " mailboxName: " + mailboxName + " was "
+                                      + me.getMessage() );
+                }
+                return null;
+            }
+            catch ( AccessControlException e ) {
+                session.noResponse( command, "Unknown mailbox" );
+                return null;
+            }
+        }
     }
 }
