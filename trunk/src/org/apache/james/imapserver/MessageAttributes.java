@@ -8,11 +8,7 @@
 
 package org.apache.james.imapserver;
 
-//import java.io.*;
-//import java.net.*;
 import java.util.Date;
-//import javax.mail.*;
-//import javax.mail.internet.*;
 
 /**
  * Interface for objects holding IMAP4rev1 Message Attributes. Message

@@ -12,6 +12,9 @@ package org.apache.james.imapserver;
 import java.util.*;
 import org.apache.avalon.*;
 
+import org.apache.james.AuthenticationException;
+
+
 /**
  * A simple, single-server, implementation of IMAPSystem.
  *

@@ -16,6 +16,9 @@ import javax.mail.internet.*;
 
 import org.apache.avalon.*;
 
+import org.apache.james.AccessControlException;
+import org.apache.james.AuthorizationException;
+
 /**
  * A host machine that has an IMAP4rev1 messaging server. There should be one
  * instance of this class per instance of James.

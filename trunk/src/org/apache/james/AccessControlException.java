@@ -6,25 +6,25 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.imapserver;
+package org.apache.james;
 
 /**
- * Thrown when a user attempts to do something (e.g. alter mailbox) for which
+ * Thrown when a user attempts to access something (e.g. a mailbox) for which
  * they do not have appropriate rights.
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
- * @version  0.1 on 14 Dec 2000
+ * @version 0.1  on 14 Dec 2000
  */
-public class AuthorizationException extends Exception {
+public class AccessControlException extends Exception {
 
 
 
     /**
-     * Construct a new <code>AuthorizationException</code> instance.
+     * Construct a new <code>AccessControlException</code> instance.
      *
      * @param message The detail message for this exception (mandatory).
      */
-    public AuthorizationException(String message) {
+    public AccessControlException(String message) {
         super(message);
     }
 

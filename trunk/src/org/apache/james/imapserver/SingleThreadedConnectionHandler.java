@@ -18,11 +18,16 @@ import javax.mail.internet.*;
 
 import org.apache.avalon.*;
 import org.apache.avalon.services.*;
-//import org.apache.avalon.utils.*;
-import org.apache.james.*;
+
+//import org.apache.james.*;
+import org.apache.james.AccessControlException;
+import org.apache.james.AuthorizationException;
+import org.apache.james.AuthenticationException;
+import org.apache.james.Constants;
 import org.apache.james.core.EnhancedMimeMessage;
 import org.apache.james.services.*;
 import org.apache.james.util.InternetPrintWriter;
+
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 import org.apache.mailet.Mail;

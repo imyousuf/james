@@ -14,6 +14,9 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+import org.apache.james.AccessControlException;
+import org.apache.james.AuthorizationException;
+
 /**
  * Interface for objects representing for an IMAP4rev1 Access Control List.
  * There should be one instance of this class per open mailbox. An Access

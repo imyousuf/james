@@ -12,6 +12,10 @@ import java.util.Iterator;
 import org.apache.avalon.*;
 import org.apache.avalon.services.Service;
 
+import org.apache.james.AuthenticationException;
+
+
+
 /**
  * An IMAP4rev1 messaging system, possible containing multiple Hosts. There
  * should be one instance of this class per instance of James.

@@ -16,6 +16,9 @@ import javax.mail.internet.*;
 
 import org.apache.avalon.*;
 import org.apache.avalon.services.Service;
+
+import org.apache.james.AccessControlException;
+import org.apache.james.AuthorizationException;
 import org.apache.james.core.EnhancedMimeMessage;
 import org.apache.mailet.Mail;
 
@@ -184,7 +187,8 @@ public interface Mailbox extends Configurable, Composer, Service {
      * @returns String a space seperated list of message flags which this user
      * can set permanently
      */
-    public String getPermanentFlags(String username) throws AccessControlException;
+    public String getPermanentFlags(String username)
+        throws AccessControlException;
 
     /**
      * Indicates number of messages in folder
