@@ -55,8 +55,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.19 $
- * Committed on $Date: 2002/02/27 05:05:53 $ by: $Author: serge $
+ * This is $Revision: 1.20 $
+ * Committed on $Date: 2002/04/05 05:22:29 $ by: $Author: serge $
 
  */
 public class James
@@ -347,6 +347,11 @@ public class James
         MimeMessage orig = mail.getMessage();
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
+        //If there is a Return-Path header,
+        if (orig.getHeader("Return-Path") != null) {
+            //Return the message to that address, not to the Reply-To address
+            reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(orig.getHeader("Return-Path")[0]));
+        }
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
