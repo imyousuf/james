@@ -216,7 +216,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
 //            }
             try {
                 synchronized (this) {
-                    long waitTime = sleepUntil - System.currentTimeMillis();
+                    long waitTime = (sleepUntil == 0) ? 0 : sleepUntil - System.currentTimeMillis();
                     //StringBuffer errorBuffer =
                     //    new StringBuffer(128)
                     //            .append("waiting ")
