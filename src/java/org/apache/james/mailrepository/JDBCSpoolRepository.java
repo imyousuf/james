@@ -32,7 +32,6 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.Lock;
-import org.apache.james.util.LockException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
