@@ -10,6 +10,7 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.AuthenticationException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
 class LoginCommand extends NonAuthenticatedStateCommand
 {
@@ -31,7 +32,7 @@ class LoginCommand extends NonAuthenticatedStateCommand
 
             if ( session.getImapHost().isHomeServer( session.getCurrentUser() ) ) {
                 session.okResponse( request.getCommand() );
-                session.setState( AUTHENTICATED );
+                session.setState( ImapSessionState.AUTHENTICATED );
 
             }
             else {
@@ -51,7 +52,7 @@ class LoginCommand extends NonAuthenticatedStateCommand
                     session.okResponse( "[REFERRAL "
                                                + remoteServer + "]" + SP
                                                + "Your home server is remote, other mailboxes available here" );
-                    session.setState( AUTHENTICATED );
+                    session.setState( ImapSessionState.AUTHENTICATED );
 
                 }
                 else {

@@ -9,6 +9,7 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
 class CloseCommand extends SelectedStateCommand
 {
@@ -22,7 +23,7 @@ class CloseCommand extends SelectedStateCommand
         }
         session.getCurrentMailbox().removeMailboxEventListener( session );
         session.getImapHost().releaseMailbox( session.getCurrentUser(), session.getCurrentMailbox() );
-        session.setState( AUTHENTICATED );
+        session.setState( ImapSessionState.AUTHENTICATED );
         session.setCurrentMailbox( null );
         session.setCurrentIsReadOnly( false );
         session.okResponse( request.getCommand() );

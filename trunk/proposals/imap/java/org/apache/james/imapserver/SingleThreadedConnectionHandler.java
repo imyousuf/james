@@ -66,7 +66,7 @@ public class SingleThreadedConnectionHandler
     private String remoteHost;
     private String remoteIP;
     private String softwaretype = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
-    private int state;
+    private ImapSessionState state;
     private String user;
 
     private IMAPSystem imapSystem;
@@ -174,7 +174,7 @@ public class SingleThreadedConnectionHandler
                     untaggedResponse( "PREAUTH" + SP + VERSION + SP
                                       + "server" + SP + this.helloName + SP
                                       + "logged in as" + SP + _session.getCurrentUser() );
-                    _session.setState( AUTHENTICATED );
+                    _session.setState( ImapSessionState.AUTHENTICATED );
                     _session.setCurrentUser( "preauth user" );
                     getSecurityLogger().info( "Pre-authenticated connection from  "
                                               + getRemoteHost() + "(" + getRemoteIP()
@@ -183,7 +183,7 @@ public class SingleThreadedConnectionHandler
                 else {
                     _session.getOut().println( UNTAGGED + SP + OK + SP + VERSION + SP
                                                + "Server " + this.helloName + SP + "ready" );
-                    _session.setState( NON_AUTHENTICATED );
+                    _session.setState( ImapSessionState.NON_AUTHENTICATED );
                     _session.setCurrentUser( "unknown" );
                     getSecurityLogger().info( "Non-authenticated connection from  "
                                               + getRemoteHost() + "(" + getRemoteIP()
@@ -224,7 +224,7 @@ public class SingleThreadedConnectionHandler
                                     String message2 )
     {
         scheduler.removeTrigger( this.toString() );
-        if ( _session.getState() == SELECTED ) {
+        if ( _session.getState() == ImapSessionState.SELECTED ) {
             getCurrentMailbox().removeMailboxEventListener( this );
             getImapHost().releaseMailbox( _session.getCurrentUser(), getCurrentMailbox() );
         }
@@ -394,7 +394,7 @@ public class SingleThreadedConnectionHandler
 
     public void receiveEvent( MailboxEvent me )
     {
-        if ( _session.getState() == SELECTED ) {
+        if ( _session.getState() == ImapSessionState.SELECTED ) {
             checkMailboxFlag = true;
         }
     }
@@ -489,12 +489,12 @@ public class SingleThreadedConnectionHandler
         return;
     }
 
-    public int getState()
+    public ImapSessionState getState()
     {
         return state;
     }
 
-    public void setState( int state )
+    public void setState( ImapSessionState state )
     {
         this.state = state;
         exists = -1;

@@ -7,6 +7,8 @@
  */
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapSessionState;
+
 
 /**
  * A base class for ImapCommands only valid in AUTHENTICATED and SELECTED states.
@@ -16,9 +18,9 @@ abstract class AuthenticatedSelectedStateCommand extends CommandTemplate
     /**
      * Check that the state is AUTHENTICATED or SELECTED
      */
-    public boolean validForState( int state )
+    public boolean validForState( ImapSessionState state )
     {
-        return ( state == AUTHENTICATED 
-                || state == SELECTED );
+        return ( state == ImapSessionState.AUTHENTICATED
+                || state == ImapSessionState.SELECTED );
     }
 }

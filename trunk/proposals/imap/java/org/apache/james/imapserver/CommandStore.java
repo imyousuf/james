@@ -48,9 +48,9 @@ public class CommandStore
     private SingleThreadedConnectionHandler caller;
     private String currentFolder;
     
-    public boolean validForState( int state )
+    public boolean validForState( ImapSessionState state )
     {
-        return ( state == ImapConstants.SELECTED );
+        return ( state == ImapSessionState.SELECTED );
     }
 
 

@@ -11,6 +11,7 @@ import org.apache.james.AccessControlException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ACLMailbox;
+import org.apache.james.imapserver.ImapSessionState;
 
 import java.util.StringTokenizer;
 
@@ -25,10 +26,10 @@ class SelectOrExamineCommand extends AuthenticatedSelectedStateCommand
         String folder;
         // selecting a mailbox deselects current mailbox,
         // even if this select fails
-        if ( session.getState() == SELECTED ) {
+        if ( session.getState() == ImapSessionState.SELECTED ) {
             session.getCurrentMailbox().removeMailboxEventListener( session );
             session.getImapHost().releaseMailbox( session.getCurrentUser(), session.getCurrentMailbox() );
-            session.setState( AUTHENTICATED );
+            session.setState( ImapSessionState.AUTHENTICATED );
             session.setCurrentMailbox( null );
             session.setCurrentIsReadOnly( false );
         }
@@ -68,7 +69,7 @@ class SelectOrExamineCommand extends AuthenticatedSelectedStateCommand
             // Have mailbox with at least read rights. Server setup.
             session.getCurrentMailbox().addMailboxEventListener( session );
             session.setCurrentFolder( folder );
-            session.setState( SELECTED );
+            session.setState( ImapSessionState.SELECTED );
             getLogger().debug( "Current folder for user " + session.getCurrentUser() + " from "
                                + session.getRemoteHost() + "(" + session.getRemoteIP() + ") is "
                                + session.getCurrentFolder() );

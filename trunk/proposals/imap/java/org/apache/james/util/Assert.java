@@ -7,6 +7,8 @@ import org.apache.avalon.framework.CascadingRuntimeException;
  */ 
 public final class Assert
 {
+    public static final boolean ON = true;
+
     // Can't instantiate.
     private Assert() {};
     

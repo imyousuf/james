@@ -7,6 +7,8 @@
  */
 package org.apache.james.imapserver.commands;
 
+import org.apache.james.imapserver.ImapSessionState;
+
 /**
  * A base class for ImapCommands only valid in the SELECTED state.
  */
@@ -15,8 +17,8 @@ abstract class SelectedStateCommand extends CommandTemplate
     /**
      * By default, valid in any state (unless overridden by subclass.
      */
-    public boolean validForState( int state )
+    public boolean validForState( ImapSessionState state )
     {
-        return ( state == SELECTED );
+        return ( state == ImapSessionState.SELECTED );
     }
 }

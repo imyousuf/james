@@ -48,7 +48,8 @@ public class DefaultRecordRepository
         try {
             String key = path + File.separator + fr.getAbsoluteName();
             File record = new File( key );
-            Assert.isTrue( record.exists() );
+            Assert.isTrue( Assert.ON &&
+                           record.exists() );
             record.delete();
             getLogger().info("Record deleted for: " + fr.getAbsoluteName());
             notifyAll();

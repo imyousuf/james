@@ -12,6 +12,7 @@ import org.apache.james.AccessControlException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.MailboxException;
+import org.apache.james.imapserver.ImapSessionState;
 
 import java.util.StringTokenizer;
 
@@ -42,7 +43,7 @@ class DeleteCommand extends AuthenticatedSelectedStateCommand
                 getLogger().info( "Attempt to delete mailbox " + folder
                                   + " by user " + session.getCurrentUser() + " failed." );
             }
-            if ( session.getState() == SELECTED ) {
+            if ( session.getState() == ImapSessionState.SELECTED ) {
                 session.checkSize();
                 session.checkExpunge();
             }

@@ -173,18 +173,22 @@ public class FileMailbox
                                String initialAdminUser,
                                int uidValidity )
     {
-        Assert.isTrue( user != null && user.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       user != null && user.length() > 0 );
         owner = user;
 
-        Assert.isTrue( absName != null && (absName.length() > 0));
+        Assert.isTrue( Assert.ON &&
+                       absName != null && (absName.length() > 0));
         absoluteName = absName;
 
-        Assert.isTrue( initialAdminUser != null && initialAdminUser.length() > 0 );
+        Assert.isTrue( Assert.ON &&
+                       initialAdminUser != null && initialAdminUser.length() > 0 );
         acl = new HashMap(7);
         acl.put(initialAdminUser, ALL_RIGHTS);
         //acl = new SimpleACL(initialAdminUser);
 
-        Assert.isTrue( uidValidity > 0 );
+        Assert.isTrue( Assert.ON &&
+                       uidValidity > 0 );
         this.uidValidity = uidValidity;
     }
 
@@ -273,7 +277,8 @@ public class FileMailbox
      */
     private String getPath( String absoluteName, String owner, String rootPath )
     {
-        Assert.isTrue( absoluteName.startsWith( JamesHost.NAMESPACE_TOKEN ) );
+        Assert.isTrue( Assert.ON &&
+                       absoluteName.startsWith( JamesHost.NAMESPACE_TOKEN ) );
 
         // Remove the leading '#' and replace Hierarchy separators with file separators.
         String filePath = absoluteName.substring( JamesHost.NAMESPACE_TOKEN.length() );
@@ -334,15 +339,19 @@ public class FileMailbox
         // First delete the mailbox file
         String mailboxRecordFile = path + File.separator + MAILBOX_FILE_NAME;
         File mailboxRecord = new File( mailboxRecordFile );
-        Assert.isTrue( mailboxRecord.exists() &&
+        Assert.isTrue( Assert.ON &&
+                       mailboxRecord.exists() &&
                        mailboxRecord.isFile() );
         mailboxRecord.delete();
 
         // Check for empty directory before deleting.
         File mailboxDir = new File(path);
-        Assert.isTrue( mailboxDir.exists() );
-        Assert.isTrue( mailboxDir.isDirectory() );
-        Assert.isTrue( mailboxDir.list().length == 0 );
+        Assert.isTrue( Assert.ON &&
+                       mailboxDir.exists() );
+        Assert.isTrue( Assert.ON &&
+                       mailboxDir.isDirectory() );
+        Assert.isTrue( Assert.ON &&
+                       mailboxDir.list().length == 0 );
         mailboxDir.delete();
     }
 
