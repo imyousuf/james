@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 2.1 - Writing a Custom Mailet</title>
+ </properties>
+
+<body>
+<section name="Writing a Custom Mailet">
+<p>Implementing a custom mailet is generally a simple task, most of whose complexity 
+lies in coding the actual work to be done by the mailet.  This is largely due to the 
+simplicity of the Mailet interface and the fact that a GenericMailet class is provided 
+as part of the Mailet package.</p>
+<p>In this discussion we will assume that any mailet being implemented is a subclass of 
+GenericMailet.  The GenericMailet class serves to abstract away of the configuration and 
+logging details.  While it provides a noop implementation of the init() and destroy() methods, 
+these can be easily overridden to provide useful functionality.</p>
+<p>In general, the only four methods that you should need to implement are init(), destroy(), 
+getMailetInfo(), and service(Mail).  And only the last is required in all cases.</p>
+<subsection name="Configuration">
+<p>As described in the <a href="spoolmanager_configuration_2_1.html">SpoolManager configuration 
+section</a>, mailets are configured with a set of String (name, value) pairs.  These values are
+passed into the Mailet upon initialization (although the details of this process are hidden by 
+the GenericMailet implementation).  GenericMailet provides access to this configuration 
+information through use of the getInitParameter(String) method.  Passing in the name of the 
+requested configuration value will yield the value if set, and null otherwise.  Configuration 
+values are available inside the init(), destroy(), and service(Mail) methods.</p>
+</subsection>
+<subsection name="Logging">
+<p>There is a simple logging mechanism provided by the Mailet API.  It does not support 
+logging levels, so any log filtering will have to be implemented in the Mailet code.  
+Logging is done by calling one of the two logging methods on GenericMailet - log(String) 
+or log(String,Throwable).  Logging is available inside the init(), destroy(), and service(Mail)
+methods.</p>
+<p>The value of getMailetInfo() for the Mailet is prepended to the log entries for that 
+Mailet.  So it may be desirable for you to override this method so you can distinguish mailet
+log entries by Mailet.</p>
+</subsection>
+<subsection name="Initialization">
+<p>As part of the Mailet lifecycle, a Mailet is guaranteed to be initialized immediately after 
+being instantiated.  This happens once and only once for each Mailet instance.  The 
+Initialization phase is where configuration parsing and per-Mailet resource creation generally 
+take place.  Depending on your Mailet, it may or may not be necessary to do any initialization 
+of the mailet.  Initialization logic is implemented by overriding the init() method of 
+GenericMailet.</p>
+</subsection>
+<subsection name="Servicing">
+<p>The bulk of the Mailet logic is expected to be invoked from the service(Mail) method.  This 
+method is invoked each time a mail message is to be processed by the mailet.  The message is 
+passed in as an instance of the Mail interface, which is part of the Mailet API.</p>
+<p>The Mail interface is essentially a light wrapper around JavaMail's MimeMessage class with a 
+few important differences..</p>
+</subsection>
+<subsection name="Destruction">
+<p>As part of the Mailet lifecycle, a Mailet is guaranteed to be destroyed when the container 
+cleans up the Mailet.  This happens once and only once for each Mailet instance.  The 
+Destruction phase is where per-Mailet resource release generally takes place.  Depending 
+on your Mailet, it may or may not be necessary to do any destruction 
+of the mailet.  Destruction logic is implemented by overriding the destroy() method of 
+GenericMailet.</p>
+</subsection>
+</section>
+</body>
+</document>
