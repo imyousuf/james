@@ -185,7 +185,7 @@ public interface MailetContext {
      * Is the equivalent of opening an SMTP session to localhost.
      *
      * @param sender - the sender of the message
-     * @param recipients - a Collection of String objects of recipients
+     * @param recipients - a Collection of MailAddress objects of recipients
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @throws MessagingException - if the message fails to parse
      */
@@ -197,7 +197,7 @@ public interface MailetContext {
      * appropriate processor that is specified.
      *
      * @param sender - the sender of the message
-     * @param recipients - a Collection of String objects of recipients
+     * @param recipients - a Collection of MailAddress objects of recipients
      * @param msg - the MimeMessage of the headers and body content of the outgoing message
      * @param state - the state of the message, indicates which processor to use
      * @throws MessagingException - if the message fails to parse
