@@ -40,7 +40,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.19 $ $Date: 2004/05/08 02:28:30 $
+ * @version CVS $Revision: 1.35.4.20 $ $Date: 2004/08/19 00:45:16 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -1345,35 +1345,16 @@ public class SMTPHandler
         if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
             headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
         }
-        // Determine the Return-Path
-        String returnPath = headers.getHeader(RFC2822Headers.RETURN_PATH, "\r\n");
-        headers.removeHeader(RFC2822Headers.RETURN_PATH);
+        // RFC 2821 says that we cannot examine the message to see if
+        // Return-Path headers are present.  If there is one, our
+        // Received: header may precede it, but the Return-Path header
+        // should be removed when making final delivery.
+     // headers.removeHeader(RFC2822Headers.RETURN_PATH);
         StringBuffer headerLineBuffer = new StringBuffer(512);
-        if (returnPath == null) {
-            if (state.get(SENDER) == null) {
-                returnPath = "<>";
-            } else {
-                headerLineBuffer.append("<")
-                                .append(state.get(SENDER))
-                                .append(">");
-                returnPath = headerLineBuffer.toString();
-                headerLineBuffer.delete(0, headerLineBuffer.length());
-            }
-        }
-        // We will rebuild the header object to put Return-Path and our
-        // Received header at the top
+        // We will rebuild the header object to put our Received header at the top
         Enumeration headerLines = headers.getAllHeaderLines();
         MailHeaders newHeaders = new MailHeaders();
-        // Put the Return-Path first
-        // JAMES-281 fix for messages that improperly have multiple
-        // Return-Path headers
-        StringTokenizer tokenizer = new StringTokenizer(returnPath, "\r\n");
-        while(tokenizer.hasMoreTokens()) {
-            String path = tokenizer.nextToken();
-            newHeaders.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + path);
-        }
-
-        // Put our Received header next
+        // Put our Received header first
         headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
                         .append(remoteHost)
                         .append(" ([")

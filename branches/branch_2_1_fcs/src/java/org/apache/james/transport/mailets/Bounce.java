@@ -94,7 +94,7 @@ import java.util.ArrayList;
  * <P><I>notice</I> and <I>sendingAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.1.2.10 $ $Date: 2004/03/15 03:54:19 $
+ * @version CVS $Revision: 1.1.2.11 $ $Date: 2004/08/19 00:45:16 $
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
@@ -169,20 +169,18 @@ public class Bounce extends AbstractNotify {
      * @throws MessagingException if a problem arises formulating the redirected mail
      */
     public void service(Mail originalMail) throws MessagingException {
-        MailAddress returnAddress = getExistingReturnPath(originalMail);
-        if (returnAddress == SpecialAddress.NULL) {
+        if (originalMail.getSender() == null) {
             if (isDebug)
                 log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
             if(!getPassThrough(originalMail)) {
                 originalMail.setState(Mail.GHOST);
             }
             return;
-        } else if (returnAddress == null) {
-            log("WARNING: Mail to be bounced does not contain a reverse-path.");
-        } else {
-            if (isDebug)
-                log("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnAddress);
         }
+
+        if (isDebug)
+            log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + originalMail.getSender().toString());
+
         super.service(originalMail);
     }
 

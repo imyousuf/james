@@ -17,13 +17,20 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.RFC2822Headers;
+
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.InternetHeaders;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -43,23 +50,47 @@ public class LocalDelivery extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
+
         MimeMessage message = mail.getMessage();
+
+        // Create a new InternetHeader collection
+        InternetHeaders newHeaders = new InternetHeaders();
+        // Set our Return-Path header
+        newHeaders.setHeader(RFC2822Headers.RETURN_PATH, mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">");
+        // Remove all Return-Path headers from the message
+        message.removeHeader(RFC2822Headers.RETURN_PATH);
+        // Copy all remaining header lines from the message to our new header set
+        Enumeration headers = message.getAllHeaderLines();
+        while (headers.hasMoreElements()) {
+            newHeaders.addHeaderLine((String) headers.nextElement());
+        }
+        // Remember all Header names
+        headers = message.getAllHeaders();
+        ArrayList names = new ArrayList();
+        while (headers.hasMoreElements()) {
+            names.add(((Header)headers.nextElement()).getName());
+        }
+        final String[] headerNames = (String[]) names.toArray(new String[0]);
+        names = null;
+
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                // Add qmail's de facto standard Delivered-To header
-                MimeMessage localMessage = new MimeMessage(message) {
-                    protected void updateHeaders() throws MessagingException {
-                        if (getMessageID() == null) super.updateHeaders();
-                        else {
-                            modified = false;
-                        }
-                    }
-                };
-                localMessage.addHeader("Delivered-To", recipient.toString());
-                localMessage.saveChanges();
+                // Remove all headers
+                for(int h = 0; h < headerNames.length; h++) {
+                    message.removeHeader(headerNames[h]);
+                }
 
-                getMailetContext().storeMail(mail.getSender(), recipient, localMessage);
+                // Copy our new header set to the message
+                headers = newHeaders.getAllHeaderLines();
+                while (headers.hasMoreElements()) {
+                    message.addHeaderLine((String) headers.nextElement());
+                }
+
+                // Add qmail's de facto standard Delivered-To header
+                message.addHeaderLine("Delivered-To: " + recipient.toString());
+
+                getMailetContext().storeMail(mail.getSender(), recipient, message);
             } catch (Exception ex) {
                 getMailetContext().log("Error while storing mail.", ex);
                 errors.add(recipient);
