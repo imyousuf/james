@@ -228,4 +228,9 @@ public interface MailetContext {
      */
     void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg)
         throws MessagingException;
+        
+
+    MailRepository getMailRepository(String specificationURL) throws MessagingException;
+    SpoolRepository getMailSpool(String specificationURL) throws MessagingException;
+//void getUserRepository() throws MessagingException;
 }
