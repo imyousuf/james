@@ -52,7 +52,29 @@
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
                 <localhost> maggie.galaxus </localhost>
-                <deliverserver>212.216.176.34</deliverserver>
+                <servlets rootpath="org.apache.james.james.servlet.">
+                    <servlet match="All" class="ToRepository">
+                        <repository> file://c:/archivio/store/james/maillog/ </repository>
+                        <passThrought> true </passThrought>
+                    </servlet>
+                    <servlet match="RecipientIs=root@localhost,admin@localhost | HostIs=systemy.it" class="Forward">
+                        <forwardto> scoobie@localhost </forwardto>
+                    </servlet>
+                    <servlet match="HostIs=maggie,localhost,maggie.galaxus" class="LocalDelivery">
+                        <repository> localInbox </repository>
+                    </servlet>
+                    <servlet match="All" class="RemoteDelivery">
+                        <outgoingmailserver> 212.216.176.34 </outgoingmailserver>
+                        <repository> file://c:/archivio/store/james/delayed/ </repository>
+                        <delayTime>20000</delayTime>
+                        <maxRetyes>5</maxRetyes>
+                    </servlet>
+<!-- The last servlet in the pipe is the one managing errors -->
+                    <servlet match="All" class="ToRepository">
+                        <repository> file://c:/archivio/store/james/errors/ </repository>
+                        <passThrought> false </passThrought>
+                    </servlet>
+                </servlets>
             </spoolmanager>
         </block>
 <!-- Block to manage JAMES users accounts -->
@@ -105,6 +127,7 @@
                 <channel name="POP3Server"      logwriter="popfile"/>
                 <channel name="SMTPServer"      logwriter="smtpfile"/>
                 <channel name="JAMES"           logwriter="jamesfile"/>
+                <channel name="Mail Servlet"    logwriter="jamesfile"/>
             </channels>
             <logwriters>
                 <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">

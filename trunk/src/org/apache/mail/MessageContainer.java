@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james;
+package org.apache.mail;
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +26,9 @@ public class MessageContainer implements Serializable {
     public final static String GHOST = "GHOST";
     public final static String EMPTY = "EMPTY";
     public final static String DEFAULT = "DEFAULT";
+    public final static String ERROR = "ERROR";
 
+    private String errorMessage;
     private String messageId;
     private String state;
     private MimeMessage message;
@@ -53,6 +55,20 @@ public class MessageContainer implements Serializable {
         this.message = message;
     }
     
+    public MessageContainer duplicate() {
+        MessageContainer response = new MessageContainer(sender, recipients, message);
+        response.setMessageId(messageId);
+        return response;
+    }
+    
+    public void setErrorMessage(String msg) {
+        this.errorMessage = msg;
+    }
+    
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
     public void setState(String state) {
         this.state = state;
     }

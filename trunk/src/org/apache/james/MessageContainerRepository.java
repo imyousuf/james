@@ -13,7 +13,7 @@ import org.apache.arch.*;
 import org.apache.java.util.*;
 import java.util.*;
 import java.io.*;
-import org.apache.james.*;
+import org.apache.mail.MessageContainer;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
