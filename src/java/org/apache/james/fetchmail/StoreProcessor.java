@@ -71,14 +71,29 @@ import javax.mail.Store;
  */
 public class StoreProcessor extends ProcessorAbstract
 {
+    /**
+     * The Session to use.
+     */ 
+    private Session fieldSession;
 
     /**
      * Constructor for StoreProcessor.
-     * @param account
+     * @param account 
      */
-    protected StoreProcessor(Account account)
+    private StoreProcessor(Account account)
     {
-        super(account);
+        super(account);        
+    }
+    
+    /**
+     * Constructor for StoreProcessor.
+     * @param account
+     * @param session
+     */
+    protected StoreProcessor(Account account, Session session)
+    {
+        this(account);
+        setSession(session);
     }
 
     /**
@@ -106,11 +121,8 @@ public class StoreProcessor extends ProcessorAbstract
 
         try
         {
-            // Get a Session object
-            session = Session.getDefaultInstance(System.getProperties(), null);
-
             // Get a Store object
-            store = session.getStore(getJavaMailProviderName());
+            store = getSession().getStore(getJavaMailProviderName());
 
             // Connect
             if (getHost() != null
@@ -144,7 +156,8 @@ public class StoreProcessor extends ProcessorAbstract
             {
                 getLogger().error(ex.getMessage());
             }
-            logMessageBuffer = new StringBuffer("Finished fetching mail from server '");
+            logMessageBuffer =
+                new StringBuffer("Finished fetching mail from server '");
             logMessageBuffer.append(getHost());
             logMessageBuffer.append("' for user '");
             logMessageBuffer.append(getUser());
@@ -153,6 +166,24 @@ public class StoreProcessor extends ProcessorAbstract
             logMessageBuffer.append("'");
             getLogger().info(logMessageBuffer.toString());
         }
+    }
+
+    /**
+     * Returns the session.
+     * @return Session
+     */
+    protected Session getSession()
+    {
+        return fieldSession;
+    }
+
+    /**
+     * Sets the session.
+     * @param session The session to set
+     */
+    protected void setSession(Session session)
+    {
+        fieldSession = session;
     }
 
 }

@@ -126,6 +126,7 @@ periodically. Fetch tasks run concurrently.</p>
 <li><strong><a href="#host">host</a></strong> (1, 1)</li>
 <li><strong><a href="#interval">interval</a></strong> (1, 1)</li>
 <li><strong><a href="#javaMailFolderName">javaMailFolderName</a></strong> (1, 1)</li>
+<li><strong><a href="#javaMailProperties">javaMailProperties</a></strong> (0, 1)</li>
 <li><strong><a href="#javaMailProviderName">javaMailProviderName</a></strong> (1, 1)</li>
 <li><strong><a href="#recipientnotfound">recipientnotfound</a></strong> (1, 1)</li>
 <li><strong><a href="#recursesubfolders">recursesubfolders</a></strong> (1, 1)</li>
@@ -305,12 +306,52 @@ server from which mail is fetched. For POP3 servers this is always
 </p>
 </subsection>
 
-<subsection name="javaMailProviderName">
-<p>The <strong>javaMailProviderName</strong> tag declares the protocol used to
-interact with the external server.</p>
+<subsection name="javaMailProperties">
+<p>The <strong>javaMailProperties</strong> tag declares the properties to be
+applied to the JavaMail Session used by the fetch task. These override the
+properties answered by <code>System.getProperties()</code>. Many JavaMail
+properties are specific to the JavaMail Provider selected by the 
+<a href="#javaMailProviderName">javaMailProviderName</a> tag.</p>
 
-<p>The tag value is the  name of a JavaMail supported protocol, such as
-<code>pop3</code> or <code>imap</code>.</p>
+<p><strong>Relying on the default values selected by the Provider can be
+inappropriate.</strong> For instance, the default connection and I/O timeout 
+values of infinite for the default IMAP and POP3 Providers is rarely what is
+required. Consult the documentation of the Provider for details and options.</p>
+
+<p>Documentation for the default Provider for IMAP is located
+<a href="http://java.sun.com/products/javamail/javadocs/com/sun/mail/imap/package-summary.html">
+here</a>.</p>
+
+<p>Documentation for the default Provider for POP3 is located
+<a href="http://java.sun.com/products/javamail/javadocs/com/sun/mail/pop3/package-summary.html">
+here</a>.</p>
+
+<p>Details of how to change a Provider are located
+<a href="http://java.sun.com/products/javamail/javadocs/javax/mail/Session.html">
+here</a>.</p>
+
+<p>The tag has these child tags (minimum cardinality, maximum cardinality):
+<ul>
+<li><strong><a href="#property">property</a></strong> (0, *)</li>
+</ul>
+</p>
+
+<p>
+<source>
+&lt;javaMailProperties&gt;
+...
+&lt;/javaMailProperties&gt;
+</source>
+</p>
+</subsection>
+
+<subsection name="javaMailProviderName">
+<p>The <strong>javaMailProviderName</strong> tag selects the JavaMail protocol
+Provider used to interact with the external server.</p>
+
+<p>The tag value is the name of a JavaMail supported protocol, such as 
+<code>pop3</code> or <code>imap</code>. The name is used to select the default
+Provider for the protocol.</p>
 
 <p>
 <source>
@@ -563,6 +604,28 @@ the process declared by the <strong>recipientnotfound</strong> tag.
 </p>
 </subsection>
 
+<subsection name="property">
+<p>The <strong>property</strong> tag declares a name/value pair.</p>
+
+<p>The tag has these attributes:
+<dl>
+<dt><strong>name</strong></dt>
+<dd>The name of the property.
+</dd>
+<dt><strong>value</strong></dt>
+<dd>The value of the property.</dd>
+</dl>
+</p>
+
+<p>
+<source>
+&lt;property
+    name=&quot;mail.pop3.connectiontimeout&quot;
+    value=&quot;180000&quot;/&gt;
+</source>
+</p>
+</subsection>
+
 </section>
 
 <section name="fetchmail Examples">
@@ -732,8 +795,9 @@ credentials.
 </li>
 
 <li>When using dynamic accounts, an account is generated and an attempt made to
-fetch mail for all James users even if there is no such mailbox on the server.
-This is inefficient but not fatal. The solution is the same as described above.
+fetch mail for all James users defined to James even if there is no such mailbox
+on the server. This is inefficient but not fatal. The solution is the same as 
+described above.
 </li>
 
 <li>When using dynamic accounts, as described in the
@@ -744,13 +808,16 @@ and fetch all the mail before the account declared to process mail for all users
 has an opportunity to run!
 </li>
 
-<li>The now deprecated fetchPOP supported a subset of the features of fetchmail.
-fetchPOP interacted with the <code>FetchedFrom</code> matcher to detect mail
-injected by fetchPOP. This will not work with fetchmail. Compared to fetchPOP,
-there are far fewer occasions when mail injected by fetchmail requires special
-processing. When it does, use the HasMailAttribute matcher to detect the 
-attribute named <code>org.apache.james.fetchmail.taskName</code>. The value of 
-the attribute is the name of the fetch task.
+<li>The now deprecated fetchPOP interacted with the <code>FetchedFrom</code> 
+matcher to detect mail injected by fetchPOP. This will not work with fetchmail. 
+Compared to fetchPOP, there are far fewer occasions when mail injected by 
+fetchmail requires special processing. When it does, use the HasMailAttribute 
+matcher to match the attribute named 
+<code>org.apache.james.fetchmail.taskName</code> to detect all mail injected by
+fetchmail. To detect mail injected by a specific fetch task, use one of the 
+HasMailAttributeWithValue matchers to match on the attribute name and the
+attribute value. The attribute value is the name of the fetch task that 
+injected the mail.
 </li>
 
 <li>The POP3 protocol does not enforce support of any of the Flags associated 

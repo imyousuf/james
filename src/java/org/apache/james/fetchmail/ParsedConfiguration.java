@@ -326,8 +326,6 @@ class ParsedConfiguration
     protected void configure(Configuration conf) throws ConfigurationException
     {   
         setHost(conf.getChild("host").getValue());
-//      setUser(conf.getChild("user").getValue());
-//      setPassword(conf.getChild("password").getValue());
 
         setFetchTaskName(conf.getAttribute("name"));
         setJavaMailProviderName(
@@ -335,11 +333,6 @@ class ParsedConfiguration
         setJavaMailFolderName(conf.getChild("javaMailFolderName").getValue());
         setRecurse(conf.getChild("recursesubfolders").getValueAsBoolean());
 
-//      Configuration recipient = conf.getChild("recipient");
-//      setRecipient(recipient.getValue());
-//      setIgnoreOriginalRecipient(
-//          recipient.getAttributeAsBoolean("ignorercpt-header"));
-            
         Configuration recipientNotFound = conf.getChild("recipientnotfound");
         setDeferRecipientNotFound(
             recipientNotFound.getAttributeAsBoolean("defer"));         
