@@ -45,8 +45,10 @@
             <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
 
             <pop3Server>
-                <port>110</port>
+<!-- port 995 is the well-known/ IANA registered port for POP3S ie over SSL/TLS -->
+                <port>110</port> 
 <!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
+<!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <pop3handler>
                     <connectiontimeout> 120000 </connectiontimeout>
                 </pop3handler>
@@ -63,6 +65,7 @@
             <remoteManager>
                 <port>4555</port>
 <!--                <bind>  </bind> uncomment this if you want to bind to a specific inetaddress-->
+<!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <administrator_accounts>
                     <account login="root" password="root"/>
                 </administrator_accounts>
@@ -192,6 +195,7 @@
                 <channel name="SMTP"         loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="DNS"          loglevel="DEBUG"  logwriter="dnsfile"/>
                 <channel name="POP3"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="IMAP"         loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="RemoteAdmin"  loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="Mailets"      loglevel="DEBUG"  logwriter="mailet"/>
                 <channel name="Processor"    loglevel="DEBUG"  logwriter="jamesfile"/>

@@ -64,7 +64,17 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             }
         } catch (ConfigurationException e) {
         }
-        socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, port, bind, this);
+
+	String type = SocketServer.DEFAULT;
+	try {
+	    if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+	} catch (ConfigurationException e) {
+	}
+	String typeMsg = "RemoteManager using " + type + " on port " + port;
+        logger.log(typeMsg, "RemoteAdmin", logger.INFO);
+
+        socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
+
         admaccount = new Hashtable();
         for (Enumeration e = conf.getConfigurations("administrator_accounts.account"); e.hasMoreElements();) {
             Configuration c = (Configuration) e.nextElement();
