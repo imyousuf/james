@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.4 $
-    Committed on $Date: 2001/06/19 16:00:38 $ by: $Author: charlesb $ 
+    This is $Revision: 1.5 $
+    Committed on $Date: 2001/06/21 16:04:49 $ by: $Author: charlesb $ 
 -->
 <config>
 
@@ -69,16 +69,14 @@
      (ex. file://c:/james/spool/) -->
       <spoolRepository>
         <repository destinationURL="file://var/mail/spool/"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
+                    type="SPOOL">
         </repository>
       </spoolRepository>
 
       <!-- Alternative spool repository definition for Town use
       <spoolRepository>
         <repository destinationURL="town://mainspool"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
+                    type="SPOOL">
           <conn>file:///dev/james/dist/var/maildatabase</conn>
           <table>Message</table>
         </repository>
@@ -88,16 +86,14 @@
       <!-- The inbox repository is the location for users inboxes -->
       <inboxRepository>
         <repository destinationURL="file://var/mail/inboxes/"
-                    type="MAIL"
-                    model="SYNCHRONOUS">
+                    type="MAIL">
         </repository>
       </inboxRepository>
 
       <!-- Alternative inbox repository definition for Town use
       <inboxRepository>
         <repository destinationURL="town://inbox"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
+                    type="SPOOL">
           <conn>file:///dev/james/dist/var/maildatabase</conn>
           <table>Message</table>
         </repository>
@@ -114,16 +110,14 @@
 	to add and process same messages. -->
       <spoolRepository>
         <repository destinationURL="file://var/mail/spool/"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
+                    type="SPOOL">
         </repository>
       </spoolRepository>
 
       <!-- Alternative spool repository definition for Town use
       <spoolRepository>
         <repository destinationURL="town://mainspool"
-                    type="SPOOL"
-                    model="SYNCHRONOUS">
+                    type="SPOOL">
           <conn>file:///dev/james/dist/../../store/maildatabase</conn>
           <table>Message</table>
         </repository>
@@ -461,11 +455,6 @@
           <types>
             <type>MAIL</type>
           </types>
-          <models>
-            <model>SYNCHRONOUS</model>
-            <model>ASYNCHRONOUS</model>
-            <model>CACHE</model>
-          </models>
         </repository>
         <repository
             class="org.apache.james.mailrepository.AvalonSpoolRepository">
@@ -475,11 +464,6 @@
           <types>
             <type>SPOOL</type>
           </types>
-          <models>
-            <model>SYNCHRONOUS</model>
-            <model>ASYNCHRONOUS</model>
-            <model>CACHE</model>
-          </models>
         </repository>
 
         <repository
@@ -491,11 +475,6 @@
             <type>SPOOL</type>
             <type>MAIL</type>
           </types>
-          <models>
-            <model>SYNCHRONOUS</model>
-            <model>ASYNCHRONOUS</model>
-            <model>CACHE</model>
-          </models>
         </repository>
       </repositories>
   </mailstore>

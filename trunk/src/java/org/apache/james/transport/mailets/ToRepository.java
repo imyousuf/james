@@ -25,6 +25,9 @@ import org.apache.mailet.*;
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ *
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2001/06/21 16:04:54 $ by: $Author: charlesb $ 
  */
 public class ToRepository extends GenericMailet {
 
@@ -46,8 +49,6 @@ public class ToRepository extends GenericMailet {
                 = new DefaultConfiguration("repository", "generated:ToRepository");
             mailConf.setAttribute("destinationURL", repositoryPath);
             mailConf.setAttribute("type", "MAIL");
-            mailConf.setAttribute("model", "SYNCHRONOUS");
-
             repository = (MailRepository) mailstore.select(mailConf);
         } catch (ComponentException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());

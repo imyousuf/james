@@ -44,6 +44,9 @@ import org.apache.mailet.*;
  *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
+ *
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2001/06/21 16:04:53 $ by: $Author: charlesb $ 
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -79,8 +82,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
             spoolConf.setAttribute("destinationURL", outgoingPath);
             spoolConf.setAttribute("type", "SPOOL");
-            spoolConf.setAttribute("model", "SYNCHRONOUS");
-
             outgoing = (SpoolRepository) mailstore.select(spoolConf);
         } catch (ComponentException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
