@@ -596,8 +596,18 @@ public class MessageProcessor extends ProcessorAbstract
         recipients.add(recipient);
         MailImpl mail =
             new MailImpl(getServer().getId(), getSender(), recipients, message);
-        mail.setRemoteAddr(getRemoteAddress());
-        mail.setRemoteHost(getRemoteHostName());
+        // Ensure the mail is created with non-null remote host name and address,
+        // otherwise the Mailet chain may go splat!
+        if (getRemoteAddress() == null || getRemoteHostName() == null)
+        {
+            mail.setRemoteAddr("127.0.0.1");
+            mail.setRemoteHost("localhost");
+        }
+        else
+        {
+            mail.setRemoteAddr(getRemoteAddress());
+            mail.setRemoteHost(getRemoteHostName());
+        }
 
         if (getLogger().isDebugEnabled())
         {

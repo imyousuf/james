@@ -506,7 +506,8 @@ legitimate.</p>
 will not be injected into the James input spool. If &quot;false&quot;, mail whose 
 specified recieved header is invalid will be injected into the James input spool with 
 the Mail Attribute <code>org.apache.james.fetchmail.isInvalidReceivedHeader</code>
-added to the mail.
+added to the mail, the remote address set to <code>127.0.0.1</code> and the remote 
+host name set to <code>localhost</code>.
 </dd>
 <dt><strong>leaveonserver</strong></dt>
 <dd>A boolean. If &quot;true&quot;, mail whose specified recieved header is invalid
