@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.10 $
- * Committed on $Date: 2001/11/29 13:40:25 $ by: $Author: danny $
+ * This is $Revision: 1.11 $
+ * Committed on $Date: 2001/11/29 18:17:33 $ by: $Author: danny $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -366,6 +366,9 @@ public class SMTPHandler
             if (sender.length() == 0) {
                 //This is the <> case.  Let senderAddress == null
             } else {
+                if(sender.indexOf("@")<0){
+                   sender = sender+"@localhost";
+                }
                 try {
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
@@ -402,6 +405,9 @@ public class SMTPHandler
             MailAddress recipientAddress = null;
             //Remove < and >
             recipient = recipient.substring(1, recipient.length() - 1);
+            if(recipient.indexOf("@")<0){
+                recipient = recipient+"@localhost";
+            }
             try {
                 recipientAddress = new MailAddress(recipient);
             } catch (Exception pe) {
