@@ -148,6 +148,44 @@ public class AvalonMailRepository implements SpoolRepository {
         }
     }
 
+    public synchronized String accept(long delay) {
+        while (true) {
+            long youngest = 0;
+            for (Enumeration e = list(); e.hasMoreElements(); ) {
+                String s = e.nextElement().toString();
+                if (lock.lock(s)) {
+                    //We have a lock on this object... let's grab the message
+                    //  and see if it's a valid time.
+                    MailImpl mail = retrieve(s);
+                    if (mail.getState().equals(Mail.ERROR)) {
+                        //Test the time...
+                        long timeToProcess = delay + mail.getLastUpdated().getTime();
+                        if (System.currentTimeMillis() > timeToProcess) {
+                            //We're ready to process this again
+                            return s;
+                        } else {
+                            //We're not ready to process this.
+                            if (youngest == 0 || youngest > timeToProcess) {
+                                //Mark this as the next most likely possible mail to process
+                                youngest = timeToProcess;
+                            }
+                        }
+                    } else {
+                        //This mail is good to go... return the key
+                        return s;
+                    }
+                }
+            }
+            //We did not find any... let's wait for a certain amount of time
+            try {
+                if (youngest == 0) {
+                    wait();
+                } else {
+                    wait(youngest - System.currentTimeMillis());
+                }
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
 }
-
-

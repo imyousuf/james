@@ -43,7 +43,6 @@ public class TownMailRepository implements SpoolRepository {
     }
 
     public void setAttributes(String name, String destination, String type, String model) {
-        //System.err.println(destination);
         this.name = name;
         this.model = model;
         this.type = type;
@@ -54,8 +53,6 @@ public class TownMailRepository implements SpoolRepository {
         int at = temp.indexOf("@");
         repositoryName = temp.substring(0, at);
         conndefinition = temp.substring(at + 1);
-        //System.err.println("repository: " + repositoryName);
-        //System.err.println("conndef: " + conndefinition);
     }
 
     public void setComponentManager(ComponentManager comp) {
@@ -75,7 +72,6 @@ public class TownMailRepository implements SpoolRepository {
     }
 
     public String getChildDestination(String childName) {
-        //System.err.println(repositoryName + ": " + "town://" + repositoryName + "/" + childName + "@" + conndefinition);
         return "town://" + repositoryName + "/" + childName + "@" + conndefinition;
     }
 
@@ -102,6 +98,7 @@ public class TownMailRepository implements SpoolRepository {
         try {
             //System.err.println("storing " + mc.getName());
             String key = mc.getName();
+            mc.setLastUpdated(new Date());
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
             messages.setWhere("message_name = '" + key + "'");
             Record mail = null;
@@ -127,11 +124,11 @@ public class TownMailRepository implements SpoolRepository {
             mail.setValue("recipients", recipients.toString());
             mail.setValue("remote_host", mc.getRemoteHost());
             mail.setValue("remote_addr", mc.getRemoteAddr());
+            mail.setValue("last_updated", mc.getLastUpdated());
             MimeMessage messageBody = mc.getMessage();
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             messageBody.writeTo(bout);
             mail.setValue("message_body", bout.toByteArray());
-            mail.setValue("last_updated", new java.util.Date());
             mail.save();
             notifyAll();
         } catch (Exception e) {
@@ -161,6 +158,7 @@ public class TownMailRepository implements SpoolRepository {
             mc.setRecipients(recipients);
             mc.setRemoteHost(message.getAsString("remote_host"));
             mc.setRemoteAddr(message.getAsString("remote_addr"));
+            mc.setLastUpdated(message.getAsUtilDate("last_updated"));
             ByteArrayInputStream bin = new ByteArrayInputStream(message.getAsBytes("message_body"));
             mc.setMessage(bin);
             return mc;
@@ -176,7 +174,6 @@ public class TownMailRepository implements SpoolRepository {
     public synchronized void remove(String key) {
         lock(key);
         try {
-            //System.err.println("removing " + key);
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
             messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
@@ -190,7 +187,6 @@ public class TownMailRepository implements SpoolRepository {
 
     public Enumeration list() {
         try {
-            //System.err.println("list messages");
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), "Message");
             messages.setColumns("message_name");
             messages.setWhere("repository_name='" + repositoryName + "'");
@@ -216,6 +212,46 @@ public class TownMailRepository implements SpoolRepository {
             }
             try {
                 wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public synchronized String accept(long delay) {
+        while (true) {
+            long youngest = 0;
+            for (Enumeration e = list(); e.hasMoreElements(); ) {
+                String s = e.nextElement().toString();
+                if (lock.lock(s)) {
+                    //We have a lock on this object... let's grab the message
+                    //  and see if it's a valid time.
+                    MailImpl mail = retrieve(s);
+                    if (mail.getState().equals(Mail.ERROR)) {
+                        //Test the time...
+                        long timeToProcess = delay + mail.getLastUpdated().getTime();
+                        if (System.currentTimeMillis() > timeToProcess) {
+                            //We're ready to process this again
+                            return s;
+                        } else {
+                            //We're not ready to process this.
+                            if (youngest == 0 || youngest > timeToProcess) {
+                                //Mark this as the next most likely possible mail to process
+                                youngest = timeToProcess;
+                            }
+                        }
+                    } else {
+                        //This guy is good to go... return him
+                        return s;
+                    }
+                }
+            }
+            //We did not find any... let's wait for a certain amount of time
+            try {
+                if (youngest == 0) {
+                    wait();
+                } else {
+                    wait(youngest - System.currentTimeMillis());
+                }
             } catch (InterruptedException ignored) {
             }
         }
