@@ -41,8 +41,8 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.12 $
- * Committed on $Date: 2002/08/16 17:08:53 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.13 $
+ * Committed on $Date: 2002/08/18 07:27:51 $ by: $Author: pgoldstein $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -301,6 +301,9 @@ public class JamesSpoolManager
             try {
                 String key = spool.accept();
                 MailImpl mail = spool.retrieve(key);
+                // Retrieve can return null if the mail is no longer on the spool
+                // (i.e. another thread has gotten to it first).
+                // In this case we simply continue to the next key
                 if (mail == null) {
                     continue;
                 }

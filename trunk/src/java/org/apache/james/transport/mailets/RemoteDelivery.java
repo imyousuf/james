@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.22 $
- * Committed on $Date: 2002/08/09 06:04:22 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.23 $
+ * Committed on $Date: 2002/08/18 07:27:51 $ by: $Author: pgoldstein $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -516,6 +516,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                 .append(key);
                     log(logMessageBuffer.toString());
                     MailImpl mail = outgoing.retrieve(key);
+                    // Retrieve can return null if the mail is no longer on the outgoing spool.
+                    // In this case we simply continue to the next key
+                    if (mail == null) {
+                        continue;
+                    }
                     if (deliver(mail, session)) {
                         //Message was successfully delivered/fully failed... delete it
                         outgoing.remove(key);
