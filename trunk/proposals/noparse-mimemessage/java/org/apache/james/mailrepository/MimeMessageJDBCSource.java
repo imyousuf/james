@@ -57,10 +57,6 @@ public class MimeMessageJDBCSource
             PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageStreamSQL);
             retrieveMessageStream.setString(1, key);
             retrieveMessageStream.setString(2, repository.repositoryName);
-            //System.err.println(retrieveMessageStream);
-            //System.err.println(retrieveMessageStreamSQL);
-            //System.err.println("'" + key + "'");
-            //System.err.println("'" + repository.repositoryName + "'");
             ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
 
             if (!rsRetrieveMessageStream.next()) {
@@ -83,6 +79,12 @@ public class MimeMessageJDBCSource
             */
         }
     }
+    /*
+    public synchronized long getSize() throws IOException {
+        //Would like to implement using BLOBs
+
+    }
+    */
 
     public boolean equals(Object obj) {
         if (obj instanceof MimeMessageJDBCSource) {

@@ -64,15 +64,30 @@ public class JDBCSpoolRepository
 
     public synchronized String accept() {
         while (true) {
-            System.err.println("calling accept");
-            for(Iterator it = list(); it.hasNext(); ) {
-                Object o = it.next();
-                if (lock.lock(o)) {
-                    return o.toString();
+            try {
+                Connection conn = getConnection();
+                PreparedStatement listMessages = conn.prepareStatement(listMessagesSQL);
+                listMessages.setString(1, repositoryName);
+                ResultSet rsListMessages = listMessages.executeQuery();
+
+                while (rsListMessages.next()) {
+                    String message = rsListMessages.getString(1);
+
+                    if (lock.lock(message)) {
+                        rsListMessages.close();
+                        listMessages.close();
+                        conn.close();
+                        return message;
+                    }
                 }
+                rsListMessages.close();
+                listMessages.close();
+                conn.close();
+            } catch (Exception me) {
+                me.printStackTrace();
+                throw new RuntimeException("Exception while listing mail: " + me.getMessage());
             }
             try {
-                System.out.println("waiting for " + this);
                 wait();
             } catch (InterruptedException ignored) {
             }
@@ -81,43 +96,56 @@ public class JDBCSpoolRepository
 
     public synchronized String accept(long delay) {
         while (true) {
-            long youngest = 0;
-            //Really unoptimized query here... should be much smart about this...
-            for (Iterator it = list(); it.hasNext(); ) {
-                String s = it.next().toString();
-                if (lock.lock(s)) {
-                    //We have a lock on this object... let's grab the message
-                    //  and see if it's a valid time.
-                    MailImpl mail = retrieve(s);
-                    if (mail.getState().equals(Mail.ERROR)) {
-                        //Test the time...
-                        long timeToProcess = delay + mail.getLastUpdated().getTime();
+            long next = 0;
+            try {
+                Connection conn = getConnection();
+                PreparedStatement listMessages = conn.prepareStatement(listMessagesSQL);
+                listMessages.setString(1, repositoryName);
+                ResultSet rsListMessages = listMessages.executeQuery();
+
+                while (rsListMessages.next()) {
+                    String message = rsListMessages.getString(1);
+                    String state = rsListMessages.getString(2);
+                    boolean process = false;
+                    if (state.equals(Mail.ERROR)) {
+                        //Test the time
+                        long timeToProcess = delay + rsListMessages.getDate(3).getTime();
                         if (System.currentTimeMillis() > timeToProcess) {
-                            //We're ready to process this again
-                            return s;
+                            process = true;
                         } else {
-                            //We're not ready to process this.
-                            if (youngest == 0 || youngest > timeToProcess) {
+                            if (next == 0 || next > timeToProcess) {
                                 //Mark this as the next most likely possible mail to process
-                                youngest = timeToProcess;
+                                next = timeToProcess;
                             }
                         }
                     } else {
-                        //This guy is good to go... return him
-                        return s;
+                        process = true;
+                    }
+
+                    if (process && lock.lock(message)) {
+                        rsListMessages.close();
+                        listMessages.close();
+                        conn.close();
+                        return message;
                     }
                 }
+                rsListMessages.close();
+                listMessages.close();
+                conn.close();
+            } catch (Exception me) {
+                me.printStackTrace();
+                throw new RuntimeException("Exception while listing mail: " + me.getMessage());
             }
+
             //We did not find any... let's wait for a certain amount of time
             try {
-                if (youngest == 0) {
+                if (next == 0) {
                     wait();
                 } else {
-                    wait(youngest - System.currentTimeMillis());
+                    wait(next - System.currentTimeMillis());
                 }
             } catch (InterruptedException ignored) {
             }
-            System.err.println("done waiting in long accept");
         }
     }
 }
