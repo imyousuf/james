@@ -78,7 +78,7 @@ package org.apache.mailet;
  * <li>The mailet is taken out of service, then destroyed with the destroy method,
  *      then garbage collected and finalized.</li>
  * </ol>
- * In addition to the life-cycle methods, this interface provides the getMailletConfig
+ * In addition to the life-cycle methods, this interface provides the getMailetConfig
  * method, which the mailet can use to get any startup information, and the
  * getMailetInfo method, which allows the mailet to return basic information about itself,
  * such as author, version, and copyright.
@@ -123,7 +123,7 @@ public interface Mailet {
      * object so that this method can return it. The GenericMailet class, which implements
      * this interface, already does this.
      *
-     * @return the MailletConfig object that initializes this mailet
+     * @return the MailetConfig object that initializes this mailet
      */
     MailetConfig getMailetConfig();
 
@@ -137,27 +137,27 @@ public interface Mailet {
      *
      * @param config - a MailetConfig object containing the mailet's configuration
      *          and initialization parameters
-     * @throws MessagingException - if an exception has occurred that interferes with
+     * @throws javax.mail.MessagingException - if an exception has occurred that interferes with
      *          the mailet's normal operation
      */
     void init(MailetConfig config) throws javax.mail.MessagingException;
 
     /**
      * Called by the mailet container to allow the mailet to process to
-     * a message message.
+     * a message.
      * <p>
      * This method is only called after the mailet's init() method has completed
      * successfully.
      * <p>
      * Mailets typically run inside multithreaded mailet containers that can handle
      * multiple requests concurrently. Developers must be aware to synchronize access
-     * to any shared resources such as files, network connections, and as well as the
+     * to any shared resources such as files, network connections, as well as the
      * mailet's class and instance variables. More information on multithreaded
      * programming in Java is available in <a href="http://java.sun.com/Series/Tutorial/java/threads/multithreaded.html">the
      * Java tutorial on multi-threaded programming</a>.
      *
      * @param mail - the Mail object that contains the message and routing information
-     * @throws javax.mail.MessagingException - if an message or address parsing exception occurs or
+     * @throws javax.mail.MessagingException - if a message or address parsing exception occurs or
      *      an exception that interferes with the mailet's normal operation
      */
     void service(Mail mail) throws javax.mail.MessagingException;
