@@ -335,7 +335,7 @@ public class ServerConnection extends AbstractLogEnabled
                                Iterator runnerIterator = clientConnectionRunners.iterator();
                                getLogger().info("Connections: ");
                                while( runnerIterator.hasNext() ) {
-								   getLogger().info("    " + ((ClientConnectionRunner)runnerIterator.next()).toString());
+                                   getLogger().info("    " + ((ClientConnectionRunner)runnerIterator.next()).toString());
                                }
                            }
                         }
