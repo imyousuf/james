@@ -79,7 +79,7 @@
             <!-- remote MTAs. -->
             <!-- This tag is optional. If omitted, it will default to an index of -1, which is interpreted as use 127.0.0.1 for the -->
             <!-- remote address and use 'localhost' for the remote host name. Both are almost always considered legitimate. -->
-            <remoteReceivedHeaderIndex>1</RemoteReceivedHeaderIndex>
+            <remoteReceivedHeaderIndex>1</remoteReceivedHeaderIndex>
             
             <!-- name of the javamail provider you wish to use -->
             <!-- (pop3, imap, etc. -->
