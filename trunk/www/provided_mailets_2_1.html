@@ -588,6 +588,14 @@ by MX lookup.</li>
 this server.  This value is required if gateway is set.</li>
 
 <li>
+<strong>bind</strong> (optional) - If present, this value is a string 
+describing the local IP address to which the mailet should be bound while 
+delivering emails. If the tag is absent then the service will bind to the 
+default local address of the machine. This tag is useful for multihomed machines.<br>
+Note: Currently you must use the same IP address for all of those RemoteDelivery 
+instances where you explicitly supply a bind address.</li>
+
+<li>
 <strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
 on.  Defaults to false.</li>
 
