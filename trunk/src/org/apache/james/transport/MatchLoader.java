@@ -8,6 +8,7 @@
 package org.apache.james.transport;
 
 import java.util.*;
+import javax.mail.*;
 import org.apache.mailet.*;
 import org.apache.james.core.*;
 import org.apache.avalon.*;
@@ -35,7 +36,7 @@ public class MatchLoader implements Component, Configurable {
     }
 
     public Matcher getMatcher(String matchName, MailetContext context)
-    throws MailetException {
+    throws MessagingException {
         try {
             String condition = (String) null;
             int i = matchName.indexOf('=');
@@ -58,10 +59,10 @@ public class MatchLoader implements Component, Configurable {
                 }
             }
             throw new ClassNotFoundException("Requested matcher not found: " + matchName + ".  looked in " + matcherPackages.toString());
-        } catch (MailetException me) {
+        } catch (MessagingException me) {
             throw me;
-        } catch (Throwable t) {
-            throw new MailetException("Could not load matcher (" + matchName + ")", t);
+        } catch (Exception e) {
+            throw new MailetException("Could not load matcher (" + matchName + ")", e);
         }
     }
 }

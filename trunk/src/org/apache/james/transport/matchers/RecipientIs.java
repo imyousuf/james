@@ -10,6 +10,7 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.*;
 import java.util.*;
+import javax.mail.*;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -20,15 +21,15 @@ public class RecipientIs extends GenericRecipientMatcher {
 
     private Collection recipients;
 
-    public void init() {
-        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
+    public void init() throws javax.mail.MessagingException {
+        StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
         recipients = new Vector();
         while (st.hasMoreTokens()) {
-            recipients.add(st.nextToken());
+            recipients.add(new MailAddress(st.nextToken()));
         }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        return recipients.contains(recipient.toString());
+        return recipients.contains(recipient);
     }
 }

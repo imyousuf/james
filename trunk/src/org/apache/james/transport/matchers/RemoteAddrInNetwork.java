@@ -9,7 +9,9 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.*;
+import java.net.*;
 import java.util.*;
+import javax.mail.*;
 
 /**
  * Checks the network IP address of the sending server against a comma-
@@ -17,14 +19,22 @@ import java.util.*;
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class SenderNotFromNetwork extends GenericMatcher {
+public class RemoteAddrInNetwork extends GenericMatcher {
     private Collection networks = null;
 
-    public void init(String condition) throws MailetException {
-        StringTokenizer st = new StringTokenizer(condition, ", ", false);
+    public void init() throws MessagingException {
+        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         networks = new Vector();
         while (st.hasMoreTokens()) {
             String addr = st.nextToken();
+            if (addr.equals("127.0.0.1")) {
+                //Add address of local machine as a match
+                try {
+                    InetAddress localaddr = InetAddress.getLocalHost();
+                    networks.add(localaddr.getHostAddress());
+                } catch (UnknownHostException uhe) {
+                }
+            }
             if (addr.endsWith("*")) {
                 addr = addr.substring(0, addr.length() - 1);
             }
@@ -33,16 +43,17 @@ public class SenderNotFromNetwork extends GenericMatcher {
     }
 
     public Collection match(Mail mail) {
-        String host = mail.getSender().getHost();
+        String host = mail.getRemoteAddr();
         //Check to see whether it's in any of the networks... needs to be smarter to
         // support subnets better
         for (Iterator i = networks.iterator(); i.hasNext(); ) {
-            if (host.startsWith(i.next().toString())) {
-                //This is in this network... that's all we need for a failed match
-                return null;
+            String networkAddr = i.next().toString();
+            if (host.startsWith(networkAddr)) {
+                //This is in this network... that's all we need for a match
+                return mail.getRecipients();
             }
         }
         //Could not match this to any network
-        return mail.getRecipients();
+        return null;
     }
 }

@@ -24,18 +24,14 @@ public class CommandForListserv extends GenericRecipientMatcher {
 
     private MailAddress listservAddress;
 
-    public void init() throws MailetException {
-        try {
-            listservAddress = new MailAddress(getCondition());
-        } catch (MessagingException me) {
-            throw new MailetException(me);
-        }
+    public void init() throws MessagingException {
+        listservAddress = new MailAddress(getCondition());
     }
 
     public boolean matchRecipient(MailAddress recipient) {
         if (recipient.getHost().equals(listservAddress.getHost())) {
             if (recipient.getUser().equals(listservAddress.getUser() + "-on")
-                || recipient.getUser().equals(listservAddress.getUser() + "-off")) {
+                    || recipient.getUser().equals(listservAddress.getUser() + "-off")) {
                 return true;
             }
         }
