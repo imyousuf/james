@@ -162,8 +162,11 @@ case "$ACTION" in
 
         if [ -f $PHOENIX_PID ]
         then
-            echo "Already Running!!"
-            exit 1
+            if ps -p `cat $PHOENIX_PID ` >/dev/null 2>/dev/null
+            then
+                echo "Already Running!!"
+                exit 1
+            fi
         fi
 
         echo "STARTED Phoenix `date`" >> $PHOENIX_CONSOLE
