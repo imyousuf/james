@@ -109,10 +109,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
-                        Properties props = (Properties)System.getProperties().clone();
-                        props.setProperty("mail.smtp.from", mail.getSender().toString());
-                        props.setProperty("mail.debug", "false");
+                        Properties props = new Properties();
+                        //This was an older version of JavaMail
+                        props.put("mail.smtp.user", mail.getSender().toString());
+                        props.put("mail.smtp.from", mail.getSender().toString());
+                        props.put("mail.debug", "false");
 
+                        //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
                         //"mail.smtp.auth"  //default false
                         //"mail.smtp.port"  //default 25
@@ -120,7 +123,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
                         //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
 
-                        Transport transport = Session.getDefaultInstance(props, null).getTransport(urlname);
+                        Session session = Session.getInstance(props, null);
+                        Transport transport = session.getTransport(urlname);
                         transport.connect();
                         transport.sendMessage(message, addr);
                         transport.close();
