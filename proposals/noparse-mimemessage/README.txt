@@ -1,11 +1,23 @@
-This is an overhaul of how MimeMessages are handled. The goal is to avoid parsing the data, and simply pass a reference to the underlying data, only parsing and instantiating the MimeMessage when needed (by a Mailet for example).
+OVERVIEW
 
-This also removes the dependency on Town.
+- This is an overhaul of how MimeMessages are handled. The goal is to avoid parsing the data, and simply pass a reference to the underlying data, only parsing and instantiating the MimeMessage when needed (by a Mailet for example).
 
-EnhancedMimeMessage and JamesMimeMessage are removed and rolled into the MimeMessageWrapper.
+- This also removes the dependency on Town. (mailets need to be rewritten)
+
+- EnhancedMimeMessage and JamesMimeMessage are removed and rolled into the MimeMessageWrapper.
 
 
-Here's what to do:
+
+TO BUILD:
+1. Open java\org\apache\james\mailrepository\JDBCMailRepository.java
+2. This has a bunch of configuration hardcoded... driver class, driver URL, username, password, and table_name.  Change these to your settings.
+3. Run "build -Dwith.proposal=true" will properly copy this directory to the existing tree. 
+
+
+
+
+--------------------------------
+For later, to manually update the main CVS tree
 - Copy files into main tree.
 - Delete the following files:
   - town.jar
