@@ -232,5 +232,5 @@ public interface MailetContext {
 
     MailRepository getMailRepository(String specificationURL) throws MessagingException;
     SpoolRepository getMailSpool(String specificationURL) throws MessagingException;
-//void getUserRepository() throws MessagingException;
+    UsersRepository getUserRepository(String repositoryName) throws MessagingException;
 }
