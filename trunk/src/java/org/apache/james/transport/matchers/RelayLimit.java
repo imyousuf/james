@@ -7,9 +7,9 @@
  */
 package org.apache.james.transport.matchers;
 
-import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Header;
 import javax.mail.internet.MimeMessage;

@@ -12,9 +12,9 @@ import java.util.Collection;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;

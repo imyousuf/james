@@ -7,18 +7,15 @@
  */
 package org.apache.james.transport.mailets;
 
-//import org.apache.avalon.framework.component.ComponentException;
-//import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.james.Constants;
-//import org.apache.james.services.UsersStore;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.UsersRepository;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
 
 /**
  * MailingListServer capability.
@@ -53,7 +50,7 @@ import java.util.Vector;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.8 $
+ * @version This is $Revision: 1.9 $
  */
 public class AvalonListserv extends GenericListserv {
 

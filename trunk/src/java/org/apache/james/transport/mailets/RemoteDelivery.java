@@ -7,9 +7,6 @@
  */
 package org.apache.james.transport.mailets;
 
-//import org.apache.avalon.framework.component.ComponentException;
-//import org.apache.avalon.framework.component.ComponentManager;
-//import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
@@ -37,11 +34,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContextConstants;
 import org.apache.mailet.SpoolRepository;
 
 /**
@@ -68,7 +64,7 @@ import org.apache.mailet.SpoolRepository;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.35 $
+ * This is $Revision: 1.36 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -85,7 +81,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private String gatewayServer = null; // the server to send all email to
     private String gatewayPort = null;  //the port of the gateway server to send all email to
     private Collection deliveryThreads = new Vector();
-    private MailServer mailServer;
+    
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
     /**
@@ -148,7 +144,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param Session javax.mail.Session
      * @return boolean Whether the delivery was successful and the message can be deleted
      */
-    private boolean deliver(MailImpl mail, Session session) {
+    private boolean deliver(Mail mail, Session session) {
         try {
             if (isDebug) {
                 log("Attempting to deliver " + mail.getName());
@@ -327,7 +323,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
-    private boolean failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
+    private boolean failMessage(Mail mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         if (permanent) {
@@ -378,7 +374,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return true;
     }
 
-    private void bounce(MailImpl mail, MessagingException ex) {
+    private void bounce(Mail mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
@@ -446,9 +442,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param mail org.apache.mailet.Mail
      * @return org.apache.mailet.MessageContainer
      */
-    public void service(Mail genericmail) throws AddressException {
-        MailImpl mail = (MailImpl)genericmail;
-
+    public void service(Mail mail) throws AddressException {
+        
         // Do I want to give the internal key, or the message's Message ID
         if (isDebug) {
             log("Remotely delivering mail " + mail.getName());
@@ -554,11 +549,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
         //Set the hostname we'll use as this server
-        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(Constants.HELLO_NAME));
+        if (getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME) != null) {
+            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME));
         }
         else {
-            Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
+            Collection servernames = (Collection) getMailetContext().getAttribute(MailetContextConstants.SERVER_NAMES);
             if ((servernames != null) && (servernames.size() > 0)) {
                 props.put("mail.smtp.localhost", (String) servernames.iterator().next());
             }
@@ -582,7 +577,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                         .append(key);
                             log(logMessageBuffer.toString());
                         }
-                        MailImpl mail = outgoing.retrieve(key);
+                        Mail mail = outgoing.retrieve(key);
                         // Retrieve can return null if the mail is no longer on the outgoing spool.
                         // In this case we simply continue to the next key
                         if (mail == null) {

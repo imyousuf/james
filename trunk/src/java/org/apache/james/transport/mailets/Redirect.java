@@ -9,16 +9,12 @@ package org.apache.james.transport.mailets;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.Vector;
-
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -28,12 +24,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 
 /**

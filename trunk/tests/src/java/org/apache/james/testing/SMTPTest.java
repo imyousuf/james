@@ -17,7 +17,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.commons.net.SocketClient;
 import org.apache.commons.net.smtp.SMTP;
 import org.apache.commons.net.smtp.SMTPClient;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.dates.RFC822DateFormat;
 
 /**
  * Send email. Can be configured and extended to test specific SMTP

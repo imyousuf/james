@@ -5,7 +5,7 @@
  * version 1.1, a copy of which has been included with this distribution in
  * the LICENSE file.
  */
-package org.apache.james.util;
+package org.apache.mailet.dates;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,40 +14,54 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+
 /**
- * A thread-safe date formatting class to produce dates formatted in accord with the 
- * specifications of RFC 977.
+ * This class is designed to be a synchronized wrapper for a 
+ * <code>java.text.DateFormat</code> subclass.  In general,
+ * these subclasses (most notably the <code>java.text.SimpleDateFormat</code>
+ * classes are not thread safe, so we need to synchronize on the 
+ * internal DateFormat for all delegated calls.   
  *
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
-public class RFC977DateFormat implements SimplifiedDateFormat {
+public class SynchronizedDateFormat implements SimplifiedDateFormat {
+    private final DateFormat internalDateFormat;
 
     /**
-     * Internal date formatter for long date formats
+     * Public constructor that mimics that of SimpleDateFormat.  See
+     * java.text.SimpleDateFormat for more details.
+     *
+     * @param pattern the pattern that defines this DateFormat
+     * @param locale the locale
      */
-    private final SynchronizedDateFormat internalLongDateFormat;
-
-    /**
-     * Internal date formatter for short date formats
-     */
-    private final SynchronizedDateFormat internalShortDateFormat;
-
-    /**
-     * Constructor for RFC977DateFormat
-     */
-    public RFC977DateFormat() {
-        internalLongDateFormat = new SynchronizedDateFormat("yyyyMMdd HHmmss", Locale.ENGLISH);
-        internalShortDateFormat = new SynchronizedDateFormat("yyMMdd HHmmss", Locale.ENGLISH);
+    public SynchronizedDateFormat(String pattern, Locale locale) {
+        internalDateFormat = new SimpleDateFormat(pattern, locale);
     }
 
     /**
-     * This method returns the long form of the RFC977 Date 
+     * <p>Wrapper method to allow child classes to synchronize a preexisting
+     * DateFormat.</p>
+     *
+     * <p>TODO: Investigate replacing this with a factory method.</p>
+     *
+     * @param the DateFormat to synchronize
+     */
+    protected SynchronizedDateFormat(DateFormat theDateFormat) {
+        internalDateFormat = theDateFormat;
+    }
+
+    /**
+     * SimpleDateFormat will handle most of this for us, but we
+     * want to ensure thread safety, so we wrap the call in a
+     * synchronized block.
      *
      * @return java.lang.String
      * @param d Date
      */
     public String format(Date d) {
-        return internalLongDateFormat.format(d);
+        synchronized (internalDateFormat) {
+           return internalDateFormat.format(d);
+        }
     }
 
     /**
@@ -63,11 +77,8 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      *         cannot be parsed.
      */
     public Date parse(String source) throws ParseException {
-        source = source.trim();
-        if (source.indexOf(' ') == 6) {
-            return internalShortDateFormat.parse(source);
-        } else {
-            return internalLongDateFormat.parse(source);
+        synchronized (internalDateFormat) {
+            return internalDateFormat.parse(source);
         }
     }
 
@@ -76,9 +87,8 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      * @param zone the given new time zone.
      */
     public void setTimeZone(TimeZone zone) {
-        synchronized(this) {
-            internalShortDateFormat.setTimeZone(zone);
-            internalLongDateFormat.setTimeZone(zone);
+        synchronized(internalDateFormat) {
+            internalDateFormat.setTimeZone(zone);
         }
     }
 
@@ -87,8 +97,8 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      * @return the time zone associated with this SynchronizedDateFormat.
      */
     public TimeZone getTimeZone() {
-        synchronized(this) {
-            return internalShortDateFormat.getTimeZone();
+        synchronized(internalDateFormat) {
+            return internalDateFormat.getTimeZone();
         }
     }
 
@@ -102,9 +112,8 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      */
     public void setLenient(boolean lenient)
     {
-        synchronized(this) {
-            internalShortDateFormat.setLenient(lenient);
-            internalLongDateFormat.setLenient(lenient);
+        synchronized(internalDateFormat) {
+            internalDateFormat.setLenient(lenient);
         }
     }
 
@@ -114,11 +123,19 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
      */
     public boolean isLenient()
     {
-        synchronized(this) {
-            return internalShortDateFormat.isLenient();
+        synchronized(internalDateFormat) {
+            return internalDateFormat.isLenient();
         }
     }
 
+    /**
+     * Overrides hashCode
+     */
+    public int hashCode() {
+        synchronized(internalDateFormat) {
+            return internalDateFormat.hashCode();
+        }
+    }
 
     /**
      * Overrides equals
@@ -127,21 +144,12 @@ public class RFC977DateFormat implements SimplifiedDateFormat {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof RFC977DateFormat)) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        RFC977DateFormat theOtherRFC977DateFormat = (RFC977DateFormat)obj;
-        synchronized (this) {
-            return ((internalShortDateFormat.equals(theOtherRFC977DateFormat.internalShortDateFormat)) &&
-                    (internalLongDateFormat.equals(theOtherRFC977DateFormat.internalLongDateFormat)));
+        synchronized(internalDateFormat) {
+            return internalDateFormat.equals(obj);
         }
-    }
-
-    /**
-     * Overrides hashCode
-     */
-    public int hashCode() {
-        return (int)(internalLongDateFormat.hashCode() & internalShortDateFormat.hashCode());
     }
 
 }

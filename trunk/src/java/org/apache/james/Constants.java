@@ -7,6 +7,8 @@
  */
 package org.apache.james;
 
+import org.apache.mailet.MailetContextConstants;
+
 /**
  * Assorted Constants for use in all James blocks
  * The Software Version, Software Name and Build Date are set by ant during
@@ -14,9 +16,9 @@ package org.apache.james;
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * @version This is $Revision: 1.7 $
+ * @version This is $Revision: 1.8 $
  */
-public class Constants {
+public interface Constants extends MailetContextConstants{
 
     /**
      * The version of James.
@@ -27,24 +29,6 @@ public class Constants {
      * The name of the software (i.e. James).
      */
     public static final String SOFTWARE_NAME = "@@NAME@@";
-
-    /**
-     * Context key used to store the list of mail domains being
-     * serviced by this James instance in the context.
-     */
-    public static final String SERVER_NAMES = "SERVER_NAMES";
-
-    /**
-     * Context key used to store the Mailet/SMTP "hello name" for this
-     * James instance in the context.
-     */
-    public static final String HELLO_NAME = "HELLO_NAME";
-
-    /**
-     * Context key used to store the postmaster address for
-     * this James instance in the context.
-     */
-    public static final String POSTMASTER = "POSTMASTER";
 
     /**
      * Key used to store the component manager for
