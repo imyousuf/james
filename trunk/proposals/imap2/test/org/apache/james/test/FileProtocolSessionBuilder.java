@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A builder which generates a ProtocolSession from a test file.
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class FileProtocolSessionBuilder
 {
@@ -27,6 +28,12 @@ public class FileProtocolSessionBuilder
     private static final String CLOSE_UNORDERED_BLOCK_TAG = "}";
     private static final String COMMENT_TAG = "#";
 
+    /**
+     * Builds a ProtocolSession by reading lines from the test file
+     * with the supplied name.
+     * @param fileName The name of the protocol session file.
+     * @return The ProtocolSession
+     */
     public ProtocolSession buildProtocolSession( String fileName )
             throws Exception
     {
@@ -35,6 +42,11 @@ public class FileProtocolSessionBuilder
         return session;
     }
 
+    /**
+     * Adds all protocol elements from a test file to the ProtocolSession supplied.
+     * @param fileName The name of the protocol session file.
+     * @param session The ProtocolSession to add the elements to.
+     */
     public void addTestFile( String fileName, ProtocolSession session )
             throws Exception
     {
@@ -47,6 +59,13 @@ public class FileProtocolSessionBuilder
         addProtocolLinesFromStream( is, session, fileName );
     }
 
+    /**
+     * Reads ProtocolElements from the supplied InputStream and adds
+     * them to the ProtocolSession.
+     * @param is The input stream containing the protocol definition.
+     * @param session The ProtocolSession to add elements to.
+     * @param fileName The name of the source file, for error messages.
+     */ 
     public void addProtocolLinesFromStream( InputStream is,
                                              ProtocolSession session,
                                              String fileName )

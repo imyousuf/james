@@ -1,6 +1,6 @@
 package org.apache.james.test;
 
-import org.apache.james.imapserver.IMAPTest;
+import org.apache.james.imapserver.ImapTest;
 import org.apache.james.imapserver.ImapHandler;
 import org.apache.james.imapserver.ImapHost;
 import org.apache.james.imapserver.ImapRequestHandler;
@@ -27,40 +27,39 @@ import java.util.Map;
 
 /**
  * Abstract Protocol Test is the root of all of the James Imap Server test
- * cases.  It provides functionality to create text files for matching
- * client requests and server responses.  In order to use it however you
- * must create a sub class and set all the file names, etc up yourself.
- * All Comments are written by Andy Oliver who is still trying to figure out
- * some of it himself so don't take this as gospel
+ * cases.  It provides basic functionality for running a protocol session
+ * as a JUnit test, and failing if exceptions are thrown.
+ * To create a test which reads the entire protocol session from a single
+ * protocol definition file, use the {@link SimpleFileProtocolTest}.
  *
- * @author Unattributed Original Authors
+ * @author Darrell DeBoer
  * @author Andrew C. Oliver
  */
 public abstract class AbstractProtocolTest
-        extends TestCase implements IMAPTest
+        extends TestCase implements ImapTest
 {
+    /** The Protocol session which is run before the testElements */
     protected ProtocolSession preElements = new ProtocolSession();
-    protected ProtocolSession testElements;
+    /** The Protocol session which contains the tests elements */
+    protected ProtocolSession testElements = new ProtocolSession();
+    /** The Protocol session which is run after the testElements. */
     protected ProtocolSession postElements = new ProtocolSession();
 
+    /** The host name to connect to for socket-based testing. */
     protected String host = HOST;
+    /** The host port to connect to for socket-based testing. */
     protected int port = PORT;
+    /** The timeout to set on the socket for socket-based testing. */
     protected int timeout = TIMEOUT;
 
+    /** A UsersRepository which all tests share. */
     private static UsersRepository users;
+    /** An ImapHost instance which all tests share. */
     private static ImapHost imapHost;
 
     public AbstractProtocolTest( String s )
     {
         super( s );
-    }
-
-    // comment in TestCase
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        testElements = new ProtocolSession();
-
     }
 
     /**
@@ -93,11 +92,11 @@ public abstract class AbstractProtocolTest
         PrintWriter out = new PrintWriter( socket.getOutputStream(), true );
         BufferedReader in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
         try {
-             preElements.runSession( in, out );
-             testElements.runSession( in, out );
-             postElements.runSession( in, out );
+             preElements.runLiveSession( out, in );
+             testElements.runLiveSession( out, in );
+             postElements.runLiveSession( out, in );
          }
-         catch ( InvalidServerResponseException e ) {
+         catch ( ProtocolSession.InvalidServerResponseException e ) {
              fail( e.getMessage() );
          }
 
@@ -146,12 +145,15 @@ public abstract class AbstractProtocolTest
             testElements.testResponse(  serverIn );
             postElements.testResponse(  serverIn );
         }
-        catch ( InvalidServerResponseException e ) {
+        catch ( ProtocolSession.InvalidServerResponseException e ) {
             fail( e.getMessage() );
         }
     }
 
-    // TODO setup the session properly.
+    /**
+     * Provides an ImapSession to use for this test. An ImapSession is accosiated
+     * with a single client connection.
+     */
     private ImapSession getImapSession() throws MailboxException
     {
         setUpEnvironment();
@@ -159,10 +161,14 @@ public abstract class AbstractProtocolTest
         return session;
     }
 
+    /**
+     * Initialises the UsersRepository and ImapHost on first call.
+     * TODO enable logging, set up components properly.
+     */
     private void setUpEnvironment() throws MailboxException
     {
         if ( users == null || imapHost == null ) {
-            users = new DummyUsersRepository();
+            users = new InMemoryUsersRepository();
             DefaultUser user = new DefaultUser( USER, "SHA" );
             user.setPassword( PASSWORD );
             users.addUser( user );
@@ -172,7 +178,11 @@ public abstract class AbstractProtocolTest
         }
     }
 
-    private class DummyUsersRepository extends AbstractUsersRepository
+    /**
+     * A simple, dummy implementation of UsersRepository to use for testing,
+     * which stored all users in memory.
+     */
+    private class InMemoryUsersRepository extends AbstractUsersRepository
     {
         private Map users = new HashMap();
 

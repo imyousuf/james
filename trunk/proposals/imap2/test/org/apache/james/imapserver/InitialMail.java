@@ -16,8 +16,11 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
+/**
+ * Sets up some intial mail which is used in the Imap test cases.
+ */
 public final class InitialMail extends TestCase
-        implements IMAPTest
+        implements ImapTest
 {
     private Session _session;
     private InternetAddress _fromAddress;

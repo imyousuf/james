@@ -10,6 +10,10 @@ package org.apache.james.remotemanager;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+/**
+ * A test which uses the remote manager to set up a single user "imapuser"
+ * which is required for most Imap tests.
+ */
 public final class InitialImapUsersTest
         extends TestRemoteManager
 {

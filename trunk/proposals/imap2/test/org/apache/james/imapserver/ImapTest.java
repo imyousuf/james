@@ -7,8 +7,10 @@
  */
 package org.apache.james.imapserver;
 
-
-public interface IMAPTest
+/**
+ * Some constants to use when running Imap tests.
+ */
+public interface ImapTest
 {
     int PORT = 143;
     String HOST = "localhost";

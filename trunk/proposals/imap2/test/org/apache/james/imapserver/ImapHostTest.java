@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  *  
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ImapHostTest extends TestCase
         implements ImapConstants
@@ -55,6 +55,9 @@ public class ImapHostTest extends TestCase
         return new JamesImapHost( new InMemoryStore() );
     }
 
+    /**
+     * Tests creation of mailboxes in user's personal space. No namespaces are used.
+     */
     public void testCreatePersonal() throws Exception
     {
         // Create a single mailbox.
@@ -83,6 +86,10 @@ public class ImapHostTest extends TestCase
         assertMailbox( "this.is.yet.another.mailbox", true );
     }
 
+    /**
+     * Tests deletion of mailboxes in user's personal space. No namespaces are used.
+     * @throws Exception
+     */
     public void testDelete() throws Exception
     {
         // Simple create/delete
@@ -119,6 +126,10 @@ public class ImapHostTest extends TestCase
         assertNoMailbox( "one" );
     }
 
+    /**
+     * Checks that a mailbox with the supplied name exists, and that its
+     * NoSelect flag matches that expected.
+     */
     private void assertMailbox( String name, boolean selectable ) throws MailboxException
     {
         ImapMailbox mailbox = imapHost.getMailbox( user, name );
@@ -136,6 +147,9 @@ public class ImapHostTest extends TestCase
         }
     }
 
+    /**
+     * Asserts that a mailbox with the supplied name doesn't exist.
+     */
     private void assertNoMailbox( String name ) throws Exception
     {
         ImapMailbox mailbox = imapHost.getMailbox( user, name );
@@ -143,11 +157,17 @@ public class ImapHostTest extends TestCase
                     mailbox );
     }
 
+    /**
+     * Calls {@link ImapHost#createMailbox} with the specified name and the test user.
+     */
     private ImapMailbox create( String name ) throws Exception
     {
         return imapHost.createMailbox( user, name );
     }
 
+    /**
+     * Calls {@link ImapHost#deleteMailbox} with the specified name and the test user.
+     */
     private void delete( String name ) throws Exception
     {
         imapHost.deleteMailbox( user, name );

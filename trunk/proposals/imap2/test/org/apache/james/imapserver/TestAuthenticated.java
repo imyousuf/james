@@ -12,14 +12,22 @@ import org.apache.james.test.SimpleFileProtocolTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+/**
+ * Runs tests for commands valid in the AUTHENTICATED state. A login session precedes
+ * the execution of the test elements.
+ */
 public class TestAuthenticated
-        extends SimpleFileProtocolTest implements IMAPTest
+        extends SimpleFileProtocolTest implements ImapTest
 {
     public TestAuthenticated( String name )
     {
         super( name );
     }
 
+    /**
+     * Sets up {@link #preElements} with a welcome message and login request/response.
+     * @throws Exception
+     */
     public void setUp() throws Exception
     {
         super.setUp();
@@ -30,9 +38,13 @@ public class TestAuthenticated
     protected void addLogin( String username, String password )
     {
         testElements.CL( "a001 LOGIN " + username + " " + password );
-        testElements.SL( "a001 OK LOGIN completed" );
+        testElements.SL( "a001 OK LOGIN completed", "TestAuthenticated.java:33" );
     }
 
+    /**
+     * Provides all tests which should be run in the authenicated state. Each test name
+     * corresponds to a protocol session file.
+     */ 
     public static Test suite() throws Exception
     {
         TestSuite suite = new TestSuite();
