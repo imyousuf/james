@@ -96,16 +96,6 @@ public class ProtocolSimulator {
         runSimulation(simulation);
     }
     
-    /** represents a single protocol interaction */
-    private static interface Command {
-        /** 
-         * do something. Either write to or read from and validate 
-         * @param reader Input from protocol server
-         * @param writer Output to protocol Server 
-         */
-        public void execute(BufferedReader reader,PrintWriter writer) throws Throwable;
-    }
-    
     // ---- methods to fire off simulation ---------
 
     /** Starts simulation threads. Blocks till simulation threads are done. */
@@ -178,10 +168,10 @@ public class ProtocolSimulator {
                 break;
             // ignore empty lines.
             if ( templateLine.trim().length() == 0 )
-                continue;
-            if ( templateLine.startsWith(COMMENT_TAG) )
-                continue;
-            if ( templateLine.startsWith(CLIENT_TAG) ) {
+                list.add(new NOOPCmd());
+            else if ( templateLine.startsWith(COMMENT_TAG) )
+                list.add(new NOOPCmd());
+            else if ( templateLine.startsWith(CLIENT_TAG) ) {
                 list.add(new Command() {
                         // just send the client data
                         public void execute(BufferedReader reader,PrintWriter writer) 
@@ -215,8 +205,9 @@ public class ProtocolSimulator {
                     throws Throwable 
                 {
                     for ( int i = 0 ; i < list.size() ; i++ ) {
+                        Command cmd = (Command)list.get(i);
                         try {
-                            ((Command)list.get(i)).execute(reader,writer);
+                            cmd.execute(reader,writer);
                         } catch(Throwable t) {
                             System.out.println("Failed on line: "+i);
                             throw t;
@@ -225,5 +216,23 @@ public class ProtocolSimulator {
                 }
             };
         return simulation;
+    }
+
+    // ----- helper abstractions -------
+
+    /** represents a single protocol interaction */
+    private interface Command {
+        /** 
+         * do something. Either write to or read from and validate 
+         * @param reader Input from protocol server
+         * @param writer Output to protocol Server 
+         */
+        public abstract void execute(BufferedReader reader,PrintWriter writer) throws Throwable;
+    }
+
+    /** do nothing */
+    private static class NOOPCmd implements Command {
+        public void execute(BufferedReader reader,PrintWriter writer) 
+            throws Throwable { }
     }
 }
