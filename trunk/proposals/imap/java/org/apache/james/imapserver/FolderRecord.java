@@ -24,7 +24,7 @@ public interface FolderRecord {
      * Example 1: '#mail.projectBonzi'
      * Example 2: '#shared.projectBonzi'
      *
-     * @returns String mailbox hierarchical name including namespace
+     * @return String mailbox hierarchical name including namespace
      */
     //String readAstring();
 
@@ -44,7 +44,7 @@ public interface FolderRecord {
      * Example 1: 'privatemail.fred.flintstone.projectBonzi'
      * Example 2: '#shared.projectBonzi'
      *
-     * @returns String mailbox absolute name
+     * @return String mailbox absolute name
      */
     String getAbsoluteName();
 
@@ -64,7 +64,7 @@ public interface FolderRecord {
     /**
      * Returns unavailability of name for a new mailbox.
      *
-     * @returns true if this name is in use. Must return true if isDeleted
+     * @return true if this name is in use. Must return true if isDeleted
      * returns false.
      */
     boolean isNameInUse();
@@ -80,7 +80,7 @@ public interface FolderRecord {
      * Returns whether mailbox has been deleted. A deleted mailbox is an
      * invalid argument to any IMAP command..
      *
-     * @returns boolean true if mailbox does not exist
+     * @return boolean true if mailbox does not exist
      */
     boolean isDeleted();
 
@@ -96,7 +96,7 @@ public interface FolderRecord {
     /**
      * Returns current uid validity value
      *
-     * @returns int uid validity value
+     * @return int uid validity value
      */
     int getUidValidity();
 
@@ -110,7 +110,7 @@ public interface FolderRecord {
     /**
      * Returns current highest assigned uid value
      *
-     * @returns int uid  value
+     * @return int uid  value
      */
     int getHighestUid();
 
@@ -125,7 +125,7 @@ public interface FolderRecord {
      * Indicates if given user has lookup rights for this mailbox.  Need
      * lookup rights to be included in a List response.
      *
-     * @returns boolean true if user has lookup rights
+     * @return boolean true if user has lookup rights
      */
     boolean hasLookupRights(String user);
 
@@ -140,7 +140,7 @@ public interface FolderRecord {
      * Indicates if given user has read rights for this mailbox. Need read
      * rights for user to select or examine mailbox.  
      *
-     * @returns boolean true if user has read rights
+     * @return boolean true if user has read rights
      */
     boolean hasReadRights(String user);
 
@@ -152,7 +152,7 @@ public interface FolderRecord {
     /**
      * Indicates if the mailbox is marked. Usually means unseen mail.
      *
-     * @returns boolean true if marked
+     * @return boolean true if marked
      */
     boolean isMarked();
 
@@ -170,8 +170,8 @@ public interface FolderRecord {
      * A folder is selectable by a given user if both it is not
      * NotSelectableByAnyone and the named user has read rights.
      *
-     * @parm user the user to be tested
-     * @returns true if user can SELECT this mailbox.
+     * @param user the user to be tested
+     * @return true if user can SELECT this mailbox.
      */
     boolean isSelectable(String user);
 
@@ -183,7 +183,7 @@ public interface FolderRecord {
     /**
      * Indicates number of messages in folder
      *
-     * @returns int number of messages
+     * @return int number of messages
      */
     int getExists();
 
@@ -195,7 +195,7 @@ public interface FolderRecord {
     /**
      * Indicates no of messages with \Recent flag set
      *
-     * @returns int no of messages with \Recent flag set
+     * @return int no of messages with \Recent flag set
      */
     int getRecent();
 
@@ -208,7 +208,7 @@ public interface FolderRecord {
     /** 
      * Indicates the number of  unseen messages for the specified user. 
      *
-     * @returns int number of messages without \Seen flag set for this User.
+     * @return int number of messages without \Seen flag set for this User.
      */
     int getUnseen(String user);
 }

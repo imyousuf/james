@@ -76,7 +76,7 @@ public class Flags
      * @param flagString a string formatted according to
      * RFC2060 store_att_flags
      * @param user the String email address of the user
-     * @returns true if successful, false if not (including uninterpretable
+     * @return true if successful, false if not (including uninterpretable
      * argument)
      */
     public boolean setFlags(String flagString, String user) {

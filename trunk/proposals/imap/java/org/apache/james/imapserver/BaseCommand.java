@@ -35,7 +35,7 @@ public abstract class BaseCommand
      *
      * @param rawSet the IMAP protocol compliant string to be decoded
      * @param exists the number of messages in this mailbox
-     * @returns a List of Integers, one per message in set
+     * @return a List of Integers, one per message in set
      */
     protected List decodeSet( String rawSet, int exists ) throws IllegalArgumentException {
         if (rawSet == null) {
@@ -125,7 +125,7 @@ public abstract class BaseCommand
      *
      * @param rawSet the IMAP protocol compliant string to be decoded
      * @param uidsList List of uids of messages in mailbox
-     * @returns a List of Integers, one per message in set
+     * @return a List of Integers, one per message in set
      */
     protected List decodeUIDSet( String rawSet, List uidsList )
         throws IllegalArgumentException {

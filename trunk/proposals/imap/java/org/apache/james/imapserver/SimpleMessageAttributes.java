@@ -629,7 +629,7 @@ public class SimpleMessageAttributes
      * Provides the current Message Sequence Number for this message. MSNs
      * change when messages are expunged from the mailbox.
      *
-     * @returns int a positive non-zero integer
+     * @return int a positive non-zero integer
      */
     public int getMessageSequenceNumber() {
         return messageSequenceNumber;
@@ -647,7 +647,7 @@ public class SimpleMessageAttributes
      * incremented. UIDs are not copied if a message is copied to another
      * mailbox.
      *
-     * @returns int a 32-bit value
+     * @return int a 32-bit value
      */
     public int getUID() {
         return uid;
@@ -662,7 +662,7 @@ public class SimpleMessageAttributes
      * internalDate is either specified in the Append command or is the
      * current dat and time at the time of the Append.
      *
-     * @returns Date imap internal date
+     * @return Date imap internal date
      */
     public Date getInternalDate() {
         return internalDate;
@@ -675,7 +675,7 @@ public class SimpleMessageAttributes
     /**
      * Provides the sizeof the message in octets.
      *
-     * @returns int number of octets in message.
+     * @return int number of octets in message.
      */
     public int getSize() {
         return size;
@@ -684,7 +684,7 @@ public class SimpleMessageAttributes
     /**
      * Provides the Envelope structure information for this message. This is a parsed representation of the rfc-822 envelope information. This is not to be confused with the SMTP envelope!
      *
-     * @returns String satisfying envelope syntax in rfc 2060.
+     * @return String satisfying envelope syntax in rfc 2060.
      */
     public String getEnvelope() {
         return parseEnvelope();
@@ -694,7 +694,7 @@ public class SimpleMessageAttributes
     /**
      * Provides the Body Structure information for this message. This is a parsed representtion of the MIME structure of the message.
      *
-     * @returns String satisfying body syntax in rfc 2060.
+     * @return String satisfying body syntax in rfc 2060.
      */
     public String getBodyStructure() {
         return parseBodyStructure();

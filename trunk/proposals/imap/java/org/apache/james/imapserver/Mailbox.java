@@ -74,7 +74,7 @@ public interface Mailbox
      * hierarchy.
      * Example: 'NewIdeas'
      *
-     * @returns String name of mailbox relative to its immeadiate parent in
+     * @return String name of mailbox relative to its immeadiate parent in
      * the mailbox hierarchy.
      */
     String getName();
@@ -84,14 +84,14 @@ public interface Mailbox
      * mailbox (including namespace)
      * Example: '#mail.fred.flintstone.apache.James.NewIdeas'
      *
-     * @returns String name of mailbox in absolute form
+     * @return String name of mailbox in absolute form
      */
     String getAbsoluteName();
 
     /** Returns namespace starting with namespace token.
      * Example: '#mail'
      *
-     * @returns String containing user-independent namespace of this mailbox.
+     * @return String containing user-independent namespace of this mailbox.
      */
     //   public String getNamespace();
 
@@ -99,21 +99,21 @@ public interface Mailbox
      * this mailbox
      *
      * @param name possible name for this Mailbox
-     * @returns true if name matches either getName() or getAbsoluteName()
+     * @return true if name matches either getName() or getAbsoluteName()
      */
     boolean matchesName(String name);
 
     /**
      * Returns the current unique id validity value of this mailbox.
      *
-     * @returns int current 32 bit unique id validity value of this mailbox
+     * @return int current 32 bit unique id validity value of this mailbox
      */
     int getUIDValidity();
 
     /**
      * Returns the 32 bit uid available for the next message.
      *
-     * @returns int the next UID that would be used.
+     * @return int the next UID that would be used.
      */
     int getNextUID();
 
@@ -121,7 +121,7 @@ public interface Mailbox
      * Returns mailbox size in octets. Should only include actual messages
      * and not any implementation-specific data, such as message attributes.
      *
-     * @returns int mailbox size in octets
+     * @return int mailbox size in octets
      */
     int getMailboxSize();
 
@@ -129,7 +129,7 @@ public interface Mailbox
      * Indicates if child folders may be created. It does not indicate which
      * users can create child folders.
      *
-     * @returns boolean TRUE if inferiors aree allowed
+     * @return boolean TRUE if inferiors aree allowed
      */
     boolean getInferiorsAllowed();
 
@@ -140,7 +140,7 @@ public interface Mailbox
      * can write to mailbox
      *
      * @param username String represnting user
-     * @returns boolean TRUE if specified user can Select mailbox.
+     * @return boolean TRUE if specified user can Select mailbox.
      * @throws AccessControlException if username does not have lookup rights
      */
     boolean isSelectable(String username) throws AccessControlException;
@@ -149,7 +149,7 @@ public interface Mailbox
      * Indicates that messages have been added since this mailbox was last
      * selected by any user.
      *
-     * @returns boolean TRUE if new messages since any user last selected
+     * @return boolean TRUE if new messages since any user last selected
      * mailbox
      */
     boolean isMarked();
@@ -158,7 +158,7 @@ public interface Mailbox
      * Returns all flags supported by this mailbox.
      * e.g. \Answered \Deleted
      *
-     * @returns String a space seperated list of message flags which are
+     * @return String a space seperated list of message flags which are
      * supported by this mailbox.
      */
     String getSupportedFlags();
@@ -168,7 +168,7 @@ public interface Mailbox
      * except for \Recent which can never be changed by a user.
      *
      * @param username String represnting user
-     * @returns true if specified user can change all flags permanently.
+     * @return true if specified user can change all flags permanently.
      * @throws AccessControlException if username does not have lookup rights
      */
     boolean allFlags(String username) throws AccessControlException;
@@ -179,7 +179,7 @@ public interface Mailbox
      * value as getSupportedFlags.
      *
      * @param username String represnting user
-     * @returns String a space seperated list of message flags which this user
+     * @return String a space seperated list of message flags which this user
      * can set permanently
      */
     String getPermanentFlags( String username )
@@ -188,14 +188,14 @@ public interface Mailbox
     /**
      * Indicates number of messages in folder
      *
-     * @returns int number of messages
+     * @return int number of messages
      */
     int getExists();
 
     /**
      * Indicates no of messages with \Recent flag set
      *
-     * @returns int no of messages with \Recent flag set
+     * @return int no of messages with \Recent flag set
      */
     int getRecent();
 
@@ -209,7 +209,7 @@ public interface Mailbox
     /**
      * Indicates the oldest unseen message for the specified user.
      *
-     * @returns int Message Sequence Number of first message without \Seen
+     * @return int Message Sequence Number of first message without \Seen
      * flag set for this User.
      * <br> -1 means all messages have \Seen flag set for this user.
      * <br> 0 means no message (Seen or unseen) in this mailbox.
@@ -219,7 +219,7 @@ public interface Mailbox
    /**
      * Indicates the number of  unseen messages for the specified user.
      *
-     * @returns int number of messages without \Seen flag set for this User.
+     * @return int number of messages without \Seen flag set for this User.
      */
     int getUnseen( String user );
 
@@ -233,7 +233,7 @@ public interface Mailbox
      * vary between mailboxes.
      *
      * @param username String represnting user
-     * @returns true if specified user can only open the mailbox Read-Only.
+     * @return true if specified user can only open the mailbox Read-Only.
      * @throws AccessControlException if the user can not open this mailbox
      * at least Read-Only.
      */
@@ -254,7 +254,7 @@ public interface Mailbox
      *
      * @param mail the message to be stored
      * @param username String represnting user
-     * @returns boolean true if successful
+     * @return boolean true if successful
      * @throws AccessControlException if username does not have lookup rights for this mailbox.
      * @throws AuthorizationException if username has lookup rights but does not have insert rights.
      */
@@ -269,7 +269,7 @@ public interface Mailbox
      * @param username String represnting user
      * @param attrs non-null MessageAttributes for use with this Message
      * @param flags a Flags object for this message
-     * @returns boolean true if successful
+     * @return boolean true if successful
      * @throws AccessControlException if username does not have lookup rights
      * for this mailbox.
      * @throws AuthorizationException if username has lookup rights but does
@@ -286,7 +286,7 @@ public interface Mailbox
      *
      * @param msn the message sequence number
      * @param username String represnting user
-     * @returns a Mail object containing the message, null if no message with
+     * @return a Mail object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
@@ -301,7 +301,7 @@ public interface Mailbox
      *
      * @param uid the unique identifier of a message
      * @param username String represnting user
-     * @returns a Mail object containing the message, null if no message with
+     * @return a Mail object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -316,7 +316,7 @@ public interface Mailbox
      *
      * @param msn the message sequence number
      * @param username String represnting user
-     * @returns boolean true if successful.
+     * @return boolean true if successful.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -330,7 +330,7 @@ public interface Mailbox
      *
      * @param uidunique identifier
      * @param username String represnting user
-     * @returns boolean true if successful, false if failed including no
+     * @return boolean true if successful, false if failed including no
      * message with the given uid.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -345,7 +345,7 @@ public interface Mailbox
      *
      * @param msn message sequence number
      * @param username String represnting user
-     * @returns MessageAttributes for message, null if no such message.
+     * @return MessageAttributes for message, null if no such message.
      * Changing the MessageAttributes object must not affect the actual
      * MessageAttributes.
      * @throws AccessControlException if user does not have read rights for
@@ -361,7 +361,7 @@ public interface Mailbox
      *
      * @param uid unique identifier
      * @param username String represnting user
-     * @returns MessageAttributes for message, null if no such message.
+     * @return MessageAttributes for message, null if no such message.
      * Changing the MessageAttributes object must not affect the actual
      * MessageAttributes.
      * @throws AccessControlException if user does not have read rights for
@@ -389,7 +389,7 @@ public interface Mailbox
      *
      * @param msn message sequence number for a message in this mailbox
      * @param username String represnting user
-     * @returns flags for this message and user, null if no such message.
+     * @return flags for this message and user, null if no such message.
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -403,7 +403,7 @@ public interface Mailbox
      *
      * @param uid UniqueIdentifier for a message in this mailbox
      * @param username String represnting user
-     * @returns flags for this message and user, null if no such message.
+     * @return flags for this message and user, null if no such message.
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -447,7 +447,7 @@ public interface Mailbox
      *
      * @param msn message sequence number
      * @param username String represnting user
-     * @returns InternetHeaders for message, null if no such message.
+     * @return InternetHeaders for message, null if no such message.
      * Changing the InternetHeaders object must not affect the actual
      * InternetHeaders of the underlying message.
      * @throws AccessControlException if user does not have read rights for
@@ -465,7 +465,7 @@ public interface Mailbox
      *
      * @param uid UniqueIdentifier for a message in this mailbox
      * @param username String represnting user
-     * @returns InternetHeaders for message, null if no such message.
+     * @return InternetHeaders for message, null if no such message.
      * Changing the InternetHeaders object must not affect the actual
      * InternetHeaders of the underlying message.
      * @throws AccessControlException if user does not have read rights for
@@ -480,7 +480,7 @@ public interface Mailbox
      * Removes all messages marked Deleted.  User must have delete rights.
      *
      * @param username String representing user
-     * @returns true if successful
+     * @return true if successful
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has delete rights but does not
@@ -494,7 +494,7 @@ public interface Mailbox
      *
      * @param username String representing user
      * @param newmailboxname String representing the new Mailbox Name
-     * @returns true if successful
+     * @return true if successful
      * @throws MailboxException if the Mailbox can't be renamed
      * @throws AuthorizationException if user has no write rights
      */
@@ -506,7 +506,7 @@ public interface Mailbox
      * Establishes if specified user has lookup rights for this mailbox.
      *
      * @param username String represnting user
-     * @returns true if user has at least lookup rights
+     * @return true if user has at least lookup rights
      */
     boolean hasLookupRights( String user );
 
@@ -514,7 +514,7 @@ public interface Mailbox
      * Establishes if specified user has create rights for this mailbox.
      *
      * @param username String represnting user
-     * @returns true if user has at create rights
+     * @return true if user has at create rights
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      */
@@ -525,7 +525,7 @@ public interface Mailbox
      * Lists uids of messages in mailbox indexed by MSN.
      *
      * @param username String represnting user
-     * @returns List of Integers wrapping uids of message
+     * @return List of Integers wrapping uids of message
      */
     List listUIDs( String user );
 
@@ -534,7 +534,7 @@ public interface Mailbox
      * This may include resolving in-memory state with disk state.
      * Implementations not requiring checkpointing should return immeadiately.
      *
-     * @returns true if check completes normally, false otherwise.
+     * @return true if check completes normally, false otherwise.
      */
     boolean checkpoint();
 

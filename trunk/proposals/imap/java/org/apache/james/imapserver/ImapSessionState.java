@@ -9,7 +9,7 @@ package org.apache.james.imapserver;
 
 /**
  * Enumerated type representing an IMAP session state.
- * @todo use this instead of int constants.
+ * TODO: use this instead of int constants.
  */
 public class ImapSessionState
 {

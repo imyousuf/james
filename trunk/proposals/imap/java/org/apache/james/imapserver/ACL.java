@@ -74,7 +74,7 @@ public interface ACL
      * must be non-null and non-empty
      * @param modification String representing the change in rights, following
      * the syntax specified in rfc 2086
-     * @returns true if requested modification succeeded. A return value of
+     * @return true if requested modification succeeded. A return value of
      * false means an error other than an AccessControlException or
      * AuthorizationException.
      * @throws AccessControlException if setter does not have lookup rights for
@@ -95,7 +95,7 @@ public interface ACL
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -111,7 +111,7 @@ public interface ACL
      *
      * @param getter String representing user attempting to get the rights,
      * must be non-null and non-empty
-     * @returns String of rights sets usingrfc2086 syntax
+     * @return String of rights sets usingrfc2086 syntax
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
      * @throws AuthorizationException if implementation does not wish to expose
@@ -127,7 +127,7 @@ public interface ACL
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * guaranteed rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -143,7 +143,7 @@ public interface ACL
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * guaranteed rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -159,7 +159,7 @@ public interface ACL
      * mailbox.
      *
      * @param username String representing user
-     * @returns true if user has the requested right.
+     * @return true if user has the requested right.
      * &throws AccessControlException if username does not have lookup rights.
      * (Except for hasLookupRights which just returns false.
      */

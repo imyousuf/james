@@ -48,7 +48,7 @@ public interface IMAPSystem
      * with RFC2192, IMAP URL Scheme.
      *
      * @param username String representation of a user
-     * @returns String holding an IMAP URL for the user's home server
+     * @return String holding an IMAP URL for the user's home server
      * @throws AuthenticationException if this System does not recognise
      * the user.
      */
@@ -63,7 +63,7 @@ public interface IMAPSystem
      * forward slash or backslash.
      *
      * @param namespace String identifying a namespace
-     * @returns char, usually '.', '/', or '\'
+     * @return char, usually '.', '/', or '\'
      */
     String getHierarchySeperator( String namespace );
 
@@ -74,7 +74,7 @@ public interface IMAPSystem
      * <code>IMAPHosts</code>
      *
      * @param username String identifying a user of this System
-     * @returns String whose contents should be a space seperated triple
+     * @return String whose contents should be a space seperated triple
      * <personal namespaces(s)> space <other users' namespace(s)> space
      * <shared namespace(s)>, per RFC2342
      */
