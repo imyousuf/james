@@ -36,13 +36,24 @@ public abstract class MimeMessageSource {
      */
     public long getMessageSize() throws IOException {
         int size = 0;
-        InputStream in = getInputStream();
-        int read = 0;
-        byte[] data = new byte[1024];
-        while ((read = in.read(data)) > 0) {
-            size += read;
+        InputStream in = null;
+        try {
+            in = getInputStream();
+            int read = 0;
+            byte[] data = new byte[1024];
+            while ((read = in.read(data)) > 0) {
+                size += read;
+            }
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ioe) {
+                // Exception ignored because logging is
+                // unavailable
+            }
         }
-        in.close();
         return size;
     }
 }
