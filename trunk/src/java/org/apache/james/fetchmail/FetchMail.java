@@ -7,19 +7,8 @@
  */
 package org.apache.james.fetchmail;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketException;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.*;
-import java.io.*;
-import javax.mail.*;
-import javax.mail.event.*;
-import javax.mail.internet.*;
-import javax.activation.*;
-
 import org.apache.avalon.cornerstone.services.scheduler.Target;
+
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -28,18 +17,26 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.commons.net.pop3.POP3Client;
-import org.apache.commons.net.pop3.POP3MessageInfo;
-import org.apache.james.services.MailServer;
-import org.apache.mailet.*;
 import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailServer;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  *
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.3 2003/02/08 04:12:25 mcconnell Exp $
+ * $Id: FetchMail.java,v 1.4 2003/02/21 01:35:45 noel Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {
@@ -56,29 +53,42 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Don't parse header looking for recipient
      */
     private boolean ignoreOriginalRecipient;
+
     /**
      * The unique, identifying name for this task
      */
     private String fetchTaskName;
-    /**
-     * The POP3 server host name for this fetch task
-     */
-    private String popHost;
-    /**
-     * The POP3 user name for this fetch task
-     */
-    private String popUser;
-    /**
-     * The POP3 user password for this fetch task
-     */
-    private String popPass;
 
     /**
-     * Flag to determine if you want to leave messages on server
-     * If so unseen messages will be marked as seen
+     * The server host name for this fetch task
      */
-    private boolean popLeaveOnServer = false;
+    private String sHost;
+    /**
+     * The user name for this fetch task
+     */
+    private String sUser;
 
+    /**
+     * The user password for this fetch task
+     */
+    private String sPass;
+
+    /**
+     * Keep retrieved messages on the remote mailserver.  Normally, messages
+     * are deleted from the folder on the mailserver after they have been retrieved
+     */
+    private boolean bKeep = false;
+
+    /**
+     * Retrieve both old (seen) and new messages from the mailserver.  The default
+     * is to fetch only messages the server has not marked as seen.
+     */
+    private boolean bAll = false;
+
+    /**
+     * Recurse folders if available?
+     */
+    private boolean bRecurse = false;
 
     /**
      * The name of the javamail provider we want to user (pop3,imap,nntp,etc...)
@@ -99,7 +109,175 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     private boolean fetching = false;
 
 
+    public boolean processMessage(Session session, MimeMessage message, MimeMessage received) {
+
+        Collection recipients = new ArrayList(1);
+        try {
+
+
+            if (!ignoreOriginalRecipient) {
+                String er = getEnvelopeRecipient(message);
+                if (er != null) {
+                    recipients.add(new MailAddress(er));
+                    getLogger().info("Using original envelope recipient as new envelope recipient");
+                } else {
+                    Address[] to = message.getAllRecipients();
+                    if (to.length == 1) {
+                        recipients.add(new
+                                MailAddress((InternetAddress) to[0]));
+                        getLogger().info("Using To: header address as new envelope recipient");
+                    } else {
+                        getLogger().info("Using configured recipient as new envelope recipient");
+                        recipients.add(recipient);
+                    }
+                }
+            } else {
+                getLogger().info("Using configured recipient as new envelope recipient");
+                recipients.add(recipient);
+            }
+
+
+
+
+            //
+            // set the X-fetched-from header
+            received.addHeader("X-fetched-from", fetchTaskName);
+
+            MailImpl mail = new MailImpl(server.getId(), new
+                    MailAddress((InternetAddress) received.getFrom()[0]), recipients, received);
+
+
+            // Lets see if this mail has been bouncing by counting
+            // the   X-fetched-from headers
+            // if it is then move it to the ERROR repository
+            Enumeration enum = message.getMatchingHeaderLines(new String[]{"X-fetched-from"});
+            int count = 1;
+            while (enum.hasMoreElements()) {
+                Object o = enum.nextElement();
+                count++;
+            }
+            if (count > 3) {
+                mail.setState(mail.ERROR);
+                mail.setErrorMessage("This mail from FetchMail task " + fetchTaskName + " seems to be bounceing!");
+                getLogger().error("A message from FetchMail task " + fetchTaskName + " seems to be bounceing! Moved to Error repository");
+                return false;
+            }
+
+            server.sendMail(mail);
+            getLogger().debug("Spooled message to " +
+                    recipients.toString());
+
+            //
+            // logging if needed
+            getLogger().debug("Sent message " + message.toString());
+            return true;
+        } catch (ParseException pe) {
+            recipients.add(recipient);
+        } catch (MessagingException innerE) {
+            getLogger().error("can't insert message " + message.toString());
+        }
+        return false;
+    }
+
+    public boolean processFolder(Session session, Folder folder) {
+
+        boolean ret = false;
+
+        try {
+
+            //
+            // try to open read/write and if that fails try read-only
+            try {
+                folder.open(Folder.READ_WRITE);
+            } catch (MessagingException ex) {
+                try {
+                    folder.open(Folder.READ_ONLY);
+                } catch (MessagingException ex2) {
+                    getLogger().debug(fetchTaskName + " Failed to open folder!");
+                }
+            }
+
+//            int totalMessages = folder.getMessageCount();
+//            if (totalMessages == 0) {
+//                getLogger().debug(fetchTaskName + " Empty folder");
+//                folder.close(false);
+//                fetching = false;
+//                return false;
+//            }
+
+            Message[] msgs = folder.getMessages();
+            MimeMessage[] received = new MimeMessage[folder.getMessageCount()];
+
+            int j = 0;
+            for (int i = 0; i < msgs.length; i++, j++) {
+                Flags flags = msgs[i].getFlags();
+                MimeMessage message = (MimeMessage) msgs[i];
+
+                //
+                // saved recieved messages for further processing...
+                received[j] = new MimeMessage(/*session,*/ message);
+
+                received[j].addHeader("X-fetched-folder", folder.getFullName());
+
+                if (bAll) {
+                    ret = processMessage(session, message, received[j]);
+                } else if (message.isSet(Flags.Flag.SEEN)) {
+                    ret = processMessage(session, message, received[j]);
+                }
+
+
+                if (ret) {
+                //
+                // need to get the flags again just in case processMessage
+                // has changed the flags....
+                Flags f = received[j].getFlags();
+
+                if (!bKeep) {
+
+                    message.setFlag(Flags.Flag.DELETED, true);
+                } else {
+                    f.add(Flags.Flag.SEEN);
+
+                    received[j].setFlags(f, true);
+                }
+                }
+            }
+            folder.close(true);
+
+            //
+            // see if this folder contains subfolders and recurse is true
+            if (bRecurse) {
+                if ((folder.getType() & folder.HOLDS_FOLDERS) != 0) {
+                    //
+                    // folder contains subfolders...
+                    Folder folders[] = folder.list();
+
+                    for (int k = 0; k < folders.length; k++) {
+                        processFolder(session, folders[k]);
+                    }
+
+                }
+            }
+            return true;
+        } catch (MessagingException mex) {
+            getLogger().debug(mex.toString());
+
+        } /*catch (IOException ioex) {
+            getLogger().debug(ioex.toString());
+        }   */
+        fetching = false;
+        return false;
+    }
+
+
     public void targetTriggered(String arg0) {
+        Store store = null;
+        Session session = null;
+        Folder folder = null;
+
+        // Get a Properties object
+        Properties props = System.getProperties();
+
 
         //
         // if we are already fetching then just return
@@ -111,13 +289,6 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             getLogger().debug(fetchTaskName + " fetcher starting fetch");
         }
 
-        Store store = null;
-        Session session = null;
-        Folder folder = null;
-
-
-        // Get a Properties object
-        Properties props = System.getProperties();
 
         // Get a Session object
         session = Session.getDefaultInstance(props, null);
@@ -128,8 +299,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             store = session.getStore(javaMailProviderName);
 
             // Connect
-            if (popHost != null || popUser != null || popPass != null)
-                store.connect(popHost, popUser, popPass);
+            if (sHost != null || sUser != null || sPass != null)
+                store.connect(sHost, sUser, sPass);
             else
                 store.connect();
 
@@ -140,124 +311,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             }
 
 
-            // try to open read/write and if that fails try read-only
-            try {
-                folder.open(Folder.READ_WRITE);
-            } catch (MessagingException ex) {
-                try {
-                    folder.open(Folder.READ_ONLY);
-                } catch (MessagingException ex2) {
-                    getLogger().debug(fetchTaskName + " Failed to open folder!");
-                    store.close();
-                }
-            }
-
-            int totalMessages = folder.getMessageCount();
-            if (totalMessages == 0) {
-                getLogger().debug(fetchTaskName + " Empty folder");
-                folder.close(false);
-                store.close();
-                fetching = false;
-                return;
-            }
-
-            Message[] msgs = folder.getMessages();
-            Message[] received = new Message[folder.getUnreadMessageCount()];
-
-            // Use a suitable FetchProfile
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            fp.add(FetchProfile.Item.CONTENT_INFO);
-            fp.add(FetchProfile.Item.FLAGS);
-            fp.add("X-Mailer");
-
-            folder.fetch(msgs, fp);
-
-            int j = 0;
-            for (int i = 0; i < msgs.length; i++) {
-                Flags flags = msgs[i].getFlags();
-                MimeMessage message = (MimeMessage) msgs[i];
-
-                if (!msgs[i].isSet(Flags.Flag.SEEN)) {
-
-                    //
-                    // saved recieved messages for furthe processing...
-                    received[j++] = msgs[i];
-                    Collection recipients = new ArrayList(1);
-
-                    try {
-                        if (!ignoreOriginalRecipient) {
-                            String er = getEnvelopeRecipient(message);
-                            if (er != null) {
-                                recipients.add(new MailAddress(er));
-                                getLogger().info("Using original envelope recipient as new envelope recipient");
-                            } else {
-                                Address[] to = message.getAllRecipients();
-                                if (to.length == 1) {
-                                    recipients.add(new
-                                            MailAddress((InternetAddress) to[0]));
-                                    getLogger().info("Using To: header address as new envelope recipient");
-                                } else {
-                                    getLogger().info("Using configured recipient as new envelope recipient");
-                                    recipients.add(recipient);
-                                }
-                            }
-                        } else {
-                            getLogger().info("Using configured recipient as new envelope recipient");
-                            recipients.add(recipient);
-                        }
-                    } catch (ParseException pe) {
-                        recipients.add(recipient);
-                    }
-
-                    MailImpl mail = new MailImpl(server.getId(), new
-                            MailAddress((InternetAddress) message.getFrom()[0]), recipients, message);
-
-                    // Lets see if this mail has been bouncing by counting
-                    // the   X-fetched-from headers
-                    // if it is then move it to the ERROR repository
-                    Enumeration enum = message.getMatchingHeaderLines(new
-                            String[]{"X-fetched-from"});
-                    int count = 1;
-                    while (enum.hasMoreElements()) {
-                        Object o = enum.nextElement();
-                        count++;
-                    }
-                    if (count > 3) {
-                        mail.setState(mail.ERROR);
-                        mail.setErrorMessage("This mail from FetchMail task " + fetchTaskName + " seems to be bounceing!");
-                        getLogger().error("A message from FetchMail task " + fetchTaskName + " seems to be bounceing! Moved to Error repository");
-                    }
-
-                    // Send to spooler
-                    try {
-                        server.sendMail(mail);
-                        getLogger().debug("Spooled message to " +
-                                recipients.toString());
-
-                        //
-                        // logging if needed
-                        getLogger().debug("Sent message " + msgs[i].toString());
-
-                    } catch (MessagingException innerE) {
-                        getLogger().error("can't insert message " + msgs[i].toString());
-                    } /*catch (IOException ioE) {
-                    getLogger().error("can't convert message to a mime message " + ioE.getMessage());
-                    }*/
-                }
-            }
-            if (popLeaveOnServer) {
-                Flags f = new Flags();
-                f.add(Flags.Flag.SEEN);
-                folder.setFlags(received, f, true);
-                folder.close(false);
-            } else {
-                Flags f = new Flags();
-                f.add(Flags.Flag.DELETED);
-
-                folder.setFlags(received, f, true);
-                folder.close(true);
-            }
+            processFolder(session, folder);
 
             store.close();
         } catch (MessagingException ex) {
@@ -347,9 +401,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
-        this.popHost = conf.getChild("host").getValue();
-        this.popUser = conf.getChild("user").getValue();
-        this.popPass = conf.getChild("password").getValue();
+        this.sHost = conf.getChild("host").getValue();
+        this.sUser = conf.getChild("user").getValue();
+        this.sPass = conf.getChild("password").getValue();
         this.fetchTaskName = conf.getAttribute("name");
         this.javaMailProviderName = conf.getChild("javaMailProviderName").getValue();
         this.javaMailFolderName = conf.getChild("javaMailFolderName").getValue();
@@ -359,7 +413,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             throw new ConfigurationException("Invalid recipient address specified");
         }
         this.ignoreOriginalRecipient = conf.getChild("recipient").getAttributeAsBoolean("ignorercpt-header");
-        this.popLeaveOnServer = conf.getChild("leaveonserver").getValueAsBoolean();
+        this.bAll = conf.getChild("fetchall").getValueAsBoolean();
+        this.bKeep = conf.getChild("leaveonserver").getValueAsBoolean();
+        this.bRecurse = conf.getChild("recursesubfolders").getValueAsBoolean();
         if (getLogger().isDebugEnabled()) {
             getLogger().info("Configured FetchMail fetch task " + fetchTaskName);
         }
