@@ -9,6 +9,7 @@ Authors:
  Serge
  Charles Benett (charles@benet1.demon.co.uk>
  Peter Donald <donaldp@apache.org>
+ Harmeet Bedi <harmeet@kodemuse.com>
 
 Legal:
   Copyright (c) 1999-2001 The Apache Software Foundation. All Rights Reserved.
@@ -324,7 +325,7 @@ Legal:
       </zipfileset>
 
       <zipfileset dir="${lib.dir}/" prefix="lib">
-        <include name="dnsjava.jar"/>
+        <include name="dnsjava-1.2.3.jar"/>
         <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>

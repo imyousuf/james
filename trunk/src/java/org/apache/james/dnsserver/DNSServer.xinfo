@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 
 <blockinfo>
+  <meta>
+    <contributors>
+        <author name="Serge" email="sergek@lokitech.com"/>
+        <author name="Harmeet" email="harmeet@kodemuse.com"/>
+    </contributors>
+  </meta>
+
   <services>
     <service name="org.apache.james.services.DNSServer" version="1.0"/>
   </services>
