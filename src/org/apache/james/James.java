@@ -34,8 +34,8 @@ import org.apache.james.core.*;
 import org.apache.james.imapserver.*;
 import org.apache.james.services.*;
 import org.apache.james.transport.*;
-import org.apache.log.LogKit;
 import org.apache.log.Logger;
+import org.apache.log.Priority;
 import org.apache.mailet.*;
 import org.apache.phoenix.Block;
 import org.apache.phoenix.BlockContext;
@@ -54,7 +54,8 @@ import org.apache.phoenix.BlockContext;
  */
 public class James
     extends AbstractLoggable
-    implements Block, Contextualizable, Composable, Configurable, Initializable, MailServer, MailetContext {
+    implements Block, Contextualizable, Composable, Configurable, Initializable, 
+    MailServer, MailetContext {
 
     public final static String VERSION = "James 1.2.2 Alpha";
 
@@ -62,7 +63,7 @@ public class James
     private DefaultContext context;
     private Configuration conf;
 
-    private Logger mailetLogger = LogKit.getLoggerFor("james.Mailets");
+    private Logger mailetLogger = null;
     //private ThreadPool workerPool;
     private MailStore mailstore;
     private UsersStore usersStore;
@@ -513,14 +514,19 @@ public class James
         return "JAMES/1.2";
     }
 
+    private Logger getMailetLogger() {
+        if ( mailetLogger == null )
+            mailetLogger = getLogger().getChildLogger("Mailet");
+        return mailetLogger;
+    }
     public void log(String message) {
-        mailetLogger.info(message);
+        getMailetLogger().info(message);
     }
 
     public void log(String message, Throwable t) {
-        System.err.println(message);
-        t.printStackTrace(); //DEBUG
-        mailetLogger.info(message + ": " + t.getMessage());
+        //System.err.println(message);
+        //t.printStackTrace(); //DEBUG
+        getMailetLogger().log(Priority.INFO,message,t);
     }
 
     /**
