@@ -194,8 +194,8 @@ WIDTH="609"></h2>
             (Note: this is not very elegant and will probally change soon) </td>
         </tr>
         <tr>
-            <td> servlets </td>
-            <td> rootpath="org.apache.james.transport.servlet." </td>
+            <td> mailets </td>
+            <td> rootpath="org.apache.james.transport.mailets." </td>
             <td> This is the parent node for all mailet configurations. The rootpath specify
             where mailet repository is. (Note: need to plug more than one repository) </td>
         </tr>
@@ -209,7 +209,7 @@ WIDTH="609"></h2>
         <p>This is James sitemap. It defines how each incoming mail will be processed.
         Incoming mails begins their process at the first mailet in the pipe.
         Each step is described by a &ltservet&gt tag with some attributes:
-        &ltservlet match="[matchClass]=[matchParameters]" class="[mailetClass]"&gt.
+        &ltmailet match="[matchClass]=[matchParameters]" class="[mailetClass]"&gt.
         The Match class split the mail into two: one with all recipients matching conditions and
         the other with all recipient not matching. All information in the mail except recipients
         cloned so bot matching and not matching are identical (again except recipients).
@@ -281,11 +281,11 @@ WIDTH="609"></h2>
     </table>
 <blockquote>
        Some examples:<br>
-        - &ltservlet match="RecipientIsLocal" class="LocalDelivery"&gt<br><br>
+        - &ltmailet match="RecipientIsLocal" class="LocalDelivery"&gt<br><br>
 
-        - &ltservlet match="UserIs=root & HostIsLocal" class="Forward"&gt<br><br>
+        - &ltmailet match="UserIs=root & HostIsLocal" class="Forward"&gt<br><br>
 
-        - &ltservlet match="SenderIs=badBoy@myhost,badGirl@yourhost" class="Null"&gt<br><br>
+        - &ltmailet match="SenderIs=badBoy@myhost,badGirl@yourhost" class="Null"&gt<br><br>
 
 </blockquote>
     <h4>Mailet</h4>
@@ -295,7 +295,7 @@ WIDTH="609"></h2>
         Mailet are the ones performing process on mails. They are provided with a Mail object
         on which thy can perform any kind of task and they reply with another Mail object
         conteining he response. Wise use of mailet allow to write any mail based application
-        as http application using servlet. Simple mailet provides basic mail functionality like
+        as http application using mailet. Simple mailet provides basic mail functionality like
         mail forwarding, mailing list, "I'm on vacation" message, mail logging etc. As simply as
         these mailet, you can write and deploy your own mailet to perform any kind of task. <br>
         Here you are some mailet samples with their configuration:<br><br>
@@ -303,28 +303,28 @@ WIDTH="609"></h2>
         <b>Null</b>
 <blockquote>
             Destroy any incoming mail. No configuration needed.<br><br>
-            &ltservlet match="SenderIs=badBoy@badhost" class="Null"&gt<br>
-            &lt/servlet&gt<br><br>
+            &ltmailet match="SenderIs=badBoy@badhost" class="Null"&gt<br>
+            &lt/mailet&gt<br><br>
 
 </blockquote>
 
         <b>Identity</b>
 <blockquote>
-            Leave any incoming mail untoched.Sort of debug servlet (not really useful).
+            Leave any incoming mail untoched.Sort of debug mailet (not really useful).
             No configuration needed.<br><br>
-            &ltservlet match="All" class="Identity"&gt<br>
-            &lt/servlet&gt<br><br>
+            &ltmailet match="All" class="Identity"&gt<br>
+            &lt/mailet&gt<br><br>
 </blockquote>
 
         <b>Forward</b>
 <blockquote>
             Replace the recipient list with recipient specified in configurations.<br><br>
-            &ltservlet match="RecipientIs=root@localhost" class="Forward"&gt<br>
+            &ltmailet match="RecipientIs=root@localhost" class="Forward"&gt<br>
 <blockquote>
             &ltforwardto&gt green@blue.org &lt/forwardto&gt<br>
             &ltforwardto&gt red@yellow.com &lt/forwardto&gt<br>
 </blockquote>
-            &lt/servlet&gt<br><br>
+            &lt/mailet&gt<br><br>
 </blockquote>
 
         <b>ToRepository</b>
@@ -332,32 +332,32 @@ WIDTH="609"></h2>
             Stores mails in the specified MailRepository. Useful for mail logging etc.
             If the passThrough is false the mail will be destroyed, if true it will be
             returned untouched to the pipe.<br><br>
-            &ltservlet match="RecipientIs=root@localhost" class="ToRepository"&gt<br>
+            &ltmailet match="RecipientIs=root@localhost" class="ToRepository"&gt<br>
 <blockquote>
             &ltrepositoryPath&gt file://../var/mail/logAdmin &lt/repositoryPath&gt<br>
             &ltpassThrough&gt true &lt/passThrough&gt (default false)<br>
 </blockquote>
-            &lt/servlet&gt<br><br>
+            &lt/mailet&gt<br><br>
 </blockquote>
 
         <b>LocalDelivery</b>
 <blockquote>
             Store mail in the local inbox, one folder for each user.<br><br>
-            &ltservlet match="RecipientIsLocal" class="LocalDelivery"&gt<br>
-            &lt/servlet&gt<br><br>
+            &ltmailet match="RecipientIsLocal" class="LocalDelivery"&gt<br>
+            &lt/mailet&gt<br><br>
 </blockquote>
 
         <b>RemoteDelivery</b>
 <blockquote>
-            Realy mails to remote hosts. "delayTime" is the time in mills the servlet will wait
+            Realy mails to remote hosts. "delayTime" is the time in mills the mailet will wait
             before retrying sending a mail which fail at first time. "maxRetryes" is the number of
             retryes before sending back to sender the mail.<br><br>
-            &ltservlet match="!RecipientIsLocal" class="RemoteDelivery"&gt<br>
+            &ltmailet match="!RecipientIsLocal" class="RemoteDelivery"&gt<br>
 <blockquote>
             &ltdelayTime&gt 21600000 &lt/delayTime&gt <br>
             &ltmaxRetries&gt 5 &lt/maxRetries&gt <br>
 </blockquote>
-            &lt/servlet&gt<br><br>
+            &lt/mailet&gt<br><br>
             <br>
             .<br>
 </blockquote>

@@ -34,14 +34,14 @@
        transport and storage in a single server application. Apache James
        works alone without the need or any other server or solution.
        
-    o  servlet support:  Apache James supports MailServlet. This easy-to-write 
+    o  mailet support:  Apache James supports Mailet. This easy-to-write 
        easy-to-use pattern allow to buid powerful mail system. Example can be a 
-       mail to fax Servlet, mail to phone, filters, translator, mailling list 
+       mail to fax Mailet, mail to phone, filters, translator, mailling list 
        etc.
     
     o  resource abstraction:  like protocols, resources are abstracted and,
        working thru defined interfaces (JavaMail for transport, JDBC for storage,
-       servlet engine abstraction for servlets), the server will be highly 
+       mailet engine abstraction for mailets), the server will be highly 
        modular and reuse solutions from other projects or applications.
        
     o  secure and multi-threaded design:  based on the technology developed for
@@ -63,7 +63,7 @@
     
     o  More powerful remote admin protocol and tool.
     
-    o  Extended set of Servlet to easily support most mail system request.
+    o  Extended set of Mailet to easily support most mail system request.
     
     o  anything else you may want if you help us writing it :-)
        
@@ -120,7 +120,7 @@ Step 4: kickstart.
     with SMTP (port 25). You'll see the mail appear under /mail/localinbox/[user].
     Try now to retrive that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
-    Action that will be taken by JAMES on incoming mail are configurated in the servlet
+    Action that will be taken by JAMES on incoming mail are configurated in the mailet
     pipe line (/conf/james.conf.xml). Look at it if you want to understand what's appening.
   
   Good luck :)

@@ -18,7 +18,7 @@ import org.apache.james.transport.*;
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
  * store it in the "delayed" Repository and set an Alarm. After "delayTime" the
- * Alarm will wake the servlet that will try to send it again. After "maxRetries"
+ * Alarm will wake the mailet that will try to send it again. After "maxRetries"
  * the mail will be considered underiverable and will be returned to sender.
  *
  * Note: Many FIXME on the air.
@@ -34,7 +34,8 @@ public class ToProcessor extends AbstractMailet {
         MailetContext context = getContext();
         ComponentManager comp = context.getComponentManager();
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        String proc = context.getConfigurations().getConfiguration("processor").getValue();
+        Configuration conf = context.getConfiguration();
+        String proc = conf.getConfiguration("processor").getValue();
         processor = (Mailet) getContext().get(proc);
     }
 
@@ -44,7 +45,7 @@ public class ToProcessor extends AbstractMailet {
     }
 
 
-    public String getServletInfo() {
+    public String getMailetInfo() {
         return "ToProcessor Mailet";
     }
 }

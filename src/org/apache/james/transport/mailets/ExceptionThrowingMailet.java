@@ -18,13 +18,13 @@ import org.apache.james.transport.*;
  */
 public class ExceptionThrowingMailet extends AbstractMailet {
 
-    public void service(Mail mail) 
+    public void service(Mail mail)
     throws Exception {
         throw new Exception("General protection fault");
     }
-    
-    public String getServletInfo() {
+
+    public String getMailetInfo() {
         return "ExceptionThrowingMailet Mailet";
     }
 }
-    
+

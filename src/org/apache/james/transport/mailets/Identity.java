@@ -12,7 +12,7 @@ import org.apache.mail.*;
 import org.apache.james.transport.*;
 
 /**
- * Opposite of Null Servlet. It let any incoming mail untouched. Used only for 
+ * Opposite of Null Mailet. It let any incoming mail untouched. Used only for
  * debugging.
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -20,9 +20,9 @@ public class Identity extends AbstractMailet {
 
     public void service(Mail mail) {
     }
-    
-    public String getServletInfo() {
+
+    public String getMailetInfo() {
         return "Identity Mailet";
     }
 }
-    
+

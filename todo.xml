@@ -10,16 +10,16 @@
 
  <actions priority="high">
   <action context="design">
-    Beta test interface and implementation of MailServlet.
+    Beta test interface and implementation of Mailet.
   </action>
   <action context="code">
-    Improve exception management in RemoteDerivery Servlet.
+    Improve exception management in RemoteDerivery mailet.
   </action>
   <action context="code">
-    Add more match class to allow fine tuning of mail servlet processor pipe.
+    Add more match class to allow fine tuning of mailet processor pipe.
   </action>
  </actions>
- 
+
  <actions priority="medium">
   <action context="code">
     Add full support of "TOP" command in POP3Handler.
@@ -34,5 +34,5 @@
    Write all documentation.
   </action>
  </actions>
- 
+
 </todo>

@@ -25,20 +25,20 @@ public abstract class AbstractMailet implements Mailet {
     protected void setMailetContext(MailetContext context) {
         this.context = context;
     }
-    
+
     public MailetContext getContext() {
         return context;
     }
-    
+
     public void init() throws Exception {
     }
-    
+
     public abstract void service(Mail mail) throws Exception;
-    
+
     public void destroy() {
     }
-    
-    public abstract String getServletInfo();
+
+    public abstract String getMailetInfo();
 }
 
-    
+

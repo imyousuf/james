@@ -3,7 +3,7 @@
                                 README!
 
     Please fill the DNSservers.server tag with the value of your DNS.
-    
+
     <DNSservers>
         <server> [hear goes your dns] </server>
     </DNSservers>
@@ -73,9 +73,9 @@
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
             <spoolmanager>
 
-                <servletpackages>
-                    <servletpackage>org.apache.james.transport.mailets.</servletpackage>
-                </servletpackages>
+                <mailetpackages>
+                    <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
+                </mailetpackages>
 <!--        LinearProcessor CONFIGURATION SAMPLE -->
                 <processor name="root" class="org.apache.james.transport.LinearProcessor">
                     <mailet match="RecipientIs=badboy@badhost" class="Null">
@@ -96,7 +96,7 @@
                     <mailet match="All" class="ToProcessor">
                         <processor> transport </processor>
                     </mailet>
-                    
+
                 </processor>
                 <processor name="error" class="org.apache.james.transport.mailets.ToRepository">
                     <repositoryPath> file://../var/mail/error/</repositoryPath>
@@ -155,19 +155,19 @@
                implementedInterface="org.apache.avalon.blocks.Logger"
                help="Provides a pluggable logging system">
             <timestamp>
-                <granularity help="Sets the timestamp time granularity in 
-                        milliseconds. If set to 0 means to use maximum time precision 
+                <granularity help="Sets the timestamp time granularity in
+                        milliseconds. If set to 0 means to use maximum time precision
                         else timestam is calculated every 'granularity' milliseconds">
                     0
                 </granularity>
                 <format help="Define the format for the timestamp">
-                    yyyy.MM.dd hh:mm:ss SSS 
+                    yyyy.MM.dd hh:mm:ss SSS
                 </format>
             </timestamp>
-            <channels help="Every log call is performed througt a channel. 
+            <channels help="Every log call is performed througt a channel.
                     The proposed pattern is: each application (Block) should use its own
-                    channel to allow adminitrators to set what to log from that 
-                    application and where to place logs. So if you plug a new server 
+                    channel to allow adminitrators to set what to log from that
+                    application and where to place logs. So if you plug a new server
                     under Avalon you MUST place channel definition from that server
                     configuration file hereafter">
                 <channel name="default"      loglevel="DEBUG"  logwriter="mailet"/>

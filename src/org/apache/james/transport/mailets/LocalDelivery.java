@@ -16,7 +16,7 @@ import org.apache.james.*;
 import org.apache.avalon.interfaces.*;
 
 /**
- * Receive  a Mail from JamesSpoolManager and takes care of delivery 
+ * Receive  a Mail from JamesSpoolManager and takes care of delivery
  * the message to local inboxs.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -25,11 +25,11 @@ public class LocalDelivery extends AbstractMailet {
 
     private MailServer james;
 
-    public void init() 
+    public void init()
     throws Exception {
         james = (MailServer) getContext().getComponentManager().getComponent(Interfaces.MAIL_SERVER);
     }
-    
+
     public void service(Mail mail) {
         Vector recipients = mail.getRecipients();
         Vector errors = new Vector();
@@ -50,8 +50,8 @@ public class LocalDelivery extends AbstractMailet {
         }
     }
 
-    public String getServletInfo() {
-        return "Local Delivery Mail Servlet";
+    public String getMailetInfo() {
+        return "Local Delivery Mailet";
     }
 }
-    
+

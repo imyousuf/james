@@ -17,8 +17,8 @@ import org.apache.avalon.interfaces.*;
 import org.apache.mail.*;
 
 /**
- * Stores incoming Mail in the specified Repository. 
- * If the "passThrough" in confs is true the mail will be returned untouched in 
+ * Stores incoming Mail in the specified Repository.
+ * If the "passThrough" in confs is true the mail will be returned untouched in
  * the pipe. If false will be destroyed.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -40,14 +40,14 @@ public class ToRepository extends AbstractMailet {
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         repository = (MailRepository) store.getPrivateRepository(repositoryPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
     }
-    
+
     public void service(Mail mail) {
         logger.log("Storing mail " + mail.getName() + " in " + repositoryPath);
         repository.store(mail);
         if (!passThrough) mail.setState(Mail.GHOST);
     }
 
-    public String getServletInfo() {
-        return "ToRepository Mail Servlet";
+    public String getMailetInfo() {
+        return "ToRepository Mailet";
     }
 }

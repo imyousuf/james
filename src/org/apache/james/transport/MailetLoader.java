@@ -18,21 +18,21 @@ import org.apache.mail.*;
 public class MailetLoader implements Component, Configurable {
 
     private Configuration conf;
-    private Vector servletPackages;
+    private Vector mailetPackages;
 
     public void setConfiguration(Configuration conf) {
-        servletPackages = new Vector();
-        servletPackages.addElement("");
-        for (Enumeration e = conf.getConfigurations("servletpackage"); e.hasMoreElements(); ) {
+        mailetPackages = new Vector();
+        mailetPackages.addElement("");
+        for (Enumeration e = conf.getConfigurations("mailetpackage"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
-            servletPackages.addElement(c.getValue());
+            mailetPackages.addElement(c.getValue());
         }
     }
 
-    public Mailet getMailet(String servletName, MailetContext context)
+    public Mailet getMailet(String mailetName, MailetContext context)
     throws Exception {
-        for (int i = 0; i < servletPackages.size(); i++) {
-            String className = (String)servletPackages.elementAt(i) + servletName;
+        for (int i = 0; i < mailetPackages.size(); i++) {
+            String className = (String)mailetPackages.elementAt(i) + mailetName;
             try {
                 AbstractMailet mailet = (AbstractMailet) Class.forName(className).newInstance();
                 mailet.setMailetContext(context);
@@ -42,6 +42,6 @@ public class MailetLoader implements Component, Configurable {
                 //do this so we loop through all the packages
             }
         }
-        throw new ClassNotFoundException("Requested mailet not found: " + servletName + ".  looked in " + servletPackages.toString());
+        throw new ClassNotFoundException("Requested mailet not found: " + mailetName + ".  looked in " + mailetPackages.toString());
     }
 }

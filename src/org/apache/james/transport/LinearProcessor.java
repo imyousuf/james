@@ -5,7 +5,7 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
- 
+
 package org.apache.james.transport;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.apache.mail.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
- 
+
 /*      SAMPLE CONFIGURATION
     <processor name="try" class="org.apache.james.transport.LinearProcessor">
         <mailet match="RecipientIsLocal" class="LocalDelivery">
@@ -29,14 +29,14 @@ import org.apache.mail.*;
             <maxRetries>5</maxRetries>
         </mailet>
     </processor>
-*/ 
+*/
 public class LinearProcessor extends AbstractMailet {
 
     private MatchLoader matchLoader;
     private MailetLoader mailetLoader;
     private Logger logger;
-    private Vector servlets;
-    private Vector servletMatchs;
+    private Vector mailets;
+    private Vector mailetMatchs;
     private Vector unprocessed;
 
     private static final String OP_NOT = "!";
@@ -44,7 +44,7 @@ public class LinearProcessor extends AbstractMailet {
     private static final String OP_AND = "&";
 
     public void init() throws Exception {
-        
+
         MailetContext context = getContext();
         Configuration conf = context.getConfiguration();
         ComponentManager comp = context.getComponentManager();
@@ -55,15 +55,15 @@ public class LinearProcessor extends AbstractMailet {
         mailetLoader = (MailetLoader) comp.getComponent(Resources.MAILET_LOADER);
         matchLoader = (MatchLoader) comp.getComponent(Resources.MATCH_LOADER);
 
-        this.servletMatchs = new Vector();
-        this.servlets = new Vector();
-        this. unprocessed = new Vector();//servlets.size() + 1, 2);
+        this.mailetMatchs = new Vector();
+        this.mailets = new Vector();
+        this. unprocessed = new Vector();//mailets.size() + 1, 2);
         for (Enumeration e = conf.getConfigurations("mailet"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
             String className = c.getAttribute("class");
             try {
-                Mailet servlet = mailetLoader.getMailet(className, context.getChildContext(c));
-                servlets.addElement(servlet);
+                Mailet mailet = mailetLoader.getMailet(className, context.getChildContext(c));
+                mailets.addElement(mailet);
                 logger.log("Mailet " + className + " instantiated", "Mailets", Logger.INFO);
             } catch (Exception ex) {
                 logger.log("Unable to init mailet " + className + ": " + ex, "Mailets", Logger.INFO);
@@ -73,7 +73,7 @@ public class LinearProcessor extends AbstractMailet {
             String matchName = c.getAttribute("match");
             try {
                 Matcher match = matchLoader.getMatch(matchName, context);
-                servletMatchs.addElement(match);
+                mailetMatchs.addElement(match);
                 logger.log("Matcher " + matchName + " instantiated", "Mailets", Logger.INFO);
             } catch (Exception ex) {
                 logger.log("Unable to init matcher " + matchName + ": " + ex, "Mailets", Logger.INFO);
@@ -86,14 +86,14 @@ public class LinearProcessor extends AbstractMailet {
     public void service(Mail mail) throws Exception {
 
         logger.log("Processing mail " + mail.getName(), "Mailets", Logger.INFO);
-        unprocessed.setSize(servlets.size() + 2);
+        unprocessed.setSize(mailets.size() + 2);
         unprocessed.insertElementAt(mail, 0);
         printPipe(unprocessed);/*DEBUG*/
         for (int i = 0; true ; i++) {
             logger.log("===== i = " + i + " =====", "Mailets", Logger.INFO);
             Mail next = (Mail) unprocessed.elementAt(i);
             if (!isEmpty(next)) {
-                Mail[] res = ((Matcher) servletMatchs.elementAt(i)).match(next);
+                Mail[] res = ((Matcher) mailetMatchs.elementAt(i)).match(next);
                 unprocessed.setElementAt(res[0], i);
                 unprocessed.setElementAt(res[1], i + 1);
                 logger.log("--- after split (" + i + ")---", "Mailets", Logger.INFO);
@@ -106,7 +106,7 @@ public class LinearProcessor extends AbstractMailet {
                 } catch (ArrayIndexOutOfBoundsException emptyPipe) {
                     break;
                 }
-                Mailet mailet = (Mailet) servlets.elementAt(i);
+                Mailet mailet = (Mailet) mailets.elementAt(i);
                 try {
                     mailet.service(next);
                 } catch (Exception ex) {
@@ -160,7 +160,7 @@ public class LinearProcessor extends AbstractMailet {
             }
         }
     }
-    public String getServletInfo() {
+    public String getMailetInfo() {
         return "LinearProcessor";
     }
 }

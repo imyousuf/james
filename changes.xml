@@ -16,16 +16,16 @@
     Add some autodetect support for easier configuration.
   </action>
   <action dev="FB" type="code">
-    Add support for MailServlet.
+    Add support for Mailet.
   </action>
   <action dev="FB" type="update">
-    Add Mailservlet interface draft.
+    Add Mailet interface draft.
   </action>
 </release>
 
 <release version="0.9.5" date="2000">
   <action dev="FB" type="update">
-    Split the SMTP Server in a protocol handler and a MailServer available to 
+    Split the SMTP Server in a protocol handler and a MailServer available to
     all Avalon blocks.
   </action>
   <action dev="FB" type="update">
@@ -35,7 +35,7 @@
 
  <release version="0.9-dev" date="Can't remember">
   <action dev="FB" type="update">
-  	Based on much code from Serge Knystautas first implementation of JAMES on 
+  	Based on much code from Serge Knystautas first implementation of JAMES on
   	top of the Avalon framework.
   </action>
 </release>

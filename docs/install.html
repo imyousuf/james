@@ -25,45 +25,45 @@ WIDTH="609"></h2>
 <blockquote>
     <p>In the distribution you'll find configuration file "/conf/james.conf.xml".
     Edit /conf/james.conf.xml and fill it with needed configuration follwing
-    instructions inside. The configuration file is filled with defaults. Values 
-    which cannot be set as default needs to be filled. Basically to make it work 
+    instructions inside. The configuration file is filled with defaults. Values
+    which cannot be set as default needs to be filled. Basically to make it work
     just replace any FILL ME tag with the appropiate value. All other .conf files
     you'll ifng in the same folder belong to others Blocks that cohoperate with
-    JAMES (Block) to make it work. They do not need specific configurations since 
-    they are filled with defaults but a fast look may help.</p> 
-</blockquote>    
+    JAMES (Block) to make it work. They do not need specific configurations since
+    they are filled with defaults but a fast look may help.</p>
+</blockquote>
 
 <h3>Run</h3>
 <blockquote>
     <p>M$ users shuold just run /bin/run.bat. Unix users will find run.sh
     under the same folder (which is not tested). A JVM must be in the path.
     Running [run* -help] will provide a simple command line help.</p>
-    By default Avalon will use Xerces.jar as XML parser, place the log file 
-    in /logs/ and uses as configuration file /conf/avalon.conf.xml. 
+    By default Avalon will use Xerces.jar as XML parser, place the log file
+    in /logs/ and uses as configuration file /conf/avalon.conf.xml.
     You can override these defaults using run [options].
-</blockquote>    
+</blockquote>
 
 <h3>Kickstart</h3>
 <blockquote>
-    <p>Once started you'll see a message saying Avalon is running. This means Avalon 
-    has loaded JAMES and every other needed Block (see /logs/avalon.log) and is 
+    <p>Once started you'll see a message saying Avalon is running. This means Avalon
+    has loaded JAMES and every other needed Block (see /logs/avalon.log) and is
     now waiting for a socket request.
-     
+
     At first run James will not have any local user set so it will only relay mail to remote servers.
     To add a local inbox open a telnet session with localhost on port 4555, log in
     as root ("root[enter] root[enter]" see in config) and type "help" for a list of availale
-    command in the "JAMES remote administrator tool". It is really a basic set but 
+    command in the "JAMES remote administrator tool". It is really a basic set but
     should allow you to test installation. An improved managing tool will be available as
     soon as someone help writing it :).
-    
+
     Once you have some local users registered try sending mail to one of them @localhost
     with SMTP (port 25). You'll see the mail appear under /mail/localinbox/[user].
     Try now to retrive that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
-    Action that will be taken by JAMES on incoming mail are configurated in the servlet
+    Action that will be taken by JAMES on incoming mail are configurated in the mailet
     pipe line (/conf/james.conf.xml). Look there if you want to understand what's appening.</p>
-  
-</blockquote>    
+
+</blockquote>
 <p>  Good luck :)</p>
 <p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
 Java Apache Project</a>.<br>

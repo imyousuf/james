@@ -19,8 +19,8 @@ import javax.mail.internet.*;
 
 /**
  * Returns the current time for the mail server.  Sample configuration:
- * <servlet match="RecipientIs=time@cadenza.lokitech.com" class="ServerTime">
- * </servlet>
+ * <mailet match="RecipientIs=time@cadenza.lokitech.com" class="ServerTime">
+ * </mailet>
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
@@ -28,10 +28,10 @@ public class ServerTime extends AbstractMailet {
     /**
      * Sends a message back to the sender indicating what time the server thinks it is.
      */
-    private Mailet transport; 
+    private Mailet transport;
     private Logger logger;
-     
-    public void inti() {
+
+    public void init() {
         MailetContext context = getContext();
         transport = (Mailet) context.get("transport");
         logger = (Logger) context.getComponentManager().getComponent(Interfaces.LOGGER);
@@ -59,8 +59,8 @@ public class ServerTime extends AbstractMailet {
         }
     }
 
-    public String getServletInfo() {
-        return "ServerTime";
+    public String getMailetInfo() {
+        return "ServerTime Mailet";
     }
 }
 

@@ -24,14 +24,14 @@ import org.apache.james.transport.*;
  *
  * Sample configuration:
  * <pre>
- * <servlet match="RecipientIs=test@glissando.lokitech.com" class="MiniListserv">
+ * <mailet match="RecipientIs=test@glissando.lokitech.com" class="MiniListserv">
  *     <subject>Test</subject>
  *     <membersonly>true</membersonly>
  *     <attachmentsallowed>false</attachmentsallowed>
  *     <replytolist>true</replytolist>
  *     <member>sergek@lokitech.com</member>
  *     <member>sknystautas@yahoo.com</member>
- * </servlet>
+ * </mailet>
  * </pre>
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
@@ -67,7 +67,7 @@ public class PicoListManager extends AbstractMailet {
             mail.setState(Mail.GHOST);
             return;
         }
-        
+
         if (Mail.getUser(recipient).equalsIgnoreCase(subscribe)) {
             String sender = mail.getSender();
             members.addUser(sender, "");
@@ -75,7 +75,7 @@ public class PicoListManager extends AbstractMailet {
             transport.service(mail.bounce("You have been subscribed to this list"));
             mail.setState(Mail.GHOST);
             return;
-        } 
+        }
         if (Mail.getUser(recipient).equalsIgnoreCase(unsubscribe)) {
             String sender = mail.getSender();
             members.removeUser(sender);
@@ -87,8 +87,8 @@ public class PicoListManager extends AbstractMailet {
         logger.log("Return untouched mail. The address " + recipient + " cannot be handled.");
     }
 
-    public String getServletInfo() {
-        return "PicoListManager Servlet";
+    public String getMailetInfo() {
+        return "PicoListManager Mailet";
     }
 }
 
