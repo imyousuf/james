@@ -30,6 +30,9 @@
   <p>James currently (v2.0a2) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
   <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
 <source>
+&lt;mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
+	&lt;repositoryName>list-james&lt;/repositoryName>
+&lt;/mailet>
 </source>
 <p>that will intercept the command emails sent to
 <ul>
@@ -43,16 +46,23 @@
   <p>Which will distribute the mail to the current subscribers</p>
   <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
 <source>
+&lt;repository name="list-james" class="org.apache.james.userrepository.ListUsersJdbcRepository" destinationURL="db://maildb/lists/list-james">
+	&lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
+&lt;/repository>
 </source>
   <p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
   <p>Using the filesystem:-</p>
 <source>
+&lt;repository name="list-james" class="org.apache.james.userrepository.UsersFileRepository">
+    &lt;destination URL="file://var/lists/list-james/"/>
+&lt;/repository>
 </source>
 
 	  <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
 	  <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
 	  <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br/>Danny Angus</p>
 	  
+    
   </subsection>
   <a name="2"></a>
   <subsection name="James seems to be an open relay for Spam, is it?">
