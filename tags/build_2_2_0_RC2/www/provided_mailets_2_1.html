@@ -1,0 +1,776 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Apache Jakarta James - James 2.1 - Provided Mailets - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+</head>
+<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
+<table cellspacing="4" width="100%" border="0">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
+</tr>
+<!--HEADER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" width="20%">
+<p>
+<strong>James</strong>
+</p>
+<ul>
+<li>
+<a href="./index.html">Overview</a>
+</li>
+<li>
+<a href="./FAQ.html">James FAQ</a>
+</li>
+</ul>
+<p>
+<strong>Translated</strong>
+</p>
+<ul>
+<li>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
+</li>
+</ul>
+<p>
+<strong>Downloads</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+</li>
+</ul>
+<p>
+<strong>Current Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
+</li>
+<li>
+<a href="./javadocs/index.html">James Javadocs</a>
+</li>
+<li>
+<a href="./mailet/index.html">Mailet API</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and sendmail</a>
+</li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
+</li>
+</ul>
+<p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+<li>
+<a href="./contribute.html">How Can I Contribute?</a>
+</li>
+<li>
+<a href="./code-standards.html">Coding Standards</a>
+</li>
+<li>
+<a href="./license.html">License</a>
+</li>
+<li>
+<a href="./todo.html">TODO</a>
+</li>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+<li>
+<a href="./weare.html">Who We Are</a>
+</li>
+</ul>
+<p>
+<strong>Jakarta Information (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/news.html">News &amp; Status</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+</ul>
+<p>
+<strong>Related Projects (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
+</li>
+<li>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
+</li>
+</ul>
+</td>
+<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Mailets"><strong>Mailets</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+
+<p>James provides a number of implemented Mailets for use by James administrators in their 
+configurations.  These are primarily mailets that members of the James developer or user 
+communities have found useful in their own configurations.  A description of how to configure 
+Mailets and use them in the James SpoolManager can be found <a href="spoolmanager_configuration_2_1.html">here</a>.</p>
+
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AddFooter"><strong>AddFooter</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet adds a text footer to the message.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>text</strong> (required) - the text that will be added as a footer to the message.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AddHabeasWarrantMark"><strong>AddHabeasWarrantMark</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet adds a Habeas warrant mark (see <a href="http://habeas.com">http://habeas.com</a> for details) to the message.</p>
+
+<p>Parameters: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AddHeader"><strong>AddHeader</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet adds a text header to the message.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>name</strong> (required) - the name of the header to be added to the message.</li>
+
+<li>
+<strong>value</strong> (required) - the text that will be added as a header to the message.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AvalonListserv"><strong>AvalonListserv</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Provides basic list server functionality.  Implements basic filters for emails sent to the list, 
+including restriction of senders to members, diallowing attachments in list messages, and subject line 
+processing</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>repositoryName</strong> (required) - the name of the user repository that contains the users 
+for this list.</li>
+
+<li>
+<strong>membersonly</strong> (optional) - whether only members of the list can send messages to this 
+list.  Defaults to false.</li>
+
+<li>
+<strong>attachmentsallowed</strong> (optional) - whether attachments are allowed in messages sent to this 
+list.  Defaults to true.</li>
+
+<li>
+<strong>replytolist</strong> (optional) - whether the reply-to address for all messages sent to this 
+list is set to the list address.  Defaults to true.</li>
+
+<li>
+<strong>subjectprefix</strong> (optional) - a String value.  If set, this value is prepended to the subject
+line of all messages sent to the list.</li>
+
+<li>
+<strong>autobracket</strong> (optional) - a boolean value.  If a subjectprefix is set, this value determines 
+whether the prefix is bracketed before being prepended to the subject line.  Defaults to true.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AvalonListservManager"><strong>AvalonListservManager</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Processes list management commands of the form &lt;list-name&gt;-on@&lt;host&gt; and 
+&lt;list-name&gt;-off@&lt;host&gt; where &lt;list-name&gt; and lt;host&gt; are arbitrary.  Note 
+that this should be used in tandem with a CommandForListserv matcher to ensure that only commands 
+intended for a specific list are processed.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>repositoryName</strong> (required) - the name of the user repository that contains the users 
+for this list.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Forward"><strong>Forward</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet forwards the message to a set of recipients.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>forwardto</strong> (required) - a comma delimited list of email addresses.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="JDBCAlias"><strong>JDBCAlias</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet does alias translation for email addresses stored in a database table.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>mappings</strong> (required) - a URL of the form db://&lt;data-source&gt;/&lt;table&gt;, where 
+&lt;table&gt; is the table in the database containing the alias info and &lt;data-source&gt; is the name 
+of the data-source in config.xml that is to be used.</li>
+
+<li>
+<strong>source_column</strong> (required) - the column containing the aliases.</li>
+
+<li>
+<strong>target_column</strong> (required) - the column containing the alias targets.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="JDBCVirtualUserTable"><strong>JDBCVirtualUserTable</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet does complex alias translation for email addresses stored in a database table.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>table</strong> (required) - the URL describing the database table.  This URL has the form 
+db://&lt;data-source&gt;/&lt;table&gt; where &lt;data-source&gt; and &lt;table&gt; are the names of 
+the data-source as defined in config.xml and the table in the database.</li>
+
+<li>
+<strong>sqlquery</strong> (optional) - the text of the SQL query used by the mailet to do user
+lookup.  The default is "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1"</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="LocalDelivery"><strong>LocalDelivery</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet delivers messages to local mailboxes.</p>
+
+<p>Parameters: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="NotifyPostmaster"><strong>NotifyPostmaster</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet forwards the message as an attachment to the James postmaster.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>sendingAddress</strong> (optional) - the address from which the forwarded email will be 
+sent.  Defaults to the postmaster address.</li>
+
+<li>
+<strong>notice</strong> (optional) - the text message that will accompany the forwarded message.  Defaults 
+to "We were unable to deliver the attached message because of an error in the mail server."</li>
+
+<li>
+<strong>attachStackTrace</strong> (optional) - whether an error stack trace is attached to the forwarded message.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="NotifySender"><strong>NotifySender</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet forwards the message as an attachment to the original sender.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>sendingAddress</strong> (optional) - the address from which the forwarded email will be 
+sent.  Defaults to the postmaster address.</li>
+
+<li>
+<strong>notice</strong> (optional) - the text message that will accompany the forwarded message.  Defaults 
+to "We were unable to deliver the attached message because of an error in the mail server."</li>
+
+<li>
+<strong>attachStackTrace</strong> (optional) - whether an error stack trace is attached to the forwarded message.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Null"><strong>Null</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet ends processing for this mail.</p>
+
+<p>Parameters: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="PostmasterAlias"><strong>PostmasterAlias</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Intercepts all mails addressed to postmaster@&lt;domain&gt; where &lt;domain&gt; is one
+of the domains managed by this James server and substitutes the configured James postmaster address for
+the original recipient address.  This mailet is inserted automatically by James at the head of the root
+processor.</p>
+
+<p>Parameters: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Redirect"><strong>Redirect</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: A mailet providing powerful, configurable redirection services.<br>
+      This mailet can produce listserver, forward and notify behaviour, with the
+      original message intact, attached, appended or left out altogether.<br>
+      This built in functionality is controlled by the configuration as described
+      <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
+
+<p>It is also intended to be easily subclassed to make providing bespoke redirection
+    mailets simple. <br>
+    By extending it and overriding one or more of its methods new behaviour can
+    be quickly created without the author having to address any other issue than
+    the relevant one. For more information see the javadocs
+    <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">here</a>.</p>
+
+<p>Parameters: <a href="javadocs/org/apache/james/transport/mailets/Redirect.html">See javadocs.</a>
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RemoteDelivery"><strong>RemoteDelivery</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Manages delivery of messages to recipients on remote SMTP hosts.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>outgoing</strong> (required) - The URL for the repository that will hold messages being processed
+by the RemoteDelivery Mailet.</li>
+
+<li>
+<strong>delayTime</strong> (optional) - takes the form
+&lt;attempts*delay quantifier&gt; where attempts and quantifier are both
+optional an defaults to 1 and miliseconds respectively.
+The delay is a non-negative value that is the time between redelivery
+attempts for a particular mail. Defaults to six hours. Allowed
+quantifiers are msec(s),sec(s),minute(s),hour(s),day(s). The attempts
+is the number of times the specified delay is used. It is possible to
+have multiple entries of this parameter, and if so the the delayTimes
+are used in the order specified, this allows you to try a few times
+in rapid succession and then move on to longer delays</li>
+
+<li>
+<strong>maxRetries</strong> (optional) - a non-negative Integer value that is number of times
+the Mailet will attempt to deliver a particular mail.  If inconsistent
+with number of attempts in <strong>delayTime</strong>
+specifications. <strong>maxRetries</strong> will be increased if it is
+less than the total number of attempts in <strong>delayTime</strong>,
+if it is more the last specified <strong>delayTime</strong> is used
+for the missing delays. Defaults to five. </li>
+
+<li>
+<strong>timeout</strong> (optional) - The SMTP connection timeout for SMTP connections generated
+by this Mailet.  Defaults to 60 seconds.</li>
+
+<li>
+<strong>deliveryThreads</strong> (optional) - The number of threads this Mailet will use to generate
+SMTP connections.</li>
+
+<li>
+<strong>gateway</strong> (optional) - The host name of the SMTP server 
+to be used as a gateway for this server.  If this value is set, then all 
+messages will be delivered to the gateway server, regardless of recipient 
+address.  To specify more than one gateway server, add multiple gateway tags, 
+each containing one value.  If more than one server is specified, they will be 
+tried in order until one is successful.  In addition the port may be specified 
+for each gateway in the format &lt;host&gt;:&lt;port&gt;.  If this 
+value is unset, delivery will occur to SMTP servers resolved by MX lookup.</li>
+
+<li>
+<strong>gatewayPort</strong> (optional) - The default port number of the 
+SMTP server to be used as a gateway for this server.  This value will be 
+employed when a gateway is set <em>and</em> the gateway value does not specify 
+a port as described above.</li>
+
+<li>
+<strong>bind</strong> (optional) - If present, this value is a string 
+describing the local IP address to which the mailet should be bound while 
+delivering emails. If the tag is absent then the service will bind to the 
+default local address of the machine. This tag is useful for multihomed machines.<br>
+Note: Currently you must use the same IP address for all of those RemoteDelivery 
+instances where you explicitly supply a bind address.</li>
+
+<li>
+<strong>bounceProcessor</strong> - If present, this value is the
+name of a spool processor, on which mails that, are to bounce due to
+undeliverability, are sent. An exception carrying information about the
+cause of undeliverability, is added as a MailAttribute with name: delivery-error.
+If not present the mail is simply bounced to the sender, with a
+standard (hardcoded) undeliverability message. </li>
+
+<li>
+<strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
+on.  Defaults to false.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="ServerTime"><strong>ServerTime</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This mailet sends a message to the sender of the original mail message with a server timestamp.</p>
+
+<p>Parameters: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="ToProcessor"><strong>ToProcessor</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Redirects processing of the mail message to the specified processor.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>processor</strong> (required) - the name of the processor to which the message
+is to be redirected.</li>
+
+<li>
+<strong>noticeText</strong> (optional) - a String value that, if present,
+is set as the error message of the redirected message.  If this value is not
+present, no error message is set.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="ToRepository"><strong>ToRepository</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Places a copy of the message in the specified repository.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>repositoryPath</strong> (required) - the URL of the repository to which the message
+is to be added.</li>
+
+<li>
+<strong>passThrough</strong> (optional) - a boolean value (true/false) indicating whether
+processing should continue on the message is on.  If false, the original message is GHOSTed.  Defaults to false.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="UseHeaderRecipients"><strong>UseHeaderRecipients</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Ignores the recipients associated with the Mail interface.  Instead, it regenerates the
+mail recipients from the MimeMessage headers (To, Cc, Bcc) and inserts a new message at the queue root
+these new recipients.  The original message is GHOSTed.</p>
+
+<p>Parameters:
+<ul>
+
+<li>
+<strong>debug</strong> (optional) - a boolean value (true/false) indicating whether debugging is
+on.  Defaults to false.</li>
+
+</ul>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+</blockquote>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<!--PAGE FOOTER-->
+<tr>
+<td colspan="2">
+<div align="center">
+<font size="-1" color="#525D76"><em>
+        Copyright &copy; 1999-2002, Apache Software Foundation
+        </em></font>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>
