@@ -137,8 +137,8 @@ import org.apache.mailet.MailAddress;
 *<TR>
 *<TD width="20%">&lt;prefix&gt;</TD>
 *<TD width="80%">An optional subject prefix prepended to the original message
-+*subject, for example:<BR>
-+*Undeliverable mail: </TD>
+*subject, for example:<BR>
+*Undeliverable mail: </TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;static&gt;</TD>
