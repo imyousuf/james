@@ -172,6 +172,8 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             for (Enumeration e = userManager.list(); e.hasMoreElements();) {
                 out.println("user: " + (String) e.nextElement());
             }
+        } else if (command.equalsIgnoreCase("COUNTUSERS")) {
+            out.println("Existing accounts " + userManager.countUsers());
         } else if (command.equalsIgnoreCase("VERIFY")) {
             String user = argument;
             if (user.equals("")) {
@@ -189,6 +191,8 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
             out.println("adduser [username] [password]   add a new user");
             out.println("deluser [username]              delete existing user");
             out.println("listusers                       display existing accounts");
+            out.println("countusers                      display the number of existing accounts");
+            out.println("verify [username]               verify if specified user exist");
             out.println("quit                            close connection");
             out.flush();
         } else if (command.equalsIgnoreCase("QUIT")) {
