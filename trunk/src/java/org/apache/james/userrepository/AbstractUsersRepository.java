@@ -25,11 +25,12 @@ import java.util.List;
  */
 public abstract class AbstractUsersRepository
     extends AbstractLogEnabled
-    implements UsersRepository
-{
+    implements UsersRepository {
+
     //
     // Core Abstract methods - override these for a functional UserRepository.
     //
+
     /**
      * Returns a list populated with all of the Users in the repository.
      * @return an <code>Iterator</code> of <code>User</code>s.
@@ -63,8 +64,7 @@ public abstract class AbstractUsersRepository
      * @return a <code>List</code> of <code>String</code>s representing
      *         user names.
      */
-    protected List listUserNames()
-    {
+    protected List listUserNames() {
         Iterator users = listAllUsers();
         List userNames = new LinkedList();
         while ( users.hasNext() ) {
@@ -85,12 +85,10 @@ public abstract class AbstractUsersRepository
      *
      * @return the user being retrieved, null if the user doesn't exist
      */
-    protected User getUserByName(String name, boolean ignoreCase)
-    {
+    protected User getUserByName(String name, boolean ignoreCase) {
         // Just iterate through all of the users until we find one matching.
         Iterator users = listAllUsers();
-        while ( users.hasNext() ) 
-        {
+        while ( users.hasNext() ) {
             User user = (User)users.next();
             String username = user.getUserName();
             if (( !ignoreCase && username.equals(name) ) ||
@@ -114,8 +112,7 @@ public abstract class AbstractUsersRepository
      * @return true if succesful, false otherwise
      * @since James 1.2.2
      */
-    public boolean addUser(User user)
-    {
+    public boolean addUser(User user) {
         String username = user.getUserName();
 
         if ( containsCaseInsensitive(username) ) {
@@ -133,16 +130,12 @@ public abstract class AbstractUsersRepository
      * @param name the name of the user to be added
      * @param attributes the password value as a String
      */
-    public void addUser(String name, Object attributes) 
-    {
-	if (attributes instanceof String)
-        {
-	    User newbie = new DefaultUser(name, "SHA");
+    public void addUser(String name, Object attributes)  {
+        if (attributes instanceof String) {
+            User newbie = new DefaultUser(name, "SHA");
             newbie.setPassword( (String) attributes );
-	    addUser(newbie);
-	}
-        else
-        {
+            addUser(newbie);
+        } else {
             throw new RuntimeException("Improper use of deprecated method" 
                                        + " - use addUser(User user)");
         }
@@ -156,8 +149,7 @@ public abstract class AbstractUsersRepository
      *
      * @return true if successful.
      */
-    public boolean updateUser(User user)
-    {
+    public boolean updateUser(User user) {
         // Return false if it's not found.
         if ( ! contains(user.getUserName()) ) {
             return false;
@@ -173,8 +165,7 @@ public abstract class AbstractUsersRepository
      *
      * @param user the user to be removed
      */
-    public void removeUser(String name)
-    {
+    public void removeUser(String name) {
         User user = getUserByName(name);
         if ( user != null ) {
             doRemoveUser(user);
@@ -186,8 +177,7 @@ public abstract class AbstractUsersRepository
      *
      * @deprecated As of James 1.2.2 . Use the {@link #getUserByName(String) getUserByName} method.
      */
-    public Object getAttributes(String name)
-    {
+    public Object getAttributes(String name) {
         throw new RuntimeException("Improper use of deprecated method - read javadocs");
     }
 
@@ -201,8 +191,7 @@ public abstract class AbstractUsersRepository
      *
      * @since James 1.2.2
      */
-    public User getUserByName(String name)
-    {
+    public User getUserByName(String name) {
         return getUserByName(name, false);
     }
 
@@ -216,8 +205,7 @@ public abstract class AbstractUsersRepository
      *
      * @since James 1.2.2
      */
-    public User getUserByNameCaseInsensitive(String name)
-    {
+    public User getUserByNameCaseInsensitive(String name) {
         return getUserByName(name, true);
     }
 
@@ -229,14 +217,12 @@ public abstract class AbstractUsersRepository
      *
      * @return the correct case sensitive name of the user
      */
-    public String getRealName(String name)
-    {
+    public String getRealName(String name) {
         // Get the user by name, ignoring case, and return the correct name.
         User user = getUserByName(name, true);
         if ( user == null ) {
             return null;
-        }
-        else {
+        } else {
             return user.getUserName();
         }
     }
@@ -244,8 +230,7 @@ public abstract class AbstractUsersRepository
     /**
      * Returns whether or not this user is in the repository
      */
-    public boolean contains(String name)
-    {
+    public boolean contains(String name) {
         User user = getUserByName(name, false);
         return ( user != null );
     }
@@ -254,8 +239,7 @@ public abstract class AbstractUsersRepository
      * Returns whether or not this user is in the repository. Names are
      * matched on a case insensitive basis.
      */
-    public boolean containsCaseInsensitive(String name)
-    {
+    public boolean containsCaseInsensitive(String name) {
         User user = getUserByName( name, true );
         return ( user != null );
     }
@@ -272,8 +256,7 @@ public abstract class AbstractUsersRepository
      *
      * @deprecated As of James 1.2.2, use {@link #test(String, String) test(String name, String password)}
      */
-    public boolean test(String name, Object attributes)
-    {
+    public boolean test(String name, Object attributes) {
         throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
     }
 
@@ -288,13 +271,11 @@ public abstract class AbstractUsersRepository
      *              exist
      * @since James 1.2.2
      */
-    public boolean test(String name, String password)
-    {
+    public boolean test(String name, String password) {
         User user = getUserByName(name, false);
         if ( user == null ) {
             return false;
-        }
-        else {
+        } else {
             return user.verifyPassword(password);
         }
     }
@@ -304,8 +285,7 @@ public abstract class AbstractUsersRepository
      *
      * @return the number of users in the repository
      */
-    public int countUsers()
-    {
+    public int countUsers() {
         List usernames = listUserNames();
         return usernames.size();
     }
@@ -315,8 +295,7 @@ public abstract class AbstractUsersRepository
      *
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
-    public Iterator list()
-    {
+    public Iterator list() {
         return listUserNames().iterator();
     }
 }
