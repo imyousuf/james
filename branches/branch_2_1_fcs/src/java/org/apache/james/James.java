@@ -60,7 +60,7 @@ import java.util.*;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.35.4.13 $
+ * @version This is $Revision: 1.35.4.14 $
 
  */
 public class James
@@ -902,18 +902,22 @@ public class James
         return success;
     }
 
-   /**
-    * Performs DNS lookups as needed to find servers which should or might
-    * support SMTP.
-    * Returns one SMTPHostAddresses for each such host discovered
-    * by DNS.  If no host is found for domainName, the Iterator
-    * returned will be empty and the first call to hasNext() will return
-    * false.
-    * @param domainName the String domain for which SMTP host addresses are
-    * sought.
-    * @return an Iterator in which the Objects returned by next()
-    * are instances of SMTPHostAddresses.
-    */
+    /**
+     * Performs DNS lookups as needed to find servers which should or might
+     * support SMTP.
+     * Returns an Iterator over HostAddress, a specialized subclass of
+     * javax.mail.URLName, which provides location information for
+     * servers that are specified as mail handlers for the given
+     * hostname.  This is done using MX records, and the HostAddress
+     * instances are returned sorted by MX priority.  If no host is
+     * found for domainName, the Iterator returned will be empty and the
+     * first call to hasNext() will return false.
+     *
+     * @see org.apache.james.DNSServer#getSMTPHostAddresses(String)
+     * @since Mailet API v2.2.0a16-unstable
+     * @param domainName - the domain for which to find mail servers
+     * @return an Iterator over HostAddress instances, sorted by priority
+     */
     public Iterator getSMTPHostAddresses(String domainName) {
         DNSServer dnsServer = null;
         try {
@@ -924,5 +928,4 @@ public class James
         }
         return dnsServer.getSMTPHostAddresses(domainName);
     }
-    
 }
