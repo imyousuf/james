@@ -52,8 +52,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.15.2.1 $
- * Committed on $Date: 2002/02/04 10:04:09 $ by: $Author: danny $
+ * This is $Revision: 1.15.2.2 $
+ * Committed on $Date: 2002/02/04 10:23:43 $ by: $Author: danny $
  */
 public class James
     extends AbstractLoggable
@@ -444,7 +444,7 @@ public class James
     }
 
     public boolean isLocalServer( final String serverName ) {
-        serverNames.contains(serverName.toLowerCase());
+        return serverNames.contains(serverName.toLowerCase());
     }
 
     public String getServerInfo() {
