@@ -356,7 +356,7 @@ public class NNTPHandler
             }
             theWatchdog.stop();
 
-            getLogger().info("Connection closed");
+            getLogger().debug("Connection closed");
         } catch (Exception e) {
             // if the connection has been idled out, the
             // socket will be closed and null.  Do NOT
