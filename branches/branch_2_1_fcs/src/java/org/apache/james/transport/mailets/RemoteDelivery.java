@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.33.4.3 $
+ * This is $Revision: 1.33.4.4 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -260,8 +260,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     .append(") - ")
                                     .append(me.getMessage());
                         log(exceptionBuffer.toString());
-                        //Assume it is a permanent exception, or prove ourselves otherwise
-                        boolean permanent = true;
                         if ((me.getNextException() != null) &&
                             (me.getNextException() instanceof java.io.IOException)) {
                             //This is more than likely a temporary failure
@@ -305,7 +303,51 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
             // The rest of the recipients failed for one reason or another.
             // let failMessage handle it -- 5xx codes are permanent, others temporary.
-            return failMessage(mail, sfe, (('5' == sfe.getMessage().charAt(0)) ? true : false));
+
+            /*
+             * SendFailedException actually handles this for us.  For
+             * example, if you send a message that has multiple invalid
+             * addresses, you'll get a top-level SendFailedException
+             * that that has the valid, valid-unsent, and invalid
+             * address lists, with all of the server response messages
+             * will be contained within the nested exceptions.  [Note:
+             * the content of the nested exceptions is implementation
+             * dependent.]
+             *
+             * For an immediate fix, we will simply go one level down.
+             * THIS IS ONLY TEMPORARY.
+             *
+             * Proposal:
+             *
+             * By the time we get here, we've removed the valid sent
+             * addresses from the message (see the code right above).
+             *
+             * sfe.getInvalidAddresses() should be considered permanent. 
+             * sfe.getValidUnsentAddresses() should be considered temporary.
+             *
+             * JavaMail v1.3 properly populates those collections based
+             * upon the 4xx and 5xx response codes.
+             *
+             * failMessage could re-spool for ValidUnsetAddresses, and
+             * bounce InvalidAddresses.
+             * 
+             */
+            //Assume it is a permanent exception, or prove ourselves otherwise
+            boolean permanent = true;
+            switch (sfe.getMessage().charAt(0)) {
+                case '4':
+                    permanent = false;
+                    break;
+                case '5':
+                    permanent = true;
+                    break;
+                default:
+                    Exception nested = sfe.getNextException();
+                    if (nested != null) {
+                        permanent = ('5' == nested.getMessage().charAt(0));
+                    }
+            }
+            return failMessage(mail, sfe, permanent);
         } catch (MessagingException ex) {
             // We should do a better job checking this... if the failure is a general
             // connect exception, this is less descriptive than more specific SMTP command
@@ -313,7 +355,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            return failMessage(mail, ex, (('5' == ex.getMessage().charAt(0)) ? true : false));
+            return failMessage(mail, ex, ('5' == ex.getMessage().charAt(0)));
         }
         return true;
     }
