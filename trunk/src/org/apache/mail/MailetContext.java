@@ -11,7 +11,9 @@ package org.apache.mail;
 import org.apache.java.lang.*;
 
 /**
- * Draft of a MailServlet inteface.
+ * Draft of a Mailetcontext inteface. The implementation provides APIs to the 
+ * Mailet as well as shared object and configurations. 
+ * NOTE: this interface is under development!!!
  *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri   <scoobie@pop.systemy.it>

@@ -14,15 +14,16 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 /**
- * Wrap a mail (viewed as Stream).
+ * Wrap a MimeMessage adding routing informations (from SMTP) and same simple API. 
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
 public class Mail implements Serializable, Cloneable {
 
+	public final static String GHOST = "GHOST";
 	public final static String DEFAULT = "DEFAULT";
 	public final static String ERROR = "ERROR";
-	public final static String GHOST = "GHOST";
+	public final static String TRANSPORT = "TRANSPORT";
 
 	private String errorMessage;
 	private String state;

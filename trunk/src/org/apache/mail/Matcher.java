@@ -8,11 +8,13 @@
 
 package org.apache.mail;
 
-import org.apache.mail.*;
-import java.util.*;
-import org.apache.java.lang.*;
+
 
 /**
+ * This interface define the behaviour of the "routing" inside the processor pipe.
+ * The match(Mail) method return an array of two Mail object. The [0] is a reference 
+ * to the Mail matching condition, the [1] is the one not matching.
+ * 
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */

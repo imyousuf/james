@@ -21,13 +21,13 @@ import org.apache.mail.*;
  */
  
 /*      SAMPLE CONFIGURATION
-    <processor class="org.apache.james.transport.LinearProcessor">
-        <servlet match="RecipientIsLocal" class="LocalDelivery">
-        </servlet>
-        <servlet match="All" class="RemoteDelivery">
+    <processor name="try" class="org.apache.james.transport.LinearProcessor">
+        <mailet match="RecipientIsLocal" class="LocalDelivery">
+        </mailet>
+        <mailet match="All" class="RemoteDelivery">
             <delayTime>21600000</delayTime>
             <maxRetries>5</maxRetries>
-        </servlet>
+        </mailet>
     </processor>
 */ 
 public class LinearProcessor extends AbstractMailet {
@@ -58,7 +58,7 @@ public class LinearProcessor extends AbstractMailet {
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
         this. unprocessed = new Vector();//servlets.size() + 1, 2);
-        for (Enumeration e = conf.getConfigurations("servlet"); e.hasMoreElements(); ) {
+        for (Enumeration e = conf.getConfigurations("mailet"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
             String className = c.getAttribute("class");
             try {
@@ -110,7 +110,7 @@ public class LinearProcessor extends AbstractMailet {
                 try {
                     mailet.service(next);
                 } catch (Exception ex) {
-//                    ex.printStackTrace();/*DEBUG*/
+                    ex.printStackTrace();/*DEBUG*/
                     next.setState(Mail.ERROR);
                     next.setErrorMessage("Exception during " + mailet + " service: " + ex.getMessage());
                     logger.log("Exception during " + mailet + " service: " + ex.getMessage(), "Mailets", Logger.INFO);

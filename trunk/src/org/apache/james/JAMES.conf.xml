@@ -78,31 +78,40 @@
                 </servletpackages>
 <!--        LinearProcessor CONFIGURATION SAMPLE -->
                 <processor name="root" class="org.apache.james.transport.LinearProcessor">
-                    <servlet match="RecipientIs=pippo@salcazzo" class="Null">
-                    </servlet>
-                    <servlet match="All" class="Forward">
-                        <forwardto> john@maggie </forwardto>
-                        <forwardto> scoobie@maggie </forwardto>
-                    </servlet>
+                    <mailet match="RecipientIs=badboy@badhost" class="Null">
+                    </mailet>
+                    <mailet match="RecipientIs=administrator@localhost" class="Forward">
+                        <forwardto> root@localhost </forwardto>
+                    </mailet>
+                    <mailet match="RecipientIs=james-on@localhost" class="PicoListManager">
+                        <listName> james </listName>
+                    </mailet>
+                    <mailet match="RecipientIs=james-off@localhost" class="PicoListManager">
+                        <listName> james </listName>
+                    </mailet>
+                    <mailet match="RecipientIs=james@localhost" class="PicoListserv">
+                        <listName> james </listName>
+                        <subject> James </subject>
+                    </mailet>
+                    <mailet match="All" class="ToProcessor">
+                        <processor> transport </processor>
+                    </mailet>
+                    
                 </processor>
-                <processor name="error" class="Null">
+                <processor name="error" class="org.apache.james.transport.mailets.ToRepository">
+                    <repositoryPath> file://../var/mail/error/</repositoryPath>
+                    <passThrough> false </passThrough>
                 </processor>
                 <processor name="transport" class="org.apache.james.transport.LinearProcessor">
-                    <servlet match="RecipientIsLocal" class="LocalDelivery">
-                    </servlet>
-                    <servlet match="All" class="RemoteDelivery">
+                    <mailet match="RecipientIsLocal" class="LocalDelivery">
+                    </mailet>
+                    <mailet match="All" class="RemoteDelivery">
                         <DNSservers>
-<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!!  FILL ME!!! -->
-                            <server> </server>
-                            <server> </server>
-                            <server> </server>
-<!-- END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! END FILL ME!!! -->
-<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+                            <server> 192.168.1.1 </server>
                         </DNSservers>
                         <authoritative>false</authoritative>
                         <repository> file://../var/mail/delayed/ </repository>
-                    </servlet>
+                    </mailet>
                 </processor>
             </spoolmanager>
         </block>
@@ -161,6 +170,7 @@
                     application and where to place logs. So if you plug a new server 
                     under Avalon you MUST place channel definition from that server
                     configuration file hereafter">
+                <channel name="default"      loglevel="DEBUG"  logwriter="mailet"/>
                 <channel name="JamesSystem"  loglevel="DEBUG"  logwriter="jamesfile"/>
                 <channel name="SMTP"         loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="POP3"         loglevel="DEBUG"  logwriter="netfile"/>
@@ -173,6 +183,11 @@
             </channels>
             <logwriters help="Each filtered channel goes to the specified logwriter.
                     Place here any additionl logwriter definition needed">
+                <writer name="default" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/default.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
                 <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination> file://../logs/jamesfile.log </destination>
                     <buffersize>2048</buffersize>

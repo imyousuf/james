@@ -63,11 +63,24 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 JamesMailetContext cont = new JamesMailetContext(context);
                 cont.setConfiguration(c);
                 cont.setComponentManager(comp);
-                Mailet mailet = mailetLoader.getMailet(className, cont);
+                AbstractMailet mailet = (AbstractMailet) Class.forName(className).newInstance();
+                mailet.setMailetContext(cont);
                 context.put(processorName, mailet);
                 logger.log("processor " + processorName + " (" + className + ") instantiated", "Processor", logger.INFO);
             } catch (Exception ex) {
-                logger.log("Unable to init root mailet " + className + ": " + ex, "Processor", logger.ERROR);
+                logger.log("Unable to init processor " + processorName + "(" + className + "): " + ex, "Processor", logger.ERROR);
+                throw ex;
+            }
+        }
+        for (Enumeration e = conf.getConfigurations("processor"); e.hasMoreElements(); ) {
+            Configuration c = (Configuration) e.nextElement();
+            String processorName = c.getAttribute("name");
+            try {
+                AbstractMailet mailet = (AbstractMailet) context.get(processorName);
+                mailet.init();
+                logger.log("processor " + processorName + " initialized", "Processor", logger.INFO);
+            } catch (Exception ex) {
+                logger.log("Unable to init processor " + processorName + ": " + ex, "Processor", logger.ERROR);
                 throw ex;
             }
         }
