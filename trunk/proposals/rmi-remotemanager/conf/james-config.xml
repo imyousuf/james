@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.1 $
-    Committed on $Date: 2001/10/26 05:06:54 $ by: $Author: serge $
+    This is $Revision: 1.2 $
+    Committed on $Date: 2002/01/14 01:22:09 $ by: $Author: darrell $
 -->
 <config>
 
@@ -43,28 +43,6 @@
                                    enableForwarding="TRUE"/>
 
 
-      <!-- Set the type of permanent mailfolders to be used.
-      If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
-      service is being provided then use must be 'basic' (default) . At some
-      stage POP3 will, hopefully, be able to use IMAP storage as well.  This
-      choice is irrelevant if the only service provided is SMTP. -->
-      <storage>basic</storage>
-
-      <!-- If storage is set to IMAP, systemClass and hostClass must point to
-      the appropriate classes. -->
-      <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
-                 hostClass="org.apache.james.imapserver.JamesHost"/>
-      <imapHost>
-        <recordRepository>var/mail/folderRecords/</recordRepository>
-        <mailboxRepository>var/mail/mailboxes/</mailboxRepository>
-        <namespaces token="#">
-          <privateNamespace separator=".">#mail</privateNamespace>
-          <otherusersNamespace separator=".">#users</otherusersNamespace>
-          <sharedNamespace separator=".">#shared</sharedNamespace>
-        </namespaces>
-      </imapHost>
-
-
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
@@ -73,16 +51,14 @@
                     type="MAIL">
         </repository>
       </inboxRepository>
-
       <!-- Alternative inbox repository definition for DB use. -->
       <!--  The format for the destinationURL is "db://<data-source>/<table>"
             - <data-source> is the datasource name set up in the
                     database-connections block, below
             - <table> is the name of the table to store user inboxes in
            The user name is used as <repositoryName> for this repository config.
-      -->
 
-      <!--      <inboxRepository>
+           <inboxRepository>
         <repository destinationURL="db://maildb/inbox/"
                     type="MAIL">
         </repository>
@@ -99,10 +75,10 @@
 
         <!-- Set the packages from which to load mailets and matches -->
         <mailetpackages>
-          <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
+          <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
         </mailetpackages>
         <matcherpackages>
-          <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
+          <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
         </matcherpackages>
 
         <!-- Processor CONFIGURATION SAMPLE:
@@ -142,36 +118,10 @@
           <mailet match="RecipientIs=badboy@badhost" class="Null">
           </mailet>
 
-          <!-- Sample listserv wrapping a local avalon list of users. -->
-          <mailet match="CommandForListserv=james@localhost"
-                  class="AvalonListservManager">
-            <repositoryName>list-james</repositoryName>
-          </mailet>
-
-          <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
-            <membersonly> false </membersonly>
-            <attachmentsallowed> true </attachmentsallowed>
-            <replytolist> true </replytolist>
-            <repositoryName>list-james</repositoryName>
-            <subjectprefix>JamesList</subjectprefix>
-          </mailet>
-
-          <mailet match="RecipientIs=test@glissando.lokitech.com" class="ToProcessor">
-            <processor> schedule </processor>
-          </mailet>
-
           <!-- Sends remaining mails to the transport processor for either
           local or remote delivery -->
           <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
-          </mailet>
-        </processor>
-
-        <processor name="schedule">
-          <mailet match="All" class="ToRepository">
-            <repositoryPath> file://var/mail/pending/</repositoryPath>
-            <!-- <repositoryPath> db://maildb/PendingMail/pending </repositoryPath> -->
-            <passThrough> true </passThrough>
           </mailet>
         </processor>
 
@@ -266,7 +216,6 @@
           <!-- Out of the box, this will log the message to a repository -->
           <mailet match="All" class="ToRepository">
             <repositoryPath>file://var/mail/spam/</repositoryPath>
-            <!-- <repositoryPath> db://conf/spam.properties </repositoryPath> -->
           </mailet>
         </processor>
   </spoolmanager>
@@ -344,27 +293,6 @@
     </objects>
   </rmiremotemanager>
 
-  <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
-  <imapserver>
-
-        <port>143</port>
-        <!-- <port>995</port> -->
-        <!-- need to check what if any IMAP over SSL uses -->
-        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
-        inetaddress-->
-        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
-        on this port -->
-        <handler>
-          <!-- helloName is the single host name this instance of James will
-          use to identify itself  for example, in SMTP and POP3 greetings. If
-          autodetect is TRUE, James will attempt to discover its own name OR
-          use 'localhost'. If autodetect is FALSE, James will use the value
-          given OR 'localhost' -->
-          <helloName autodetect="TRUE">myMailServer</helloName>
-          <connectiontimeout>1800000</connectiontimeout>
-	</handler>
-  </imapserver>
-
   <pop3server>
         <port>110</port>
         <!-- <port>995</port> -->
@@ -434,10 +362,13 @@
           given OR 'localhost' -->
           <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>120000</connectiontimeout>
-	  <!-- make this true, if you want only authenticated users to access NNTP-->
-          <authRequired>false</authRequired>
         </handler>
   </nntpserver>
+
+  <nntpauth>
+     <!-- make this true, if you want only authenticated users to access NNTP-->
+     <authRequired>false</authRequired>
+  </nntpauth>
 
   <nntp-repository>
         <!-- make this true to disallow posting to all newsgroups-->
@@ -576,7 +507,7 @@
          (Use of database or file-system is defined on a "per-repository" basis)
 
          Note: Two user repositories are required for default configuration:
-         LocalUsers - the users for whom you are providing POP3, IMAP or NNTP
+         LocalUsers - the users for whom you are providing POP3, NNTP, or
                       AUTH service
          list-james - the users of the james@localhost mailiinglist
     -->
@@ -646,16 +577,14 @@
         -->
         <!--
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
             <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
             <user>username</user>
             <password>password</password>
         </data-source>
-        -->
-        <!--
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
         	<driver>com.inet.tds.TdsDriver</driver>
         	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
         	<user>sa_james</user>
