@@ -51,7 +51,7 @@ public class SMTPServer
         final String useTLS = configuration.getChild("useTLS").getValue( "" );
         if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
  
-       super.configure( configuration.getChild( "smtphandler" ) );
+       super.configure( configuration.getChild( "handler" ) );
     }
 
     public void initialize() throws Exception {

@@ -44,27 +44,30 @@ import org.apache.log.Logger;
  */
 public class BaseConnectionHandler extends AbstractLoggable implements Configurable {
     protected int timeout;
-    protected String helloName = null;
+    protected String helloName;
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
         timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 1800000 );
-        if ( helloName == null ) {
-            String hostName = null;
-            try {
-                hostName = InetAddress.getLocalHost().getHostName();
-            } catch  (UnknownHostException ue) {
-                hostName = "localhost";
-            }
-
-            Configuration helloConf = configuration.getChild("helloName");
-            if (helloConf.getAttribute("autodetect").equals("TRUE")) {
-                helloName = hostName;
-            } else {
-                helloName = helloConf.getValue("localhost");
-            }
-            getLogger().info("Hello Name is: " + helloName);
+        String hostName = null;
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch  (UnknownHostException ue) {
+            hostName = "localhost";
         }
+        
+        Configuration helloConf = configuration.getChild("helloName");
+        String autodetect = null;
+        try {
+            autodetect = helloConf.getAttribute("autodetect");
+        } catch(ConfigurationException ex) {
+            autodetect = "TRUE";
+        }
+        if ("TRUE".equals(autodetect))
+            helloName = hostName;
+        else
+            helloName = helloConf.getValue("localhost");
+        getLogger().info("Hello Name is: " + helloName);
     }
 }
