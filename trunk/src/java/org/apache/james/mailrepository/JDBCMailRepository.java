@@ -214,7 +214,7 @@ public class JDBCMailRepository
         datasource = (DataSourceComponent)datasources.select(datasourceName);
 
         // Test the connection to the database, by getting the DatabaseMetaData.
-        Connection conn = getConnection();
+        Connection conn = datasource.getConnection();
 
         try {
             // Initialise the sql strings.
@@ -298,7 +298,7 @@ public class JDBCMailRepository
         //System.err.println("storing " + mc.getName());
         Connection conn = null;
         try {
-            conn = getConnection();
+            conn = datasource.getConnection();
 
             //Need to determine whether need to insert this record, or update it.
 
@@ -448,7 +448,7 @@ public class JDBCMailRepository
         //System.err.println("retrieving " + key);
         Connection conn = null;
         try {
-            conn = getConnection();
+            conn = datasource.getConnection();
 
             PreparedStatement retrieveMessage =
                 conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
@@ -517,7 +517,7 @@ public class JDBCMailRepository
         if (lock(key)) {
             Connection conn = null;
             try {
-                conn = getConnection();
+                conn = datasource.getConnection();
                 PreparedStatement removeMessage =
                     conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
                 removeMessage.setString(1, key);
@@ -547,7 +547,7 @@ public class JDBCMailRepository
         //System.err.println("listing messages");
         Connection conn = null;
         try {
-            conn = getConnection();
+            conn = datasource.getConnection();
             PreparedStatement listMessages =
                 conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
             listMessages.setString(1, repositoryName);
@@ -572,32 +572,6 @@ public class JDBCMailRepository
                 }
             }
         }
-    }
-
-    /**
-     * Opens a database connection.
-     */
-    protected Connection getConnection() {
-        int attempts = 0;
-        while (attempts < 1000) {
-            try {
-                return datasource.getConnection();
-            } catch (SQLException e1) {
-                if (e1.getMessage().equals("Could not create enough Components to service your request.")) {
-                    //stupid pool
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ie) {
-                        //ignore
-                    }
-                    attempts++;
-                } else {
-                    throw new CascadingRuntimeException(
-                        "An exception occurred getting a database connection.", e1);
-                }
-            }
-        }
-        throw new RuntimeException("Failed to get a connection after " + attempts + " attempts");
     }
 
     public boolean equals(Object obj) {

@@ -185,7 +185,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             PreparedStatement listMessages = null;
             ResultSet rsListMessages = null;
             try {
-                conn = getConnection();
+                conn = datasource.getConnection();
                 listMessages =
                     conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
                 listMessages.setString(1, repositoryName);

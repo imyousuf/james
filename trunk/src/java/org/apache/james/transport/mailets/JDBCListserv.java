@@ -96,7 +96,7 @@ public class JDBCListserv extends GenericListserv {
             // Get the data-source required.
             datasource = (DataSourceComponent)datasources.select(datasourceName);
 
-            conn = getConnection();
+            conn = datasource.getConnection();
 
             // Check if the required listserv table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
@@ -193,7 +193,7 @@ public class JDBCListserv extends GenericListserv {
 
         try {
             //Load members
-            conn = getConnection();
+            conn = datasource.getConnection();
             stmt = conn.prepareStatement(membersQuery);
             stmt.setString(1, listservID);
             rs = stmt.executeQuery();
@@ -251,32 +251,6 @@ public class JDBCListserv extends GenericListserv {
 
     public String getMailetInfo() {
         return "JDBC listserv mailet";
-    }
-
-    /**
-     * Opens a database connection.
-     */
-    protected Connection getConnection() {
-        int attempts = 0;
-        while (attempts < 1000) {
-            try {
-                return datasource.getConnection();
-            } catch (SQLException e1) {
-                if (e1.getMessage().equals("Could not create enough Components to service your request.")) {
-                    //stupid pool
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ie) {
-                        //ignore
-                    }
-                    attempts++;
-                } else {
-                    throw new CascadingRuntimeException(
-                        "An exception occurred getting a database connection.", e1);
-                }
-            }
-        }
-        throw new RuntimeException("Failed to get a connection after " + attempts + " attempts");
     }
 
     /**
