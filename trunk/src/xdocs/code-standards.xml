@@ -47,7 +47,7 @@ if ( foo )
 </p>
 
 <p>
-2. Four spaces. <strong>NO</strong> tabs. Period. The James
+2. Four spaces. <strong>NO tabs</strong>. Period. The James
 mailing list receives cvs commit messages that are almost impossible
 to read if tabs are used.
 </p>

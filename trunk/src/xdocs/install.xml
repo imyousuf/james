@@ -19,19 +19,24 @@
   <p>
     To compile James from sources you will need <a href="http://jakarta.apache.org/ant/">Ant</a>.
     This is a Java-tailored, XML-configured, extensible build or make system.
-    We are currently using Ant 1.1, although documentation generation requires Ant 1.2.
+    We are currently using Ant 1.4.
   </p>
 
   <p>
     If you have downloaded a daily snapshot, you need to build a
-    distribution.  James uses Ant (<a href="http://jakarta.apache.org/ant/">http://jakarta.apache.org/ant/</a>) to
-    compile and package its distribution.  Once you have installed Ant,
-    extracted the snapshot to your favorite folder, cd to that folder
-    and run the "dist" task by calling "ant dist".  This will create the
+    distribution.  James includes Ant to compile and package its distribution.
+    Extract the snapshot to your favorite folder, cd to that folder
+    and run the "dist" task by calling "build dist".  This will create the
     distribution in the "./dist" folder as well as create .tgz and .zip
     copies of this folder.  This "./dist" folder is the distribution
     folder used in Step 1 and beyond.  You may either cd to ./dist, or
     you may copy and rename the dist folder to your new favorite folder.
+  </p>
+
+  <p>
+  	<strong>Warning!</strong>  Any changes you've made in the 'dist' folder will be lost
+  	after a recompilation.  If you are making changes to the config.xml or other files, we
+  	recommend you change the copies in src to avoid losing work.
   </p>
 </section>
 
