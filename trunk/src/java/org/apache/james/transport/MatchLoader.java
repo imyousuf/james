@@ -56,6 +56,7 @@ public class MatchLoader implements Component, Configurable {
                 String className = (String)matcherPackages.elementAt(i) + matchName;
                 try {
                     MatcherConfigImpl configImpl = new MatcherConfigImpl();
+                    configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(context);
 
