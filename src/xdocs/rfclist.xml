@@ -34,6 +34,7 @@
 <subsection name="POP3 RFCs">
 <a href="rfclist/pop3/rfc1725.txt">RFC 1725: POP3 Protocol</a><br/>
 <a href="rfclist/pop3/rfc1734.txt">RFC 1734: POP3 AUTHentication command</a><br/>
+<!-- Add RFC 1082, 1939, 2449, 2595, 3206 -->
 </subsection>
 <subsection name="IMAP RFCs">
 <a href="rfclist/imap4/rfc1731.txt">RFC 1731: IMAP4 Authentication Mechanisms</a><br/>
