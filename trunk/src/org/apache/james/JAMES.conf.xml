@@ -107,6 +107,8 @@
 	      Optionally, to use the experimental LDAP implementation,
 	       enter 'ldap' here.  -->
             <userRepository> file://../var/users/ </userRepository>
+            <!-- If you want to use a database to track user accounts, uncomment this line
+            <userRepository> town://users </userRepository> -->            
 	    <!-- If you are going to use the LDAP implementation for a
 	      UserRepository, you must configure this section with your LDAP
 	       server's information -->
@@ -303,6 +305,12 @@
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.userrepository.UsersFileRepository"/>
+                <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.userrepository.UsersTownRepository">
+		    <conn>file:///var/maildatabase</conn>
+		    <table>Users</table>
+		</repository>
           
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
