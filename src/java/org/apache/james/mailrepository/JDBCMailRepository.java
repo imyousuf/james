@@ -285,8 +285,9 @@ public class JDBCMailRepository
 
     public void store(MailImpl mc) {
         //System.err.println("storing " + mc.getName());
+        Connection conn = null;
         try {
-            Connection conn = getConnection();
+            conn = getConnection();
 
             //Need to determine whether need to insert this record, or update it.
 
@@ -414,7 +415,6 @@ public class JDBCMailRepository
 
             conn.commit();
             conn.setAutoCommit(true);
-            conn.close();
 
             synchronized (this) {
                 notifyAll();
@@ -422,13 +422,22 @@ public class JDBCMailRepository
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing mail Container: " + e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException sqle) {
+                    //ignore
+                }
+            }
         }
     }
 
     public MailImpl retrieve(String key) {
         //System.err.println("retrieving " + key);
+        Connection conn = null;
         try {
-            Connection conn = getConnection();
+            conn = getConnection();
 
             PreparedStatement retrieveMessage =
                 conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
@@ -463,7 +472,6 @@ public class JDBCMailRepository
             mc.setMessage(message);
             rsMessage.close();
             retrieveMessage.close();
-            conn.close();
             return mc;
         } catch (SQLException sqle) {
             System.err.println("Error retrieving message");
@@ -476,6 +484,14 @@ public class JDBCMailRepository
         } catch (Exception me) {
             me.printStackTrace();
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException sqle) {
+                    //ignore
+                }
+            }
         }
     }
 
@@ -486,15 +502,15 @@ public class JDBCMailRepository
     public void remove(String key) {
         //System.err.println("removing " + key);
         if (lock(key)) {
+            Connection conn = null;
             try {
-                Connection conn = getConnection();
+                conn = getConnection();
                 PreparedStatement removeMessage =
                     conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
                 removeMessage.setString(1, key);
                 removeMessage.setString(2, repositoryName);
                 removeMessage.execute();
                 removeMessage.close();
-                conn.close();
 
                 if (sr != null) {
                     sr.remove(key);
@@ -503,14 +519,22 @@ public class JDBCMailRepository
                 throw new RuntimeException("Exception while removing mail: " + me.getMessage());
             } finally {
                 unlock(key);
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException sqle) {
+                        //ignore
+                    }
+                }
             }
         }
     }
 
     public Iterator list() {
         //System.err.println("listing messages");
+        Connection conn = null;
         try {
-            Connection conn = getConnection();
+            conn = getConnection();
             PreparedStatement listMessages =
                 conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
             listMessages.setString(1, repositoryName);
@@ -522,11 +546,18 @@ public class JDBCMailRepository
             }
             rsListMessages.close();
             listMessages.close();
-            conn.close();
             return messageList.iterator();
         } catch (Exception me) {
-           me.printStackTrace();
+            me.printStackTrace();
             throw new RuntimeException("Exception while listing mail: " + me.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException sqle) {
+                    //ignore
+                }
+            }
         }
     }
 
