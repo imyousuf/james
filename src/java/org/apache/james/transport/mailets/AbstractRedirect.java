@@ -162,7 +162,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.1.2.10 $ $Date: 2003/06/19 16:08:27 $
+ * @version CVS $Revision: 1.1.2.11 $ $Date: 2003/06/20 16:49:52 $
  * @since 2.2.0
  */
 
@@ -520,6 +520,9 @@ public abstract class AbstractRedirect extends GenericMailet {
                     }
                 }
                 if (mailAddress == null) {
+                    /* IMPORTANT: setTo() treats null differently from
+                     * an zero length array, so do not just use null
+                     */
                     // set to <>
                     apparentlyTo = new InternetAddress[0];
                 } else {
@@ -538,6 +541,9 @@ public abstract class AbstractRedirect extends GenericMailet {
                     mailAddress = originalMail.getSender();
                 }
                 if (mailAddress == null) {
+                    /* IMPORTANT: setTo() treats null differently from
+                     * an zero length array, so do not just use null
+                     */
                     // set to <>
                     apparentlyTo = new InternetAddress[0];
                 } else {
