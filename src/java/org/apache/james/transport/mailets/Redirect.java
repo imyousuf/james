@@ -194,15 +194,14 @@ import org.apache.mailet.dates.RFC822DateFormat;
 *<TR>
 *<TD width="20%">&lt;static&gt;</TD>
 *<TD width="80%">
-*<P>TRUE or FALSE, if this is true it hints to the mailet that none of the
-*parameters are set dynamically, and therefore they can be set once in
-*the init method.<BR>
-*False tells the mailet to call all the &quot;getters&quot; for every mail
-*processed.</P>
+*<P>TRUE or FALSE.  If this is TRUE it tells the mailet that it can
+*reuse all the initial parameters (to, from, etc) without re-calculating
+*their values.  This will boost performance where a redirect task
+*doesn't contain any dynamic values.  If this is FALSE, it tells the
+*mailet to recalculate the values for each e-mail processed.</P>
+*<P>Note: If you use "magic words" such as "sender" in the &lt;sender&gt;
+*tag, you must NOT use set static to TRUE.</P>
 *<P>This defaults to false.<BR>
-*It should be TRUE in all cases, except where one of the getter methods
-*has been overriden to provide dynamic values, such as a listserve which
-*might override getRecipients() to get a list from a users repository.</P>
 *</TD>
 *</TR>
 *</TABLE>
