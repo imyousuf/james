@@ -210,10 +210,10 @@ case "$ACTION" in
         
   check)
         echo "Checking arguments to Phoenix: "
-	echo "PHOENIX_HOME:     $PHOENIX_HOME"
-	echo "PHOENIX_TMPDIR:   $PHOENIX_TMPDIR"
-	echo "PHOENIX_JVM_OPTS: $PHOENIX_JVM_OPTS"
-	echo "JAVA_HOME:        $JAVA_HOME"
+        echo "PHOENIX_HOME:     $PHOENIX_HOME"
+        echo "PHOENIX_TMPDIR:   $PHOENIX_TMPDIR"
+        echo "PHOENIX_JVM_OPTS: $PHOENIX_JVM_OPTS"
+        echo "JAVA_HOME:        $JAVA_HOME"
         echo "JVM_OPTS:         $JVM_OPTS"
         echo "CLASSPATH:        $CLASSPATH"
         echo "RUN_CMD:          $RUN_CMD"
