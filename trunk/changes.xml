@@ -22,7 +22,7 @@
   <action dev="CB,*" type="update">
   	Moved to Avalon snapshot of 9-25-2001.
   </action>
-  <action type="HB" type="code">
+  <action dev="HB" type="code">
     Added NNTP service.
   </action>
   <action dev="JB" type="code">
@@ -67,8 +67,11 @@
   <action dev="SK" type="update">
     More efficient remote delivery code, better error messages, and gateway parameter to route all messages to a single target.
   </action>
-  <action type="DA" type="update">
+  <action dev="DA" type="update">
     Fixed timezone bug in RFC822DateFormat
+  </action>
+  <action dev="MP" type="update">
+    Patch to support username@[yyy.yyy.yyy.yyy] addresses
   </action>
 </release>
 
