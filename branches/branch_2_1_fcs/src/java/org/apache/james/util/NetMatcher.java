@@ -66,7 +66,7 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
-            log("Cannot resolve address: " + uhe.getMessage());
+            log("Cannot resolve address for " + hostIP + ": " + uhe.getMessage());
         }
 
         boolean sameNet = false;
