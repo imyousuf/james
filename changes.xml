@@ -7,7 +7,39 @@
     <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
     <person name="Charles Benett" email="charles@benett1.demon.co.uk" id="CB"/>
+    <person name="Stuart Roebuck" email="stuart.roebuck@adolos.co.uk" id="SR"/>
+    <person name="Ivan Seskar" email="seskar@winlab.rutgers.edu" id="IS"/>
   </devs>
+
+<release version="1.2.1" date="5-Dec-2000">
+  <action dev="SK,SR,CB" type="update">
+    Fix for "stuck file" problem in Avalon mail repository.
+  </action>
+  <action dev="SK" type="design">
+    Made usernames case insensitive on MailAddress
+  </action>
+  <action dev="SR" type="update">
+    Properly calculates hashCode for MailAddress so duplicates do not exist in Hashmaps
+  </action>
+  <action dev="IS" type="code">
+    Added UsersTownRepository to let you maintain user lists in a database
+  </action>
+  <action dev="SK" type="code">
+    Optimization of town mail repository, introduction of JamesMimeMessageInputStream and the James MimeMessage.  Should significantly reduce the number of unnecessary parses or saves on MimeMessages in server.
+  </action>
+  <action dev="SR" type="update">
+    Hardcoded serialVerUID on MailAddress and MailImpl to that of James 1.2 release so future releases can continue to use mail stored in earlier releases.
+  </action>
+  <action dev="SK" type="code">
+    New matcher: IsSingleRecipient
+  </action>
+  <action dev="SK" type="code">
+    Added spam blacklist checking for 3 spam blacklists that make this available in a simple DNS lookup check.  All free services through mail-abuse.org.
+  </action>
+  <action dev="SK" type="docs">
+    Documented what all the jars are in the lib directory (what they're called, where they're from)
+  </action>
+</release>
 
 <release version="1.2" date="16-Oct-2000">
   <action dev="SK" type="design">
