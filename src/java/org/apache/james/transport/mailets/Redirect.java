@@ -137,8 +137,8 @@ import org.apache.mailet.MailAddress;
 *<TR>
 *<TD width="20%">&lt;prefix&gt;</TD>
 *<TD width="80%">An optional subject prefix prepended to the original message
-*subject, for example..<BR>
-*Undeliverable mail:</TD>
++*subject, for example:<BR>
++*Undeliverable mail: </TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;static&gt;</TD>
@@ -165,7 +165,8 @@ import org.apache.mailet.MailAddress;
 *&lt;inline&gt;unaltered&lt;/inline&gt;<BR>
 *&lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
 *&lt;replyto&gt;postmaster&lt;/replyto&gt;<BR>
-*&lt;prefix&gt;[test mailing]&lt;/prefix&gt;<BR>
++*&lt;prefix xml:space="preserve"&gt;[test mailing] &lt;/prefix&gt;<BR>
++*&lt;!-- note the xml:space="preserve" to preserve whitespace --&gt;<BR>
 *&lt;static&gt;TRUE&lt;/static&gt;<BR>
 *&lt;passThrough&gt;FALSE&lt;/passThrough&gt;<BR>
 *&lt;/mailet&gt;<BR>
@@ -353,13 +354,13 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-* return a prefix for the message subject
-*/
+     * return a prefix for the message subject
+     */
     public String getSubjectPrefix() {
         if(getInitParameter("prefix") == null) {
             return "";
         } else {
-            return getInitParameter("prefix") + " ";
+            return getInitParameter("prefix");
         }
     }
 
@@ -410,13 +411,15 @@ public class Redirect extends GenericMailet {
             messageText  = getMessage();
             recipients   = getRecipients();
             apparentlyTo = getTo();
-            StringBuffer logBuffer = new StringBuffer("static, sender=");
-            logBuffer.append(sender);
-            logBuffer.append(", replyTo=");
-            logBuffer.append(replyTo);
-            logBuffer.append(", message=");
-            logBuffer.append(messageText);
-            logBuffer.append(" ");
+            StringBuffer logBuffer =
+                new StringBuffer(1024)
+                        .append("static, sender=")
+                        .append(sender)
+                        .append(", replyTo=")
+                        .append(replyTo)
+                        .append(", message=")
+                        .append(messageText)
+                        .append(" ");
             log(logBuffer.toString());
         }
     }
@@ -445,10 +448,9 @@ public class Redirect extends GenericMailet {
             PrintWriter out   = new PrintWriter(sout, true);
             Enumeration heads = message.getAllHeaderLines();
             String head       = "";
-            StringBuffer headBuffer = new StringBuffer();
+            StringBuffer headBuffer = new StringBuffer(1024);
             while(heads.hasMoreElements()) {
-                headBuffer.append(heads.nextElement().toString());
-                headBuffer.append("\n");
+                headBuffer.append(heads.nextElement().toString()).append("\n");
             }
             head = headBuffer.toString();
             boolean all = false;
@@ -496,9 +498,11 @@ public class Redirect extends GenericMailet {
                         }
                         break;
                     case ALL: //ALL:
-                        StringBuffer textBuffer = new StringBuffer(head);
-                        textBuffer.append("\n\n");
-                        textBuffer.append(message.toString());
+                        StringBuffer textBuffer =
+                            new StringBuffer(1024)
+                                .append(head)
+                                .append("\n\n")
+                                .append(message.toString());
                         part.setText(textBuffer.toString());
                         break;
                     case MESSAGE: //MESSAGE:
