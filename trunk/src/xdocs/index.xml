@@ -40,7 +40,7 @@
        systems. Examples of the services a Mailet might provide include: a
        mail-to-fax or mail-to-phone transformer, a filter, a language translator, a mailling
        list manager, etc. Several Mailets are included in the JAMES
-       distribution (see <a href="configuration.html">Configuration</a>).</p>
+       distribution (see <a href="configuration_v1_2.html">Configuration</a>).</p>
     <p><i><b>Resource abstraction</b></i>  Like protocols, resources are abstracted and,
        accessed through defined interfaces (JavaMail for transport, JDBC for
        spool storage or user accounts in RDBMS's, Apache Mailet API). The server is
