@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.18 $
+ * @version This is $Revision: 1.19 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -300,12 +300,11 @@ public class JamesSpoolManager
      */
     public void run() {
 
-        boolean infoEnabled = getLogger().isInfoEnabled();
-        if (infoEnabled)
+        if (getLogger().isInfoEnabled())
         {
-            getLogger().info("run JamesSpoolManager: "
+            getLogger().info("Run JamesSpoolManager: "
                              + Thread.currentThread().getName());
-            getLogger().info("spool=" + spool.getClass().getName());
+            getLogger().info("Spool=" + spool.getClass().getName());
         }
 
         while(true) {
@@ -318,13 +317,13 @@ public class JamesSpoolManager
                 if (mail == null) {
                     continue;
                 }
-                if (infoEnabled) {
-                    StringBuffer infoBuffer =
+                if (getLogger().isDebugEnabled()) {
+                    StringBuffer debugBuffer =
                         new StringBuffer(64)
                                 .append("==== Begin processing mail ")
                                 .append(mail.getName())
                                 .append("====");
-                    getLogger().info(infoBuffer.toString());
+                    getLogger().debug(debugBuffer.toString());
                 }
                 process(mail);
                 // Only remove an email from the spool is processing is
@@ -333,13 +332,13 @@ public class JamesSpoolManager
                     (mail.getRecipients() == null) ||
                     (mail.getRecipients().size() == 0)) {
                     spool.remove(key);
-                    if (infoEnabled) {
-                        StringBuffer infoBuffer =
+                    if (getLogger().isDebugEnabled()) {
+                        StringBuffer debugBuffer =
                             new StringBuffer(64)
                                     .append("==== Removed from spool mail ")
                                     .append(mail.getName())
                                     .append("====");
-                        getLogger().info(infoBuffer.toString());
+                        getLogger().debug(debugBuffer.toString());
                     }
                 }
                 else {
@@ -376,20 +375,37 @@ public class JamesSpoolManager
                 LinearProcessor processor
                     = (LinearProcessor)processors.get(processorName);
                 if (processor == null) {
-                    throw new MailetException("Unable to find processor "
-                                              + processorName);
+                    StringBuffer exceptionMessageBuffer =
+                        new StringBuffer(128)
+                            .append("Unable to find processor ")
+                            .append(processorName)
+                            .append(" requested for processing of ")
+                            .append(mail.getName());
+                    String exceptionMessage = exceptionMessageBuffer.toString();
+                    getLogger().debug(exceptionMessage);
+                    throw new MailetException(exceptionMessage);
                 }
                 StringBuffer logMessageBuffer = null;
-                if (getLogger().isInfoEnabled()) {
+                if (getLogger().isDebugEnabled()) {
                     logMessageBuffer =
                         new StringBuffer(64)
                                 .append("Processing ")
                                 .append(mail.getName())
                                 .append(" through ")
                                 .append(processorName);
-                    getLogger().info(logMessageBuffer.toString());
+                    getLogger().debug(logMessageBuffer.toString());
                 }
                 processor.service(mail);
+                if (getLogger().isDebugEnabled()) {
+                    logMessageBuffer =
+                        new StringBuffer(128)
+                                .append("Processed")
+                                .append(mail.getName())
+                                .append(" through ")
+                                .append(processorName);
+                    getLogger().debug(logMessageBuffer.toString());
+                    getLogger().debug("Result was " + mail.getState());
+                }
                 return;
             } catch (Exception e) {
                 // This is a strange error situation that shouldn't ordinarily
@@ -411,14 +427,16 @@ public class JamesSpoolManager
                     mail.setErrorMessage(e.getMessage());
                 }
             }
-            StringBuffer logMessageBuffer =
-                new StringBuffer(128)
-                        .append("Processed")
-                        .append(mail.getName())
-                        .append(" through ")
-                        .append(processorName);
-            getLogger().info(logMessageBuffer.toString());
-            getLogger().info("Result was " + mail.getState());
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer logMessageBuffer =
+                    new StringBuffer(128)
+                            .append("An error occurred processing ")
+                            .append(mail.getName())
+                            .append(" through ")
+                            .append(processorName);
+                getLogger().error(logMessageBuffer.toString());
+                getLogger().error("Result was " + mail.getState());
+            }
         }
     }
 

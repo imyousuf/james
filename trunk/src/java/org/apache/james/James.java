@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.33 $
+ * @version This is $Revision: 1.34 $
 
  */
 public class James
@@ -472,13 +472,13 @@ public class James
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
-        if (getLogger().isInfoEnabled()) {
+        if (getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Mail ")
                         .append(mailimpl.getName())
                         .append(" pushed in spool");
-            getLogger().info(logBuffer.toString());
+            getLogger().debug(logBuffer.toString());
         }
     }
 
@@ -504,7 +504,9 @@ public class James
             throw new RuntimeException("Error in getUserInbox.");
         } else {
             // need mailbox object
-            getLogger().info("Need inbox for " + userName );
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Retrieving and caching inbox for " + userName );
+            }
             StringBuffer destinationBuffer =
                 new StringBuffer(192)
                         .append(inboxRootURL)
@@ -728,13 +730,15 @@ public class James
                 recipients.add(forwardTo);
                 try {
                     sendMail(sender, recipients, message);
-                    StringBuffer logBuffer =
-                        new StringBuffer(128)
-                                .append("Mail for ")
-                                .append(username)
-                                .append(" forwarded to ")
-                                .append(forwardTo.toString());
-                    getLogger().info(logBuffer.toString());
+                    if (getLogger().isInfoEnabled()) {
+                        StringBuffer logBuffer =
+                            new StringBuffer(128)
+                                    .append("Mail for ")
+                                    .append(username)
+                                    .append(" forwarded to ")
+                                    .append(forwardTo.toString());
+                        getLogger().info(logBuffer.toString());
+                    }
                     return;
                 } catch (MessagingException me) {
                     if (getLogger().isErrorEnabled()) {
@@ -831,8 +835,6 @@ public class James
      * @param t the <code>Throwable</code> to be logged
      */
     public void log(String message, Throwable t) {
-        //System.err.println(message);
-        //t.printStackTrace(); //DEBUG
         getMailetLogger().info(message,t);
     }
 
