@@ -41,6 +41,7 @@ Last Updated 26 April 2001.</p>
 <p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
 <p>Add support for DRAC login/relay allowing</p>
 <p>Review threadpooling - is it dynamic?</p>
+<p>Give admins option to enforce one access at a time to a POP3 mailbox.</p>
 </section>
 
 </body>
