@@ -236,7 +236,7 @@ import org.apache.mailet.MailAddress;
  * &lt;static&gt;TRUE&lt;/static&gt;<BR>
  * &lt;/mailet&gt;</P>
  *
- * <P>CVS $Id: Redirect.java,v 1.18.4.10 2003/06/15 18:33:43 noel Exp $</P>
+ * <P>CVS $Id: Redirect.java,v 1.18.4.11 2003/06/15 18:40:20 noel Exp $</P>
  * @version 2.2.0
  */
 

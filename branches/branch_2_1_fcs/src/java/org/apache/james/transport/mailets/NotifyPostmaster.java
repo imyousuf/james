@@ -129,7 +129,7 @@ import java.util.Iterator;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: NotifyPostmaster.java,v 1.9.4.6 2003/06/15 18:33:42 noel Exp $</P>
+ * <P>CVS $Id: NotifyPostmaster.java,v 1.9.4.7 2003/06/15 18:40:20 noel Exp $</P>
  * @version 2.2.0
  */
 public class NotifyPostmaster extends AbstractNotify {

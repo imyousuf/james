@@ -133,7 +133,7 @@ import java.util.ArrayList;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: Bounce.java,v 1.1.2.4 2003/06/15 18:33:42 noel Exp $</P>
+ * <P>CVS $Id: Bounce.java,v 1.1.2.5 2003/06/15 18:40:20 noel Exp $</P>
  * @version 2.2.0
  * @since 2.2.0
  */
