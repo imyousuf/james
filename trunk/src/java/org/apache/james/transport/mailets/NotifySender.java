@@ -151,10 +151,14 @@ public class NotifySender extends GenericMailet {
         if (reply.getHeader("Date")==null){
             reply.setHeader("Date",new RFC822Date().toString());
         }
-        if(message.getSubject().indexOf("Re:")==0){
-            reply.setSubject(message.getSubject());
-        }else{
-            reply.setSubject("Re:" + message.getSubject());
+        String subject = message.getSubject();
+        if (subject == null) {
+            subject = "";
+        }
+        if (subject.indexOf("Re:") == 0){
+            reply.setSubject(subject);
+        } else {
+            reply.setSubject("Re:" + subject);
         }
         reply.setHeader("In-Reply-To", message.getMessageID());
 
