@@ -783,6 +783,16 @@ public abstract class AbstractRedirect extends GenericMailet {
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
         Mail newMail = ((MailImpl) originalMail).duplicate(newName((MailImpl)originalMail));
+        // We don't need to use the original Remote Address and Host,
+        // and doing so would likely cause a loop with spam detecting
+        // matchers.
+        try {
+            ((MailImpl) newMail).setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+            ((MailImpl) newMail).setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+        } catch (java.net.UnknownHostException _) {
+            ((MailImpl) newMail).setRemoteAddr("127.0.0.1");
+            ((MailImpl) newMail).setRemoteHost("localhost");
+        }
 
         if (isDebug) {
             MailImpl newMailImpl = (MailImpl) newMail;
