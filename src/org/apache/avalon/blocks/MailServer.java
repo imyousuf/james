@@ -14,6 +14,7 @@ import java.util.*;
 import org.apache.mailet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
+import org.apache.james.mailrepository.*;
 import java.io.*;
 
 /**
