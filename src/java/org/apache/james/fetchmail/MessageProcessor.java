@@ -57,19 +57,22 @@ import org.apache.mailet.MailAddress;
  * <p>Messages written to the input spool have the following Mail Attributes
  *  set if the corresponding condition is satisfied:
  * <dl>
- * <dt>org.apache.james.fetchmail.isRemoteRecipient</dt>
- *      <dd>The recipient is on a remote host</dd>
- * <dt>org.apache.james.fetchmail.isUserUndefined</dt>
- *      <dd>The recipient is on a localhost but not defined to James</dd>
  * <dt>org.apache.james.fetchmail.isBlacklistedRecipient</dt>
  *      <dd>The recipient is in the configured blacklist</dd>
- * <dt>org.apache.james.fetchmail.isRecipientNotFound</dt>
- *      <dd>The recipient could not be found. Delivery is to the configured recipient. 
- *          See the discussion of delivery to a sole intended recipient below.</dd>
  * <dt>org.apache.james.fetchmail.isMaxMessageSizeExceeded (java.lang.String)</dt>
  *      <dd>The message size exceeds the configured limit. An empty message is
  *          written to the input spool. The Mail Attribute value is a String
  *          representing the size of the original message in bytes.</dd>
+ * <dt>org.apache.james.fetchmail.isRecipientNotFound</dt>
+ *      <dd>The recipient could not be found. Delivery is to the configured recipient. 
+ *          See the discussion of delivery to a sole intended recipient below.</dd>
+ * <dt>org.apache.james.fetchmail.isRemoteRecievedHeaderInvalid</dt>
+ *       <dd>The Receieved header at the index specified by parameter
+ *       <code>remoteReceivedHeaderIndex</code> is invalid.</dd>
+ * <dt>org.apache.james.fetchmail.isRemoteRecipient</dt>
+ *      <dd>The recipient is on a remote host</dd>
+ * <dt>org.apache.james.fetchmail.isUserUndefined</dt>
+ *      <dd>The recipient is on a localhost but not defined to James</dd>
  * </dl>
  * 
  * <p>Configuration settings -
@@ -89,6 +92,8 @@ import org.apache.mailet.MailAddress;
  *      <dd>See the discussion of delivery to a sole intended recipient below</dd>
  * <dt>RejectMaxMessageSizeExceeded</dt>
  *      <dd>Rejects messages whose size exceeds the configured limit</dd>
+ * <dt>RejectRemoteReceievedHeaderInvalid</dt>
+ *      <dd>Rejects messages whose Received header is invalid.</dd>
  * </dl>
  * 
  * <p>Rejection processing is intentionally limited to managing the status of the
@@ -166,6 +171,11 @@ public class MessageProcessor extends ProcessorAbstract
      * Recipient is a local user on a local host
      */ 
     private boolean fieldRemoteRecipient = true;
+
+    /**
+     * The mail's Received header at index remoteReceivedHeaderIndex is invalid.
+     */     
+    private Boolean fieldRemoteReceivedHeaderInvalid;
 
     /**
      * Recipient is not a local user
@@ -325,6 +335,13 @@ public class MessageProcessor extends ProcessorAbstract
             rejectMaxMessageSizeExceeded(getMessageIn().getSize());
             return;
         }
+        
+        if (isRejectRemoteReceivedHeaderInvalid()
+            && isRemoteReceivedHeaderInvalid().booleanValue())
+        {
+            rejectRemoteReceivedHeaderInvalid();
+            return;
+        }        
 
         // Create the mail
         // If any of the mail addresses are malformed, we will get a
@@ -484,7 +501,29 @@ public class MessageProcessor extends ProcessorAbstract
         logStatusInfo(messageBuffer.toString());
 
         return;
-    }       
+    }
+    
+    /**
+     * Method rejectRemoteReceivedHeaderInvalid.
+     * @throws MessagingException
+     */
+    protected void rejectRemoteReceivedHeaderInvalid()
+        throws MessagingException
+    {
+        // Update the flags of the received message
+        if (!isLeaveRemoteReceivedHeaderInvalid())
+            setMessageDeleted();
+
+        if (isMarkRemoteReceivedHeaderInvalidSeen())
+            setMessageSeen();
+
+        StringBuffer messageBuffer =
+            new StringBuffer("Rejected mail with an invalid Received: header at index ");
+        messageBuffer.append(getRemoteReceivedHeaderIndex());
+        messageBuffer.append(".");          
+        logStatusInfo(messageBuffer.toString());       
+        return;
+    }           
     
     /**
      * <p>Method createMessage answers a new <code>MimeMessage</code> from the
@@ -627,16 +666,16 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected String computeRemoteDomain() throws MessagingException
     {
-        String[] headers = getMessageIn().getHeader(RFC2822Headers.RECEIVED);
-        StringBuffer domainBuffer = new StringBuffer();
-
-        // It isn't documented, but getHeader() will answer null if there
-        // are no matching headers, so we need to check!
+        StringBuffer domainBuffer = new StringBuffer();        
+        String[] headers = null; 
+        if (getRemoteReceivedHeaderIndex() > -1)
+              getMessageIn().getHeader(RFC2822Headers.RECEIVED);
+              
         if (null != headers)
         {
             // If there are RECEIVED headers and the index to begin at is greater
             // than -1, try and extract the domain
-            if (headers.length > 0 && getRemoteReceivedHeaderIndex() > -1)
+            if (headers.length > 0)
             {
                 final String headerTokens = " \n\r";
 
@@ -731,10 +770,10 @@ public class MessageProcessor extends ProcessorAbstract
         // Update the flags of the received message
         if (!isLeaveUndeliverable())
             setMessageDeleted();
-
+    
         if (isMarkUndeliverableSeen())
             setMessageSeen();
-
+    
         logStatusWarn("Message could not be delivered due to an error determining the remote domain.");
         if (getLogger().isDebugEnabled())
         {
@@ -1188,6 +1227,11 @@ public class MessageProcessor extends ProcessorAbstract
             aMail.setAttribute(
                 getAttributePrefix() + "isMaxMessageSizeExceeded",
                 new Integer(getMessageIn().getSize()).toString());
+                
+        if (isRemoteReceivedHeaderInvalid().booleanValue())
+            aMail.setAttribute(
+                getAttributePrefix() + "isRemoteReceivedHeaderInvalid",
+                null);                
     }
 
     /**
@@ -1472,5 +1516,65 @@ public class MessageProcessor extends ProcessorAbstract
     {
         fieldMaxMessageSizeExceeded = maxMessageSizeExceeded;
     }
+
+    /**
+     * Returns the remoteReceivedHeaderInvalid, lazily initialised.
+     * @return Boolean
+     */
+    protected Boolean isRemoteReceivedHeaderInvalid() throws MessagingException
+    {
+        Boolean isInvalid = null;
+        if (null == (isInvalid = isRemoteReceivedHeaderInvalidBasic()))
+        {
+            updateRemoteReceivedHeaderInvalid();
+            return isRemoteReceivedHeaderInvalid();
+        }    
+        return isInvalid;
+    }
+    
+    /**
+     * Computes the remoteReceivedHeaderInvalid.
+     * @return Boolean
+     */
+    protected Boolean computeRemoteReceivedHeaderInvalid()
+        throws MessagingException
+    {
+        Boolean isInvalid = Boolean.FALSE;
+        try
+        {
+            getRemoteAddress();
+        }
+        catch (UnknownHostException e)
+        {
+            isInvalid = Boolean.TRUE;
+        }
+        return isInvalid;
+    }    
+    
+    /**
+     * Returns the remoteReceivedHeaderInvalid.
+     * @return Boolean
+     */
+    private Boolean isRemoteReceivedHeaderInvalidBasic()
+    {
+        return fieldRemoteReceivedHeaderInvalid;
+    }    
+
+    /**
+     * Sets the remoteReceivedHeaderInvalid.
+     * @param remoteReceivedHeaderInvalid The remoteReceivedHeaderInvalid to set
+     */
+    protected void setRemoteReceivedHeaderInvalid(Boolean remoteReceivedHeaderInvalid)
+    {
+        fieldRemoteReceivedHeaderInvalid = remoteReceivedHeaderInvalid;
+    }
+    
+    /**
+     * Updates the remoteReceivedHeaderInvalid.
+     */
+    protected void updateRemoteReceivedHeaderInvalid() throws MessagingException
+    {
+        setRemoteReceivedHeaderInvalid(computeRemoteReceivedHeaderInvalid());
+    }    
 
 }
