@@ -382,7 +382,9 @@ public class AvalonMailRepository
         // Fix ConcurrentModificationException by cloning 
         // the keyset before getting an iterator
         final HashSet clone = new HashSet();
-        clone.addAll( keys );
+        synchronized(keys) {
+            clone.addAll( keys );
+        }
         return clone.iterator();
     }
 }
