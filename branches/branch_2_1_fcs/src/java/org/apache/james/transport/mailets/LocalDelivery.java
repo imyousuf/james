@@ -58,13 +58,6 @@ public class LocalDelivery extends GenericMailet {
         // This only works because there is a placeholder inserted by MimeMessageWrapper
         message.setHeader(RFC2822Headers.RETURN_PATH, (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">"));
 
-/*
-        if(message.getMessageID() == null) {
-            MimeMessage midMsg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-            midMsg.saveChanges();
-            message.addHeaderLine("Message-ID: " + midMsg.getMessageID());
-        }
-*/
         // Copy any Delivered-To headers from the message
         InternetHeaders deliveredTo = new InternetHeaders();
         Enumeration headers = message.getMatchingHeaders(new String[] {"Delivered-To"});
