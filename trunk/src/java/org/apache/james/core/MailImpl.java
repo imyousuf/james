@@ -64,6 +64,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.OptionalDataException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -85,9 +86,16 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 
 /**
- * Wraps a MimeMessage adding routing information (from SMTP) and some simple
- * API enhancements.
- * @version CVS $Revision: 1.26 $ $Date: 2003/07/15 10:11:58 $
+ * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
+ * API enhancements.</P>
+ * <P>From James version > 2.2.0a8 "mail attributes" have been added.
+ * Backward and forward compatibility is supported:
+ * messages stored in file repositories <I>without</I> attributes by James version <= 2.2.0a8
+ * will be processed by later versions as having an empty attributes hashmap;
+ * messages stored in file repositories <I>with</I> attributes by James version > 2.2.0a8
+ * will be processed by previous versions, ignoring the attributes.</P>
+ *
+ * @version CVS $Revision: 1.27 $ $Date: 2003/07/17 13:23:45 $
  */
 public class MailImpl implements Disposable, Mail {
     /**
@@ -524,15 +532,18 @@ public class MailImpl implements Disposable, Mail {
         name = (String) in.readObject();
         remoteHost = (String) in.readObject();
         remoteAddr = (String) in.readObject();
-        Object o = in.readObject();
-        //this check is done to be backwards compatible with mail repositories
-        if (o instanceof Date) {
-            setLastUpdated ((Date)o);
-            attributes = new HashMap();
-        } else {
-            attributes = (HashMap)o;
         setLastUpdated((Date) in.readObject());
-    }
+        // the following is under try/catch to be backwards compatible
+        // with messages created with James version <= 2.2.0a8
+        try {
+            attributes = (HashMap) in.readObject();
+        } catch (OptionalDataException ode) {
+            if (ode.eof) {
+                attributes = new HashMap();
+            } else {
+                throw ode;
+            }
+        }
     }
     /**
      * Write the MailImpl to an <code>ObjectOutputStream</code>.
@@ -550,8 +561,8 @@ public class MailImpl implements Disposable, Mail {
         out.writeObject(name);
         out.writeObject(remoteHost);
         out.writeObject(remoteAddr);
-        out.writeObject(attributes);
         out.writeObject(lastUpdated);
+        out.writeObject(attributes);
     }
 
     /**
