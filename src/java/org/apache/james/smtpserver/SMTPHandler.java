@@ -42,7 +42,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.29 $
+ * @version This is $Revision: 1.30 $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -349,7 +349,9 @@ public class SMTPHandler
                     new StringBuffer(64)
                         .append("Socket to ")
                         .append(remoteHost)
-                        .append(" closed remotely.");
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(") closed remotely.");
                 getLogger().debug(errorBuffer.toString(), se );
             }
         } catch ( InterruptedIOException iioe ) {
@@ -358,7 +360,9 @@ public class SMTPHandler
                     new StringBuffer(64)
                         .append("Socket to ")
                         .append(remoteHost)
-                        .append(" timeout.");
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(") timeout.");
                 getLogger().debug( errorBuffer.toString(), iioe );
             }
         } catch ( IOException ioe ) {
@@ -367,7 +371,9 @@ public class SMTPHandler
                     new StringBuffer(256)
                             .append("Exception handling socket to ")
                             .append(remoteHost)
-                            .append(":")
+                            .append(" (")
+                            .append(remoteIP)
+                            .append(") : ")
                             .append(ioe.getMessage());
                 getLogger().debug( errorBuffer.toString(), ioe );
             }
@@ -398,7 +404,7 @@ public class SMTPHandler
      * TODO: Remove this interface from the class and change the mechanism
      */
     public void targetTriggered(final String triggerName) {
-        getLogger().error("Connection timeout on socket");
+        getLogger().error("Connection timeout on socket with " + remoteHost + " (" + remoteIP + ")");
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -916,7 +922,7 @@ public class SMTPHandler
             String responseString = "501 Syntactically incorrect value for SIZE parameter";
             writeLoggedFlushedResponse(responseString);
             getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
-            return true;
+            return false;
         }
         if (getLogger().isDebugEnabled()) {
             StringBuffer debugBuffer = 
@@ -936,19 +942,21 @@ public class SMTPHandler
                     .append(state.get(SENDER).toString())
                     .append(" from host ")
                     .append(remoteHost)
-                    .append(" of size ")
+                    .append(" (")
+                    .append(remoteIP)
+                    .append(") of size ")
                     .append(size)
                     .append(" exceeding system maximum message size of ")
                     .append(maxmessagesize)
                     .append("based on SIZE option.");
             getLogger().error(errorBuffer.toString());
-            return true;
+            return false;
         } else {
             // put the message size in the message state so it can be used
             // later to restrict messages for user quotas, etc.
             state.put(MESG_SIZE, new Integer(size));
         }
-        return false;
+        return true;
     }
 
 
@@ -1279,7 +1287,9 @@ public class SMTPHandler
                             .append(state.get(SENDER).toString())
                             .append(" from host ")
                             .append(remoteHost)
-                            .append(" exceeding system maximum message size of ")
+                            .append(" (")
+                            .append(remoteIP)
+                            .append(") exceeding system maximum message size of ")
                             .append(maxmessagesize);
                     getLogger().error(errorBuffer.toString());
                 } else {
