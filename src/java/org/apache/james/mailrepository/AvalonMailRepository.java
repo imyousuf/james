@@ -179,9 +179,11 @@ public class AvalonMailRepository
 
                 if (mc.getMessage() instanceof MimeMessageWrapper) {
                     MimeMessageWrapper wrapper = (MimeMessageWrapper) mc.getMessage();
-                    System.out.println("Retrieving from: " + wrapper.getSourceId());
-                    System.out.println("Saving to:       " + destination + "/" + mc.getName());
-                    System.out.println("Modified: " + wrapper.isModified());
+                    if (DEEP_DEBUG) {
+                        System.out.println("Retrieving from: " + wrapper.getSourceId());
+                        System.out.println("Saving to:       " + destination + "/" + mc.getName());
+                        System.out.println("Modified: " + wrapper.isModified());
+                    }
                     if (wrapper.getSourceId().equals(destination + "/" + mc.getName()) && !wrapper.isModified()) {
                         //We're trying to save to the same place, and it's not modified... we shouldn't save.
                         //More importantly, if we try to save, we will create a 0-byte file since we're
