@@ -105,7 +105,7 @@ import java.util.Iterator;
  *   &lt;attachment&gt;<I>see {@link Resend}, default=message</I>&lt;/attachment&gt;
  *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
- *   &lt;to&gt;<I>unaltered (optional, defaults to sender)</I>&lt;/to&gt;
+ *   &lt;to&gt;<I>unaltered or sender or from(optional, defaults to sender)</I>&lt;/to&gt;
  *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
@@ -120,7 +120,7 @@ import java.util.Iterator;
  *   &lt;prefix&gt;<I>a string</I>&lt;/prefix&gt;
  *   &lt;passThrough&gt;true&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
- *   &lt;to&gt;<I>unaltered or sender&lt</I>;/to&gt;
+ *   &lt;to&gt;<I>unaltered or sender or from&lt</I>;/to&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
  *   &lt;inline&gt;none&lt;/inline&gt;
  *   &lt;attachment&gt;message&lt;/attachment&gt;
@@ -131,7 +131,7 @@ import java.util.Iterator;
  * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
  * <I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.10.4.12 $ $Date: 2003/07/04 16:42:17 $
+ * @version CVS $Revision: 1.10.4.13 $ $Date: 2003/07/07 06:17:42 $
  */
 public class NotifySender extends AbstractNotify {
 
@@ -187,7 +187,7 @@ public class NotifySender extends AbstractNotify {
         iaarray[0] = SpecialAddress.SENDER.toInternetAddress();
         if (addressList != null) {
             MailAddress specialAddress = getSpecialAddress(addressList,
-                                            new String[] {"sender", "unaltered"});
+                                            new String[] {"sender", "unaltered", "from"});
             if (specialAddress != null) {
                 iaarray[0] = specialAddress.toInternetAddress();
             } else {
