@@ -69,6 +69,14 @@
                 <connectiontimeout> 60000 </connectiontimeout>
             </remoteManager>
 
+            <dnsServer>
+                <servers>
+                    <server>216.181.1.2</server>
+                    <server>216.181.2.2</server>
+                </servers>
+                <authoritative>false</authoritative>
+            </dnsServer>
+
             <usersManager>
                 <repository> file://../var/users/ </repository>
             </usersManager>
@@ -82,6 +90,8 @@
 <!--        LinearProcessor CONFIGURATION SAMPLE -->
                 <processor name="root" class="org.apache.james.transport.LinearProcessor">
                     <mailet match="RecipientIs=badboy@badhost" class="Null">
+                    </mailet>
+                    <mailet match="RelayLimit=30" class="Null">
                     </mailet>
                     <mailet match="RecipientIs=administrator@localhost" class="Forward">
                         <forwardto> root@localhost </forwardto>
@@ -115,10 +125,6 @@
                     <mailet match="RecipientIsLocal" class="LocalDelivery">
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
-                        <DNSservers>
-                            <server>  </server>
-                        </DNSservers>
-                        <authoritative>false</authoritative>
                         <delayed> file://../var/mail/delayed/ </delayed>
                         <delayTime> 21600000 </delayTime>
                         <maxRetries> 5 </maxRetries>
@@ -184,6 +190,7 @@
                 <channel name="default"      loglevel="DEBUG"  logwriter="mailet"/>
                 <channel name="JamesSystem"  loglevel="DEBUG"  logwriter="jamesfile"/>
                 <channel name="SMTP"         loglevel="DEBUG"  logwriter="netfile"/>
+                <channel name="DNS"          loglevel="DEBUG"  logwriter="dnsfile"/>
                 <channel name="POP3"         loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="RemoteAdmin"  loglevel="DEBUG"  logwriter="netfile"/>
                 <channel name="Mailets"      loglevel="DEBUG"  logwriter="mailet"/>
@@ -221,6 +228,11 @@
                 </writer>
                 <writer name="test" class="org.apache.avalon.blocks.omero.FileWriter">
                     <destination> file://../logs/test.log </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
+                <writer name="dnsfile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination> file://../logs/dns.log </destination>
                     <buffersize>2048</buffersize>
                     <sleep>500</sleep>
                 </writer>
