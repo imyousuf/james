@@ -58,6 +58,34 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.ArrayList;
+
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -69,16 +97,6 @@ import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-
-import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.*;
-import java.util.*;
 
 /**
  * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
@@ -101,7 +119,7 @@ import java.util.*;
  *
  * as well as other places.
  *
- * This is $Revision: 1.33.4.9 $
+ * This is $Revision: 1.33.4.10 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -117,11 +135,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private boolean sendPartial = false; // If false then ANY address errors will cause the transmission to fail
     private int connectionTimeout = 60000;  // The amount of time JavaMail will wait before giving up on a socket connect()
     private int deliveryThreadCount = 1; // default number of delivery threads
-    private String gatewayServer = null; // the server to send all email to
-    private String gatewayPort = null;  //the port of the gateway server to send all email to
+    private Collection gatewayServer = null; // the server(s) to send all email to
+    private String gatewayPort = null;  // the default port of gateway server(s)
     private String bindAddress = null; // JavaMail delivery socket binds to this local address. If null the JavaMail default will be used.
-    private boolean isBindUsed = false; // true, if the bind configuration 
-                                        // parameter is supplied, RemoteDeliverySocketFactory 
+    private boolean isBindUsed = false; // true, if the bind configuration
+                                        // parameter is supplied, RemoteDeliverySocketFactory
                                         // will be used in this case
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
@@ -163,8 +181,23 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         sendPartial = (getInitParameter("sendpartial") == null) ? false : new Boolean(getInitParameter("sendpartial")).booleanValue();
 
-        gatewayServer = getInitParameter("gateway");
+        String gateway = getInitParameter("gateway");
         gatewayPort = getInitParameter("gatewayPort");
+
+        if (gateway != null) {
+            gatewayServer = new ArrayList();
+            StringTokenizer st = new StringTokenizer(gateway, ",") ;
+            while (st.hasMoreTokens()) {
+                String server = st.nextToken().trim() ;
+                if (server.indexOf(':') < 0 && gatewayPort != null) {
+                    server += ":";
+                    server += gatewayPort;
+                }
+
+                if (isDebug) log("Adding SMTP gateway: " + server) ;
+                gatewayServer.add(server);
+            }
+        }
 
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String outgoingPath = getInitParameter("outgoing");
@@ -263,8 +296,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
                 }
             } else {
-                targetServers = new Vector();
-                targetServers.add(gatewayServer);
+                targetServers = gatewayServer;
             }
 
             MessagingException lastError = null;
@@ -305,13 +337,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             transport.connect();
                         } catch (MessagingException me) {
                             // Any error on connect should cause the mailet to attempt
-                            // to connect to the next SMTP server associated with this MX record,
-                            // assuming the number of retries hasn't been exceeded.
-                            if (failMessage(mail, me, false)) {
-                                return true;
-                            } else {
-                                continue;
-                            }
+                            // to connect to the next SMTP server associated with this
+                            // MX record.  Just log the exception.  We'll worry about
+                            // failing the message at the end of the loop.
+                            log(me.getMessage());
+                            continue;
                         }
                         transport.sendMessage(message, addr);
                     } finally {
@@ -391,7 +421,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             /*
              * The rest of the recipients failed for one reason or
              * another.
-             * 
+             *
              * SendFailedException actually handles this for us.  For
              * example, if you send a message that has multiple invalid
              * addresses, you'll get a top-level SendFailedException
@@ -401,7 +431,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
              * the content of the nested exceptions is implementation
              * dependent.]
              *
-             * sfe.getInvalidAddresses() should be considered permanent. 
+             * sfe.getInvalidAddresses() should be considered permanent.
              * sfe.getValidUnsentAddresses() should be considered temporary.
              *
              * JavaMail v1.3 properly populates those collections based
@@ -467,10 +497,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * sending the message or throwing an exception.  One case
          * where this might happen is if we get a MessagingException on
          * each transport.connect(), e.g., if there is only one server
-         * and we get a connect exception.  Return FALSE to keep run()
-         * from deleting the message.
+         * and we get a connect exception.
          */
-        return false;
+        return failMessage(mail, new MessagingException("No mail server(s) available at this time."), false);
     }
 
     /**
@@ -616,7 +645,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 String targetServer = target.getHost().toLowerCase(Locale.US);
                 Collection temp = (Collection)targets.get(targetServer);
                 if (temp == null) {
-                    temp = new Vector();
+                    temp = new ArrayList();
                     targets.put(targetServer, temp);
                 }
                 temp.add(target);
@@ -650,7 +679,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
             }
         } else {
-            // Store the mail unaltered for processing by the gateway server
+            // Store the mail unaltered for processing by the gateway server(s)
             if (isDebug) {
                 StringBuffer logMessageBuffer =
                     new StringBuffer(128)
@@ -721,15 +750,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         }
 
-        //If there's a gateway port, we can just set it here
-        if (gatewayPort != null) {
-            props.put("mail.smtp.port", gatewayPort);
-        }
-
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
             // our socket factory, which will also set the local address
-            props.put("mail.smtp.socketFactory.class", 
+            props.put("mail.smtp.socketFactory.class",
                       "org.apache.james.transport.mailets.RemoteDeliverySocketFactory");
             // Don't fallback to the standard socket factory on error, do throw an exception
             props.put("mail.smtp.socketFactory.fallback", "false");
