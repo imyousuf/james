@@ -11,25 +11,22 @@ package org.apache.james.dnsserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import org.apache.avalon.*;
-//import org.apache.avalon.blocks.*;
-import org.apache.mailet.Mail;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.james.transport.Resources;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
+import org.apache.mailet.Mail;
 import org.xbill.DNS.*;
 
 /**
  * @version 1.0.0, 18/06/2000
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class DNSServer implements Component, Configurable, Contextualizable, Initializable {
+public class DNSServer 
+    extends AbstractLoggable
+    implements Component, Configurable, Contextualizable, Initializable {
 
     private DefaultComponentManager compMgr;
     private Configuration conf;
-    private Logger logger =  LogKit.getLoggerFor("james.DnsServer");
     private Resolver resolver;
     private Cache cache;
     private byte dnsCredibility;
@@ -47,11 +44,11 @@ public class DNSServer implements Component, Configurable, Contextualizable, Ini
 
     public void init() throws Exception {
 
-        logger.info("DNSServer init...");
+        getLogger().info("DNSServer init...");
 
-            // Get this servers that this block will use for lookups
+        // Get this servers that this block will use for lookups
         Collection servers = new Vector();
-	Configuration serversConf = conf.getChild("servers");
+        Configuration serversConf = conf.getChild("servers");
         for (Iterator it = serversConf.getChildren("server"); it.hasNext(); ) {
             servers.add(((Configuration) it.next()).getValue());
         }
@@ -63,11 +60,11 @@ public class DNSServer implements Component, Configurable, Contextualizable, Ini
             }
         }
         for (Iterator i = servers.iterator(); i.hasNext(); ) {
-            logger.info("DNS Servers is: " + i.next());
+            getLogger().info("DNS Servers is: " + i.next());
         }
         boolean authoritative = conf.getChild("authoritative").getValueAsBoolean(false);
 
-            //Create the extended resolver...
+        //Create the extended resolver...
         String serversArray[] = (String[])servers.toArray(new String[0]);
         resolver = new ExtendedResolver (serversArray);
 
@@ -75,10 +72,10 @@ public class DNSServer implements Component, Configurable, Contextualizable, Ini
 
         cache = new Cache ();
 
-            // Add this to comp
+        // Add this to comp
         compMgr.put("DNS_SERVER", this);
 
-        logger.info("DNSServer ...init end");
+        getLogger().info("DNSServer ...init end");
     }
 
     public Collection findMXRecords(String hostname) {
@@ -178,9 +175,5 @@ public class DNSServer implements Component, Configurable, Contextualizable, Ini
         }
 
         return answers;
-    }
-
-    public void destroy()
-    throws Exception {
     }
 }
