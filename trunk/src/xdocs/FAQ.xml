@@ -18,6 +18,9 @@
 <ul>
 <li><a href="#1">Would you please teach me how to set up a mailing list</a></li>
 <li><a href="#2">Is James an Open Relay for Spam?</a></li>
+<li><a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a></li>
+<li><a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a></li>
+<li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
 </ul>
 </p>
 
@@ -30,9 +33,9 @@
   <p>James currently (v2.0a2) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
   <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
 <source>
-&lt;mailet match="CommandForListserv=james@localhost" 
-	class="AvalonListservManager">
-	&lt;repositoryName>list-james&lt;/repositoryName>
+&lt;mailet match="CommandForListserv=james@localhost"
+    class="AvalonListservManager">
+    &lt;repositoryName>list-james&lt;/repositoryName>
 &lt;/mailet>
 </source>
 <p>that will intercept the command emails sent to
@@ -44,36 +47,36 @@
 <p>and-</p>
 <source>
 &lt;mailet match="RecipientIs=james@localhost" class="AvalonListserv">
- 	&lt;membersonly> false &lt;/membersonly>
- 	&lt;attachmentsallowed> true &lt;/attachmentsallowed>
- 	&lt;replytolist> true &lt;/replytolist>
- 	&lt;repositoryName>list-james&lt;/repositoryName>
- 	&lt;subjectprefix>JamesList&lt;/subjectprefix>
+    &lt;membersonly> false &lt;/membersonly>
+    &lt;attachmentsallowed> true &lt;/attachmentsallowed>
+    &lt;replytolist> true &lt;/replytolist>
+    &lt;repositoryName>list-james&lt;/repositoryName>
+    &lt;subjectprefix>JamesList&lt;/subjectprefix>
 &lt;/mailet>
 </source>
   <p>Which will distribute the mail to the current subscribers</p>
   <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
 <source>
-&lt;repository name="list-james" 
-	class="org.apache.james.userrepository.ListUsersJdbcRepository" 
-	destinationURL="db://maildb/lists/list-james">
-	&lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.ListUsersJdbcRepository"
+    destinationURL="db://maildb/lists/list-james">
+    &lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
 &lt;/repository>
 </source>
   <p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
   <p>Using the filesystem:-</p>
 <source>
-&lt;repository name="list-james" 
-	class="org.apache.james.userrepository.UsersFileRepository">
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.UsersFileRepository">
     &lt;destination URL="file://var/lists/list-james/"/>
 &lt;/repository>
 </source>
 
-	  <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
-	  <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
-	  <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br/>Danny Angus</p>
-	  
-    
+      <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
+      <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
+      <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br/>Danny Angus</p>
+
+
   </subsection>
   <a name="2"></a>
   <subsection name="James seems to be an open relay for Spam, is it?">
@@ -83,8 +86,29 @@
 
   </subsection>
 
+  <a name="3"></a>
+  <subsection name="I can send messages to James, but nobody is receiving them.  What do I do?">
+  <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.<br />Serge Knystautas</p>
 
+  </subsection>
 
+  <a name="4"></a>
+  <subsection name="I can send people messages via James, but nobody can send me messages.  What do I do?">
+  <p>You need to do one of two things:
+  <ol>
+  <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
+  <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
+  </ol>
+  Serge Knystautas</p>
+
+  </subsection>
+
+  <a name="5"></a>
+  <subsection name="I'm trying to debug messages that James is trying to deliver.  Where should I look?">
+  <p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
+  <p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br />Serge Knystautas</p>
+
+  </subsection>
 
 </section>
 
