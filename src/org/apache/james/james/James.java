@@ -18,6 +18,7 @@ import javax.mail.internet.*;
 import javax.mail.Session;
 import java.util.Date;
 import java.util.*;
+import org.apache.mail.MessageContainer;
 
 /**
  * @version 1.0.0, 24/04/1999

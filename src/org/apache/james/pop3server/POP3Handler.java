@@ -18,6 +18,7 @@ import org.apache.java.util.*;
 import org.apache.arch.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
+import org.apache.mail.MessageContainer;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
