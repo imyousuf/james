@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file
+ James build file $Revision: 1.82 $  Committed on $Date: 2001/09/29 08:21:18 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -13,6 +13,7 @@ Authors:
 
 Legal:
   Copyright (c) 1999-2001 The Apache Software Foundation. All Rights Reserved.
+
 
 ==============================================================================
  -->
@@ -330,7 +331,6 @@ Legal:
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
         <include name="jakarta-oro-2.0.1.jar"/>
-        <include name="mysql-2.0.4.jar"/>
       </zipfileset>
 
       <zipfileset dir="${build.conf}" fullpath="conf/config.xml">
@@ -369,6 +369,7 @@ Legal:
     <copy file="${scratchpad.jar}" todir="${dist.dir}/lib"/>
     <copy file="${avalon-jmx.jar}" todir="${dist.dir}/lib"/>
     <copy file="${logkit.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${lib.dir}/mysql-2.0.4.jar" todir="${dist.dir}/lib"/>
 
     <copy todir="${dist.dir}/lib">
       <fileset dir="lib">
