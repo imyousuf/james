@@ -296,36 +296,31 @@
 
 <!-- CHECKME! Change the default password! -->
   <remotemanager>
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
-
         <port>4555</port>
         <!-- <bind>  </bind> uncomment this if you want to bind to a specific
         inetaddress -->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
         on this port -->
-        <administrator_accounts>
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+           identify itself  for example, in SMTP and POP3 greetings.
+           If autodetect is TRUE, James will attempt to discover its own name OR
+           use 'localhost'. If autodetect is FALSE, James will use the value given
+           OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <administrator_accounts>
 
-          <!-- FILL ME!!!!!!  You must provide a password for your
-          administrator accounts (cannot be blank) -->
-          <account login="root" password="root"/>
+            <!-- FILL ME!!!!!!  You must provide a password for your
+             administrator accounts (cannot be blank) -->
+            <account login="root" password="root"/>
 
-        </administrator_accounts>
-        <connectiontimeout> 60000 </connectiontimeout>
+           </administrator_accounts>
+           <connectiontimeout> 60000 </connectiontimeout>
+	</handler>
   </remotemanager>
 
   <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
   <imapserver>
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
 
         <port>143</port>
         <!-- <port>995</port> -->
@@ -334,19 +329,18 @@
         inetaddress-->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
         on this port -->
-        <imaphandler>
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>1800000</connectiontimeout>
-	</imaphandler>
+	</handler>
   </imapserver>
 
   <pop3server>
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
-
         <port>110</port>
         <!-- <port>995</port> -->
         <!-- port 995 is the well-known/IANA registered port for POP3S
@@ -355,42 +349,40 @@
         inetaddress-->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
         on this port -->
-        <pop3handler>
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>120000</connectiontimeout>
-        </pop3handler>
+        </handler>
   </pop3server>
 
   <smtpserver>
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
-
         <port>25</port>
         <!--<bind></bind> uncomment this if you want to bind to a specific
         inetaddress -->
         <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
         on this port -->
-        <smtphandler>
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>360000</connectiontimeout>
           <!-- This sets the maximum allowed message size for the smtphandler
           in KBytes.
           The value defaults to 0, which means no limit.
           <maxmessagesize>0</maxmessagesize>
            -->
-        </smtphandler>
+        </handler>
   </smtpserver>
 
   <nntpserver>
-      <!-- helloName is the single host name this instance of James will use to
-      identify itself  for example, in SMTP and POP3 greetings.
-      If autodetect is TRUE, James will attempt to discover its own name OR
-      use 'localhost'. If autodetect is FALSE, James will use the value given
-      OR 'localhost' -->
-      <helloName autodetect="TRUE">myMailServer</helloName>
-
         <port>119</port>
         <!-- <port>563</port> -->
         <!-- port 563 is the well-known/IANA registered port for NNTPS
@@ -399,11 +391,17 @@
         inetaddress-->
         <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
         on this port -->
-        <nntphandler>
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
           <connectiontimeout>120000</connectiontimeout>
 	  <!-- make this true, if you want only authenticated users to access NNTP-->
           <authRequired>false</authRequired>
-        </nntphandler>
+        </handler>
   </nntpserver>
 
   <nntp-repository>
