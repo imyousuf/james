@@ -18,6 +18,7 @@ import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.james.Constants;
 
 /**
@@ -60,7 +61,7 @@ public class JDBCAlias extends GenericMailet {
             // Get the data-source required.
             datasource = (DataSourceComponent)datasources.select(datasourceName);
 
-            conn = datasource.getConnection();
+            conn = getConnection();
 
             // Check if the required table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
@@ -157,13 +158,27 @@ public class JDBCAlias extends GenericMailet {
     /**
      * Opens a database connection.
      */
-    private Connection getConnection() throws MessagingException {
-        try {
-            return datasource.getConnection();
-        } catch (SQLException sqle) {
-            throw new MessagingException (
-                "An exception occurred getting a database connection.", sqle);
+    protected Connection getConnection() {
+        int attempts = 0;
+        while (attempts < 1000) {
+            try {
+                return datasource.getConnection();
+            } catch (SQLException e1) {
+                if (e1.getMessage().equals("Could not create enough Components to service your request.")) {
+                    //stupid pool
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ie) {
+                        //ignore
+                    }
+                    attempts++;
+                } else {
+                    throw new CascadingRuntimeException(
+                        "An exception occurred getting a database connection.", e1);
+                }
+            }
         }
+        throw new RuntimeException("Failed to get a connection after " + attempts + " attempts");
     }
 
     /**
