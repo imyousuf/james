@@ -26,7 +26,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.InetAddress;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.16 $
- * Committed on $Date: 2002/04/17 14:07:45 $ by: $Author: serge $
+ * This is $Revision: 1.17 $
+ * Committed on $Date: 2002/04/17 16:19:45 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -275,14 +275,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     private boolean failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
-        PrintWriter pout = new PrintWriter(sout, true);
+        PrintWriter out = new PrintWriter(sout, true);
         if (permanent) {
-            pout.print("Permanent");
+            out.print("Permanent");
         } else {
-            pout.print("Temporary");
+            out.print("Temporary");
         }
-        pout.print(" exception delivering mail (" + mail.getName() + ": ");
-        ex.printStackTrace(pout);
+        out.print(" exception delivering mail (" + mail.getName() + ": ");
+        ex.printStackTrace(out);
         log(sout.toString());
         if (!permanent) {
             if (!mail.getState().equals(Mail.ERROR)) {
@@ -305,7 +305,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private void bounce(MailImpl mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
-        PrintWriter pout = new PrintWriter(sout, true);
+        PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
         try {
             InetAddress me = InetAddress.getLocalHost();
@@ -313,16 +313,35 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch(Exception e){
             machine = "[address unknown]";
         }
-        pout.println("Hi. This is the James mail server at " + machine + ".");
-        pout.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
-        pout.println("This is a permanent error; I've given up. Sorry it didn't work out.");
-        pout.println();
+        out.println("Hi. This is the James mail server at " + machine + ".");
+        out.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
+        out.println("This is a permanent error; I've given up. Sorry it didn't work out.  Below");
+        out.println("I include the list of recipients and the reason why I was unable to deliver");
+        out.println("your message.");
+        out.println();
         for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
-            pout.println(i.next());
+            out.println(i.next());
         }
-        pout.println(ex.getMessage().trim());
-        pout.println();
-        pout.println("The original message is attached.");
+        if (ex.getNextException() == null) {
+            out.println(ex.getMessage().trim());
+        } else {
+            Exception ex1 = ex.getNextException();
+            if (ex1 instanceof SendFailedException) {
+                out.println("Remote mail server told me: " + ex1.getMessage().trim());
+            } else if (ex1 instanceof UnknownHostException) {
+                out.println("Unknown host: " + ex1.getMessage().trim());
+                out.println("This could be a DNS server error, a typo, or a problem with the recipient's mail server.");
+            } else if (ex1 instanceof ConnectException) {
+                //Already formatted as "Connection timed out: connect"
+                out.println(ex1.getMessage().trim());
+            } else if (ex1 instanceof SocketException) {
+                out.println("Socket exception: " + ex1.getMessage().trim());
+            } else {
+                out.println(ex1.getMessage().trim());
+            }
+        }
+        out.println();
+        out.println("The original message is attached.");
 
         log("Sending failure message " + mail.getName());
         try {
