@@ -217,7 +217,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 sender = sender.substring(1, sender.length() - 1);
                 try {
                     senderAddress = new MailAddress(sender);
-                } catch (ParseException pe) {
+                } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
                     logger.log("Error parsing sender address: " + sender + ": " + pe.getMessage(), "SMTP", logger.ERROR);
                     return true;
@@ -250,7 +250,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 recipient = recipient.substring(1, recipient.length() - 1);
                 try {
                     recipientAddress = new MailAddress(recipient);
-                } catch (ParseException pe) {
+                } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
                     logger.log("Error parsing recipient address: " + recipient + ": " + pe.getMessage(), "SMTP", logger.ERROR);
                     return true;
