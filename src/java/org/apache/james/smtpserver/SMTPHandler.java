@@ -42,9 +42,10 @@ import org.apache.mailet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
+ * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.9 $
- * Committed on $Date: 2001/11/26 03:27:55 $ by: $Author: serge $
+ * This is $Revision: 1.10 $
+ * Committed on $Date: 2001/11/29 13:40:25 $ by: $Author: danny $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -207,26 +208,20 @@ public class SMTPHandler
 
     private boolean parseCommand(String command)
         throws Exception {
-
+        String argument  = null;
+        String argument1 = null;
         if (command == null) return false;
         if (state.get(MESG_FAILED) == null) {
             getLogger().info("Command received: " + command);
         }
-        StringTokenizer commandLine
-            = new StringTokenizer(command.trim(), " :");
-        int arguments = commandLine.countTokens();
-        if (arguments == 0) {
-            return true;
-        } else if(arguments > 0) {
-            command = commandLine.nextToken();
+        command = command.trim();
+        if (command.indexOf(" ")>0){
+            argument = command.substring(command.indexOf(" ")+1);
+            command = command.substring(0,command.indexOf(" "));
+            if(argument.indexOf(":")>0){
+                argument1 = argument.substring(argument.indexOf(":")+1);
+                argument = argument.substring(0,argument.indexOf(":"));
         }
-        String argument = (String) null;
-        if(arguments > 1) {
-            argument = commandLine.nextToken();
-        }
-        String argument1 = (String) null;
-        if(arguments > 2) {
-            argument1 = commandLine.nextToken();
         }
 
         if (command.equalsIgnoreCase("HELO"))
