@@ -45,8 +45,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/08 00:46:56 $
- * $Revision: 1.11 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/10 17:53:08 $
+ * $Revision: 1.12 $
  *
  */
 public class RemoteManagerHandler
@@ -192,7 +192,8 @@ public class RemoteManagerHandler
                             .append(remoteHost)
                             .append(" (")
                             .append(remoteIP)
-                            .append(")");
+                            .append("): ")
+                            .append(e.getMessage());
                 getLogger().error(exceptionBuffer.toString());
             }
         }
