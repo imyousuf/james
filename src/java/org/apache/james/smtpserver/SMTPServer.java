@@ -67,14 +67,14 @@ public class SMTPServer
     
     public void dispose()
     {
-    	getLogger().info( "SMTPServer dispose..." );
-    	getLogger().info( "SMTPServer dispose..." + m_connectionName);
-    	super.dispose();
+        getLogger().info( "SMTPServer dispose..." );
+        getLogger().info( "SMTPServer dispose..." + m_connectionName);
+        super.dispose();
        
         // This is needed to make sure sockets are promptly closed on Windows 2000
-	System.gc();
+	    System.gc();
 	
-	getLogger().info( "SMTPServer ...dispose end" );
+    	getLogger().info( "SMTPServer ...dispose end" );
     }
 }
 
