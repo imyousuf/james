@@ -59,7 +59,7 @@
                 <repository> file://../var/mail/delayed/ </repository>
 
                 <servletpackages>
-                    <servletpackages>org.apache.james.transport.servlet</servletpackages>
+                    <servletpackage>org.apache.james.transport.servlet</servletpackage>
                 <servletpackages>
 <!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
                 <servlets>
