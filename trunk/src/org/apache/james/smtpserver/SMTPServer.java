@@ -24,6 +24,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
     private Configuration conf;
     private Logger logger;
     private ThreadManager threadManager;
+    private SimpleComponentManager SMTPCM;
     
     public SMTPServer() {
     }
@@ -40,6 +41,22 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("SMTPServer init...", "SMTPServer", logger.INFO);
+        SMTPCM = new SimpleComponentManager(comp);
+        String servername = "";
+        try {
+            servername = conf.getConfiguration("servername").getValue();
+        } catch (ConfigurationException ce) {
+        }
+        if (servername.equals("")) {
+            try {
+                servername = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException ue) {
+                servername = "localhost";
+                logger.log("Cannot detect localhost server name", "SMTPServer", logger.ERROR);
+            }
+        }
+        logger.log("Localhost name set to: " + servername, "SMTPServer", logger.INFO);
+        SMTPCM.put("servername", servername);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, conf.getConfiguration("port", "25").getValueAsInt(), this);
@@ -51,7 +68,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Block {
         try {
             SMTPHandler smtpHandler = new SMTPHandler();
             smtpHandler.setConfiguration(conf.getConfiguration("smtphandler"));
-            smtpHandler.setComponentManager(comp);
+            smtpHandler.setComponentManager(SMTPCM);
             smtpHandler.parseRequest(s);
             threadManager.execute(smtpHandler);
             logger.log("Executing handler.", "SMTPServer", logger.DEBUG);

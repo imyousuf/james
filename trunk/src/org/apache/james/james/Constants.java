@@ -8,12 +8,13 @@
 
 package org.apache.james.james;
 
+import org.apache.james.JamesConstants;
+
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants {
+public class Constants extends JamesConstants {
     
     public static final String SOFTWARE_NAME = "JAMES Mail Server";
-    public static final String SOFTWARE_VERSION = "2.1-dev";
 }

@@ -57,7 +57,18 @@ public class James implements MailServer, Block {
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JAMES init...", "JAMES", logger.INFO);
-        this.serverName = conf.getConfiguration("servername", "SERVERNAME-NOT-FOUND").getValue();
+        try {
+            this.serverName = conf.getConfiguration("servername").getValue();
+        } catch (ConfigurationException ce) {
+            serverName = "";
+        }
+        if (serverName.equals("")) {
+            try {
+                serverName = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException ue) {
+                serverName = "localhost";
+            }
+        }
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
 

@@ -8,13 +8,14 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.james.JamesConstants;
+
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants {
+public class Constants extends JamesConstants {
     
     public static final String SOFTWARE_NAME = "JAMES RemoteAdministration Tool";
-    public static final String SOFTWARE_VERSION = "1.0";
 
 }

@@ -71,52 +71,36 @@
   Requirements
   ------------
 
-  - James.jar (of course).
+  - JAMES.jar (of course).
   - javax package (activation.jar, mail.jar)
   - Avalon server framework including:
       Avalon.jar
       Xerces.jar (or any other SAX capable XML Parser).
 
-  JAMES extended distribution (JAMES_x.zip) includes all of the above.
-  
-  Basic distribution (JAMES_b.zip) includes only James.jar, activation.jar and 
-  mail.jar,
-  
-  Miminum distribution (JAMES_m.zip) includes only James.jar.
+  JAMES distribution includes all of the above.
   
   To recompile James from sources you should use org.apache.tools.ant and its 
   needed packages (ant.jar, javac.jar, xml.jar).
 
-  Installation
-  ------------
+  Up and working...
+  -----------------
   
 Step 1: installation.
 
-  From CVS.
-    Download all CVS JAMEs tree. You should have Avalon already in the classpath
-    with other needed packages.
-    Run [ant package] using provided build.xml. Alternativly you can compile all
-    classes using javac and. It's equivalent.
-    Place James.jar in the classpath.
+    Download distibution. Extract all files in the folder you prefere.
     
-  From disrtibution.
-    Download needed distibution (extended, basic or minimum) depending on what 
-    you've already installed.
-    Place all jars in the classpath.
-    
-
 Step 2: configuration.
 
   The easy way.
-    In the extended distribution you'll find 3 configuration files:
-      avalon.conf.xml
-      JAMES.conf.xml
-      avalon-james.conf.xml
+    In the distribution you'll find 3 configuration files:
+      /conf/template/JAMES.conf.xml
+      /conf/template/avalon.conf.xml
+      /conf/avalon.conf.xml
     Forget first two files and backup them somewhere.
-    Edit avalon-james.conf.xml and fill it with needed configuration follwing
-    instructions inside (FILL ME etc.).
-    Rename the file to avalon.conf.xml (the default configuration file name for 
-    avalon) and place it in the same folder with Avalon.
+    Edit /conf/avalon.conf.xml and fill it with needed configuration follwing
+    instructions inside (FILL ME etc.). The file is filled with defaults so that
+    you should be able to run JAMES even without adding a single line but of
+    course... if you wat JAMES to do what you want you shoul tell him...
     
   The "good" way.
     Avalon is a server framework. It has its own configuration file that should
@@ -131,11 +115,13 @@ Step 2: configuration.
     Last thing to paste is Repository definition and public Repository. Follow
     the pattern described above. 
     After that fill all element where required with needed informations.
+    This is exactly what I've done from the /template/ files to /conf/avalon.conf.xml.
     
 Step 3: run.
 
-  Run [java -jar Avalon.jar]. 
-  Running [java -jar Avalon.jar -help] will provide a simple command line help.
+    M$ users shuold just run "run.bat" under /bin. Unix users will find run.sh
+    under the same folder.
+    Running [run.* -help] will provide a simple command line help.
   
   Good luck :)
     

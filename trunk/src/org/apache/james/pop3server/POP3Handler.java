@@ -52,7 +52,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private static int AUTHENTICATION_READY = 0;
     private static int AUTHENTICATION_USERSET = 1;
     private static int TRANSACTION = 2;
-    private static int QUIT = 10;
         
     /**
      * Constructor has no parameters to allow Class.forName() stuff.
@@ -77,7 +76,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         this.store = (Store) comp.getComponent(Interfaces.STORE);
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-        this.servername = conf.getConfiguration("servername", "localhost").getValue();
+        this.servername = (String) comp.get("servername");
         this.mailboxName = conf.getConfiguration("mailboxName", "localInbox").getValue() + ".";
         this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
         this.userMailbox = new Vector();
@@ -366,6 +365,9 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             }
             return true;
         } else if (command.equalsIgnoreCase("QUIT")) {
+            if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
+                return false;
+            }
             Vector toBeRemoved = new Vector();
             for (Enumeration e = backupUserMailbox.elements(); e.hasMoreElements(); ) {
                 Object mail = e.nextElement();
