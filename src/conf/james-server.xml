@@ -77,6 +77,9 @@
       <category name="fetchpop" log-level="INFO">
         <log-target id-ref="fetchpop-target"/>
       </category>
+      <category name="fetchmail" log-level="INFO">
+        <log-target id-ref="fetchmail-target"/>
+      </category>
     </categories>
 
     <!-- Logger targets -->
@@ -255,6 +258,16 @@
       </file>
       <file id="fetchpop-target">
         <filename>${app.home}/logs/fetchpop</filename>
+        <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+          <or>
+            <date>dd</date>
+          </or>
+        </rotation>
+      </file>
+      <file id="fetchmail-target">
+        <filename>${app.home}/logs/fetchmail</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
         <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">

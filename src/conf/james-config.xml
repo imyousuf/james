@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/documentation_2_1.htm -->
 
-<!-- $Revision: 1.44 $ Committed on $Date: 2003/01/18 23:22:34 $ by: $Author: hbedi $ -->
+<!-- $Revision: 1.45 $ Committed on $Date: 2003/02/05 04:30:03 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -42,7 +42,7 @@
       <!-- In most cases this will be necessary. -->
       <!-- By default, the servername 'localhost' is specified. This can be removed, if required. -->
       <!-- -->
-      <!-- Warning: If you are using fetchpop it is important to include the -->
+      <!-- Warning: If you are using fetchmail it is important to include the -->
       <!-- fetched domains in the server name list to prevent looping.       -->
       <servernames autodetect="true" autodetectIP="true">
 <!-- CONFIRM? -->
@@ -76,6 +76,7 @@
    <!-- Warning: It is important to prevent mail from looping by setting the  -->
    <!-- fetched domains in the <servernames> section of the <James> block      -->
    <!-- above. This block is disabled by default.                              -->
+   <!-- DEPRECATED: SEE FETMCHMAIL BLOCK, BELOW.                               -->
     <fetchpop enabled="false">
         <!-- You can have as many fetch tasks as you want, but each must have a -->
         <!-- unique name by which it identified -->
@@ -91,6 +92,46 @@
         </fetch>
     </fetchpop>
 
+   <!-- Fetch mail block, fetches mail from message servers and inserts it into the incoming spool -->
+   <!-- Warning: It is important to prevent mail from looping by setting the  -->
+   <!-- fetched domains in the <servernames> section of the <James> block      -->
+   <!-- above. This block is disabled by default.                              -->
+    <fetchmail enabled="false">
+        <!-- You can have as many fetch tasks as you want, but each must have a -->
+        <!-- unique name by which it identified -->
+        <fetch name="mydomain.com">
+            <!-- Host name or IP address -->
+            <host>mail.mydomain.com</host>
+            <!-- Account login username -->
+            <user>username</user>
+            <!-- Account login password -->
+            <password>pass</password>
+            <!-- How frequently this account is checked - in milliseconds. 600000 is every ten minutes -->
+            <interval>600000</interval>
+            <!-- Fetchmail will leave the fetched message unchanged and will add a new envelope     -->
+            <!-- recipient before spooling the message in James.  -->
+            <!-- Fetchmail will try and determine the original recipient of the message             -->
+            <!-- in the following ways:  -->
+            <!-- First it tries to parse the Received: headers and look for the "for" parameter    -->
+            <!-- If the "for" parameter is not found it will check the To: header and if it only   -->
+            <!-- contains one address it will be used as the new envelope recipient.   -->
+            <!-- If no recipient can be determined, the value defined in the <recipient> parameter -->
+            <!-- will be used. Setting ignorercpt-header to true will force the defined recipient  -->
+            <!-- to ALWAYS be used and the parsing of headers will be ignored  -->
+            <recipient ignorercpt-header="false">user@mydomain.com</recipient>
+
+            <!-- name of the javamail provider you wish to use -->
+            <!-- (pop3, imap, etc. -->
+            <javaMailProviderName>pop3</javaMailProviderName>
+
+            <!-- name of the folder to open -->
+            <javaMailFolderName>INBOX</javaMailFolderName>
+
+            <!-- If "true" will leave the messages on the server           -->
+            <!-- and mark them as SEEN if "false" will delete the messages -->
+            <leaveonserver>false</leaveonserver>
+        </fetch>
+    </fetchmail>
 
    <!-- The James Spool Manager block  -->
    <!-- -->
@@ -294,12 +335,13 @@
    <!-- Specifies DNS Server information for use by various components inside -->
    <!-- James. -->
    <!-- -->
-   <!-- James will attempt to autodetect the DNS servers configured on your underlying system.-->
+   <!-- If autodiscover is true, James will attempt to autodiscover the DNS servers configured on your underlying system.-->
    <!-- Currently, this works if the OS has a unix-like /etc/resolv.conf,-->
    <!-- or the system is Windows based with ipconfig or winipcfg.-->
    <!-- -->
    <!-- If no DNS servers are found and you have not specified any below, 127.0.0.1 will be used-->
-   <!-- -->
+   <!-- If you use autodiscover and add DNS servers manually a combination of all the dns servers will be used  -->
+   <!--  -->
    <!-- Information includes a list of DNS Servers to be used by James.  These are -->
    <!-- specified by the server elements, each of which is a child element of the -->
    <!-- servers element.  Each server element is the IP address of a single DNS server. -->
@@ -312,6 +354,9 @@
           <server>127.0.0.1</server>
          -->
       </servers>
+      <!-- Change autodiscover to false if you would like to turn off autodiscovery -->
+      <!-- and set the DNS servers manually in the <servers> section -->
+      <autodiscover>true</autodiscover>
       <authoritative>false</authoritative>
    </dnsserver>
 
