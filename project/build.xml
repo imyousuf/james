@@ -3,30 +3,16 @@
 <project name="james-server" default="install" basedir="../." 
     xmlns:x="antlib:org.apache.avalon.tools">
 
-  <!--
+  <!-- 
   ==============================================================================
   Declare james specific properties used within the build.
   ==============================================================================
-  -->
+  --> 
   <property name="Name" value="James Mail Server"/>
   <property name="constants.filename" value="org/apache/james/Constants.java"/>
   <property name="poolconn.filename" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
   <available property="jdbc3.present" classname="java.sql.Savepoint"/>
-  <property name="project.src.main" value="java"/>
-
-  <!--
-  ==============================================================================
-  Verify the the necessary ant libraries are installed.
-  ==============================================================================
-  -->
-  <import file="verify.xml"/>
-
-  <!--
-  ==============================================================================
-  Read centralized artifact group, name and version references.
-  ==============================================================================
-  -->
-  <x:home index="project/index.xml"/>
+  <property name="project.src.main" value="java"/> 
 
   <!--
   ==============================================================================
@@ -40,6 +26,7 @@
   Add james specific build enhancements.
   ==============================================================================
   -->
+
   <target name="prepare" depends="verify,standard.prepare,jdbc3">
     <replace file="target/build/main/${constants.filename}" 
       token="@@VERSION@@" value="${project.version}"/>
@@ -60,57 +47,31 @@
      <x:include name="datasources" 
        artifact="block:avalon/cornerstone/cornerstone-datasources-impl#SNAPSHOT"/>
      <x:include name="store" 
-       artifact="block:avalon/cornerstone/cornerstone-store-impl#SNAPSHOT">
-       <!-- configuration override required -->
-     </x:include>
+       artifact="block:avalon/cornerstone/cornerstone-store-impl#SNAPSHOT"/>
      <x:component name="connections" 
-         class="org.apache.james.util.connection.SimpleConnectionManager">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.util.connection.SimpleConnectionManager"/>
      <x:component name="server" 
-         class="org.apache.james.James">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.James"/>
      <x:component name="dns" 
-         class="org.apache.james.dnsserver.DNSServer">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.dnsserver.DNSServer"/>
      <x:component name="remote" 
-         class="org.apache.james.remotemanager.RemoteManager">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.remotemanager.RemoteManager"/>
      <x:component name="pop3" 
-         class="org.apache.james.pop3server.POP3Server">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.pop3server.POP3Server"/>
      <x:component name="smtp" 
-         class="org.apache.james.smtpserver.SMTPServer">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.smtpserver.SMTPServer"/>
      <x:component name="mailstore" 
-         class="org.apache.james.core.AvalonMailStore">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.core.AvalonMailStore"/>
      <x:component name="userstore" 
-         class="org.apache.james.core.AvalonUsersStore">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.core.AvalonUsersStore"/>
      <x:component name="spool" 
-         class="org.apache.james.transport.JamesSpoolManager">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.transport.JamesSpoolManager"/>
      <x:component name="nntp-repository" 
-         class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" activation="false">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" activation="false"/>
      <x:component name="nntp" 
-         class="org.apache.james.nntpserver.NNTPServer" activation="false">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.nntpserver.NNTPServer" activation="false"/>
      <x:component name="fetchpop" 
-         class="org.apache.james.fetchpop.FetchScheduler" activation="false">
-       <!-- configuration override required -->
-     </x:component>
+         class="org.apache.james.fetchpop.FetchScheduler" activation="false"/>
     </x:block>
   </target>
 
@@ -143,6 +104,5 @@
       <x:nag to="server-dev@james.apache.org"/>
     </x:gump>
   </target>
-
 
 </project>

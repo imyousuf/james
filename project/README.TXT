@@ -43,3 +43,8 @@ Resource Summary.
                                              install the dependent ant libraries and build 
                                              artifacts
 
+  /james-server/project/merlin ............. resources specific to James in Merlin
+
+
+
+

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="standard" xmlns:x="antlib:org.apache.avalon.tools">
 
-  <x:home/>
+  <!--
+  ==============================================================================
+  Declare james specific properties used within the build.
+  ==============================================================================
+  -->
+  <import file="verify.xml"/>
+
+  <x:home index="project/index.xml"/>
 
   <target name="info">
     <x:info/>
