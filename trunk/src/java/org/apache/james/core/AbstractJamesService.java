@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
+import org.apache.james.services.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
@@ -39,7 +39,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 
-import org.apache.james.util.connection.SimpleConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
 import org.apache.james.util.watchdog.WatchdogFactory;
 
@@ -129,7 +128,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * The ConnectionManager that spawns and manages service connections.
      */
-    private ConnectionManager connectionManager;
+    private JamesConnectionManager connectionManager;
 
     /**
      * Whether this service is enabled.
@@ -165,7 +164,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         super.service( comp );
         compMgr               = comp;
         connectionManager =
-            (ConnectionManager)compMgr.lookup(ConnectionManager.ROLE);
+            (JamesConnectionManager)compMgr.lookup(JamesConnectionManager.ROLE);
     }
 
     /**
@@ -278,7 +277,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         final String location = "generated:"+getServiceType();
 
-        if(connectionManager instanceof SimpleConnectionManager) {
+        if(connectionManager instanceof JamesConnectionManager) {
             String connectionLimitString =
                 conf.getChild("connectionLimit").getValue(null);
             if(connectionLimitString != null) {
@@ -297,7 +296,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             } else {
                 connectionLimit =
                     new Integer(
-                        ((SimpleConnectionManager)connectionManager)
+                        ((JamesConnectionManager)connectionManager)
                         .getMaximumNumberOfOpenConnections());
             }
             infoBuffer =
@@ -407,13 +406,13 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
         if(
             (connectionLimit != null)
-                &&(connectionManager instanceof SimpleConnectionManager)) {
+                &&(connectionManager instanceof JamesConnectionManager)) {
             if(null != threadPool) {
-                ((SimpleConnectionManager)connectionManager).connect(
+                ((JamesConnectionManager)connectionManager).connect(
                     connectionName,serverSocket,this,threadPool,
                     connectionLimit.intValue());
             } else {
-                ((SimpleConnectionManager)connectionManager).connect(
+                ((JamesConnectionManager)connectionManager).connect(
                     connectionName,serverSocket,this,connectionLimit.intValue()); // default pool
             }
         } else {

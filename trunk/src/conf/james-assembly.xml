@@ -30,7 +30,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
@@ -53,7 +53,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -66,7 +66,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -80,7 +80,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
@@ -92,7 +92,7 @@
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
-             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="nntp-repository"
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
     <provide name="thread-manager"
@@ -114,6 +114,7 @@
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>          
   </block>
 
   <!-- The High Level Storage block -->
