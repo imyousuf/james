@@ -102,6 +102,19 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     private String articleIDDomainSuffix = null;
 
     /**
+     * The ordered list of fields returned in the overview format for
+     * articles stored in this repository.
+     */
+    private String[] overviewFormat = { "Subject:",
+                                        "From:",
+                                        "Date:",
+                                        "Message-ID:",
+                                        "References:",
+                                        "Bytes:",
+                                        "Lines:"
+                                      };
+
+    /**
      * This is a mapping of group names to NNTP group objects.
      *
      * TODO: This needs to be addressed so it scales better
@@ -173,16 +186,41 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
 
         if ( rootPath.exists() == false ) {
             rootPath.mkdirs();
+        } else if (!(rootPath.isDirectory())) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                    .append("NNTP repository root directory is improperly configured.  The specified path ")
+                    .append(rootPathString)
+                    .append(" is not a directory.");
+            throw new ConfigurationException(errorBuffer.toString());
         }
+
         for ( int i = 0 ; i < addGroups.length ; i++ ) {
             File groupFile = new File(rootPath,addGroups[i]);
             if ( groupFile.exists() == false ) {
                 groupFile.mkdirs();
+            } else if (!(groupFile.isDirectory())) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(128)
+                        .append("A file exists in the NNTP root directory with the same name as a newsgroup.  File ")
+                        .append(addGroups[i])
+                        .append("in directory ")
+                        .append(rootPathString)
+                        .append(" is not a directory.");
+                throw new ConfigurationException(errorBuffer.toString());
             }
         }
         if ( tempPath.exists() == false ) {
             tempPath.mkdirs();
+        } else if (!(tempPath.isDirectory())) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                    .append("NNTP repository temp directory is improperly configured.  The specified path ")
+                    .append(tempPathString)
+                    .append(" is not a directory.");
+            throw new ConfigurationException(errorBuffer.toString());
         }
+
         getLogger().debug("repository initialization done");
     }
 
@@ -329,6 +367,13 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     }
 
     /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getOverviewFormat()
+     */
+    public String[] getOverviewFormat() {
+        return overviewFormat;
+    }
+
+    /**
      * Creates an instance of the spooler class.
      *
      * TODO: This method doesn't properly implement the Avalon lifecycle.
@@ -373,5 +418,4 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             throw new ConfigurationException("Spooler initialization failed",ex);
         }
     }
-
 }

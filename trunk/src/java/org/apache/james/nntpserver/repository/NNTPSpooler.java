@@ -72,7 +72,7 @@ class NNTPSpooler extends AbstractLogEnabled
      */
     public void configure( Configuration configuration ) throws ConfigurationException {
         int threadCount = configuration.getChild("threadCount").getValueAsInteger(1);
-        threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(1000);
+        threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(60 * 1000);
         spoolPathString = configuration.getChild("spoolPath").getValue();
         worker = new SpoolerRunnable[threadCount];
     }
@@ -202,27 +202,33 @@ class NNTPSpooler extends AbstractLogEnabled
          */
         public void run() {
             getLogger().debug("in spool thread");
-            while ( Thread.currentThread().isInterrupted() == false ) {
-                String[] list = spoolPath.list();
-                for ( int i = 0 ; i < list.length ; i++ ) {
-                    getLogger().debug("Files to process: "+list.length);
-                    if ( lock.lock(list[i]) ) {
-                        File f = new File(spoolPath,list[i]).getAbsoluteFile();
-                        getLogger().debug("Processing file: "+f.getAbsolutePath());
-                        try {
-                            process(f);
-                        } catch(Exception ex) {
-                            getLogger().debug("Exception occured while processing file: "+
-                                              f.getAbsolutePath(),ex);
-                        } finally {
-                            lock.unlock(list[i]);
+            try {
+                while ( Thread.currentThread().interrupted() == false ) {
+                    String[] list = spoolPath.list();
+                    for ( int i = 0 ; i < list.length ; i++ ) {
+                        getLogger().debug("Files to process: "+list.length);
+                        if ( lock.lock(list[i]) ) {
+                            File f = new File(spoolPath,list[i]).getAbsoluteFile();
+                            getLogger().debug("Processing file: "+f.getAbsolutePath());
+                            try {
+                                process(f);
+                            } catch(Exception ex) {
+                                getLogger().debug("Exception occured while processing file: "+
+                                                  f.getAbsolutePath(),ex);
+                            } finally {
+                                lock.unlock(list[i]);
+                            }
                         }
                     }
+                    // this is good for other non idle threads
+                    try {
+                        Thread.currentThread().sleep(threadIdleTime);
+                    } catch(InterruptedException ex) {
+                        // Ignore and continue
+                    }
                 }
-                // this is good for other non idle threads
-                try {
-                    Thread.currentThread().sleep(threadIdleTime);
-                } catch(InterruptedException ex) {  }
+            } finally {
+                Thread.currentThread().interrupted();
             }
         }
 
@@ -266,17 +272,19 @@ class NNTPSpooler extends AbstractLogEnabled
 
             String[] headers = msg.getHeader("Newsgroups");
             Properties prop = new Properties();
-            for ( int i = 0 ; i < headers.length ; i++ ) {
-                getLogger().debug("Copying message to group: "+headers[i]);
-                NNTPGroup group = repo.getGroup(headers[i]);
-                if ( group == null ) {
-                    getLogger().error("Couldn't add article with article ID " + articleID + " to group " + headers[i] + " - group not found.");
-                    continue;
-                }
+            if (headers != null) {
+                for ( int i = 0 ; i < headers.length ; i++ ) {
+                    getLogger().debug("Copying message to group: "+headers[i]);
+                    NNTPGroup group = repo.getGroup(headers[i]);
+                    if ( group == null ) {
+                        getLogger().error("Couldn't add article with article ID " + articleID + " to group " + headers[i] + " - group not found.");
+                        continue;
+                    }
 
-                FileInputStream newsStream = new FileInputStream(spoolFile);
-                NNTPArticle article = group.addArticle(newsStream);
-                prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                    FileInputStream newsStream = new FileInputStream(spoolFile);
+                    NNTPArticle article = group.addArticle(newsStream);
+                    prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                }
             }
             articleIDRepo.addArticle(articleID,prop);
             boolean delSuccess = spoolFile.delete();

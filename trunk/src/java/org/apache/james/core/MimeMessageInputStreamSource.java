@@ -10,6 +10,8 @@ package org.apache.james.core;
 import java.io.*;
 import javax.mail.MessagingException;
 
+import org.apache.avalon.framework.activity.Disposable;
+
 /**
  * Takes an input stream and creates a repeatable input stream source
  * for a MimeMessageWrapper.  It does this by completely reading the
@@ -21,7 +23,9 @@ import javax.mail.MessagingException;
  *
  * @author <a href="mailto:sergek@lokitech.com>">Serge Knystautas</a>
  */
-public class MimeMessageInputStreamSource extends MimeMessageSource {
+public class MimeMessageInputStreamSource
+    extends MimeMessageSource
+    implements Disposable {
 
     /**
      * A temporary file used to hold the message stream
@@ -57,7 +61,6 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
                 fout.write(b);
             }
             fout.flush();
-            file.deleteOnExit();
 
             sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
@@ -111,11 +114,9 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
     }
 
     /**
-     * <p>Finalizer that closes and deletes the temp file.  Very bad.</p>
-     * <p>TODO: Should be replaced with a more robust cleanup mechanism</p>
-     *
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
-    public void finalize() {
+    public void dispose() {
         try {
             if (file != null && file.exists()) {
                 file.delete();
@@ -124,5 +125,15 @@ public class MimeMessageInputStreamSource extends MimeMessageSource {
             //ignore
         }
         file = null;
+    }
+
+    /**
+     * <p>Finalizer that closes and deletes the temp file.  Very bad.</p>
+     * We're leaving this in temporarily, while also establishing a more
+     * formal mechanism for cleanup through use of the dispose() method.
+     *
+     */
+    public void finalize() {
+        dispose();
     }
 }

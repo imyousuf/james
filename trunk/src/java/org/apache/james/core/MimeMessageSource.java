@@ -66,4 +66,5 @@ public abstract class MimeMessageSource {
         }
         return size;
     }
+
 }

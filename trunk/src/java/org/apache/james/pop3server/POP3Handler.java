@@ -8,17 +8,11 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.excalibur.collections.ListUtils;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.BaseConnectionHandler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
@@ -27,7 +21,9 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.SchedulerNotifyOutputStream;
+import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
@@ -39,11 +35,11 @@ import java.util.*;
  * The handler class for POP3 connections.
  *
  * @author Federico Barbieri <scoobie@systemy.it>
- * @version 0.9
+ * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class POP3Handler
-    extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Target {
+    extends AbstractLogEnabled
+    implements ConnectionHandler, Poolable {
 
     // POP3 Server identification string used in POP3 headers
     private static final String softwaretype        = "JAMES POP3 Server "
@@ -78,17 +74,9 @@ public class POP3Handler
                                                           // deleted from the inbox.
 
     /**
-     * The internal mail server service
+     * The per-service configuration data that applies to all handlers
      */
-    private MailServer mailServer;
-
-    /**
-     * The user repository for this server - used to authenticate users.
-     */
-    private UsersRepository users;
-
-    private TimeScheduler scheduler;    // The scheduler used to handle timeouts for the
-                                        // POP3 interaction
+    private POP3HandlerConfigurationData theConfigData;
 
     /**
      * The mail server's copy of the user's inbox
@@ -111,49 +99,84 @@ public class POP3Handler
      */
     private PrintWriter out;
 
-    private OutputStream outs;     // The socket's output stream
+    /**
+     * The socket's output stream
+     */
+    private OutputStream outs;
 
-    private int state;             // The current transaction state of the handler
+    /**
+     * The current transaction state of the handler
+     */
+    private int state;
 
     /**
      * The user id associated with the POP3 dialogue
      */
     private String user;
 
-    private Vector userMailbox = new Vector();   // A dynamic list representing the set of
-                                                 // emails in the user's inbox at any given time
-                                                 // during the POP3 transaction
+    /**
+     * A dynamic list representing the set of
+     * emails in the user's inbox at any given time
+     * during the POP3 transaction.
+     */
+    private Vector userMailbox = new Vector();
 
     private Vector backupUserMailbox;            // A snapshot list representing the set of 
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
-    private int lengthReset = 20000;         // The number of bytes to read before resetting
-                                             // the connection timeout timer.  Defaults to
-                                             // 20 seconds.
+    /**
+     * The watchdog being used by this handler to deal with idle timeouts.
+     */
+    private Watchdog theWatchdog;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * The watchdog target that idles out this handler.
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        mailServer = (MailServer)componentManager.
-            lookup( "org.apache.james.services.MailServer" );
-        UsersStore usersStore = (UsersStore)componentManager.
-            lookup( "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");
-        scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
+    private WatchdogTarget theWatchdogTarget = new POP3WatchdogTarget();
+
+    /**
+     * Set the configuration data for the handler.
+     *
+     * @param theData the configuration data
+     */
+    void setConfigurationData(POP3HandlerConfigurationData theData) {
+        theConfigData = theData;
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * Set the Watchdog for use by this handler.
+     *
+     * @param theWatchdog the watchdog
      */
-    public void configure(Configuration configuration)
-            throws ConfigurationException {
-        super.configure(configuration);
+    void setWatchdog(Watchdog theWatchdog) {
+        this.theWatchdog = theWatchdog;
+    }
 
-        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
+    /**
+     * Gets the Watchdog Target that should be used by Watchdogs managing
+     * this connection.
+     *
+     * @return the WatchdogTarget
+     */
+    WatchdogTarget getWatchdogTarget() {
+        return theWatchdogTarget;
+    }
+
+    /**
+     * Idle out this connection
+     */
+    void idleClose() {
+        if (getLogger() != null) {
+            getLogger().error("POP3 Connection has idled out.");
+        }
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
+            // ignored
+        }
     }
 
     /**
@@ -167,9 +190,7 @@ public class POP3Handler
 
         try {
             this.socket = connection;
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            outs = socket.getOutputStream();
-            out = new InternetPrintWriter(outs, true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
             remoteIP = socket.getInetAddress().getHostAddress ();
             remoteHost = socket.getInetAddress().getHostName ();
         } catch (Exception e) {
@@ -198,22 +219,25 @@ public class POP3Handler
         }
 
         try {
-            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
-            scheduler.addTrigger( this.toString(), trigger, this );
+            outs = socket.getOutputStream();
+            out = new InternetPrintWriter(outs, true);
             state = AUTHENTICATION_READY;
             user = "unknown";
             StringBuffer responseBuffer =
                 new StringBuffer(256)
                         .append(OK_RESPONSE)
                         .append(" ")
-                        .append(this.helloName)
+                        .append(theConfigData.getHelloName())
                         .append(" POP3 server (")
                         .append(this.softwaretype)
                         .append(") ready ");
             out.println(responseBuffer.toString());
+
+            theWatchdog.start();
             while (parseCommand(in.readLine())) {
-                scheduler.resetTrigger(this.toString());
+                theWatchdog.reset();
             }
+            theWatchdog.stop();
             if (getLogger().isInfoEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(128)
@@ -238,31 +262,81 @@ public class POP3Handler
                         .append(") : ")
                         .append(e.getMessage());
             getLogger().error(exceptionBuffer.toString(), e );
-            try {
-                socket.close();
-            } catch (IOException ioe) {  }
-
-            // release from scheduler.
-            try {
-                scheduler.removeTrigger(this.toString());
-            } catch(Throwable t) { }
+        } finally {
+            resetHandler();
         }
     }
 
     /**
-     * Callback method called when the the PeriodicTimeTrigger in 
-     * handleConnection is triggered.  In this case the trigger is
-     * being used as a timeout, so the method simply closes the connection.
-     *
-     * @param triggerName the name of the trigger
+     * Resets the handler data to a basic state.
      */
-    public void targetTriggered( final String triggerName ) {
-        getLogger().error("Connection timeout on socket");
-        try {
-            out.println("Connection timeout. Closing connection");
-            socket.close();
-        } catch (IOException e) {
+    private void resetHandler() {
+
+        if (theWatchdog != null) {
+            if (theWatchdog instanceof Disposable) {
+                ((Disposable)theWatchdog).dispose();
+            }
+            theWatchdog = null;
         }
+
+        // Close and clear streams, sockets
+
+        try {
+            if (socket != null) {
+                socket.close();
+                socket = null;
+            }
+        } catch (IOException ioe) {
+            // Ignoring exception on close
+        } finally {
+            socket = null;
+        }
+
+        try {
+            if (in != null) {
+                in.close();
+            }
+        } catch (Exception e) {
+            // Ignored
+        } finally {
+            in = null;
+        }
+
+        try {
+            if (out != null) {
+                out.close();
+            }
+        } catch (Exception e) {
+            // Ignored
+        } finally {
+            out = null;
+        }
+
+        try {
+           if (outs != null) {
+               outs.close();
+            }
+        } catch (Exception e) {
+            // Ignored
+        } finally {
+            outs = null;
+        }
+
+        // Clear user data
+        user = null;
+        userInbox = null;
+        if (userMailbox != null) {
+            userMailbox.clear();
+            userMailbox = null;
+        }
+
+        if (backupUserMailbox != null) {
+            backupUserMailbox.clear();
+            backupUserMailbox = null;
+        }
+
+        // Clear config data
+        theConfigData = null;
     }
 
     /**
@@ -396,7 +470,7 @@ public class POP3Handler
         String responseString = null;
         if (state == AUTHENTICATION_USERSET && argument != null) {
             String passArg = argument;
-            if (users.test(user, passArg)) {
+            if (theConfigData.getUsersRepository().test(user, passArg)) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
                             .append(OK_RESPONSE)
@@ -405,7 +479,7 @@ public class POP3Handler
                 responseString = responseBuffer.toString();
                 state = TRANSACTION;
                 out.println(responseString);
-                userInbox = mailServer.getUserInbox(user);
+                userInbox = theConfigData.getMailServer().getUserInbox(user);
                 stat();
             } else {
                 responseString = ERR_RESPONSE + " Authentication failed.";
@@ -775,9 +849,10 @@ public class POP3Handler
                     responseString = OK_RESPONSE + " Message follows";
                     out.println(responseString);
                     OutputStream nouts =
-                            new ExtraDotOutputStream(
-                            new SchedulerNotifyOutputStream(outs, scheduler,
-                            this.toString(), lengthReset));
+                            new ExtraDotOutputStream(outs);
+                    nouts = new BytesWrittenResetOutputStream(nouts,
+                                                              theWatchdog,
+                                                              theConfigData.getResetLength());
                     mc.writeMessageTo(nouts);
                     out.println();
                     out.println(".");
@@ -853,9 +928,10 @@ public class POP3Handler
                     }
                     out.println("");
                     OutputStream nouts =
-                            new ExtraDotOutputStream(
-                            new SchedulerNotifyOutputStream(outs, scheduler,
-                            this.toString(), lengthReset));
+                            new ExtraDotOutputStream(outs);
+                    nouts = new BytesWrittenResetOutputStream(nouts,
+                                                              theWatchdog,
+                                                              theConfigData.getResetLength());
                     mc.writeContentTo(nouts, lines);
                     out.println(".");
                 } else {
@@ -950,5 +1026,23 @@ public class POP3Handler
             getLogger().debug("Sent: " + responseString);
         }
     }
+
+    /**
+     * A private inner class which serves as an adaptor
+     * between the WatchdogTarget interface and this
+     * handler class.
+     */
+    private class POP3WatchdogTarget
+        implements WatchdogTarget {
+
+        /**
+         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
+         */
+        public void execute() {
+            POP3Handler.this.idleClose();
+        }
+
+    }
+
 }
 

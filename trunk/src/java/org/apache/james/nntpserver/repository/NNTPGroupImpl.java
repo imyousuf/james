@@ -37,11 +37,6 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     private final File root;
 
     /**
-     * The article number of the current article
-     */
-    private int currentArticle = -1;
-
-    /**
      * The last article number in the group
      */
     private int lastArticle;
@@ -144,31 +139,6 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     }
 
     /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getCurrentArticleNumber()
-     */
-    public int getCurrentArticleNumber() {
-        collectArticleRangeInfo();
-        // this is not as per RFC, but this is not significant.
-        if ( currentArticle == -1 && firstArticle > 0 )
-            currentArticle = firstArticle;
-        return currentArticle;
-    }
-
-    /**
-     * @see org.apache.james.nntpserver.NNTPGroup#setCurrentArticleNumber(int)
-     */
-    public void setCurrentArticleNumber(int articleNumber) {
-        this.currentArticle = articleNumber;
-    }
-
-    /**
-     * @see org.apache.james.nntpserver.NNTPGroup#getCurrentArticle()
-     */
-    public NNTPArticle getCurrentArticle() {
-        return getArticle(getCurrentArticleNumber());
-    }
-
-    /**
      * @see org.apache.james.nntpserver.NNTPGroup#getArticle(int)
      */
     public NNTPArticle getArticle(int number) {
@@ -184,8 +154,9 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             (new DateSinceFileFilter(dt.getTime()),
              new InvertedFileFilter(new ExtensionFileFilter(".id"))));
         List list = new ArrayList();
-        for ( int i = 0 ; i < f.length ; i++ )
+        for ( int i = 0 ; i < f.length ; i++ ) {
             list.add(new NNTPArticleImpl(this, f[i]));
+        }
         return list.iterator();
     }
 

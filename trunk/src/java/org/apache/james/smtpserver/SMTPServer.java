@@ -6,16 +6,32 @@
  * the LICENSE file.
  */
 package org.apache.james.smtpserver;
-import org.apache.avalon.cornerstone.services.connection.AbstractService;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
+
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.excalibur.pool.DefaultPool;
+import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
+import org.apache.avalon.excalibur.pool.ObjectFactory;
+import org.apache.avalon.excalibur.pool.Pool;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.component.Component;
-import org.apache.mailet.MailetContext;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.Constants;
+import org.apache.james.core.AbstractJamesService;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
+import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogFactory;
+import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.mailet.MailetContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 /**
@@ -28,25 +44,77 @@ import java.net.UnknownHostException;
  * @author  Matthew Pangaro <mattp@lokitech.com>
  * @author  <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
+ * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 /*
- * IMPORTANT: SMTPServer extends AbstractService.  If you implement ANY
+ * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractService implements Component {
+public class SMTPServer extends AbstractJamesService implements Component {
+
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
      */
     MailetContext mailetcontext;
 
     /**
-     * Whether this service is enabled
+     * The user repository for this server - used to authenticate
+     * users.
      */
-    private volatile boolean enabled = true;
+    private UsersRepository users;
 
-    protected ConnectionHandlerFactory createFactory() {
-        return new DefaultHandlerFactory(SMTPHandler.class);
-    }
+    /**
+     * The internal mail server service.
+     */
+    private MailServer mailServer;
+
+    /**
+     * Whether authentication is required to use
+     * this SMTP server.
+     */
+    private boolean authRequired = false;
+
+    /**
+     * Whether the server verifies that the user
+     * actually sending an email matches the
+     * authentication credentials attached to the
+     * SMTP interaction.
+     */
+    private boolean verifyIdentity = false;
+
+    /**
+     * The maximum message size allowed by this SMTP server.  The default
+     * value, 0, means no limit.
+     */
+    private long maxMessageSize = 0;
+
+    /**
+     * The number of bytes to read before resetting
+     * the connection timeout timer.  Defaults to
+     * 20 KB.
+     */
+    private int lengthReset = 20 * 1024;
+
+    /**
+     * The pool used to provide SMTP Handler objects
+     */
+    private Pool theHandlerPool = null;
+
+    /**
+     * The pool used to provide SMTP Handler objects
+     */
+    private ObjectFactory theHandlerFactory = new SMTPHandlerFactory();
+
+    /**
+     * The factory used to generate Watchdog objects
+     */
+    private WatchdogFactory theWatchdogFactory;
+
+    /**
+     * The configuration data to be passed to the handler
+     */
+    private SMTPHandlerConfigurationData theConfigData
+        = new SMTPHandlerConfigurationDataImpl();
 
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
@@ -54,31 +122,47 @@ public class SMTPServer extends AbstractService implements Component {
     public void compose(final ComponentManager componentManager) throws ComponentException {
         super.compose(componentManager);
         mailetcontext = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
+        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
+        UsersStore usersStore =
+            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
+        users = usersStore.getRepository("LocalUsers");
+        if (users == null) {
+            throw new ComponentException("The user repository could not be found.");
+        }
     }
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
-        enabled = configuration.getAttributeAsBoolean("enabled", true);
-        if (enabled) {
-            m_port = configuration.getChild("port").getValueAsInteger(25);
-            try {
-                final String bindAddress = configuration.getChild("bind").getValue(null);
-                if (null != bindAddress) {
-                    m_bindTo = InetAddress.getByName(bindAddress);
-                }
-            } catch (final UnknownHostException unhe) {
-                throw new ConfigurationException("Malformed bind parameter", unhe);
-            }
-            final boolean useTLS = configuration.getChild("useTLS").getValueAsBoolean(false);
-            if (useTLS) {
-                m_serverSocketType = "ssl";
-            }
-            super.configure(configuration.getChild("handler"));
-            // make our "helloName" available through the MailetContext
-            String helloName = SMTPHandler.configHelloName(configuration.getChild("handler"));
+        super.configure(configuration);
+        if (isEnabled()) {
             mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            Configuration handlerConfiguration = configuration.getChild("handler");
+            authRequired = handlerConfiguration.getChild("authRequired").getValueAsBoolean(false);
+            verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
+            if (authRequired) {
+                if (verifyIdentity) {
+                    getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
+                } else {
+                    getLogger().info("This SMTP server requires authentication, but doesn't verify that the authentication credentials match the sender address.");
+                }
+            } else {
+                getLogger().info("This SMTP server does not require authentication.");
+            }
+            // get the message size limit from the conf file and multiply
+            // by 1024, to put it in bytes
+            maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
+            }
+            //how many bytes to read before updating the timer that data is being transfered
+            lengthReset = configuration.getChild("lengthReset").getValueAsInteger(lengthReset);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
+            }
+        } else {
+            mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
     }
 
@@ -86,37 +170,161 @@ public class SMTPServer extends AbstractService implements Component {
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        if (enabled) {
-            getLogger().info("SMTPServer init...");
-            super.initialize();
-            StringBuffer logBuffer =
-                new StringBuffer(128)
-                    .append("SMTPServer using ")
-                    .append(m_serverSocketType)
-                    .append(" on port ")
-                    .append(m_port)
-                    .append(" at ")
-                    .append(m_bindTo);
-            getLogger().info(logBuffer.toString());
-            getLogger().info("SMTPServer ...init end");
-            System.out.println("SMTP Server Started " + m_connectionName);
+        super.initialize();
+        if (!isEnabled()) {
+            return;
+        }
+
+        if (connectionLimit != null) {
+            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using a bounded pool for SMTP handlers with upper limit " + connectionLimit.intValue());
+            }
         } else {
-            getLogger().info("SMTP Server Disabled");
-            System.out.println("SMTP Server Disabled");
+            // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
+            //       provide handlers beyond this value.
+            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
+            getLogger().debug("Using an unbounded pool for SMTP handlers.");
+        }
+        if (theHandlerPool instanceof LogEnabled) {
+            ((LogEnabled)theHandlerPool).enableLogging(getLogger());
+        }
+        if (theHandlerPool instanceof Initializable) {
+            ((Initializable)theHandlerPool).initialize();
+        }
+
+        theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
+        if (theWatchdogFactory instanceof LogEnabled) {
+            ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
         }
     }
 
     /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
      */
-    public void dispose() {
-        if (enabled) {
-            getLogger().info("SMTPServer dispose...");
-            getLogger().info("SMTPServer dispose..." + m_connectionName);
-            super.dispose();
-            // This is needed to make sure sockets are promptly closed on Windows 2000
-            System.gc();
-            getLogger().info("SMTPServer ...dispose end");
+     protected int getDefaultPort() {
+        return 25;
+     }
+
+    /**
+     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     */
+    public String getServiceType() {
+        return "SMTP Service - Watchdogs unpooled, buffers adjusted with sendMail disabled";
+    }
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
+     */
+    protected ConnectionHandler newHandler()
+            throws Exception {
+        SMTPHandler theHandler = (SMTPHandler)theHandlerPool.get();
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Getting SMTPHandler from pool.");
+        }
+        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
+
+        theHandler.setConfigurationData(theConfigData);
+
+        theHandler.setWatchdog(theWatchdog);
+        return theHandler;
+    }
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
+     */
+    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
+        if (!(connectionHandler instanceof SMTPHandler)) {
+            throw new IllegalArgumentException("Attempted to return non-SMTPHandler to pool.");
+        }
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Returning SMTPHandler to pool.");
+        }
+        theHandlerPool.put((Poolable)connectionHandler);
+    }
+
+    /**
+     * The factory for producing handlers.
+     */
+    private static class SMTPHandlerFactory
+        implements ObjectFactory {
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
+         */
+        public Object newInstance() throws Exception {
+            return new SMTPHandler();
+        }
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
+         */
+        public Class getCreatedClass() {
+            return SMTPHandler.class;
+        }
+
+        /**
+         * @see org.apache.avalon.excalibur.pool.ObjectFactory#decommision(Object)
+         */
+        public void decommission( Object object ) throws Exception {
+            return;
+        }
+    }
+
+    /**
+     * A class to provide SMTP handler configuration to the handlers
+     */
+    private class SMTPHandlerConfigurationDataImpl
+        implements SMTPHandlerConfigurationData {
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getHelloName()
+         */
+        public String getHelloName() {
+            return SMTPServer.this.helloName;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getResetLength()
+         */
+        public int getResetLength() {
+            return SMTPServer.this.lengthReset;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getMaxMessageSize()
+         */
+        public long getMaxMessageSize() {
+            return SMTPServer.this.maxMessageSize;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
+         */
+        public boolean isAuthRequired() {
+            return SMTPServer.this.authRequired;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isVerifyIdentity()
+         */
+        public boolean isVerifyIdentity() {
+            return SMTPServer.this.verifyIdentity;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getMailServer()
+         */
+        public MailServer getMailServer() {
+            return SMTPServer.this.mailServer;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getUsersRepository()
+         */
+        public UsersRepository getUsersRepository() {
+            return SMTPServer.this.users;
         }
     }
 }

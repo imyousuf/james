@@ -54,9 +54,9 @@
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler"
-             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- POP3 Server -->
@@ -67,9 +67,9 @@
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler"
-             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- SMTP Server -->
@@ -81,9 +81,9 @@
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler"
-             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- NNTP Server -->
@@ -93,10 +93,10 @@
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
-    <provide name="scheduler"
-             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="nntp-repository"
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- NNTP Repository -->

@@ -8,25 +8,25 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.BaseConnectionHandler;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultUser;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -44,13 +44,14 @@ import java.util.StringTokenizer;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  *
  */
 public class RemoteManagerHandler
-    extends BaseConnectionHandler
-    implements ConnectionHandler, Composable, Configurable, Target {
+    extends AbstractLogEnabled
+    implements ConnectionHandler, Poolable {
 
     /**
      * The text string for the ADDUSER command
@@ -123,25 +124,14 @@ public class RemoteManagerHandler
     private static final String COMMAND_SHUTDOWN = "SHUTDOWN";
 
     /**
-     * The UsersStore that contains all UsersRepositories managed by this RemoteManager
+     * The per-service configuration data that applies to all handlers
      */
-    private UsersStore usersStore;
+    private RemoteManagerHandlerConfigurationData theConfigData;
 
     /**
      * The current UsersRepository being managed/viewed/modified
      */
     private UsersRepository users;
-
-    /**
-     * The scheduler used to handle timeouts for the RemoteManager
-     * interaction
-     */
-    private TimeScheduler scheduler;
-
-    /**
-     * The reference to the internal MailServer service
-     */
-    private MailServer mailServer;
 
     /**
      * Whether the local users repository should be used to store new
@@ -166,38 +156,60 @@ public class RemoteManagerHandler
     private Socket socket;
 
     /**
-     * A HashMap of (user id, passwords) for James administrators
+     * The watchdog being used by this handler to deal with idle timeouts.
      */
-    private HashMap adminAccounts = new HashMap();
+    private Watchdog theWatchdog;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * The watchdog target that idles out this handler.
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+    private WatchdogTarget theWatchdogTarget = new RemoteManagerWatchdogTarget();
 
-        scheduler = (TimeScheduler)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
-        mailServer = (MailServer)componentManager.
-            lookup( "org.apache.james.services.MailServer" );
-        usersStore = (UsersStore)componentManager.
-            lookup( "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");;
+    /**
+     * Set the configuration data for the handler.
+     *
+     * @param theData the configuration data
+     */
+    void setConfigurationData(RemoteManagerHandlerConfigurationData theData) {
+        theConfigData = theData;
+
+        // Reset the users repository to the default.
+        users = theConfigData.getUsersRepository();
+        inLocalUsers = true;
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * Set the Watchdog for use by this handler.
+     *
+     * @param theWatchdog the watchdog
      */
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
+    void setWatchdog(Watchdog theWatchdog) {
+        this.theWatchdog = theWatchdog;
+    }
 
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
+    /**
+     * Gets the Watchdog Target that should be used by Watchdogs managing
+     * this connection.
+     *
+     * @return the WatchdogTarget
+     */
+    WatchdogTarget getWatchdogTarget() {
+        return theWatchdogTarget;
+    }
 
-        final Configuration admin = configuration.getChild( "administrator_accounts" );
-        final Configuration[] accounts = admin.getChildren( "account" );
-        for ( int i = 0; i < accounts.length; i++ ) {
-            adminAccounts.put( accounts[ i ].getAttribute( "login" ),
-                               accounts[ i ].getAttribute( "password" ) );
+    /**
+     * Idle out this connection
+     */
+    void idleClose() {
+        if (getLogger() != null) {
+            getLogger().error("Remote Manager Connection has idled out.");
+        }
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
+            // ignored
         }
     }
 
@@ -207,17 +219,14 @@ public class RemoteManagerHandler
     public void handleConnection( final Socket connection )
         throws IOException {
 
-        final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
-        scheduler.addTrigger( this.toString(), trigger, this );
         socket = connection;
         String remoteIP = socket.getInetAddress().getHostAddress();
         String remoteHost = socket.getInetAddress().getHostName();
 
         try {
-            in = new BufferedReader(new InputStreamReader( socket.getInputStream() ));
-            out = new PrintWriter( socket.getOutputStream(), true);
-            if (getLogger().isInfoEnabled())
-            {
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 512), false);
+            if (getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                     new StringBuffer(128)
                             .append("Access from ")
@@ -227,12 +236,11 @@ public class RemoteManagerHandler
                             .append(")");
                 getLogger().info( infoBuffer.toString() );
             }
-            out.println( "JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION );
+            out.println( "JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
             out.println("Please enter your login and password");
             String login = null;
             String password = null;
             do {
-                scheduler.resetTrigger(this.toString());
                 if (login != null) {
                     final String message = "Login failed for " + login;
                     out.println( message );
@@ -242,9 +250,7 @@ public class RemoteManagerHandler
                 login = in.readLine().trim();
                 out.println("Password:");
                 password = in.readLine().trim();
-            } while (!password.equals(adminAccounts.get(login)) || password.length() == 0);
-
-            scheduler.resetTrigger(this.toString());
+            } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
             StringBuffer messageBuffer =
                 new StringBuffer(64)
@@ -252,8 +258,7 @@ public class RemoteManagerHandler
                         .append(login)
                         .append(". HELP for a list of commands");
             out.println( messageBuffer.toString() );
-            if (getLogger().isInfoEnabled())
-            {
+            if (getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                     new StringBuffer(128)
                             .append("Login for ")
@@ -263,14 +268,16 @@ public class RemoteManagerHandler
             }
 
             try {
+                theWatchdog.start();
                 while (parseCommand(in.readLine())) {
-                    scheduler.resetTrigger(this.toString());
+                    theWatchdog.reset();
                 }
+                theWatchdog.stop();
             } catch (IOException ioe) {
                 //We can cleanly ignore this as it's probably a socket timeout
             } catch (Throwable thr) {
                 System.out.println("Exception: " + thr.getMessage());
-                thr.printStackTrace();
+                getLogger().error("Encountered exception in handling the remote manager connection.", thr);
             }
             StringBuffer infoBuffer =
                 new StringBuffer(64)
@@ -278,7 +285,6 @@ public class RemoteManagerHandler
                         .append(login)
                         .append(".");
             getLogger().info(infoBuffer.toString());
-            socket.close();
 
         } catch ( final IOException e ) {
             out.println("Error. Closing connection");
@@ -294,26 +300,45 @@ public class RemoteManagerHandler
                             .append(e.getMessage());
                 getLogger().error(exceptionBuffer.toString());
             }
+        } finally {
+            resetHandler();
         }
-
-        scheduler.removeTrigger(this.toString());
     }
 
     /**
-     * Callback method called when the the PeriodicTimeTrigger in 
-     * handleConnection is triggered.  In this case the trigger is
-     * being used as a timeout, so the method simply closes the connection.
-     *
-     * @param triggerName the name of the trigger
+     * Resets the handler data to a basic state.
      */
-    public void targetTriggered( final String triggerName ) {
-        getLogger().error("Connection timeout on socket");
-        try {
-            out.println("Connection timeout. Closing connection");
-            socket.close();
-        } catch ( final IOException ioe ) {
-            // Ignored
+    private void resetHandler() {
+
+        // Clear the Watchdog
+        if (theWatchdog != null) {
+            if (theWatchdog instanceof Disposable) {
+                ((Disposable)theWatchdog).dispose();
+            }
+            theWatchdog = null;
         }
+
+        in = null;
+        out = null;
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Exception closing socket: "
+                                  + e.getMessage());
+            }
+        } finally {
+            socket = null;
+        }
+
+        // Reset user repository
+        users = theConfigData.getUsersRepository();
+        inLocalUsers = true;
+
+        // Clear config data
+        theConfigData = null;
     }
 
     /**
@@ -407,7 +432,7 @@ public class RemoteManagerHandler
         } else if ( inLocalUsers ) {
             // TODO: Why does the LocalUsers repository get treated differently?
             //       What exactly is the LocalUsers repository?
-            success = mailServer.addUser(username, passwd);
+            success = theConfigData.getMailServer().addUser(username, passwd);
         } else {
             DefaultUser user = new DefaultUser(username, "SHA");
             user.setPassword(passwd);
@@ -800,7 +825,7 @@ public class RemoteManagerHandler
             return true;
         }
         String repositoryName = argument.toLowerCase(Locale.US);
-        UsersRepository repos = usersStore.getRepository(repositoryName);
+        UsersRepository repos = theConfigData.getUserStore().getRepository(repositoryName);
         if ( repos == null ) {
             out.println("No such repository: " + repositoryName);
         } else {
@@ -856,6 +881,23 @@ public class RemoteManagerHandler
         out.println("Unknown command " + argument);
         out.flush();
         return true;
+    }
+
+    /**
+     * A private inner class which serves as an adaptor
+     * between the WatchdogTarget interface and this
+     * handler class.
+     */
+    private class RemoteManagerWatchdogTarget
+        implements WatchdogTarget {
+
+        /**
+         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
+         */
+        public void execute() {
+            RemoteManagerHandler.this.idleClose();
+        }
+
     }
 
 }

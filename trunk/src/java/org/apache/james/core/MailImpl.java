@@ -6,6 +6,9 @@
  * the LICENSE file.
  */
 package org.apache.james.core;
+
+import org.apache.avalon.framework.activity.Disposable;
+
 import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -17,11 +20,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Vector;
+import java.util.Iterator;
+
 /**
  * Wraps a MimeMessage adding routing information (from SMTP) and some simple
  * API enhancements.
@@ -30,7 +35,7 @@ import java.util.Vector;
  * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
  * @version 0.9
  */
-public class MailImpl implements Mail {
+public class MailImpl implements Disposable, Mail {
     /**
      * We hardcode the serialVersionUID so that from James 1.2 on,
      * MailImpl will be deserializable (so your mail doesn't get lost)
@@ -90,8 +95,18 @@ public class MailImpl implements Mail {
         this();
         this.name = name;
         this.sender = sender;
-        this.recipients = recipients;
+        this.recipients = null;
+
+        // Copy the recipient list
+        if (recipients != null) {
+            Iterator theIterator = recipients.iterator();
+            this.recipients = new ArrayList();
+            while (theIterator.hasNext()) {
+                this.recipients.add(theIterator.next());
+            }
+        }
     }
+
     /**
      * A constructor that creates a MailImpl with the specified name,
      * sender, recipients, and message data.
@@ -108,6 +123,7 @@ public class MailImpl implements Mail {
         MimeMessageWrapper wrapper = new MimeMessageWrapper(source);
         this.setMessage(wrapper);
     }
+
     /**
      * A constructor that creates a MailImpl with the specified name,
      * sender, recipients, and MimeMessage.
@@ -121,16 +137,17 @@ public class MailImpl implements Mail {
         this(name, sender, recipients);
         this.setMessage(message);
     }
+
     /**
      * A constructor which will attempt to obtain sender and recipients from the headers of the MimeMessage supplied.
      * @param message - a MimeMessage from which to construct a Mail
      */
     public MailImpl(MimeMessage message) throws MessagingException {
-       this();
+        this();
         Address[] addresses;
         addresses = message.getFrom();
         MailAddress sender = new MailAddress(new InternetAddress(addresses[0].toString()));
-        Collection recipients = new Vector();
+        Collection recipients = new ArrayList();
         addresses = message.getRecipients(MimeMessage.RecipientType.TO);
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress(new InternetAddress(addresses[i].toString())));
@@ -467,4 +484,19 @@ public class MailImpl implements Mail {
         out.writeObject(remoteAddr);
         out.writeObject(lastUpdated);
     }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     */
+    public void dispose() {
+        try {
+            MimeMessage wrapper = getMessage();
+            if (wrapper instanceof Disposable) {
+                ((Disposable)wrapper).dispose();
+            }
+        } catch (MessagingException me) {
+            // Ignored
+        }
+    }
+
 }

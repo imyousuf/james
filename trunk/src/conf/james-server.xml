@@ -76,7 +76,7 @@
       </category>
       <category name="fetchpop" log-level="INFO">
         <log-target id-ref="fetchpop-target"/>
-      </category>      
+      </category>
     </categories>
 
     <!-- Logger targets -->
@@ -177,7 +177,7 @@
         <filename>${app.home}/logs/fetchpop.log</filename>
         <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
         <append>true</append>
-      </file>      
+      </file>
     </targets>
   </logs>
 
