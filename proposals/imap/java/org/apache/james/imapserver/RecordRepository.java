@@ -40,7 +40,7 @@ public interface RecordRepository {
     /**
      * Returns Iterator over names of folders in repository
      *
-     * @returns Iterator over Strings of AbsoluteNames of Folders. Calling
+     * @return Iterator over Strings of AbsoluteNames of Folders. Calling
      * objects cannot change contents of Iterator.
      */
     Iterator getAbsoluteNames();
@@ -49,7 +49,7 @@ public interface RecordRepository {
      * Retrieves a folder record given the folder's full name. 
      *
      * @param folderAbsoluteName String name of a folder
-     * @returns FolderRecord for specified folder, null if no such FolderRecord
+     * @return FolderRecord for specified folder, null if no such FolderRecord
      */
     FolderRecord retrieve( String folderAbsoluteName );
     
@@ -57,7 +57,7 @@ public interface RecordRepository {
      * Tests if there is a folder record for the given folder name.
      *
      * @param folderAbsoluteName String name of a folder
-     * @returns boolean True if there is a record for the specified folder.
+     * @return boolean True if there is a record for the specified folder.
      */
     boolean containsRecord( String folderAbsoluteName );
 

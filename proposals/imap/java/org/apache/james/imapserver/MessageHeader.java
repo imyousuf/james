@@ -52,7 +52,7 @@ public class MessageHeader implements Serializable {
     /**
      * Get the name, aka field name, of this header.
      *
-     * @returns a String
+     * @return a String
      */
     public String getName() {
         return name;
@@ -61,7 +61,7 @@ public class MessageHeader implements Serializable {
     /**
      * Get the value, aka field value, of this Header
      *
-     * @returns String
+     * @return String
      */
     public String getValue() {
         return value;

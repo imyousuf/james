@@ -170,7 +170,7 @@ public class JamesHost
      * the client.
      *
      * @param username an email address
-     * @returns true if inbox (and private mailfolders) are accessible through
+     * @return true if inbox (and private mailfolders) are accessible through
      * this host.
      */
     public boolean isHomeServer( String username )
@@ -184,7 +184,7 @@ public class JamesHost
      * sent to client.
      *
      * @param username an email address
-     * @returns true if the specified user has at least read access to any
+     * @return true if the specified user has at least read access to any
      * mailboxes on this host.
      */
     public boolean hasLocalAccess( String username )
@@ -199,7 +199,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target.
-     * @returns an Mailbox reference.
+     * @return an Mailbox reference.
      * @throws AccessControlException if the user does not have at least
      * lookup rights.
      * @throws MailboxException if mailbox does not exist locally.
@@ -297,7 +297,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target
-     * @returns an Mailbox reference.
+     * @return an Mailbox reference.
      * @throws AccessControlException if the user does not have lookup rights
      * for parent or any needed ancestor folder
      * lookup rights.
@@ -436,7 +436,7 @@ public class JamesHost
      *
      * @param user email address on whose behalf the request is made.
      * @param mailboxName String name of the target
-     * @returns true if mailbox deleted successfully
+     * @return true if mailbox deleted successfully
      * @throws MailboxException if mailbox does not exist locally or is any
      * identities INBOX.
      * @throws AuthorizationException if mailbox exists locally but user does
@@ -525,7 +525,7 @@ public class JamesHost
      * @param user email address on whose behalf the request is made.
      * @param oldMailboxName String name of the existing mailbox
      * @param newMailboxName String target new name
-     * @returns true if rename completed successfully
+     * @return true if rename completed successfully
      * @throws MailboxException if mailbox does not exist locally, or there
      * is an existing mailbox with the new name.
      * @throws AuthorizationException if user does not have rights to delete
@@ -666,7 +666,7 @@ public class JamesHost
      * expicitly request another.
      *
      * @param username String an email address
-     * @returns a String of a namespace
+     * @return a String of a namespace
      */
     public String getDefaultNamespace( String username )
     {
@@ -678,7 +678,7 @@ public class JamesHost
      * existing and deleted folders.
      *
      * @param mailbox String name of the existing mailbox
-     * @returns  an integer containing the current UID Validity value.
+     * @return  an integer containing the current UID Validity value.
      */
     //  public int getUIDValidity(String mailbox);
 
@@ -716,7 +716,7 @@ public class JamesHost
      * @param mailboxName String name of a mailbox possible including a
      * wildcard.
      * @param subscribedOnly only return mailboxes currently subscribed.
-     * @returns Collection of strings representing a set of mailboxes.
+     * @return Collection of strings representing a set of mailboxes.
      * @throws AccessControlException if the user does not have at least
      * lookup rights to at least one mailbox in the set requested.
      * @throws MailboxException if the referenceName is not local or if
@@ -896,7 +896,7 @@ public class JamesHost
      *
      * @param username String representation of an email address
      * @param mailbox String representation of a mailbox name.
-     * @returns true if subscribe completes successfully
+     * @return true if subscribe completes successfully
      * @throws AccessControlException if the mailbox exists but the userName does
      * not have lookup rights.
      * @throws MailboxException if the mailbox does not exist locally.
@@ -924,7 +924,7 @@ public class JamesHost
      *
      * @param username String representation of an email address
      * @param mailbox String representation of a mailbox name.
-     * @returns true if unsubscribe completes successfully
+     * @return true if unsubscribe completes successfully
      */
     public boolean unsubscribe( String userName, String mailboxName )
             throws MailboxException, AccessControlException
@@ -958,7 +958,7 @@ public class JamesHost
      * @param mailboxName String name of a mailbox (no wildcards allowed).
      * @param dataItems Vector of one or more Strings each of a single
      * status item.
-     * @returns String consisting of space seperated pairs:
+     * @return String consisting of space seperated pairs:
      * dataItem-space-number.
      * @throws AccessControlException if the user does not have at least
      * lookup rights to the mailbox requested.
@@ -1052,7 +1052,7 @@ public class JamesHost
      * <br> Convert "INBOX" for user "Fred.Flinstone" into
      * absolute name: "#user.Fred.Flintstone.INBOX"
      *
-     * @returns String of absoluteName, null if not valid selection
+     * @return String of absoluteName, null if not valid selection
      */
     private String getAbsoluteMailboxName( String user, String fullMailboxName )
     {
@@ -1077,7 +1077,7 @@ public class JamesHost
      * remove this section.
      * Otherwise, return as-is.
      *
-     * @returns user-aware mailbox name
+     * @return user-aware mailbox name
      */
     private String getUserAwareMailboxName( String user, String absoluteName )
     {

@@ -303,7 +303,7 @@ public class FileMailbox
      * Renames this Mailbox.
      * @param usernmae The Username who calles this Command.
      * @param newmailboxname The new name for this Mailbox.
-     * @returns true if everythink was sucessfully, else false.
+     * @return true if everythink was sucessfully, else false.
      * @throws MailboxException if mailbox does not exist locally.
      * @throws AuthorizationException if the user has no rights for changing the name of the Mailbox.
      */
@@ -338,7 +338,7 @@ public class FileMailbox
      * @param usernmae The Username who calles this Command.
      * @param oldabsolutename The old name of the parent.
      * @param newabsolutename The new name for the parent.
-     * @returns true if everythink was sucessfully, else false.
+     * @return true if everythink was sucessfully, else false.
      * @throws MailboxException if mailbox does not exist locally.
      * @throws AuthorizationException if the user has no rights for changing the name of the Mailbox.
      */
@@ -373,7 +373,7 @@ public class FileMailbox
      * handled by this object.
      * <br> This implementation always returns true.
      *
-     * @returns true
+     * @return true
      */
     public synchronized  boolean checkpoint() {
         writeMailbox();
@@ -407,7 +407,7 @@ public class FileMailbox
      * hierarchy.
      * Example: 'NewIdeas'
      *
-     * @returns String name of mailbox relative to its immeadiate parent in
+     * @return String name of mailbox relative to its immeadiate parent in
      * the mailbox hierarchy.
      */
     public String getName() {
@@ -419,7 +419,7 @@ public class FileMailbox
      * mailbox (including namespace)
      * Example: '#mail.fred.flintstone.apache.James.NewIdeas'
      *
-     * @returns String name of mailbox in absolute form
+     * @return String name of mailbox in absolute form
      */
     public String getAbsoluteName() {
         return absoluteName;
@@ -428,7 +428,7 @@ public class FileMailbox
     /** Returns namespace starting with namespace token.
      * Example: '#mail'
      *
-     * @returns String containing user-independent namespace of this mailbox.
+     * @return String containing user-independent namespace of this mailbox.
      */
     //  public String getNamespace();
 
@@ -436,7 +436,7 @@ public class FileMailbox
      * this mailbox
      *
      * @param name possible name for this Mailbox
-     * @returns true if name matches either getName() or getAbsoluteName()
+     * @return true if name matches either getName() or getAbsoluteName()
      */
     public boolean matchesName(String testName) {
         return (name.equals(testName) || name.equals(absoluteName));
@@ -445,7 +445,7 @@ public class FileMailbox
     /**
      * Returns the current unique id validity value of this mailbox.
      *
-     * @returns int current 32 bit unique id validity value of this mailbox
+     * @return int current 32 bit unique id validity value of this mailbox
      */
     public int getUIDValidity() {
         return uidValidity;
@@ -454,7 +454,7 @@ public class FileMailbox
     /**
      * Returns the 32 bit uid available for the next message.
      *
-     * @returns int the next UID that would be used.
+     * @return int the next UID that would be used.
      */
     public int getNextUID() {
         return highestUID.get() + 1;
@@ -464,7 +464,7 @@ public class FileMailbox
      * Returns mailbox size in octets. Should only include actual messages
      * and not any implementation-specific data, such as message attributes.
      *
-     * @returns int mailbox size in octets
+     * @return int mailbox size in octets
      */
     public synchronized int getMailboxSize() {
         return mailboxSize;
@@ -474,7 +474,7 @@ public class FileMailbox
      * Indicates if child folders may be created. It does not indicate which
      * users can create child folders.
      *
-     * @returns boolean TRUE if inferiors aree allowed
+     * @return boolean TRUE if inferiors aree allowed
      */
     public boolean getInferiorsAllowed() {
         return inferiorsAllowed;
@@ -484,7 +484,7 @@ public class FileMailbox
      * Indicates that messages have been added since this mailbox was last
      * selected by any user.
      *
-     * @returns boolean TRUE if new messages since any user last selected
+     * @return boolean TRUE if new messages since any user last selected
      * mailbox
      */
     public  synchronized  boolean isMarked() {
@@ -495,7 +495,7 @@ public class FileMailbox
      * Returns all flags supported by this mailbox.
      * e.g. \Answered \Deleted
      *
-     * @returns String a space seperated list of message flags which are
+     * @return String a space seperated list of message flags which are
      * supported by this mailbox.
      */
     public String getSupportedFlags() {
@@ -504,7 +504,7 @@ public class FileMailbox
     /**
      * Indicates no of messages with \Recent flag set
      *
-     * @returns int no of messages with \Recent flag set
+     * @return int no of messages with \Recent flag set
      */
     public  synchronized  int getRecent() {
         return recentMessages.size();
@@ -513,7 +513,7 @@ public class FileMailbox
     /**
      * Indicates the oldest unseen message for the specified user.
      *
-     * @returns int Message Sequence Number of first message without \Seen
+     * @return int Message Sequence Number of first message without \Seen
      * flag set for this User.  0 means no unseen messages in this mailbox.
      */
     public  synchronized  int getOldestUnseen(String user) {
@@ -537,7 +537,7 @@ public class FileMailbox
     /**
      * Indicates number of messages in folder
      *
-     * @returns int number of messages
+     * @return int number of messages
      */
     public  synchronized  int getExists() {
         return sequence.size();
@@ -546,7 +546,7 @@ public class FileMailbox
     /**
      * Indicates the number of  unseen messages for the specified user.
      *
-     * @returns int number of messages without \Seen flag set for this User.
+     * @return int number of messages without \Seen flag set for this User.
      */
     public int getUnseen(String user) {
         if (oldestUnseenMessage.containsKey(user)) {
@@ -615,7 +615,7 @@ public class FileMailbox
      * @param modification String representing the change in rights, following
      * the syntax specified in rfc 2086. Note a blank string means delete all
      * rights for given identity.
-     * @returns true if requested modification succeeded. A return value of
+     * @return true if requested modification succeeded. A return value of
      * false means an error other than an AccessControlException or
      * AuthorizationException.
      * @throws AccessControlException if setter does not have lookup rights for
@@ -766,7 +766,7 @@ public class FileMailbox
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -802,7 +802,7 @@ public class FileMailbox
      *
      * @param getter String representing user attempting to get the rights,
      * must be non-null and non-empty
-     * @returns String of rights sets usingrfc2086 syntax
+     * @return String of rights sets usingrfc2086 syntax
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
      * @throws AuthorizationException if implementation does not wish to expose
@@ -841,7 +841,7 @@ public class FileMailbox
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * guaranteed rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -867,7 +867,7 @@ public class FileMailbox
      * must be non-null and non-empty
      * @param identity String representing user whose rights are being got,
      * must be non-null and non-empty
-     * @returns String of rights usingrfc2086 syntax, empty if identity has no
+     * @return String of rights usingrfc2086 syntax, empty if identity has no
      * guaranteed rights in this mailbox.
      * @throws AccessControlException if getter does not have lookup rights for
      * this mailbox (ie they should not know this mailbox exists).
@@ -893,7 +893,7 @@ public class FileMailbox
      * mailbox.
      *
      * @param username String representing user
-     * @returns true if user has the requested right.
+     * @return true if user has the requested right.
      * &throws AccessControlException if username does not have lookup rights.
      * (Except for hasLookupRights which just returns false.
      */
@@ -974,7 +974,7 @@ public class FileMailbox
      * can write to mailbox
      *
      * @param username String represnting user
-     * @returns boolean TRUE if specified user can Select mailbox.
+     * @return boolean TRUE if specified user can Select mailbox.
      * @throws AccessControlException if username does not have lookup rights
      */
     public  synchronized  boolean isSelectable(String username)
@@ -987,7 +987,7 @@ public class FileMailbox
      * except for \Recent which can never be changed by a user.
      *
      * @param username String represnting user
-     * @returns true if specified user can change all flags permanently.
+     * @return true if specified user can change all flags permanently.
      */
     public synchronized boolean allFlags(String username)
         throws AccessControlException {
@@ -1002,7 +1002,7 @@ public class FileMailbox
      * value as getSupportedFlags.
      *
      * @param username String represnting user
-     * @returns String a space seperated list of message flags which this user
+     * @return String a space seperated list of message flags which this user
      * can set permanently
      */
     public  synchronized  String getPermanentFlags(String username)
@@ -1021,7 +1021,7 @@ public class FileMailbox
     /**
      * Provides a reference to the access control list for this mailbox.
      *
-     * @returns the AccessControlList for this Mailbox
+     * @return the AccessControlList for this Mailbox
      */
     //   public ACL getACL();
 
@@ -1035,7 +1035,7 @@ public class FileMailbox
      * vary between mailboxes.
      *
      * @param username String represnting user
-     * @returns true if specified user can only open the mailbox Read-Only.
+     * @return true if specified user can only open the mailbox Read-Only.
      * @throws AccessControlException if the user can not open this mailbox
      * at least Read-Only.
      */
@@ -1051,7 +1051,7 @@ public class FileMailbox
      *
      * @param message the MimeMessage to be stored
      * @param username String represnting user
-     * @returns boolean true if successful
+     * @return boolean true if successful
      * @throws AccessControlException if username does not have lookup rights
      * for this mailbox.
      * @throws AuthorizationException if username has lookup rights but does
@@ -1090,7 +1090,7 @@ public class FileMailbox
      * @param mail the message to be stored
      * @param username String represnting user
      * @param msgAttrs non-null MessageAttributes for use with this Message
-     * @returns boolean true if successful
+     * @return boolean true if successful
      * @throws AccessControlException if username does not have lookup
      * rights for this mailbox.
      * @throws AuthorizationException if username has lookup rights but does
@@ -1171,7 +1171,7 @@ public class FileMailbox
      *
      * @param msn the message sequence number
      * @param username String represnting user
-     * @returns an  MimeMessageWrapper object containing the message, null if no message with
+     * @return an  MimeMessageWrapper object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -1198,7 +1198,7 @@ public class FileMailbox
      *
      * @param uid the unique identifier of a message
      * @param username String represnting user
-     * @returns an MimeMessageWrapper object containing the message, null if no message with
+     * @return an MimeMessageWrapper object containing the message, null if no message with
      * the given msn.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -1243,7 +1243,7 @@ public class FileMailbox
      *
      * @param msn the message sequence number
      * @param username String represnting user
-     * @returns boolean true if successful.
+     * @return boolean true if successful.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -1265,7 +1265,7 @@ public class FileMailbox
      *
      * @param uidunique identifier
      * @param username String represnting user
-     * @returns boolean true if successful, false if failed including no
+     * @return boolean true if successful, false if failed including no
      * message with the given uid.
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
@@ -1288,7 +1288,7 @@ public class FileMailbox
      *
      * @param msn message sequence number
      * @param username String represnting user
-     * @returns MessageAttributes for message, null if no such message.
+     * @return MessageAttributes for message, null if no such message.
      * Changing the MessageAttributes object must not affect the actual
      * MessageAttributes.
      * @throws AccessControlException if user does not have read rights for
@@ -1316,7 +1316,7 @@ public class FileMailbox
      *
      * @param uid unique identifier
      * @param username String represnting user
-     * @returns MessageAttributes for message, null if no such message.
+     * @return MessageAttributes for message, null if no such message.
      * Changing the MessageAttributes object must not affect the actual
      * MessageAttributes.
      * @throws AccessControlException if user does not have read rights for
@@ -1423,7 +1423,7 @@ public class FileMailbox
      *
      * @param msn message sequence number for a message in this mailbox
      * @param username String represnting user
-     * @returns flags for this message and user, null if no such message.
+     * @return flags for this message and user, null if no such message.
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -1447,7 +1447,7 @@ public class FileMailbox
      *
      * @param uid UniqueIdentifier for a message in this mailbox
      * @param username String represnting user
-     * @returns flags for this message and user, null if no such message.
+     * @return flags for this message and user, null if no such message.
      * @throws AccessControlException if user does not have lookup rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -1479,7 +1479,7 @@ public class FileMailbox
      * @param username String represnting user
      * @param request IMAP-formatted String representing requested change to
      * flags.
-     * @returns true if succeeded, false otherwise, including no such message
+     * @return true if succeeded, false otherwise, including no such message
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has lookup rights but does not
@@ -1640,7 +1640,7 @@ public class FileMailbox
      * Removes all messages marked Deleted.  User must have delete rights.
      *
      * @param username String represnting user
-     * @returns true if successful
+     * @return true if successful
      * @throws AccessControlException if user does not have read rights for
      * this mailbox.
      * @throws AuthorizationException if user has delete rights but does not
@@ -1733,7 +1733,7 @@ public class FileMailbox
      * Lists uids of messages in mailbox indexed by MSN.
      *
      * @param username String represnting user
-     * @returns List of Integers wrapping uids of message
+     * @return List of Integers wrapping uids of message
      */
     public List listUIDs(String user) {
         return new ArrayList(Collections.unmodifiableList(sequence));
