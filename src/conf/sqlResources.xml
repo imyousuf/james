@@ -116,8 +116,8 @@
     <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
     <sql name="createTable" db="mysql">
         CREATE TABLE ${table} (
-        	message_name varchar (200) NOT NULL PRIMARY KEY,
-        	repository_name varchar (200) NOT NULL PRIMARY KEY,
+        	message_name varchar (200) NOT NULL,
+        	repository_name varchar (200) NOT NULL,
         	message_state varchar (30) NOT NULL ,
         	error_message varchar (200) NULL ,
         	sender varchar (200) NULL ,
@@ -125,13 +125,14 @@
         	remote_host varchar (100) NOT NULL ,
         	remote_addr varchar (20) NOT NULL ,
         	message_body longblob NOT NULL ,
-        	last_updated datetime NOT NULL
+        	last_updated datetime NOT NULL,
+        	PRIMARY KEY (message, repository_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
         CREATE TABLE [dbo].[${table}] (
         	[message_name] [varchar] (200) NOT NULL PRIMARY KEY,
-        	[repository_name] [varchar] (200) NOT NULL,
+        	[repository_name] [varchar] (200) NOT NULL PRIMARY KEY,
         	[message_state] [varchar] (30) NOT NULL ,
         	[error_message] [varchar] (1000) NULL ,
         	[sender] [varchar] (200) NULL ,
