@@ -1,12 +1,9 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache Jakarta James - Frequently Asked Questions - Java Mail and News server, SMTP POP3 IMAP NNTP</title>
+<title>Jakarta James - Frequently Asked Questions</title>
 <meta value="Danny Angus" name="author">
 <meta value="danny@thought.co.uk" name="email">
-<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
-<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
-<meta content="ALL" name="ROBOTS">
 <LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
 </head>
 <body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
@@ -247,7 +244,7 @@
 <a href="#11">Why isn't my mailet making changes to a MimeMessage?</a>
                
 </li>
-				
+                
 <li>
                   
 <a href="#12">How to remove unneeded services like NNTP, POP3?</a>
@@ -269,6 +266,12 @@
 <li>
                   
 <a href="#15">I am using Microsoft's SQL Type 4 JDBC Driver, why do I get a "Can't start manual transaction mode because there are cloned connections" exception?</a>
+               
+</li>
+               
+<li>
+                  
+<a href="#16">I am using James with a MySQL database and I keep getting a "Packet is larger than max_allowed_packet" when receiving large messages despite the fact that my max packet size is configured to be larger than my max message size.  What's going on?</a>
                
 </li>
             
@@ -870,7 +873,41 @@ see):</p>
 </td>
 </tr>
 </table>
-
+          
+<a name="16"></a>
+          
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="I%20am%20using%20James%20with%20a%20MySQL%20database%20and%20I%20keep%20getting%20a%20%22Packet%20is%20larger%20than%20max_allowed_packet%22%20when%20receiving%20large%20messages%20despite%20the%20fact%20that%20my%20max%20packet%20size%20is%20configured%20to%20be%20larger%20than%20my%20max%20message%20size.%20%20What's%20going%20on?"><strong>I am using James with a MySQL database and I keep getting a "Packet is larger than max_allowed_packet" when receiving large messages despite the fact that my max packet size is configured to be larger than my max message size.  What's going on?</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+            
+<p>When a user tries to send a large message that is close to but not quite at the max message limit the send fails and an exception similar to the following appears in the log:</p>
+            
+<p>Sent: 451 Error processing message:<br>
+            Exception spooling message: Exception caught while storing mail Container:<br>
+            java.lang.IllegalArgumentException: Packet is larger than max_allowed_packet<br>
+            from server configuration of 4193280 bytes;<br>
+              nested exception is:<br>
+                    java.lang.RuntimeException: Exception caught while storing mail<br>
+            Container: java.lang.IllegalArgumentException: Packet is larger than<br>
+            max_allowed_packet from server configuration of 4193280 bytes<br>
+</p>
+            
+<p>Because of how the JDBC driver is written, a 25%
+            factor is necessary between the maximum message size and the max_packet_size
+            to prevent the driver from throwing an exception.  So if you want a 4MB
+            maximum message size, you need a 5MB max_packet size.  Or a 4MB
+            max_packet_size allows only a 3.2MB max message.
+            </p>
+<p>Noel Bergman</p>
+          
+</blockquote>
+</td>
+</tr>
+</table>
       
 </blockquote>
 </td>

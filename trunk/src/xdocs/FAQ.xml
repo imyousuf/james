@@ -44,7 +44,7 @@
                <li>
                   <a href="#11">Why isn't my mailet making changes to a MimeMessage?</a>
                </li>
-				<li>
+                <li>
                   <a href="#12">How to remove unneeded services like NNTP, POP3?</a>
                </li>               
                <li>
@@ -55,6 +55,9 @@
                </li>
                <li>
                   <a href="#15">I am using Microsoft's SQL Type 4 JDBC Driver, why do I get a "Can't start manual transaction mode because there are cloned connections" exception?</a>
+               </li>
+               <li>
+                  <a href="#16">I am using James with a MySQL database and I keep getting a "Packet is larger than max_allowed_packet" when receiving large messages despite the fact that my max packet size is configured to be larger than my max message size.  What's going on?</a>
                </li>
             </ul>
          </p>
@@ -278,7 +281,24 @@ see):</p>
 <p>To solve this you need to add <b>;SelectMethod=cursor</b> to the end of your dburl string. Your dburl string would then look something like this<br/>&lt;dburl&gt;jdbc:microsoft:sqlserver://dbserver.host.name:1433;SelectMethod=cursor&lt;/dburl&gt;</p>
 <p>NOTE. some people have complained about performance when using this option, the alternative is a 3rd party JDBC driver but these are often not free.<br/>Serge Sozonoff</p>
           </subsection>
-
+          <a name="16"/>
+          <subsection name="I am using James with a MySQL database and I keep getting a &quot;Packet is larger than max_allowed_packet&quot; when receiving large messages despite the fact that my max packet size is configured to be larger than my max message size.  What's going on?">
+            <p>When a user tries to send a large message that is close to but not quite at the max message limit the send fails and an exception similar to the following appears in the log:</p>
+            <p>Sent: 451 Error processing message:<br/>
+            Exception spooling message: Exception caught while storing mail Container:<br/>
+            java.lang.IllegalArgumentException: Packet is larger than max_allowed_packet<br/>
+            from server configuration of 4193280 bytes;<br/>
+              nested exception is:<br/>
+                    java.lang.RuntimeException: Exception caught while storing mail<br/>
+            Container: java.lang.IllegalArgumentException: Packet is larger than<br/>
+            max_allowed_packet from server configuration of 4193280 bytes<br/></p>
+            <p>Because of how the JDBC driver is written, a 25%
+            factor is necessary between the maximum message size and the max_packet_size
+            to prevent the driver from throwing an exception.  So if you want a 4MB
+            maximum message size, you need a 5MB max_packet size.  Or a 4MB
+            max_packet_size allows only a 3.2MB max message.
+            </p><p>Noel Bergman</p>
+          </subsection>
       </section>
    </body>
 </document>
