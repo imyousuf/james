@@ -50,14 +50,11 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
     }
 
     public boolean isSet(String name) {
-        return super.getHeader(name).length != 0;
+        String[] value = super.getHeader(name);
+        return (value != null && value.length != 0);
     }
-
+    
     public boolean isValid() {
             // Check if MimeMessage contains REQUIRED headers fields as specified in RFC 822.
-        if (super.getHeader("Date") == null) return false;
-        if (super.getHeader("To") == null) return false;
-        if (super.getHeader("From") == null) return false;
-        return true;
-    }
+        return (isSet("Date") && isSet("To") && isSet("From"));    }
 }
