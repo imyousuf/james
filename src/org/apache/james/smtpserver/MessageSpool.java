@@ -6,44 +6,53 @@ import java.io.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.blocks.Interfaces;
+import org.apache.avalon.blocks.Store;
+import org.apache.avalon.blocks.Logger;
 import org.apache.java.util.*;
 import org.apache.james.*;
-import org.apache.java.util.*;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class MessageSpool implements Configurable {
+public class MessageSpool implements Contextualizable {
 
     private Configuration conf;
-    private Logger logger;
-    private PersistentStore ps;
-    private StreamStore ss;
+    private Context context;
+    private org.apache.avalon.blocks.Logger logger;
+    private org.apache.avalon.blocks.Store.ObjectRepository or;
+    private org.apache.avalon.blocks.Store.StreamRepository sr;
+    private org.apache.avalon.blocks.Store store;
     private long timeout = 5000;
     private Lock lock;
     
-    public MessageSpool(Logger logger) {
-        this.logger = logger;
+    public MessageSpool() {
     }
 
-    public void init(Configuration conf)
+    public void init(Context context)
     throws Exception {
 
-        this.conf = conf;
+        this.context = context;
+        this.conf = context.getConfiguration();
+	    this.store = (Store) context.getImplementation(Interfaces.STORE);
+        this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);;
+        String path = conf.getChild("repository").getValueAsString();
         try {
-            ss = new StreamStore(conf.getChild("repository").getValueAsString());
+            sr = (Store.StreamRepository) store.getPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS);
+            sr.setDestination(path);
         } catch (Exception e) {
             logger.log("Exception in Stream Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
         try {
-            ps = new PersistentStore(conf.getChild("repository").getValueAsString());
+            or = (Store.ObjectRepository) store.getPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS);
+            or.setDestination(path);
         } catch (Exception e) {
             logger.log("Exception in Persistent Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
+        logger.log("Mail Spool opened in " + path, "SMTPServer", logger.INFO);
 
         this.timeout = conf.getChild("timeout").getValueAsLong();
         lock = new Lock();
@@ -53,7 +62,7 @@ public class MessageSpool implements Configurable {
 
         while (true) {
             logger.log("looking for unprocessed mail", "SMTPServer", logger.DEBUG);
-            Enumeration e = ps.list();
+            Enumeration e = or.list();
             while(e.hasMoreElements()) {
                 Object o = e.nextElement();
                 if (lock.lock(o)) {
@@ -72,8 +81,8 @@ public class MessageSpool implements Configurable {
         if (!lock.lock(key)) {
             return (MessageContainer) null;
         }
-        MessageContainer mc = (MessageContainer) ps.get(key);
-        mc.setBodyInputStream( ss.retrive(key) );
+        MessageContainer mc = (MessageContainer) or.get(key);
+        mc.setBodyInputStream( sr.retrive(key) );
         logger.log("Retriving: " + key, "SMTPServer", logger.DEBUG);
         logger.log("  sender: " + mc.getSender(), "SMTPServer", logger.DEBUG);
         for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
@@ -88,8 +97,8 @@ public class MessageSpool implements Configurable {
             return false;
         }
         logger.log("removing: " + key, "SMTPServer", logger.DEBUG);
-        ps.remove(key);
-        ss.remove(key);
+        or.remove(key);
+        sr.remove(key);
         lock.unlock(key);
         return true;
     }
@@ -105,8 +114,8 @@ public class MessageSpool implements Configurable {
         for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
             logger.log("  recipient: " + e.nextElement(), "SMTPServer", logger.DEBUG);
         }
-        ps.store(key, mc);
-        OutputStream out = ss.store(key);
+        or.store(key, mc);
+        OutputStream out = sr.store(key);
         notifyAll();
         return out;
     }
