@@ -86,7 +86,7 @@ public class LinearProcessor extends AbstractMailet {
     public void service(Mail mail) throws Exception {
 
         logger.log("Processing mail " + mail.getName(), "Mailets", Logger.INFO);
-        unprocessed.setSize(servlets.size() + 1);
+        unprocessed.setSize(servlets.size() + 2);
         unprocessed.insertElementAt(mail, 0);
         printPipe(unprocessed);/*DEBUG*/
         for (int i = 0; true ; i++) {
