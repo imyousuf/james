@@ -61,7 +61,7 @@
 	  a Block in this xml file.   -->
 	<provide name="mailstore" role="org.apache.james.services.MailStore"/>
 	<provide name="users-store" role="org.apache.james.services.UsersStore"/>
-        <provide name="sockets" role="org.apache.cornerstone.services.SocketServer"/>
+    <provide name="sockets" role="org.apache.cornerstone.services.SocketServer"/>
 	<provide name="scheduler" role="org.apache.cornerstone.services.Scheduler"/>
 
 	<!-- Configuration section begins here -->
@@ -347,8 +347,6 @@
    <!-- The High Level Storage block -->
     <block class="org.apache.james.core.AvalonMailStore" 
            name="mailstore" >
-
-
         <provide name="objectstorage" role="org.apache.cornerstone.services.Store"/> 
         <!--     <provide name="james-storage" role="org.apache.avalon.services.Store"/>-->
         <configuration>
