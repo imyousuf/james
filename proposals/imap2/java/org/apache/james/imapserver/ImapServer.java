@@ -20,6 +20,8 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.UsersRepository;
@@ -87,22 +89,18 @@ public class ImapServer extends AbstractJamesService
     private ImapHandlerConfigurationData theConfigData
             = new IMAPHandlerConfigurationDataImpl();
 
-    /**
-     * @see Composable#compose(ComponentManager)
-     */
-    public void compose( final ComponentManager componentManager )
-            throws ComponentException
+    public void service( ServiceManager manager ) throws ServiceException
     {
-        super.compose( componentManager );
-        mailServer = ( MailServer ) componentManager.
+        super.service( manager );
+        mailServer = ( MailServer ) manager.
                 lookup( "org.apache.james.services.MailServer" );
-        UsersStore usersStore = ( UsersStore ) componentManager.
+        UsersStore usersStore = ( UsersStore ) manager.
                 lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository( "LocalUsers" );
-        imapHost = ( ImapHost ) componentManager.
+        imapHost = ( ImapHost ) manager.
                 lookup( "org.apache.james.imapserver.ImapHost" );
         if ( users == null ) {
-            throw new ComponentException( "The user repository could not be found." );
+            throw new ServiceException( "The user repository could not be found." );
         }
     }
 

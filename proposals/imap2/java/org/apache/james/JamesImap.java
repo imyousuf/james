@@ -15,7 +15,7 @@ import org.apache.james.services.JamesUser;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.MailAddress;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -28,7 +28,7 @@ import javax.mail.internet.MimeMessage;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.1 $
+ * @version This is $Revision: 1.2 $
 
  */
 public class JamesImap extends James
@@ -45,7 +45,7 @@ public class JamesImap extends James
 
 
     protected void initialiseInboxes( Configuration configuration,
-                                      ComponentManager componentManager ) throws Exception
+                                      ServiceManager manager ) throws Exception
     {
         try {
             // Get storage config param
@@ -62,7 +62,7 @@ public class JamesImap extends James
         if ( useIMAPstorage ) {
             try {
                 // We will need to use a no-args constructor for flexibility
-                imapHost = ( ImapHost ) componentManager.lookup( ImapHost.ROLE );
+                imapHost = ( ImapHost ) manager.lookup( ImapHost.ROLE );
             }
             catch ( Exception e ) {
                 getLogger().error( "Exception in IMAP Storage init: " + e.getMessage() );
@@ -70,7 +70,7 @@ public class JamesImap extends James
             }
         }
         else {
-            super.initialiseInboxes(configuration, componentManager);
+            super.initialiseInboxes(configuration, manager);
         }
     }
 

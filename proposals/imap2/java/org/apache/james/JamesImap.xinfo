@@ -13,10 +13,10 @@
     <service name="org.apache.mailet.MailetContext" version="1.0" />
   </services>
 
-    <!-- interfaces that may be exported to manange this block -->
-    <management-access-points>
-      <service name="org.apache.james.JamesMBean"/>
-    </management-access-points>
+  <!-- interfaces that may be exported to manange this block -->
+  <management-access-points>
+    <service name="org.apache.james.JamesMBean"/>
+  </management-access-points>
 
   <dependencies>
 
@@ -30,7 +30,7 @@
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager"
+      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager" 
                version="1.0"/>
     </dependency>
     <dependency>
