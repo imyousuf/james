@@ -14,7 +14,8 @@ import java.util.Collection;
 
 /**
  * Does a DNS lookup (MX and A/CNAME records) on the sender's domain.  If
- * there are no entries, the domain is fake.
+ * there are no entries, the domain is considered fake and the match is 
+ * successful.
  *
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
@@ -29,7 +30,7 @@ public class SenderInFakeDomain extends GenericMatcher {
         Collection servers = getMailetContext().getMailServers(domain);
         if (servers.size() == 0) {
             //No records...could not deliver to this domain, so matches criteria.
-	        log("No MX, A, or CNAME record found for domain: " + domain);
+            log("No MX, A, or CNAME record found for domain: " + domain);
             return mail.getRecipients();
         } else {
             //Some servers were found... the domain is not fake.
