@@ -101,8 +101,9 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 servlet.init();
                 servlets.addElement(servlet);
                 servletMatchs.addElement(match);
+                logger.log("Mailet " + className + " instantiated", logger.INFO);
             } catch (Exception ex) {
-                logger.log("Unable to init mail servlet " + className + ": " + ex, logger.INFO);
+                logger.log("Unable to init mailet " + className + ": " + ex, logger.ERROR);
                 ex.printStackTrace();
             }
         }

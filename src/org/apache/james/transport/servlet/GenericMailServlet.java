@@ -46,6 +46,10 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
         return conf.getConfigurations(name);
     }
     
+    public Configuration getConfigurations() {
+        return conf;
+    }
+    
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
         logger = (LogChannel) comp.getComponent("MailetLogChannel");
