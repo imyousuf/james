@@ -23,9 +23,9 @@ based server framework. Components are organized into blocks, and one or more
  blocks are packaged in block archive files (*.bar). James is a single block in
  its own archive.
 
-To compile and run James you need the avalon-loader.jar and avalon-engine.jar
+To compile and run James you need the phoenix-loader.jar and phoenix-engine.jar
  as well as the JAMES.bar. The default implementation of JAMES also uses the
- blocks from avalon-core-blocks.bar.
+ blocks from cornerstone.bar.
 
 After that you'll need activation.jar and mail.jar from Sun. For optional TLS
  support, you will need the JSSE jars from Sun.
@@ -40,6 +40,8 @@ All these package are in current distribution.
     Give user a chance to override without editing this file
     (and without typing -D each time he compiles it)
   -->
+  <property file=".ant.properties"/>
+  <property file="${user.home}/.ant.properties"/>
 
   <property name="name" value="james"/>
   <property name="version" value="1.2.2alpha"/>
@@ -48,25 +50,39 @@ All these package are in current distribution.
   <property name="build.compiler" value="classic"/>
   <property name="debug" value="off"/>
   <property name="optimize" value="on"/>
-  <property name="deprecation" value="off"/>
+  <property name="deprecation" value="on"/>
 
-  <!-- The properties in the init section should not normally be changed
--->
+  <property name="james.dns.server" value="MUST_SET_THIS_TO_DNS_SERVER" />
+  <property name="james.passwd" value="" />
+
+  <!--
+    these are here only for those who use jikes compiler. For other
+    developers this part makes no difference.
+  -->
+  <property name="build.compiler.emacs" value="on"/>
+  <property name="build.compiler.warnings" value="true"/>
+  <property name="build.compiler.pedantic" value="true"/>
+  <property name="build.compiler.depend" value="true"/>
+  <property name="build.compiler.fulldepend" value="true"/>
+
+  <!-- The properties in the init section should not normally be changed -->
+
   <target name="init">
 
-    <property name="classpath" value="./lib/avalonapi.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
+    <property name="classpath" value="./lib/avalonapi.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
 
-    <property name="src.dir" value="./src"/>
-    <property name="conf.dir" value="./conf"/>
+    <property name="src.dir" value="src"/>
+    <property name="conf.dir" value="conf"/>
     <property name="lib.dir" value="lib"/>
 
-    <property name="build.dir" value="./build"/>
+    <property name="build.dir" value="build"/>
     <property name="build.src" value="${build.dir}/src"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.docs" value="${build.dir}/docs"/>
     <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
     <property name="build.javadocs" value="${build.dir}/javadocs"/>
     <property name="build.lib" value="${build.dir}/lib"/>
+    <property name="build.conf" value="${build.dir}/conf"/>
 
     <property name="constants.file" value="org/apache/james/Constants.java"/>
     <property name="conf.file" value="james.conf.xml"/>
@@ -131,10 +147,16 @@ All these package are in current distribution.
     <mkdir dir="${build.src}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.lib}"/>
+    <mkdir dir="${build.conf}"/>
 
     <!-- copy src files -->
     <copy file="${src.dir}/${constants.file}" tofile="${build.src}/${constants.file}"/>
-    <copy file="${lib.dir}/cornerstone.bar" tofile="${build.lib}/cornerstone.bar"/>
+
+    <copy file="${conf.dir}/james.conf.xml" tofile="${build.conf}/assembly.xml"/>
+
+    <!-- substitute tokens as needed -->
+    <replace file="${build.conf}/assembly.xml" token="@@DNS@@" value="${james.dns.server}"/>
+    <replace file="${build.conf}/assembly.xml" token="@@PASSWD@@" value="${james.passwd}"/>
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -168,13 +190,11 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <target name="block-archive" depends="compile">
 
-    <jar jarfile="${build.dir}/${name}.bar"
+    <jar jarfile="${build.lib}/${name}.bar"
          basedir="${build.classes}"
          manifest="${src.dir}/Manifest.mf">
        <include name="org/**"/>
     </jar>
-
-    <copy file="${build.dir}/${name}.bar" tofile="${build.lib}/${name}.bar"/>
 
   </target>
 
@@ -182,7 +202,7 @@ All these package are in current distribution.
   <!-- Creates the mailet.jar                                              -->
   <!-- =================================================================== -->
   <target name="auxiliary-jars" depends="compile">
-    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}"
+    <jar jarfile="${build.lib}/mailet.jar" basedir="${build.classes}"
          manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
@@ -192,23 +212,31 @@ All these package are in current distribution.
                            Creates the .sar file
        ===================================================================
   -->
-  <target name="sar" depends="block-archive">
+  <target name="sar" depends="block-archive,auxiliary-jars">
 
     <jar jarfile="${build.lib}/${name}.sar">
+
+      <zipfileset dir="${lib.dir}/" prefix="blocks/">
+        <include name="*.bar"/>
+      </zipfileset>
 
       <zipfileset dir="${build.lib}/" prefix="blocks/">
         <include name="*.bar"/>
       </zipfileset>
 
-      <zipfileset dir="${lib.dir}/" prefix="lib/">
+      <zipfileset dir="${build.lib}" prefix="lib">
+        <include name="*.jar"/>
+      </zipfileset>
+
+      <zipfileset dir="${lib.dir}/" prefix="lib">
         <include name="dnsjava.jar"/>
         <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
       </zipfileset>
 
-      <zipfileset dir="${conf.dir}" fullpath="conf/assembly.xml">
-        <include name="james.conf.xml"/>
+      <zipfileset dir="${build.conf}" fullpath="conf/assembly.xml">
+        <include name="assembly.xml"/>
       </zipfileset>
 
       <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
@@ -223,35 +251,30 @@ All these package are in current distribution.
   <!-- Creates the distribution                                            -->
   <!-- =================================================================== -->
 
-  <target name="dist" depends="sar, auxiliary-jars">
+  <target name="dist-lite" depends="sar">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
-    <mkdir dir="${dist.dir}/bin/blocks"/>
-    <mkdir dir="${dist.dir}/src"/>
-    <mkdir dir="${dist.dir}/conf"/>
-    <mkdir dir="${dist.dir}/docs"/>
 
-    <copy todir="${dist.dir}/src">
-      <fileset dir="${build.src}" excludes="james.conf.xml"/>
+    <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
+
+    <copy todir="${dist.dir}/bin">
+      <fileset dir="lib">
+        <include name="phoenix-engine.jar"/>
+        <include name="phoenix-loader.jar"/>
+      </fileset>
     </copy>
-    <copy todir="${dist.dir}/docs">
-      <fileset dir="./docs/"/>
+
+    <copy todir="${dist.dir}/lib">
+      <fileset dir="lib">
+        <include name="phoenix-client.jar"/>
+        <include name="avalonapi.jar"/>
+        <include name="xerces.jar"/>
+      </fileset>
     </copy>
-    <copy file="${build.lib}/${name}.sar" tofile="${dist.dir}/apps/${name}.sar"/>
 
-    <copy file="./lib/avalon-engine.jar" tofile="${dist.dir}/bin/avalon-engine.jar"/>
-    <copy file="./lib/avalon-loader.jar" tofile="${dist.dir}/bin/avalon-loader.jar"/>
-    <copy file="./lib/avalonapi.jar" tofile="${dist.dir}/lib/avalonapi.jar"/>
-    <copy file="./lib/activation.jar" tofile="${dist.dir}/lib/activation.jar"/>
-    <copy file="./lib/mail_1_2.jar" tofile="${dist.dir}/lib/mail_1_2.jar"/>
-    <copy file="./lib/xerces.jar" tofile="${dist.dir}/lib/xerces.jar"/>
-    <copy file="./lib/dnsjava.jar" tofile="${dist.dir}/lib/dnsjava.jar"/>
-    <copy file="./lib/town.jar" tofile="${dist.dir}/lib/town.jar"/>
-    <copy file="${build.dir}/mailet.jar" tofile="${dist.dir}/lib/mailet.jar"/>
-
-    <copy file="./res/run.bat" tofile="${dist.dir}/bin/run.bat"/>
-    <copy file="./res/run.sh" tofile="${dist.dir}/bin/run.sh"/>
-    <copy file="./res/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
+    <copy file="res/run.bat" tofile="${dist.dir}/bin/run.bat"/>
+    <copy file="res/run.sh" tofile="${dist.dir}/bin/run.sh"/>
+    <copy file="res/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
     <chmod dir="${dist.dir}" perm="go-rwx" />
     <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
     <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
@@ -263,9 +286,11 @@ All these package are in current distribution.
 
     <copy file="README" tofile="${dist.dir}/README"/>
     <replace file="${dist.dir}/README" token="@@version@@" value="${version}"/>
-    <copy file="LICENSE" tofile="${dist.dir}/LICENSE"/>
+    <copy file="LICENSE.txt" tofile="${dist.dir}/LICENSE"/>
     <copy file="build.xml" tofile="${dist.dir}/build.xml"/>
+  </target>
 
+  <target name="dist" depends="dist-lite">
     <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
     <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/>
