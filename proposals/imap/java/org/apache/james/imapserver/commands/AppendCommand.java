@@ -20,6 +20,9 @@ import org.apache.james.AuthorizationException;
 import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,16 +46,86 @@ class AppendCommand extends AuthenticatedSelectedStateCommand {
         this.getArgs().add( new AstringArgument( "date" ) );
         this.getArgs().add( new AstringArgument( "message" ) );
     }
+    
+    public boolean process( ImapRequest request, ImapSession session ) {
+        StringTokenizer tokens = request.getCommandLine();
+        List argValues = new ArrayList();
 
+        boolean fetchNextTogether = false;
+        String tokensave = "";
+        while(tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            System.out.println("FOUND TOKEN: "+token);
+            if (token.startsWith("(") || token.startsWith("\"")) {
+                // Fetch token
+                token = token.substring(1); 
+                if (token.endsWith(")") || token.endsWith("\"")) {
+                    token = token.substring(0,token.length()-1);
+                    argValues.add(token);
+                    System.out.println("ADDED1 TOKEN: "+token);
+                }else{
+                    fetchNextTogether = true;
+                    tokensave = tokensave+token;
+                }
+            }else if(token.endsWith(")") || token.endsWith("\"")) {
+                token = token.substring(0,token.length()-1);
+                argValues.add(tokensave+" "+token);
+                System.out.println("ADDED2 TOKEN: "+tokensave+" "+token);
+                tokensave = "";
+                fetchNextTogether = false;
+            }else if(fetchNextTogether) {
+                tokensave = tokensave+" "+token;
+            }else{
+                argValues.add(token);
+                System.out.println("ADDED3 TOKEN: "+token);
+            }   
+        }
+        return doProcess( request, session, argValues );
+    }
+    
     protected boolean doProcess( ImapRequest request, ImapSession session, List argValues ) {
         String command = this.getCommand();
         ByteArrayOutputStream byteout = new ByteArrayOutputStream();
         java.io.PrintWriter out = session.getOut();
         BufferedReader bre = session.getIn();
         
-        try{
-            String ms = (String) argValues.get(3);
-            long messagelen = Long.parseLong(ms.substring(1,ms.length()-1));
+        String folder = (String) argValues.get( 0 );
+        String ms = "";
+        String flags = "";
+        String date = "";
+        
+        String arg1 = "";
+        String arg2 = "";
+        String arg3 = "";
+        try {
+            arg1 = (String) argValues.get(1);
+            arg2 = (String) argValues.get(2);
+            arg3 = (String) argValues.get(3);
+        }catch(Exception e) {}
+        
+        if (arg1.startsWith("{")) {
+            // No Argues
+            ms = arg1;
+        }else if (arg1.startsWith("\\")) {
+            // arg1 = flags
+            flags = arg1;
+            if (arg3.startsWith("{")) {
+                date = arg2;
+                ms = arg3;
+            }else{
+                ms = arg2;
+            }
+        }else if (arg2.startsWith("\\")) {
+            // arg2 = flags
+            flags = arg2;
+            ms = arg3;
+        }
+        System.out.println("APPEND: ms is "+ms);
+        System.out.println("APPEND: flags is "+flags);
+        System.out.println("APPEND: date is "+date);
+        
+        try{    
+            long messagelen = Long.parseLong(ms.substring(1,ms.length()-2));
             long messageleft = messagelen;
            
             session.setCanParseCommand(false);
@@ -63,14 +136,16 @@ class AppendCommand extends AuthenticatedSelectedStateCommand {
                 if (messageleft<200) buffer = (int) messageleft;
                 char[] cbuf = new char[buffer] ;
                 bre.read(cbuf);
-                mailb.append(String.copyValueOf(cbuf));
                 byteout.write(String.valueOf(cbuf).getBytes());
                 messageleft = messageleft - buffer;
             }
             session.setCanParseCommand(true);
-        }catch(Exception e){}
+        }catch(Exception e){
+            System.out.println("Error occured parsing input");
+            e.printStackTrace();
+        }
         
-        String folder = (String) argValues.get( 0 );
+        
         FileMailbox mailbox = (FileMailbox)getMailbox( session, folder, command );
         
         if ( mailbox == null ) {
@@ -85,11 +160,6 @@ class AppendCommand extends AuthenticatedSelectedStateCommand {
                 return true;
             }
             
-            //This must be the flags
-            String flags = (String) argValues.get(1);
-            //This must be the internalDate string
-            String date = (String) argValues.get(2);
-            
             MimeMessageInputStreamSource source = new MimeMessageInputStreamSource("Mail" + System.currentTimeMillis() + "-" + mailbox.getNextUID(), new ByteArrayInputStream(byteout.toByteArray()));
             MimeMessageWrapper msg = new MimeMessageWrapper(source);
 
@@ -97,7 +167,7 @@ class AppendCommand extends AuthenticatedSelectedStateCommand {
                 msg.setHeader("Received", date);
                 msg.saveChanges();
             }catch (MessagingException me){
-                    //ignore
+                me.printStackTrace();
             }
             mailbox.store( (MimeMessage)msg, session.getCurrentUser() );
             
