@@ -41,7 +41,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.26 $
+ * @version This is $Revision: 1.27 $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -656,7 +656,7 @@ public class SMTPHandler
                     String mailOptionName = mailOption;
                     String mailOptionValue = "";
                     if (equalIndex > 0) {
-                        mailOptionName = mailOption.substring(0, (equalIndex - 1)).toUpperCase(Locale.US);
+                        mailOptionName = mailOption.substring(0, equalIndex).toUpperCase(Locale.US);
                         mailOptionValue = mailOption.substring(equalIndex + 1);
                     }
 
@@ -801,7 +801,7 @@ public class SMTPHandler
                     String rcptOptionName = rcptOption;
                     String rcptOptionValue = "";
                     if (equalIndex > 0) {
-                        rcptOptionName = rcptOption.substring(0, (equalIndex - 1)).toUpperCase(Locale.US);
+                        rcptOptionName = rcptOption.substring(0, equalIndex).toUpperCase(Locale.US);
                         rcptOptionValue = rcptOption.substring(equalIndex + 1);
                     }
                     // Unexpected option attached to the RCPT command
