@@ -11,7 +11,7 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
 /**
- * Simpliest Mailet which destroy any incoming messages.
+ * Simplest Mailet which destroys any incoming messages.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
