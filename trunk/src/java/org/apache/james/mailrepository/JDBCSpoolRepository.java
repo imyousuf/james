@@ -237,7 +237,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     //            .append(" in ")
                     //            .append(repositoryName);
                     //System.err.println(errorBuffer.toString());
-                    wait(waitTime);
+                    wait(waitTime <= 0 ? 1 : waitTime);
                 }
             } catch (InterruptedException ex) {
                 throw ex;
