@@ -69,12 +69,13 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.component.Component;
 
 /**
  *
- * $Id: Loader.java,v 1.8 2003/04/28 13:02:31 danny Exp $
+ * $Id: Loader.java,v 1.8.2.1 2003/06/02 05:37:27 noel Exp $
  */
-public class Loader implements Contextualizable {
+public class Loader implements Contextualizable, Component {
     protected ClassLoader mailetClassLoader = null;
     protected String baseDirectory = null;
     protected Logger logger;

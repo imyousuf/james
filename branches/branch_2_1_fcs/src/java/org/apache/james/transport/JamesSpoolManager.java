@@ -71,6 +71,8 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
@@ -86,16 +88,14 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @author Serge Knystautas <sergek@lokitech.com>
- * @author Federico Barbieri <scoobie@systemy.it>
- *
- * @version This is $Revision: 1.20.4.4 $
+ * @version This is $Revision: 1.20.4.5 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
     implements Composable, Configurable, Initializable,
-               Runnable, Disposable, Component {
+               Runnable, Disposable, Component, Contextualizable {
 
+    private Context context;
     /**
      * Whether 'deep debugging' is turned on.
      */
@@ -179,6 +179,10 @@ public class JamesSpoolManager
         MailetLoader mailetLoader = new MailetLoader();
         MatchLoader matchLoader = new MatchLoader();
         try {
+            mailetLoader.setLogger(getLogger());
+            matchLoader.setLogger(getLogger());
+            mailetLoader.contextualize(context);
+            matchLoader.contextualize(context);
             mailetLoader.configure(conf.getChild("mailetpackages"));
             matchLoader.configure(conf.getChild("matcherpackages"));
             compMgr.put(Resources.MAILET_LOADER, mailetLoader);
@@ -500,5 +504,12 @@ public class JamesSpoolManager
             processor.dispose();
             processors.remove(processor);
         }
+    }
+
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
+    public void contextualize(Context context) {
+        this.context = context;
     }
 }
