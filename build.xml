@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.27 $  Committed on $Date: 2004/04/17 17:23:18 $ by: $Author: sbrewin $
+ James build file $Revision: 1.116.2.28 $  Committed on $Date: 2004/05/03 03:32:12 $ by: $Author: serge $
 
 Authors:
  James Project <server-dev@james.apache.org>
@@ -34,6 +34,8 @@ Legal:
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
     <property name="version" value="2.2.0RC1"/>
+    <property name="mailet_name" value="mailet_1_0"/>
+    <property name="mailet_version" value="1.0"/>
     <property name="year" value="1999-2003"/>
     <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
@@ -75,7 +77,7 @@ Legal:
     <property name="build.docs" value="${build.dir}/docs"/>
     <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
     <property name="build.conf" value="${build.dir}/conf"/>
-    <property name="build.metainf" value="${build.dir}/meta-inf"/>    
+    <property name="build.metainf" value="${build.dir}/meta-inf"/>
 
     <!--
        ===================================================================
@@ -95,7 +97,7 @@ Legal:
     <property name="conf.dir" value="${src.dir}/conf"/>
     <property name="xdocs.dir" value="${src.dir}/xdocs"/>
     <property name="docs.src" value="${xdocs.dir}"/>
-    <property name="metainf.dir" value="${src.dir}/meta-inf"/>    
+    <property name="metainf.dir" value="${src.dir}/meta-inf"/>
 
     <property name="constants.file" value="org/apache/james/Constants.java"/>
     <property name="poolconn.file" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
@@ -193,7 +195,7 @@ Legal:
         <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
-        <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />        
+        <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
         <fixcrlf srcdir="." includes="build.bat" eol="crlf"/>
         <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
@@ -260,7 +262,7 @@ Legal:
             <fileset dir="${metainf.dir}"/>
         </copy>
     </target>
-        
+
     <!--
        ===================================================================
                                    jdbc3
@@ -329,7 +331,7 @@ Legal:
                 <param name="-link" value="http://avalon.apache.org/logkit/api"/>
                 <param name="-doctitle" value="${Name} ${version}"/>
                 <param name="-windowtitle" value="${Name} API"/>
-                <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
+                <param name="-bottom" value="&quot;Copyright &#169; ${year} ASF James Project. All Rights Reserved.&quot;"/>
             </doclet>
         </javadoc>
         <echo message="Making Mailet Javadocs"/>
@@ -346,9 +348,9 @@ Legal:
                 <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
                 <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
                 <param name="-link" value="http://avalon.apache.org/logkit/api"/>
-                <param name="-doctitle" value="Apache Jakarta Mailet API"/>
-                <param name="-windowtitle" value="Apache Jakarta Mailet API"/>
-                <param name="-bottom" value="&quot;Copyright &#169; ${year} Apache Jakarta Project. All Rights Reserved.&quot;"/>
+                <param name="-doctitle" value="Apache Mailet API"/>
+                <param name="-windowtitle" value="Apache Mailet API"/>
+                <param name="-bottom" value="&quot;Copyright &#169; ${year} ASF James Project. All Rights Reserved.&quot;"/>
             </doclet>
         </javadoc>
     </target>
@@ -433,8 +435,11 @@ Legal:
         <!-- Make james.jar-->
         <jar jarfile="${build.lib}/${name}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
+            <metainf dir="${build.metainf}"/>
+        </jar>
+        <!-- Make mailet_x_y.jar-->
+        <jar jarfile="${build.lib}/${mailet_name}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest-mailet.mf">
             <include name="org/apache/mailet/**"/>
-            <metainf dir="${build.metainf}"/>            
         </jar>
         <!-- Make sar file-->
         <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml" environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
