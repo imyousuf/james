@@ -22,7 +22,7 @@ public class MailetLoader implements Component, Configurable {
     private Configuration conf;
     private Vector mailetPackages;
 
-    public void configure(Configuration conf)throws ConfigurationException {
+    public void configure(Configuration conf) throws ConfigurationException {
         mailetPackages = new Vector();
         mailetPackages.addElement("");
         for (Iterator it = conf.getChildren("mailetpackage"); it.hasNext(); ) {
