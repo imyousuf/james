@@ -21,7 +21,7 @@
 	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
 	<person name="Paul Hammant" email="Paul_Hammant@yahoo.com" id="PH" />
 	<person name="Jeff Keyser" email="JKeyser@telocity.com" id="JK" />
-	<person name="Noel Bergman" email="??" id="NB" />
+	<person name="Noel J. Bergman" email="noel@devtech.com" id="NjB" />
 	<person name="Andrei Ivanov" email="myfam@surfeu.fi" id="AI" />
   </devs>
 
@@ -29,10 +29,10 @@
   <action name="PH" type="code">
     Upgrade James to the Avalon 4.0/4.1 actual releases.
   </action>
-  <action name="NB" type="update">
+  <action name="NjB" type="update">
     Fixed InSpammerBlacklist
   </action>
-  <action name="NB,SK" type="update">
+  <action name="NjB,SK" type="update">
     Fixed MailImpl.duplicate to include remote addr, remote host, and last updated fields.
   </action>
   <action name="SK" type="update">
