@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.112 $  Committed on $Date: 2002/10/20 21:03:50 $ by: $Author: pgoldstein $
+ James build file $Revision: 1.113 $  Committed on $Date: 2002/10/20 21:06:25 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -177,6 +177,7 @@ Legal:
         <chmod perm="+x">
             <fileset dir="${dist.dir}/bin">
                 <include name="run.sh"/>
+                <include name="phoenix.sh"/>
             </fileset>
         </chmod>
         <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
