@@ -7,6 +7,7 @@
  */
 package org.apache.james.services;
 
+import java.util.Iterator;
 import org.apache.avalon.phoenix.Service;
 
 /**
@@ -24,4 +25,10 @@ public interface UsersStore
     String ROLE = "org.apache.james.services.UsersStore";
 
     UsersRepository getRepository( String name );
+
+    /** 
+     * @return repository names that could be resolved by 
+     * calling 'getRepository' method 
+     */
+    Iterator getRepositoryNames();
 }

@@ -100,4 +100,8 @@ public class AvalonUsersStore
         }
         return response;
     }
+
+    public Iterator getRepositoryNames() {
+        return this.repositories.keySet().iterator();
+    }
 }
