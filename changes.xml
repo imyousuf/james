@@ -6,12 +6,52 @@
   <devs>
     <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
+    <person name="Charles Bennett" email="???" id="CB"/>
   </devs>
 
-<release version="1.1" date="">
-  <action dev="" type="code">
-
+<release version="1.2" date="16-Oct-2000">
+  <action dev="SK" type="design">
+    Abstracted mailet API to be Avalon (implementation) independent
   </action>
+  <action dev="CB" type="code">
+    Abstracted mail repository in JAMES/Avalon to allow more varied implementations.
+  </action>
+  <action dev="SK" type="code">
+    Database implementations of mail repositories
+  </action>
+  <action dev="SK" type="code">
+    Changed remote delivery to use an outgoing spool with a specified number of delivery threads
+  </action>
+  <action dev="CB" type="code">
+    Experimental implementation of LDAP user manager
+  </action>
+  <action dev="SK" type="update">
+    Reworked mailets and matchers to fit new API and added many more classes
+  </action>
+  <action dev="CBSK" type="update">
+    Fixed some bugs in POP3 server
+  </action>
+  <action dev="CB" type="update">
+    Added full TOP support in POP3
+  </action>
+  <action dev="SK" type="update">
+    Fixed sorting of MX records so it attempts delivery in correct order
+  </action>
+  <action dev="SK" type="update">
+    Changed remote manager to not allow a login if an admin account's password is empty,
+    and sets the root account's password empty by default (so you have to set one... prevents someone
+    from knowing the password to your system out of the box)
+  </action>
+</release>
+
+<release version="1.1" date="27-Jul-2000">
+  <action dev="??" type="code">
+    Unknown changes
+  </action>
+  <action dev="SK" type="code">
+    Made DNS functionality a separate block
+  </action>
+</release>
 
 <release version="1.0" date="26-Feb-2000">
   <action dev="SKFB" type="code">
