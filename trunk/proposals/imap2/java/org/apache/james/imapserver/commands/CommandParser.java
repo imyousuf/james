@@ -64,6 +64,7 @@ import org.apache.james.imapserver.ImapConstants;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.Assert;
 
+import javax.mail.Flags;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.List;
@@ -76,7 +77,7 @@ import java.text.ParseException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class CommandParser
 {
@@ -352,9 +353,9 @@ public class CommandParser
     /**
      * Reads a "flags" argument from the request.
      */
-    public MessageFlags flagList( ImapRequestLineReader request ) throws ProtocolException
+    public Flags flagList( ImapRequestLineReader request ) throws ProtocolException
     {
-        MessageFlags flags = new MessageFlags();
+        Flags flags = new Flags();
         request.nextWordChar();
         consumeChar( request, '(' );
         CharacterValidator validator = new NoopCharValidator();
@@ -371,22 +372,22 @@ public class CommandParser
         return flags;
         }
 
-    public void setFlag( String flagString, MessageFlags flags ) throws ProtocolException
+    public void setFlag( String flagString, Flags flags ) throws ProtocolException
     {
         if ( flagString.equalsIgnoreCase( MessageFlags.ANSWERED ) ) {
-            flags.setAnswered( true );
+            flags.add(Flags.Flag.ANSWERED);
         }
         else if ( flagString.equalsIgnoreCase( MessageFlags.DELETED ) ) {
-            flags.setDeleted( true );
+            flags.add(Flags.Flag.DELETED);
         }
         else if ( flagString.equalsIgnoreCase( MessageFlags.DRAFT ) ) {
-            flags.setDraft( true );
+            flags.add(Flags.Flag.DRAFT);
         }
         else if ( flagString.equalsIgnoreCase( MessageFlags.FLAGGED ) ) {
-            flags.setFlagged( true );
+            flags.add(Flags.Flag.FLAGGED);
         }
         else if ( flagString.equalsIgnoreCase( MessageFlags.SEEN ) ) {
-            flags.setSeen( true );
+            flags.add(Flags.Flag.SEEN);
         }
         else {
             throw new ProtocolException( "Invalid flag string." );

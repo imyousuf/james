@@ -66,8 +66,8 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.MessageFlags;
 
+import javax.mail.Flags;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
@@ -80,7 +80,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class AppendCommand extends AuthenticatedStateCommand
 {
@@ -96,9 +96,9 @@ class AppendCommand extends AuthenticatedStateCommand
             throws ProtocolException, MailboxException
     {
         String mailboxName = parser.mailbox( request );
-        MessageFlags flags = parser.optionalAppendFlags( request );
+        Flags flags = parser.optionalAppendFlags( request );
         if ( flags == null ) {
-            flags = new MessageFlags();
+            flags = new Flags();
         }
         Date datetime = parser.optionalDateTime( request );
         if ( datetime == null ) {
@@ -141,7 +141,7 @@ class AppendCommand extends AuthenticatedStateCommand
          * a "flag_list" argument from the request. If not, returns a
          * MessageFlags with no flags set.
          */
-        public MessageFlags optionalAppendFlags( ImapRequestLineReader request )
+        public Flags optionalAppendFlags( ImapRequestLineReader request )
                 throws ProtocolException
         {
             char next = request.nextWordChar();

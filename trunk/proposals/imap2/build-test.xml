@@ -173,5 +173,10 @@ Legal:
             <test name="org.apache.james.imapserver.TestCompound"/>
         </junit>
     </target>
+    
+    <target name="build-and-test">
+        <ant antfile="proposals/imap2/build.xml" target="main"/>
+        <antcall target="unit-tests"/>
+    </target>
 </project>
 

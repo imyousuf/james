@@ -62,6 +62,7 @@ import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.james.util.InternetPrintWriter;
 
+import javax.mail.Flags;
 import java.io.PrintWriter;
 import java.io.OutputStream;
 
@@ -194,11 +195,11 @@ public class ImapResponse implements ImapConstants
         end();
     }
 
-    public void flagsResponse( MessageFlags flags )
+    public void flagsResponse( Flags flags )
     {
         untagged();
         message( "FLAGS" );
-        message( flags.format() );
+        message( MessageFlags.format(flags) );
         end();
     }
 
@@ -315,10 +316,10 @@ public class ImapResponse implements ImapConstants
         writer.flush();
     }
 
-    public void permanentFlagsResponse(MessageFlags flags) {
+    public void permanentFlagsResponse(Flags flags) {
         untagged();
         message(OK);
-        responseCode("PERMANENTFLAGS " + flags.format());
+        responseCode("PERMANENTFLAGS " + MessageFlags.format(flags));
         end();
     }
 }

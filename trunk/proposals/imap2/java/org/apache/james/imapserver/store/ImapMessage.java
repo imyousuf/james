@@ -59,19 +59,20 @@
 package org.apache.james.imapserver.store;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.Flags;
 import java.util.Date;
 
 /**
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public interface ImapMessage
 {
     MimeMessage getMimeMessage();
 
-    MessageFlags getFlags();
+    Flags getFlags();
 
     Date getInternalDate();
 
