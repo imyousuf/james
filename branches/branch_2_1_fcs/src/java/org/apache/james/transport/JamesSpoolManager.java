@@ -47,7 +47,7 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.20.4.13 $ $Date: 2004/03/15 03:54:18 $
+ * @version CVS $Revision: 1.20.4.14 $ $Date: 2004/04/13 19:53:34 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -216,6 +216,9 @@ public class JamesSpoolManager
                                         .append(": ")
                                         .append(ex.toString());
                             getLogger().error( errorBuffer.toString(), ex );
+                if (ex.getNextException() != null) {
+                getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                }
                         }
                         System.err.println("Unable to init matcher " + matcherName);
                         System.err.println("Check spool manager logs for more details.");
@@ -243,6 +246,9 @@ public class JamesSpoolManager
                                         .append(": ")
                                         .append(ex.toString());
                             getLogger().error( errorBuffer.toString(), ex );
+                if (ex.getNextException() != null) {
+                getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                }
                         }
                         System.err.println("Unable to init mailet " + mailetClassName);
                         System.err.println("Check spool manager logs for more details.");
