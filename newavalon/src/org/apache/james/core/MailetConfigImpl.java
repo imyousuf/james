@@ -33,18 +33,23 @@ public class MailetConfigImpl implements MailetConfig {
     }
 
     public String getInitParameter(String name) {
-        String result = null;
-        for (Iterator it = configuration.getChildren(name); it.hasNext(); ) {
-            if (result == null) {
-                result = "";
-            } else {
-                result += ",";
-            }
-            Configuration conf = (Configuration)it.next();
-            result += conf.getValue();
-        }
-        return result;
-        //return params.getProperty(name);
+	try {
+	    String result = null;
+	    for (Iterator it = configuration.getChildren(name); it.hasNext(); ) {
+		if (result == null) {
+		    result = "";
+		} else {
+		    result += ",";
+		}
+		Configuration conf = (Configuration)it.next();
+		result += conf.getValue();
+	    }
+	    return result;
+	    //return params.getProperty(name);
+	} catch (ConfigurationException ce) {
+	    throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
+	}
+
     }
 
     public Iterator getInitParameterNames() {
