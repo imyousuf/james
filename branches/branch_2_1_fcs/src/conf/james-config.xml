@@ -20,7 +20,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.15 $ Committed on $Date: 2003/07/24 01:45:58 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.16 $ Committed on $Date: 2003/08/28 16:34:15 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -84,6 +84,17 @@
       </inboxRepository>
       -->
 
+      <!-- Alternative inbox repository definition for mbox use. -->
+      <!-- This method uses UNIX standard mbox files and is meant for people using mbox files -->
+      <!-- with systems such as mail list archive displayers -->
+      <!-- Note that dot-locking is not currently supported -->
+      <!-- so network (write) accesses may cause mbox corruption -->
+      <!-- the sample mbox URL is an absolute URL; mbox:///var/mail will put the users mbox files in /var/mail/-->
+      <!--
+      <inboxRepository>
+         <repository destinationURL="mbox:///var/mail/" type="MAIL"/>
+      </inboxRepository>
+      -->
    </James>
 
    <!-- Fetch pop block, fetches mail from POP3 servers and inserts it into the incoming spool -->
@@ -683,6 +694,16 @@
                <filestore>file://var/dbmail</filestore>
                <maxcache>1000</maxcache>
             </config>
+         </repository>
+
+         <!-- The mbox repository is designed for MAIL only; SPOOL performance would be less than ideal-->
+         <repository class="org.apache.james.mailrepository.MBoxMailRepository">
+            <protocols>
+               <protocol>mbox</protocol>
+            </protocols>
+            <types>
+               <type>MAIL</type>
+            </types>
          </repository>
       </repositories>
 
