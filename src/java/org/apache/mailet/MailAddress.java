@@ -328,6 +328,10 @@ public class MailAddress implements java.io.Serializable {
     }
 
     private String parseDotNum(String address) throws ParseException {
+        //throw away all irrelevant '\' they're not necessary for escaping of '.' or digits, and are illegal as part of the domain-literal
+        while(address.indexOf("\\")>-1){
+             address= address.substring(0,address.indexOf("\\")) + address.substring(address.indexOf("\\")+1);
+        }
         StringBuffer resultSB = new StringBuffer();
         //we were passed the string with pos pointing the the [ char.
         // take the first char ([), put it in the result buffer and increment pos
