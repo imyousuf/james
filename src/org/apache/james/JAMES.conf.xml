@@ -36,7 +36,7 @@
 
             <postmaster> Postmaster@localhost </postmaster>
 <!-- helloName is the single host name this instance of James will use to
-     identify itself  for example, in SMTP and POP3 greetings. 
+     identify itself  for example, in SMTP and POP3 greetings.
      If autodetect is TRUE, James will attempt to discover its own name OR
      use 'localhost'. If autodetect is FALSE, James will use the value given
      OR 'localhost' -->
@@ -56,9 +56,15 @@
 
 <!-- Place here the path where incoming mail are temporaly stored before beeing processed.
      (ex. file://c:/james/spool/) -->
-            <spoolRepository> file://../var/mail/spool/ </spoolRepository>
-
+            <spoolRepository> file://../var/mail/spool/ </spoolRepository>-->
             <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
+
+<!-- Uncomment these (and remove the above ones) to store your messages in a database
+     You will probably also want to uncomment the repository entries below for error and delayed
+     messages.
+            <spoolRepository> town://mainspool@file:///dev/james/dist/var/maildatabase </spoolRepository>
+            <inboxRepository> town://inbox@file:///dev/james/dist/var/maildatabase </inboxRepository>
+-->
 
             <smtpServer>
                 <port>25</port>
@@ -162,6 +168,7 @@
                 <processor name="error">
                     <mailet match="All" class="ToRepository">
                         <repositoryPath> file://../var/mail/error/</repositoryPath>
+<!--                    <repositoryPath> town://mail-error@file:///dev/james/dist/var/maildatabase </repositoryPath>-->
                         <passThrough> false </passThrough>
                     </mailet>
                 </processor>
@@ -176,6 +183,7 @@
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
                         <delayed> file://../var/mail/delayed/ </delayed>
+<!--                    <delayed> town://mail-delayed@file:///dev/james/dist/var/maildatabase </delayed>-->
                         <delayTime> 21600000 </delayTime>
                         <maxRetries> 5 </maxRetries>
                     </mailet>
@@ -202,9 +210,15 @@
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.AvalonMailRepository"/>
-               <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.TownMailRepository"/>
+                <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="town://"
+                    class="org.apache.james.TownMailRepository"/>
+                <repository type="SPOOL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.AvalonSpoolRepository"/>
+                    class="org.apache.james.AvalonMailRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.usermanager.UsersFileRepository"/>

@@ -29,6 +29,7 @@ public class LocalDelivery extends GenericMailet {
             try {
                 getMailetContext().storeMail(mail.getSender(), recipient, mail.getMessage());
             } catch (Exception ex) {
+                ex.printStackTrace();
                 errors.add(recipient);
             }
         }

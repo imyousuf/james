@@ -23,7 +23,7 @@ import javax.mail.MessagingException;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class AvalonMailRepository implements MailRepository {
+public class AvalonMailRepository implements SpoolRepository {
 
     /**
      * Define a STREAM repository. Streams are stored in the specified
@@ -43,13 +43,12 @@ public class AvalonMailRepository implements MailRepository {
     }
 
     public void setAttributes(String name, String destination, String type, String model) {
-
         this.name = name;
         this.destination = destination;
         this.model = model;
         this.type = type;
     }
-        
+
     public void setComponentManager(ComponentManager comp) {
 
         Store store = (Store) comp.getComponent(Interfaces.STORE);
@@ -57,23 +56,23 @@ public class AvalonMailRepository implements MailRepository {
         this.or = (Store.ObjectRepository) store.getPrivateRepository(destination, Store.OBJECT, model);
         lock = new Lock();
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public String getType() {
         return type;
     }
-    
+
     public String getModel() {
         return model;
     }
-    
+
     public String getChildDestination(String childName) {
         return destination + childName.replace ('.', File.separatorChar) + File.separator;
     }
-    
+
     public synchronized void unlock(Object key) {
 
         if (lock.unlock(key)) {
@@ -117,7 +116,7 @@ public class AvalonMailRepository implements MailRepository {
         }
         return mc;
     }
-    
+
     public synchronized void remove(MailImpl mail) {
         remove(mail.getName());
     }
@@ -132,6 +131,23 @@ public class AvalonMailRepository implements MailRepository {
     public Enumeration list() {
         return sr.list();
     }
+
+    public synchronized String accept() {
+
+        while (true) {
+            for(Enumeration e = or.list(); e.hasMoreElements(); ) {
+                Object o = e.nextElement();
+                if (lock.lock(o)) {
+                    return o.toString();
+                }
+            }
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
 }
 
-    
+
