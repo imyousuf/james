@@ -58,16 +58,15 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.james.core.MailImpl;
-import org.apache.mailet.Mail;
-import org.apache.mailet.SpoolRepository;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
+
+import org.apache.james.core.MailImpl;
+import org.apache.mailet.Mail;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Implementation of a SpoolRepository on a database.

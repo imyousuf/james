@@ -57,22 +57,20 @@
  */
 
 package org.apache.james.fetchpop;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.MailServer;
-
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>

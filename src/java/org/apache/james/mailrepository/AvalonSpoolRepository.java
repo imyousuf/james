@@ -58,12 +58,11 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.james.core.MailImpl;
-import org.apache.mailet.Mail;
-import org.apache.mailet.SpoolRepository;
-
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+
+import org.apache.mailet.Mail;
+import org.apache.mailet.SpoolRepository;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
