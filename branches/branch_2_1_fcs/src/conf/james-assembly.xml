@@ -108,6 +108,14 @@
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
   </block>
+  
+  <!-- FetchMail Service -->
+  <block name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" >
+    <provide name="scheduler"
+             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>          
+  </block>   
 
   <!-- The High Level Storage block -->
   <block name="mailstore" class="org.apache.james.core.AvalonMailStore" >
