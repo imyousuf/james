@@ -13,34 +13,38 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 
-import org.apache.avalon.*;
-import org.apache.mailet.*;
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.utils.*;
-import org.apache.james.*;
-import org.apache.james.core.*;
-import org.apache.james.mailrepository.*;
-import org.apache.james.transport.*;
-import org.apache.james.userrepository.*;
-import org.apache.james.util.*;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.*;
+import org.apache.avalon.util.*;
+
+import org.apache.james.*;
+import org.apache.james.core.*;
+import org.apache.james.services.*;
+import org.apache.james.util.InternetPrintWriter;
+
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
+import org.apache.mailet.*;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler implements Composer, Stoppable, Configurable, Service, TimeServer.Bell, Contextualizable {
+public class POP3Handler implements Composer, Stoppable, Configurable, Service, Scheduler.Target, Contextualizable, Runnable {
 
-    private ComponentManager comp;
+    private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger;
+    private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
     private MailServer mailServer;
     private MailRepository userInbox;
     private UsersRepository users;
-    private TimeServer timeServer;
+    private Scheduler scheduler;
+    private long timeout;
 
     private Socket socket;
     private BufferedReader in;
@@ -66,28 +70,34 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     /**
      * Constructor has no parameters to allow Class.forName() stuff.
      */
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
+	timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
     }
 
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-    }
-
-    public void setContext(Context context) {
+    public void  contextualize(Context context) {
         this.context = context;
     }
 
-    public void init()
-    throws Exception {
+    public void compose(ComponentManager comp) {
+        compMgr = comp;
+    }
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-        users = (UsersRepository) comp.getComponent(Constants.LOCAL_USERS);
-        this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-        this.softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
-        this.servername = (String) context.get(Constants.HELO_NAME);
-        this.userMailbox = new Vector();
+    public void init() throws Exception {
+
+	try {
+	    mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
+	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
+	    scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+	    softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
+	    servername = (String) context.get(Constants.HELO_NAME);
+	    userMailbox = new Vector();
+
+	} catch (Exception e) {
+	    logger.error("Exception initializing a PO3Handler was : " + e);
+	    e.printStackTrace();
+	    throw e;
+	}
     }
 
     public void parseRequest(Socket socket) {
@@ -100,30 +110,30 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
-            logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), "POP3", logger.ERROR);
+            logger.error("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
         }
 
-        logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", "POP3", logger.INFO);
+        logger.info("Connection from " + remoteHost + " (" + remoteIP + ")");
     }
 
     public void run() {
 
         try {
-            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout").getValueAsLong(120000));
+	    scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
             state = AUTHENTICATION_READY;
             user = "unknown";
             out.println(OK_RESPONSE + " " + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
             while (parseCommand(in.readLine())) {
-                timeServer.resetAlarm(this.toString());
+                scheduler.resetAlarm(this.toString());
             }
             socket.close();
-            timeServer.removeAlarm(this.toString());
-            logger.log("Connection closed", "POP3", logger.INFO);
+            scheduler.removeAlarm(this.toString());
+            logger.info("Connection closed");
 
         } catch (Exception e) {
             out.println(ERR_RESPONSE + " Error closing connection.");
             out.flush();
-            logger.log("Exception during connection from " + remoteHost + " (" + remoteIP + ") : " + e.getMessage(), "POP3", logger.ERROR);
+            logger.error("Exception during connection from " + remoteHost + " (" + remoteIP + ") : " + e.getMessage());
             try {
                 socket.close();
             } catch (IOException ioe) {
@@ -131,8 +141,8 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         }
     }
 
-    public void wake(String name, String memo) {
-        logger.log("Connection timeout on socket", "POP3", logger.ERROR);
+    public void wake(String name, Scheduler.Event event) {
+        logger.error("Connection timeout on socket");
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -142,7 +152,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null) return false;
-        logger.log("Command received: " + commandRaw, "POP3", logger.INFO);
+        logger.info("Command received: " + commandRaw);
         String command = commandRaw.trim();
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
@@ -388,16 +398,16 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
                 return false;
             }
-            Vector toBeRemoved = VectorUtils.subtract(backupUserMailbox, userMailbox);
+            List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
             try {
-                for (Enumeration e = toBeRemoved.elements(); e.hasMoreElements(); ) {
-                    MailImpl mc = (MailImpl) e.nextElement();
+                for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
+                    MailImpl mc = (MailImpl) it.next();
                     userInbox.remove(mc.getName());
                 }
                 out.println(OK_RESPONSE + " Apache James POP3 Server signing off.");
             } catch (Exception ex) {
                 out.println(ERR_RESPONSE + " Some deleted messages were not removed");
-                logger.log("Some deleted messages were not removed: " + ex.getMessage(), "POP3", logger.ERROR);
+                logger.error("Some deleted messages were not removed: " + ex.getMessage());
             }
             return false;
         } else {
@@ -408,19 +418,19 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
     public void stop() {
             // todo
-        logger.log("Stop SMTPHandler", "POP3", logger.ERROR);
+        logger.error("Stop POP3Handler");
     }
 
     public void destroy() {
 
-        logger.log("Destroy SMTPHandler", "POP3", logger.ERROR);
+        logger.error("Destroy POP3Handler");
     }
 
     private void stat() {
         userMailbox = new Vector();
         userMailbox.addElement(DELETED);
-        for (Enumeration e = userInbox.list(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+        for (Iterator it = userInbox.list(); it.hasNext(); ) {
+            String key = (String) it.next();
             MailImpl mc = userInbox.retrieve(key);
             userMailbox.addElement(mc);
         }

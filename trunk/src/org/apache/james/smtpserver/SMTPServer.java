@@ -8,10 +8,16 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.james.*;
 import java.net.*;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.*;
+import org.apache.avalon.util.lang.*;
+
+import org.apache.james.*;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -19,62 +25,63 @@ import java.net.*;
  */
 public class SMTPServer implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
 
-    private ComponentManager comp;
-    private Configuration conf;
-    private Logger logger;
-    private ThreadManager threadManager;
     private Context context;
-
-    public void setConfiguration(Configuration conf) {
+    private Configuration conf;
+    private ComponentManager compMgr;
+    private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
+    private WorkerPool workerPool;
+ 
+    
+    public void configure(Configuration conf) throws ConfigurationException{
         this.conf = conf;
     }
-
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
+    
+    public void compose(ComponentManager comp) {
+        compMgr = comp;
     }
-
-    public void setContext(Context context) {
+    
+    public void contextualize(Context context) {
         this.context = context;
     }
 
     public void init() throws Exception {
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("SMTPServer init...", "SMTP", logger.INFO);
-        threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
-        SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
-        int port = conf.getConfiguration("port").getValueAsInt(25);
+        logger.info("SMTPServer init...");
+	//int threadPool = conf.getChild("ThreadPoolSize").getVaueAsInt();
+	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+        int port = conf.getChild("port").getValueAsInt(25);
         InetAddress bind = null;
         try {
-            String bindTo = conf.getConfiguration("bind").getValue();
+            String bindTo = conf.getChild("bind").getValue();
             if (bindTo.length() > 0) {
                 bind = InetAddress.getByName(bindTo);
             }
         } catch (ConfigurationException e) {
         }
         socketServer.openListener("SMTPListener", SocketServer.DEFAULT, port, bind, this);
-        logger.log("SMTPServer ...init end", "SMTP", logger.INFO);
+        logger.info("SMTPServer ...init end");
     }
 
     public void parseRequest(Socket s) {
 
         try {
             SMTPHandler smtpHandler = new SMTPHandler();
-            smtpHandler.setConfiguration(conf.getConfiguration("smtphandler"));
-            smtpHandler.setContext(context);
-            smtpHandler.setComponentManager(comp);
+            smtpHandler.configure(conf.getChild("smtphandler"));
+            smtpHandler.contextualize(context);
+            smtpHandler.compose(compMgr);
             smtpHandler.init();
             smtpHandler.parseRequest(s);
-            threadManager.execute(smtpHandler);
-            logger.log("Executing handler.", "SMTP", logger.DEBUG);
+            workerPool.execute((Runnable)smtpHandler);
+            logger.debug("Executing handler.");
         } catch (Exception e) {
-            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "SMTP", logger.ERROR);
+            logger.error("Cannot parse request on socket " + s + " : "
+			 + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void destroy()
-    throws Exception {
+    public void destroy() throws Exception {
     }
 }
-
+    
