@@ -11,8 +11,28 @@
 
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
+<section name="Version 3.0">
+<li>[SS4] (update) Upgrade to DnsJava 1.3.2</li>
+<li>[SS4] (code) DNS service can auto-discover DNS servers</li>
+<li>[SS4] (code) return an unmodifiable Collection from findMXRecords()</li>
+<li>[SS4] (code) Added some more logging to DNS service</li>
+<li>[PG,HB]  (code) NNTP dot stuffing fix</li>
+<li>[PG]  (code) NNTP OVER/XOVER fix</li>
+</section>
+
+<section name="Version 2.1.1">
+<p>Expected release January 2003</p>
+<li> [NjB] (code) Enabled log rotation</li>
+<li> [NjB] (doc) Fixed broken links</li>
+<li> [DA, NjB]  (update) Updated JavaMail and JAF</li>
+<li> [NjB] (code) Updated sqlResources.xml for PostgreSQL with patch from simon </li>
+<li> [NjB] (code) Reorder primary key for JDBCMailRepository? to optimize queries using just the repository name.</li>
+<li>[PG,HB]  (code) NNTP dot stuffing fix</li>
+<li>[PG]  (code) NNTP OVER/XOVER fix</li>
+</section>
+
 <section name="Version 2.1">
-<p>Expected release December 2002</p>
+<p>Released 29 December 2002</p>
 <ul>
 <li>(AK) (doc) Added LDAP RFCs.</li>
 <li>(PG) (code) Fixed platform-specific performance issue with the POP3 server delivery.</li>
