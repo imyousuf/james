@@ -9,8 +9,9 @@ package org.apache.james.util;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -34,7 +35,7 @@ public class RFC822DateFormat {
      */
     public static String toString(Date d) {
         if (df == null) {
-            df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss");
+            df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss",Locale.US);
         }
         if (tz == null) {
             tz = new DecimalFormat("00");
