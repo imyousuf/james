@@ -16,6 +16,8 @@ import org.apache.avalon.blocks.*;
 import org.apache.james.*;
 import org.apache.java.util.*;
 import org.apache.arch.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.*;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
@@ -34,6 +36,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private OutputStream outs;
     private String remoteHost;
     private String remoteIP;
     private String servername;
@@ -84,7 +87,8 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         try {
             this.socket = socket;
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            outs = socket.getOutputStream();
+            out = new PrintWriter(outs, true);
             remoteHost = socket.getInetAddress ().getHostName ();
             remoteIP = socket.getInetAddress ().getHostAddress ();
         } catch (Exception e) {
@@ -125,7 +129,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     }
 
     private boolean parseCommand(String command) {
-//        if (command == null) return false;
+        if (command == null) return false;
         logger.log("Command recieved: " + command, "POP3Server", logger.INFO);
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
         int arguments = commandLine.countTokens();
@@ -174,12 +178,12 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                         MessageContainer mc = (MessageContainer) e.nextElement();
                         if (mc != DELETED) {
-                            size += mc.getBodyInputStream().available();
+                            size += mc.getMessage().getSize();
                             count++;
                         }
                     }
                     out.println("+OK " + count + " " + size);
-                } catch (IOException ioe) {
+                } catch (MessagingException me) {
                     out.println("-ERR.");
                 }
             } else {
@@ -195,7 +199,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); ) {
                             MessageContainer mc = (MessageContainer) e.nextElement();
                             if (mc != DELETED) {
-                                size += mc.getBodyInputStream().available();
+                                size += mc.getMessage().getSize();
                                 count++;
                             }
                         }
@@ -204,11 +208,11 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         for (Enumeration e = userMailbox.elements(); e.hasMoreElements(); count++) {
                             MessageContainer mc = (MessageContainer) e.nextElement();
                             if (mc != DELETED) {
-                                out.println(count + " " + mc.getBodyInputStream().available());
+                                out.println(count + " " + mc.getMessage().getSize());
                             }
                         }
                         out.println(".");                    
-                    } catch (IOException ioe) {
+                    } catch (MessagingException me) {
                         out.println("-ERR.");
                     }
                 } else {
@@ -217,7 +221,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         num = Integer.parseInt(argument);
                         MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
                         if (mc != DELETED) {
-                            out.println("+OK " + num + " " + mc.getBodyInputStream().available());
+                            out.println("+OK " + num + " " + mc.getMessage().getSize());
                         } else {
                             out.println("-ERR. Message (" + num + ") does not exist.");
                         }
@@ -225,7 +229,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                         out.println("-ERR. Message (" + num + ") does not exist.");
                     } catch (NumberFormatException nfe) {
                         out.println("-ERR. " + argument + " is not a valid number");
-                    } catch (IOException ioe) {
+                    } catch (MessagingException me) {
                         out.println("-ERR.");
                     }
                 }
@@ -308,18 +312,14 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 try {
                     MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
                     if (mc != DELETED) {
-                        InputStream is = mc.getBodyInputStream();
-                        is.mark(Integer.MAX_VALUE);
-                        BufferedReader mailIn = new BufferedReader(new InputStreamReader(is));
                         out.println("+OK Message follows");
-                        for (String nextLine = mailIn.readLine(); nextLine != null; nextLine = mailIn.readLine()) {
-                            out.println(nextLine);
-                        }
-                        is.reset();
+                        mc.getMessage().writeTo(outs);
                     } else {
                         out.println("-ERR. Message (" + num + ") deleted.");
                     }
                 } catch (IOException ioe) {
+                    out.println("-ERR. Error while retrieving message.");
+                } catch (MessagingException me) {
                     out.println("-ERR. Error while retrieving message.");
                 } catch (ArrayIndexOutOfBoundsException iob) {
                     out.println("-ERR. Message (" + num + ") does not exist.");
@@ -336,9 +336,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 try {
                     num = Integer.parseInt(argument);
                     lines = Integer.parseInt(argument1);
-/*                } catch (ArrayIndexOutOfBoundsException e) {
-                    out.println("-ERR. Usage: TOP [mail number] [Line number]");
-                    return true;*/
                 } catch (NumberFormatException nfe) {
                     out.println("-ERR. Usage: TOP [mail number] [Line number]");
                     return true;
@@ -346,22 +343,19 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                 try {
                     MessageContainer mc = (MessageContainer) userMailbox.elementAt(num);
                     if (mc != DELETED) {
-                        InputStream is = mc.getBodyInputStream();
-                        is.mark(Integer.MAX_VALUE);
-                        BufferedReader mailIn = new BufferedReader(new InputStreamReader(is));
                         out.println("+OK Message follows");
-                        for (String nextLine = mailIn.readLine(); nextLine != null && !nextLine.equals(""); nextLine = mailIn.readLine()) {
-                            out.println(nextLine);
+                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
+                            out.println(e.nextElement());
                         }
                         out.println("");
-                        for (String nextLine = mailIn.readLine(); nextLine != null && lines-- > 0; nextLine = mailIn.readLine()) {
-                            out.println(nextLine);
+// FIXME!!!: need to print first "lines" of the message
+                        while (lines-- > 0) {
+                            out.println("!!! PARTYALLY SUPPORTED COMMAND !!!");
                         }
-                        is.reset();
                     } else {
                         out.println("-ERR. Message (" + num + ") already deleted.");
                     }
-                } catch (IOException ioe) {
+                } catch (MessagingException me) {
                     out.println("-ERR. Error while retrieving message.");
                 } catch (ArrayIndexOutOfBoundsException iob) {
                     out.println("-ERR. Message (" + num + ") does not exist.");
@@ -381,7 +375,6 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             try {
                 for (Enumeration e = toBeRemoved.elements(); e.hasMoreElements(); ) {
                     MessageContainer mc = (MessageContainer) e.nextElement();
-                    mc.getBodyInputStream().close();
                     userInbox.remove(mc.getMessageId());
                 }
                 out.println("+OK. Apache James POP3 Server signinig off.");
