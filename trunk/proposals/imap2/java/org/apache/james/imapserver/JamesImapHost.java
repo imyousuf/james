@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * An initial implementation of an ImapHost. By default, uses,
@@ -25,21 +27,24 @@ import java.util.StringTokenizer;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class JamesImapHost
         implements ImapHost, ImapConstants
 {
     private ImapStore store;
+    private MailboxSubscriptions subscriptions;
 
     public JamesImapHost()
     {
         store = new InMemoryStore();
+        subscriptions = new MailboxSubscriptions();
     }
 
     public JamesImapHost( ImapStore store )
     {
         this.store = store;
+        subscriptions = new MailboxSubscriptions();
     }
 
     public char getHierarchyDelimiter()
@@ -170,14 +175,15 @@ public class JamesImapHost
         store.renameMailbox( existingMailbox, newMailboxName );
     }
 
+    /** @see ImapHost#listSubscribedMailboxes */
     public Collection listSubscribedMailboxes( User user,
                                                String mailboxPattern )
             throws MailboxException
     {
-        throw new MailboxException( "Subscriptions not implemented" );
-//        return listMailboxes( user, mailboxPattern, true );
+        return listMailboxes( user, mailboxPattern, true );
     }
 
+    /** @see ImapHost#listMailboxes */
     public Collection listMailboxes( User user,
                                      String mailboxPattern )
             throws MailboxException
@@ -187,7 +193,6 @@ public class JamesImapHost
 
     /**
      * Partial implementation of list functionality.
-     * TODO: Handle subscriptions (currently ignored)
      * TODO: Handle wildcards anywhere in mailbox pattern
      *       (currently only supported as last character of pattern)
      * @see org.apache.james.imapserver.ImapHost#listMailboxes
@@ -207,14 +212,16 @@ public class JamesImapHost
         while ( iter.hasNext() ) {
             ImapMailbox mailbox = ( ImapMailbox ) iter.next();
 
-            // Sets the mailbox to null if it's not viewable.
-            mailbox = checkViewable( mailbox );
-
             // TODO check subscriptions.
             if ( subscribedOnly ) {
-                // if not subscribed
-                mailbox = null;
+                if ( ! subscriptions.isSubscribed( user, mailbox ) ) {
+                    // if not subscribed
+                    mailbox = null;
+                }
             }
+
+            // Sets the mailbox to null if it's not viewable.
+            mailbox = checkViewable( mailbox );
 
             if ( mailbox != null ) {
                 mailboxes.add( mailbox );
@@ -224,16 +231,20 @@ public class JamesImapHost
         return mailboxes;
     }
 
-    public void subscribe( User user, String mailbox )
+    /** @see ImapHost#subscribe */
+    public void subscribe( User user, String mailboxName )
             throws MailboxException
     {
-        // TODO implement
+        ImapMailbox mailbox = getMailbox( user, mailboxName, true );
+        subscriptions.subscribe( user, mailbox );
     }
 
-    public void unsubscribe( String username, String mailbox )
+    /** @see ImapHost#unsubscribe */
+    public void unsubscribe( User user, String mailboxName )
             throws MailboxException
     {
-        // TODO implement
+        ImapMailbox mailbox = getMailbox( user, mailboxName, true );
+        subscriptions.unsubscribe( user, mailbox );
     }
 
     /**
@@ -267,6 +278,63 @@ public class JamesImapHost
                 return USER_NAMESPACE + HIERARCHY_DELIMITER + userName +
                         HIERARCHY_DELIMITER + mailboxName;
             }
+        }
+    }
+
+    /**
+     * Handles all user subscriptions.
+     * TODO make this a proper class
+     * TODO persist
+     */
+    private class MailboxSubscriptions
+    {
+        private Map userSubs = new HashMap();
+
+        /**
+         * Subscribes the user to the mailbox.
+         * TODO should this fail if already subscribed?
+         * @param user The user making the subscription
+         * @param mailbox The mailbox to subscribe
+         * @throws MailboxException ??? doesn't yet.
+         */
+        void subscribe( User user, ImapMailbox mailbox )
+                throws MailboxException
+        {
+            getUserSubs( user ).add( mailbox.getFullName() );
+        }
+
+        /**
+         * Unsubscribes the user from this mailbox.
+         * TODO should this fail if not already subscribed?
+         * @param user The user making the request.
+         * @param mailbox The mailbox to unsubscribe
+         * @throws MailboxException ?? doesn't yet
+         */
+        void unsubscribe( User user, ImapMailbox mailbox )
+                throws MailboxException
+        {
+            getUserSubs( user ).remove( mailbox.getFullName() );
+        }
+
+        /**
+         * Returns whether the user is subscribed to the specified mailbox.
+         * @param user The user to test.
+         * @param mailbox The mailbox to test.
+         * @return <code>true</code> if the user is subscribed.
+         */
+        boolean isSubscribed( User user, ImapMailbox mailbox )
+        {
+            return getUserSubs( user ).contains( mailbox.getFullName() );
+        }
+
+        private Collection getUserSubs( User user )
+        {
+            Collection subs = (Collection)userSubs.get( user.getUserName() );
+            if ( subs == null ) {
+                subs = new ArrayList();
+                userSubs.put( user.getUserName(), subs );
+            }
+            return subs;
         }
     }
 
