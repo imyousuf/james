@@ -102,10 +102,10 @@ public interface Matcher {
      *
      * @param config - a MatcherConfig object containing the matcher's configuration
      *          and initialization parameters
-     * @throws MailetException - if an exception has occurred that interferes with
-     *          the matcher's normal operation
+     * @throws javax.mail.MessagingException - if an exception has occurred that
+     *          interferes with the matcher's normal operation
      */
-    public void init(MatcherConfig config) throws MailetException;
+    public void init(MatcherConfig config) throws javax.mail.MessagingException;
 
     /**
      * Takes a Mail message, looks at any pertinent information, and then returns a subset
@@ -123,10 +123,9 @@ public interface Matcher {
      *
      * @param mail - the Mail object that contains the message and routing information
      * @return a Collection of String objects (recipients) that meet the match criteria
-     * @throws MailetException - if an exception occurs that interferes with the matcher's
-     *      normal operation
-     * @throws MessagingException - if an message or address parsing exception occurs
+     * @throws MessagingException - if an message or address parsing exception occurs or
+     *      an exception that interferes with the matcher's normal operation
      */
-    public Collection match(Mail mail) throws MailetException, javax.mail.MessagingException;
+    public Collection match(Mail mail) throws javax.mail.MessagingException;
 
 }
