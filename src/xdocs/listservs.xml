@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 1.2.1 - Mailets</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
+
+<body>
+
+<section name="Mailets">
+
+  <p>
+  Several mailets are included with James 1.2.1, they are described below.
+  </p>
+</section>
+
+<section name="Avalon Listserv">
+
+  <p>
+    <b>An Avalon-based listserv.</b>
+    This uses settings specified in the JAMES.conf.xml file, and uses an
+Avalon UserRepository manager as the listserv members.
+  </p>
+  <p>
+    Required parameters:
+    <br>
+      &lt;members&gt; The URL to the Avalon UserRepository.
+    </br>
+    <br>
+      &lt;membersonly&gt; Either true or false. Indicates whether only
+      members of this listserv can send messages to it.
+    </br>
+    <br>
+      &lt;attachmentsallowed&gt; Either true or false. Indicates whether
+      you can send attachments to this listserv.
+    </br>
+    <br>
+      &lt;replytolist&gt; Either true or false. Indicates whether the Reply-To
+      header is set, which will direct replies to the list itself.
+    </br>
+    Optional parameters:
+    <br>
+      &lt;subjectprefix&gt; This text will be put in brackets at the beginning
+      of the subject of the message if specified.
+    </br>
+  </p>
+</section>
+
+<section name="Avalon Listserv Manager">
+
+  <p>
+    <b>An Avalon-based listserv manager.</b>
+    Handles adding a removing members to the specified UserRepository.
+  </p>
+  <p>
+    Required parameters:
+    <br>
+      &lt;members&gt;
+    </br>
+  </p>
+</section>
+ 
+</body>
+</document>

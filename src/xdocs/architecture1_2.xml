@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 1.2 - Notes for developers</title>
+  <author email="charles@benett1.demon.co.uk">Charles Benett</author>
+ </properties>
+
+<body>
+
+<section name="Architecture">
+
+  <p>
+    JAMES is a multi-protocol message processing and storage engine. JAMES
+    currently consists of:
+    <ul>
+      <li> two mail prototcol servers (SMTP and POP3),</li>
+      <li> a remote administration server,</li>
+      <li> a mail processing engine that supports the Mailet API</li>
+      <li> file-system message storage and a message storage interface
+        to RDBMS's</li>
+      <li> file-system user record storage and an experimental interface
+        to LDAP directories</li>
+      <li> beta support for TLS (SSL) for POP3 and remote administration</li>
+    </ul> 
+  </p>
+
+  <p>
+    JAMES is built on top of Avalon, the Java Apache Server Framework.
+    Versions 1.1 and 1.2 of James use a slightly older version of Avalon,
+    specifically the <code>avalon-james-1-1b1</code> branch. We intend to
+    migrate to the new Avalon in the near future.</p>
+
+</section>
+
+</body>
+</document>
