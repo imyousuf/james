@@ -155,7 +155,7 @@
   </p>
   </subsection>
 
-  <a href="10"></a>
+  <a name="10"></a>
   <subsection name="How do I run James as an NT/2k/XP service?">
   <p>You can use Alexandria will setup/run JAMES on NT/2k/XP</p>
   <p>I created a .bat file called InstallJamesNTService.bat containing the
