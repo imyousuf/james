@@ -70,11 +70,8 @@ import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
+import org.apache.mailet.Datasource;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -94,7 +91,7 @@ import org.apache.mailet.MailetException;
  */
 public class JDBCAlias extends GenericMailet {
 
-    protected DataSourceComponent datasource;
+    protected Datasource datasource;
     protected String query = null;
 
     // The JDBCUtil helper class
@@ -124,12 +121,7 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
-            // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
-
+            datasource = getMailetContext().getDatasource(datasourceName);
             conn = datasource.getConnection();
 
             // Check if the required table exists. If not, complain.

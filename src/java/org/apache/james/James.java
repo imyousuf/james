@@ -55,9 +55,7 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
 package org.apache.james;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -74,14 +72,13 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
-
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -105,6 +102,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.mailet.Datasource;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailRepository;
@@ -113,7 +111,6 @@ import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.SpoolRepository;
 import org.apache.mailet.UsersRepository;
 import org.apache.mailet.dates.RFC822DateFormat;
-
 /**
  * Core class for JAMES. Provides three primary services:
  * <br> 1) Instantiates resources, such as user repository, and protocol
@@ -122,161 +119,138 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.54 $
+ * @version This is $Revision: 1.55 $
 
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, JamesMBean,
-               Initializable, MailServer, MailetContext {
-
+    implements Contextualizable, Serviceable, Configurable, JamesMBean, Initializable, MailServer, MailetContext {
     /**
      * The software name and version
      */
-    private final static String SOFTWARE_NAME_VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
-
+    private final static String SOFTWARE_NAME_VERSION =
+        Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     /**
      * The component manager used both internally by James and by Mailets.
      */
     private DefaultServiceManager compMgr; //Components shared
-
     /**
      * TODO: Investigate what this is supposed to do.  Looks like it
      *       was supposed to be the Mailet context.
      */
     private DefaultContext context;
-
     /**
      * The top level configuration object for this server.
      */
     private Configuration conf;
-
     /**
      * The logger used by the Mailet API.
      */
     private Logger mailetLogger = null;
-
     /**
      * The mail store containing the inbox repository and the spool.
      */
     private MailStore mailstore;
-
     /**
      * The store containing the local user repository.
      */
     private UsersStore usersStore;
-
     /**
      * The spool used for processing mail handled by this server.
      */
     private SpoolRepository spool;
-
     /**
      * The repository that stores the user inboxes.
      */
     private MailRepository localInbox;
-
     /**
      * The root URL used to get mailboxes from the repository
      */
     private String inboxRootURL;
-
     /**
      * The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
      */
     private UsersRepository localusers;
-
     /**
      * The collection of domain/server names for which this instance of James
      * will receive and process mail.
      */
     private Collection serverNames;
-
     /**
      * Whether to ignore case when looking up user names on this server
      */
     private boolean ignoreCase;
-
     /**
      * Whether to enable aliasing for users on this server
      */
     private boolean enableAliases;
-
     /**
      * Whether to enable forwarding for users on this server
      */
     private boolean enableForwarding;
-
     /**
      * The number of mails generated.  Access needs to be synchronized for
      * thread safety and to ensure that all threads see the latest value.
      */
     private static long count;
-
     /**
      * The address of the postmaster for this server
      */
     private MailAddress postmaster;
-
     /**
      * A map used to store mailboxes and reduce the cost of lookup of individual
      * mailboxes.
      */
     private Map mailboxes; //Not to be shared!
-
     /**
      * A hash table of server attributes
      * These are the MailetContext attributes
      */
     private Hashtable attributes = new Hashtable();
-
     /**
      * The Avalon context used by the instance
      */
     private Context myContext;
-
     /**
      * An RFC822 date formatter used to format dates in mail headers
      */
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
+    private boolean ObeyStrictMailet3 = false;
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context) {
         this.myContext = context;
     }
-
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void service( ServiceManager comp) {
+    public void service(ServiceManager comp) {
         compMgr = new DefaultServiceManager(comp);
         mailboxes = new HashMap(31);
     }
-
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) {
         this.conf = conf;
     }
-
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public void initialize() throws Exception 
-    {
-        if( getLogger().isInfoEnabled() )
-        {
+    public void initialize() throws Exception {
+        if (getLogger().isInfoEnabled()) {
             getLogger().info("JAMES init...");
         }
-
+        String strictMailet = conf.getChild("StrictObeyMailet").getValue();
+        if (strictMailet != null && strictMailet.equalsIgnoreCase("true")) {
+            ObeyStrictMailet3 = true;
+        }
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
-            mailstore = (MailStore) compMgr.lookup( MailStore.ROLE );
+            mailstore = (MailStore)compMgr.lookup(MailStore.ROLE);
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
@@ -286,7 +260,7 @@ public class James
             getLogger().debug("Using MailStore: " + mailstore.toString());
         }
         try {
-            usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
+            usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
@@ -295,33 +269,26 @@ public class James
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Using UsersStore: " + usersStore.toString());
         }
-
         String hostName = null;
         try {
             hostName = InetAddress.getLocalHost().getHostName();
-        } catch  (UnknownHostException ue) {
+        } catch (UnknownHostException ue) {
             hostName = "localhost";
         }
-
         context = new DefaultContext();
         context.put("HostName", hostName);
-        if( getLogger().isInfoEnabled() )
-        {
+        if (getLogger().isInfoEnabled()) {
             getLogger().info("Local host is: " + hostName);
         }
-
         // Get the domains and hosts served by this instance
         serverNames = new HashSet();
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
             serverNames.add(hostName.toLowerCase(Locale.US));
         }
-
-        final Configuration[] serverNameConfs =
-            conf.getChild( "servernames" ).getChildren( "servername" );
-        for ( int i = 0; i < serverNameConfs.length; i++ ) {
-            serverNames.add( serverNameConfs[i].getValue().toLowerCase(Locale.US));
-
+        final Configuration[] serverNameConfs = conf.getChild("servernames").getChildren("servername");
+        for (int i = 0; i < serverNameConfs.length; i++) {
+            serverNames.add(serverNameConfs[i].getValue().toLowerCase(Locale.US));
             if (serverConf.getAttributeAsBoolean("autodetectIP", true)) {
                 try {
                     /* This adds the IP address(es) for each host to support
@@ -334,62 +301,54 @@ public class James
                      * just both in the set.
                      */
                     InetAddress[] addrs = InetAddress.getAllByName(serverNameConfs[i].getValue());
-                    for (int j = 0; j < addrs.length ; j++) {
+                    for (int j = 0; j < addrs.length; j++) {
                         serverNames.add(addrs[j].getHostAddress());
                     }
-                }
-                catch(Exception genericException) {
+                } catch (Exception genericException) {
                     getLogger().error("Cannot get IP address(es) for " + serverNameConfs[i].getValue());
                 }
             }
         }
         if (serverNames.isEmpty()) {
-            throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
+            throw new ConfigurationException("Fatal configuration error: no servernames specified!");
         }
-
         if (getLogger().isInfoEnabled()) {
-            for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-               getLogger().info("Handling mail for: " + i.next());
+            for (Iterator i = serverNames.iterator(); i.hasNext();) {
+                getLogger().info("Handling mail for: " + i.next());
             }
         }
         context.put(Constants.SERVER_NAMES, this.serverNames);
         attributes.put(Constants.SERVER_NAMES, this.serverNames);
-
-
         // Get postmaster
         String postMasterAddress = conf.getChild("postmaster").getValue("postmaster");
         // if there is no @domain part, then add the first one from the
         // list of supported domains that isn't localhost.  If that
         // doesn't work, use the hostname, even if it is localhost.
         if (postMasterAddress.indexOf('@') < 0) {
-            String domainName = null;    // the domain to use
+            String domainName = null; // the domain to use
             // loop through candidate domains until we find one or exhaust the list
-            for ( int i = 0; domainName == null && i < serverNameConfs.length ; i++ ) {
+            for (int i = 0; domainName == null && i < serverNameConfs.length; i++) {
                 String serverName = serverNameConfs[i].getValue().toLowerCase(Locale.US);
                 if (!("localhost".equals(serverName))) {
-                    domainName = serverName;    // ok, not localhost, so use it
+                    domainName = serverName; // ok, not localhost, so use it
                 }
             }
             // if we found a suitable domain, use it.  Otherwise fallback to the host name.
             postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : hostName);
         }
-        this.postmaster = new MailAddress( postMasterAddress );
-        context.put( Constants.POSTMASTER, postmaster );
-
+        this.postmaster = new MailAddress(postMasterAddress);
+        context.put(Constants.POSTMASTER, postmaster);
         if (!isLocalServer(postmaster.getHost())) {
-            StringBuffer warnBuffer
-                = new StringBuffer(320)
-                        .append("The specified postmaster address ( ")
-                        .append(postmaster)
-                        .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
+            StringBuffer warnBuffer =
+                new StringBuffer(320).append("The specified postmaster address ( ").append(
+                    postmaster).append(
+                    " ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
             getLogger().warn(warnBuffer.toString());
         }
-
         Configuration userNamesConf = conf.getChild("usernames");
         ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
         enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
         enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
-
         //Get localusers
         try {
             localusers = usersStore.getRepository("LocalUsers");
@@ -398,59 +357,48 @@ public class James
             throw e;
         }
         //}
-        compMgr.put( "org.apache.mailet.UsersRepository", localusers);
+        compMgr.put("org.apache.mailet.UsersRepository", localusers);
         getLogger().info("Local users repository opened");
-
         initialiseInboxes(conf, compMgr);
-
         getLogger().info("Private Repository LocalInbox opened");
-
         // Add this to comp
-        compMgr.put( MailServer.ROLE, this);
-
+        compMgr.put(MailServer.ROLE, this);
         spool = mailstore.getInboundSpool();
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Got spool");
         }
-
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);
         // For AVALON aware mailets and matchers, we put the object as
-        // an attribute
-
-        //TODO NOT unless specifically required by conf
-        attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
+        // an attribute        
+        if (!ObeyStrictMailet3) {
+            attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
+        }
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        File configDir = AvalonContextUtilities.getFile( myContext, "file://conf/" );
-        attributes.put("confDir", configDir.getCanonicalPath() );
-
+        File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
+        attributes.put("confDir", configDir.getCanonicalPath());
         System.out.println(SOFTWARE_NAME_VERSION);
-        if( getLogger().isInfoEnabled() )
-        {
+        if (getLogger().isInfoEnabled()) {
             getLogger().info("JAMES ...init end");
         }
     }
-
     /**
      * Initiliases the local inbox repository.
      * @param configuration The James component configuration
      * @param manager not used 
      * @throws Exception If the local mail storage can't be initiliased.
      */
-    protected void initialiseInboxes( Configuration configuration,
-                                      ServiceManager manager ) throws Exception
-    {
+    protected void initialiseInboxes(Configuration configuration, ServiceManager manager) throws Exception {
         Configuration inboxConf = configuration.getChild("inboxRepository");
         Configuration inboxRepConf = inboxConf.getChild("repository");
         try {
-            localInbox = (MailRepository) mailstore.select(inboxRepConf);
+            localInbox = (MailRepository)mailstore.select(inboxRepConf);
         } catch (Exception e) {
             getLogger().error("Cannot open private MailRepository");
             throw e;
         }
         inboxRootURL = inboxRepConf.getAttribute("destinationURL");
     }
-
     /**
      * Place a mail on the spool for processing
      *
@@ -468,7 +416,6 @@ public class James
         }
         sendMail(sender, recipients, message);
     }
-
     /**
      * Place a mail on the spool for processing
      *
@@ -480,10 +427,9 @@ public class James
      *                            on the spool
      */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
-            throws MessagingException {
+        throws MessagingException {
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
-
     /**
      * Place a mail on the spool for processing
      *
@@ -496,12 +442,11 @@ public class James
      *                            on the spool
      */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
-            throws MessagingException {
+        throws MessagingException {
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         mail.setState(state);
         sendMail(mail);
     }
-
     /**
      * Place a mail on the spool for processing
      *
@@ -513,10 +458,9 @@ public class James
      *                            on the spool
      */
     public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
-            throws MessagingException {
+        throws MessagingException {
         // parse headers
         MailHeaders headers = new MailHeaders(msg);
-
         // if headers do not contains minimum REQUIRED headers fields throw Exception
         if (!headers.isValid()) {
             throw new MessagingException("Some REQURED header field is missing. Invalid Message");
@@ -524,7 +468,6 @@ public class James
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
         sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
-
     /**
      * Place a mail on the spool for processing
      *
@@ -534,7 +477,6 @@ public class James
      *                            on the spool
      */
     public void sendMail(Mail mail) throws MessagingException {
-
         try {
             spool.store(mail);
         } catch (Exception e) {
@@ -546,14 +488,10 @@ public class James
         }
         if (getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
-                new StringBuffer(64)
-                        .append("Mail ")
-                        .append(mail.getName())
-                        .append(" pushed in spool");
+                new StringBuffer(64).append("Mail ").append(mail.getName()).append(" pushed in spool");
             getLogger().debug(logBuffer.toString());
         }
     }
-
     /**
      * <p>Retrieve the mail repository for a user</p>
      *
@@ -565,9 +503,7 @@ public class James
      */
     public synchronized MailRepository getUserInbox(String userName) {
         MailRepository userInbox = (MailRepository) null;
-
-        userInbox = (MailRepository) mailboxes.get(userName);
-
+        userInbox = (MailRepository)mailboxes.get(userName);
         if (userInbox != null) {
             return userInbox;
         } else if (mailboxes.containsKey(userName)) {
@@ -577,25 +513,21 @@ public class James
         } else {
             // need mailbox object
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Retrieving and caching inbox for " + userName );
+                getLogger().debug("Retrieving and caching inbox for " + userName);
             }
             StringBuffer destinationBuffer =
-                new StringBuffer(192)
-                        .append(inboxRootURL)
-                        .append(userName)
-                        .append("/");
+                new StringBuffer(192).append(inboxRootURL).append(userName).append("/");
             String destination = destinationBuffer.toString();
-            DefaultConfiguration mboxConf
-                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
+            DefaultConfiguration mboxConf =
+                new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
             mboxConf.setAttribute("destinationURL", destination);
             mboxConf.setAttribute("type", "MAIL");
             try {
-                userInbox = (MailRepository) mailstore.select(mboxConf);
+                userInbox = (MailRepository)mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
                 e.printStackTrace();
-                if (getLogger().isErrorEnabled())
-                {
+                if (getLogger().isErrorEnabled()) {
                     getLogger().error("Cannot open user Mailbox" + e);
                 }
                 throw new RuntimeException("Error in getUserInbox." + e);
@@ -603,7 +535,6 @@ public class James
             return userInbox;
         }
     }
-
     /**
      * Return a new mail id.
      *
@@ -615,14 +546,10 @@ public class James
             localCount = count++;
         }
         StringBuffer idBuffer =
-            new StringBuffer(64)
-                    .append("Mail")
-                    .append(System.currentTimeMillis())
-                    .append("-")
-                    .append(localCount);
+            new StringBuffer(64).append("Mail").append(System.currentTimeMillis()).append("-").append(
+                localCount);
         return idBuffer.toString();
     }
-
     /**
      * The main method.  Should never be invoked, as James must be called
      * from within an Avalon framework container.
@@ -635,9 +562,7 @@ public class James
         System.out.println("To run James, you need to have the Avalon framework installed.");
         System.out.println("Please refer to the Readme file to know how to run James.");
     }
-
     //Methods for MailetContext
-
     /**
      * <p>Get the prioritized list of mail servers for a given host.</p>
      *
@@ -648,34 +573,29 @@ public class James
     public Collection getMailServers(String host) {
         DNSServer dnsServer = null;
         try {
-            dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
-        } catch ( final ServiceException cme ) {
-            getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
+            dnsServer = (DNSServer)compMgr.lookup(DNSServer.ROLE);
+        } catch (final ServiceException cme) {
+            getLogger().error("Fatal configuration error - DNS Servers lost!", cme);
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
         return dnsServer.findMXRecords(host);
     }
-
     public Object getAttribute(String key) {
         return attributes.get(key);
     }
-
     public void setAttribute(String key, Object object) {
         attributes.put(key, object);
     }
-
     public void removeAttribute(String key) {
         attributes.remove(key);
     }
-
     public Iterator getAttributeNames() {
         Vector names = new Vector();
-        for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
+        for (Enumeration e = attributes.keys(); e.hasMoreElements();) {
             names.add(e.nextElement());
         }
         return names.iterator();
     }
-
     /**
      * This generates a response to the Return-Path address, or the address of
      * the message's sender if the Return-Path is not available.  Note that
@@ -686,7 +606,6 @@ public class James
     public void bounce(Mail mail, String message) throws MessagingException {
         bounce(mail, message, getPostmaster());
     }
-
     /**
      * This generates a response to the Return-Path address, or the
      * address of the message's sender if the Return-Path is not
@@ -710,13 +629,10 @@ public class James
      *     part (body) = original
      *
      */
-
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         MimeMessage orig = mail.getMessage();
-
         //Create the reply message
-        MimeMessage reply = (MimeMessage) orig.reply(false);
-
+        MimeMessage reply = (MimeMessage)orig.reply(false);
         //If there is a Return-Path header,
         String[] returnPathHeaders = orig.getHeader(RFC2822Headers.RETURN_PATH);
         String returnPathHeader = null;
@@ -728,11 +644,14 @@ public class James
                 returnPathHeader = returnPathHeader.trim();
                 if (returnPathHeader.equals("<>")) {
                     if (getLogger().isInfoEnabled())
-                        getLogger().info("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
+                        getLogger().info(
+                            "Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
                     return;
                 } else {
                     if (getLogger().isInfoEnabled())
-                        getLogger().info("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnPathHeader);
+                        getLogger().info(
+                            "Processing a bounce request for a message with a return path header.  The bounce will be sent to "
+                                + returnPathHeader);
                     //Return the message to that address, not to the Reply-To address
                     reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(returnPathHeader));
                 }
@@ -740,9 +659,8 @@ public class James
         } else {
             getLogger().warn("Mail to be bounced does not contain a Return-Path header.");
         }
-
         reply.setSentDate(new Date());
-        reply.setHeader(RFC2822Headers.RETURN_PATH,"<>");
+        reply.setHeader(RFC2822Headers.RETURN_PATH, "<>");
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
@@ -754,18 +672,14 @@ public class James
         try {
             //Create the message body
             MimeMultipart multipart = new MimeMultipart("mixed");
-
             // Create the message
             MimeMultipart mpContent = new MimeMultipart("alternative");
             MimeBodyPart contentPartRoot = new MimeBodyPart();
             contentPartRoot.setContent(mpContent);
-
             multipart.addBodyPart(contentPartRoot);
-
             MimeBodyPart part = new MimeBodyPart();
             part.setText(message);
             mpContent.addBodyPart(part);
-
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
             part.setContent(orig, "message/rfc822");
@@ -784,7 +698,6 @@ public class James
         //Send it off...
         sendMail(bouncer, recipients, reply);
     }
-
     /**
      * Returns whether that account has a local inbox on this server
      *
@@ -799,7 +712,6 @@ public class James
             return localusers.contains(name);
         }
     }
-
     /**
      * Returns the address of the postmaster for this server.
      *
@@ -808,25 +720,26 @@ public class James
     public MailAddress getPostmaster() {
         return postmaster;
     }
-
+    /**
+     * @deprecated
+     * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+     */
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
         throws MessagingException {
         String username;
         if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+            throw new IllegalArgumentException("Recipient for mail to be stored cannot be null.");
         }
         if (message == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+            throw new IllegalArgumentException("Mail message to be stored cannot be null.");
         }
         if (ignoreCase) {
             String originalUsername = recipient.getUser();
             username = localusers.getRealName(originalUsername);
             if (username == null) {
                 StringBuffer errorBuffer =
-                    new StringBuffer(128)
-                        .append("The inbox for user ")
-                        .append(originalUsername)
-                        .append(" was not found on this server.");
+                    new StringBuffer(128).append("The inbox for user ").append(originalUsername).append(
+                        " was not found on this server.");
                 throw new MessagingException(errorBuffer.toString());
             }
         } else {
@@ -834,7 +747,7 @@ public class James
         }
         JamesUser user;
         if (enableAliases || enableForwarding) {
-            user = (JamesUser) localusers.getUserByName(username);
+            user = (JamesUser)localusers.getUserByName(username);
             if (enableAliases && user.getAliasing()) {
                 username = user.getAlias();
             }
@@ -843,10 +756,8 @@ public class James
                 MailAddress forwardTo = user.getForwardingDestination();
                 if (forwardTo == null) {
                     StringBuffer errorBuffer =
-                        new StringBuffer(128)
-                            .append("Forwarding was enabled for ")
-                            .append(username)
-                            .append(" but no forwarding address was set for this account.");
+                        new StringBuffer(128).append("Forwarding was enabled for ").append(username).append(
+                            " but no forwarding address was set for this account.");
                     throw new MessagingException(errorBuffer.toString());
                 }
                 Collection recipients = new HashSet();
@@ -855,31 +766,26 @@ public class James
                     sendMail(sender, recipients, message);
                     if (getLogger().isInfoEnabled()) {
                         StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Mail for ")
-                                    .append(username)
-                                    .append(" forwarded to ")
-                                    .append(forwardTo.toString());
+                            new StringBuffer(128).append("Mail for ").append(username).append(
+                                " forwarded to ").append(
+                                forwardTo.toString());
                         getLogger().info(logBuffer.toString());
                     }
                     return;
                 } catch (MessagingException me) {
                     if (getLogger().isErrorEnabled()) {
                         StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Error forwarding mail to ")
-                                    .append(forwardTo.toString())
-                                    .append("attempting local delivery");
+                            new StringBuffer(128).append("Error forwarding mail to ").append(
+                                forwardTo.toString()).append(
+                                "attempting local delivery");
                         getLogger().error(logBuffer.toString());
                     }
                     throw me;
                 }
             }
         }
-
-        storeMail( username, message, recipient, sender );
+        storeMail(username, message, recipient, sender);
     }
-
     /**
      * Given a MimeMessage, sender and single recipient, store
      * the message in the local inbox for the named user.
@@ -889,23 +795,20 @@ public class James
      * @param sender The message sender.
      * @throws MessagingException If a problem occurs
      */
-    protected void storeMail( String username, MimeMessage message, MailAddress recipient, MailAddress sender ) throws MessagingException
-    {
+    protected void storeMail(String username, MimeMessage message, MailAddress recipient, MailAddress sender)
+        throws MessagingException {
         Collection recipients = new HashSet();
         recipients.add(recipient);
         MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
         MailRepository userInbox = getUserInbox(username);
         if (userInbox == null) {
             StringBuffer errorBuffer =
-                new StringBuffer(128)
-                    .append("The inbox for user ")
-                    .append(username)
-                    .append(" was not found on this server.");
+                new StringBuffer(128).append("The inbox for user ").append(username).append(
+                    " was not found on this server.");
             throw new MessagingException(errorBuffer.toString());
         }
         userInbox.store(mailImpl);
     }
-
     /**
      * Return the major version number for the server
      *
@@ -914,7 +817,6 @@ public class James
     public int getMajorVersion() {
         return 2;
     }
-
     /**
      * Return the minor version number for the server
      *
@@ -923,7 +825,6 @@ public class James
     public int getMinorVersion() {
         return 1;
     }
-
     /**
      * Check whether the mail domain in question is to be
      * handled by this server.
@@ -931,10 +832,9 @@ public class James
      * @param serverName the name of the server to check
      * @return whether the server is local
      */
-    public boolean isLocalServer( final String serverName ) {
+    public boolean isLocalServer(final String serverName) {
         return serverNames.contains(serverName.toLowerCase(Locale.US));
     }
-
     /**
      * Return the type of the server
      *
@@ -943,7 +843,6 @@ public class James
     public String getServerInfo() {
         return "Apache Jakarta JAMES";
     }
-
     /**
      * Return the logger for the Mailet API
      *
@@ -955,7 +854,6 @@ public class James
         }
         return mailetLogger;
     }
-
     /**
      * Log a message to the Mailet logger
      *
@@ -964,7 +862,6 @@ public class James
     public void log(String message) {
         getMailetLogger().info(message);
     }
-
     /**
      * Log a message and a Throwable to the Mailet logger
      *
@@ -972,9 +869,8 @@ public class James
      * @param t the <code>Throwable</code> to be logged
      */
     public void log(String message, Throwable t) {
-        getMailetLogger().info(message,t);
+        getMailetLogger().info(message, t);
     }
-
     /**
      * Adds a user to this mail server. Currently just adds user to a
      * UsersRepository.
@@ -992,56 +888,74 @@ public class James
         success = localusers.addUser(user);
         return success;
     }
-
-
     /**
+     * @deprecated
      * @see org.apache.mailet.MailetContext#getMailSpool(String)
      */
     public SpoolRepository getMailSpool(String specificationURL) throws MessagingException {
-    return (SpoolRepository) getRepository(specificationURL,SpoolRepository.SPOOL);
+        return (SpoolRepository)getRepository(specificationURL, SpoolRepository.SPOOL);
     }
-
-        private MailRepository getRepository(String specificationURL,String storeType)throws MessagingException {
+    private MailRepository getRepository(String specificationURL, String storeType)
+        throws MessagingException {
         if (specificationURL == null) {
-            throw new MessagingException("Failed to retrieve Store component because specificationURL is null" );
+            throw new MessagingException("Failed to retrieve Store component because specificationURL is null");
         }
-
         try {
-
-            DefaultConfiguration spoolConf
-                = new DefaultConfiguration("repository", "generated by Context");
+            DefaultConfiguration spoolConf = new DefaultConfiguration("repository", "generated by Context");
             spoolConf.setAttribute("destinationURL", specificationURL);
             spoolConf.setAttribute("type", storeType);
-            return (MailRepository) mailstore.select(spoolConf);
+            return (MailRepository)mailstore.select(spoolConf);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
-            throw new MessagingException("Failed to retrieve Store component:"+specificationURL+" because "+cnfe.getMessage(),cnfe );
+            throw new MessagingException(
+                "Failed to retrieve Store component:" + specificationURL + " because " + cnfe.getMessage(),
+                cnfe);
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
-            throw new MessagingException("Failed to retrieve Store component:"+specificationURL+" because "+e.getMessage(),e );
+            throw new MessagingException(
+                "Failed to retrieve Store component:" + specificationURL + " because " + e.getMessage(),
+                e);
         }
-
     }
-
     /**
      * @see org.apache.mailet.MailetContext#getMailRepository(String)
      */
     public MailRepository getMailRepository(String specificationURL) throws MessagingException {
-        return getRepository(specificationURL,MailRepository.MAIL);
+        return getRepository(specificationURL, MailRepository.MAIL);
     }
-
     /**
      * @see org.apache.mailet.MailetContext#getUserRepository(String)
      */
     public UsersRepository getUserRepository(String respositoryName) throws MessagingException {
         return usersStore.getRepository(respositoryName);
     }
-
     /**
      * Provides access to the localusers UsersRepository for subclasses.
      */
-    protected UsersRepository getLocalusers()
-    {
+    protected UsersRepository getLocalusers() {
         return localusers;
+    }
+    /**
+     * @see org.apache.mailet.MailetContext#isDatasourceProvider()
+     */
+    public boolean isDatasourceProvider() {
+        return true;
+    }
+    /**
+     * @see org.apache.mailet.MailetContext#getDatasource(java.lang.String)
+     */
+    public Datasource getDatasource(String datasourceURI) throws MessagingException {
+        if(!isDatasourceProvider()){
+            getMailetLogger().error("This Mailet context does **NOT** provide JDBC datasource access");
+            throw new MessagingException("This Mailet context does **NOT** provide JDBC datasource access");
+        }
+        try {
+            // Get the DataSourceSelector block
+            DataSourceSelector datasources = (DataSourceSelector)compMgr.lookup(DataSourceSelector.ROLE);
+            return (Datasource)datasources.select(datasourceURI);
+        } catch (ServiceException e) {
+            getMailetLogger().error("Can't find datasource "+datasourceURI,e);
+            throw new MessagingException("Can't find datasource "+datasourceURI,e);
+        }
     }
 }

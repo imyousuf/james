@@ -55,9 +55,7 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
 package org.apache.james.transport.mailets;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -70,14 +68,10 @@ import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
+import org.apache.mailet.Datasource;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
-
 /**
  * Rewrites recipient addresses based on a database table.  The connection
  * is configured by passing the URL to a conn definition.  You need to set
@@ -96,13 +90,11 @@ import org.apache.mailet.MailetException;
  *
  */
 public class JDBCListserv extends GenericListserv {
-
-    protected DataSourceComponent datasource;
+    protected Datasource datasource;
     protected String listservID = null;
     protected String listservTable = null;
     protected String membersTable = null;
     protected boolean cacheSettings = true;
-
     //Settings for this listserv
     protected Collection members = null;
     protected boolean membersOnly = true;
@@ -110,21 +102,17 @@ public class JDBCListserv extends GenericListserv {
     protected boolean replyToList = true;
     protected MailAddress listservAddress = null;
     protected String subjectPrefix = null;
-
     //Queries to DB
     protected String listservQuery = null;
     protected String membersQuery = null;
-
     /**
      * The JDBCUtil helper class
      */
-    private final JDBCUtil theJDBCUtil =
-            new JDBCUtil() {
-                protected void delegatedLog(String logString) {
-                    log("JDBCListserv: " + logString);
-                }
-            };
-
+    private final JDBCUtil theJDBCUtil = new JDBCUtil() {
+        protected void delegatedLog(String logString) {
+            log("JDBCListserv: " + logString);
+        }
+    };
     /**
      * Initialize the mailet
      */
@@ -141,12 +129,10 @@ public class JDBCListserv extends GenericListserv {
         if (getInitParameter("members_table") == null) {
             throw new MailetException("members_table not specified for JDBCListserv");
         }
-
         String datasourceName = getInitParameter("data_source");
         listservID = getInitParameter("listserv_id");
         listservTable = getInitParameter("listserv_table");
         membersTable = getInitParameter("members_table");
-
         if (getInitParameter("cache_settings") != null) {
             try {
                 cacheSettings = new Boolean(getInitParameter("cache_settings")).booleanValue();
@@ -154,60 +140,47 @@ public class JDBCListserv extends GenericListserv {
                 //ignore error
             }
         }
-
         Connection conn = null;
-
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
-            // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
-
+            datasource = getMailetContext().getDatasource(datasourceName);
             conn = datasource.getConnection();
-
             // Check if the required listserv table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (!(theJDBCUtil.tableExists(dbMetaData, listservTable)))  {
+            if (!(theJDBCUtil.tableExists(dbMetaData, listservTable))) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
-                            .append("Could not find table '")
-                            .append(listservTable)
-                            .append("' in datasource '")
-                            .append(datasourceName)
-                            .append("'");
+                        .append("Could not find table '")
+                        .append(listservTable)
+                        .append("' in datasource '")
+                        .append(datasourceName)
+                        .append("'");
                 throw new MailetException(exceptionBuffer.toString());
             }
-
             // Check if the required members table exists. If not, complain.
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (!( theJDBCUtil.tableExists(dbMetaData, membersTable)))  {
+            if (!(theJDBCUtil.tableExists(dbMetaData, membersTable))) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
-                            .append("Could not find table '")
-                            .append(membersTable)
-                            .append("' in datasource '")
-                            .append(datasourceName)
-                            .append("'");
+                        .append("Could not find table '")
+                        .append(membersTable)
+                        .append("' in datasource '")
+                        .append(datasourceName)
+                        .append("'");
                 throw new MailetException(exceptionBuffer.toString());
             }
-
             StringBuffer queryBuffer =
                 new StringBuffer(256)
-                        .append("SELECT members_only, attachments_allowed, reply_to_list, subject_prefix, list_address FROM ")
-                        .append(listservTable)
-                        .append(" WHERE listserv_id = ?");
+                    .append("SELECT members_only, attachments_allowed, reply_to_list, subject_prefix, list_address FROM ")
+                    .append(listservTable)
+                    .append(" WHERE listserv_id = ?");
             listservQuery = queryBuffer.toString();
             queryBuffer =
-                new StringBuffer(128)
-                        .append("SELECT member FROM ")
-                        .append(membersTable)
-                        .append(" WHERE listserv_id = ?");
+                new StringBuffer(128).append("SELECT member FROM ").append(membersTable).append(
+                    " WHERE listserv_id = ?");
             membersQuery = queryBuffer.toString();
-
             //Always load settings at least once... if we aren't caching, we will load at each getMembers() call
             loadSettings();
         } catch (MailetException me) {
@@ -218,7 +191,6 @@ public class JDBCListserv extends GenericListserv {
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-
     /**
      * Returns a Collection of MailAddress objects of members to receive this email
      */
@@ -226,24 +198,20 @@ public class JDBCListserv extends GenericListserv {
         if (!cacheSettings) {
             loadSettings();
         }
-
         return members;
     }
-
     /**
      * Returns whether this list should restrict to senders only
      */
     public boolean isMembersOnly() throws MessagingException {
         return membersOnly;
     }
-
     /**
      * Returns whether this listserv allow attachments
      */
     public boolean isAttachmentsAllowed() throws MessagingException {
         return attachmentsAllowed;
     }
-
     /**
      * Returns whether listserv should add reply-to header
      *
@@ -252,7 +220,6 @@ public class JDBCListserv extends GenericListserv {
     public boolean isReplyToList() throws MessagingException {
         return replyToList;
     }
-
     /**
      * The email address that this listserv processes on.  If returns null, will use the
      * recipient of the message, which hopefully will be the correct email address assuming
@@ -261,14 +228,12 @@ public class JDBCListserv extends GenericListserv {
     public MailAddress getListservAddress() throws MessagingException {
         return listservAddress;
     }
-
     /**
      * An optional subject prefix which will be surrounded by [].
      */
     public String getSubjectPrefix() throws MessagingException {
         return subjectPrefix;
     }
-
     /**
      * Loads the configuration settings for this mailet from the database.
      *
@@ -279,7 +244,6 @@ public class JDBCListserv extends GenericListserv {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-
         try {
             //Load members
             conn = datasource.getConnection();
@@ -297,11 +261,11 @@ public class JDBCListserv extends GenericListserv {
                         //don't stop... just log and continue
                         StringBuffer exceptionBuffer =
                             new StringBuffer(64)
-                                    .append("error parsing address '")
-                                    .append(address)
-                                    .append("' in listserv '")
-                                    .append(listservID)
-                                    .append("'");
+                                .append("error parsing address '")
+                                .append(address)
+                                .append("' in listserv '")
+                                .append(listservID)
+                                .append("'");
                         log(exceptionBuffer.toString());
                     }
                 }
@@ -316,16 +280,14 @@ public class JDBCListserv extends GenericListserv {
                 stmt = null;
                 theJDBCUtil.closeJDBCStatement(localStmt);
             }
-
             stmt = conn.prepareStatement(listservQuery);
             stmt.setString(1, listservID);
             rs = stmt.executeQuery();
             if (!rs.next()) {
                 StringBuffer exceptionBuffer =
-                    new StringBuffer(64)
-                            .append("Could not find listserv record for '")
-                            .append(listservID)
-                            .append("'");
+                    new StringBuffer(64).append("Could not find listserv record for '").append(
+                        listservID).append(
+                        "'");
                 throw new MailetException(exceptionBuffer.toString());
             }
             membersOnly = rs.getBoolean("members_only");
@@ -342,11 +304,11 @@ public class JDBCListserv extends GenericListserv {
                     //log and ignore
                     StringBuffer logBuffer =
                         new StringBuffer(128)
-                                .append("invalid listserv address '")
-                                .append(listservAddress)
-                                .append("' for listserv '")
-                                .append(listservID)
-                                .append("'");
+                            .append("invalid listserv address '")
+                            .append(listservAddress)
+                            .append("' for listserv '")
+                            .append(listservID)
+                            .append("'");
                     log(logBuffer.toString());
                     listservAddress = null;
                 }
@@ -359,7 +321,6 @@ public class JDBCListserv extends GenericListserv {
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-
     /**
      * Return a string describing this mailet.
      *

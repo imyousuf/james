@@ -62,6 +62,7 @@ import java.util.Iterator;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
 /**
  * Defines a set of methods that a mailet or matcher uses to communicate
  * with its mailet container, for example, to send a new message, to
@@ -246,7 +247,7 @@ public interface MailetContext {
     void setAttribute(String name, Object object);
     /**
      * Stores mail into local accounts (POP3 by default)
-     *
+     * @deprecated - use getMailRepository(String specificationURL).store(Mail mail)
      * @param sender - the sender of the incoming message
      * @param recipient - the user who is receiving this message (as a complete email address)
      * @param msg - the MimeMessage to store in a local mailbox
@@ -256,24 +257,40 @@ public interface MailetContext {
         throws MessagingException;
     /**
      * Method getMailRepository.
-     * @param specificationURL
+     * @param specificationURL a system dependant configuration parameter defining  
+     * a URI by which the correct repository can be selected
      * @return MailRepository
      * @throws MessagingException
      */
     MailRepository getMailRepository(String specificationURL) throws MessagingException;
     /**
      * Method getMailSpool.
-     * @param specificationURL
+     * @param specificationURL a system dependant configuration parameter defining  
+     * a URI by which the correct repository can be selected
      * @return SpoolRepository
      * @throws MessagingException
      */
     SpoolRepository getMailSpool(String specificationURL) throws MessagingException;
     /**
      * Method getUserRepository.
-     * @param repositoryName
+     * @param repositoryName a system dependant configuration parameter defining  
+     * a name by which the correct repository can be selected
      * @return UsersRepository
      * @throws MessagingException
      */
     UsersRepository getUserRepository(String repositoryName) throws MessagingException;
-
+    /**
+     * @return true if this MailetContext exists in a system capable of honouring getDatasource(String datasourceURI)
+     */
+    boolean isDatasourceProvider();
+    
+    /**
+     * @param datasourceURI a system dependant configuration parameter defining  
+     * a URI key by which the correct datasource can be selected
+     * @return the selected datasource
+     * @throws MessagingException if a datasource cannot be returned
+     */
+    
+    Datasource getDatasource(String datasourceURI) throws MessagingException;
+    
 }
