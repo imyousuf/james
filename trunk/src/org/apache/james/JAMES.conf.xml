@@ -49,6 +49,7 @@
             <spoolmanager>
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
+                <deliverserver>212.216.176.34</deliverserver>
             </spoolmanager>
         </block>
 
