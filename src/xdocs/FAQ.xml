@@ -49,7 +49,10 @@
                </li>               
                <li>
                   <a href="#13">How can I contribute to James?</a>
-               </li>               
+               </li>
+               <li>
+                  <a href="#14">How can I make sendmail route local mail (or all mail) through James on the same machine?</a>
+               </li>
             </ul>
          </p>
       </section>
@@ -257,7 +260,14 @@ see):</p>
             <br/>
   Danny Angus
   </p>
-         </subsection>         
+         </subsection>
+
+<subsection name="How can I make sendmail route local mail (or all mail) through James on the same machine?">
+            <p>Read the "sendmail How To" <a href="james_and_sendmail.html">here</a>
+            <br/>
+  Danny Angus
+  </p>
+</subsection>
       </section>
    </body>
 </document>
