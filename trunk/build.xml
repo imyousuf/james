@@ -167,6 +167,19 @@ All theese package are in current distribution.
   <target name="clean" depends="init">
     <deltree dir="${build.dir}"/>
     <deltree dir="${dist.dir}"/>
+    <deltree dir="${build.docs}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Cleans everything                                                   -->
+  <!-- =================================================================== -->
+  <target name="javadoc" depends="prepare-src">
+    <mkdir dir="${build.docs}"/>
+    <javadoc sourcepath="${build.src}"
+        destdir="${build.docs}"
+        packagenames="org.apache.avalon.blocks.*,org.apache.james.*,org.apache.james.pop3server.*,org.apache.james.remotemanager.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.match.*,org.apache.james.transport.servlet.*,org.apache.james.usermanager.*,org.apache.mail.*,org.apache.mail.servlet.*"
+        classpath="${classpath}"
+        />
   </target>
 
 </project>
