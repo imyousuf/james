@@ -80,7 +80,7 @@ public class ArticleIDRepository {
             b64Id = Base64.encodeAsString(articleID);
         } catch (Exception e) {
             throw new RuntimeException("This shouldn't happen: " + e);
-	}
+        }
         return new File(root, b64Id);
     }
 

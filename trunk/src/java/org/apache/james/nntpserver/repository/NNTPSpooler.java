@@ -43,6 +43,12 @@ class NNTPSpooler extends AbstractLogEnabled
         this.context = context;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName()+": configure");
         //NNTPUtil.show(configuration,System.out);
@@ -66,10 +72,19 @@ class NNTPSpooler extends AbstractLogEnabled
             worker[i].setArticleIDRepository(articleIDRepo);
     }
     File getSpoolPath() {
-        if ( spoolPath.exists() == false )
+        if ( spoolPath.exists() == false ) {
             spoolPath.mkdirs();
+        }
         return spoolPath;
     }
+
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
         //System.out.println(getClass().getName()+": init");
         for ( int i = 0 ; i < worker.length ; i++ )

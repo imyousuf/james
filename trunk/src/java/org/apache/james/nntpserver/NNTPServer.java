@@ -28,6 +28,12 @@ public class NNTPServer extends AbstractService implements Component {
         return new DefaultHandlerFactory( NNTPHandler.class );
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException
     {
@@ -54,6 +60,13 @@ public class NNTPServer extends AbstractService implements Component {
         }
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
         //System.out.println(getClass().getName() + ": init");
         super.initialize();

@@ -19,7 +19,9 @@ import java.io.PrintWriter;
  * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
 interface LISTGroup {
+
     void show(NNTPGroup group);
+
     class Factory {
         static LISTGroup ACTIVE(final PrintWriter prt) {
             return new LISTGroup() {
@@ -37,6 +39,7 @@ interface LISTGroup {
                     }
                 };
         }
+
         static LISTGroup NEWSGROUPS(final PrintWriter prt) {
             return new LISTGroup() {
                     public void show(NNTPGroup group) {

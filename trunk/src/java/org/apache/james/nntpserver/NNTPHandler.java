@@ -65,6 +65,15 @@ public class NNTPHandler extends BaseConnectionHandler
     private static final boolean DEBUG_PROTOCOL = 
         Boolean.getBoolean("apache.nntpserver.debug");
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
@@ -170,6 +179,18 @@ public class NNTPHandler extends BaseConnectionHandler
         } catch (IOException e) { }
     }
 
+    /**
+     * This method parses NNTP commands read off the wire in handleConnection.
+     * Actual processing of the command (possibly including additional back and
+     * forth communication with the client) is delegated to one of a number of
+     * command specific handler methods.  The primary purpose of this method is
+     * to parse the raw command string to determine exactly which handler should
+     * be called.  It returns true if expecting additional commands, false otherwise.
+     *
+     * @param commandRaw the raw command string passed in over the socket
+     *
+     * @return whether additional commands are expected.
+     */
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null) {
             return false;
@@ -254,10 +275,12 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println("381 More authentication information required");
         } else if ( command.equals("PASS") ) {
             auth.setPassword(tok.nextToken());
-            if ( auth.isAuthenticated() )
+            if ( auth.isAuthenticated() ) {
                 writer.println("281 Authentication accepted");
-            else
+            }
+            else {
                 writer.println("482 Authentication rejected");
+            }
         }
     }
 
@@ -304,7 +327,7 @@ public class NNTPHandler extends BaseConnectionHandler
     // returns the date from @param input.
     // The input tokens are assumed to be in format date time [GMT|UTC] .
     // 'date' is in format [XX]YYMMDD. 'time' is in format 'HHMMSS'
-    // NOTE: This routine would do with some format checks.
+    // NOTE: This routine could do with some format checks.
     private Date getDateFrom(StringTokenizer tok) {
         String date = tok.nextToken();
         String time = tok.nextToken();
@@ -345,6 +368,7 @@ public class NNTPHandler extends BaseConnectionHandler
     public static final SimplifiedDateFormat DF_RFC2980 = new RFC2980DateFormat();
 
     public static final long UTC_OFFSET = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
+
     private void doDATE() {
         //Calendar c = Calendar.getInstance();
         //long UTC_OFFSET = c.get(c.ZONE_OFFSET) + c.get(c.DST_OFFSET);
@@ -352,9 +376,11 @@ public class NNTPHandler extends BaseConnectionHandler
         String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
         writer.println("111 "+dtStr);
     }
+
     private void doQUIT() {
         writer.println("205 closing connection");
     }
+
     private void doLIST(StringTokenizer tok) {
         // see section 9.4.1
         String wildmat = "*";
@@ -363,28 +389,34 @@ public class NNTPHandler extends BaseConnectionHandler
             String param = tok.nextToken().toUpperCase(Locale.US);
             // list of variations not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
             String[] notSupported = { "ACTIVE.TIMES", "DISTRIBUTIONS", "DISTRIB.PATS" };
+            // TODO: I don't understand what this loop is trying to accomplish -- PMG
             for ( int i = 0 ; i < notSupported.length ; i++ ) {
                 if ( param.equals("ACTIVE.TIMES") ) {
                     writer.println("503 program error, function not performed");
                     return;
                 }
             }
-            if ( param.equals("NEWSGROUPS") )
+            if ( param.equals("NEWSGROUPS") ) {
                 output = LISTGroup.Factory.NEWSGROUPS(writer);
-            else
+            }
+            else {
                 check(param,param.equals("ACTIVE"));
-            if ( tok.hasMoreTokens() )
+            }
+            if ( tok.hasMoreTokens() ) {
                 wildmat = tok.nextToken();
+            }
         }
         Iterator iter = repo.getMatchedGroups(wildmat);
         writer.println("215 list of newsgroups follows");
-        while ( iter.hasNext() )
+        while ( iter.hasNext() ) {
             output.show((NNTPGroup)iter.next());
+        }
         writer.println(".");
     }
     private void check(String id,boolean b) {
-        if ( b == false )
+        if ( b == false ) {
             throw new RuntimeException(id);
+        }
     }
     private void doIHAVE(String id) {
         // see section 9.3.2.1
@@ -398,27 +430,34 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println("235 article received ok");
         }
     }
+
     private void doPOST() {
         // see section 9.3.1.1
         writer.println("340 send article to be posted. End with <CR-LF>.<CR-LF>");
         createArticle();
         writer.println("240 article received ok");
     }
+
     private void createArticle() {
         repo.createArticle(new NNTPLineReaderImpl(reader));
     }
+
     private void doSTAT(String param) {
         doARTICLE(param,ArticleWriter.Factory.STAT(writer));
     }
+
     private void doBODY(String param) {
         doARTICLE(param,ArticleWriter.Factory.BODY(writer));
     }
+
     private void doHEAD(String param) {
         doARTICLE(param,ArticleWriter.Factory.HEAD(writer));
     }
+
     private void doARTICLE(String param) {
         doARTICLE(param,ArticleWriter.Factory.ARTICLE(writer));
     }
+
     private void doARTICLE(String param,ArticleWriter articleWriter) {
         // section 9.2.1
         NNTPArticle article = null;
@@ -464,6 +503,7 @@ public class NNTPHandler extends BaseConnectionHandler
         if ( article != null )
             articleWriter.write(article);
     }
+
     private void doNEXT() {
         // section 9.1.1.3.1
         if ( group == null )
@@ -484,6 +524,7 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println(respBuffer.toString());
         }
     }
+
     private void doLAST() {
         // section 9.1.1.2.1
         if ( group == null )
@@ -504,6 +545,7 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println(respBuffer.toString());
         }
     }
+
     private void doGROUP(String groupName) {
         group = repo.getGroup(groupName);
         // section 9.1.1.1
@@ -532,6 +574,7 @@ public class NNTPHandler extends BaseConnectionHandler
             writer.println(respBuffer.toString());
         }
     }
+
     private void doLISTEXTENSIONS() {
         // 8.1.1
         writer.println("202 Extensions supported:");
@@ -643,8 +686,9 @@ public class NNTPHandler extends BaseConnectionHandler
         List list = new ArrayList();
         for ( int i = start ; i <= end ; i++ ) {
             NNTPArticle article = group.getArticle(i);
-            if ( article != null )
+            if ( article != null ) {
                 list.add(article);
+            }
         }
         return (NNTPArticle[])list.toArray(new NNTPArticle[0]);
     }
@@ -652,6 +696,7 @@ public class NNTPHandler extends BaseConnectionHandler
     private void doXOVER(String range) {
         doOVER(range);
     }
+
     private void doOVER(String range) {
         // 9.5.2.2.1
         if ( group == null ) {
@@ -660,12 +705,14 @@ public class NNTPHandler extends BaseConnectionHandler
         }
         NNTPArticle[] article = getRange(range);
         ArticleWriter articleWriter = ArticleWriter.Factory.OVER(writer);
-        if ( article.length == 0 )
+        if ( article.length == 0 ) {
             writer.println("420 No article(s) selected");
+        }
         else {
             writer.println("224 Overview information follows");
-            for ( int i = 0 ; i < article.length ; i++ )
+            for ( int i = 0 ; i < article.length ; i++ ) {
                 articleWriter.write(article[i]);
+            }
             writer.println(".");
         }
     }
