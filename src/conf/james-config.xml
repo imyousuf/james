@@ -7,15 +7,15 @@
                                README!
 
 This configuration file is designed to run without alteration for simple tests.
-It assumes you have a DNS server on localhost and assigns a root pasword of root.
+It assumes you have a DNS server on localhost and assigns a root password of root.
 
 In case the defaults do not suit you, the items you are most likely to need to change
-are preceeded by a CHECKME! or CONFIRM? comment in the left margin.
+are preceded by a CHECKME! or CONFIRM? comment in the left margin.
 
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldstein $-->
+$Revision: 1.34 $ Committed on $Date: 2002/10/07 07:16:46 $ by: $Author: pgoldstein $-->
 
 <config>
    <James>
@@ -30,16 +30,16 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
            If autodetectIP is not FALSE, James will also allow add the IP address for each servername.
            The automatic IP detection is to support RFC 2821, Sec 4.1.3, address literals.
            By default, the servername 'localhost' is specified. This can be removed, if required. -->
-      <servernames autodetect="TRUE" autodetectIP="TRUE">
+      <servernames autodetect="true" autodetectIP="true">
          <!--<servername>To override autodetected server names  uncomment this.  </servername> -->
          <servername>localhost</servername>
-       	<!-- IMPORTANT if you are using fetchpop it is important to include the -->
-       	<!-- fetched domains here to prevent looping                            -->
+        <!-- IMPORTANT if you are using fetchpop it is important to include the -->
+        <!-- fetched domains here to prevent looping                            -->
       </servernames>
 
       <!-- Set whether user names are case sensitive or case insensitive -->
       <!-- Set whether to enable local aliases -->
-      <usernames ignoreCase="TRUE" enableAliases="TRUE" enableForwarding="TRUE"/>
+      <usernames ignoreCase="true" enableAliases="true" enableForwarding="true"/>
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
@@ -62,22 +62,22 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
    <!-- fetched domains in the <servernames> section of the <James> block      -->
    <!-- above. fetchpop is disabled by default.                                  -->
    
-	<fetchpop enabled="false">
-		<!-- you can have as many fetch tasks as you want to        -->
-		<!-- but each must have a unique name to identify itself by -->
-		<fetch name="mydomain.com">
-			<!-- host name or IP address -->
-			<host>mail.mydomain.com</host>
-			<!-- acount login username -->
-			<user>username</user>
-			<!-- account login password -->
-			<password>pass</password>
-			<!-- Interval to check this account in milliseconds, 600000 is every ten minutes -->
-			<interval>600000</interval>
-		</fetch>
-	</fetchpop>
-	
-	
+    <fetchpop enabled="false">
+        <!-- you can have as many fetch tasks as you want to        -->
+        <!-- but each must have a unique name to identify itself by -->
+        <fetch name="mydomain.com">
+            <!-- host name or IP address -->
+            <host>mail.mydomain.com</host>
+            <!-- acount login username -->
+            <user>username</user>
+            <!-- account login password -->
+            <password>pass</password>
+            <!-- Interval to check this account in milliseconds, 600000 is every ten minutes -->
+            <interval>600000</interval>
+        </fetch>
+    </fetchpop>
+    
+    
    <!-- The James Spool Manager block  -->
    <spoolmanager>
       <!-- number of spool threads -->
@@ -119,7 +119,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
          <!-- Sample matching to kill a message (send to Null) -->
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
 
-         <!-- Send remaining mails to the transport processor for either  local or remote delivery -->
+         <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
          </mailet>
@@ -142,7 +142,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
          <!--<mailet match="All" class="NotifyPostmaster"/>-->
       </processor>
 
-      <!--  Processor CONFIGURATION SAMPLE: transport is a sample custom  processor for local or remote delivery -->
+      <!--  Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
       <processor name="transport">
 
          <!-- Is the recipient is for a local account, deliver it locally -->
@@ -153,7 +153,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
             <processor>error</processor>
          </mailet>
 
-		<!-- CHECKME!    Anti-relay mailet: Add your network address here,
+        <!-- CHECKME!    Anti-relay mailet: Add your network address here,
                   e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*, 192.168.0.*"-->
 
          <!-- This matcher-mailet pair can prevent relaying...
@@ -244,7 +244,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
                autodetect is TRUE, James will attempt to discover its own name OR
                use 'localhost'. If autodetect is FALSE, James will use the value
                given OR 'localhost' -->
-         <helloName autodetect="TRUE">myMailServer</helloName>
+         <helloName autodetect="true">myMailServer</helloName>
          <administrator_accounts>
 <!-- CHECKME! Change the default password! -->
 <!-- FILL ME!!!!!!  You must provide a password for your  administrator accounts (cannot be blank) -->
@@ -254,9 +254,9 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
       </handler>
    </remotemanager>
 
-	<!-- The POP3 server is enabled by default -->
-	<!-- Disabling blocks will stop them from listening, -->
-	<!-- but does not free as many resources as removing them would -->
+    <!-- The POP3 server is enabled by default -->
+    <!-- Disabling blocks will stop them from listening, -->
+    <!-- but does not free as many resources as removing them would -->
    <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
       <!-- port 100 is the well-known/IANA registered port for Standard POP3 -->
@@ -273,14 +273,14 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
                autodetect is TRUE, James will attempt to discover its own name OR
                use 'localhost'. If autodetect is FALSE, James will use the value
                given OR 'localhost' -->
-         <helloName autodetect="TRUE">myMailServer</helloName>
+         <helloName autodetect="true">myMailServer</helloName>
          <connectiontimeout>120000</connectiontimeout>
       </handler>
    </pop3server>
 
-	<!-- The SMTP server is enabled by default -->
-	<!-- Disabling blocks will stop them from listening, -->
-	<!-- but does not free as many resources as removing them would -->
+    <!-- The SMTP server is enabled by default -->
+    <!-- Disabling blocks will stop them from listening, -->
+    <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
       <port>25</port>
 
@@ -295,7 +295,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
              autodetect is TRUE, James will attempt to discover its own name OR
              use 'localhost'. If autodetect is FALSE, James will use the value
              given OR 'localhost' -->
-         <helloName autodetect="TRUE">myMailServer</helloName>
+         <helloName autodetect="true">myMailServer</helloName>
          <connectiontimeout>360000</connectiontimeout>
          <!--  uncomment this if you want
                SMTP AUTH support. This is useful if you have users who need to use
@@ -313,9 +313,9 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
       </handler>
    </smtpserver>
    
-   	<!-- The NNTP server is enabled by default -->
-	<!-- Disabling blocks will stop them from listening, -->
-	<!-- but does not free as many resources as removing them would -->
+    <!-- The NNTP server is enabled by default -->
+    <!-- Disabling blocks will stop them from listening, -->
+    <!-- but does not free as many resources as removing them would -->
    <nntpserver enabled="true">
       <!-- port 563 is the well-known/IANA registered port for nntp over SSL/TLS -->
       <!-- port 119 is the well-known/IANA registered port for Standard nntp -->
@@ -332,15 +332,12 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
             autodetect is TRUE, James will attempt to discover its own name OR
             use 'localhost'. If autodetect is FALSE, James will use the value
             given OR 'localhost' -->
-         <helloName autodetect="TRUE">myMailServer</helloName>
+         <helloName autodetect="true">myMailServer</helloName>
          <connectiontimeout>120000</connectiontimeout>
+          <!-- Set the authRequired value to true to enable authenticated NNTP -->
+         <authRequired>false</authRequired>
       </handler>
    </nntpserver>
-
-   <nntpauth>
-      <!-- make this true, if you want only authenticated users to access NNTP-->
-      <authRequired>false</authRequired>
-   </nntpauth>
 
    <nntp-repository>
       <!-- make this true to disallow posting to all newsgroups-->
@@ -460,8 +457,8 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
       User repositories are required for the following purposes:
       - holding information about Users of the James mail server
       - holding lists of users for the listserv mailet
-      Currently, 2 different storage options are available:
-      - file-based storage using Java serialisation
+      Currently, two different storage options are available:
+      - file-based storage using Java serialization
       - database-backed storage
       (Use of database or file-system is defined on a "per-repository" basis)
       Note: Two user repositories are required for default configuration:
@@ -533,8 +530,19 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
       </data-sources>
    </database-connections>
 
-   <!-- Configuration for Cornerstone Blocks only after here NOTHING BELOW THIS SHOULD NEED CHANGING,
-    (unless you want secure sockets (TLS)) -->
+   <!-- Configuration for Cornerstone Services -->
+   <!-- -->
+   <!-- For a simple configuration, nothing beneath this line should require -->
+   <!-- alteration. -->
+   <!-- -->
+   <!-- You will need to adjust the Socket Manager service configuration if you want -->
+   <!-- to enable secure sockets (TLS) for any James service.                        -->
+   <!-- -->
+   <!-- Complex or high volume configurations may require changes to the parameters -->
+   <!-- in this section.  Please read the James and Avalon documentation before -->
+   <!-- attempting to adjust this section. -->
+   <!-- -->
+
    <!-- The Storage block -->
    <objectstorage>
       <repositories>
@@ -566,7 +574,42 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
          </repository>
       </repositories>
    </objectstorage>
+   <!-- The Connection Manager block -->
+   <!-- -->
+   <!-- The idle-timeout is the number of milliseconds that it will take for idle -->
+   <!-- client connections managed by this connection manager to be marked at timed out. -->
+   <!-- If no value is specified, the value defaults to 5 minutes, 300000 milliseconds -->
+   <!-- A value of 0 means that client sockets will not timeout. -->
+   <!-- -->
+   <!-- The max-connections parameter specifies the maximum number of client connections -->
+   <!-- that this connection manager will allow per managed server socket. -->
+   <!-- If no value is specified, the value defaults to 30. -->
+   <!-- A value of 0 means that there is no limit imposed by the connection manager, although -->
+   <!-- resource limitations imposed by other components (i.e. max # of threads) may -->
+   <!-- serve to limit the number of open connections. -->
+   <!-- -->
+   <connections>
+      <idle-timeout>300000<idle-timeout>
+      <max-connections>30<max-connections>
+   </connections>
    <!-- The Socket Manager block -->
+   <!-- -->
+   <!-- The server-sockets element has a number of factory sub-elements. -->
+   <!-- Each of the factory elements has a name and class attribute -->
+   <!-- The name attribute for each factory element must be unique.  -->
+   <!-- The class attribute is the name of a class that implements the -->
+   <!-- interface org.apache.avalon.cornerstone.services.ServerSocketFactory -->
+   <!-- Specific factory elements may require some sub-elements.  This is -->
+   <!-- factory class dependent. -->
+   <!-- -->
+   <!-- The client-sockets element has a number of factory sub-elements. -->
+   <!-- Each of the factory elements has a name and class attribute -->
+   <!-- The name attribute for each factory element must be unique.  -->
+   <!-- The class attribute is the name of a class that implements the -->
+   <!-- interface org.apache.avalon.cornerstone.services.SocketFactory -->
+   <!-- Specific factory elements may require some sub-elements.  This is -->
+   <!-- factory class dependent. -->
+   <!-- -->
    <sockets>
       <server-sockets>
          <factory name="plain" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory"/>
@@ -592,7 +635,7 @@ $Revision: 1.33 $ Committed on $Date: 2002/09/27 16:31:06 $ by: $Author: pgoldst
          <priority>5</priority>
          <!-- are threads daemon threads ? -->
          <is-daemon>false</is-daemon>
-         <max-threads>40</max-threads>
+         <max-threads>100</max-threads>
          <!-- these are ignored at the moment but will be fixed in later revisions -->
          <min-threads>20</min-threads>
          <min-spare-threads>20</min-spare-threads>
