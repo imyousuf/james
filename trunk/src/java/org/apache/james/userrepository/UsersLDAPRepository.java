@@ -78,6 +78,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -96,11 +97,11 @@ import org.apache.mailet.UsersRepository;
  *
  * This clas is a dummy for the proposal!
  *
- * @version 1.0.0, 24/04/1999
+ * @version This is $Revision: 1.18 $
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Serviceable, Configurable, Contextualizable, Initializable{
 
     private ServiceManager comp;
 
