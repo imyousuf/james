@@ -61,7 +61,7 @@ import org.apache.mailet.SpoolRepository;
  * as well as other places.
  *
  *
- * This is $Revision: 1.41 $
+ * This is $Revision: 1.42 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -199,13 +199,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         URLName urlname = new URLName("smtp://" + outgoingMailServer);
 
                         Properties props = session.getProperties();
-                        //This was an older version of JavaMail
                         if (mail.getSender() == null) {
-                            props.put("mail.smtp.user", "<>");
                             props.put("mail.smtp.from", "<>");
                         } else {
                             String sender = mail.getSender().toString();
-                            props.put("mail.smtp.user", sender);
                             props.put("mail.smtp.from", sender);
                         }
 
