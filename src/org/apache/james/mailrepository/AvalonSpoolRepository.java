@@ -14,9 +14,9 @@ import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
-//import org.apache.avalon.blocks.*;
-import org.apache.avalon.services.*;
 import org.apache.avalon.util.*;
+//import org.apache.avalon.services.*;
+
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 

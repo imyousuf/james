@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 
 import java.util.Iterator;
 import org.apache.avalon.*;
-import org.apache.avalon.services.Service;
+//import org.apache.phoenix.Service;
 
 import org.apache.james.AuthenticationException;
 
@@ -27,7 +27,7 @@ import org.apache.james.AuthenticationException;
  * @see Host
  */
 
-public interface IMAPSystem extends Configurable, Contextualizable, Composer, Service {
+public interface IMAPSystem extends Configurable, Contextualizable, Composer {
 
 
     public static final String IMAP_SYSTEM = "IMAP_SYSTEM";

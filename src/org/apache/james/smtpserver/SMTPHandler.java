@@ -15,7 +15,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.cornerstone.services.Scheduler;
 
 import org.apache.james.*;
 import org.apache.james.core.*;
@@ -88,7 +88,7 @@ public class SMTPHandler implements Composer, Configurable, Runnable, Stoppable,
 
     public void init() throws Exception {
         mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-        scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+        scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
         servername = (String) context.get(Constants.HELO_NAME);
         state = new Hashtable();
         random = new Random();

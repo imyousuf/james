@@ -11,7 +11,8 @@ package org.apache.james.imapserver;
 import java.net.Socket;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.phoenix.Service;
+import org.apache.cornerstone.services.Scheduler;
 
 /**
  * An IMAP Handler handles one IMAP connection. TBC - it may spawn worker
@@ -21,7 +22,7 @@ import org.apache.avalon.services.*;
  * @version 0.1 on 14 Dec 2000
  */
 public interface ConnectionHandler
-    extends Service, Loggable, Configurable, Composer, Contextualizable,
+    extends Service, Configurable, Composer, Contextualizable,
 	    Initializable, Runnable, Stoppable, Scheduler.Target,
 	    MailboxEventListener {
 

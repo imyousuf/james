@@ -13,8 +13,8 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.Store;
-import org.apache.avalon.blocks.AbstractBlock;
+//import org.apache.cornerstone.services.Store;
+import org.apache.phoenix.AbstractBlock;
 
 import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;

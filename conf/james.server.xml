@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!--
+                                README!
+
+    Basic config file that sets up context for server application.
+
+-->
+<server>
+
+    <logs>
+     <!--  Specify the target for each category of logger listed below.
+           The name is the name in the code and should not be changed by assemblers, deployers or administrators.
+           The priority is the lowest priority of logging mesage recorded.
+           In theory (but not tested) assemblers etc can point multiple categories at the same target.
+      -->
+      <category name="" target="default" priority="DEBUG" />
+      <category name="objectstorage" target="objectstorage-target" priority="DEBUG" />
+      <category name="james-storage" target="james-storage-target" priority="DEBUG" />
+      <category name="mailstore" target="mailstore-target" priority="DEBUG" />
+      <category name="users-store" target="userstore-target" priority="DEBUG" />
+      <category name="JAMES" target="james-core-target" priority="DEBUG" />
+      <category name="JamesCore" target="james-core-target" priority="DEBUG" />
+      <category name="Mailets" target="mailets-target" priority="DEBUG" />
+      <category name="SMTPServer" target="smtpserver-target" priority="DEBUG" />
+      <category name="POP3Server" target="pop3server-target" priority="DEBUG" />
+      <category name="DnsServer" target="dnsserver-target" priority="DEBUG" />
+      <category name="RemoteManager" target="remotemanager-target" priority="DEBUG" />
+      <category name="SpoolManager" target="spoolmanager-target" priority="DEBUG" />
+      <category name="MailRepository" target="mailrepository-target" priority="DEBUG" />
+      <category name="IMAPServer" target="imapserver-target" priority="DEBUG" />
+      <category name="Security" target="security-target" priority="DEBUG" />
+      <category name="JamesHost" target="jameshost-target" priority="DEBUG" />
+
+      <!--  Specify where to write each log target listed below. 
+       The location is relative to the directory of the sar ?
+      -->
+
+      <log-target name="default" location="/logs/avalon-demo.log" />
+      <log-target name="objectstorage-target" location="/logs/objectstorage.log" />
+      <log-target name="james-storage-target" location="/logs/jamesstorage.log" />
+      <log-target name="mailstore-target" location="/logs/mailstore.log" />
+      <log-target name="userstore-target" location="/logs/userstore.log" />
+      <log-target name="james-core-target" location="/logs/james-core.log" />
+      <log-target name="mailets-target" location="/logs/mailets.log" />
+      <log-target name="smtpserver-target" location="/logs/smtpserver.log" />
+      <log-target name="pop3server-target" location="/logs/pop3server.log" />
+      <log-target name="dnsserver-target" location="/logs/dnsserver.log" />
+      <log-target name="remotemanager-target" location="/logs/remotemanager.log" />
+      <log-target name="spoolmanager-target" location="/logs/spoolmanager.log" />
+      <log-target name="mailrepository-target" location="/logs/mailrepository.log" />
+      <log-target name="imapserver-target" location="/logs/imapserver.log" />
+      <log-target name="security-target" location="/logs/security.log" />
+      <log-target name="jameshost-target" location="/logs/jameshost.log" />
+    </logs>
+
+    <threads>
+      <thread-group>
+        <name>default</name>
+
+        <!-- normal priority == 5, max-priority = 10 -->
+        <priority>5</priority> 
+
+        <!-- are threads deamon threads ? -->
+        <is-daemon>false</is-daemon>
+
+        <max-threads>40</max-threads>
+        <!-- these are ignored at the moment but will be fixed in later revisions -->
+        <min-threads>20</min-threads>
+        <min-spare-threads>20</min-spare-threads>
+
+      </thread-group>
+
+    </threads>
+
+    <policy>
+
+<!--      
+      <keystore name="foo-keystore" 
+                location="file:${app.home}${/}conf${/}keystore" 
+                type="JKS" /> 
+
+      <grant signed-by="Fred" code-base="file:${app.home}/blocks/*" key-store="foo-keystore">
+        <permission class="java.io.FilePermission" target="/tmp/*" action="read,write" />
+      </grant>
+ -->
+      <grant code-base="file:${app.home}${/}blocks${/}*">
+        <permission class="java.security.AllPermission" />
+      </grant>
+
+      <grant code-base="file:${app.home}${/}lib${/}*">
+        <permission class="java.security.AllPermission" />
+      </grant>
+    </policy>
+
+</server>

@@ -14,12 +14,12 @@ import javax.naming.directory.*;
 import java.util.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
-//import org.apache.avalon.utils.*;
-import org.apache.james.Constants;
-import org.apache.james.services.UsersRepository;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
+
+import org.apache.james.Constants;
+import org.apache.james.services.UsersRepository;
+
 
 /**
  * Implementation of a Repository to store users.

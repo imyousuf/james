@@ -15,7 +15,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.Service;
+//import org.apache.avalon.services.Service;
 
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
@@ -67,7 +67,7 @@ import org.apache.mailet.Mail;
  * @version 0.1 on 14 Dec 2000
  */
 
-public interface Mailbox extends Configurable, Composer, Service {
+public interface Mailbox extends Configurable, Composer {
 
     String SYSTEM_FLAGS = "\\Seen \\Answered \\Flagged \\Deleted \\Draft";
     String RECENT_FLAG =  "\\Recent"; 

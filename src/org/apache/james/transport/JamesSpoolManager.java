@@ -12,8 +12,7 @@ import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
 import org.apache.avalon.*;
-import org.apache.avalon.services.Service;
-//import org.apache.avalon.utils.*;
+
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
@@ -25,7 +24,7 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class JamesSpoolManager implements Component, Composer, Configurable, Initializable, Runnable, Stoppable, Service, Contextualizable {
+public class JamesSpoolManager implements Component, Composer, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
 
     private DefaultComponentManager compMgr;
                    //using implementation as we need put method.

@@ -17,8 +17,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
 import org.apache.avalon.util.*;
+import org.apache.cornerstone.services.Scheduler;
 
 import org.apache.james.*;
 import org.apache.james.core.*;
@@ -34,7 +34,8 @@ import org.apache.mailet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler implements Composer, Stoppable, Configurable, Service, Scheduler.Target, Contextualizable, Runnable {
+public class POP3Handler implements Composer, Stoppable, Configurable,
+       Scheduler.Target, Contextualizable, Runnable {
 
     private ComponentManager compMgr;
     private Configuration conf;
@@ -88,7 +89,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 	try {
 	    mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
 	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-	    scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+	    scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
 	    softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
 	    servername = (String) context.get(Constants.HELO_NAME);
 	    userMailbox = new Vector();

@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import org.apache.avalon.services.Store;
 import org.apache.avalon.Configuration;
 import org.apache.avalon.ConfigurationException;
 import org.apache.avalon.Initializable;
@@ -21,7 +20,8 @@ import org.apache.avalon.Configurable;
 import org.apache.avalon.Component;
 import org.apache.avalon.ComponentNotAccessibleException;
 import org.apache.avalon.ComponentNotFoundException;
-import org.apache.avalon.blocks.AbstractBlock;
+import org.apache.phoenix.AbstractBlock;
+//import org.apache.cornerstone.services.Store;
 
 import org.apache.james.services.MailStore;
 import org.apache.james.services.MailRepository;

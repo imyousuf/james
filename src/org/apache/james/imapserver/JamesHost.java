@@ -15,8 +15,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
-//import org.apache.james.*;
+//import org.apache.avalon.blocks.*;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 

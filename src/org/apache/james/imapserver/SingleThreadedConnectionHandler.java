@@ -17,7 +17,7 @@ import javax.mail.Session;
 import javax.mail.internet.*;
 
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.cornerstone.services.Scheduler;
 
 //import org.apache.james.*;
 import org.apache.james.AccessControlException;
@@ -155,7 +155,7 @@ public class SingleThreadedConnectionHandler
 	    this.mailServer = (MailServer)
 		compMgr.lookup("org.apache.james.services.MailServer");
 	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-	    scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+	    scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
 	    softwaretype = "JAMES IMAP4rev1 Server "
 		+ Constants.SOFTWARE_VERSION;
 	    servername = (String) context.get(Constants.HELO_NAME);

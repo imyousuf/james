@@ -7,11 +7,10 @@ package org.apache.james.userrepository;
 import java.io.*;
 import java.util.*;
 
-import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
-//import org.apache.avalon.utils.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
+
 import org.apache.james.services.UsersRepository;
 
 import com.workingdogs.town.*;

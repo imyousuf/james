@@ -18,9 +18,10 @@ import javax.mail.Session;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
-import org.apache.avalon.blocks.Block;
-import org.apache.avalon.blocks.AbstractBlock;
+//import org.apache.phoenix.Block;
+import org.apache.phoenix.AbstractBlock;
 import org.apache.avalon.util.lang.*;
+import org.apache.avalon.util.thread.ThreadPool;
 
 import org.apache.james.core.*;
 import org.apache.james.transport.*;
@@ -48,9 +49,9 @@ import org.apache.mailet.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class James extends AbstractBlock implements  Block, Configurable,
-     Composer, Initializable, MailServer, MailetContext {
-
+public class James extends AbstractBlock implements Initializable, MailServer, 
+       MailetContext {
+    
     public final static String VERSION = "James 1.2.2 Alpha";
 
     private DefaultComponentManager compMgr; //Components shared
@@ -58,7 +59,7 @@ public class James extends AbstractBlock implements  Block, Configurable,
     private Configuration conf;
 
     private Logger mailetLogger = LogKit.getLoggerFor("james.Mailets");
-    private WorkerPool workerPool;
+    private ThreadPool workerPool;
     private MailStore mailstore;
     private UsersStore usersStore;
     private SpoolRepository spool;
