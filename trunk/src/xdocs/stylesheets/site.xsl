@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.4 2003/01/27 11:49:58 danny Exp $ -->
+<!-- $Id: site.xsl,v 1.5 2003/02/03 19:01:48 noel Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -93,7 +93,7 @@
 
           <xsl:comment>PROJECT LOGO</xsl:comment>
           <a href="{$home}">
-            <img src="{$home}/{$src}" align="right" alt="{$alt}" border="0"/>
+            <img src="{$home}{$src}" align="right" alt="{$alt}" border="0"/>
           </a>
         </xsl:if>
 
