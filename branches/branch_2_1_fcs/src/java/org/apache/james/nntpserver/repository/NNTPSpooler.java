@@ -7,6 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -25,14 +26,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Processes entries and sends to appropriate groups.
  * Eats up inappropriate entries.
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-class NNTPSpooler extends AbstractLogEnabled 
+class NNTPSpooler extends AbstractLogEnabled
         implements Contextualizable, Configurable, Initializable {
 
     /**
@@ -63,7 +64,7 @@ class NNTPSpooler extends AbstractLogEnabled
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
-    public void contextualize(final Context context) 
+    public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
@@ -206,8 +207,8 @@ class NNTPSpooler extends AbstractLogEnabled
             try {
                 while ( Thread.currentThread().interrupted() == false ) {
                     String[] list = spoolPath.list();
+                    if (list.length > 0) getLogger().debug("Files to process: "+list.length);
                     for ( int i = 0 ; i < list.length ; i++ ) {
-                        getLogger().debug("Files to process: "+list.length);
                         if ( lock.lock(list[i]) ) {
                             File f = new File(spoolPath,list[i]).getAbsoluteFile();
                             getLogger().debug("Processing file: "+f.getAbsolutePath());
@@ -220,9 +221,9 @@ class NNTPSpooler extends AbstractLogEnabled
                                 lock.unlock(list[i]);
                             }
                         }
-                        list[i] = null;
+                        list[i] = null; // release the string entry;
                     }
-                    list = null;
+                    list = null; // release the array;
                     // this is good for other non idle threads
                     try {
                         Thread.currentThread().sleep(threadIdleTime);
@@ -256,9 +257,7 @@ class NNTPSpooler extends AbstractLogEnabled
                 try {
                     msg = new MimeMessage(null,fin);
                 } finally {
-                    try {
-                        fin.close();
-                    } catch (IOException _) { /* ignore close error */ }
+                    IOUtil.shutdownStream(fin);
                 }
 
                 // ensure no duplicates exist.
@@ -277,11 +276,8 @@ class NNTPSpooler extends AbstractLogEnabled
                     try {
                         msg.writeTo(fout);
                     } finally {
-                        try {
-                            fout.close();
-                        } catch (IOException _) { /* ignore close error */ }
+                        IOUtil.shutdownStream(fout);
                     }
-
                 }
             }
 
@@ -289,21 +285,23 @@ class NNTPSpooler extends AbstractLogEnabled
             Properties prop = new Properties();
             if (headers != null) {
                 for ( int i = 0 ; i < headers.length ; i++ ) {
-                    getLogger().debug("Copying message to group: "+headers[i]);
-                    NNTPGroup group = repo.getGroup(headers[i]);
-                    if ( group == null ) {
-                        getLogger().error("Couldn't add article with article ID " + articleID + " to group " + headers[i] + " - group not found.");
-                        continue;
-                    }
+                    StringTokenizer tokenizer = new StringTokenizer(headers[i],",");
+                    while ( tokenizer.hasMoreTokens() ) {
+                        String groupName = tokenizer.nextToken().trim();
+                        getLogger().debug("Copying message to group: "+groupName);
+                        NNTPGroup group = repo.getGroup(groupName);
+                        if ( group == null ) {
+                            getLogger().error("Couldn't add article with article ID " + articleID + " to group " + groupName + " - group not found.");
+                            continue;
+                        }
 
-                    FileInputStream newsStream = new FileInputStream(spoolFile);
-                    try {
-                        NNTPArticle article = group.addArticle(newsStream);
-                        prop.setProperty(group.getName(),article.getArticleNumber() + "");
-                    } finally {
+                        FileInputStream newsStream = new FileInputStream(spoolFile);
                         try {
-                            newsStream.close();
-                        } catch (IOException _) { /* ignore close error */ }
+                            NNTPArticle article = group.addArticle(newsStream);
+                            prop.setProperty(group.getName(),article.getArticleNumber() + "");
+                        } finally {
+                            IOUtil.shutdownStream(newsStream);
+                        }
                     }
                 }
             }
