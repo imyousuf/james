@@ -69,7 +69,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.13 $ $Date: 2004/03/15 03:54:16 $
+ * @version CVS $Revision: 1.30.4.14 $ $Date: 2004/03/20 07:15:12 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -955,7 +955,7 @@ public class JDBCMailRepository
                     sr.remove(key);
                 }
             } catch (Exception me) {
-                throw new RuntimeException("Exception while removing mail: " + me.getMessage());
+                throw new MessagingException("Exception while removing mail: " + me.getMessage());
             } finally {
                 theJDBCUtil.closeJDBCStatement(removeMessage);
                 theJDBCUtil.closeJDBCConnection(conn);
