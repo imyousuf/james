@@ -236,7 +236,7 @@ public class DNSServer
                             .append("Couldn't resolve MX records for domain ")
                             .append(hostname)
                             .append(".");
-                getLogger().error(logBuffer.toString());
+                getLogger().info(logBuffer.toString());
                 try {
                     InetAddress.getByName(hostname);
                     servers.add(hostname);
