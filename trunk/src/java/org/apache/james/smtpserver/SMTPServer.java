@@ -38,7 +38,12 @@ public class SMTPServer extends AbstractService implements Component {
      * The mailet context - we access it here to set the hello name for the Mailet API
      */
     MailetContext mailetcontext;
-    private boolean enabled = true;
+
+    /**
+     * Whether this service is enabled
+     */
+    private volatile boolean enabled = true;
+
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory(SMTPHandler.class);
     }
@@ -62,10 +67,9 @@ public class SMTPServer extends AbstractService implements Component {
      * @throws ConfigurationException if an error occurs
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
-        m_port = configuration.getChild("port").getValueAsInteger(25);
-        if (configuration.getAttribute("enabled").equalsIgnoreCase("false")) {
-            enabled = false;
-        } else {
+        enabled = configuration.getAttributeAsBoolean("enabled", true);
+        if (enabled) {
+            m_port = configuration.getChild("port").getValueAsInteger(25);
             try {
                 final String bindAddress = configuration.getChild("bind").getValue(null);
                 if (null != bindAddress) {

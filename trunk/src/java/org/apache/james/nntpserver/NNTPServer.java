@@ -21,7 +21,12 @@ import java.net.UnknownHostException;
  * @author  <a href="mailto:danny@apache.org">Danny Angus</a>
  */
 public class NNTPServer extends AbstractService implements Component {
-    private boolean enabled = true;
+
+    /**
+     * Whether this service is enabled
+     */
+    private volatile boolean enabled = true;
+
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory(NNTPHandler.class);
     }
@@ -32,9 +37,8 @@ public class NNTPServer extends AbstractService implements Component {
      * @throws ConfigurationException if an error occurs
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
-        if (configuration.getAttribute("enabled").equalsIgnoreCase("false")) {
-            enabled = false;
-        } else {
+        enabled = configuration.getAttributeAsBoolean("enabled", true);
+        if (enabled) {
             m_port = configuration.getChild("port").getValueAsInteger(119);
             try {
                 String bindAddress = configuration.getChild("bind").getValue(null);
