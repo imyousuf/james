@@ -139,7 +139,7 @@
 
     <target name="jar-server-impl" depends="compile">
       <echo message="Making James Jar"/>
-      <jar jarfile="${jars.dir}/james-${server-version}.jar" 
+      <jar jarfile="${jars.dir}/james-${server-build-version}.jar" 
           basedir="${classes.dir}" manifest="${src.dir}/Manifest.mf">
         <include name="org/apache/james/**"/>
       </jar>
