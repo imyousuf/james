@@ -50,33 +50,37 @@ All these package are in current distribution.
   <property name="optimize" value="on"/>
   <property name="deprecation" value="off"/>
 
-  <!-- The properties in the init section should not normally be changed 
+  <!-- The properties in the init section should not normally be changed
 -->
   <target name="init">
-	
-	<property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
 
-	<property name="src.dir" value="./src"/>
-	<property name="conf.dir" value="./conf"/>
-	<property name="lib.dir" value="lib"/>
+    <property name="classpath" value="./lib/avalonapi.jar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar"/>
 
-	<property name="build.dir" value="./build"/>
-	<property name="build.src" value="${build.dir}/src"/>
-	<property name="build.classes" value="${build.dir}/classes"/>
+    <property name="src.dir" value="./src"/>
+    <property name="conf.dir" value="./conf"/>
+    <property name="lib.dir" value="lib"/>
+
+    <property name="build.dir" value="./build"/>
+    <property name="build.src" value="${build.dir}/src"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
         <property name="build.docs" value="${build.dir}/docs"/>
         <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
-	<property name="build.javadocs" value="${build.dir}/javadocs"/>
-	<property name="build.lib" value="${build.dir}/lib"/>
+    <property name="build.javadocs" value="${build.dir}/javadocs"/>
+    <property name="build.lib" value="${build.dir}/lib"/>
 
-	<property name="constants.file" value="org/apache/james/Constants.java"/>
-	<property name="conf.file" value="james.conf.xml"/>
-	<property name="blockdefs.file" value="blockdefs.properties"/>
+    <property name="constants.file" value="org/apache/james/Constants.java"/>
+    <property name="conf.file" value="james.conf.xml"/>
+    <property name="blockdefs.file" value="blockdefs.properties"/>
 
-	<property name="dist.dir" value="./dist"/>
-        <property name="dist.name" value="${name}-${version}"/>
-	<property name="site.dir" value="../xml-site/sources/james"/>
-	<property name="site.docs" value="../xml-site/targets/james"/>
-  </target>
+    <property name="dist.dir" value="./dist"/>
+    <property name="dist.name" value="${name}-${version}"/>
+    <property name="site.dir" value="../xml-site/sources/james"/>
+    <property name="site.docs" value="../xml-site/targets/james"/>
+
+    <property name="docs.src" value="./xdocs"/>
+    <property name="docs.dest" value="./docs"/>
+
+</target>
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -108,6 +112,15 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <target name="prepare" depends="init">
     <mkdir dir="${build.dir}"/>
+    <available classname="org.apache.velocity.anakia.AnakiaTask"
+        property="AnakiaTask.present"/>
+  </target>
+
+  <target name="prepare-error" depends="prepare" unless="AnakiaTask.present">
+    <echo>
+        AnakiaTask is not present! Please check to make sure that
+        velocity.jar is in your classpath.
+    </echo>
   </target>
 
   <!-- =================================================================== -->
@@ -162,7 +175,7 @@ All these package are in current distribution.
     </jar>
 
     <copy file="${build.dir}/${name}.bar" tofile="${build.lib}/${name}.bar"/>
-  
+
   </target>
 
   <!-- =================================================================== -->
@@ -267,7 +280,7 @@ All these package are in current distribution.
         destdir="${build.docs}"
         packagenames="org.apache.james.*,org.apache.james.core.*,org.apache.james.dnsserver.*,org.apache.james.filestorage.*,org.apache.james.mailrepository.*,org.apache.james.pop3server.*,org.apache.james.imapserver.*,org.apache.james.remotemanager.*,org.apache.james.services.*,org.apache.james.smtpserver.*,org.apache.james.transport.*,org.apache.james.transport.matchers.*,org.apache.james.transport.mailets.*,org.apache.james.usersrepository.*,org.apache.james.util.*,org.apache.mailet.*"
         classpath="${classpath}"
-	use="true"
+    use="true"
         />
   </target>
 
@@ -281,6 +294,27 @@ All these package are in current distribution.
         packagenames="org.apache.mailet.*"
         classpath="${classpath}"
         />
+  </target>
+
+
+  <target name="docs" depends="prepare-error" if="AnakiaTask.present">
+    <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
+    <anakia basedir="${docs.src}" destdir="${docs.dest}/"
+         extension=".html" style="./site.vsl"
+         projectFile="stylesheets/project.xml"
+         excludes="**/stylesheets/** empty.xml"
+         includes="**/*.xml"
+         lastModifiedCheck="true"
+         velocityPropertiesFile="${docs.src}/velocity.properties">
+    </anakia>
+
+    <copy todir="${docs.dest}/images" filtering="no">
+        <fileset dir="${docs.src}/images">
+            <include name="**/*.gif"/>
+            <include name="**/*.jpeg"/>
+            <include name="**/*.jpg"/>
+        </fileset>
+    </copy>
   </target>
 </project>
 
