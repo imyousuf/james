@@ -41,7 +41,7 @@ import java.util.Vector;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.5 $ $Date: 2002/04/18 14:13:53 $
+ * @version CVS $Revision: 1.6 $ $Date: 2002/04/18 19:14:55 $
  * @since 4.0
  */
 public class JdbcDataSource
@@ -193,7 +193,9 @@ public class JdbcDataSource
             long now = System.currentTimeMillis();
             if (now - connLastCreated < 1000 * pool.size()) {
                 //We don't want to scale up too quickly...
-                System.err.println("We don't want to scale up too quickly");
+                if (DEEP_DEBUG) {
+                    System.err.println("We don't want to scale up too quickly");
+                }
                 return null;
             }
 
