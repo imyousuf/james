@@ -32,6 +32,7 @@ public class MailImpl implements Mail {
     private String name;
     private String remoteHost = "localhost";
     private String remoteAddr = "127.0.0.1";
+    private Date lastUpdated = new Date();
 
     public MailImpl() {
         setState(Mail.DEFAULT);
@@ -113,6 +114,10 @@ public class MailImpl implements Mail {
         return remoteAddr;
     }
 
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
     public void parse() throws MessagingException {
         if (messageIn != null) {
             message = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
@@ -132,6 +137,7 @@ public class MailImpl implements Mail {
         name = (String) in.readObject();
         remoteHost = (String) in.readObject();
         remoteAddr = (String) in.readObject();
+        lastUpdated = (Date) in.readObject();
     }
 
     public void setErrorMessage(String msg) {
@@ -168,6 +174,10 @@ public class MailImpl implements Mail {
         this.remoteAddr = remoteAddr;
     }
 
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
     public void writeMessageTo(OutputStream out) throws IOException, MessagingException {
         if (message != null) {
             message.writeTo(out);
@@ -180,6 +190,8 @@ public class MailImpl implements Mail {
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        System.err.println("saving object");
+        lastUpdated = new Date();
         out.writeObject(sender.toString());
         out.writeObject(recipients);
         out.writeObject(state);
@@ -187,6 +199,7 @@ public class MailImpl implements Mail {
         out.writeObject(name);
         out.writeObject(remoteHost);
         out.writeObject(remoteAddr);
+        out.writeObject(lastUpdated);
     }
 
     public Mail bounce(String message) throws MessagingException {
