@@ -21,10 +21,10 @@ import org.apache.avalon.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2001/09/06 13:19:32 $ by: $Author: donaldp $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2001/10/31 14:31:25 $ by: $Author: serge $
  */
-public interface MailServer 
+public interface MailServer
     extends Service {
 
     String ROLE = "org.apache.james.services.MailServer";
@@ -32,7 +32,7 @@ public interface MailServer
     /**
      * Reserved user name for the mail delivery agent for multi-user mailboxes
      */
-    String MDA = "JamesMDA"; 
+    String MDA = "JamesMDA";
 
     /**
      * Reserved user name meaning all users for multi-user mailboxes
@@ -77,8 +77,7 @@ public interface MailServer
 
     /**
      * Retrieve the primary mailbox for userName. For POP3 style stores this
-     * is their (sole) mailbox. For IMAP style stores this is the INBOX
-     * mailbox.
+     * is their (sole) mailbox.
      *
      * @param sender - the name of the user
      * @returns a reference to an initialised mailbox
@@ -90,10 +89,6 @@ public interface MailServer
     /**
      * Adds a new user to the mail system with userName. For POP3 style stores
      * this may only involve adding the user to the UsersStore.
-     * For IMAP style stores this involves creating malboxes with appropriate
-     * ACLs. Additional considerations apply if there has been a previous user
-     * with the same name in an IMAP system.
-     * mailbox.
      *
      * @param sender - the name of the user
      * @returns a reference to an initialised mailbox

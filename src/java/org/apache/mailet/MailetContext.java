@@ -218,7 +218,7 @@ public interface MailetContext {
     void setAttribute(String name, Object object);
 
     /**
-     * Stores mail into local accounts (POP3 by default, or the IMAP4 Inbox)
+     * Stores mail into local accounts (POP3 by default)
      *
      * @param sender - the sender of the incoming message
      * @param recipient - the user who is receiving this message (as a complete email address)
