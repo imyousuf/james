@@ -1,3 +1,5 @@
+/*--- formatted by Jindent 2.0b, (www.c-lab.de/~jindent) ---*/
+
 package org.apache.james.util;
 
 import java.util.*;
@@ -11,39 +13,47 @@ import java.text.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @version 0.9
  */
-public class RFC822DateFormat
-{
-	private static DateFormat df;
+public class RFC822DateFormat {
+    private static DateFormat df;
+    private static DecimalFormat tz;
 
-	private static DecimalFormat tz;
-	
-/**
- * SimpleDateFormat will handle most of this for us, but the timezone won't match, so we do that
- * manually
- * @return java.lang.String
- * @param d Date
- */
-public static String toString (Date d)
-{
-	if (df == null)
-		df = new SimpleDateFormat ("EE, d MMM yyyy HH:mm:ss");
+    /**
+     * SimpleDateFormat will handle most of this for us, but the timezone won't match, so we do that
+     * manually
+     * @return java.lang.String
+     * @param d Date
+     */
+    public static String toString(Date d) {
+        if (df == null) {
+            df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss");
+        } 
+        if (tz == null) {
+            tz = new DecimalFormat("00");
+        } 
 
-	if (tz == null)
-		tz = new DecimalFormat ("00");
+        StringBuffer sb = new StringBuffer(df.format(d));
 
-	
-	StringBuffer sb = new StringBuffer (df.format (d));
-	sb.append (' ');
+        sb.append(' ');
 
-	int min = TimeZone.getDefault ().getRawOffset () / 1000 / 60;
-	if (min >= 0)
-		sb.append ('+');
-	else
-		sb.append ('-');
-	min = Math.abs (min);
-	sb.append (tz.format (min / 60));
-	sb.append (tz.format (min % 60));
+        int min = TimeZone.getDefault().getRawOffset() / 1000 / 60;
 
-	return sb.toString ();
+        if (min >= 0) {
+            sb.append('+');
+        } else {
+            sb.append('-');
+        }
+
+        min = Math.abs(min);
+
+        sb.append(tz.format(min / 60));
+        sb.append(tz.format(min % 60));
+
+        return sb.toString();
+    }
+
 }
-}
+
+
+
+/*--- formatting done in "Sun Java Convention" style on 07-11-1999 ---*/
+

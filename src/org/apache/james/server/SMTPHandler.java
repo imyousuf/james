@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+import java.lang.reflect.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
@@ -13,12 +14,13 @@ import org.apache.james.*;
 import org.apache.james.util.*;
 
 /**
- * This handles an individual incoming message.  It handles regular SMTP commands, and when it receives
- * a message, adds it to the spool.
+ * This handles an individual incoming message.  It handles regular SMTP
+ * commands, and when it receives a message, adds it to the spool.
  * @author Serge Knystautas <sergek@lokitech.com>
+ * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class JamesConnection implements Runnable {
+public class SMTPHandler implements ProtocolHandler {
     private Socket socket;
     private BufferedReader in;
     private InputStream socketIn;
@@ -26,66 +28,73 @@ public class JamesConnection implements Runnable {
     private OutputStream r_out;
     private InternetAddress sender;
     private Vector recipients;
-
-    // private Properties serverProps;
-
     private String remoteHost;
     private String remoteHostGiven;
     private String remoteIP;
-
-    // private Date msgTime;
-
     private String messageID;
     private int mid = 0;
-    private int sid = 0;
+    private String socketID;
     private JamesServ server;
+    private LoggerInterface logger;
     private static String messageEnd = "\r\n.\r\n";
-
-    // private static int mcount = 0;
-
     private static int scount = 0;
 
     /**
-     * This method was created by a SmartGuide.
-     * @param s java.net.Socket
+     * Constructor has no parameters to allow Class.forName() stuff.
      */
-    public JamesConnection(Socket socket, JamesServ server) throws IOException {
+    public SMTPHandler() {}
+
+    /**
+     * This method fills needed parameters in handler to make it work.
+     */
+    public void fill(JamesServ server, Socket socket) throws IOException {
+        this.logger = server.getLogger();
         this.socket = socket;
-
-        // Someone has opened a connection to us.  We initialize the streams
-
-        socketIn = socket.getInputStream();
-        in = new BufferedReader(new InputStreamReader(socketIn));
-
-        // out = new PrintWriter (socket.getOutputStream ());
-
-        r_out = socket.getOutputStream();
-        out = new PrintWriter(socket.getOutputStream(), true);
-        sender = null;
-        remoteHost = socket.getInetAddress().getHostName();
-        remoteIP = socket.getInetAddress().getHostAddress();
-
-        System.out.println(remoteHost);
-
-        recipients = new Vector();
-
-        // this.serverProps = serverProps;
-
         this.server = server;
-        sid = ++scount;
+        this.sender = null;
+        this.recipients = new Vector();
 
-        System.out.println("Socket " + sid + " opened.");
+        try {
+
+            // Someone has opened a connection to us.  We initialize the streams
+
+            socketIn = socket.getInputStream();
+            in = new BufferedReader(new InputStreamReader(socketIn));
+            r_out = socket.getOutputStream();
+            out = new PrintWriter(r_out, true);
+
+            // [Fede] I've commented this 'couse I'ant got any DNS ...
+
+            /*
+             * remoteHost = socket.getInetAddress ().getHostName ();
+             * remoteIP = socket.getInetAddress ().getHostAddress ();
+             */
+            remoteHost = "maggie";
+            remoteIP = "192.168.1.3";
+            socketID = remoteHost + "." + ++scount;
+
+            logger.log("Connection from " + remoteHost + " (" + remoteIP + ") on socket " + socketID, logger.INFO_LEVEL);
+        } catch (Exception e) {
+            logger.log("Exception opening socket: " + e.getMessage(), logger.ERROR_LEVEL);
+        }
     }
 
     /**
-     * This method was created by a SmartGuide.
-     * @return boolean
-     * @param command java.lang.String
+     * Method Declaration.
+     * 
+     * 
+     * @param command
+     * 
+     * @return
+     * 
+     * @exception IOException
+     * 
+     * @see
      */
     private boolean handleCommand(String command) throws IOException {
-        System.out.println(command);
-
         String commandLine = command.trim().toUpperCase();
+
+        logger.log("Command " + commandLine + " received on socket " + socketID, logger.INFO_LEVEL);
 
         if (commandLine.startsWith("HELO")) {
             out.println("250 " + server.getProperty("server.name"));
@@ -93,7 +102,11 @@ public class JamesConnection implements Runnable {
 
             try {
                 remoteHostGiven = command.trim().substring(5);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                remoteHostGiven = "";
+
+                logger.log("Unknown given host: " + e.getMessage());
+            }
 
             return false;
         }
@@ -107,17 +120,15 @@ public class JamesConnection implements Runnable {
             out.println("214-");
             out.println("214-      Supported commands:");
             out.println("214-");
-            out.println("214-           HELO     MAIL     RCPT     DATA");
+            out.println("214-           EHLO     HELO     MAIL     RCPT     DATA");
             out.println("214-           VRFY     RSET     NOOP     QUIT");
-
-            // out.println ("214-");
-            // out.println ("214-      SMTP Extensions supported through EHLO:");
-            // out.println ("214-");
-            // out.println ("214-           EHLO     EXPN     HELP     SIZE");
-            // out.println ("214-");
-            // out.println ("214-For more information about a listed topic, use \"HELP <topic>\"");
-            // out.println ("214 Please report mail-related problems to Postmaster at this site.");
-
+            out.println("214-");
+            out.println("214-      SMTP Extensions supported through EHLO:");
+            out.println("214-");
+            out.println("214-           EXPN     HELP     SIZE");
+            out.println("214-");
+            out.println("214-For more information about a listed topic, use \"HELP <topic>\"");
+            out.println("214 Please report mail-related problems to Postmaster at this site.");
             out.flush();
 
             return false;
@@ -145,7 +156,7 @@ public class JamesConnection implements Runnable {
 
             try {
                 sender = new InternetAddress(send);
-            } catch (AddressException ae) {
+            } catch (AddressException e) {
                 out.println("553 Invalid address syntax");
                 out.flush();
 
@@ -156,6 +167,7 @@ public class JamesConnection implements Runnable {
 
             out.println("250 Sender <" + sender + "> OK");
             out.flush();
+            logger.log("Sender received on " + socketID + ": " + sender, logger.DEBUG_LEVEL);
 
             return false;
         }
@@ -167,12 +179,12 @@ public class JamesConnection implements Runnable {
                 return false;
             }
 
-            String rcpt = command.substring(8).trim();
+            String rcpt = commandLine.substring(8).trim();
             InternetAddress recipient = null;
 
             try {
                 recipient = new InternetAddress(rcpt);
-            } catch (AddressException ae) {
+            } catch (AddressException e) {
                 out.println("553 Invalid address syntax");
                 out.flush();
 
@@ -185,26 +197,13 @@ public class JamesConnection implements Runnable {
 
             out.println("250 Recipient <" + recipient + "> OK");
             out.flush();
+            logger.log("Recipient received on " + socketID + ": " + recipient, logger.DEBUG_LEVEL);
 
             return false;
         }
-
-        /*
-         * if (commandLine.startsWith ("EHLO"))
-         * {
-         * out.println ("220 Command not implemented");
-         * out.flush ();
-         * return false;
-         * }
-         */
         if (commandLine.startsWith("EHLO")) {
-            out.println("250-" + server.getProperty("server.name"));
-            out.println("250 HELP");
+            out.println("220 Command not implemented");
             out.flush();
-
-            try {
-                remoteHostGiven = command.trim().substring(5);
-            } catch (Exception e) {}
 
             return false;
         }
@@ -224,7 +223,7 @@ public class JamesConnection implements Runnable {
 
             out.println("354 Ok Send data ending with <CRLF>.<CRLF>");
             out.flush();
-            System.out.println("Going in for the kill...");
+            logger.log("Receiving data on " + socketID, logger.DEBUG_LEVEL);
 
             try {
                 MimeMessage msg = processMessage();
@@ -234,27 +233,20 @@ public class JamesConnection implements Runnable {
                     // System.out.println ("\n This is the message:");
                     // msg.writeTo (System.out);
 
-                    InternetAddress addresses[] = new InternetAddress[recipients.size()];
-
-                    for (int i = 0; i < recipients.size(); i++) {
-                        addresses[i] = (InternetAddress) recipients.elementAt(i);
-                    }
-
                     DeliveryState state = new DeliveryState();
 
-                    state.setRecipients(addresses);
+                    state.setRecipients(AddressVectorToArray(recipients));
                     state.put("remote.host", remoteHost);
 
                     if (remoteHostGiven != null) {
                         state.put("remote.host.given", remoteHostGiven);
-                    } 
+                    }
 
                     state.put("remote.ip", remoteIP);
-                    server.getSpool().addMessage(msg, addresses);
+                    server.getSpool().addMessage(msg, AddressVectorToArray(recipients));
                 }
             } catch (MessagingException me) {
-                System.out.println("Exception @ " + new Date());
-                me.printStackTrace(System.out);
+                me.printStackTrace();
             }
 
             // Now we're done
@@ -263,7 +255,8 @@ public class JamesConnection implements Runnable {
             out.flush();
 
             sender = null;
-            recipients = new Vector();
+
+            recipients.clear();
 
             return false;
         }
@@ -284,7 +277,8 @@ public class JamesConnection implements Runnable {
             out.flush();
 
             sender = null;
-            recipients = new Vector();
+
+            recipients.clear();
 
             return false;
         }
@@ -349,7 +343,7 @@ public class JamesConnection implements Runnable {
 
                         if (read == messageEnd.charAt(0)) {
                             match++;
-                        } 
+                        }
                     }
                 }
 
@@ -360,17 +354,7 @@ public class JamesConnection implements Runnable {
 
             byte mba[] = byteOut.toByteArray();
             ByteArrayInputStream byteIn = new ByteArrayInputStream(mba, 0, mba.length - messageEnd.length());
-            InternetAddress[] addresses = new InternetAddress[recipients.size()];
 
-            for (int i = 0; i < recipients.size(); i++) {
-
-                // {
-
-                addresses[i] = (InternetAddress) recipients.elementAt(i);
-            }
-
-            // System.out.println (addresses[i]);
-            // }
             // We use our custom child of MimeMessage, to better handle some server side aspects of messages
 
             msg = new ServerMimeMessage(session, byteIn);
@@ -379,7 +363,7 @@ public class JamesConnection implements Runnable {
 
             if (msg.getHeader("Return-Path") == null) {
                 msg.addHeader("Return-Path", "<" + sender.getAddress() + ">");
-            } 
+            }
 
             // Add the Received: header
 
@@ -387,7 +371,7 @@ public class JamesConnection implements Runnable {
 
             if (recipients.size() == 1) {
                 received += "\r\n          for <" + recipients.elementAt(0).toString() + ">";
-            } 
+            }
 
             received += ";\r\n          " + RFC822DateFormat.toString(new Date());
 
@@ -405,20 +389,20 @@ public class JamesConnection implements Runnable {
 
             if (msg.getHeader("Date") == null) {
                 msg.addHeader("Date", RFC822DateFormat.toString(new Date()));
-            } 
+            }
 
             // Set the From: if it is not set
 
             if (msg.getHeader("From") == null) {
                 msg.addHeader("From", sender.getAddress());
-            } 
+            }
 
             // Set the To: if it is not set
             // ***** We will remove this later once we properly handle forwarding email messages
 
             if (msg.getHeader("To") == null) {
-                msg.setRecipients(Message.RecipientType.TO, addresses);
-            } 
+                msg.setRecipients(Message.RecipientType.TO, AddressVectorToArray(recipients));
+            }
         } catch (IOException ioe) {
             out.println("550 Some error...");
             out.flush();
@@ -427,13 +411,35 @@ public class JamesConnection implements Runnable {
         } catch (MessagingException me) {
             out.println("550 Messaging exception");
             out.flush();
-            System.out.println("Exception @ " + new Date());
-            me.printStackTrace(System.out);
+            me.printStackTrace();
 
             return null;
         }
 
         return msg;
+    }
+
+    /**
+     * Method Declaration.
+     * 
+     * 
+     * @param v
+     * 
+     * @return
+     * 
+     * @exception ClassCastException
+     * 
+     * @see
+     */
+    private InternetAddress[] AddressVectorToArray(Vector v) throws ClassCastException {
+        InternetAddress[] array = new InternetAddress[v.size()];
+        int i = 0;
+
+        for (Enumeration e = v.elements(); e.hasMoreElements(); i++) {
+            array[i] = (InternetAddress) e.nextElement();
+        }
+
+        return array;
     }
 
     /**
@@ -453,25 +459,21 @@ public class JamesConnection implements Runnable {
 
             String line;
 
-            while ((line = in.readLine()) != null) {
-                if (handleCommand(line)) {
-                    break;
-                } 
-            }
+            while ((line = in.readLine()) != null &&!handleCommand(line)) {}
 
             socket.close();
-        } catch (SocketException se) {
-            System.out.println("Socket " + sid + " closed remotely.");
-        } catch (InterruptedIOException iie) {
-            System.out.println("Socket " + sid + " timeout.");
+        } catch (SocketException e) {
+            logger.log("Socket " + socketID + " closed remotely.", logger.INFO_LEVEL);
+        } catch (InterruptedIOException e) {
+            logger.log("Socket " + socketID + " timeout.", logger.INFO_LEVEL);
         } catch (IOException e) {
-            System.out.println("Exception @ " + new Date());
-            e.printStackTrace(System.out);
+            logger.log("Exception handling socket " + socketID + ": " + e.getMessage(), logger.ERROR_LEVEL);
+            System.exit(1);
         }
         finally {
             try {
                 socket.close();
-            } catch (IOException ioe) {}
+            } catch (IOException e) {}
         }
     }
 
@@ -479,5 +481,5 @@ public class JamesConnection implements Runnable {
 
 
 
-/*--- formatting done in "Sun Java Convention" style on 07-11-1999 ---*/
+/*--- formatting done in "Sun Java Convention" style on 07-10-1999 ---*/
 
