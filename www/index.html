@@ -1,7 +1,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Apache Jakarta James - Overview - Java Mail and News server, SMTP POP3 IMAP NNTP</title>
+<title>Apache Jakarta James - Overview - Java Mail and News server, SMTP POP3 NNTP</title>
 <meta value="Serge Knystautas" name="author">
 <meta value="sergek@lokitech.com" name="email">
 <meta value="Danny Angus" name="author">
@@ -17,7 +17,7 @@
 <tr>
 <td colspan="2">
 <!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
-<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="JAMES - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james/"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james///images/james-logo.jpg"></a></td>
 </tr>
 <!--HEADER SEPARATOR-->
 <tr>
@@ -36,9 +36,6 @@
 <a href="./index.html">Overview</a>
 </li>
 <li>
-<a href="./architecture_v2_0.html">Architecture</a>
-</li>
-<li>
 <a href="./FAQ.html">James FAQ</a>
 </li>
 </ul>
@@ -55,42 +52,38 @@
 </p>
 <ul>
 <li>
-<a href="http://jakarta.apache.org/site/binindex.html">Binaries</a>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/site/sourceindex.html">Source Code</a>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
 </li>
 </ul>
 <p>
-<strong>Documentation</strong>
+<strong>Current Documentation</strong>
 </p>
 <ul>
 <li>
-<a href="./install.html">Install</a>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
 </li>
 <li>
-<a href="./configuration_v2_0.html">Configuration</a>
-</li>
-<li>
-<a href="./javadocs/index.html">James API</a>
+<a href="./javadocs/index.html">James Javadocs</a>
 </li>
 <li>
 <a href="./mailet/index.html">Mailet API</a>
 </li>
 <li>
-<a href="./usingJDBC_v2.0.html">Using JDBC</a>
-</li>
-<li>
-<a href="./usingLDAP_v1_2.html">Using LDAP</a>
-</li>
-<li>
-<a href="./usingTLS_v1_2.html">Using TLS</a>
-</li>
-<li>
 <a href="./james_and_sendmail.html">James and sendmail</a>
 </li>
 <li>
-<a href="http://jakarta.apache.org/james/rfclist">Useful RFCs (web)</a>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
 </li>
 </ul>
 <p>
@@ -166,9 +159,9 @@
 <td>
 <blockquote>
 
-<p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP and POP3 Mail server, and NNTP News server designed to be a complete and portable enterprise mail engine solution based on currently available open protocols. </p>
+<p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP and POP3 Mail server and NNTP News server designed to be a complete and portable enterprise mail engine solution based on currently available open protocols. </p>
 
-<p>James is also a mail application platform. <br>The James project hosts the Apache Mailet API, and James provides and implementation of this mail application platform API.  </p>
+<p>James is also a mail application platform. <br>The James project hosts the Apache Mailet API, and James provides an implementation of this mail application platform API.  </p>
 
 <p>James is based upon the Apache Avalon application framework. (For more information about Avalon, please go to <a href="http://jakarta.apache.org/avalon">http://jakarta.apache.org/avalon</a>)</p>
 
@@ -200,17 +193,24 @@
 <blockquote>
 
 <p>
-<b>Latest: james-2.1a1 (2002-11-13)</b>
-<br> Found in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a>
-<br><br>This build is a release candidate for James 2.1.  It includes all code and configuration changes expected to be included in that release.  Some additional documentation not packaged in this build will be included in the final release.
-<br><br>Evaluation and testing of this release candidate with feedback provided on the <a href="mailto:james-user@jakarta.apache.org">james-user</a> and <a href="mailto:james-dev@jakarta.apache.org">james-dev</a> mailing lists is strongly encouraged.</p>
+<b>Latest and Stable: james-2.1</b>
+<br> 
+James v2.1 is the current release.  Both <a href="http://jakarta.apache.org/site/binindex.cgi">binary</a> and <a href="http://jakarta.apache.org/site/sourceindex.cgi">source</a> distributions are available.</p>
 
-<p>
-<b>Stable: v2.0a3</b>
-<br>This version displays improved stability and a number of bug fixes over v2.0a2 and is the recommended stable version
-<br>
-<a href="http://jakarta.apache.org/builds/jakarta-james/release/v2.0a3">Binary and Source distributions of v2.0a3</a>
-</p>
+
+<p>This release has many enhancements and bug fixes over the previous
+release.  See the <a href="http://jakarta.apache.org/james/changelog.html">Change Log</a>
+for a detailed list of changes.  Some of the earlier defects could
+turn a James mail server into an Open Relay.  All users of James 2.0a3
+and earlier are urged to upgrade to James v2.1 as soon as
+possible.</p>
+
+
+<p>For details see the <A HREF="http://jakarta.apache.org/james/announcement_2_1.html">Official
+Announcement</A>.</p>
+
+
+<p>Any bugs found in James are dealt with promptly.  Please provide feedback on the james-user and james-dev mailing lists.</p>
 
 <p>
 <b>Get your hands on the latest versions..</b>
@@ -399,9 +399,17 @@
         <td align="left" valign="top" bgcolor="#a0ddf0"><font face="arial,helvetica,sanserif" size="-1" color="#000000">1.2</font></td>
       
 </tr>
+      
+<tr>
+        
+<td align="left" valign="top" bgcolor="#a0ddf0"><font face="arial,helvetica,sanserif" size="-1" color="#000000">FetchPOP</font></td>
+        <td align="left" valign="top" bgcolor="#a0ddf0"><font face="arial,helvetica,sanserif" size="-1" color="#000000">Experimental</font></td>
+        <td align="left" valign="top" bgcolor="#a0ddf0"><font face="arial,helvetica,sanserif" size="-1" color="#000000">2.1</font></td>
+        <td align="left" valign="top" bgcolor="#a0ddf0"><font face="arial,helvetica,sanserif" size="-1" color="#000000">2.1</font></td>
+      
+</tr>
     
 </table>
-
 
 </blockquote>
 </td>
