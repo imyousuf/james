@@ -4,9 +4,11 @@
 
     Please fill the DNSservers.server tag with the value of your DNS.
 
-    <DNSservers>
-        <server> [hear goes your dns] </server>
-    </DNSservers>
+    <dnsServer>
+        <servers>
+            <server> [hear goes your dns] </server>
+        </servers>
+    </dnsServer>
 
     You can set as many dns as you want.
 
@@ -32,21 +34,45 @@
                name="JamesMailServer"
                implementedInterface="org.apache.avalon.blocks.MailServer">
 
-            <postmaster> root@localhost </postmaster>
-            <servernames>
+            <postmaster> Postmaster@localhost </postmaster>
+<!-- helloName is the single host name this instance of James will use to
+     identify itself  for example, in SMTP and POP3 greetings. 
+     If autodetect is TRUE, James will attempt to discover its own name OR
+     use 'localhost'. If autodetect is FALSE, James will use the value given
+     OR 'localhost' -->
+	    <helloName autodetect="TRUE">localhost</helloName>
+
+<!-- servernames identifies the DNS namespace served by this instance of James.
+     If autodetect is TRUE, James wil attempt to discover its own name AND use
+     any specified servernames.  If autodetect is FALSE, James will use only
+     the specified servernames.  By default, the servername 'localhost' is
+     specified. This can be removed, if required. -->
+            <servernames autodetect="TRUE">
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
 <!--            <servername> To override autodetected server names uncomment this. </servername> -->
+		 <servername>localhost</servername>
             </servernames>
+        
 <!-- Place here the path where incoming mail are temporaly stored before beeing processed.
      (ex. file://c:/james/spool/) -->
             <spoolRepository> file://../var/mail/spool/ </spoolRepository>
 
             <inboxRepository> file://../var/mail/localinbox/ </inboxRepository>
 
+            <smtpServer>
+                <port>25</port>
+<!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
+<!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
+                <smtphandler>
+                    <connectiontimeout> 360000 </connectiontimeout>
+                </smtphandler>
+            </smtpServer>
+
             <pop3Server>
-<!-- port 995 is the well-known/ IANA registered port for POP3S ie over SSL/TLS -->
-                <port>110</port> 
+                <port>110</port>
+<!--            <port>995</port> -->
+<!-- port 995 is the well-known/IANA registered port for POP3S ie over SSL/TLS -->
 <!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
 <!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <pop3handler>
@@ -54,28 +80,21 @@
                 </pop3handler>
             </pop3Server>
 
-            <smtpServer>
-                <port>25</port>
-<!--                <bind>  </bind>  uncomment this if you want to bind to a specific inetaddress-->
-                <smtphandler>
-                    <connectiontimeout> 360000 </connectiontimeout>
-                </smtphandler>
-            </smtpServer>
-
             <remoteManager>
                 <port>4555</port>
 <!--                <bind>  </bind> uncomment this if you want to bind to a specific inetaddress-->
 <!--                <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL) on this port -->
                 <administrator_accounts>
-                    <account login="root" password="root"/>
+<!-- FILL ME!!!!!!  You must provide a password for your administrator accounts (cannot be blank) -->
+                    <account login="root" password=""/>
                 </administrator_accounts>
                 <connectiontimeout> 60000 </connectiontimeout>
             </remoteManager>
 
             <dnsServer>
                 <servers>
-                    <server></server>
-                    <server></server>
+<!--                <server> FILL ME!!!! </server> -->
+<!--                <server> FILL ME!!!! </server> -->
                 </servers>
                 <authoritative>false</authoritative>
             </dnsServer>
@@ -95,13 +114,14 @@
 		    <AuthenticationType>simple</AuthenticationType>
 		    <Principal>  FILL ME!!! </Principal>
 		    <Password> FILL ME!!! </Password>
-		    <UsersDomain>apache.org</UsersDomain>
+		
 		    <MembersAttribute>member</MembersAttribute>
 		    <ManageGroupAttribute>TRUE</ManageGroupAttribute>
 		    <GroupAttribute>memberOfGroup</GroupAttribute>
 		    <ManagePasswordAttribute>FALSE</ManagePasswordAttribute>
 		    <PasswordAttribute>userpassword</PasswordAttribute>
 		</LDAPRepository>
+
             </usersManager>
 
             <spoolmanagerthreads> 1 </spoolmanagerthreads>
@@ -110,8 +130,8 @@
                 <mailetpackages>
                     <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
                 </mailetpackages>
-<!--        LinearProcessor CONFIGURATION SAMPLE -->
-                <processor name="root" class="org.apache.james.transport.LinearProcessor">
+<!--        Processor CONFIGURATION SAMPLE: root is the first processor all mails enter -->
+                <processor name="root">
                     <mailet match="RecipientIs=badboy@badhost" class="Null">
                     </mailet>
                     <mailet match="RelayLimit=30" class="Null">
@@ -138,14 +158,22 @@
                     <mailet match="All" class="ToProcessor">
                         <processor> transport </processor>
                     </mailet>
-
                 </processor>
-                <processor name="error" class="org.apache.james.transport.mailets.ToRepository">
-                    <repositoryPath> file://../var/mail/error/</repositoryPath>
-                    <passThrough> false </passThrough>
+<!--        Processor CONFIGURATION SAMPLE: error is the processor mails with failure conditions enter -->
+                <processor name="error">
+                    <mailet match="All" class="ToRepository">
+                        <repositoryPath> file://../var/mail/error/</repositoryPath>
+                        <passThrough> false </passThrough>
+                    </mailet>
                 </processor>
-                <processor name="transport" class="org.apache.james.transport.LinearProcessor">
+<!--        Processor CONFIGURATION SAMPLE: transport is a sample custom processor for local or remote delivery -->
+                <processor name="transport">
                     <mailet match="RecipientIsLocal" class="LocalDelivery">
+                    </mailet>
+                    <!-- is the host is to this server and it did not get locally delivered, this
+                       is an invalid recipient -->
+                    <mailet match="HostIsLocal" class="ToProcessor">
+                        <processor>error</processor>
                     </mailet>
                     <mailet match="All" class="RemoteDelivery">
                         <delayed> file://../var/mail/delayed/ </delayed>
@@ -175,12 +203,9 @@
                 <repository type="MAIL" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.MailRepository"/>
-
-		<!--  Choose class to provide User Repository -->
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.usermanager.UsersFSRepository"/>
-
+                    class="org.apache.james.usermanager.UsersRepository"/>
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
