@@ -194,7 +194,7 @@ public class NNTPHandler extends BaseConnectionHandler
             doDATE();
         else if ( command.equalsIgnoreCase("HELP") )
             doHELP();
-        else if ( command.equalsIgnoreCase("NEWNEWS") )
+        else if ( command.equalsIgnoreCase("NEWSGROUPS") )
             doNEWSGROUPS(tokens);
         else if ( command.equalsIgnoreCase("NEWNEWS") )
             doNEWNEWS(tokens);
