@@ -31,7 +31,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
     private Logger logger;
     private Vector servlets;
     private Vector servletMatchs;
-    private String servletsRootPath;
+    private Vector servletPackages;
 
     private static final String OP_NOT = "!";
     private static final String OP_OR = "|";
@@ -75,15 +75,21 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
         comp.put(Resources.TMP_REPOSITORY, delayed);
 
+        this.servletPackages = new Vector();
+        for (Enumeration e = conf.getConfigurations("servletpackages.servletpackage"); e.hasMoreElements(); ) {
+            Configuration c = (Configuration) e.nextElement();
+            servletPackages.addElement(c.getValue());
+        }
+        servletPackages.addElement("");
+
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
-        servletsRootPath = conf.getConfiguration("servlets").getAttribute("rootpath");
         for (Enumeration e = conf.getConfigurations("servlets.servlet"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
-            String className = servletsRootPath + c.getAttribute("class");
+            String className = c.getAttribute("class");
             String match = c.getAttribute("match");
             try {
-                GenericMailServlet servlet = (GenericMailServlet) Class.forName(className).newInstance();
+                GenericMailServlet servlet = getServletInstance(className);
                 servlet.setConfiguration(c);
                 servlet.setContext(context);
                 servlet.setComponentManager(comp);
@@ -94,6 +100,25 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 logger.log("Unable to init mail servlet " + className + ": " + ex, "JAMES", logger.INFO);
                 ex.printStackTrace();
             }
+        }
+    }
+
+    private GenericMailServlet getServletInstance(String servletName) throws Exception {
+        try {
+            for (int i = 0; i < servletPackages.size(); i++) {
+                String className = (String)servletPackages.elementAt(i) + "." + servletName;
+                try {
+                    return (GenericMailServlet)Class.forName(className).newInstance();
+                } catch (ClassNotFoundException cnfe) {
+                    //do this so we loop through all the packages
+                } catch (ClassCastException cce) {
+                    //do this so we know what class is having problems
+                    throw new ClassCastException(className);
+                }
+            }
+            throw new ClassNotFoundException();
+        } catch (ClassNotFoundException e) {
+            throw new Exception("Requested servlet not found: " + servletName + ".  looked in " + servletPackages.toString());
         }
     }
 

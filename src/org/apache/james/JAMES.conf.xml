@@ -58,8 +58,11 @@
                 <authoritative>false</authoritative>
                 <repository> file://../var/mail/delayed/ </repository>
 
+                <servletpackages>
+                    <servletpackages>org.apache.james.transport.servlet</servletpackages>
+                <servletpackages>
 <!-- ++++++++++++ BEGIN OF MAIL SERVLET PIPE LINE +++++++++++++ -->
-                <servlets rootpath="org.apache.james.transport.servlet.">
+                <servlets>
 
 <!-- Thise servlet acts as system servlet and provides local delivery -->
                     <servlet match="RecipientIsLocal" class="LocalDelivery">
