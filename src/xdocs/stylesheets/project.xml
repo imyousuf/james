@@ -26,17 +26,11 @@
         <item name="Mailet API"     href="/mailet/index.html"/>
         <item name="James and sendmail"     href="/james_and_sendmail.html"/>
 
+        <item name="Useful RFCs (web)"   href="http://jakarta.apache.org/james/rfclist"/>
     </menu>
 
     <menu name="Older Documentation">
-        <item name="Architecture (version 2.0)"      href="/architecture_v2_0.html"/>
-        <item name="Install (version 2.0)"           href="/install.html"/>
-        <item name="Configuration (version 2.0)"     href="/configuration_v2_0.html"/>
-        <item name="Using JDBC (version 2.0)"     href="/usingJDBC_v2.0.html"/>
-        <item name="Using LDAP (version 1.2)"     href="/usingLDAP_v1_2.html"/>
-        <item name="Using TLS (version 1.2)"     href="/usingTLS_v1_2.html"/>
-
-        <item name="Useful RFCs (web)"   href="http://jakarta.apache.org/james/rfclist"/>
+        <item name="James Document Archive"      href="/document_archive.html"/>
     </menu>
     
     <menu name="Project">
