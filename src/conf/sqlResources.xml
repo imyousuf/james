@@ -126,7 +126,7 @@
         	remote_addr varchar (20) NOT NULL ,
         	message_body longblob NOT NULL ,
         	last_updated datetime NOT NULL,
-        	PRIMARY KEY (message, repository_name)
+        	PRIMARY KEY (message_name, repository_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
