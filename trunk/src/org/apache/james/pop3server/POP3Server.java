@@ -16,7 +16,6 @@ import org.apache.avalon.util.lang.ThreadManager;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.cornerstone.services.SocketServer;
 import org.apache.james.*;
-import org.apache.james.util.InternetPrintWriter;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -85,9 +84,6 @@ public class POP3Server
             getLogger().error("Cannot parse request on socket " + s + " : "
                               + e.getMessage());
         }
-    }
-
-    public void destroy() throws Exception {
     }
 }
     
