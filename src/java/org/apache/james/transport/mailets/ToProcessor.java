@@ -30,7 +30,7 @@ public class ToProcessor extends GenericMailet {
     /**
      * Controls certain log messages
      */
-    private final boolean DEBUG = false;
+    private boolean isDebug = false;
 
     /**
      * The name of the processor to which this mailet forwards mail
@@ -48,6 +48,7 @@ public class ToProcessor extends GenericMailet {
      * @throws MailetException if the processor parameter is missing
      */
     public void init() throws MailetException {
+        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
         processor = getInitParameter("processor");
         if (processor == null) {
             throw new MailetException("processor parameter is required");
@@ -63,7 +64,7 @@ public class ToProcessor extends GenericMailet {
      * @throws MessagingException in all cases
      */
     public void service(Mail mail) throws MessagingException {
-        if (DEBUG) {
+        if (isDebug) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
                         .append("Sending mail ")

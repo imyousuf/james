@@ -46,7 +46,16 @@ public class UseHeaderRecipients extends GenericMailet {
     /**
      * Controls certain log messages
      */
-    private final boolean DEBUG = false;
+    private boolean isDebug = false;
+
+    /**
+     * Initialize the mailet
+     *
+     * initializes the DEBUG flag
+     */
+    public void init() {
+        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
+    }
 
     /**
      * Process an incoming email, removing the currently identified
@@ -70,7 +79,7 @@ public class UseHeaderRecipients extends GenericMailet {
             recipients.addAll(getHeaderMailAddresses(message, "To"));
             recipients.addAll(getHeaderMailAddresses(message, "Cc"));
         }
-        if (DEBUG) {
+        if (isDebug) {
             log("All recipients = " + recipients.toString());
             log("Reprocessing mail using recipients in message headers");
         }
@@ -100,7 +109,7 @@ public class UseHeaderRecipients extends GenericMailet {
      */
     private Collection getHeaderMailAddresses(MimeMessage message, String name) throws MessagingException {
 
-        if (DEBUG) {
+        if (isDebug) {
             StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Checking ")
@@ -118,7 +127,7 @@ public class UseHeaderRecipients extends GenericMailet {
                 while (st.hasMoreTokens()) {
                     addressString = st.nextToken();
                     iAddress = new InternetAddress(addressString);
-                    if (DEBUG) {
+                    if (isDebug) {
                         log("Address = " + iAddress.toString());
                     }
                     addresses.add(new MailAddress(iAddress));

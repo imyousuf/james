@@ -198,7 +198,7 @@ public class Redirect extends GenericMailet {
     /**
      * Controls certain log messages
      */
-    private final boolean DEBUG = false;
+    private boolean isDebug = false;
 
     // The values that indicate how to attach the original mail
     // to the redirected mail.
@@ -424,16 +424,17 @@ public class Redirect extends GenericMailet {
       *
       */
     public void init() throws MessagingException {
-        if (DEBUG) {
+        if (isDebug) {
             log("Redirect init");
         }
+        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
         if(isStatic()) {
             sender       = getSender();
             replyTo      = getReplyTo();
             messageText  = getMessage();
             recipients   = getRecipients();
             apparentlyTo = getTo();
-            if (DEBUG) {
+            if (isDebug) {
                 StringBuffer logBuffer =
                     new StringBuffer(1024)
                             .append("static, sender=")
@@ -467,7 +468,7 @@ public class Redirect extends GenericMailet {
         MimeMessage reply = null;
         //Create the message
         if(getInLineType() != UNALTERED) {
-            if (DEBUG) {
+            if (isDebug) {
                 log("Alter message inline=:" + getInLineType());
             }
             reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
@@ -546,7 +547,7 @@ public class Redirect extends GenericMailet {
         } else {
             // if we need the original, create a copy of this message to redirect
             reply = getPassThrough() ? new MimeMessage(message) : message;
-            if (DEBUG) {
+            if (isDebug) {
                 log("Message resent unaltered.");
             }
         }
