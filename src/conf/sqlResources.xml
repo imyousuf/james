@@ -103,7 +103,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
-<sqlDefs name="org.apache.james.mailrepository.JdbcMailRepository">
+<sqlDefs name="org.apache.james.mailrepository.JDBCMailRepository">
     <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
