@@ -315,4 +315,10 @@ public class ImapResponse implements ImapConstants
         writer.flush();
     }
 
+    public void permanentFlagsResponse(MessageFlags flags) {
+        untagged();
+        message(OK);
+        responseCode("PERMANENTFLAGS " + flags.format());
+        end();
+    }
 }

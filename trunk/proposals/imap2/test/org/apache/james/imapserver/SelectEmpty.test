@@ -14,7 +14,7 @@ S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK No messages unseen
-#S: \* OK \[PERMANENTFLAGS \(\)\]
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed
 
 C: abcd SELECT test.subfolder
@@ -25,7 +25,7 @@ S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK No messages unseen
 }
-#S: \* OK \[PERMANENTFLAGS \(\)\]
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed
 
 C: abcd SELECT test1
@@ -34,7 +34,7 @@ S: \* 0 EXISTS
 S: \* 0 RECENT
 S: \* OK \[UIDVALIDITY \d+\]
 S: \* OK No messages unseen
-#S: \* OK \[PERMANENTFLAGS \(\)\]
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
 S: abcd OK \[READ-WRITE\] SELECT completed
 
 C: abcd SELECT subfolder1

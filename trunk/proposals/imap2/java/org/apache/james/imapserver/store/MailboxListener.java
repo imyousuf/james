@@ -55,37 +55,11 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
+package org.apache.james.imapserver.store;
 
-package org.apache.james.imapserver;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-/**
- *
- * @author  Darrell DeBoer <darrell@apache.org>
- *
- * @version $Revision: 1.4 $
- */
-public class TestCompound extends TestCommandsInAuthenticatedState
-{
-    public TestCompound( String name )
-    {
-        super( name );
-    }
-
-    /**
-     * Provides all tests which should be run in the authenicated state. Each test name
-     * corresponds to a protocol session file.
-     */
-    public static Test suite() throws Exception
-    {
-        TestSuite suite = new TestSuite();
-        suite.addTest( new TestCommandsInAuthenticatedState( "AppendExpunge" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "SelectAppend" ) );
-        suite.addTest( new TestCommandsInAuthenticatedState( "StringArgs" ) );
-        // TODO various mailbox names (eg with spaces...)
-        return suite;
-    }
-
+public interface MailboxListener {
+    // TODO shouldn't have exceptions here
+    void expunged(long uid) throws MailboxException;
+    
+    void added(long uid);
 }

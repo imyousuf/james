@@ -58,26 +58,21 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.mailet.User;
-import org.apache.james.imapserver.store.ImapStore;
-import org.apache.james.imapserver.store.InMemoryStore;
-import org.apache.james.imapserver.store.ImapMailbox;
-import org.apache.james.imapserver.store.MailboxException;
-import org.apache.james.imapserver.store.SimpleImapMessage;
-import org.apache.james.imapserver.store.MessageFlags;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.james.imapserver.store.ImapMailbox;
+import org.apache.james.imapserver.store.ImapStore;
+import org.apache.james.imapserver.store.InMemoryStore;
+import org.apache.james.imapserver.store.MailboxException;
+import org.apache.james.imapserver.store.SimpleImapMessage;
+import org.apache.mailet.User;
 
-import javax.mail.search.SearchTerm;
-import javax.mail.internet.MimeMessage;
-import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * An initial implementation of an ImapHost. By default, uses,
@@ -86,7 +81,7 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class JamesImapHost
         extends AbstractLogEnabled
@@ -315,74 +310,6 @@ public class JamesImapHost
     {
         ImapMailbox mailbox = getMailbox( user, mailboxName, true );
         subscriptions.unsubscribe( user, mailbox );
-    }
-
-    public int[] expunge( ImapMailbox mailbox )
-            throws MailboxException
-    {
-        ArrayList deletedMessages = new ArrayList();
-
-        long[] uids = mailbox.getMessageUids();
-        for ( int i = 0; i < uids.length; i++ ) {
-            long uid = uids[i];
-            SimpleImapMessage message = mailbox.getMessage( uid );
-            if ( message.getFlags().isDeleted() ) {
-                deletedMessages.add( message );
-            }
-        }
-
-        int[] ids = new int[ deletedMessages.size() ];
-        for ( int i = 0; i < ids.length; i++ ) {
-            SimpleImapMessage imapMessage = ( SimpleImapMessage ) deletedMessages.get( i );
-            long uid = imapMessage.getUid();
-            int msn = mailbox.getMsn( uid );
-            ids[i] = msn;
-            mailbox.deleteMessage( uid );
-        }
-
-        return ids;
-    }
-
-    public long[] search( SearchTerm searchTerm, ImapMailbox mailbox )
-    {
-        ArrayList matchedMessages = new ArrayList();
-
-        long[] allUids = mailbox.getMessageUids();
-        for ( int i = 0; i < allUids.length; i++ ) {
-            long uid = allUids[i];
-            SimpleImapMessage message = mailbox.getMessage( uid );
-            if ( searchTerm.match( message.getMimeMessage() ) ) {
-                matchedMessages.add( message );
-            }
-        }
-
-        long[] matchedUids = new long[ matchedMessages.size() ];
-        for ( int i = 0; i < matchedUids.length; i++ ) {
-            SimpleImapMessage imapMessage = ( SimpleImapMessage ) matchedMessages.get( i );
-            long uid = imapMessage.getUid();
-            matchedUids[i] = uid;
-        }
-        return matchedUids;
-    }
-
-    /** @see {@link ImapHost#copyMessage } */
-    public void copyMessage( long uid, ImapMailbox currentMailbox, ImapMailbox toMailbox )
-            throws MailboxException
-    {
-        SimpleImapMessage originalMessage = currentMailbox.getMessage( uid );
-        MimeMessage newMime = null;
-        try {
-            newMime = new MimeMessage( originalMessage.getMimeMessage() );
-        }
-        catch ( MessagingException e ) {
-            // TODO chain.
-            throw new MailboxException( "Messaging exception: " + e.getMessage() );
-        }
-        MessageFlags newFlags = new MessageFlags();
-        newFlags.setAll( originalMessage.getFlags() );
-        Date newDate = originalMessage.getInternalDate();
-
-        toMailbox.createMessage( newMime, newFlags, newDate);
     }
 
     /**

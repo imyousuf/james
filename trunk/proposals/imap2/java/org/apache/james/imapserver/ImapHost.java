@@ -78,7 +78,7 @@ import java.util.Collection;
  * References: rfc 2060, rfc 2193, rfc 2221
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Darrell DeBoer <darrell@apache.org>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public interface ImapHost
 {
@@ -295,14 +295,6 @@ public interface ImapHost
      */
     void unsubscribe( User user, String mailbox )
             throws MailboxException;
-
-    int[] expunge( ImapMailbox mailbox ) throws MailboxException;
-
-    long[] search( SearchTerm searchTerm, ImapMailbox mailbox );
-
-    void copyMessage( long uid, ImapMailbox currentMailbox, ImapMailbox toMailbox )
-            throws MailboxException;
-
 
 }
 
