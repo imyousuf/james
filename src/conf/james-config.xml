@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.10 $
-    Committed on $Date: 2001/09/11 04:29:30 $ by: $Author: serge $
+    This is $Revision: 1.11 $
+    Committed on $Date: 2001/09/13 20:30:08 $ by: $Author: charlesb $
 -->
 <config>
 
@@ -66,25 +66,28 @@
 
 
 
-      <!-- The inbox repository is the location for users inboxes
+      <!-- The inbox repository is the location for users inboxes -->
+      <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
       <inboxRepository>
         <repository destinationURL="file://var/mail/inboxes/"
                     type="MAIL">
         </repository>
-      </inboxRepository> -->
+      </inboxRepository> 
 
-      <!-- Alternative inbox repository definition for DB use.
-           The format for the destinationURL is "db://<data-source>/<table>"
+      <!-- Alternative inbox repository definition for DB use. -->
+      <!--  The format for the destinationURL is "db://<data-source>/<table>"
             - <data-source> is the datasource name set up in the
                     database-connections block, below
             - <table> is the name of the table to store user inboxes in
            The user name is used as <repositoryName> for this repository config.
       -->
-      <inboxRepository>
+
+      <!--      <inboxRepository>
         <repository destinationURL="db://maildb/inbox/"
                     type="MAIL">
         </repository>
       </inboxRepository>
+      -->
   </James>
 
   <!-- The James Spool Manager block  -->
@@ -166,7 +169,8 @@
 
         <processor name="schedule">
           <mailet match="All" class="ToRepository">
-            <repositoryPath> db://maildb/PendingMail/pending </repositoryPath>
+            <repositoryPath> file://var/mail/pending/</repositoryPath>
+            <!-- <repositoryPath> db://maildb/PendingMail/pending </repositoryPath> -->
             <passThrough> true </passThrough>
           </mailet>
         </processor>
@@ -177,7 +181,7 @@
           <!-- Logs any messages to the repository specified -->
           <mailet match="All" class="ToRepository">
             <repositoryPath> file://var/mail/error/</repositoryPath>
-            <!-- <repositoryPath> db://conf/mail-error.properties </repositoryPath>-->
+            <!-- <repositoryPath> db://conf/mail-error.properties </repositoryPath> -->
             <passThrough> true </passThrough>
           </mailet>
 
@@ -231,7 +235,7 @@
           retries -->
           <mailet match="All" class="RemoteDelivery">
             <outgoing> file://var/mail/outgoing/ </outgoing>
-            <!-- <outgoing> db://conf/mail-outgoing.properties </outgoing>-->
+            <!-- <outgoing> db://conf/mail-outgoing.properties </outgoing> -->
             <delayTime> 21600000 </delayTime>
             <maxRetries> 5 </maxRetries>
           </mailet>
@@ -272,7 +276,6 @@
   <dnsserver>
         <servers>
           <server>127.0.0.1</server>
-          <server>216.181.1.2</server>
           <!--<server> put extra dns server address here </server>-->
         </servers>
         <authoritative>false</authoritative>
@@ -473,23 +476,26 @@
         </repository>
       </repositories>
 
+      <!-- Spool repository configuration -->
       <!-- The spool repository is a singular location where incoming mails
       are temporarily stored before being processed.
-     (ex. file://c:/james/spool/)
+     (ex. file://c:/james/spool/) -->
+
+      <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
       <spoolRepository>
         <repository destinationURL="file://var/mail/spool/"
                     type="SPOOL">
         </repository>
       </spoolRepository>
-      -->
+     
+      <!-- Alternative spool repository definition for JDBC use -->
 
-      <!-- Alternative spool repository definition for JDBC use
-      -->
-      <spoolRepository>
+      <!--      <spoolRepository>
         <repository destinationURL="db://maildb/message/spool"
                     type="SPOOL">
         </repository>
       </spoolRepository>
+      -->
   </mailstore>
 
   <!-- The User Storage block -->
@@ -510,19 +516,20 @@
          list-james - the users of the james@localhost mailiinglist
     -->
 
-      <!-- File-based user repositories
+      <!-- Default: File-based user repositories
            Use these configurations to store user info in the filesystem  -->
-      <!--
+ 
+      <!-- The LocalUsers repository, for storing James' User info. -->
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/users/"/>
       </repository>
-
+      <!-- The list used by the default ListServ mailet -->
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
         <destination URL="file://var/lists/list-james/"/>
       </repository>
-      -->
+    
 
       <!-- Database backed user repositories
            Use these configurations to store user info in a database.
@@ -530,31 +537,38 @@
             in the <database-connections> configuration section. -->
 
       <!-- The LocalUsers repository, for storing James' User info. -->
-      <repository name="LocalUsers"
+
+      <!--       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.JamesUsersJdbcRepository"
                   destinationURL="db://maildb/users">
           <sqlFile>dist/conf/sqlResources.xml</sqlFile>
       </repository>
+      -->
       <!-- The list used by the default ListServ mailet -->
-      <repository name="list-james"
+      <!--      <repository name="list-james"
                   class="org.apache.james.userrepository.ListUsersJdbcRepository"
                   destinationURL="db://maildb/lists/list-james">
           <sqlFile>dist/conf/sqlResources.xml</sqlFile>
       </repository>
+      -->
+
       <!-- An example mailinglist repository, with no "listName" parameter
            specified. Uses the default value from the sql definition file. -->
-      <repository name="list-test"
+      <!-- Testing purposes only. -->
+      <!--     <repository name="list-test"
                   class="org.apache.james.userrepository.ListUsersJdbcRepository"
                   destinationURL="db://maildb/lists">
           <sqlFile>dist/conf/sqlResources.xml</sqlFile>
       </repository>
-      <!-- An example UserRepository for DefaultUser implementations. Testing purposes
-           only. -->
-      <repository name="default-users"
+      -->
+      <!-- An example UserRepository for DefaultUser implementations. -->
+      <!-- Testing purposes only. -->
+      <!--      <repository name="default-users"
                   class="org.apache.james.userrepository.DefaultUsersJdbcRepository"
                   destinationURL="db://maildb/DefaultUsers">
           <sqlFile>dist/conf/sqlResources.xml</sqlFile>
       </repository>
+      -->
   </users-store>
 
   <!-- The database-connections block -->
@@ -567,21 +581,22 @@
         -->
         <!--
         <data-source name="maildb"
-                     type="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
             <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
             <user>username</user>
             <password>password</password>
         </data-source>
         -->
-
+        <!--
         <data-source name="maildb"
-        			type="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
         	<driver>com.inet.tds.TdsDriver</driver>
         	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
         	<user>sa_james</user>
         	<password>blahblah</password>
         </data-source>
+        -->
     </data-sources>
   </database-connections>
 
