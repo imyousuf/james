@@ -16,11 +16,63 @@ import java.util.Iterator;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public interface NNTPRepository {
+
+    /**
+     * Gets the group with the specified name from within the repository.
+     *
+     * @param groupName the name of the group to retrieve
+     *
+     * @return the group
+     */
     NNTPGroup getGroup(String groupName);
+
+    /**
+     * Gets the article with the specified id from within the repository.
+     *
+     * @param id the id of the article to retrieve
+     *
+     * @return the article
+     */
     NNTPArticle getArticleFromID(String id);
+
+    /**
+     * Creates an article in the repository from the data in the reader.
+     *
+     * @param reader the reader that serves as a source for the article data
+     */
     void createArticle(NNTPLineReader reader);
+
+    /**
+     * Gets all groups that match the wildmat string
+     *
+     * @param wildmat the wildmat parameter
+     *
+     * @return an iterator containing the groups retrieved
+     */
     Iterator getMatchedGroups(String wildmat);
+
+    /**
+     * Gets all groups added since the specified date
+     *
+     * @param dt the Date that serves as a lower bound
+     *
+     * @return an iterator containing the groups retrieved
+     */
     Iterator getGroupsSince(Date dt);
+
+    /**
+     * Gets all articles posted since the specified date
+     *
+     * @param dt the Date that serves as a lower bound
+     *
+     * @return an iterator containing the articles retrieved
+     */
     Iterator getArticlesSince(Date dt);
+
+    /**
+     * Returns whether this repository is read only.
+     *
+     * @return whether this repository is read only
+     */
     boolean isReadOnly();
 }

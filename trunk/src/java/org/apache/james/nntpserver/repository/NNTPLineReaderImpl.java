@@ -13,17 +13,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
- * reads and translates client data. After this translation, 
+ * Reads and translates client data. After this translation, 
  * the data can be streamed into server repository.
  * Handles Dot Stuffing.
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPLineReaderImpl implements NNTPLineReader {
+
+    /**
+     * The BufferedReader that provides the client data being
+     * read in.
+     */
     private final BufferedReader reader;
+
     public NNTPLineReaderImpl(BufferedReader reader) {
         this.reader = reader;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPLineReader#readLine
+     */
     public String readLine() {
         try {
             String line = reader.readLine();
@@ -34,7 +44,7 @@ public class NNTPLineReaderImpl implements NNTPLineReader {
                  line = line.substring(1,line.length());
             return line;
         } catch(IOException ioe) {
-            throw new NNTPException("could not create article",ioe);
+            throw new NNTPException("Could not create article",ioe);
         }
     }
 }

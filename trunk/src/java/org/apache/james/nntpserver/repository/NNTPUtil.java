@@ -31,13 +31,29 @@ import java.util.Locale;
  */
 public class NNTPUtil {
 
-    private final static int prefixLength = "file://".length();
+    /**
+     * The file prefix String
+     */
+    private final static String filePrefix = "file://";
 
+    /**
+     * The length of the file prefix String
+     */
+    private final static int filePrefixLength = filePrefix.length();
+
+    /**
+     * Get the explicit File represented by the URL String stored
+     * in the child parameter.
+     *
+     * @param context the context for the NNTP repository
+     * @param configuration the configuration for the NNTP repository
+     * @param child the configuration parameter name that stores the URL
+     */
     static File getDirectory(Context context, Configuration configuration, String child)
         throws ConfigurationException
     {
         String fileName = configuration.getChild(child).getValue();
-        if (!fileName.toLowerCase(Locale.US).startsWith("file://") ) {
+        if (!fileName.toLowerCase(Locale.US).startsWith(filePrefix) ) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
                         .append("Malformed ")
@@ -45,7 +61,7 @@ public class NNTPUtil {
                         .append(" - Must be of the format \"file://<filename>\".");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-        fileName = fileName.substring(prefixLength);
+        fileName = fileName.substring(filePrefixLength);
         if (!(fileName.startsWith("/"))) {
             String baseDirectory = "";
             try {
@@ -79,14 +95,28 @@ public class NNTPUtil {
         }
         return f;
     }
-    public static Object createInstance(Context context, 
+
+    /**
+     * Creates an instance of the spool class.
+     *
+     * @param context the context for the NNTP spooler
+     * @param configuration the configuration for the NNTP spooler
+     * @param logger the logger for the NNTP spooler
+     * @param clsName the class name for the NNTP spooler
+     *
+     * TODO: This factory method doesn't properly implement the Avalon lifecycle.
+     */
+    static Object createInstance(Context context, 
                                         Configuration configuration,
                                         Logger logger,
                                         String clsName) 
             throws ConfigurationException
     {
-        try { clsName = configuration.getAttribute("class");
-        } catch(ConfigurationException ce) { }
+        try {
+            clsName = configuration.getAttribute("class");
+        } catch(ConfigurationException ce) {
+            // TODO: Why is this being caught and ignored?
+        }
         try {
             Object obj = NNTPUtil.class.getClassLoader().loadClass(clsName).newInstance();
             if ( obj instanceof LogEnabled )
@@ -99,21 +129,6 @@ public class NNTPUtil {
         } catch(Exception ex) {
             ex.printStackTrace();
             throw new ConfigurationException("spooler initialization failed",ex);
-        }
-    }
-
-    public static void show(Configuration conf,PrintStream prt) {
-        prt.println("conf.getClass=" + conf.getClass().getName());
-        prt.println("name=" + conf.getName());
-        Configuration[] children = conf.getChildren();
-        for ( int i = 0 ; i < children.length ; i++ ) {
-            
-            StringBuffer showBuffer =
-                new StringBuffer(64)
-                        .append(i)
-                        .append(". ")
-                        .append(children[i].getName());
-            prt.println(showBuffer.toString());
         }
     }
 }

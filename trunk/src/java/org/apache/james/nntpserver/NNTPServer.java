@@ -30,11 +30,9 @@ public class NNTPServer extends AbstractService implements Component {
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory(NNTPHandler.class);
     }
+
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
         enabled = configuration.getAttributeAsBoolean("enabled", true);
@@ -47,35 +45,46 @@ public class NNTPServer extends AbstractService implements Component {
             } catch (final UnknownHostException unhe) {
                 throw new ConfigurationException("Malformed bind parameter", unhe);
             }
-            final boolean useTLS = configuration.getChild("userTLS").getValueAsBoolean(false);
+            final boolean useTLS = configuration.getChild("useTLS").getValueAsBoolean(false);
             if (useTLS) {
                 m_serverSocketType = "ssl";
             }
             super.configure(configuration.getChild("handler"));
+            boolean authRequired =
+                configuration.getChild("handler").getChild("authRequired").getValueAsBoolean(false);
+            if (getLogger().isDebugEnabled()) {
+                if (authRequired) {
+                    getLogger().debug("NNTP Server requires authentication.");
+                } else {
+                    getLogger().debug("NNTP Server doesn't require authentication.");
+                }
+            }
             if (getLogger().isInfoEnabled()) {
-                getLogger().info("configured NNTPServer to run at : " + m_port);
+                getLogger().info("Configured NNTPServer to run at : " + m_port);
             }
         }
     }
+
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
         if (enabled) {
             super.initialize();
             System.out.println("NNTP Server Started " + m_connectionName);
+            getLogger().info("NNTP Server Started " + m_connectionName);
         } else {
             getLogger().info("NNTP Server Disabled");
             System.out.println("NNTP Server Disabled");
         }
     }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     */
     public void dispose() {
         if (enabled) {
             super.dispose();
         }
-    }    
+    }
 }

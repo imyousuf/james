@@ -38,24 +38,43 @@ import java.util.List;
 public class NNTPRepositoryImpl extends AbstractLogEnabled 
     implements NNTPRepository, Contextualizable, Configurable, Initializable
 {
+    /**
+     * The context employed by this repository
+     */
     private Context context;
-    private boolean readOnly;
-    // the groups are located under this path.
-    private File rootPath;
-    // articles are temprorily written here and then sent to the spooler.
-    private File tempPath;
-    private NNTPSpooler spool;
-    private ArticleIDRepository articleIDRepo;
-    private String[] addGroups = null;
-
 
     /**
-     * Pass the Context to the component.
-     * This method is called after the setLogger()
-     * method and before any other method.
-     *
-     * @param context the context
-     * @throws ContextException if context is invalid
+     * Whether the repository is read only
+     */
+    private boolean readOnly;
+
+    /**
+     * The groups are located under this path.
+     */
+    private File rootPath;
+
+    /**
+     * Articles are temporarily written here and then sent to the spooler.
+     */
+    private File tempPath;
+
+    /**
+     * The spooler for this repository.
+     */
+    private NNTPSpooler spool;
+
+    /**
+     * The article ID repository associated with this NNTP repository.
+     */
+    private ArticleIDRepository articleIDRepo;
+
+    /**
+     * The list of groups stored in this repository
+     */
+    private String[] addGroups = null;
+
+    /**
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(Context context)
             throws ContextException {
@@ -63,10 +82,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName() + ": configure");
@@ -83,9 +99,11 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
              "org.apache.james.nntpserver.repository.NNTPSpooler");
         spool.setRepository(this);
         spool.setArticleIDRepository(articleIDRepo);
-        getLogger().debug("repository:readOnly="+readOnly);
-        getLogger().debug("repository:rootPath="+rootPath.getAbsolutePath());
-        getLogger().debug("repository:tempPath="+tempPath.getAbsolutePath());
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("repository:readOnly=" + readOnly);
+            getLogger().debug("repository:rootPath=" + rootPath.getAbsolutePath());
+            getLogger().debug("repository:tempPath=" + tempPath.getAbsolutePath());
+        }
         configuration = configuration.getChild("newsgroups");
         List addGroupsList = new ArrayList();
         if ( configuration != null ) {
@@ -99,37 +117,50 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
         //System.out.println(getClass().getName() + ": init");
-        if ( rootPath.exists() == false )
+        if ( rootPath.exists() == false ) {
             rootPath.mkdirs();
+        }
         for ( int i = 0 ; i < addGroups.length ; i++ ) {
             File groupF = new File(rootPath,addGroups[i]);
-            if ( groupF.exists() == false )
+            if ( groupF.exists() == false ) {
                 groupF.mkdirs();
+            }
         }
-        if ( tempPath.exists() == false )
+        if ( tempPath.exists() == false ) {
             tempPath.mkdirs();
+        }
         File articleIDPath = articleIDRepo.getPath();
-        if ( articleIDPath.exists() == false )
+        if ( articleIDPath.exists() == false ) {
             articleIDPath.mkdirs();
-        if ( spool instanceof Initializable )
+        }
+        if ( spool instanceof Initializable ) {
             ((Initializable)spool).initialize();
+        }
         getLogger().debug("repository initialization done");
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#isReadOnly()
+     */
     public boolean isReadOnly() {
         return readOnly;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroup(String)
+     */
     public NNTPGroup getGroup(String groupName) {
         File f = new File(rootPath,groupName);
         return ( f.exists() && f.isDirectory() ) ? new NNTPGroupImpl(f) : null;
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getArticleFromID(String)
+     */
     public NNTPArticle getArticleFromID(String id) {
         try {
             return articleIDRepo.getArticle(this,id);
@@ -143,6 +174,10 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
 //         NNTPGroup group = getGroup(groupname);
 //         return ( group == null ) ? null : group.getArticleFromID(name);
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#createArticle(NNTPLineReader)
+     */
     public void createArticle(NNTPLineReader reader) {
         StringBuffer fileBuffer =
             new StringBuffer(32)
@@ -154,25 +189,44 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             FileOutputStream fout = new FileOutputStream(f);
             PrintStream prt = new PrintStream(fout,true);
             String line;
-            while ( ( line = reader.readLine() ) != null )
+            while ( ( line = reader.readLine() ) != null ) {
                 prt.println(line);
+            }
             prt.close();
             f.renameTo(new File(spool.getSpoolPath(),f.getName()));
         } catch(IOException ex) {
             throw new NNTPException("create article failed",ex);
         }
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getMatchedGroups(String)
+     */
     public Iterator getMatchedGroups(String wildmat) {
         File[] f = rootPath.listFiles(new AndFileFilter
             (new DirectoryFileFilter(),new GlobFilenameFilter(wildmat)));
         return getGroups(f);
     }
+
+    /**
+     * Gets an iterator of all news groups represented by the files
+     * in the parameter array.
+     *
+     * @param f the array of files that correspond to news groups
+     *
+     * @return an iterator of news groups
+     */
     private Iterator getGroups(File[] f) {
         List list = new ArrayList();
-        for ( int i = 0 ; i < f.length ; i++ )
+        for ( int i = 0 ; i < f.length ; i++ ) {
             list.add(new NNTPGroupImpl(f[i]));
+        }
         return list.iterator();
     }
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroupsSince(Date)
+     */
     public Iterator getGroupsSince(Date dt) {
         File[] f = rootPath.listFiles(new AndFileFilter
             (new DirectoryFileFilter(),new DateSinceFileFilter(dt.getTime())));
@@ -182,29 +236,38 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     // gets the list of groups.
     // creates iterator that concatenates the article iterators in the list of groups.
     // there is at most one article iterator reference for all the groups
+
+    /**
+     * @see org.apache.james.nntpserver.repository.NNTPRepository#getArticlesSince(Date)
+     */
     public Iterator getArticlesSince(final Date dt) {
         final Iterator giter = getGroupsSince(dt);
         return new Iterator() {
+
                 private Iterator iter = null;
+
                 public boolean hasNext() {
                     if ( iter == null ) {
                         if ( giter.hasNext() ) {
                             NNTPGroup group = (NNTPGroup)giter.next();
                             iter = group.getArticlesSince(dt);
                         }
-                        else
+                        else {
                             return false;
+                        }
                     }
-                    if ( iter.hasNext() )
+                    if ( iter.hasNext() ) {
                         return true;
-                    else {
+                    } else {
                         iter = null;
                         return hasNext();
                     }
                 }
+
                 public Object next() {
                     return iter.next();
                 }
+
                 public void remove() {
                     throw new UnsupportedOperationException("remove not supported");
                 }
