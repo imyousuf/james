@@ -32,7 +32,7 @@ The Mailet API is a Java API providing a framework for the conditional
 processing of electronic messages.
 
 James implements the Mailet API, and as such is itself a platform for
-Mailet applications. Applications providing custom mail
+Mailet applications.  Mailet applications include providing custom mail
 processing, such as list servers, or providing gateways into other
 systems, messaging systems such as NNTP, SMS or proprietary messaging,
 or insertion into non-standard storage media.
@@ -51,9 +51,9 @@ itself under the auspices of the ASF Board in accordance with ASF
 bylaws and guidelines.
 
 As James consists primarily of the server which is an end-user product
-we feel that top level project status, emphasisng its function rather
+we feel that top level project status, emphasizng its function rather
 than its platform, would suit James well.  Top level project status
-would also facilitate the ability to offer the Mailet API as an
+would also facilitate the ability to offer the Mailet API as a
 separate specification, of which James would represent only a
 reference implementation.
 
@@ -65,16 +65,16 @@ of their technologies within James.
         Project Management:
 ----------------------------------------------------------------------
 
-James has a small yet mature self-sustaining community, we seldom seek 
-recourse to the Jakarta PMC, and equally seldom are we scrutinised by 
+James has a small yet mature self-sustaining community.  We seldom seek 
+recourse to the Jakarta PMC, and equally seldom are we scrutinized by 
 them. We are perhaps not the most active project, and some of us may 
 feel that this sometimes causes James to be disregarded. Likewise, 
 apart from Avalon, we have few direct ties with other jakarta projects.
 
 We believe that normalizing our relationship with the ASF Board
-by becoming reporting directly  rather than through the Jakarta PMC, and
+by reporting directly rather than through the Jakarta PMC, and
 taking official control of all the issues we currently inherit and
-"interpret" from Jakarta would benefit James.
+"interpret" from Jakarta, would benefit James.
 
 ----------------------------------------------------------------------
         Profile:
@@ -116,11 +116,12 @@ core messaging services. Currently focusing on making IMAP stable and
 increasing fault tolerance across the board.
 
 2/ To promote the Mailet API as a standard API (providing portability
-to mail specific code) to all Java projects involved with processing
+to mail-specific code) to all Java projects involved with processing
 email both OS and commercial, this will involve further isolating the
 Mailet API from any dependence on James or James' dependencies. And to
 continually support, refine and enhance the Mailet API in response to
-feedback from Mailet API users and Mailet developers.
+feedback from Mailet API users and Mailet developers, for example to
+cover message domains other than e-mail.
 
 3/ To build on James' Mailet packages in order to provide more, and
 more sophisticated, behaviors which would be available to any
@@ -138,7 +139,7 @@ These plans include:
 commercial and open source competitors such as Microsoft Exchange, or
 ezmlm.
 - Implementing a number of related services defined by RFC's, such as
-the email aspects of iCalendar, vCard to name but two.
+the email aspects of iCalendar and vCard to name but two.
 - And offering greater interoperability with other mail applications,
 such as sendmail.
 
@@ -152,20 +153,20 @@ associated with the project since it started, and the continued
 success of James is no longer dependent on his continued 
 participation.
 
-Our developer community includes a number of Avalon contributers and 
+Our developer community includes a number of Avalon contributors and 
 committers, and a number of people who are working with or on James in 
 a commercial setting.
 
-Our user base is hard to quantify, but includes a wide cross section 
+Our user base is hard to quantify, but includes a wide cross-section 
 of different classes of users, from individuals through small
 enterprises looking for big enterprise mail functionality, commercial 
 users adapting James or using James to provide bespoke services
 through to students using James in their course work.
 
 We believe that this represents a healthy interest in James, and the 
-fact that James continues to be of interest to so many groups inspite 
+fact that James continues to be of interest to so many groups in spite 
 of the existence of email server software with much higher profiles,
-sendmail, Microsoft Exchange etc, is perhaps better proof of its worth
+sendmail, Microsoft Exchange, etc., is perhaps better proof of its worth
 than is its market share in comparison with those goliaths.
 
 
