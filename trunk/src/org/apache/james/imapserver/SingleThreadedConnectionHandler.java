@@ -41,7 +41,9 @@ import org.apache.mailet.Mail;
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-public class SingleThreadedConnectionHandler implements ConnectionHandler {
+public class SingleThreadedConnectionHandler
+       extends BaseCommand
+       implements ConnectionHandler {
 
     //mainly to switch on stack traces and catch responses;  
     private static final boolean DEEP_DEBUG = true;
@@ -92,7 +94,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
     private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger= LogKit.getLoggerFor("james.IMAPServer") ;
+    //private Logger logger= LogKit.getLoggerFor("james.IMAPServer") ;
     private Logger securityLogger = LogKit.getLoggerFor("james.Security") ;
     private MailServer mailServer;
     private UsersRepository users;
@@ -454,6 +456,15 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	// Authenticated or Selected states.
 	logger.debug("Command recieved: " + commandRaw + " from " + remoteHost
 		   + "(" + remoteIP  + ")");
+
+	// Create ImapRequest object here - is this the right stage?
+	ImapRequest request = new ImapRequest(this);
+	request.setCommandLine(commandLine);
+	request.setUseUIDs(false);
+	request.setCurrentMailbox(currentMailbox);
+	request.setCommandRaw(commandRaw);
+	request.setTag(tag);
+	request.setCurrentFolder(currentFolder);
 
 	// Commands valid in both Authenticated and Selected states
 	// NAMESPACE, GETACL, SETACL, DELETEACL, LISTRIGHTS, MYRIGHTS, SELECT
@@ -1149,7 +1160,8 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				"Command should be <tag> <COPY> <message set> <mailbox name>");
 		    return true;
 		}
-		List set = decodeSet(commandLine.nextToken());
+		List set = decodeSet(commandLine.nextToken(),
+				     currentMailbox.getExists());
 		logger.debug("Fetching message set of size: " + set.size());
 		String  targetFolder = getFullName(commandLine.nextToken());
 
@@ -1220,15 +1232,8 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				"Command should be <tag> <FETCH> <message set> <message data item names>");
 		    return true;
 		}
-		//fetchCommand(commandLine, false);
-		ImapRequest request = new ImapRequest(this);
-		request.setCommandLine(commandLine);
-		request.setUseUIDs(false);
-		request.setCurrentMailbox(currentMailbox);
-		request.setCommandRaw(commandRaw);
-		request.setTag(tag);
-		request.setCurrentFolder(currentFolder);
 		CommandFetch fetcher = new CommandFetch();
+		fetcher.setLogger(logger);
 		fetcher.setRequest(request);
 		fetcher.service();
 		return true;
@@ -1239,7 +1244,11 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 				"Command should be <tag> <STORE> <message set> <message data item names> <value for message data item>");
 		    return true;
 		}
-		storeCommand(commandLine, false);
+		//storeCommand(commandLine, false);
+		CommandStore storer = new CommandStore();
+		storer.setLogger(logger);
+		storer.setRequest(request);
+		storer.service();
 		return true;
 	    } else if (command.equalsIgnoreCase("UID")) {
 		if (arguments < 4) {
@@ -1249,20 +1258,17 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 		}
 		String uidCommand = commandLine.nextToken();
 		if (uidCommand.equalsIgnoreCase("STORE")) {
-		    storeCommand(commandLine, true);
+		    //storeCommand(commandLine, true);
+		    CommandStore storer = new CommandStore();
+		    storer.setLogger(logger);
+		    storer.setRequest(request);
+		    storer.service();
 		    return true;
 		} else if (uidCommand.equalsIgnoreCase("FETCH")) {
-		    //fetchCommand(commandLine, true);
-		ImapRequest request = new ImapRequest(this);
-		request.setCommandLine(commandLine);
-		request.setUseUIDs(true);
-		request.setCurrentMailbox(currentMailbox);
-		request.setCommandRaw(commandRaw);
-		request.setTag(tag);
-		request.setCurrentFolder(currentFolder);
-		CommandFetch fetcher = new CommandFetch();
-		fetcher.setRequest(request);
-		fetcher.service();
+		    CommandFetch fetcher = new CommandFetch();
+		    fetcher.setLogger(logger);
+		    fetcher.setRequest(request);
+		    fetcher.service();
 		    return true;
 		}
 	    } else {
@@ -1378,151 +1384,7 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	return logger;
     }
 
-    /**
-     * Turns a protocol-compliant string representing a message sequence number set into a
-     * List of integers. Use of the wildcard * relies on contiguous proerty of msns.
-     */
-    private List decodeSet(String rawSet) throws IllegalArgumentException {
-	if (rawSet == null) {
-	    logger.debug("Null argument in decodeSet");
-	    throw new IllegalArgumentException("Null argument");
-	} else if (rawSet.equals("")) {
-	    logger.debug("Empty argument in decodeSet");
-	    throw new IllegalArgumentException("Empty string argument"); 
-	}
-	logger.debug(" decodeSet called for: " + rawSet);
-	List response = new ArrayList();
-	int checkComma = rawSet.indexOf(",");
-	if (checkComma == -1) {
-	    int checkColon = rawSet.indexOf(":");
-	    if (checkColon == -1) {
-		Integer seqNum = new Integer(rawSet.trim());
-		if (seqNum.intValue() < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else {
-		    response.add(seqNum);
-		}
-	    } else {
-		Integer firstNum = new Integer(rawSet.substring(0, checkColon));
-		int first = firstNum.intValue();
-		Integer lastNum;
-		int last;
-		if (rawSet.indexOf("*") != -1) {
-		    last = currentMailbox.getExists();
-		    lastNum = new Integer(last);
-		} else {
-		    lastNum = new Integer(rawSet.substring(checkColon + 1));
-		    last = lastNum.intValue();
-		}
-		if (first < 1 || last < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else if (first < last) {
-		    response.add(firstNum);
-		    for (int i = (first + 1); i < last; i++) {
-			response.add(new Integer(i));
-		    }
-		    response.add(lastNum);
-		} else if (first == last) {
-		    response.add(firstNum);
-		} else {
-		    throw new IllegalArgumentException("Not an increasing range"); 
-		}
-	    }
-  
-	} else {
-	    try {
-		String firstRawSet = rawSet.substring(0, checkComma);
-		String secondRawSet = rawSet.substring(checkComma + 1);
-		response.addAll(decodeSet(firstRawSet));
-		response.addAll(decodeSet(secondRawSet));
-	    } catch (IllegalArgumentException e) {
-		logger.debug("Wonky arguments in: " + rawSet + " " + e);
-		throw e;
-	    }
-	}
-	return response;
-    }
 
-    /**
-     * Turns a protocol-compliant string representing a uid set into a
-     * List of integers. Where the string requests ranges or uses the * wildcard, the results are
-     * uids that exist in the mailbox. This minimizes attempts to refer to non-existent messages.
-     */
-    private List decodeUIDSet(String rawSet, List uidsList) throws IllegalArgumentException {
-	if (rawSet == null) {
-	    logger.debug("Null argument in decodeSet");
-	    throw new IllegalArgumentException("Null argument");
-	} else if (rawSet.equals("")) {
-	    logger.debug("Empty argument in decodeSet");
-	    throw new IllegalArgumentException("Empty string argument"); 
-	}
-	logger.debug(" decodeUIDSet called for: " + rawSet);
-	Iterator it = uidsList.iterator();
-	while (it.hasNext()) {
-	    logger.info ("uids present : " + (Integer)it.next() );
-	}
-	List response = new ArrayList();
-	int checkComma = rawSet.indexOf(",");
-	if (checkComma == -1) {
-	    int checkColon = rawSet.indexOf(":");
-	    if (checkColon == -1) {
-		Integer seqNum = new Integer(rawSet.trim());
-		if (seqNum.intValue() < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else {
-		    response.add(seqNum);
-		}
-	    } else {
-		Integer firstNum = new Integer(rawSet.substring(0, checkColon));
-		int first = firstNum.intValue();
-
-		Integer lastNum;
-		if (rawSet.indexOf("*") == -1) {
-		    lastNum = new Integer(rawSet.substring(checkColon + 1));
-		} else {
-		    lastNum = (Integer)uidsList.get(uidsList.size()-1);
-		}
-		int last;
-		last = lastNum.intValue();
-		if (first < 1 || last < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else if (first < last) {
-		    response.add(firstNum);
-		    Collection uids;
-		    if(uidsList.size() > 50) {
-			uids = new HashSet(uidsList);
-		    } else {
-			uids = uidsList;
-		    }
-		    for (int i = (first + 1); i < last; i++) {
-			Integer test = new Integer(i);
-			if (uids.contains(test)) {
-			    response.add(test);
-			}
-		    }
-		    response.add(lastNum);
-		    
-		} else if (first == last) {
-		    response.add(firstNum);
-		} else {
-		    throw new IllegalArgumentException("Not an increasing range"); 
-		}
-
-	    }
-	    
-	} else {
-	    try {
-		String firstRawSet = rawSet.substring(0, checkComma);
-		String secondRawSet = rawSet.substring(checkComma + 1);
-		response.addAll(decodeSet(firstRawSet));
-		response.addAll(decodeSet(secondRawSet));
-	    } catch (IllegalArgumentException e) {
-		logger.debug("Wonky arguments in: " + rawSet + " " + e);
-		throw e;
-	    }
-	}
-	return response;
-    }
 
     private String decodeAstring(String rawAstring) {
 
@@ -1572,77 +1434,6 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
 	}
 	sequence = newList;
 	//newList = null;
-	return;
-    }
-
-    private void storeCommand(StringTokenizer commandLine, boolean useUIDs) {
-	List set;
-	List uidsList = null;
-	if (useUIDs) {
-	    uidsList = currentMailbox.listUIDs(user);
-
-	    set = decodeUIDSet(commandLine.nextToken(), uidsList);
-	} else {
-	    set = decodeSet(commandLine.nextToken());
-	}
-	StringBuffer buf = new StringBuffer();
-	while (commandLine.hasMoreTokens()) {
-	    buf.append(commandLine.nextToken());
-	}
-	String request = buf.toString();
-	try {
-	    for (int i = 0; i < set.size(); i++) {
-		if (useUIDs) {
-		    Integer uidObject = (Integer)set.get(i);
-		    int uid = uidObject.intValue();
-		    if (currentMailbox.setFlagsUID(uid, user, request)) {
-			if (request.toUpperCase().indexOf("SILENT") == -1) {
-			    String newflags = currentMailbox.getFlagsUID(uid, user);
-			    int msn = uidsList.indexOf(uidObject) + 1;
-			    out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS " + newflags + " UID " + uid + ")");
-			} else {
-				//silent
-			}
-		    } else {
-			//failed
-			out.println(tag + SP + NO + SP + "Unable to store flags for message: " + uid);
-		    }
-		} else {
-		    int msn = ((Integer)set.get(i)).intValue();
-		    if (currentMailbox.setFlags(msn, user, request)) {
-			if (request.toUpperCase().indexOf("SILENT") == -1) {
-			    String newflags = currentMailbox.getFlags(msn, user);
-			    out.println(UNTAGGED + SP + msn + SP + "FETCH (FLAGS " + newflags + ")");
-			} else {
-				//silent
-			}
-		    } else {
-			//failed
-			out.println(tag + SP + NO + SP + "Unable to store flags for message: " + msn);
-		    }
-		}
-	    }
-	    checkSize();
-	    out.println(tag + SP + OK + SP + "STORE completed");
-	    
-	} catch (AccessControlException ace) {
-	    out.println(tag + SP + NO + SP + "No such mailbox");
-	    logACE(ace);
-	    return;
-	} catch (AuthorizationException aze) {
-	    out.println(tag + SP + NO + SP
-			+ "You do not have the rights to store those flags");
-	    logAZE(aze);
-	    return;
-	}catch (IllegalArgumentException iae) {
-	    out.println(tag + SP + BAD + SP
-			+ "Arguments to store not recognised.");
-	    logger.error("Unrecognised arguments for STORE by user "  + user
-			 + " from "  + remoteHost  + "(" + remoteIP
-			 + ") with " + commandRaw);
-	    return;
-	}
-	
 	return;
     }
 

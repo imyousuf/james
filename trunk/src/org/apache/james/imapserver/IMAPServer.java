@@ -79,6 +79,7 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
 
         try {
             ConnectionHandler handler = new SingleThreadedConnectionHandler();
+	    handler.setLogger(logger);
             handler.configure(conf.getChild("imaphandler"));
             handler.contextualize(context);
             handler.compose(compMgr);

@@ -31,7 +31,7 @@ import org.apache.log.Logger;
  * @version 0.1 on 17 Jan 2001
  */
 
-public class CommandFetch {
+public class CommandFetch extends BaseCommand {
     //mainly to switch on stack traces and catch responses;  
     private static final boolean DEEP_DEBUG = true;
 
@@ -44,7 +44,6 @@ public class CommandFetch {
     private StringTokenizer commandLine;
     private boolean useUIDs;
     private ACLMailbox currentMailbox;
-    private Logger logger;
     private String commandRaw;
     private PrintWriter out;
     private OutputStream outs;
@@ -65,7 +64,6 @@ public class CommandFetch {
 	currentFolder = request.getCurrentFolder();
 
 	caller = request.getCaller();
-	logger = caller.getLogger();
 	out = caller.getPrintWriter();
 	outs = caller.getOutputStream();
 	user = caller.getUser();
@@ -87,7 +85,7 @@ public class CommandFetch {
 	    uidsList = currentMailbox.listUIDs(user);
 	    set = decodeUIDSet(setArg, uidsList);
 	} else {
-	    set = decodeSet(setArg);
+	    set = decodeSet(setArg, currentMailbox.getExists());
 	}
 	if (DEEP_DEBUG) {
             logger.debug("Fetching message set of size: " + set.size());
@@ -699,154 +697,6 @@ public class CommandFetch {
 	    return;
 	}
 
-    }
-
-    /**
-     * Turns a protocol-compliant string representing a message sequence number set into a
-     * List of integers. Use of the wildcard * relies on contiguous proerty of msns.
-     */
-    private List decodeSet(String rawSet) throws IllegalArgumentException {
-	if (rawSet == null) {
-	    logger.debug("Null argument in decodeSet");
-	    throw new IllegalArgumentException("Null argument");
-	} else if (rawSet.equals("")) {
-	    logger.debug("Empty argument in decodeSet");
-	    throw new IllegalArgumentException("Empty string argument"); 
-	}
-	logger.debug(" decodeSet called for: " + rawSet);
-	List response = new ArrayList();
-	int checkComma = rawSet.indexOf(",");
-	if (checkComma == -1) {
-	    int checkColon = rawSet.indexOf(":");
-	    if (checkColon == -1) {
-		Integer seqNum = new Integer(rawSet.trim());
-		if (seqNum.intValue() < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else {
-		    response.add(seqNum);
-		}
-	    } else {
-		Integer firstNum = new Integer(rawSet.substring(0, checkColon));
-		int first = firstNum.intValue();
-		Integer lastNum;
-		int last;
-		if (rawSet.indexOf("*") != -1) {
-		    last = currentMailbox.getExists();
-		    lastNum = new Integer(last);
-		} else {
-		    lastNum = new Integer(rawSet.substring(checkColon + 1));
-		    last = lastNum.intValue();
-		}
-		if (first < 1 || last < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else if (first < last) {
-		    response.add(firstNum);
-		    for (int i = (first + 1); i < last; i++) {
-			response.add(new Integer(i));
-		    }
-		    response.add(lastNum);
-		} else if (first == last) {
-		    response.add(firstNum);
-		} else {
-		    throw new IllegalArgumentException("Not an increasing range"); 
-		}
-	    }
-  
-	} else {
-	    try {
-		String firstRawSet = rawSet.substring(0, checkComma);
-		String secondRawSet = rawSet.substring(checkComma + 1);
-		response.addAll(decodeSet(firstRawSet));
-		response.addAll(decodeSet(secondRawSet));
-	    } catch (IllegalArgumentException e) {
-		logger.debug("Wonky arguments in: " + rawSet + " " + e);
-		throw e;
-	    }
-	}
-	return response;
-    }
-
-    /**
-     * Turns a protocol-compliant string representing a uid set into a
-     * List of integers. Where the string requests ranges or uses the * (star)
-     * wildcard, the results are uids that exist in the mailbox. This
-     * minimizes attempts to refer to non-existent messages.
-     */
-    private List decodeUIDSet(String rawSet, List uidsList)
-            throws IllegalArgumentException {
-	if (rawSet == null) {
-	    logger.debug("Null argument in decodeSet");
-	    throw new IllegalArgumentException("Null argument");
-	} else if (rawSet.equals("")) {
-	    logger.debug("Empty argument in decodeSet");
-	    throw new IllegalArgumentException("Empty string argument"); 
-	}
-	logger.debug(" decodeUIDSet called for: " + rawSet);
-	Iterator it = uidsList.iterator();
-	while (it.hasNext()) {
-	    logger.info ("uids present : " + (Integer)it.next() );
-	}
-	List response = new ArrayList();
-	int checkComma = rawSet.indexOf(",");
-	if (checkComma == -1) {
-	    int checkColon = rawSet.indexOf(":");
-	    if (checkColon == -1) {
-		Integer seqNum = new Integer(rawSet.trim());
-		if (seqNum.intValue() < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else {
-		    response.add(seqNum);
-		}
-	    } else {
-		Integer firstNum = new Integer(rawSet.substring(0, checkColon));
-		int first = firstNum.intValue();
-
-		Integer lastNum;
-		if (rawSet.indexOf("*") == -1) {
-		    lastNum = new Integer(rawSet.substring(checkColon + 1));
-		} else {
-		    lastNum = (Integer)uidsList.get(uidsList.size()-1);
-		}
-		int last;
-		last = lastNum.intValue();
-		if (first < 1 || last < 1) {
-		    throw new IllegalArgumentException("Not a positive integer"); 
-		} else if (first < last) {
-		    response.add(firstNum);
-		    Collection uids;
-		    if(uidsList.size() > 50) {
-			uids = new HashSet(uidsList);
-		    } else {
-			uids = uidsList;
-		    }
-		    for (int i = (first + 1); i < last; i++) {
-			Integer test = new Integer(i);
-			if (uids.contains(test)) {
-			    response.add(test);
-			}
-		    }
-		    response.add(lastNum);
-		    
-		} else if (first == last) {
-		    response.add(firstNum);
-		} else {
-		    throw new IllegalArgumentException("Not an increasing range"); 
-		}
-
-	    }
-	    
-	} else {
-	    try {
-		String firstRawSet = rawSet.substring(0, checkComma);
-		String secondRawSet = rawSet.substring(checkComma + 1);
-		response.addAll(decodeSet(firstRawSet));
-		response.addAll(decodeSet(secondRawSet));
-	    } catch (IllegalArgumentException e) {
-		logger.debug("Wonky arguments in: " + rawSet + " " + e);
-		throw e;
-	    }
-	}
-	return response;
     }
 
 
