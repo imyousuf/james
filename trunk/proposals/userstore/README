@@ -1,6 +1,5 @@
 PROPOSAL: - Modifications to UserStore.
             
-
 GOALS: 
 - use Avalon and Cornerstone DataSource components for connection 
         serving and pooling (done)
@@ -32,11 +31,33 @@ the proposals dir. (I think this is a cleaner approach, since we don't pollute t
 The "javadocs" target builds javadoc from the build/src directory, so it includes
 docs for the proposal.
 
+USE INSTRUCTIONS:
+The main configuration is setting up the "database-connections" section of the 
+config file. There's an example there using MySql - I haven't yet tested on 
+other databases (although the SQL statements haven't changed much, so I 
+imagine it will still work on other platforms).
+
+The only config properties you should need to set are:
+            <driver>-- Class name of database driver to use --</driver>
+            <dburl>-- the jdbc connection string for your database</dburl>
+            <user>-- database user --</user>
+            <password>-- database password --</password>
+            
+TEST INSTRUCTIONS:
+- Telnet to the remote manager: "telnet localhost 4555".
+- Do some user management - type "help" for options.
+- type "use list-james", to switch to the repository for this list.
+- list the users
+- send an email to "james-on@localhost"
+- list the users again
+(note: some user management commands fail for repositories other than
+"LocalUsers").
+
 NOTES:
 I've added an "AbstractJdbcUsersRepository", which takes care of most of the work
 of a JdbcUsersRepository, making it pretty easy to add new ones. The abstract
-implementation doesn't have knowledge of User subclasses, this is restricted to
-overridden methods in concrete implementations.
+implementation doesn't have knowledge of User implementations, this is restricted to
+overridden methods in concrete UsersRepository implementations.
  
 The AbstractJdbcUsersRepository obtains SQL statements via an "SqlResources" object,
 which reads an sql definition file, finds the appropriate <sqlDefs> element, and
