@@ -18,7 +18,7 @@
              of certain features (such as ModelMBeans), support has been
              dropped for the JMX RI implementation.
 
-            The MX4J manager using the MX4J adapter developed at SourceForge
+            The MX4J manager using the MX4J adapter devewloped at SourceForge
             See http://mx4j.sourceforge.net/ -
 
               org.apache.avalon.phoenix.components.manager.MX4JSystemManager
@@ -28,14 +28,14 @@
               org.apache.avalon.phoenix.components.manager.NoopSystemManager
             
             Alternatively, you could comment the whole SystemManager section out.
+            [This is false.  You get an exception:
+             org.apache.avalon.framework.service.ServiceException: Unable to provide implementation for org.apache.avalon.phoenix.interfaces.SystemManager (Role='org.apache.avalon.phoenix.interfaces.SystemManager')]
         -->
 
-        <!--
         <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
-            class="org.apache.avalon.phoenix.components.manager.MX4JSystemManager"
+            class="org.apache.avalon.phoenix.components.manager.NoopSystemManager"
             logger="manager" >
           <manager-adaptor-port>8082</manager-adaptor-port>
-          -->
           <!--
           <enable-rmi-adaptor>true</enable-rmi-adaptor>
           <rmi-naming-factory>com.sun.jndi.rmi.registry.RegistryContextFactory</rmi-naming-factory>
@@ -47,9 +47,7 @@
             <password>password</password>
           </user>
           -->
-        <!--
         </component>
-        -->
 
         <!-- There are two kernels
           org.apache.avalon.phoenix.components.kernel.DefaultKernel
