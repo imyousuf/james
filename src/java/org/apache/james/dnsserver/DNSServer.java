@@ -369,7 +369,7 @@ public class DNSServer
      */
     public Iterator getSMTPHostAddresses(final String domainName) {
         return new Iterator() {
-            private Iterator mxHosts = new MxSorter(domainName);
+            private Iterator mxHosts = findMXRecords(domainName).iterator();
             private Iterator addresses = null;
 
             public boolean hasNext() {
@@ -382,16 +382,30 @@ public class DNSServer
                  */
                 if ((addresses == null || !addresses.hasNext()) && mxHosts.hasNext()) do {
                     final String nextHostname = (String)mxHosts.next();
+                    InetAddress[] addrs = null;
+                    try {
+                        addrs = InetAddress.getAllByName(nextHostname);
+                    } catch (UnknownHostException uhe) {
+                        // this should never happen, since we just got
+                        // this host from mxHosts, which should have
+                        // already done this check.
+                        StringBuffer logBuffer = new StringBuffer(128)
+                                                 .append("Couldn't resolve IP address for discovered host ")
+                                                 .append(nextHostname)
+                                                 .append(".");
+                        getLogger().error(logBuffer.toString());
+                    }
+                    final InetAddress[] ipAddresses = addrs;
+
                     addresses = new Iterator() {
-                        private Record[] aRecords = lookup(nextHostname, Type.A);
                         int i = 0;
 
                         public boolean hasNext() {
-                            return aRecords != null && i < aRecords.length;
+                            return ipAddresses != null && i < ipAddresses.length;
                         }
 
                         public Object next() {
-                            return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ((ARecord)aRecords[i++]).getAddress().getHostAddress());
+                            return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ipAddresses[i++].getHostAddress());
                         }
 
                         public void remove() {
@@ -431,6 +445,19 @@ public class DNSServer
      * This behavior attempts to satisfy the requirements of RFC 2821, Section 5.
      * @since v2.2.0a16-unstable
      */
+
+    /**** THIS CODE IS BROKEN AND UNUSED ****/
+
+    /* this code was used in getSMTPHostAddresses as:
+       private Iterator mxHosts = new MxSorter(domainName);
+
+       This class effectively replaces findMXRecords.  If
+       it is to be kept, it should replace the body of that
+       method.  The fixes would be to either implement a
+       more robust DNS lookup, or to replace the Type.A
+       lookup with InetAddress.getByName(), which is what
+       findMXRecords uses.  */
+
     private class MxSorter implements Iterator {
         private int priorListPriority = Integer.MIN_VALUE;
         private ArrayList equiPriorityList = new ArrayList();
