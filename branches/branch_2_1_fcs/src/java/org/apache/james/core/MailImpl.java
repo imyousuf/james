@@ -89,7 +89,7 @@ import java.util.HashMap;
  * messages stored in file repositories <I>with</I> attributes by James version > 2.2.0a8
  * will be processed by previous versions, ignoring the attributes.</P>
  *
- * @version CVS $Revision: 1.17.4.4 $ $Date: 2003/07/17 13:26:12 $
+ * @version CVS $Revision: 1.17.4.5 $ $Date: 2003/08/28 16:06:20 $
  */
 public class MailImpl implements Disposable, Mail {
     /**
@@ -205,18 +205,53 @@ public class MailImpl implements Disposable, Mail {
      */
     public MailImpl(MimeMessage message) throws MessagingException {
         this();
-        Address[] addresses;
-        addresses = message.getFrom();
-        MailAddress sender = new MailAddress(new InternetAddress(addresses[0].toString()));
-        Collection recipients = new ArrayList();
-        addresses = message.getRecipients(MimeMessage.RecipientType.TO);
-        for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress(new InternetAddress(addresses[i].toString())));
+        MailAddress sender = getReturnPath(message);
+        Collection recipients = null;
+        Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
+        if (addresses != null) {
+            recipients = new ArrayList();
+            for (int i = 0; i < addresses.length; i++) {
+                try {
+                    recipients.add(new MailAddress(new InternetAddress(addresses[i].toString(), false)));
+                } catch (ParseException pe) {
+                    // RFC 2822 section 3.4 allows To: fields without <>
+                    // Let's give this one more try with <>.
+                    try {
+                        recipients.add(new MailAddress("<" + new InternetAddress(addresses[i].toString()).toString() + ">"));
+                    } catch (ParseException _) {
+                        throw new MessagingException("Could not parse address: " + addresses[i].toString() + " from " + message.getHeader(RFC2822Headers.TO, ", "), pe);
+                    }
+                }
+            }
         }
         this.name = message.toString();
         this.sender = sender;
         this.recipients = recipients;
         this.setMessage(message);
+    }
+    /**
+     * Gets the MailAddress corresponding to the existing "Return-Path" of
+     * <I>message</I>.
+     * If missing or empty returns <CODE>null</CODE>,
+     */
+    private MailAddress getReturnPath(MimeMessage message) throws MessagingException {
+        MailAddress mailAddress = null;
+        String[] returnPathHeaders = message.getHeader(RFC2822Headers.RETURN_PATH);
+        String returnPathHeader = null;
+        if (returnPathHeaders != null) {
+            returnPathHeader = returnPathHeaders[0];
+            if (returnPathHeader != null) {
+                returnPathHeader = returnPathHeader.trim();
+                if (!returnPathHeader.equals("<>")) {
+                    try {
+                        mailAddress = new MailAddress(new InternetAddress(returnPathHeader, false));
+                    } catch (ParseException pe) {
+                        throw new MessagingException("Could not parse address: " + returnPathHeader + " from " + message.getHeader(RFC2822Headers.RETURN_PATH, ", "), pe);
+                    }
+                }
+            }
+        }
+        return mailAddress;
     }
     /**
      * Duplicate the MailImpl.
