@@ -21,11 +21,13 @@ import org.apache.avalon.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2001/06/19 16:00:42 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.3 $
+ * Committed on $Date: 2001/09/06 13:19:32 $ by: $Author: donaldp $ 
  */
 public interface MailServer 
     extends Service {
+
+    String ROLE = "org.apache.james.services.MailServer";
 
     /**
      * Reserved user name for the mail delivery agent for multi-user mailboxes
