@@ -50,6 +50,29 @@ the message.  All recipients are returned.</p>
 <p>Description: Matches mails that have the specified header.  All recipients are returned.</p>
 <p>Configuration string: The name of the header whose presence determines the match.</p>
 </subsection>
+<subsection name="HasMailAttribute">
+<p>Description: Matches mails that have the specified Mail Attribute.  All 
+recipients are returned.</p>
+<p>Configuration string: The name of the Mail Attribute to match. For example:<br/>
+<pre><code>
+&lt;mailet match="HasMailAttribute=name" class=&quot;&lt;any-class&gt;&quot;&gt;
+</code></pre>
+</p>
+</subsection>
+<subsection name="HasMailAttributeWithValue">
+<p>Description: Matches mails that have the specified Mail Attribute and the
+specified MailAttribute value. All recipients are returned.</p>
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The 
+String.equals(String) method tests for a match.</p>
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the String value to be matched. For example:<br/>
+<pre><code>
+&lt;mailet match="HasMailAttributeWithValue=name, value" class=&quot;&lt;any-class&gt;&quot;&gt;
+</code></pre>
+</p>
+</subsection>
 <subsection name="HostIs">
 <p>Description: Matches mails that are sent to email addresses on hosts that are in the configuration list.  Only 
 recipients that are on one of the hosts are returned.</p>
