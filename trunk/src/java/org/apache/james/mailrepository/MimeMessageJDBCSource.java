@@ -51,10 +51,10 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         this.key = key;
         this.sr = sr;
 
-        retrieveMessageBodySQL = 
+        retrieveMessageBodySQL =
             repository.sqlQueries.getSqlString("retrieveMessageBodySQL", true);
         // this is optional
-        retrieveMessageBodySizeSQL = 
+        retrieveMessageBodySizeSQL =
             repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
     }
 
@@ -64,8 +64,6 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * a repository with the entire message in the database, which is how James 1.2 worked.
      */
     public synchronized InputStream getInputStream() throws IOException {
-        //System.err.println("loading data for " + key + "/" + repository);
-
         try {
             Connection conn = repository.getConnection();
 
@@ -101,10 +99,10 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     /**
      * Runs a custom SQL statement to check the size of the message body
      */
-    public synchronized long getSize() throws IOException {
+    public synchronized long getMessageSize() throws IOException {
         if (retrieveMessageBodySizeSQL == null) {
             //There was no SQL statement for this repository... figure it out the hard way
-            return super.getSize();
+            return super.getMessageSize();
         }
 
         try {

@@ -60,7 +60,6 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded these headers
             return;
         }
-        //System.err.println("parsing headers of " + this);
         try {
             InputStream in = source.getInputStream();
             headers = new MailHeaders(in);
@@ -79,7 +78,6 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded this message
             return;
         }
-        //System.err.println("parsing headers and message of " + this);
         try {
             InputStream in = source.getInputStream();
             headers = new MailHeaders(in);
@@ -354,27 +352,28 @@ public class MimeMessageWrapper extends MimeMessage {
         }
     }
 
+    /**
+     * We do not attempt to define the received date, although in theory this is the last
+     * most date in the Received: headers.  For now we return null, which means we are
+     * not implementing it.
+     */
     public Date getReceivedDate() throws MessagingException {
-        //if (headers == null) {
-        //    loadHeaders();
-        //}
+        if (headers == null) {
+            loadHeaders();
+        }
         return null;
     }
 
+    /**
+     * This is the MimeMessage implementation - this should return ONLY the
+     * body, not the entire message (should not count headers).  Will have
+     * to parse the message.
+     */
     public int getSize() throws MessagingException {
-        try {
-            if (message == null) {
-                return (int)source.getSize();
-            } else {
-                //Would be better to use in memory mimemessage
-                //Need to figure out size of message plus size of headers...
-                return message.getSize();
-                //return source.getSize();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            throw new MessagingException("Trouble in getSize", ioe);
+        if (message == null) {
+            loadMessage();
         }
+        return message.getSize();
     }
 
     /**
@@ -408,8 +407,13 @@ public class MimeMessageWrapper extends MimeMessage {
      * actually returns number of characters in headers plus number of bytes
      * in the internal content byte array.
      */
-    public int getMessageSize() throws MessagingException {
-        int contentSize = content.length;
+    public long getMessageSize() throws MessagingException {
+        try {
+            return source.getMessageSize();
+        } catch (IOException ioe) {
+            //Probably will fail anyway... fall back to just calculating manually
+        }
+        int contentSize = getSize();
         int headerSize = 0;
         Enumeration e = getAllHeaderLines();
         while (e.hasMoreElements()) {

@@ -131,11 +131,18 @@ public class MailImpl implements Mail {
      *
      * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
      */
-    public int getSize() throws MessagingException {
+    public long getMessageSize() throws MessagingException {
+        //If we have a MimeMessageWrapper, then we can ask it for just the
+        //  message size and skip calculating it
+        if (message instanceof MimeMessageWrapper) {
+            MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
+            return wrapper.getMessageSize();
+        }
+
         //SK: Should probably eventually store this as a locally
         //  maintained value (so we don't have to load and reparse
         //  messages each time).
-        int size = message.getSize();
+        long size = message.getSize();
         Enumeration e = message.getAllHeaderLines();
         while (e.hasMoreElements()) {
             size += ((String)e.nextElement()).length();
@@ -201,12 +208,11 @@ public class MailImpl implements Mail {
         if (message != null) {
             message.writeTo(out);
         } else {
-	        throw new MessagingException("No message set for this MailImpl.");
-	    }
+            throw new MessagingException("No message set for this MailImpl.");
+        }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        //System.err.println("saving object");
         lastUpdated = new Date();
         out.writeObject(sender);
         out.writeObject(recipients);
@@ -247,7 +253,7 @@ public class MailImpl implements Mail {
                 out.write(line.getBytes());
             }
         } else {
-    	    throw new MessagingException("No message set for this MailImpl.");
+            throw new MessagingException("No message set for this MailImpl.");
         }
     }
 }

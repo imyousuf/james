@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.11 $
- * Committed on $Date: 2001/11/29 18:17:33 $ by: $Author: danny $
+ * This is $Revision: 1.12 $
+ * Committed on $Date: 2001/12/05 22:13:15 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -561,9 +561,9 @@ public class SMTPHandler
                                     new SequenceInputStream(headersIn, msgIn));
                 // if the message size limit has been set, we'll
                 // call mail.getSize() to force the message to be
-                // loaded. Need to do this to limit the size
+                // loaded. Need to do this to enforce the size limit
                 if (maxmessagesize > 0) {
-                    mail.getSize();
+                    mail.getMessageSize();
                 }
                 mail.setRemoteHost((String)state.get(REMOTE_NAME));
                 mail.setRemoteAddr((String)state.get(REMOTE_IP));
