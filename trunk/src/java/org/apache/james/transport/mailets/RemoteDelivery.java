@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.30 $
+ * This is $Revision: 1.31 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -71,7 +71,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private String gatewayPort = null;  //the port of the gateway server to send all email to
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
-    private boolean destroyed = false; //Flag that the run method will check and end itself if set to true
+    private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
 
     /**
      * Initialize the mailet
@@ -563,42 +563,47 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             props.put("mail.smtp.port", gatewayPort);
         }
         Session session = Session.getInstance(props, null);
-        while (!Thread.currentThread().interrupted() && !destroyed) {
-            try {
-                String key = outgoing.accept(delayTime);
+        try {
+            while (!Thread.currentThread().interrupted() && !destroyed) {
                 try {
-                    if (isDebug) {
-                        StringBuffer logMessageBuffer = 
-                            new StringBuffer(128)
-                                    .append(Thread.currentThread().getName())
-                                    .append(" will process mail ")
-                                    .append(key);
-                        log(logMessageBuffer.toString());
-                    }
-                    MailImpl mail = outgoing.retrieve(key);
-                    // Retrieve can return null if the mail is no longer on the outgoing spool.
-                    // In this case we simply continue to the next key
-                    if (mail == null) {
-                        continue;
-                    }
-                    if (deliver(mail, session)) {
-                        //Message was successfully delivered/fully failed... delete it
+                    String key = outgoing.accept(delayTime);
+                    try {
+                        if (isDebug) {
+                            StringBuffer logMessageBuffer = 
+                                new StringBuffer(128)
+                                        .append(Thread.currentThread().getName())
+                                        .append(" will process mail ")
+                                        .append(key);
+                            log(logMessageBuffer.toString());
+                        }
+                        MailImpl mail = outgoing.retrieve(key);
+                        // Retrieve can return null if the mail is no longer on the outgoing spool.
+                        // In this case we simply continue to the next key
+                        if (mail == null) {
+                            continue;
+                        }
+                        if (deliver(mail, session)) {
+                            //Message was successfully delivered/fully failed... delete it
+                            outgoing.remove(key);
+                        } else {
+                            //Something happened that will delay delivery.  Store any updates
+                            outgoing.store(mail);
+                        }
+                        //Clear the object handle to make sure it recycles this object.
+                        mail = null;
+                    } catch (Exception e) {
+                        // Prevent unexpected exceptions from causing looping by removing
+                        // message from outgoing.
                         outgoing.remove(key);
-                    } else {
-                        //Something happened that will delay delivery.  Store any updates
-                        outgoing.store(mail);
+                        throw e;
                     }
-                    //Clear the object handle to make sure it recycles this object.
-                    mail = null;
                 } catch (Exception e) {
-                    // Prevent unexpected exceptions from causing looping by removing
-                    // message from outgoing.
-                    outgoing.remove(key);
-                    throw e;
+                    log("Exception caught in RemoteDelivery.run(): " + e);
                 }
-            } catch (Exception e) {
-                log("Exception caught in RemoteDelivery.run(): " + e);
             }
+        } finally {
+            // Restore the thread state to non-interrupted.
+            Thread.currentThread().interrupted();
         }
     }
 }
