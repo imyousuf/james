@@ -62,7 +62,7 @@
 
             <remoteManager>
                 <port>4555</port>
-                <bind> 192.168.1.3 </bind>
+<!--                <bind>  </bind> uncomment this if you want to bind to a specific inetaddress-->
                 <administrator_accounts>
                     <account login="root" password="root"/>
                 </administrator_accounts>
