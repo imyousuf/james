@@ -14,8 +14,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.Vector;
+
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -70,7 +73,7 @@ import org.apache.mailet.MailAddress;
 *<TD width="80%">A comma delimited list of addresses to appear in the To: header,
 *the email will only be delivered to these addresses if they are in the recipients
 *list.<BR>
-*The recipients list will be used if this is not supplied</TD>
+*The recipients list will be used if this is not supplied.<BR>The special value "recipients" in this parameter will cause the addresses in the original To header to be retained.</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;sender&gt;</TD>
@@ -449,6 +452,20 @@ public class Redirect extends GenericMailet {
             recipients   = getRecipients();
             apparentlyTo = getTo();
         }
+        if(apparentlyTo[0].toString().equalsIgnoreCase("recipients")){
+            apparentlyTo = (InternetAddress[])mail.getMessage().getRecipients(Message.RecipientType.TO);
+//            Collection c = mail.getRecipients();
+//            Iterator i = c.iterator();
+//            Vector d = new Vector();
+//            MailAddress m = null;
+//            while(i.hasNext()){
+//                m = (MailAddress)i.next();
+//                d.add(m.toInternetAddress());
+//            }
+//            apparentlyTo = (InternetAddress[])d.toArray();
+            
+           
+        }
         MimeMessage message = mail.getMessage();
         MimeMessage reply   = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
                                                                          null));
@@ -534,7 +551,9 @@ public class Redirect extends GenericMailet {
         if(reply.getHeader("Date") == null) {
             reply.setHeader("Date", rfc822DateFormat.format(new Date()));
         }
+        
         reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
+        
         if(replyTo != null) {
             InternetAddress[] iart = new InternetAddress[1];
             iart[0] = replyTo.toInternetAddress();
