@@ -29,15 +29,14 @@ import java.util.StringTokenizer;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -74,7 +73,7 @@ import org.apache.mailet.MailRepository;
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
-    implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
+    implements MailRepository, Contextualizable, Serviceable, Configurable, Initializable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -84,7 +83,7 @@ public class JDBCMailRepository
     /**
      * The Avalon componentManager used by the instance
      */
-    private ComponentManager componentManager;
+    private ServiceManager componentManager;
 
     /**
      * The Avalon context used by the instance
@@ -165,10 +164,10 @@ public class JDBCMailRepository
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+    public void service( final ServiceManager componentManager )
+        throws ServiceException {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer =

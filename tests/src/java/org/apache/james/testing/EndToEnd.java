@@ -23,11 +23,12 @@ import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.telnet.TelnetClient;
 import examples.IOUtil;
-/**
+
+/**
  * A class to do end to end load SMTP testing on James.
  *
  *
- * $Id: EndToEnd.java,v 1.4 2003/01/27 02:15:31 serge Exp $
+ * $Id: EndToEnd.java,v 1.5 2003/02/08 04:12:28 mcconnell Exp $
  */
 public class EndToEnd extends TestCase {
 
@@ -100,7 +101,7 @@ public class EndToEnd extends TestCase {
         TelnetClient client = new TelnetClient();
         BufferedReader in;
         OutputStreamWriter out;
-        try {
+        try {
             client.setDefaultTimeout(500);
             client.connect("127.0.0.1", 4555);
             runTelnetScript(client, script1);
@@ -123,9 +124,9 @@ public class EndToEnd extends TestCase {
     private void runTelnetScript(TelnetClient client, String[] script) throws IOException {
         BufferedReader in;
         OutputStreamWriter out;
-        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
         OutputStream oo = client.getOutputStream();
-        out = new OutputStreamWriter(oo);
+        out = new OutputStreamWriter(oo);
         print(in, System.out);
         for (int i = 0; i < script.length; i++) {
             out.write(script[i] + "\n");
@@ -146,9 +147,9 @@ public class EndToEnd extends TestCase {
      */
     private String print(BufferedReader in, OutputStream output) {
         String outString = "";
-        try {
+        try {
             String readString = in.readLine();
-            while (readString != null) {
+            while (readString != null) {
                 outString += readString + "\n";
                 readString = in.readLine();
             }
@@ -166,7 +167,7 @@ public class EndToEnd extends TestCase {
     private void SMTPTest() {
         start = new Date();
         StringBuffer mail1 = new StringBuffer();
-        mail1.append(
+        mail1.append(
                 "Subject: test\nFrom: postmaster@localhost\nTo: test@localhost\n\nTHIS IS A TEST");
         for (int kb = 0; kb < messageSize; kb++) {
             mail1.append("m");
@@ -174,7 +175,7 @@ public class EndToEnd extends TestCase {
         String mail = mail1.toString();
         SMTPDeliveryWorker[] workers = new SMTPDeliveryWorker[numWorkers];
         Thread[] threads = new Thread[workers.length];
-        for (int i = 0; i < workers.length; i++) {
+        for (int i = 0; i < workers.length; i++) {
             workers[i] = new SMTPDeliveryWorker(new SMTPClient(), mail, this);
             workers[i].setWorkerid(i);
             threads[i] = new Thread((SMTPDeliveryWorker) workers[i]);
@@ -189,7 +190,7 @@ public class EndToEnd extends TestCase {
         }
 
         long time = (new Date()).getTime() - start.getTime();
-        System.err.println("time total " + (int) time);
+        System.err.println("time total " + (int) time);
     }
 
     /**
@@ -198,7 +199,7 @@ public class EndToEnd extends TestCase {
     private void POP3Test() {
         try {
             POP3Client pclient = new POP3Client();
-            pclient.connect("127.0.0.1", 110);
+            pclient.connect("127.0.0.1", 110);
             System.out.println(pclient.getReplyString());
             pclient.login("test", "test");
             System.out.println(pclient.getReplyString());
@@ -226,7 +227,7 @@ public class EndToEnd extends TestCase {
         System.out.println("workers still working.." + workingWorkers);
         if (workingWorkers == 0) {
             long time = (new Date()).getTime() - start.getTime();
-            System.err.println("time to deliver set " + (int) (time / 1000));
+            System.err.println("time to deliver set " + (int) (time / 1000));
             // System.err.println("messages per second " + (int)(1000/(time/1000)));
             // System.err.println("data rate="+((messageSize*1000)/(time/1000)));
             finished = true;

@@ -18,10 +18,10 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.phoenix.BlockContext;
+
 /**
  *
- * $Id: Loader.java,v 1.4 2003/01/15 12:49:34 danny Exp $
+ * $Id: Loader.java,v 1.5 2003/02/08 04:12:26 mcconnell Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
@@ -33,17 +33,23 @@ public class Loader implements Contextualizable {
      * The list of packages that may contain Mailets or matchers
      */
     protected Vector packages;
+
     /**
-         * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-         */
-    public void contextualize(final Context context) throws ContextException {
-        try {
-            baseDirectory = ((BlockContext) context).getBaseDirectory().getCanonicalPath();
-        } catch (IOException e) {
-            logger.error("cant get base directory for mailet loader");
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
+     */
+    public void contextualize(final Context context) throws ContextException 
+    {
+        try 
+        {
+            baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
+        } 
+        catch (Throwable e) 
+        {
+            logger.error( "cant get base directory for mailet loader" );
             throw new ContextException("cant contextualise mailet loader " + e.getMessage(), e);
         }
     }
+
     /**
      * Method setLogger.
      * @param logger

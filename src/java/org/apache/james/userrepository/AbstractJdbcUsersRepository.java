@@ -20,19 +20,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.CascadingRuntimeException;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
@@ -61,7 +61,7 @@ import org.apache.mailet.User;
  *
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
-    implements Contextualizable, Composable, Configurable, Initializable
+    implements Contextualizable, Serviceable, Configurable, Initializable
 {
     /**
      * The Avalon context used by the instance
@@ -105,10 +105,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException
+    public void service( final ServiceManager componentManager )
+        throws ServiceException
     {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled())

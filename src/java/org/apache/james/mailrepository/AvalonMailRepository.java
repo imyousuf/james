@@ -18,10 +18,9 @@ import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -47,7 +46,7 @@ import org.apache.mailet.MailRepository;
  */
 public class AvalonMailRepository
     extends AbstractLogEnabled
-    implements MailRepository, Component, Configurable, Composable, Initializable {
+    implements MailRepository, Configurable, Serviceable, Initializable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -65,10 +64,10 @@ public class AvalonMailRepository
     private Set keys;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager )
      */
-    public void compose( final ComponentManager componentManager )
-            throws ComponentException {
+    public void service( final ServiceManager componentManager )
+            throws ServiceException {
         store = (Store)componentManager.
         lookup( "org.apache.avalon.cornerstone.services.store.Store" );
     }

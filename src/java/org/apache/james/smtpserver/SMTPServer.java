@@ -15,11 +15,10 @@ import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.Constants;
@@ -44,7 +43,7 @@ import java.net.UnknownHostException;
  *
  * @version 1.1.0, 06/02/2001
  */
-public class SMTPServer extends AbstractJamesService implements Component {
+public class SMTPServer extends AbstractJamesService {
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
@@ -111,17 +110,17 @@ public class SMTPServer extends AbstractJamesService implements Component {
         = new SMTPHandlerConfigurationDataImpl();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
-        super.compose(componentManager);
-        mailetcontext = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
+    public void service( final ServiceManager manager ) throws ServiceException {
+        super.service( manager );
+        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
+        mailServer = (MailServer) manager.lookup("org.apache.james.services.MailServer");
         UsersStore usersStore =
-            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
+            (UsersStore) manager.lookup("org.apache.james.services.UsersStore");
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
-            throw new ComponentException("The user repository could not be found.");
+            throw new ServiceException("The user repository could not be found.");
         }
     }
 

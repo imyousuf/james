@@ -490,6 +490,7 @@ public class MailImpl implements Disposable, Mail {
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
+
         try {
             MimeMessage wrapper = getMessage();
             if (wrapper instanceof Disposable) {

@@ -8,7 +8,6 @@
 package org.apache.james.transport;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -20,7 +19,7 @@ import org.apache.mailet.MailetException;
  * Loads Mailets for use inside James.
  *
  */
-public class MailetLoader extends Loader implements Component, Configurable {
+public class MailetLoader extends Loader implements Configurable {
            /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */

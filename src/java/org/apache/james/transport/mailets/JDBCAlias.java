@@ -19,9 +19,9 @@ import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
 import org.apache.mailet.GenericMailet;
@@ -73,7 +73,7 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-            ComponentManager componentManager = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
             // Get the DataSourceSelector service
             DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.

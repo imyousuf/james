@@ -25,7 +25,6 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
 
@@ -37,7 +36,7 @@ import org.apache.avalon.framework.logger.LogEnabled;
  *
  */
 public class ServerConnection extends AbstractLogEnabled
-    implements Component, Initializable, Runnable {
+    implements Initializable, Runnable {
 
     /**
      * This is a hack to deal with the fact that there appears to be
@@ -332,7 +331,7 @@ public class ServerConnection extends AbstractLogEnabled
      *
      */
     class ClientConnectionRunner extends AbstractLogEnabled
-        implements Component, Poolable, Runnable  {
+        implements Poolable, Runnable  {
 
         /**
          * The Socket that this client connection is using for transport.

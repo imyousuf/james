@@ -10,10 +10,9 @@ package org.apache.james.userrepository;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -35,13 +34,13 @@ import java.util.Iterator;
  * Requires a logger called UsersRepository.
  *
  *
- * @version CVS $Revision: 1.14 $
+ * @version CVS $Revision: 1.15 $
  *
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Component, Configurable, Composable, Initializable {
-
+    implements UsersRepository, Configurable, Serviceable, Initializable {
+ 
     /**
      * Whether 'deep debugging' is turned on.
      */
@@ -59,10 +58,10 @@ public class UsersFileRepository
     private String destination;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+    public void service( final ServiceManager componentManager )
+        throws ServiceException {
 
         try {
             store = (Store)componentManager.
@@ -70,7 +69,7 @@ public class UsersFileRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
-            throw new ComponentException( message, e );
+            throw new ServiceException ( message, e );
         }
     }
 

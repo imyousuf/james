@@ -14,10 +14,9 @@ import java.util.Vector;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -112,16 +111,16 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
         }
     }
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
+    public void compose(final ServiceManager componentManager) throws ServiceException {
         try {
             server = (MailServer) componentManager.lookup(MailServer.ROLE);
         } catch (ClassCastException cce) {
             StringBuffer errorBuffer =
                 new StringBuffer(128).append("Component ").append(MailServer.ROLE).append(
                     "does not implement the required interface.");
-            throw new ComponentException(errorBuffer.toString());
+            throw new ServiceException(errorBuffer.toString());
         }
     }
     /**

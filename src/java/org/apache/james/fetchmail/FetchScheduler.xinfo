@@ -8,9 +8,7 @@
   </block>
 
   <!-- services that are offered by this block -->
-  <services>
-    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
-  </services>
+  <services/>
 
   <dependencies>
     <dependency>
