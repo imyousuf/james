@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
@@ -17,7 +17,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class CapabilityCommand extends CommandTemplate
 {
@@ -27,15 +27,19 @@ class CapabilityCommand extends CommandTemplate
     public static final String CAPABILITY_RESPONSE = NAME + SP + VERSION;
 
     /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
             throws ProtocolException
     {
-        request.endLine();
+        System.out.println( "About to do parser.endLine()" );
+        parser.endLine( request );
+        System.out.println( "Completed parser.endLine()" );
         response.untaggedResponse( CAPABILITY_RESPONSE );
+        System.out.println( "Sent untagged response." );
         session.unsolicitedResponses( response );
         response.commandComplete( this );
+        System.out.println( "Sent capability response." );
     }
 
     /** @see ImapCommand#getName */

@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ProtocolException;
@@ -17,7 +17,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class AuthenticateCommand extends NonAuthenticatedStateCommand
 {
@@ -25,13 +25,13 @@ class AuthenticateCommand extends NonAuthenticatedStateCommand
     public static final String ARGS = "<auth_type> *(CRLF base64)";
 
     /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session
                               ) throws ProtocolException
     {
-        String authType = request.astring();
-        request.endLine();
+        String authType = parser.astring( request );
+        parser.endLine( request );
 
         response.commandFailed( this, "Unsupported authentication mechanism '" +
                                       authType + "'" );

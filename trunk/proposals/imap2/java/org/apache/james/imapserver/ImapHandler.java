@@ -15,6 +15,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.imapserver.commands.ImapCommandFactory;
+import org.apache.james.imapserver.commands.CommandParser;
 import org.apache.james.imapserver.store.ImapMailbox;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.User;
@@ -46,7 +47,8 @@ public class ImapHandler
 
     private String softwaretype = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
     private ImapResponse untaggedResponse;
-    private ImapRequestParser request;
+    private ImapRequestLineReader request;
+    private CommandParser parser = new CommandParser();
     private ImapSession session;
     private ImapCommandFactory imapCommands = new ImapCommandFactory();
 
@@ -218,7 +220,7 @@ public class ImapHandler
                     .append( " ready" );
             untaggedResponse.okResponse( null, responseBuffer.toString() );
 
-            request = new ImapRequestParser( in );
+            request = new ImapRequestLineReader( in );
             session = new ImapSessionImpl();
 
             theWatchdog.start();
@@ -371,31 +373,37 @@ public class ImapHandler
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand()
+    private boolean parseCommand() throws ProtocolException
     {
-        if ( !request.nextRequest() ) {
+        try {
+            request.nextChar();
+        }
+        catch ( ProtocolException e ) {
             return false;
         }
         ImapResponse response = new ImapResponse( out );
         String tag = null;
         String commandName = null;
+
         try {
-            tag = request.tag();
+            tag = parser.tag( request );
         }
         catch ( ProtocolException e ) {
             response.badResponse( REQUEST_SYNTAX );
             return true;
         }
 
+        System.out.println( "Got <tag>: " + tag );
         response.setTag( tag );
         try {
-            commandName = request.atom();
+            commandName = parser.atom( request );
         }
         catch ( ProtocolException e ) {
             response.commandError( REQUEST_SYNTAX );
             return true;
         }
 
+        System.out.println( "Got <command>: " + commandName );
         ImapCommand command = imapCommands.getCommand( commandName );
         if ( command == null )
         {

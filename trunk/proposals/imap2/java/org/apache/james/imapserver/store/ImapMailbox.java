@@ -18,7 +18,7 @@ import org.apache.james.services.MailRepository;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ImapMailbox extends MailRepository
 {
@@ -39,4 +39,9 @@ public interface ImapMailbox extends MailRepository
     int getIndex( int uid );
 
     boolean isSelectable();
+
+    int getUidNext();
+
+    int getUnseenCount();
+    
 }

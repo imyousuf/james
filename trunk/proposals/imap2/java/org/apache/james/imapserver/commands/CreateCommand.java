@@ -8,7 +8,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.AuthorizationException;
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.store.MailboxException;
@@ -19,7 +19,7 @@ import org.apache.james.imapserver.ProtocolException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 class CreateCommand extends AuthenticatedStateCommand
 {
@@ -27,13 +27,13 @@ class CreateCommand extends AuthenticatedStateCommand
     public static final String ARGS = "<mailbox>";
 
     /** @see CommandTemplate#doProcess */
-    protected void doProcess( ImapRequestParser request,
+    protected void doProcess( ImapRequestLineReader request,
                               ImapResponse response,
                               ImapSession session )
             throws ProtocolException, MailboxException, AuthorizationException
     {
-        String mailboxName = request.astring();
-        request.endLine();
+        String mailboxName = parser.astring( request );
+        parser.endLine( request );
 
         session.getHost().createMailbox( session.getUser(), mailboxName );
         session.unsolicitedResponses( response );

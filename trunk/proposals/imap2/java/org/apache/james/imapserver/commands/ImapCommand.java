@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequestParser;
+import org.apache.james.imapserver.ImapRequestLineReader;
 import org.apache.james.imapserver.ImapResponse;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
@@ -18,7 +18,7 @@ import org.apache.james.imapserver.ImapSessionState;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ImapCommand
 {
@@ -42,7 +42,7 @@ public interface ImapCommand
      * @param response The current server response
      * @param session The current session
      */
-    void process( ImapRequestParser request,
+    void process( ImapRequestLineReader request,
                   ImapResponse response,
                   ImapSession session );
 }
