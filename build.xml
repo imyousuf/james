@@ -561,10 +561,14 @@ All these package are in current distribution.
       </fileset>
     </delete>
 
+    <!-- copy new generated docs, but not mailet api or rfclist -->
+    <!-- exclude CVS dir until docs dir removed from CVS -->
     <mkdir dir="${www.dir}"/>
     <copy todir="${www.dir}">
       <fileset dir="${docs.dir}">
         <exclude name="api/**"/>
+        <exclude name="rfclist/**"/>
+        <exclude name="CVS/**"/>
       </fileset>
     </copy>
 
