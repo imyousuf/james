@@ -8,14 +8,15 @@
 
 package org.apache.james.imapserver;
 
+
+
 import java.net.*;
 import java.util.Date;
-
 import org.apache.avalon.*;
-import org.apache.cornerstone.services.SocketServer;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.avalon.util.lang.*;
 import org.apache.avalon.util.thread.ThreadPool;
-
+import org.apache.cornerstone.services.SocketServer;
 import org.apache.james.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -29,13 +30,14 @@ import org.apache.log.Logger;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
-public class IMAPServer implements SocketServer.SocketHandler, Configurable, Composer, Contextualizable {
+public class IMAPServer 
+    extends AbstractLoggable
+    implements SocketServer.SocketHandler,  Component, Configurable, Composer, Contextualizable {
 
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
     private ThreadPool threadPool;
-    private Logger logger =  LogKit.getLoggerFor("james.IMAPServer");
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -51,9 +53,9 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
 
     public void init() throws Exception {
 
-        logger.info("IMAPServer init...");
+        getLogger().info("IMAPServer init...");
 
-	threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        threadPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(143);
 
@@ -66,22 +68,22 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
         } catch (ConfigurationException e) {
         }
 
-	String type = SocketServer.DEFAULT;
-	try {
-	    if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-	} catch (ConfigurationException e) {
-	}
-	logger.info("IMAPListener using " + type + " on port " + port);
+        String type = SocketServer.DEFAULT;
+        try {
+            if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+        } catch (ConfigurationException e) {
+        }
+        getLogger().info("IMAPListener using " + type + " on port " + port);
 
         socketServer.openListener("IMAPListener", type, port, bind, this);
-        logger.info("IMAPServer ...init end");
+        getLogger().info("IMAPServer ...init end");
     }
 
     public void parseRequest(Socket s) {
 
         try {
             ConnectionHandler handler = new SingleThreadedConnectionHandler();
-	    ((Loggable)handler).setLogger(logger);
+            ((Loggable)handler).setLogger( getLogger() );
             handler.configure(conf.getChild("imaphandler"));
             handler.contextualize(context);
             handler.compose(compMgr);
@@ -89,11 +91,8 @@ public class IMAPServer implements SocketServer.SocketHandler, Configurable, Com
             handler.parseRequest(s);
             threadPool.execute((Runnable) handler);
         } catch (Exception e) {
-            logger.error("IMAPServer: Cannot parse request on socket " + s + " : " + e.getMessage());
+            getLogger().error("IMAPServer: Cannot parse request on socket " + s + " : " + e.getMessage());
         }
-    }
-
-    public void destroy() throws Exception {
     }
 }
     

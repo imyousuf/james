@@ -12,32 +12,26 @@ import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
 import org.apache.avalon.*;
-
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
 import org.apache.mailet.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class JamesSpoolManager implements Component, Composer, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
+public class JamesSpoolManager 
+    extends AbstractLoggable
+    implements Composer, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
 
     private DefaultComponentManager compMgr;
-                   //using implementation as we need put method.
+    //using implementation as we need put method.
     private Configuration conf;
     private Context context;
     private SpoolRepository spool;
-    private Logger logger =  LogKit.getLoggerFor("james.SpoolManager");
     private MailetContext mailetcontext;
-
     private HashMap processors;
-
-    public JamesSpoolManager() {
-    }
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -53,20 +47,20 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
 
     public void init() throws Exception {
 
-        logger.info("JamesSpoolManager init...");
+        getLogger().info("JamesSpoolManager init...");
         spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
         mailetcontext = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
-	MailetLoader mailetLoader = new MailetLoader();
-	MatchLoader matchLoader = new MatchLoader();
-	try {
-	    mailetLoader.configure(conf.getChild("mailetpackages"));
-	    matchLoader.configure(conf.getChild("matcherpackages"));
-	    compMgr.put(Resources.MAILET_LOADER, mailetLoader);
-	    compMgr.put(Resources.MATCH_LOADER, matchLoader);
-	} catch (ConfigurationException ce) {
-	    logger.error("Unable to configure mailet/matcher Loaders: " + ce.getMessage());
-	    throw new RuntimeException("Unable to start Spool Manager - failed to configure Loaders.");
-	}
+        MailetLoader mailetLoader = new MailetLoader();
+        MatchLoader matchLoader = new MatchLoader();
+        try {
+            mailetLoader.configure(conf.getChild("mailetpackages"));
+            matchLoader.configure(conf.getChild("matcherpackages"));
+            compMgr.put(Resources.MAILET_LOADER, mailetLoader);
+            compMgr.put(Resources.MATCH_LOADER, matchLoader);
+        } catch (ConfigurationException ce) {
+            getLogger().error("Unable to configure mailet/matcher Loaders: " + ce.getMessage());
+            throw new RuntimeException("Unable to start Spool Manager - failed to configure Loaders.");
+        }
 
         //A processor is a Collection of
         processors = new HashMap();
@@ -77,7 +71,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
             try {
                 LinearProcessor processor = new LinearProcessor();
                 processor.setSpool(spool);
-                processor.setLogger(logger);
+                processor.setLogger( getLogger() );
                 processor.init();
                 processors.put(processorName, processor);
 
@@ -98,18 +92,18 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
                     try {
                         matcher = matchLoader.getMatcher(matcherName, mailetcontext);
                         //The matcher itself should log that it's been inited.
-                        logger.info("Matcher " + matcherName + " instantiated");
+                        getLogger().info("Matcher " + matcherName + " instantiated");
                     } catch (MessagingException ex) {
                         // **** Do better job printing out exception
-                        logger.error("Unable to init matcher " + matcherName + ": " + ex.toString());
+                        getLogger().error("Unable to init matcher " + matcherName + ": " + ex.toString());
                         throw ex;
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName, mailetcontext, c);
-                        logger.info("Mailet " + mailetClassName + " instantiated");
+                        getLogger().info("Mailet " + mailetClassName + " instantiated");
                     } catch (MessagingException ex) {
                         // **** Do better job printing out exception
-                        logger.error("Unable to init mailet " + mailetClassName + ": " + ex.getMessage());
+                        getLogger().error("Unable to init mailet " + mailetClassName + ": " + ex.getMessage());
                         throw ex;
                     }
                     //Add this pair to the proces
@@ -125,9 +119,9 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
                 Mailet mailet = mailetLoader.getMailet("Null", mailetcontext, null);
                 processor.add(matcher, mailet);
 
-                logger.info("processor " + processorName + " instantiated");
+                getLogger().info("processor " + processorName + " instantiated");
             } catch (Exception ex) {
-                logger.error("Unable to init processor " + processorName + ": " + ex.getMessage());
+                getLogger().error("Unable to init processor " + processorName + ": " + ex.getMessage());
                 throw ex;
             }
         }
@@ -139,20 +133,20 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
      */
     public void run() {
 
-        logger.info("run JamesSpoolManager");
+        getLogger().info("run JamesSpoolManager");
         while(true) {
 
             try {
                 String key = spool.accept();
                 MailImpl mail = spool.retrieve(key);
-                logger.info("==== Begin processing mail " + mail.getName() + " ====");
+                getLogger().info("==== Begin processing mail " + mail.getName() + " ====");
                 process(mail);
                 spool.remove(key);
-                logger.info("==== Removed from spool mail " + mail.getName() + " ====");
-		mail = null;
+                getLogger().info("==== Removed from spool mail " + mail.getName() + " ====");
+                mail = null;
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error("Exception in JamesSpoolManager.run " + e.getMessage());
+                getLogger().error("Exception in JamesSpoolManager.run " + e.getMessage());
             }
         }
     }
@@ -169,12 +163,12 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
                 if (processor == null) {
                     throw new MailetException("Unable to find processor " + processorName);
                 }
-		logger.info("Processing " + mail.getName() + " through " + processorName);
+                getLogger().info("Processing " + mail.getName() + " through " + processorName);
                 processor.service(mail);
-		return;
+                return;
             } catch (Exception e) {
-               //This is a strange error situation that shouldn't ordinarily happen
-               System.err.println("Exception in processor <" + processorName + ">");
+                //This is a strange error situation that shouldn't ordinarily happen
+                System.err.println("Exception in processor <" + processorName + ">");
                 e.printStackTrace();
                 if (processorName.equals("Mail.ERROR")) {
                     //We got an error on the error processor... kill the message
@@ -186,13 +180,11 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Ini
                     mail.setErrorMessage(e.getMessage());
                 }
             }
-            logger.info("Processed " + mail.getName() + " through " + processorName);
-            logger.info("Result was " + mail.getState());
+            getLogger().info("Processed " + mail.getName() + " through " + processorName);
+            getLogger().info("Result was " + mail.getState());
 
         }
     }
-
-    public void destroy() {}
 
     public void stop() {}
 }

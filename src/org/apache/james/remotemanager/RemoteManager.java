@@ -8,17 +8,15 @@
 
 package org.apache.james.remotemanager;
 
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import org.apache.avalon.*;
+import org.apache.avalon.AbstractLoggable;
 import org.apache.cornerstone.services.Scheduler;
 import org.apache.cornerstone.services.SocketServer;
-
 import org.apache.james.*;
 import org.apache.james.services.*;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-import java.net.*;
-import java.io.*;
-import java.util.*;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -29,11 +27,12 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Target, Composer, Configurable {
+public class RemoteManager 
+    extends AbstractLoggable
+    implements SocketServer.SocketHandler, Component, Scheduler.Target, Composer, Configurable {
 
     private ComponentManager compMgr;
     private Configuration conf;
-    private Logger logger =  LogKit.getLoggerFor("james.RemoteManager");
     private UsersRepository users;
     private Scheduler scheduler;
     private MailServer mailServer;
@@ -51,7 +50,7 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
 
     public void configure(Configuration conf)  throws ConfigurationException {
         this.conf = conf;
-	timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
+        timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
     }
 
     public void compose(ComponentManager compMgr) {
@@ -60,9 +59,9 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
 
     public void init() throws Exception {
 
-        logger.info("RemoteManager init...");
+        getLogger().info("RemoteManager init...");
         scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
-	mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
+        mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
         SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.cornerstone.services.SocketServer");
         int port = conf.getChild("port").getValueAsInt(4554);
         InetAddress bind = null;
@@ -74,29 +73,29 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
         } catch (ConfigurationException e) {
         }
 
-	String type = SocketServer.DEFAULT;
-	try {
-	    if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
-	} catch (ConfigurationException e) {
-	}
-	
-        logger.info("RemoteManager using " + type + " on port " + port);
-	
-	Configuration adm = conf.getChild("administrator_accounts");
+        String type = SocketServer.DEFAULT;
+        try {
+            if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+        } catch (ConfigurationException e) {
+        }
+        
+        getLogger().info("RemoteManager using " + type + " on port " + port);
+        
+        Configuration adm = conf.getChild("administrator_accounts");
         admaccount = new HashMap();
         for (Iterator it = adm.getChildren("account"); it.hasNext();) {
             Configuration c = (Configuration) it.next();
             admaccount.put(c.getAttribute("login"), c.getAttribute("password"));
         }
         if (admaccount.isEmpty()) {
-            logger.warn("No Administrative account defined");
-	    logger.warn("RemoteManager failed to init");
-	    return;
+            getLogger().warn("No Administrative account defined");
+            getLogger().warn("RemoteManager failed to init");
+            return;
         } else {
-	    socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
-	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-	    logger.info("RemoteManager ...init end");
-	}
+            socketServer.openListener("JAMESRemoteControlListener",type, port, bind, this);
+            users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
+            getLogger().info("RemoteManager ...init end");
+        }
     }
 
 
@@ -111,35 +110,35 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
             in = new BufferedReader(new InputStreamReader(socketIn));
             r_out = s.getOutputStream();
             out = new PrintWriter(r_out, true);
-            logger.info("Access from " + remoteHost + "(" + remoteIP + ")");
+            getLogger().info("Access from " + remoteHost + "(" + remoteIP + ")");
             out.println("JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION);
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
             while (!password.equals(admaccount.get(login)) || password.length() == 0) {
                 out.println("Login failed for " + login);
-                logger.info("Login for " + login + " failed");
+                getLogger().info("Login for " + login + " failed");
                 login = in.readLine();
                 password = in.readLine();
             }
             scheduler.resetAlarm("RemoteManager");
             out.println("Welcome " + login + ". HELP for a list of commands");
-            logger.info("Login for " + login + " succesful");
+            getLogger().info("Login for " + login + " succesful");
             while (parseCommand(in.readLine())) {
                 scheduler.resetAlarm("RemoteManager");
             }
-            logger.info("Logout for " + login + ".");
+            getLogger().info("Logout for " + login + ".");
             s.close();
         } catch (IOException e) {
             out.println("Error. Closing connection");
             out.flush();
-            logger.error("Exception during connection from " + remoteHost + " (" + remoteIP + ")");
+            getLogger().error("Exception during connection from " + remoteHost + " (" + remoteIP + ")");
         }
         scheduler.removeAlarm("RemoteManager");
     }
 
     public void wake(String name, Scheduler.Event event) {
-        logger.error("Connection timeout on socket");
+        getLogger().error("Connection timeout on socket");
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -180,12 +179,12 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
                 out.println("user " + user + " already exist");
             } else {
                 if(mailServer.addUser(user, passwd)) {
-            out.println("User " + user + " added");
-            logger.info("User " + user + " added");
-        } else {
-            out.println("Error adding user " + user);
-            logger.info("Error adding user " + user);
-        }
+                    out.println("User " + user + " added");
+                    getLogger().info("User " + user + " added");
+                } else {
+                    out.println("Error adding user " + user);
+                    getLogger().info("Error adding user " + user);
+                }
             }
             out.flush();
         } else if (command.equalsIgnoreCase("DELUSER")) {
@@ -201,7 +200,7 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
                 return true;
             }
             out.println("User " + user + " deleted");
-            logger.info("User " + user + " deleted");
+            getLogger().info("User " + user + " deleted");
         } else if (command.equalsIgnoreCase("LISTUSERS")) {
             out.println("Existing accounts " + users.countUsers());
             for (Iterator it = users.list(); it.hasNext();) {
@@ -237,9 +236,6 @@ public class RemoteManager implements SocketServer.SocketHandler, Scheduler.Targ
             out.println("unknown command " + command);
         }
         return true;
-    }
-
-    public void destroy() {
     }
 }
 
