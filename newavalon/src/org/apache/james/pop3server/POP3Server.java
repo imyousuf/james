@@ -64,10 +64,9 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
 	String type = SocketServer.DEFAULT;
 	
 	try {
-	    if (conf.getChild("useTLS").getValue().equals("TRUE"))
-		type = SocketServer.TLS;
-	    } catch (ConfigurationException e) {
-	    }
+	    if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+        } catch (ConfigurationException e) {
+        }
 	logger.info("POP3Listener using " + type + " on port " + port);
 
         socketServer.openListener("POP3Listener", type, port, bind, this);

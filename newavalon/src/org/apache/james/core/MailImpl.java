@@ -22,6 +22,9 @@ import org.apache.mailet.*;
  * @version 0.9
  */
 public class MailImpl implements Mail {
+    //We hardcode the serialVersionUID so that from James 1.2 on,
+    //  MailImpl will be deserializable (so your mail doesn't get lost)
+    public static final long serialVersionUID = -4289663364703986260L;
 
     private String errorMessage;
     private String state;
@@ -44,10 +47,10 @@ public class MailImpl implements Mail {
         this.recipients = recipients;
     }
 
-    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream msg)
+    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
     throws MessagingException {
         this(name, sender, recipients);
-        this.setMessage(msg);
+        this.setMessage(messageIn);
     }
 
     public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) {
@@ -123,6 +126,30 @@ public class MailImpl implements Mail {
 	}
     }
 
+    /**
+     * <p>Return the size of the message including its headers.
+     * MimeMessage.getSize() method only returns the size of the
+     * message body.</p>
+     *
+     * <p>Note: this size is not guaranteed to be accurate - see Sun's
+     * documentation of MimeMessage.getSize().</p>
+     *
+     * @return approximate size of full message including headers.
+     *
+     * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
+     */
+    public int getSize() throws MessagingException {
+        //SK: Should probably eventually store this as a locally
+        //  maintained value (so we don't have to load and reparse
+        //  messages each time).
+        int size = message.getSize();
+        Enumeration e = message.getAllHeaders();
+        while (e.hasMoreElements()) {
+            size += ((Header)e.nextElement()).toString().length();
+         }
+        return size;
+     }
+
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
             sender = new MailAddress((String) in.readObject());
@@ -143,7 +170,7 @@ public class MailImpl implements Mail {
     }
 
     public void setMessage(InputStream in) throws MessagingException {
-	parse(in);
+        this.message = new JamesMimeMessage(Session.getDefaultInstance(System.getProperties(), null), in);
     }
 
     public void setMessage(MimeMessage message) {
@@ -183,7 +210,7 @@ public class MailImpl implements Mail {
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        System.err.println("saving object");
+        //System.err.println("saving object");
         lastUpdated = new Date();
         out.writeObject(sender.toString());
         out.writeObject(recipients);
@@ -201,7 +228,7 @@ public class MailImpl implements Mail {
         MimeMessage original = getMessage();
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         recipients.add(getSender());
         InternetAddress addr[] = {new InternetAddress(getSender().toString())};
         reply.setRecipients(Message.RecipientType.TO, addr);
@@ -213,7 +240,7 @@ public class MailImpl implements Mail {
     }
 
     public void writeContentTo(OutputStream out, int lines)
-    throws IOException, MessagingException {
+           throws IOException, MessagingException {
         String line;
         BufferedReader br;
         if(message != null) {

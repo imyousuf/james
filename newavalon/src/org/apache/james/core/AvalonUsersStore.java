@@ -29,14 +29,13 @@ import org.apache.log.Logger;
  */
 public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initializable {
 
-    //private Logger logger  = LogKit.getLoggerFor("UsersStore");
     private HashMap repositories;
   
     
     public void init() 
         throws Exception {
 
-        m_logger.info("AvalonUsersStore init...");
+        getLogger().info("AvalonUsersStore init...");
         repositories = new HashMap();
      
         Iterator repConfs = m_configuration.getChildren("repository");
@@ -46,7 +45,7 @@ public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initi
 	    String repClass = repConf.getAttribute("class");
 	    UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
 	    if (rep instanceof Loggable) {
-		((Loggable) rep).setLogger(m_logger);
+		setupLogger((Component)rep);
 	    }
 	    if (rep instanceof Configurable) {
 		((Configurable) rep).configure(repConf);
@@ -63,16 +62,16 @@ public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initi
 		((Initializable) rep).init();
 	    }
 	    repositories.put(repName, rep);
-	    m_logger.info("UsersRepository " + repName + " started.");
+	    getLogger().info("UsersRepository " + repName + " started.");
         }
-        m_logger.info("AvalonUsersStore ...init");
+        getLogger().info("AvalonUsersStore ...init");
     }
     
 
     public UsersRepository getRepository(String request) {
 	UsersRepository response = (UsersRepository) repositories.get(request);
 	if (response == null) {
-	    m_logger.warn("No users repository called: " + request);
+	    getLogger().warn("No users repository called: " + request);
 	}
 	return response;
     }

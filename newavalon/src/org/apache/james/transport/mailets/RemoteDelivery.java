@@ -104,7 +104,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Creation date: (2/24/00 11:25:00 PM)
      * @param Mail org.apache.mailet.Mail
      */
-    private void deliver(MailImpl mail) {
+    private void deliver(MailImpl mail, Session session) {
         try {
             log("attempting to deliver " + mail.getName());
             MimeMessage message = mail.getMessage();
@@ -131,7 +131,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
-                        Properties props = new Properties();
+                        Properties props = session.getProperties();
                         //This was an older version of JavaMail
                         props.put("mail.smtp.user", mail.getSender().toString());
                         props.put("mail.smtp.from", mail.getSender().toString());
@@ -145,7 +145,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
                         //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
 
-                        Session session = Session.getInstance(props, null);
+
                         Transport transport = session.getTransport(urlname);
                         transport.connect();
                         transport.sendMessage(message, addr);
@@ -153,6 +153,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
                     } catch (MessagingException me) {
+			log("Exception caught in RemoteDelivery.deliver() : " + me);
                         e = me;
                     /*
                     } catch (java.net.SocketException se) {
@@ -280,12 +281,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
     }
 
-    public void wake(String name, String memo) {
-        log("waking for " + name + " with memo: " + memo);
-        MailImpl mail = outgoing.retrieve(name);
-        deliver(mail);
-        outgoing.remove(name);
-    }
+
 
     /**
      * Handles checking the outgoing spool for new mail and delivering them if
@@ -293,14 +289,18 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     public void run() {
         //Checks the pool and delivers a mail message
+        Properties props = new Properties();
+        Session session = Session.getInstance(props, null);
         while (!Thread.currentThread().interrupted()) {
             try {
                 String key = outgoing.accept(delayTime);
                 log(Thread.currentThread().getName() + " will process mail " + key);
                 MailImpl mail = outgoing.retrieve(key);
-                deliver(mail);
+                deliver(mail, session);
                 outgoing.remove(key);
+                mail = null;
             } catch (Exception e) {
+		log("Exception caught in RemoteDelivery.run(): " + e);
             }
         }
     }

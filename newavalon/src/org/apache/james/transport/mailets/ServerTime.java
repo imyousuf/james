@@ -32,7 +32,7 @@ public class ServerTime extends GenericMailet {
         response.setSubject("The time is now...");
         response.setText("This mail server thinks it's " + new java.util.Date() + ".");
 
-        Collection recipients = new Vector();
+        Set recipients = new HashSet();
         Address addresses[] = response.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress((InternetAddress)addresses[0]));

@@ -10,20 +10,20 @@ package org.apache.james;
 
 /**
  * This is a fake class to display an error message if you try to execute James
- * without having Avalon intalled.
+ * without having Avalon installed.
  *
- * @version 1.0.0 (CVS $Revision: 1.1 $ $Date: 2000/11/03 16:42:59 $)
+ * @version 1.0.0 (CVS $Revision: 1.2 $ $Date: 2001/01/05 11:17:40 $)
  * @author <a href="mailto:scoobie@pop.systemy.it">Federico Barbieri</a>
  */
 
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-	    System.out.println("ERROR!");
-	    System.out.println("Cannot execute James as a stand alone application.");
-	    System.out.println("To run James, you need to have the Avalon framework installed.");
-	    System.out.println("Please refer to the Readme file to know how to run James.");
+        System.out.println("ERROR!");
+        System.out.println("Cannot execute James as a stand alone application.");
+        System.out.println("To run James, you need to have the Avalon framework installed.");
+        System.out.println("Please refer to the Readme file to know how to run James.");
     }
 }
 

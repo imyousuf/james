@@ -57,7 +57,9 @@ public class UsersFileRepository implements UsersRepository, Loggable, Component
     public void configure(Configuration conf) throws ConfigurationException {
 
 	destination = conf.getChild("destination").getAttribute("URL");
-	
+        if (!destination.endsWith(File.separator)) {
+           destination += File.separator;
+        }
     }
 
 

@@ -60,7 +60,11 @@ public class AvalonListservManager extends GenericListservManager {
         members.removeUser(address.toString());
         return true;
     }
-
+    
+    public boolean existsAddress(MailAddress address) {
+        return members.contains(address.toString());
+    }
+ 
     public String getMailetInfo() {
         return "AvalonListservManager Mailet";
     }

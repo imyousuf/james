@@ -51,6 +51,10 @@ import javax.mail.internet.ParseException;
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailAddress implements java.io.Serializable {
+    //We hardcode the serialVersionUID so that from James 1.2 on,
+    //  MailAddress will be deserializable (so your mail doesn't get lost)
+    public static final long serialVersionUID = 2779163542539434916L;
+
     private final static char[] SPECIAL =
             {'<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
 
@@ -185,12 +189,26 @@ public class MailAddress implements java.io.Serializable {
         if (obj == null) {
             return false;
         } else if (obj instanceof String) {
-            return toString().equals(obj.toString());
+            return toString().equalsIgnoreCase(obj.toString());
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
-            return getUser().equals(addr.getUser()) && getHost().toLowerCase().equals(addr.getHost().toLowerCase());
+            return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost());
         }
         return false;
+    }
+
+    /**
+     * Return a hashCode for this object which should be identical for addresses
+     * which are equivalent.  This is implemented by obtaining the default
+     * hashcode of the String representation of the MailAddress.  Without this
+     * explicit definition, the default hashCode will create different hashcodes
+     * for separate object instances.
+     *
+     * @returns the hashcode.
+     * @author Stuart Roebuck <stuart.roebuck@adolos.com>
+     */
+    public int hashCode() {
+        return toString().toLowerCase().hashCode();
     }
 
     private String parseQuotedLocalPart(String address) throws ParseException {

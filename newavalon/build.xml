@@ -42,7 +42,7 @@ All these package are in current distribution.
   -->
 
   <property name="name" value="james"/>
-  <property name="version" value="1.2a1"/>
+  <property name="version" value="1.2.2alpha"/>
   <property name="year" value="1999-2000"/>
 
   <property name="build.compiler" value="classic"/>
@@ -66,7 +66,6 @@ All these package are in current distribution.
         <property name="build.docs" value="${build.dir}/docs"/>
         <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
 	<property name="build.javadocs" value="${build.dir}/javadocs"/>
-	<property name="build.BARINF" value="${build.dir}/BAR-INF"/>
 	<property name="build.lib" value="${build.dir}/lib"/>
 
 	<property name="constants.file" value="org/apache/james/Constants.java"/>
@@ -124,9 +123,6 @@ All these package are in current distribution.
     <copy todir="${build.src}">
       <fileset dir="${src.dir}" excludes="**/CVS/**,*.xml"/>
     </copy>
-    <copy todir="${build.BARINF}">
-      <fileset dir="${conf.dir}" includes="${conf.file},${blockdefs.file}"/>
-    </copy>
 
     <copy file="${lib.dir}/avalon-core-blocks.bar" tofile="${build.lib}/avalon-core-blocks.bar"/>
 
@@ -162,11 +158,6 @@ All these package are in current distribution.
          manifest="${build.src}/Manifest.mf">
 
        <include name="org/**"/>
-
-       <fileset dir="${build.BARINF}" prefix="BAR-INF/">
-         <include name="${conf.file}"/>
-         <include name="${blockdefs.file}"/>
-       </fileset>
 
     </jar>
 
