@@ -47,7 +47,7 @@ import java.io.*;
 /**
  * <P>Does an antivirus scan check using a ClamAV daemon (CLAMD)</P>
  * 
- * <P> Interacts directly with the daemon using the <I>stream</I> method,
+ * <P> Interacts directly with the daemon using the "stream" method,
  * which should have the lowest possible overhead.</P>
  * <P>The CLAMD daemon will typically reside on <I>localhost</I>, but could reside on a
  * different host.
@@ -58,8 +58,8 @@ import java.io.*;
  * 
  * <P>Handles the following init parameters:</P>
  * <UL>
- *    <LI>&lt;<CODE>debug</CODE>&gt;.</LI>
- *    <LI>&lt;<CODE>host</CODE>&gt;: the host name of the server where CLAMD runs. It can either be
+ *    <LI><CODE>&lt;debug&gt;</CODE>.</LI>
+ *    <LI><CODE>&lt;host&gt;</CODE>: the host name of the server where CLAMD runs. It can either be
  *        a machine name, such as
  *        "<code>java.sun.com</code>", or a textual representation of its
  *        IP address. If a literal IP address is supplied, only the
@@ -67,13 +67,13 @@ import java.io.*;
  *        If the machine name resolves to multiple IP addresses, <I>round-robin load sharing</I> will
  *        be used.
  *        The default is <CODE>localhost</CODE>.</LI>
- *    <LI>&lt;<CODE>port</CODE>&gt;: the port on which CLAMD listens. The default is <I>3310</I>.</LI>
- *    <LI>&lt;<CODE>maxPings</CODE>&gt;: the maximum number of connection retries during startup.
+ *    <LI><CODE>&lt;port&gt;</CODE>: the port on which CLAMD listens. The default is <I>3310</I>.</LI>
+ *    <LI><CODE>&lt;maxPings&gt;</CODE>: the maximum number of connection retries during startup.
  *        If the value is <I>0</I> no startup test will be done.
  *        The default is <I>6</I>.</LI>
- *    <LI>&lt;<CODE>pingIntervalMilli</CODE>&gt;: the interval between each connection retry during startup.
+ *    <LI><CODE>&lt;pingIntervalMilli&gt;</CODE>: the interval between each connection retry during startup.
  *        The default is <I>30000</I> (30 seconds).</LI>
- *    <LI>&lt;<CODE>streamBufferSize</CODE>&gt;: the BufferedOutputStream buffer size to use 
+ *    <LI><CODE>&lt;streamBufferSize&gt;</CODE>: the BufferedOutputStream buffer size to use 
  *        writing to the <I>stream connection</I>. The default is <I>8192</I>.</LI>
  * </UL>
  * 
@@ -82,11 +82,11 @@ import java.io.*;
  *    <LI>During initialization:</LI>
  *    <OL>
  *        <LI>Gets all <CODE>config.xml</CODE> parameters, handling the defaults;</LI>
- *        <LI>resolves the <CODE>host</CODE> parameter, creating the round-robin IP list;</LI>
+ *        <LI>resolves the <CODE>&lt;host&gt;</CODE> parameter, creating the round-robin IP list;</LI>
  *        <LI>connects to CLAMD at the first IP in the round-robin list, on
- *            the specified <CODE>port</CODE>;</LI>
- *        <LI>if unsuccessful, retries every <CODE>pingIntervalMilli</CODE> milliseconds up to
- *            <CODE>maxPings</CODE> times;</LI>
+ *            the specified <CODE>&lt;port&gt;</CODE>;</LI>
+ *        <LI>if unsuccessful, retries every <CODE>&lt;pingIntervalMilli&gt;</CODE> milliseconds up to
+ *            <CODE>&lt;maxPings&gt;</CODE> times;</LI>
  *        <LI>sends a <CODE>PING</CODE> request;</LI>
  *        <LI>waits for a <CODE>PONG</CODE> answer;</LI>
  *        <LI>repeats steps 3-6 for every other IP resolved.
@@ -94,22 +94,22 @@ import java.io.*;
  *    <LI>For every mail</LI>
  *    <OL>
  *        <LI>connects to CLAMD at the "next" IP in the round-robin list, on
- *            the specified <CODE>port</CODE>, and increments the "next" index;
+ *            the specified <CODE>&lt;port&gt;</CODE>, and increments the "next" index;
  *            if the connection request is not accepted tries with the next one
  *            in the list unless all of them have failed;</LI>
- *        <LI>sends a <CODE>STREAM</CODE> request;</LI>
- *        <LI>parses the <CODE>PORT <I>streamPort</I></CODE> answer obtaining the port number;</LI>
+ *        <LI>sends a "<CODE>STREAM</CODE>" request;</LI>
+ *        <LI>parses the "<CODE>PORT <I>streamPort</I></CODE>" answer obtaining the port number;</LI>
  *        <LI>makes a second connection (the <I>stream connection</I>) to CLAMD at the same host (or IP)
  *            on the <I>streamPort</I> just obtained;</LI>
  *        <LI>sends the mime message to CLAMD (using {@link MimeMessage#writeTo(OutputStream)})
  *            through the <I>stream connection</I>;</LI>
  *        <LI>closes the <I>stream connection</I>;</LI>
- *        <LI>gets the <CODE>OK</CODE> or <CODE>FOUND</CODE> answer from the main connection;</LI>
+ *        <LI>gets the "<CODE>OK</CODE>" or "<CODE>... FOUND</CODE>" answer from the main connection;</LI>
  *        <LI>closes the main connection;</LI>
- *        <LI>sets the <CODE>org.apache.james.infected</CODE> <I>mail attribute</I> to either
- *            <CODE>true</CODE> or <CODE>false</CODE>;</LI>
- *        <LI>adds the <CODE>X-MessageIsInfected</CODE> <I>header</I> to either
- *            <CODE>true</CODE> or <CODE>false</CODE>;</LI>
+ *        <LI>sets the "<CODE>org.apache.james.infected</CODE>" <I>mail attribute</I> to either
+ *            "<CODE>true</CODE>" or "<CODE>false</CODE>";</LI>
+ *        <LI>adds the "<CODE>X-MessageIsInfected</CODE>" <I>header</I> to either
+ *            "<CODE>true</CODE>" or "<CODE>false</CODE>";</LI>
  *    </OL>
  * </UL>
  * 
@@ -130,19 +130,25 @@ import java.io.*;
  *
  * ...
  *
- *    &lt;mailet match="All" class="ClamAVScan" onMailetException="ignore"&gt;
+ *    &lt;!-- Do an antivirus scan --&gt;
+ *    &lt;mailet match="All" class="ClamAVScan" onMailetException="ignore"/&gt;
  *
  *    &lt;!-- If infected go to virus processor --&gt;
  *    &lt;mailet match="HasMailAttributeWithValue=org.apache.james.infected, true" class="ToProcessor"&gt;
  *       &lt;processor&gt; virus &lt;/processor&gt;
  *    &lt;/mailet&gt;
  *
+ *    &lt;!-- Check attachment extensions for possible viruses --&gt;
+ *    &lt;mailet match="AttachmentFileNameIs=-d -z *.exe *.com *.bat *.cmd *.pif *.scr *.vbs *.avi *.mp3 *.mpeg *.shs" class="ToProcessor"&gt;
+ *       &lt;processor&gt; bad-extensions &lt;/processor&gt;
+ *    &lt;/mailet&gt;
+ *
  * ...
  *
  * &lt;!-- Messages containing viruses --&gt;
- *
- * &lt;!-- To avoid a loop while bouncing --&gt;
  * &lt;processor name="virus"&gt;
+ *
+ *    &lt;!-- To avoid a loop while bouncing --&gt;
  *    &lt;mailet match="All" class="SetMailAttribute"&gt;
  *       &lt;org.apache.james.infected&gt;true, bouncing&lt;/org.apache.james.infected&gt;
  *    &lt;/mailet&gt;
