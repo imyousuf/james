@@ -141,6 +141,7 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                 process(mail);
                 spool.remove(key);
                 logger.log("==== Removed from spool mail " + mail.getName() + " ====", "Processor", logger.INFO);
+                mail = null;
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "Processor", logger.ERROR);
