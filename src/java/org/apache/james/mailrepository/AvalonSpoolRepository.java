@@ -18,9 +18,9 @@ import java.util.Iterator;
  * Implementation of a MailRepository on a FileSystem.
  *
  * Requires a configuration element in the .conf.xml file of the form:
- *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *  &lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *              type="MAIL"
- *              model="SYNCHRONOUS"/>
+ *              model="SYNCHRONOUS"/&gt;
  * Requires a logger called MailRepository.
  *
  * @version 1.0.0, 24/04/1999

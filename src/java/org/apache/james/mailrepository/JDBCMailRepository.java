@@ -60,10 +60,10 @@ import org.apache.mailet.MailRepository;
  * Implementation of a MailRepository on a database.
  *
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br><repository destinationURL="db://<datasource>/<table_name>/<repository_name>"
+ *  <br>&lt;repository destinationURL="db://<datasource>/<table_name>/&lt;repository_name&gt;"
  *  <br>            type="MAIL"
- *  <br>            model="SYNCHRONOUS"/>
- *  <br></repository>
+ *  <br>            model="SYNCHRONOUS"/&gt;
+ *  <br>&lt;/repository&gt;
  * <p>destinationURL specifies..(Serge??)
  * <br>Type can be SPOOL or MAIL
  * <br>Model is currently not used and may be dropped

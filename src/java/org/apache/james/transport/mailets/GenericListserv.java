@@ -75,19 +75,19 @@ public abstract class GenericListserv extends GenericMailet {
     }
 
     /**
-     * This takes the subject string and reduces (normailzes) it.
+     * <p>This takes the subject string and reduces (normailzes) it.
      * Multiple "Re:" entries are reduced to one, and capitalized.  The
      * prefix is always moved/placed at the beginning of the line, and
      * extra blanks are reduced, so that the output is always of the
-     * form:
-     *
-     * <prefix> + <one-optional-"Re:"> + <remaining subject>
-     *
-     * I have done extensive testing of this routine with a standalone
+     * form:</p>
+     * <code>
+     * &lt;prefix&gt; + &lt;one-optional-"Re:"*gt; + &lt;remaining subject&gt;
+     * </code>
+     * <p>I have done extensive testing of this routine with a standalone
      * driver, and am leaving the commented out debug messages so that
      * when someone decides to enhance this method, it can be yanked it
      * from this file, embedded it with a test driver, and the comments
-     * enabled.
+     * enabled.</p>
      */
 
     static private String normalizeSubject(final String subj, final String prefix) {

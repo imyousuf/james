@@ -186,11 +186,11 @@ public class AvalonMailStore
      * This method accept a Configuration object as hint and return the
      * corresponding MailRepository.
      * The Configuration must be in the form of:
-     * <repository destinationURL="[URL of this mail repository]"
+     * &lt;repository destinationURL="[URL of this mail repository]"
      *             type="[repository type ex. OBJECT or STREAM or MAIL etc.]"
-     *             model="[repository model ex. PERSISTENT or CACHE etc.]">
+     *             model="[repository model ex. PERSISTENT or CACHE etc.]"&gt;
      *   [addition configuration]
-     * </repository>
+     * &lt;/repository&gt;
      *
      * @param hint the Configuration object used to look up the repository
      *

@@ -17,10 +17,10 @@ import javax.mail.MessagingException;
  * This mailet redirects the mail to the named processor
  *
  * Sample configuration:
- * <mailet match="All" class="ToProcessor">
- *   <processor>spam</processor>
- *   <notice>Notice attached to the message (optional)</notice>
- * </mailet>
+ * &lt;mailet match="All" class="ToProcessor"&gt;
+ *   &lt;processor&gt;spam&lt;/processor&gt;
+ *   &lt;notice&gt;Notice attached to the message (optional)&lt;/notice&gt;
+ * &lt;/mailet&gt;
  *
  */
 public class ToProcessor extends GenericMailet {

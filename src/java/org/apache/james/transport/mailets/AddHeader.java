@@ -17,10 +17,10 @@ import org.apache.mailet.Mail;
  *
  * Sample configuration:
  *
- * <mailet match="All" class="AddHeader">
- *   <name>X-MailetHeader</name>
- *   <value>TheHeaderValue</value>
- * </mailet>
+ * &lt;mailet match="All" class="AddHeader"&gt;
+ *   &lt;name&gt;X-MailetHeader&lt;/name&gt;
+ *   &lt;value&gt;TheHeaderValue&lt;/value&gt;
+ * &lt;/mailet&gt;
  *
  * @version 1.0.0, 2002-09-11
  */

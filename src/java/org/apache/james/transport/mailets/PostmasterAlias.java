@@ -21,7 +21,7 @@ import org.apache.mailet.MailetContext;
 /**
  * Rewrites recipient addresses to make sure email for the postmaster is
  * always handled.  This mailet is silently inserted at the top of the root
- * spool processor.  All recipients mapped to postmaster@<servernames> are
+ * spool processor.  All recipients mapped to postmaster@&lt;servernames&gt; are
  * changed to the postmaster account as specified in the server conf.
  *
  */

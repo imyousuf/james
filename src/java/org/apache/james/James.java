@@ -71,7 +71,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.42 $
+ * @version This is $Revision: 1.43 $
 
  */
 public class James
@@ -840,7 +840,7 @@ public class James
      * UsersRepository.
      *
      * @param userName String representing user name, that is the portion of
-     * an email address before the '@<domain>'.
+     * an email address before the '@&lt;domain&gt;'.
      * @param password String plaintext password
      * @return boolean true if user added succesfully, else false.
      */

@@ -22,13 +22,13 @@ import java.util.LinkedList;
  * Implementation of a SpoolRepository on a database.
  *
  * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br><repository destinationURL="town://path"
+ *  <br>&lt;repository destinationURL="town://path"
  *  <br>            type="MAIL"
- *  <br>            model="SYNCHRONOUS"/>
- *  <br>            <driver>sun.jdbc.odbc.JdbcOdbcDriver</conn>
- *  <br>            <conn>jdbc:odbc:LocalDB</conn>
- *  <br>            <table>Message</table>
- *  <br></repository>
+ *  <br>            model="SYNCHRONOUS"/&gt;
+ *  <br>            &lt;driver&gt;sun.jdbc.odbc.JdbcOdbcDriver&lt;/conn&gt;
+ *  <br>            &lt;conn&gt;jdbc:odbc:LocalDB&lt;/conn&gt;
+ *  <br>            &lt;table&gt;Message&lt;/table&gt;
+ *  <br>&lt;/repository&gt;
  * <p>destinationURL specifies..(Serge??)
  * <br>Type can be SPOOL or MAIL
  * <br>Model is currently not used and may be dropped

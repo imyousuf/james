@@ -35,11 +35,11 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * message.  If you do not specify one, it will use the postmaster's address
  *
  * Sample configuration:
- * <mailet match="All" class="NotifySender">
- *   <sendingAddress>nobounce@localhost</sendingAddress>
- *   <attachStackTrace>true</attachStackTrace>
- *   <notice>Notice attached to the message (optional)</notice>
- * </mailet>
+ * &lt;mailet match="All" class="NotifySender">
+ *   &lt;sendingAddress&gt;nobounce@localhost&lt;/sendingAddress&gt;
+ *   &lt;attachStackTrace&gt;true&lt;/attachStackTrace&gt;
+ *   &lt;notice&gt;Notice attached to the message (optional)&lt;/notice&gt;
+ * &lt;/mailet&gt;
  *
  */
 public class NotifySender extends GenericMailet {
