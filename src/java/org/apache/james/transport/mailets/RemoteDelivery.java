@@ -53,9 +53,14 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.28 $
+ * This is $Revision: 1.29 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
+
+    /**
+     * Controls certain log messages
+     */
+    private final boolean DEBUG = false;
 
     private SpoolRepository outgoing; // The spool of outgoing mail
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
@@ -146,7 +151,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     private boolean deliver(MailImpl mail, Session session) {
         try {
-            log("attempting to deliver " + mail.getName());
+            if (DEBUG) {
+                log("attempting to deliver " + mail.getName());
+            }
             MimeMessage message = mail.getMessage();
 
             //Create an array of the recipients as InternetAddress objects
@@ -190,7 +197,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         String outgoingmailserver = i.next().toString ();
                         StringBuffer logMessageBuffer =
                             new StringBuffer(256)
-                                    .append("attempting delivery of ")
+                                    .append("Attempting delivery of ")
                                     .append(mail.getName())
                                     .append(" to host ")
                                     .append(outgoingmailserver)
@@ -229,7 +236,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                         logMessageBuffer =
                             new StringBuffer(256)
-                                    .append("mail (")
+                                    .append("Mail (")
                                     .append(mail.getName())
                                     .append(") sent successfully to ")
                                     .append(outgoingmailserver);
@@ -281,7 +288,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     throw lastError;
                 }
             } else {
-                log("no recipients specified... not sure how this could have happened.");
+                log("No recipients specified... not sure how this could have happened.");
             }
         } catch (SendFailedException sfe) {
             //Would like to log all the types of email addresses
@@ -413,9 +420,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             getMailetContext().bounce(mail, sout.toString());
         } catch (MessagingException me) {
-            log("encountered unexpected messaging exception while bouncing message: " + me.getMessage());
+            log("Encountered unexpected messaging exception while bouncing message: " + me.getMessage());
         } catch (Exception e) {
-            log("encountered unexpected exception while bouncing message: " + e.getMessage());
+            log("Encountered unexpected exception while bouncing message: " + e.getMessage());
         }
     }
 
@@ -436,7 +443,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         MailImpl mail = (MailImpl)genericmail;
 
         //Do I want to give the internal key, or the message's Message ID
-        log("Remotely delivering mail " + mail.getName());
+        if (DEBUG) {
+            log("Remotely delivering mail " + mail.getName());
+        }
         Collection recipients = mail.getRecipients();
 
         //Must first organize the recipients into distinct servers (name made case insensitive)
@@ -460,13 +469,15 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
             String host = (String) i.next();
             Collection rec = (Collection) targets.get(host);
-            StringBuffer logMessageBuffer =
-                new StringBuffer(128)
-                        .append("sending mail to ")
-                        .append(rec)
-                        .append(" on host ")
-                        .append(host);
-            log(logMessageBuffer.toString());
+            if (DEBUG) {
+                StringBuffer logMessageBuffer =
+                    new StringBuffer(128)
+                            .append("Sending mail to ")
+                            .append(rec)
+                            .append(" on host ")
+                            .append(host);
+                log(logMessageBuffer.toString());
+            }
             mail.setRecipients(rec);
             StringBuffer nameBuffer =
                 new StringBuffer(128)
@@ -539,12 +550,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             try {
                 String key = outgoing.accept(delayTime);
                 try {
-                    StringBuffer logMessageBuffer = 
-                        new StringBuffer(128)
-                                .append(Thread.currentThread().getName())
-                                .append(" will process mail ")
-                                .append(key);
-                    log(logMessageBuffer.toString());
+                    if (DEBUG) {
+                        StringBuffer logMessageBuffer = 
+                            new StringBuffer(128)
+                                    .append(Thread.currentThread().getName())
+                                    .append(" will process mail ")
+                                    .append(key);
+                        log(logMessageBuffer.toString());
+                    }
                     MailImpl mail = outgoing.retrieve(key);
                     // Retrieve can return null if the mail is no longer on the outgoing spool.
                     // In this case we simply continue to the next key

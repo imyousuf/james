@@ -14,8 +14,7 @@ import org.apache.mailet.MailetException;
 import javax.mail.MessagingException;
 
 /**
- * No idea what this class is for..... seems to send processor of a message to
- * another mailet (which I didn't think we were supporting)
+ * This mailet redirects the mail to the named processor
  *
  * Sample configuration:
  * <mailet match="All" class="ToProcessor">
@@ -27,6 +26,11 @@ import javax.mail.MessagingException;
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class ToProcessor extends GenericMailet {
+
+    /**
+     * Controls certain log messages
+     */
+    private final boolean DEBUG = false;
 
     /**
      * The name of the processor to which this mailet forwards mail
@@ -59,13 +63,15 @@ public class ToProcessor extends GenericMailet {
      * @throws MessagingException in all cases
      */
     public void service(Mail mail) throws MessagingException {
-        StringBuffer logBuffer =
-            new StringBuffer(128)
-                    .append("Sending mail ")
-                    .append(mail)
-                    .append(" to ")
-                    .append(processor);
-        log(logBuffer.toString());
+        if (DEBUG) {
+            StringBuffer logBuffer =
+                new StringBuffer(128)
+                        .append("Sending mail ")
+                        .append(mail)
+                        .append(" to ")
+                        .append(processor);
+            log(logBuffer.toString());
+        }
         mail.setState(processor);
         if (noticeText != null) {
             if (mail.getErrorMessage() == null) {

@@ -195,6 +195,11 @@ import org.apache.mailet.MailAddress;
  */
 public class Redirect extends GenericMailet {
 
+    /**
+     * Controls certain log messages
+     */
+    private final boolean DEBUG = false;
+
     // The values that indicate how to attach the original mail
     // to the redirected mail.
 
@@ -419,23 +424,27 @@ public class Redirect extends GenericMailet {
       *
       */
     public void init() throws MessagingException {
-        log("redirect init");
+        if (DEBUG) {
+            log("Redirect init");
+        }
         if(isStatic()) {
-            sender       = (getSender() == null) ? getMailetContext().getPostmaster() : getSender();
-            replyTo      = (getReplyTo() == null) ? getMailetContext().getPostmaster() : getReplyTo();
+            sender       = getSender();
+            replyTo      = getReplyTo();
             messageText  = getMessage();
             recipients   = getRecipients();
             apparentlyTo = getTo();
-            StringBuffer logBuffer =
-                new StringBuffer(1024)
-                        .append("static, sender=")
-                        .append(sender)
-                        .append(", replyTo=")
-                        .append(replyTo)
-                        .append(", message=")
-                        .append(messageText)
-                        .append(" ");
-            log(logBuffer.toString());
+            if (DEBUG) {
+                StringBuffer logBuffer =
+                    new StringBuffer(1024)
+                            .append("static, sender=")
+                            .append(sender)
+                            .append(", replyTo=")
+                            .append(replyTo)
+                            .append(", message=")
+                            .append(messageText)
+                            .append(" ");
+                log(logBuffer.toString());
+            }
         }
     }
 
@@ -458,7 +467,9 @@ public class Redirect extends GenericMailet {
         MimeMessage reply = null;
         //Create the message
         if(getInLineType() != UNALTERED) {
-            log("alter message inline=:" + getInLineType());
+            if (DEBUG) {
+                log("Alter message inline=:" + getInLineType());
+            }
             reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
                                                                null));
             StringWriter sout = new StringWriter();
@@ -535,7 +546,9 @@ public class Redirect extends GenericMailet {
         } else {
             // if we need the original, create a copy of this message to redirect
             reply = getPassThrough() ? new MimeMessage(message) : message;
-            log("message resent unaltered:");
+            if (DEBUG) {
+                log("Message resent unaltered.");
+            }
         }
         //Set additional headers
         reply.setSubject(getSubjectPrefix() + message.getSubject());
