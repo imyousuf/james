@@ -46,10 +46,7 @@
 </p>
 <ul>
 <li>
-<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
-</li>
-<li>
-<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+<a href="http://james.apache.org/download.cgi">Current Release(s)</a>
 </li>
 </ul>
 <p>
@@ -277,6 +274,97 @@ the message.  All recipients are returned.</p>
 <p>Description: Matches mails that have the specified header.  All recipients are returned.</p>
 
 <p>Configuration string: The name of the header whose presence determines the match.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttribute"><strong>HasMailAttribute</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute.  All 
+recipients are returned.</p>
+
+<p>Configuration string: The name of the Mail Attribute to match. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttribute=name" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValue"><strong>HasMailAttributeWithValue</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and the
+specified MailAttribute value. All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The 
+String.equals(String) method tests for a match.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the String value to be matched. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValue=name, value" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValueRegex"><strong>HasMailAttributeWithValueRegex</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and 
+a MailAttribute value that matches the specified regular expression.
+All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The regular
+expression must follow Perl5 syntax.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the regular expression used to match the value against. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValueRegex=name, regex" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
 
 </blockquote>
 </td>
