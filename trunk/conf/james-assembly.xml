@@ -18,6 +18,85 @@
              role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
   </block>
 
+  <!-- The James Spool Manager block  -->
+  <block class="org.apache.james.transport.JamesSpoolManager" 
+	name="spoolmanager" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+  </block>
+
+
+  <block class="org.apache.james.dnsserver.DNSServer" name="dnsserver" />
+
+  <block class="org.apache.james.remotemanager.RemoteManager" name="remotemanager" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
+  <block class="org.apache.james.imapserver.IMAPServer" name="imapserver" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- POP3 Server -->
+  <block class="org.apache.james.pop3server.POP3Server" name="pop3server" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- SMTP Server -->
+  <block class="org.apache.james.smtpserver.SMTPServer" name="smtpserver" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- NNTP Server -->
+  <block class="org.apache.james.nntpserver.NNTPServer" name="nntpserver" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections" 
+        role="org.apache.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="nntp-repository"
+        role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+  </block>
+
+  <!-- NNTP Repository -->
+  <block class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" name="nntp-repository" >
+  </block>
+
   <!-- The High Level Storage block -->
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
     <provide name="objectstorage"
