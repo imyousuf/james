@@ -56,9 +56,9 @@ This directory contains some libraries required to build and run the container s
   </library>
 
   <library>
-    <filename>mail_1_3.jar</filename>
+    <filename>mail-1.3.1.jar</filename>
     <url>http://java.sun.com/products/javamail/</url>
-    <version>1.3</version>
+    <version>1.3.1</version>
     <name>JavaMail</name>
     <desc>Client and message parsing libraries from JavaSoft.  Includes all service providers.</desc>
   </library>
@@ -160,5 +160,5 @@ Dev mailing list : openejb-dev@exolab.org
 CVS mailing list : openejb-cvs@exolab.org
          Website : www.OpenEJB.org
 ================================================================
-$Id: readme.xml,v 1.2.4.2 2004/05/03 03:58:07 serge Exp $
+$Id: readme.xml,v 1.2.4.3 2004/05/13 02:56:03 noel Exp $
 
