@@ -14,6 +14,8 @@ import org.apache.java.util.*;
 import java.util.*;
 import java.io.*;
 import org.apache.james.*;
+import javax.mail.internet.*;
+import javax.mail.MessagingException;
 
 /**
  * Implementation of a Repository to store MessageContainer.
@@ -29,11 +31,13 @@ public class MessageContainerRepository implements Store.Repository {
     public final static String MESSAGE_CONTAINER = "MESSAGE_CONTAINER";
 
     private Store.StreamRepository sr;
+    private Store.ObjectRepository or;
     private String path;
     private String name;
     private String destination;
     private String type;
     private String model;
+    private Lock lock;
 
     public MessageContainerRepository() {
     }
@@ -50,6 +54,8 @@ public class MessageContainerRepository implements Store.Repository {
 
         Store store = (Store) comp.getComponent(Interfaces.STORE);
         this.sr = (Store.StreamRepository) store.getPrivateRepository(destination, Store.STREAM, model);
+        this.or = (Store.ObjectRepository) store.getPrivateRepository(destination, Store.OBJECT, model);
+        lock = new Lock();
     }
     
     public String getName() {
@@ -68,32 +74,75 @@ public class MessageContainerRepository implements Store.Repository {
         return destination + childName.replace('.', '\\') + "\\";
     }
     
-    public void store(String key, MessageContainer mc) {
-        PrintWriter out = new PrintWriter(sr.store(key));
-        try {
-            InputStream is = mc.getBodyInputStream();
-            BufferedReader in = new BufferedReader(new InputStreamReader(is));
-            is.mark(Integer.MAX_VALUE);
-            for (String nextLine = in.readLine(); nextLine != null; nextLine = in.readLine()) {
-                out.println(nextLine);
+    public synchronized void unlock(Object key) {
+
+        if (lock.unlock(key)) {
+            notifyAll();
+        } else {
+            throw new LockException("Your thread do not own the lock of record " + key);
+        }
+    }
+
+    public synchronized void lock(Object key) {
+
+        if (lock.lock(key)) {
+            notifyAll();
+        } else {
+            throw new LockException("Record " + key + " already locked by another thread");
+        }
+    }
+
+    public synchronized String accept() {
+
+        while (true) {
+            for(Enumeration e = or.list(); e.hasMoreElements(); ) {
+                Object o = e.nextElement();
+                if (lock.lock(o)) {
+                    return o.toString();
+                }
             }
-            out.flush();
-            out.close();
-            is.reset();
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public synchronized void store(String key, MessageContainer mc) {
+        try {
+            OutputStream outStream = sr.store(key);
+            MimeMessage msg = mc.getMessage();
+            msg.writeTo(outStream);
+            mc.setMessage((MimeMessage) null);
+            or.store(key, mc);
+            mc.setMessage(msg);
+            notifyAll();
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing Message Container: " + e);
         }
     }
 
-    public MessageContainer retrieve(String key) {
-        MessageContainer mc = new MessageContainer();
-        mc.setBodyInputStream(sr.retrieve(key));
+    public synchronized void store(String key, String sender, Vector recipients, MimeMessage message) {
+        MessageContainer mc = new MessageContainer(sender, recipients, message);
         mc.setMessageId(key);
+        this.store(key, mc);
+    }
+
+    public synchronized MessageContainer retrieve(String key) {
+        MessageContainer mc = (MessageContainer) or.get(key);
+        try {
+            mc.setMessage(sr.retrieve(key));
+        } catch (MessagingException me) {
+            throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+        }
         return mc;
     }
     
-    public void remove(String key) {
+    public synchronized void remove(String key) {
+        lock(key);
         sr.remove(key);
+        or.remove(key);
+        unlock(key);
     }
 
     public Enumeration list() {

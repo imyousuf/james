@@ -23,42 +23,78 @@ import org.apache.avalon.configuration.*;
  */
 public class MessageContainer implements Serializable {
 
-    private InputStream in;
-    private DeliveryState state;
+    public final static String GHOST = "GHOST";
+    public final static String EMPTY = "EMPTY";
+    public final static String DEFAULT = "DEFAULT";
+
     private String messageId;
+    private String state;
+    private MimeMessage message;
+    private String sender;
+    private Vector recipients;
 
     public MessageContainer() {
-        state = new DeliveryState();
+        state = GHOST;
     }
 
     public MessageContainer(String sender, Vector recipients) {
-        state = new DeliveryState();
-        state.setSender(sender);
-        state.setRecipients(recipients);
-        this.in = null;
+        this();
+        this.sender = sender;
+        this.recipients = recipients;
     }
 
-    public void setBodyInputStream(InputStream i) {
-        in = i;
+    public MessageContainer(String sender, Vector recipients, InputStream msg)
+    throws MessagingException {
+        this(sender, recipients, new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), msg));
     }
 
-    public InputStream getBodyInputStream() {
-        return in;
-    }	
-
-    public void setState(DeliveryState ds) {
-        state = ds;
+    public MessageContainer(String sender, Vector recipients, MimeMessage message) {
+        this(sender, recipients);
+        this.message = message;
+    }
+    
+    public void setState(String state) {
+        this.state = state;
     }
 
-    public DeliveryState getState() {
+    public String getState() {
         return state;
     }
     
+    public void setRecipients(Vector recipients) {
+        this.recipients = recipients;
+    }
+
+    public Vector getRecipients() {
+        return recipients;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+    
+    public String getSender() {
+        return sender;
+    }
+
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
     
     public String getMessageId() {
         return messageId;
+    }
+    
+    public void setMessage(MimeMessage message) {
+        this.message = message;
+    }
+
+    public void setMessage(InputStream in)
+    throws MessagingException {
+        this.setMessage(new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), in));
+    }
+
+    public MimeMessage getMessage() {
+        return message;
     }
 }

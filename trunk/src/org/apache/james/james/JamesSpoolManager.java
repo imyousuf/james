@@ -23,7 +23,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
     private ComponentManager comp;
     private Configuration conf;
-    private MessageSpool spool;
+    private MessageContainerRepository spool;
     private Logger logger;
     private LocalAgent localAgent;
     private RemoteAgent remoteAgent;
@@ -46,15 +46,15 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 	public void init() throws Exception {
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("JamesSpoolManager init...", "SMTPServer", logger.INFO);
-        this.spool = (MessageSpool) comp.getComponent("spool");
+        logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
+        this.spool = (MessageContainerRepository) comp.getComponent("spool");
         this.unknownRecipients = new Vector();
         try {
             this.localAgent = new LocalAgent();
             this.localAgent.setConfiguration(conf);
             this.localAgent.setComponentManager(comp);
         } catch (Exception e) {
-            logger.log("JamesSpoolManager: Exception in localAgent: " + e.getMessage(), "SMTPServer", logger.ERROR);
+            logger.log("JamesSpoolManager: Exception in localAgent: " + e.getMessage(), "JAMES", logger.ERROR);
         }
         
         try {
@@ -62,7 +62,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
             this.remoteAgent.setConfiguration(conf);
             this.remoteAgent.setComponentManager(comp);
         } catch (Exception e) {
-            logger.log("JamesSpoolManager: Exception in remoteAgent: " + e.getMessage(), "SMTPServer", logger.ERROR);
+            logger.log("JamesSpoolManager: Exception in remoteAgent: " + e.getMessage(), "JAMES", logger.ERROR);
         }
     }
 
@@ -72,18 +72,17 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
      */
     public void run() {
 
-        logger.log("run JamesSpoolManager", "SMTPServer", logger.INFO);
+        logger.log("run JamesSpoolManager", "JAMES", logger.INFO);
 
         String key;
         while(true) {
 
             try {
-                logger.log("running JamesSpoolManager", "SMTPServer", logger.INFO);
+                logger.log("running JamesSpoolManager", "JAMES", logger.INFO);
 
                 key = spool.accept();
                 MessageContainer mc = spool.retrieve(key);
-                DeliveryState state = mc.getState();
-                Vector recipients = state.getRecipients();
+                Vector recipients = mc.getRecipients();
                 while (!recipients.isEmpty()) {
                     for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
                         String recipient = (String) e.nextElement();
@@ -96,16 +95,11 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                     remoteAgent.delivery(mc);
                 }
                 // if (!unknownRecipients.isEmpty()) store it to some errorRepository and log error.
-                mc.getBodyInputStream().close();
                 spool.remove(key);
             } catch (Exception e) {
-                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "SMTPServer", logger.ERROR);
+                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "JAMES", logger.ERROR);
             }
         }
-    }
-    
-    private boolean isValid(String recipient) {
-        return true;
     }
     
     public void stop() {

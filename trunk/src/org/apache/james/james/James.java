@@ -15,6 +15,7 @@ import org.apache.james.*;
 import java.net.*;
 import java.io.*;
 import javax.mail.internet.*;
+import javax.mail.Session;
 import java.util.Date;
 import java.util.*;
 
@@ -29,8 +30,8 @@ public class James implements MailServer, Block {
     private SimpleComponentManager smtpServerCM;
     private Logger logger;
     private ThreadManager threadManager;
-    private MessageSpool spool;
     private Store store;
+    private MessageContainerRepository spool;
     private Store.Repository localInbox;
     private Store.Repository mailUsers;
     
@@ -54,40 +55,37 @@ public class James implements MailServer, Block {
         smtpServerCM = new SimpleComponentManager(comp);
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("SMTPServer init...", "SMTPServer", logger.INFO);
+        logger.log("JAMES init...", "JAMES", logger.INFO);
+        this.serverName = conf.getConfiguration("servername", "SERVERNAME-NOT-FOUND").getValue();
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
-
-        this.serverName = conf.getConfiguration("servername", "SERVERNAME-NOT-FOUND").getValue();
 
         try {
             this.localInbox = (Store.Repository) store.getPublicRepository("localInbox");
         } catch (RuntimeException e) {
-            logger.log("Cannot open public Repository LocalInbox", "SMTPServer", logger.ERROR);
+            logger.log("Cannot open public Repository LocalInbox", "JAMES", logger.ERROR);
             throw e;
         }
-        logger.log("Public Repository LocalInbox opened", "SMTPServer", logger.INFO);
+        logger.log("Public Repository LocalInbox opened", "JAMES", logger.INFO);
         smtpServerCM.put("localInbox", localInbox);
 
         try {
             this.mailUsers = (Store.Repository) store.getPublicRepository("MailUsers");
         } catch (RuntimeException e) {
-            logger.log("Cannot open public Repository MailUsers", "SMTPServer", logger.ERROR);
+            logger.log("Cannot open public Repository MailUsers", "JAMES", logger.ERROR);
             throw e;
         }
-        logger.log("Public Repository MailUsers opened", "SMTPServer", logger.INFO);
+        logger.log("Public Repository MailUsers opened", "JAMES", logger.INFO);
         smtpServerCM.put("mailUsers", mailUsers);
 
+        String spoolRepository = conf.getConfiguration("spoolRepository", ".").getValue();
         try {
-            spool = new MessageSpool();
-            spool.setConfiguration(conf.getConfiguration("spool"));
-            spool.setComponentManager(smtpServerCM);
-            spool.init();
-        } catch (Exception e) {
-            logger.log("Exception in Message spool init: " + e.getMessage(), "SMTPServer", logger.ERROR);
+            this.spool = (MessageContainerRepository) store.getPrivateRepository(spoolRepository, MessageContainerRepository.MESSAGE_CONTAINER, Store.ASYNCHRONOUS);
+        } catch (RuntimeException e) {
+            logger.log("Cannot open private MessageContainerRepository", "JAMES", logger.ERROR);
             throw e;
         }
-        logger.log("Message spool instantiated.", "SMTPServer", logger.INFO);
+        logger.log("Private MessageContainerRepository Spool opened", "JAMES", logger.INFO);
         smtpServerCM.put("spool", spool);
 
         int threads = conf.getConfiguration("spoolmanagerthreads", "1").getValueAsInt();
@@ -99,12 +97,12 @@ public class James implements MailServer, Block {
                 spoolMgr.init();
                 threadManager.execute((Stoppable) spoolMgr);
             } catch (Exception e) {
-                logger.log("Exception in SpoolManager thread-" + threads + " init: " + e.getMessage(), "SMTPServer", logger.ERROR);
+                logger.log("Exception in SpoolManager thread-" + threads + " init: " + e.getMessage(), "JAMES", logger.ERROR);
                 throw e;
             }
-            logger.log("SpoolManager " + (threads + 1) + " started", "SMTPServer", logger.INFO);
+            logger.log("SpoolManager " + (threads + 1) + " started", "JAMES", logger.INFO);
         }
-        logger.log("SMTPServer ...init end", "SMTPServer", logger.INFO);
+        logger.log("JAMES ...init end", "JAMES", logger.INFO);
     }
 
 /*    public OutputStream sendMail(String sender, Vector recipients) {
@@ -115,10 +113,18 @@ public class James implements MailServer, Block {
     public void sendMail(String sender, Vector recipients, MimeMessage message) {
         try {
             String id = getMessageId();
-            OutputStream out = spool.addMessage(id, sender, recipients);
-            message.writeTo(out);
-            out.close();
-            spool.free(id);
+            spool.store(id, sender, recipients, message);
+            logger.log("Sending mail " + id, "JAMES", logger.INFO);
+        } catch (Exception e) {
+        }
+    }
+
+    public void sendMail(String sender, Vector recipients, String message) {
+        try {
+            MimeMessage msg = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
+            msg.setText(message);
+            msg.saveChanges();
+            sendMail(sender, recipients, msg);
         } catch (Exception e) {
         }
     }

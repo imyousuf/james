@@ -65,17 +65,16 @@ public class LocalAgent implements Configurable, Composer {
     }
     
     public void delivery(MessageContainer mc) {
-        DeliveryState state = mc.getState();
-        Vector recipients = state.getRecipients();
+        Vector recipients = mc.getRecipients();
         for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
             String recipient = (String) e.nextElement();
             if (isLocal(recipient)) {
-                logger.log("Local delivery to " + recipient, "SMTPServer", logger.INFO);
+                logger.log("Local delivery to " + recipient, "JAMES", logger.INFO);
                 getUserMailbox(getUser(recipient)).store(mc.getMessageId(), mc);
                 recipients.removeElementAt(recipients.indexOf(recipient));
             }
         }
-        state.setRecipients(recipients);
+        mc.setRecipients(recipients);
     }
     
     private MessageContainerRepository getUserMailbox(String userName) {

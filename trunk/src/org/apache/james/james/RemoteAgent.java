@@ -51,7 +51,7 @@ public class RemoteAgent implements Configurable, Composer {
     public void delivery(MessageContainer mc) {
         
 // FIXME: need implementation of DNS.
-        Vector recipients = mc.getState().getRecipients();
+        Vector recipients = mc.getRecipients();
         Vector rRecipients = new Vector();
         for (int i = 0  ; i < recipients.size(); i++) {
             String recipient = (String) recipients.elementAt(i);
@@ -61,30 +61,23 @@ public class RemoteAgent implements Configurable, Composer {
             }
         }
         if (!rRecipients.isEmpty()) {
-            logger.log("Remote delivery of " + mc.getMessageId(), "SMTPServer", logger.INFO);
+            logger.log("Remote delivery of " + mc.getMessageId(), "JAMES", logger.INFO);
             try {
                 InternetAddress addr[] = new InternetAddress[rRecipients.size()];
                 int i = 0;
                 for (Enumeration e = rRecipients.elements(); e.hasMoreElements(); i++) {
                     addr[i] = new InternetAddress((String) e.nextElement());
                 }
-                Session session = Session.getDefaultInstance(System.getProperties(), null);
-                session.setDebug(false);
-                InputStream mailIn = mc.getBodyInputStream();
-                mailIn.mark(Integer.MAX_VALUE);
-                MimeMessage message = new MimeMessage(session, mailIn);
-                mailIn.reset();
                 URLName urlname = new URLName("smtp://" + deliverserver);
-                
-                Transport t = session.getTransport(urlname);
+                Transport t = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
                 t.connect();
-                t.sendMessage(message, addr);
+                t.sendMessage(mc.getMessage(), addr);
                 t.close();
             } catch (Exception ex) {
-                logger.log("Exception delivering mail: " + ex.getMessage(), "SMTPServer", logger.ERROR);
+                logger.log("Exception delivering mail: " + ex.getMessage(), "JAMES", logger.ERROR);
             }
         }
-        mc.getState().setRecipients(recipients);
+        mc.setRecipients(recipients);
     }
 
     public boolean isRemote(String recipient) {
