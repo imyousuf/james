@@ -2,7 +2,7 @@
 <project name="JAMES"
         href="http://jakarta.apache.org/james/">
 
-    <title>Jakarta James</title>
+    <title>Java Mail and News server, SMTP POP3 IMAP NNTP</title>
     <logo href="/images/james-logo.jpg">JAMES - Java Apache Mail Enterprise Server</logo>
 
     <body>
