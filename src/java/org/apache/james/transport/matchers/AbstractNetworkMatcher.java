@@ -92,27 +92,33 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
     private NetMatcher authorizedNetworks = null;
 
     public void init() throws MessagingException {
-        authorizedNetworks = new NetMatcher() {
-            protected void log(String s) {
-                AbstractNetworkMatcher.this.log(s);
-            }
-        };
-        authorizedNetworks.initInetNetworks(allowedNetworks());
-        log("Authorized addresses: " + authorizedNetworks.toString());
+        Collection nets = allowedNetworks();
+        if (nets != null) {
+            authorizedNetworks = new NetMatcher() {
+                protected void log(String s) {
+                    AbstractNetworkMatcher.this.log(s);
+                }
+            };
+            authorizedNetworks.initInetNetworks(allowedNetworks());
+            log("Authorized addresses: " + authorizedNetworks.toString());
+        }
     }
 
     protected Collection allowedNetworks() {
-        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
-        Collection networks = new java.util.ArrayList();
-        while (st.hasMoreTokens()) networks.add(st.nextToken());
+        Collection networks = null;
+        if (getCondition() != null) {
+            StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
+            networks = new java.util.ArrayList();
+            while (st.hasMoreTokens()) networks.add(st.nextToken());
+        }
         return networks;
     }
 
     protected boolean matchNetwork(java.net.InetAddress addr) {
-        return authorizedNetworks.matchInetNetwork(addr);
+        return authorizedNetworks == null ? false : authorizedNetworks.matchInetNetwork(addr);
     }
 
     protected boolean matchNetwork(String addr) {
-        return authorizedNetworks.matchInetNetwork(addr);
+        return authorizedNetworks == null ? false : authorizedNetworks.matchInetNetwork(addr);
     }
 }
