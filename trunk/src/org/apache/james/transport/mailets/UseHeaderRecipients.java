@@ -52,9 +52,9 @@ public class UseHeaderRecipients extends GenericMailet {
         // ensure that no two entries are equal using the equality method
         // of the element objects.  MailAddress objects test equality based
         // on equivalent but not necessarily visually identical addresses.
-		Collection recipients = mail.getRecipients();
-		// Wipe all the exist recipients
-		recipients.clear();
+        Collection recipients = mail.getRecipients();
+        // Wipe all the exist recipients
+        recipients.clear();
         recipients.addAll(getHeaderMailAddresses(message, "Mail-For"));
         if (recipients.isEmpty()) {
             recipients.addAll(getHeaderMailAddresses(message, "To"));

@@ -30,31 +30,31 @@ import javax.mail.*;
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class InSpammerBlacklist extends GenericMatcher {
-	String network = null;
+    String network = null;
 
     public void init() throws MessagingException {
-		network = getCondition();
+        network = getCondition();
     }
 
     public Collection match(Mail mail) {
         String host = mail.getRemoteAddr();
         try {
-			//Have to reverse the octets first
-			StringTokenizer st = new StringTokenizer(host, " .", false);
-			host = network;
-			while (st.hasMoreTokens()) {
-				host = st.nextToken() + ".";
-			}
+            //Have to reverse the octets first
+            StringTokenizer st = new StringTokenizer(host, " .", false);
+            host = network;
+            while (st.hasMoreTokens()) {
+                host = st.nextToken() + ".";
+            }
 
-			//Try to look it up
-			InetAddress.getByName(host);
+            //Try to look it up
+            InetAddress.getByName(host);
 
-			//If we got here, that's bad... it means the host
-			//  was found in the blacklist
-			return mail.getRecipients();
-		} catch (UnknownHostException uhe) {
-			//This is good... it's not on the list
-			return null;
-		}
+            //If we got here, that's bad... it means the host
+            //  was found in the blacklist
+            return mail.getRecipients();
+        } catch (UnknownHostException uhe) {
+            //This is good... it's not on the list
+            return null;
+        }
     }
 }

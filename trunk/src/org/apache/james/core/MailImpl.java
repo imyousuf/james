@@ -22,9 +22,9 @@ import org.apache.mailet.*;
  * @version 0.9
  */
 public class MailImpl implements Mail {
-	//We hardcode the serialVersionUID so that from James 1.2 on,
-	//  MailImpl will be deserializable (so your mail doesn't get lost)
-	public static final long serialVersionUID = -4289663364703986260L;
+    //We hardcode the serialVersionUID so that from James 1.2 on,
+    //  MailImpl will be deserializable (so your mail doesn't get lost)
+    public static final long serialVersionUID = -4289663364703986260L;
 
     private String errorMessage;
     private String state;
@@ -131,16 +131,16 @@ public class MailImpl implements Mail {
      * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
      */
     public int getSize() throws MessagingException {
-		//SK: Should probably eventually store this as a locally
-		//  maintained value (so we don't have to load and reparse
-		//  messages each time).
+        //SK: Should probably eventually store this as a locally
+        //  maintained value (so we don't have to load and reparse
+        //  messages each time).
         int size = message.getSize();
         Enumeration e = message.getAllHeaders();
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
         }
         return size;
-	}
+    }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
