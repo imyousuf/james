@@ -53,12 +53,12 @@ public SmartTransport(String dnsServers, boolean authoritative) throws UnknownHo
 /**
  * Internal dns lookup on host name (using MX records), returned as Vector, sorted by priority
  * Creation date: (2/25/00 12:52:33 AM)
- * @return java.lang.String[]
+ * @return java.util.Collection
  * @param name java.lang.String
  */
-private Vector dnsLookup(String name) {
+private Collection dnsLookup(String name) {
 	Record answers[] = rawDNSLookup(name, false);
-	
+
 	Vector servers = new Vector ();
 	if (answers == null) {
 		servers.addElement (name);
@@ -162,9 +162,9 @@ public void sendMessage(MimeMessage message, InternetAddress[] recipients) throw
 	host = host.substring (host.indexOf ("@") + 1);
 
 	//Lookup the possible targets
-	for (Enumeration e = dnsLookup(host).elements (); e.hasMoreElements ();) {
+	for (Iterator i = dnsLookup(host).iterator(); i.hasNext();) {
 		try {
-			String outgoingmailserver = e.nextElement ().toString ();
+			String outgoingmailserver = i.next().toString ();
 			URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
 			Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
@@ -174,7 +174,7 @@ public void sendMessage(MimeMessage message, InternetAddress[] recipients) throw
 			transport.close ();
 			return;
 		} catch (MessagingException me) {
-			if (!e.hasMoreElements ())
+			if (!i.hasNext())
 				throw me;
 		}
 	}

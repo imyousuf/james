@@ -35,9 +35,10 @@ public class LinearProcessor extends AbstractMailet {
     private MatchLoader matchLoader;
     private MailetLoader mailetLoader;
     private Logger logger;
-    private Vector mailets;
-    private Vector mailetMatchs;
+    private List mailets;
+    private List mailetMatchs;
     private Vector unprocessed;
+    private Random random;
 
     private static final String OP_NOT = "!";
     private static final String OP_OR = "|";
@@ -57,13 +58,13 @@ public class LinearProcessor extends AbstractMailet {
 
         this.mailetMatchs = new Vector();
         this.mailets = new Vector();
-        this. unprocessed = new Vector();//mailets.size() + 1, 2);
+        this.unprocessed = new Vector();    //mailets.size() + 1, 2);
         for (Enumeration e = conf.getConfigurations("mailet"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
             String className = c.getAttribute("class");
             try {
                 Mailet mailet = mailetLoader.getMailet(className, context.getChildContext(c));
-                mailets.addElement(mailet);
+                mailets.add(mailet);
                 logger.log("Mailet " + className + " instantiated", "Mailets", Logger.INFO);
             } catch (Exception ex) {
                 logger.log("Unable to init mailet " + className + ": " + ex, "Mailets", Logger.INFO);
@@ -73,7 +74,7 @@ public class LinearProcessor extends AbstractMailet {
             String matchName = c.getAttribute("match");
             try {
                 Matcher match = matchLoader.getMatch(matchName, context);
-                mailetMatchs.addElement(match);
+                mailetMatchs.add(match);
                 logger.log("Matcher " + matchName + " instantiated", "Mailets", Logger.INFO);
             } catch (Exception ex) {
                 logger.log("Unable to init matcher " + matchName + ": " + ex, "Mailets", Logger.INFO);
@@ -81,32 +82,63 @@ public class LinearProcessor extends AbstractMailet {
                 throw ex;
             }
         }
+        random = new Random();
     }
 
     public void service(Mail mail) throws Exception {
 
         logger.log("Processing mail " + mail.getName(), "Mailets", Logger.INFO);
         unprocessed.setSize(mailets.size() + 2);
-        unprocessed.insertElementAt(mail, 0);
+        unprocessed.add(0, mail);
         printPipe(unprocessed);/*DEBUG*/
         for (int i = 0; true ; i++) {
             logger.log("===== i = " + i + " =====", "Mailets", Logger.INFO);
-            Mail next = (Mail) unprocessed.elementAt(i);
+            Mail next = (Mail) unprocessed.get(i);
             if (!isEmpty(next)) {
-                Mail[] res = ((Matcher) mailetMatchs.elementAt(i)).match(next);
-                unprocessed.setElementAt(res[0], i);
-                unprocessed.setElementAt(res[1], i + 1);
+                Collection rcpts = ((Matcher) mailetMatchs.get(i)).match(next);
+                //Split the recipients
+                if (rcpts == null) {
+                    rcpts = new Vector();
+                }
+                Collection notRcpts = new Vector();
+                notRcpts.addAll(next.getRecipients());
+                notRcpts.removeAll(rcpts);
+
+                //Leave recipients that match (and the other Mail info)
+                //in this spot in the array, and push all others onto the next spot (mailet).
+                Mail[] mailBucket = {null, null};
+                if (rcpts.isEmpty()) {
+                    next.setRecipients(notRcpts);
+                    mailBucket[0] = (Mail) null;
+                    mailBucket[1] = next;
+                } else if (notRcpts.isEmpty()) {
+                    next.setRecipients(rcpts);
+                    mailBucket[0] = next;
+                    mailBucket[1] = (Mail) null;
+                } else {
+                    //This old method of key creation might create
+                    //duplicates in certain circumtances
+                    //Mail notNext = mail.duplicate(next.getName() + "!");
+                    Mail notNext = mail.duplicate(newName(next));
+                    next.setRecipients(rcpts);
+                    notNext.setRecipients(notRcpts);
+                    mailBucket[0] = next;
+                    mailBucket[1] = notNext;
+                }
+                unprocessed.set(i, mailBucket[0]);
+                unprocessed.set(i + 1, mailBucket[1]);
+
                 logger.log("--- after split (" + i + ")---", "Mailets", Logger.INFO);
                 printPipe(unprocessed);/*DEBUG*/
             } else {
                 try {
                     do {
-                        next = (Mail) unprocessed.elementAt(--i);
+                        next = (Mail) unprocessed.get(--i);
                     } while (isEmpty(next));
                 } catch (ArrayIndexOutOfBoundsException emptyPipe) {
                     break;
                 }
-                Mailet mailet = (Mailet) mailets.elementAt(i);
+                Mailet mailet = (Mailet) mailets.get(i);
                 try {
                     mailet.service(next);
                 } catch (Exception ex) {
@@ -117,11 +149,11 @@ public class LinearProcessor extends AbstractMailet {
                     throw ex;
                 }
                 if (isEmpty(next)) {
-                    unprocessed.setElementAt(null, i + 1);
+                    unprocessed.set(i + 1, null);
                 } else {
-                    unprocessed.setElementAt(next, i + 1);
+                    unprocessed.set(i + 1, next);
                 }
-                unprocessed.setElementAt(null, i);
+                unprocessed.set(i, null);
                 logger.log("--- after service (" + i + ")---", "Mailets", Logger.INFO);
                 printPipe(unprocessed);/*DEBUG*/
             }
@@ -136,23 +168,29 @@ public class LinearProcessor extends AbstractMailet {
         else return false;
     }
 
+    private String newName(Mail mail) {
+        String name = mail.getName();
+        return name + "-!" + Math.abs(random.nextInt());
+    }
+
 // Debuggin methods...
     private String printRecipients(Mail mail) {
         if (mail == null) return "Null ";
-        Vector rec = mail.getRecipients();
+        Collection rec = mail.getRecipients();
         StringBuffer buffer = new StringBuffer("Recipients: ");
         boolean empty = true;
-        for (Enumeration e = rec.elements(); e.hasMoreElements(); ) {
-            buffer.append((String) e.nextElement() + " ");
+        for (Iterator i = rec.iterator(); i.hasNext(); ) {
+            buffer.append((String) i.next() + " ");
             empty = false;
         }
         if (empty) return "Empty";
         else return buffer.toString();
     }
 
-    private void printPipe(Vector unprocessed) {
-        for (int j = 0; j < unprocessed.size(); j++) {
-            Mail m = (Mail) unprocessed.elementAt(j);
+    private void printPipe(List unprocessed) {
+        int j = 0;
+        for (Iterator i = unprocessed.iterator(); i.hasNext(); j++) {
+            Mail m = (Mail) i.next();
             if (m == null) {
                 logger.log("unprocessed " + j + " -> Null ", "Mailets", Logger.INFO);
             } else {

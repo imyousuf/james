@@ -59,8 +59,8 @@ public class PicoListManager extends AbstractMailet {
     }
 
     public void service(Mail mail) throws Exception {
-        Vector recipients = mail.getRecipients();
-        String recipient = (String) recipients.elementAt(0);
+        Collection recipients = mail.getRecipients();
+        String recipient = (String) recipients.iterator().next();
         if (recipients.size() != 1) {
             logger.log("bouncing back: Cannot handle more than one recipient");
             transport.service(mail.bounce("Cannot handle more than one recipient"));

@@ -16,21 +16,20 @@ import org.apache.java.lang.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public abstract class AbstractMatcher implements Matcher {
+public abstract class AbstractRecipientMatcher extends AbstractMatcher {
 
-    private MailetContext context;
-
-    public abstract void init(String condition);
-
-    public abstract Collection match(Mail mail);
-
-    public MailetContext getContext() {
-        return context;
+    public Collection match(Mail mail) {
+        Collection matching = new Vector();
+        for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
+            String rec = (String) i.next();
+            if (matchRecipient(rec)) {
+                matching.add(rec);
+            }
+        }
+        return matching;
     }
 
-    public void setMailetContext(MailetContext context) {
-        this.context = context;
-    }
+    public abstract boolean matchRecipient(String recipient);
 
 }
 

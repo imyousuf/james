@@ -41,7 +41,7 @@ public class James implements MailServer, Block {
     private Store store;
     private MailRepository spool;
     private MailRepository localInbox;
-    private Vector serverNames;
+    private Collection serverNames;
     private static long count;
 
     public void setConfiguration(Configuration conf) {
@@ -63,20 +63,20 @@ public class James implements MailServer, Block {
             // Get this server names
         serverNames = new Vector();
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
-            serverNames.addElement(((Configuration) e.nextElement()).getValue());
+            serverNames.add(((Configuration) e.nextElement()).getValue());
         }
         if (serverNames.isEmpty()) {
             try {
-                serverNames.addElement(InetAddress.getLocalHost().getHostName());
+                serverNames.add(InetAddress.getLocalHost().getHostName());
             } catch (UnknownHostException ue) {
             }
         }
-        serverNames.addElement("localhost");
-        for (Enumeration e = serverNames.elements(); e.hasMoreElements(); ) {
-            logger.log("Local host is: " + e.nextElement(), "JamesSystem", logger.INFO);
+        serverNames.add("localhost");
+        for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
+            logger.log("Local host is: " + i.next(), "JamesSystem", logger.INFO);
         }
         context.put(Constants.SERVER_NAMES, serverNames);
-        context.put(Constants.HELO_NAME, serverNames.elementAt(0));
+        context.put(Constants.HELO_NAME, serverNames.iterator().next());
             // Get postmaster
         String postmaster = conf.getConfiguration("postmaster", "root@localhost").getValue();
         context.put(Constants.POSTMASTER, postmaster);
@@ -168,13 +168,13 @@ public class James implements MailServer, Block {
         logger.log("JAMES ...init end", "JamesSystem", logger.INFO);
     }
 
-    public void sendMail(String sender, Vector recipients, MimeMessage message)
+    public void sendMail(String sender, Collection recipients, MimeMessage message)
     throws MessagingException {
 //FIX ME!!! we should validate here MimeMessage.
         sendMail(new Mail(getId(), sender, recipients, message));
     }
 
-    public synchronized void sendMail(String sender, Vector recipients, InputStream msg)
+    public synchronized void sendMail(String sender, Collection recipients, InputStream msg)
     throws MessagingException {
 
             // parse headers

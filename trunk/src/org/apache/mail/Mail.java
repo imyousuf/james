@@ -31,7 +31,7 @@ public class Mail implements Serializable, Cloneable {
 	private MimeMessage message;
 	private InputStream messageIn;
 	private String sender;
-	private Vector recipients;
+	private Collection recipients;
 	private String name;
     private String remoteHost = "localhost";
     private String remoteAddr = "127.0.0.1";
@@ -39,18 +39,18 @@ public class Mail implements Serializable, Cloneable {
 	public Mail() {
 	    setState(DEFAULT);
 	}
-	public Mail(String name, String sender, Vector recipients) {
+	public Mail(String name, String sender, Collection recipients) {
 		this();
 		this.name = name;
 		this.sender = sender;
 		this.recipients = recipients;
 	}
-	public Mail(String name, String sender, Vector recipients, InputStream msg)
+	public Mail(String name, String sender, Collection recipients, InputStream msg)
 	throws MessagingException {
 		this(name, sender, recipients);
 		this.setMessage(msg);
 	}
-	public Mail(String name, String sender, Vector recipients, MimeMessage message) {
+	public Mail(String name, String sender, Collection recipients, MimeMessage message) {
 		this(name, sender, recipients);
 		this.setMessage(message);
 	}
@@ -89,7 +89,7 @@ public class Mail implements Serializable, Cloneable {
 	public String getName() {
 		return name;
 	}
-	public Vector getRecipients() {
+	public Collection getRecipients() {
 		return recipients;
 	}
 	public String getSender() {
@@ -114,7 +114,7 @@ public class Mail implements Serializable, Cloneable {
 	private void readObject(java.io.ObjectInputStream in)
 	throws IOException, ClassNotFoundException {
 		sender = (String) in.readObject();
-		recipients = (Vector) in.readObject();
+		recipients = (Collection) in.readObject();
 		state = (String) in.readObject();
 		errorMessage = (String) in.readObject();
 		name = (String) in.readObject();
@@ -133,7 +133,7 @@ public class Mail implements Serializable, Cloneable {
 		this.message = message;
 		this.messageIn = null;
 	}
-	public void setRecipients(Vector recipients) {
+	public void setRecipients(Collection recipients) {
 		this.recipients = recipients;
 	}
 	public void setSender(String sender) {
@@ -186,15 +186,15 @@ public class Mail implements Serializable, Cloneable {
         MimeMessage original = getMessage();
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
-        Vector recipients = new Vector();
-        recipients.addElement(getSender());
+        Collection recipients = new Vector();
+        recipients.add(getSender());
         InternetAddress addr[] = {new InternetAddress(getSender())};
         reply.setRecipients(Message.RecipientType.TO, addr);
-        reply.setFrom(new InternetAddress(getRecipients().elementAt(0).toString()));
+        reply.setFrom(new InternetAddress(getRecipients().iterator().next().toString()));
         reply.setText(message);
-        reply.setHeader("Message-Id", "replyTo:" + getName());
+        reply.setHeader("Message-Id", "replyTo-" + getName());
 
-        return new Mail("replyTo" + getName(), getRecipients().elementAt(0).toString(), recipients, reply);
+        return new Mail("replyTo-" + getName(), getRecipients().iterator().next().toString(), recipients, reply);
     }
 
 

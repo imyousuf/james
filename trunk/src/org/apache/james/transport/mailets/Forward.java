@@ -20,7 +20,7 @@ import java.util.*;
  */
 public class Forward extends AbstractMailet {
 
-    private Vector newRecipients;
+    private Collection newRecipients;
     private Mailet transport;
 
     public void init () {
@@ -30,7 +30,7 @@ public class Forward extends AbstractMailet {
         transport = (Mailet) context.get("transport");
         for (Enumeration e = conf.getConfigurations("forwardto"); e.hasMoreElements(); ) {
             Configuration c = (Configuration) e.nextElement();
-            newRecipients.addElement(c.getValue());
+            newRecipients.add(c.getValue());
         }
     }
 

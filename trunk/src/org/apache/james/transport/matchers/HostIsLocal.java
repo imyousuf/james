@@ -17,24 +17,15 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class HostIsLocal extends AbstractMatcher {
-    
-    private Vector localhosts;
-    
+public class HostIsLocal extends AbstractRecipientMatcher {
+
+    private Collection localhosts;
+
     public void init(String condition) {
-        localhosts = (Vector) getContext().get(Resources.SERVER_NAMES);
+        localhosts = (Collection) getContext().get(Resources.SERVER_NAMES);
     }
 
-    public Mail[] match(Mail mail) {
-        Vector matching = new Vector();
-        Vector notMatching = new Vector();
-        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
-            String rec = (String) e.nextElement();
-            if (localhosts.contains(Mail.getHost(rec))) {
-                matching.addElement(rec);
-            }
-        }
-        notMatching = VectorUtils.subtract(mail.getRecipients(), matching);
-        return split(mail, matching, notMatching);
+    public boolean matchRecipient(String recipient) {
+        return localhosts.contains(Mail.getHost(recipient));
     }
 }
