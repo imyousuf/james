@@ -122,6 +122,19 @@ public class LocalDelivery extends GenericMailet {
             enableForwarding = false;
         }
     }
+
+    /* MimeMessage that does NOT change the headers when we save it */
+    class LocalMimeMessage extends MimeMessage {
+
+        public LocalMimeMessage(MimeMessage source) throws MessagingException {
+            super(source);
+        }
+
+        protected void updateHeaders() throws MessagingException {
+            if (getMessageID() == null) super.updateHeaders();
+        }
+    }
+
     /**
      * Delivers a mail to a local mailbox.
      *
@@ -172,8 +185,8 @@ public class LocalDelivery extends GenericMailet {
                         recipients = new HashSet();
                         recipients.add(forwardTo);
                         try {
-                            //Per RFC 1327 (?)
-                            MimeMessage localMessage = new MimeMessage(message);
+                            // Add qmail's de facto standard Delivered-To header
+                            MimeMessage localMessage = new LocalMimeMessage(message);
                             localMessage.addHeader("Delivered-To", recipient.toString());
                             localMessage.saveChanges();
 
