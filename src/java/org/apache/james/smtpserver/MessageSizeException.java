@@ -10,16 +10,18 @@ package org.apache.james.smtpserver;
 import java.io.IOException;
 
 /**
-  * This exceptions is used to indicate when a new MimeMessage has exceeded
+  * This exception is used to indicate when a new MimeMessage has exceeded
   * the maximum message size for the server, as configured in the conf file.
+  *
   * @author Matthew Pangaro <mattp@lokitech.com>
   * @version 0.5.1
   */
 public class MessageSizeException extends IOException {
 
-    /** Default constructor that sets the message indicating message
-        size error.
-    */
+    /**
+     * Sole contructor for this class.  This constructor sets
+     * the exception message to a fixed error message.
+     */
     public MessageSizeException() {
         super("Message size exceeds fixed maximum message size.");
     }

@@ -18,6 +18,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
+ * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
+ *
+ * <p>Also responsible for loading and parsing SMTP specific configuration.</p>
  *
  * @version 1.1.0, 06/02/2001
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
@@ -32,6 +35,12 @@ public class SMTPServer
         return new DefaultHandlerFactory( SMTPHandler.class );
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
@@ -58,6 +67,13 @@ public class SMTPServer
        super.configure( configuration.getChild( "handler" ) );
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
         getLogger().info("SMTPServer init...");
         super.initialize();
@@ -74,6 +90,13 @@ public class SMTPServer
         System.out.println("Started SMTP Server "+m_connectionName);
     }
     
+    /**
+     * The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.
+     *
+     * @throws Exception if an error is encountered during shutdown
+     */
     public void dispose()
     {
         getLogger().info( "SMTPServer dispose..." );

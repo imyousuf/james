@@ -12,11 +12,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Removes the dot-stuffing happing during the SMTP DATA transport
+ * Removes the dot-stuffing happening during the SMTP DATA transport
  *
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class SMTPInputStream extends FilterInputStream {
+    /**
+     * An array to hold the last two bytes read off the stream.
+     * This allows the stream to detect '\r\n' sequences even
+     * when they occur across read boundaries.
+     */
     protected int last[] = new int[2];
 
     public SMTPInputStream(InputStream in) {
@@ -27,6 +32,8 @@ public class SMTPInputStream extends FilterInputStream {
 
     /**
      * Read through the stream, checking for '\r\n.'
+     *
+     * @return the byte read from the stream
      */
     public int read() throws IOException {
         int b = in.read();
@@ -41,6 +48,11 @@ public class SMTPInputStream extends FilterInputStream {
 
     /**
      * Read through the stream, checking for '\r\n.'
+     *
+     * @param b the byte array into which the bytes will be read
+     * @param off the offset into the byte array where the bytes will be inserted
+     * @param len the maximum number of bytes to be read off the stream
+     * @return the number of bytes read
      */
     public int read(byte[] b, int off, int len) throws IOException {
         if (b == null) {

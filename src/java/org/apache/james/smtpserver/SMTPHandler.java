@@ -31,8 +31,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
 /**
- * This handles an individual incoming message.  It handles regular SMTP
- * commands, and when it receives a message, adds it to the spool.
+ * Provides SMTP functionality by carrying out the server side of the SMTP
+ * interaction.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  * @author Jason Borden <jborden@javasense.com>
@@ -41,8 +42,8 @@ import java.util.*;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
 
- * This is $Revision: 1.21 $
- * Committed on $Date: 2002/08/12 06:19:01 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.22 $
+ * Committed on $Date: 2002/08/15 21:37:34 $ by: $Author: pgoldstein $
 
  */
 public class SMTPHandler
@@ -113,9 +114,7 @@ public class SMTPHandler
                                             // session in progress.
 
     /**
-     * This method is called by the ConnectionHandlerFactory with the
-     * handler <code>Configuration</code>.  This provides the SMTPHandler
-     * with required configuration data.
+     * Pass the <code>Configuration</code> to the instance.
      *
      * @param configuration the class configurations.
      * @throws ConfigurationException if an error occurs
@@ -135,9 +134,9 @@ public class SMTPHandler
     }
 
     /**
-     * This method is called by the ConnectionHandlerFactory with the
-     * appropriate <code>ComponentManager</code>.  This allows the SMTPHandler
-     * to access other system components.
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
      *
      * @param componentManager The <code>ComponentManager</code> which this
      *                <code>Composable</code> uses.
@@ -158,8 +157,8 @@ public class SMTPHandler
      * This handler is responsible for processing connections as they occur.
      *
      * @param connection the connection
-     * @exception IOException if an error reading from socket occurs
-     * @exception ProtocolException if an error handling connection occurs
+     * @throws IOException if an error reading from socket occurs
+     * @throws ProtocolException if an error handling connection occurs
      */
     public void handleConnection(Socket connection) throws IOException {
         try {
