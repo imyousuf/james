@@ -12,6 +12,7 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.james.services.MailStore;

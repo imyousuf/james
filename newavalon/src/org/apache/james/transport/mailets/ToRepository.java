@@ -12,6 +12,7 @@ package org.apache.james.transport.mailets;
 import java.util.*;
 
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
 
 import org.apache.james.*;
 import org.apache.james.core.*;

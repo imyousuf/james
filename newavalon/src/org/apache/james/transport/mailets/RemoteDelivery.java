@@ -13,6 +13,7 @@ import java.util.*;
 import java.net.*;
 
 import org.apache.avalon.*;
+//import org.apache.avalon.services.Store;
 
 import org.apache.james.*;
 import org.apache.james.core.*;

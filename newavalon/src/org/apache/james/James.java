@@ -19,7 +19,7 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.Block;
-import org.apache.avalon.services.Store;
+//import org.apache.avalon.services.Store;
 import org.apache.avalon.util.lang.*;
 
 import org.apache.james.core.*;
@@ -50,9 +50,10 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
     private Logger mailetLogger = LogKit.getLoggerFor("Mailets");
     private WorkerPool workerPool;
     private MailStore mailstore;
+    private UsersStore usersStore;
     private SpoolRepository spool;
     private MailRepository localInbox;
-    private UsersRepository users;
+    private UsersRepository localusers;
     private Collection serverNames;
     private static long count;
     private String helloName;
@@ -75,8 +76,18 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
         logger.info("JAMES init...");
         //threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
 	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
-        mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-	
+	try {
+	    mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+	} catch (Exception e) {
+	    logger.warn("Can't get Store: " + e);
+	}
+	logger.debug("Using MailStore: " + mailstore.toString());
+	try {
+	    usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+	} catch (Exception e) {
+	    logger.warn("Can't get Store: " + e);
+	}
+	logger.debug("Using UsersStore: " + usersStore.toString());
         context = new DefaultContext();
 	
 	try {
@@ -147,43 +158,15 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
         compMgr.put("org.apache.james.services.SpoolRepository", spool);
 
       
-        Configuration usersConf = conf.getChild("userRepository");
-	Configuration usersRepConf = usersConf.getChild("repository");
-	/*
-	  if(usersRepository.startsWith("ldap")) {
-	  try {
-	  UsersLDAPRepository rootRepository = new UsersLDAPRepository();
-	  rootRepository.setConfiguration(conf.getConfiguration("usersLDAP"));
-	  rootRepository.setContext(context);
-	  rootRepository.setComponentManager(comp);
-	  rootRepository.setServerRoot();
-	  rootRepository.init();
-	  //get or create LocalUsers directory entry
-	  String usersName
-	  =  rootRepository.getChildDestination("LocalUsers");
-	  UsersLDAPRepository usersRep = new UsersLDAPRepository();
-	  usersRep.setConfiguration(conf.getConfiguration("usersLDAP"));
-	  usersRep.setContext(context);
-	  usersRep.setComponentManager(comp);
-	  usersRep.setBase(usersName);
-	  usersRep.init();
-	  rootRepository.dispose();
-	  this.users = (UsersRepository) usersRep;
-	  } catch (Exception e) {
-	  logger.log("Exception in UsersLDAPRepository init: " + e.getMessage(), "JamesSystem", logger.ERROR);
-	  throw e;
-	  }
-	
-	  } else {
-	*/
+
 	try {
-	    users = (UsersRepository) mailstore.select(usersRepConf);
+	    localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
 	} catch (Exception e) {
 		logger.error("Cannot open private UserRepository");
 		throw e;
 	}
 	//}
-        compMgr.put("org.apache.james.services.UsersRepository", users);
+        compMgr.put("org.apache.james.services.UsersRepository", (Component)localusers);
         logger.info("Users Manager Opened");
       
 
@@ -420,7 +403,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
 
     public Collection getLocalUsers() {
         Vector userList = new Vector();
-        for (Iterator it = users.list(); it.hasNext(); ) {
+        for (Iterator it = localusers.list(); it.hasNext(); ) {
             userList.add(it.next());
         }
         return userList;
@@ -477,7 +460,7 @@ public class James implements  Block, MailServer, Configurable, Composer, Initia
      */
 
     public boolean addUser(String userName, String password) {
-        users.addUser(userName, password);
+        localusers.addUser(userName, password);
         return true;
     }
 

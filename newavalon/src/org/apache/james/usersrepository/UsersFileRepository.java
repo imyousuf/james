@@ -12,7 +12,7 @@ import java.util.*;
 import java.io.*;
 //import org.apache.avalon.blocks.*;
 import org.apache.avalon.*;
-import org.apache.avalon.services.*;
+import org.apache.avalon.services.Store;
 import org.apache.avalon.util.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -33,7 +33,7 @@ import org.apache.james.services.UsersRepository;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class UsersFileRepository implements UsersRepository, Configurable, Composer{
+public class UsersFileRepository implements UsersRepository, Component, Configurable, Composer {
     private static final String TYPE = "USERS";
     private final static boolean        LOG        = true;
     private final static boolean        DEBUG      = LOG && false;
@@ -52,14 +52,9 @@ public class UsersFileRepository implements UsersRepository, Configurable, Compo
 
 
     public void configure(Configuration conf) throws ConfigurationException {
-	destination = conf.getAttribute("destinationURL");
-	String checkType = conf.getAttribute("type");
-	if (!checkType.equals(TYPE)) {
-	    logger.warn("Attempt to configure UsersFileRepository as "
-			+ checkType);
-	    throw new ConfigurationException("Attempt to configure UsersFileRepository as " + checkType);
-	}
-	// ignore model
+
+	destination = conf.getChild("destination").getAttribute("URL");
+	
     }
 
 
@@ -85,36 +80,11 @@ public class UsersFileRepository implements UsersRepository, Configurable, Compo
     }
 
 
-    public Store.Repository getChildRepository(String childName) {
-	String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
-	//prepare Configurations for object and stream repositories
-	DefaultConfiguration childConf = new DefaultConfiguration("repository","generated:UsersFileRepository.getChildRepository()");
-	childConf.addAttribute("destinationURL", childDestination);
-	childConf.addAttribute("type", "USERS");
-	childConf.addAttribute("model", "SYNCHRONOUS");
-	try {
-	    Store.Repository child = (Store.Repository) store.select(childConf);
-	    return child;
-	} catch (ComponentNotFoundException cnfe) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
-	    return null;
-	} catch (ComponentNotAccessibleException cnae) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
-	    return null;
-	} catch (Exception e) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
-	    return null;
-	}
-    }
-
-
-
     public Iterator list() {
         return or.list();
     }
 
  
-
     public synchronized void addUser(String name, Object attributes) {
         try {
             or.put(name, attributes);
