@@ -53,7 +53,7 @@ public class DNSServer
         final Configuration[] serverConfs = serversConf.getChildren( "server" );
         for ( int i = 0; i < serverConfs.length; i++ )
         {
-            servers.add( serverConfs[i] );
+            servers.add( serverConfs[i].getValue() );
         }
         if (servers.isEmpty()) {
             try {
