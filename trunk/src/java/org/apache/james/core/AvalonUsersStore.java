@@ -19,6 +19,9 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -30,11 +33,18 @@ import org.apache.avalon.phoenix.Block;
  */
 public class AvalonUsersStore
     extends AbstractLoggable
-    implements Block, Composable, Configurable, UsersStore, Initializable {
+    implements Block, Contextualizable, Composable, Configurable, Initializable, UsersStore {
 
     private HashMap repositories;
+    protected Context                context;
     protected Configuration          configuration;
     protected ComponentManager       componentManager;
+
+
+    public void contextualize(final Context context)
+            throws ContextException {
+        this.context = context;
+    }
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -64,18 +74,15 @@ public class AvalonUsersStore
 
             setupLogger((Component)rep);
 
+            if (rep instanceof Contextualizable) {
+                ((Contextualizable) rep).contextualize(context);
+            }
             if (rep instanceof Composable) {
                 ((Composable) rep).compose( componentManager );
             }
-
             if (rep instanceof Configurable) {
                 ((Configurable) rep).configure(repConf);
             }
-            /*
-              if (rep instanceof Contextualizable) {
-              ((Contextualizable) rep).contextualize(context);
-              }
-            */
             if (rep instanceof Initializable) {
                 ((Initializable) rep).initialize();
             }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
@@ -46,7 +47,7 @@ import org.apache.james.util.Lock;
  */
 public class AvalonMailRepository
     extends AbstractLoggable
-    implements MailRepository, Component, Configurable, Composable {
+    implements MailRepository, Component, Configurable, Composable, Initializable {
 
     private Lock lock;
     protected static boolean DEEP_DEBUG = false;
@@ -60,6 +61,7 @@ public class AvalonMailRepository
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
+        getLogger().debug("AvalonMailRepository.destinationURL: " + destination);
         String checkType = conf.getAttribute("type");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
             getLogger().warn( "Attempt to configure AvalonMailRepository as " +
@@ -69,12 +71,16 @@ public class AvalonMailRepository
         // ignore model
     }
 
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        try {
-            store = (Store)componentManager.
-                lookup( "org.apache.avalon.cornerstone.services.store.Store" );
 
+    public void compose( final ComponentManager componentManager )
+            throws ComponentException {
+        store = (Store)componentManager.
+            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+    }
+
+    public void initialize()
+            throws Exception {
+        try {
             //prepare Configurations for object and stream repositories
             DefaultConfiguration objectConfiguration
                 = new DefaultConfiguration( "repository",
@@ -99,7 +105,7 @@ public class AvalonMailRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
-            throw new ComponentException( message, e );
+            throw e;
         }
     }
 
