@@ -36,8 +36,6 @@ import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 
 /**
  * The NNTP protocol is defined by RFC 977.
@@ -52,8 +50,6 @@ import org.apache.james.services.UsersStore;
 public class NNTPHandler extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Target {
 
-    private final static boolean DEEP_DEBUG = true;
-
     // timeout controllers
     private TimeScheduler scheduler;
 
@@ -62,39 +58,24 @@ public class NNTPHandler extends BaseConnectionHandler
     private BufferedReader reader;
     private PrintWriter writer;
 
-    // authentication.
-    private AuthState authState;
-    private boolean authRequired = false;
-    private UsersRepository users;
+    // authentication & authorization.
+    private AuthService auth;
 
     // data abstractions.
     private NNTPGroup group;
     private NNTPRepository repo;
 
-
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
         //System.out.println(getClass().getName()+": compose - "+authRequired);
-        UsersStore usersStore = (UsersStore)componentManager.
-            lookup( "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");
+        auth = (AuthService)componentManager.
+            lookup( "org.apache.james.nntpserver.AuthService" );
         scheduler = (TimeScheduler)componentManager.
             lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
         repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
     }
-
-
-    public void configure( Configuration configuration )
-           throws ConfigurationException {
-        super.configure(configuration);
-        authRequired =
-            configuration.getChild("authRequired").getValueAsBoolean(false);
-        getLogger().debug("Auth required state is :" + authRequired);
-        authState = new AuthState(authRequired,users);
-    }
-
 
     public void handleConnection( Socket connection ) throws IOException {
         try {
@@ -102,6 +83,7 @@ public class NNTPHandler extends BaseConnectionHandler
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream()) {
                     public void println() {
+                        // lines must end with CRLF, irrespective of the OS
                         print("\r\n");
                         flush();
                     }
@@ -116,8 +98,10 @@ public class NNTPHandler extends BaseConnectionHandler
             scheduler.addTrigger( this.toString(), trigger, this );
 
             // section 7.1
-            writer.println("200 "+helloName+
-                           (repo.isReadOnly()?" Posting Not Premitted":" Posting Permitted"));
+            if ( repo.isReadOnly() )
+                writer.println("201 "+helloName+" NNTP Service Ready, posting prohibited");
+            else
+                writer.println("200 "+helloName+" NNTP Service Ready, posting permitted");
 
             while (parseCommand(reader.readLine()))
                 scheduler.resetTrigger(this.toString());
@@ -144,18 +128,6 @@ public class NNTPHandler extends BaseConnectionHandler
         } catch (IOException e) { }
     }
 
-    // checks if a command is allowed. The authentication state is validated.
-    private boolean isAllowed(String command) {
-        boolean allowed = authState.isAuthenticated();
-        // some commads are allowed, even if the user is not authenticated
-        allowed = allowed || command.equalsIgnoreCase("AUTHINFO");
-        allowed = allowed || command.equalsIgnoreCase("AUTHINFO");
-        allowed = allowed || command.equalsIgnoreCase("MODE");
-        allowed = allowed || command.equalsIgnoreCase("QUIT");
-        if ( allowed == false )
-            writer.println("502 User is not authenticated");
-        return allowed;
-    }
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null)
             return false;
@@ -167,13 +139,11 @@ public class NNTPHandler extends BaseConnectionHandler
             return false;
         final String command = tokens.nextToken();
 
-        //System.out.println("allowed="+isAllowed(command)+","+authState.isAuthenticated());
-        if (! isAllowed(command) ){
-	    if (DEEP_DEBUG) {
-		getLogger().debug("Command not allowed.");
-	    }
+        if (!auth.isAuthorized(command) ) {
+            writer.println("502 User is not authenticated");
+            getLogger().debug("Command not allowed.");
             return true;
-	}
+        }
         if ( command.equalsIgnoreCase("MODE") && tokens.hasMoreTokens() &&
              tokens.nextToken().equalsIgnoreCase("READER") )
             doMODEREADER();
@@ -236,11 +206,11 @@ public class NNTPHandler extends BaseConnectionHandler
     private void doAUTHINFO(StringTokenizer tok) {
         String command = tok.nextToken();
         if ( command.equalsIgnoreCase("USER") ) {
-            authState.setUser(tok.nextToken());
+            auth.setUser(tok.nextToken());
             writer.println("381 More authentication information required");
         } else if ( command.equalsIgnoreCase("PASS") ) {
-            authState.setPassword(tok.nextToken());
-            if ( authState.isAuthenticated() )
+            auth.setPassword(tok.nextToken());
+            if ( auth.isAuthenticated() )
                 writer.println("281 Authentication accepted");
             else
                 writer.println("482 Authentication rejected");
@@ -432,12 +402,20 @@ public class NNTPHandler extends BaseConnectionHandler
         // section 9.1.1.1
         if ( group == null )
             writer.println("411 no such newsgroup");
-        else
-            writer.println("211 "+group.getNumberOfArticles()+" "+
-                           group.getFirstArticleNumber()+" "+
-                           group.getLastArticleNumber()+" "+
+        else {
+            // if the number of articles in group == 0
+            // then the server may return this information in 3 ways, 
+            // The clients must honor all those 3 ways.
+            // our response is: 
+            // highWaterMark == lowWaterMark and number of articles == 0
+            int articleCount = group.getNumberOfArticles();
+            int lowWaterMark = group.getFirstArticleNumber();
+            int highWaterMark = group.getLastArticleNumber();
+            writer.println("211 "+articleCount+" "+
+                           lowWaterMark+" "+
+                           highWaterMark+" "+
                            group.getName()+" group selected");
-
+        }
     }
     private void doLISTEXTENSIONS() {
         // 8.1.1
