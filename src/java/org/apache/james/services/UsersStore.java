@@ -9,6 +9,8 @@ package org.apache.james.services;
 
 import java.util.Iterator;
 
+import org.apache.mailet.UsersRepository;
+
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore
  * contains one or more UserRepositories. Multiple UserRepositories may or may

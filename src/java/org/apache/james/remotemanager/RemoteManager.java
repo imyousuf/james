@@ -28,6 +28,7 @@ import org.apache.james.services.*;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.mailet.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -5,9 +5,10 @@
  * version 1.1, a copy of which has been included with this distribution in
  * the LICENSE file.
  */
-package org.apache.james.services;
+package org.apache.mailet;
 
 import java.util.Iterator;
+
 
 /**
  * Interface for a repository of users. A repository represents a logical
@@ -17,14 +18,14 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.1 $
  */
 public interface UsersRepository {
 
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.services.UsersRepository";
+   // String ROLE = "org.apache.mailet.UsersRepository";
 
     String USER = "USER";
 
@@ -50,9 +51,9 @@ public interface UsersRepository {
     /**
      * Gets the attribute for a user.  Not clear on behavior.
      *
-     * @deprecated As of James 1.2.2 . Use the {@link #getUserByName(String) getUserByName} method.
+     * @deprecated  Removed As of James 2.1 . Use the {@link #getUserByName(String) getUserByName} method.
      */
-    Object getAttributes(String name);
+    //Object getAttributes(String name);
 
 
     /**

@@ -5,14 +5,14 @@
  * version 1.1, a copy of which has been included with this distribution in
  * the LICENSE file.
  */
-package org.apache.james.services;
+package org.apache.mailet;
 
 /**
  * Interface for objects representing users.
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.1 $
  */
 
 public interface User {

@@ -15,12 +15,13 @@ import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.util.*;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.UsersRepository;
+
 import javax.mail.MessagingException;
 import java.io.*;
 import java.net.Socket;
@@ -37,7 +38,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.35 $
+ * @version This is $Revision: 1.36 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled

@@ -19,8 +19,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import java.io.File;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version CVS $Revision: 1.10 $
+ * @version CVS $Revision: 1.11 $
  *
  */
 public class UsersFileRepository

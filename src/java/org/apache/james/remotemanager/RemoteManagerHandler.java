@@ -19,6 +19,7 @@ import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultUser;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.mailet.*;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;
@@ -46,7 +47,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  *
  */
 public class RemoteManagerHandler

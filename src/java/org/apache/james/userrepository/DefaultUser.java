@@ -8,7 +8,7 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
-import org.apache.james.services.User;
+import org.apache.mailet.User;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version CVS $Revision: 1.6 $
+ * @version CVS $Revision: 1.7 $
  */
 
 public class DefaultUser implements User, Serializable {

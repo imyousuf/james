@@ -22,7 +22,6 @@ import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.RFC977DateFormat;
@@ -30,6 +29,7 @@ import org.apache.james.util.RFC2980DateFormat;
 import org.apache.james.util.SimplifiedDateFormat;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.mailet.UsersRepository;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

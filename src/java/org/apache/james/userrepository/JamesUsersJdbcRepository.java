@@ -7,8 +7,8 @@
  */
 package org.apache.james.userrepository;
 
-import org.apache.james.services.User;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
