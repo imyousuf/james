@@ -48,7 +48,7 @@ All these package are in current distribution.
   <property name="build.compiler" value="classic"/>
   <property name="debug" value="off"/>
   <property name="optimize" value="on"/>
-  <property name="deprecation" value="off"/>
+  <property name="deprecation" value="on"/>
 
   <!-- The properties in the init section should not normally be changed
 -->
@@ -196,24 +196,24 @@ All these package are in current distribution.
 
     <jar jarfile="${build.lib}/${name}.sar">
 
-      <fileset dir="${build.lib}/" prefix="blocks/">
+      <zipfileset dir="${build.lib}/" prefix="blocks/">
         <include name="*.bar"/>
-      </fileset>
+      </zipfileset>
 
-      <fileset dir="${lib.dir}/" prefix="lib/">
+      <zipfileset dir="${lib.dir}/" prefix="lib/">
         <include name="dnsjava.jar"/>
         <include name="town.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_2.jar"/>
-      </fileset>
+      </zipfileset>
 
-      <fileset dir="${conf.dir}" fullpath="conf/assembly.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/assembly.xml">
         <include name="james.conf.xml"/>
-      </fileset>
+      </zipfileset>
 
-      <fileset dir="${conf.dir}" fullpath="conf/server.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/server.xml">
         <include name="james.server.xml"/>
-      </fileset>
+      </zipfileset>
 
     </jar>
 
