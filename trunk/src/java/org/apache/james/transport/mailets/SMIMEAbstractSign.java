@@ -55,11 +55,14 @@ import java.util.*;
  * <li>&lt;debug&gt;: if <CODE>true</CODE> some useful information is logged.
  * The default is <CODE>false</CODE>.</li>
  * <li>&lt;keyStoreFileName&gt;: the {@link java.security.KeyStore} full file name.</li>
- * <li>&lt;keyStorePassword&gt;: the <CODE>KeyStore</CODE> password.</li>
+ * <li>&lt;keyStorePassword&gt;: the <CODE>KeyStore</CODE> password.
+ *      If given, it is used to check the integrity of the keystore data,
+ *      otherwise, if null, the integrity of the keystore is not checked.</li>
  * <li>&lt;keyAlias&gt;: the alias name to use to search the Key using {@link java.security.KeyStore#getKey}.
  * The default is to look for the first and only alias in the keystore;
  * if zero or more than one is found a {@link java.security.KeyStoreException} is thrown.</li>
- * <li>&lt;keyAliasPassword&gt;: the alias password. The default is to use the <CODE>KeyStore</CODE> password.</li>
+ * <li>&lt;keyAliasPassword&gt;: the alias password. The default is to use the <CODE>KeyStore</CODE> password.
+ *      At least one of the passwords must be provided.</li>
  * <li>&lt;keyStoreType&gt;: the type of the keystore. The default will use {@link java.security.KeyStore#getDefaultType}.</li>
  * <li>&lt;postmasterSigns&gt;: if <CODE>true</CODE> the message will be signed even if the sender is the Postmaster.
  * The default is <CODE>false</CODE>.</li></li>
@@ -76,7 +79,7 @@ import java.util.*;
  * see for example {@link SMIMESign}.
  * The default is to not have any explanation text.</li>
  * </ul>
- * @version CVS $Revision: 1.3 $ $Date: 2004/08/09 08:09:10 $
+ * @version CVS $Revision: 1.4 $ $Date: 2004/08/21 15:01:03 $
  * @since 2.2.1
  */
 public abstract class SMIMEAbstractSign extends GenericMailet {
