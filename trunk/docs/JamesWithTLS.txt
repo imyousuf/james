@@ -1,0 +1,34 @@
+James with TLS
+
+by Charles Benett <charles@benett1.demon.co.uk>
+
+1. Get amended Avalon
+a) Amended avalon jars are in James cvs
+b) Alternatively, build avalon jars from their sources:
+i) Obtain the avalon-james-1-1b1 branch source from cvs
+ cvs -d :pserver:jservpub@cvs.working-dogs.com:/products/cvs/master login
+(password is jservpub)
+ii) cvs -d :pserver:jservpub@cvs.working-dogs.com:/products/cvs/master checkout -d branched-framework -r avalon-james-1-1b1 framework
+iii) Compiling Avalon with or without TLS support
+- use the build.sh/ build.bat script
+- the buildfile checks for the existence of the JSSE class javax.net.ssl.SSLServerSocketFactory. Only if this is available to the JVM is TLS support included. 
+iv) copy jar file from avalon build directory to JAMES lib directory.
+
+
+2) Obtain JSSE source from java.sun.com. Follow their installation directions. We assume that you install JSSE as a standard extension, with a static provider definition. (See notes with JSSE distribution)
+
+3) Compile JAMES (from cvs)
+
+4. Using JAMES with TLS. You need to do three things over and above normal operation of James
+a) In Avalon.conf.xml, uncomment the TLS listener defintion
+b) In JAMES.conf.xml, uncomment the <useTLS>TRUE</useTLS> element for the service you want to use TLS. Currently available for remote manager and POP3. (If using POP3 over TLS, probably best to change port to 995, which is the designated POP3S port)
+c) Ensure that avalonTestKeys is in the conf directory. You may need to manually extract this from Avalon.jar (jar xvf Avalon.jar conf/avalonTestKeys)
+
+5. Start James
+
+6. Verify TLS support.
+a) (Negative Test) telnet to port 4555 (ie without SSL). This should hang the telnet client. It should also lock port 4555 until the connection timesout, I think.
+b) (Positive Test) Use an SSL client to open a socket to 4555 or 995 (Or whichever port number you set in JAMES.conf.xml). I uses opensll from www.openssl.org to test this.  E.g. openssl s_client -connect localhost:4555. You should see the normal remote manager or POP3 server greeting and have normal  operation. 
+- If, using openssl s_client you get connection refused/ error no 111, just try again. This probably means you got to the port before it was ready.
+
+
