@@ -175,7 +175,7 @@ in rapid succession and then move on to longer delays</li>
 <li><strong>maxRetries</strong> (optional) - a non-negative Integer value that is number of times
 the Mailet will attempt to deliver a particular mail.  If inconsistent
 with number of attempts in <strong>delayTime</strong>
-specifications. <strong>maxRetries<strong> will be increased if it is
+specifications. <strong>maxRetries</strong> will be increased if it is
 less than the total number of attempts in <strong>delayTime</strong>,
 if it is more the last specified <strong>delayTime</strong> is used
 for the missing delays. Defaults to five. </li>
