@@ -138,7 +138,7 @@ All theese package are in current distribution.
     <mkdir dir="${dist.dir}/docs"/>
 
     <copydir src="${build.src}" dest="${dist.dir}/src" excludes="james.conf.xml"/>
-    <copyfile src="${src.dir}/org/apache/james/james.conf.xml" dest="${dist.dir}/conf/avalon.conf.xml"/>
+    <copyfile src="${src.dir}/org/apache/james/james.conf.xml" dest="${dist.dir}/conf/james.conf.xml"/>
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
     <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/${name}.jar"/>

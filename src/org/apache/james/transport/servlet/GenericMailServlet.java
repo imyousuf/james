@@ -48,8 +48,7 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
     
     public void setComponentManager(ComponentManager comp) {
         this.comp = comp;
-        connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
-        logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        logger = (LogChannel) comp.getComponent("MailetLogChannel");
     }
     
     public ComponentManager getComponentManager() {
@@ -73,7 +72,7 @@ public abstract class GenericMailServlet implements MailServlet, Configurable, C
     }
     
     public void log(String msg) {
-        logger.log(msg, Logger.INFO);
+        logger.log(getServletInfo() + ": " + msg, Logger.INFO);
     }
     
     public abstract String getServletInfo();

@@ -61,6 +61,8 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
 
         connectionManager = (ConnectionManager) comp.getComponent(Interfaces.CONNECTION_MANAGER);
         logger = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("LogChannel"));
+        LogChannel mailetChannel = (LogChannel) connectionManager.getConnection("Logger", conf.getConfiguration("MailetLogChannel"));
+        comp.put("MailetLogChannel", mailetChannel);
         logger.log("JamesSpoolManager init...", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
 
