@@ -93,14 +93,19 @@ import java.util.Iterator;
  * is set to true, such error message will be attached to the notification message.<BR>
  * The notified messages are attached in their entirety (headers and
  * content) and the resulting MIME part type is "message/rfc822".</P>
- * <P>passThrough is <B>true</B>.</P>
+ * <P>Supports the <CODE>passThrough</CODE> init parameter (true if missing).</P>
  *
  * <P>Sample configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="NotifyPostmaster">
- *   &lt;sendingAddress&gt;<I>an address or postmaster or sender, default=postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message, default="Re:"</I>&lt;/prefix&gt;
+ *   &lt;inline&gt;<I>see {@link Redirect}, default=none</I>&lt;/inline&gt;
+ *   &lt;attachment&gt;<I>see {@link Redirect}, default=message</I>&lt;/attachment&gt;
+ *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
  *   &lt;to&gt;<I>unaltered (optional, defaults to postmaster)</I>&lt;/to&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
@@ -112,16 +117,20 @@ import java.util.Iterator;
  *   &lt;sender&gt;<I>an address or postmaster or sender, default=postmaster</I>&lt;/sender&gt;
  *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
  *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
- *   &lt;passThrough&gt;true&lt;/passThrough&gt;
- *   &lt;to&gt;<I>unaltered or postmaster&lt</I>;/to&gt;
+ *   &lt;prefix&gt;<I>a string</I>&lt;/prefix&gt;
+ *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;to&gt;<I><B>unaltered or postmaster</B></I>&lt;/to&gt;
  *   &lt;recipients&gt;<B>postmaster</B>&lt;/recipients&gt;
- *   &lt;inline&gt;none&lt;/inline&gt;
- *   &lt;attachment&gt;message&lt;/attachment&gt;
+ *   &lt;inline&gt;see {@link Redirect}, default=none&lt;/inline&gt;
+ *   &lt;attachment&gt;see {@link Redirect}, default=message&lt;/attachment&gt;
  *   &lt;isReply&gt;true&lt;/isReply&gt;
  *   &lt;static&gt;true&lt;/static&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
+ * <P>CVS $Id: NotifyPostmaster.java,v 1.9.4.6 2003/06/15 18:33:42 noel Exp $</P>
+ * @version 2.2.0
  */
 public class NotifyPostmaster extends AbstractNotify {
 
@@ -166,10 +175,14 @@ public class NotifyPostmaster extends AbstractNotify {
     }
 
     /**
-     * @return "Re:"
+     * @return the <CODE>prefix</CODE> init parameter or "Re:" if missing
      */
     protected String getSubjectPrefix() {
-        return "Re:";
+        if(getInitParameter("prefix") == null) {
+            return "Re:";
+        } else {
+            return getInitParameter("prefix");
+        }
     }
 
     /**
