@@ -11,9 +11,18 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
+import java.util.List;
+
 class CapabilityCommand extends CommandTemplate
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    String CAPABILITY_RESPONSE = "CAPABILITY " + VERSION; //add as implemented
+
+    public CapabilityCommand()
+    {
+        this.commandName = "CAPABILITY";
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List args )
     {
         session.untaggedResponse( CAPABILITY_RESPONSE );
         if ( session.getState() == ImapSessionState.SELECTED ) {

@@ -14,16 +14,21 @@ import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
-class SelectOrExamineCommand extends AuthenticatedSelectedStateCommand
+class SelectCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public SelectCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "SELECT";
 
-        String folder;
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
+
         // selecting a mailbox deselects current mailbox,
         // even if this select fails
         if ( session.getState() == ImapSessionState.SELECTED ) {
@@ -34,18 +39,7 @@ class SelectOrExamineCommand extends AuthenticatedSelectedStateCommand
             session.setCurrentIsReadOnly( false );
         }
 
-        if ( arguments != 1 ) {
-            if ( command.equalsIgnoreCase( "SELECT" ) ) {
-                session.badResponse( "Command should be <tag> <SELECT> <mailbox>" );
-            }
-            else {
-                session.badResponse( "Command should be <tag> <EXAMINE> <mailbox>" );
-            }
-            return true;
-        }
-
-
-        folder = decodeMailboxName( commandLine.nextToken() );
+        String folder = (String) argValues.get( 0 );
         ACLMailbox mailbox = getMailbox( session, folder, command );
         if ( mailbox == null ) {
             return true;

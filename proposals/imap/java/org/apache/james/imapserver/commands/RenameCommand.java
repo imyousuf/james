@@ -14,22 +14,25 @@ import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.MailboxException;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class RenameCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public RenameCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "RENAME";
 
-        String folder;
-        if ( arguments != 4 ) {
-            session.badResponse( "Command should be <tag> <RENAME> <oldname> <newname>" );
-            return true;
-        }
-        folder = decodeMailboxName( commandLine.nextToken() );
-        String newName = decodeMailboxName( commandLine.nextToken() );
+        this.getArgs().add( new AstringArgument( "oldName" ) );
+        this.getArgs().add( new AstringArgument( "newName" ) );
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
+
+        String folder = (String) argValues.get( 0 );
+        String newName = (String) argValues.get( 1 );
+
         if ( session.getCurrentFolder() == folder ) {
             session.noResponse( command, "You can't rename a folder while you have it selected." );
             return true;

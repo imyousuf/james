@@ -12,9 +12,16 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
+import java.util.List;
+
 class NamespaceCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public NamespaceCommand()
+    {
+        this.commandName = "NAMESPACE";
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         String namespaces = session.getImapSystem().getNamespaces( session.getCurrentUser() );
         session.untaggedResponse( "NAMESPACE " + namespaces );

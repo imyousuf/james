@@ -10,9 +10,18 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 
+import java.util.List;
+
 class AuthenticateCommand extends NonAuthenticatedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    AuthenticateCommand()
+    {
+        this.commandName = "AUTHENTICATE";
+
+        this.getArgs().add( new AstringArgument( "auth-type" ) );
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         session.noResponse( request.getCommand(), "Unsupported authentication mechanism" );
         return true;

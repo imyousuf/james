@@ -46,47 +46,66 @@ public abstract class BaseCommand
         }
         getLogger().debug(" decodeSet called for: " + rawSet);
         List response = new ArrayList();
+
         int checkComma = rawSet.indexOf(",");
         if (checkComma == -1) {
+            // No comma present
             int checkColon = rawSet.indexOf(":");
             if (checkColon == -1) {
-                Integer seqNum = new Integer(rawSet.trim());
-                if (seqNum.intValue() < 1) {
-                    throw new IllegalArgumentException("Not a positive integer");
-                } else {
-                    response.add(seqNum);
+                // No colon present (single integer)
+                Integer seqNum;
+                if ( rawSet.equals( "*" ) ) {
+                    seqNum = new Integer( -1 );
                 }
-            } else {
+                else {
+                    seqNum = new Integer(rawSet.trim());
+                    if (seqNum.intValue() < 1) {
+                        throw new IllegalArgumentException("Not a positive integer");
+                    }
+                }
+                response.add(seqNum);
+            }
+            else {
+                // Simple sequence
+
+                // Add the first number in the range.
                 Integer firstNum = new Integer(rawSet.substring(0, checkColon));
                 int first = firstNum.intValue();
+                if ( first < 1  ) {
+                    throw new IllegalArgumentException("Not a positive integer");
+                }
+                response.add( firstNum );
+
                 Integer lastNum;
                 int last;
                 if (rawSet.indexOf("*") != -1) {
-                    last = exists;
-                    lastNum = new Integer(last);
-                } else {
+                    // Range from firstNum to '*'
+                    // Add -1, to indicate unended range.
+                    lastNum = new Integer( -1 );
+                }
+                else {
+                    // Get the final num, and add all numbers in range.
                     lastNum = new Integer(rawSet.substring(checkColon + 1));
                     last = lastNum.intValue();
-                }
-                if (first < 1 || last < 1) {
-                    throw new IllegalArgumentException("Not a positive integer");
-                } else if (first < last) {
-                    response.add(firstNum);
-                    for (int i = (first + 1); i < last; i++) {
+                    if ( last < 1 ) {
+                        throw new IllegalArgumentException("Not a positive integer");
+                    }
+                    if ( last < first ) {
+                        throw new IllegalArgumentException("Not an increasing range");
+                    }
+
+                    for (int i = (first + 1); i <= last; i++) {
                         response.add(new Integer(i));
                     }
-                    response.add(lastNum);
-                } else if (first == last) {
-                    response.add(firstNum);
-                } else {
-                    throw new IllegalArgumentException("Not an increasing range");
                 }
             }
 
-        } else {
+        }
+        else {
+            // Comma present, compound range.
             try {
-                String firstRawSet = rawSet.substring(0, checkComma);
-                String secondRawSet = rawSet.substring(checkComma + 1);
+                String firstRawSet = rawSet.substring( 0, checkComma );
+                String secondRawSet = rawSet.substring( checkComma + 1 );
                 response.addAll(decodeSet(firstRawSet, exists));
                 response.addAll(decodeSet(secondRawSet, exists));
             } catch (IllegalArgumentException e) {

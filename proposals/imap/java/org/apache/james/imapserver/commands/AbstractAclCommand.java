@@ -9,12 +9,14 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+import org.apache.james.util.Assert;
 import org.apache.james.imapserver.ACLMailbox;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 abstract class AbstractAclCommand extends AuthenticatedSelectedStateCommand
 {
@@ -23,6 +25,12 @@ abstract class AbstractAclCommand extends AuthenticatedSelectedStateCommand
     protected abstract void doAclCommand( ImapRequest request, ImapSession session,
                                           ACLMailbox target, String folder )
             throws AccessControlException, AuthorizationException;
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        Assert.fail();
+        return false;
+    }
 
     public boolean process( ImapRequest request, ImapSession session )
     {
@@ -35,7 +43,7 @@ abstract class AbstractAclCommand extends AuthenticatedSelectedStateCommand
             
         checkUsage( arguments, session );
             
-        folder = decodeMailboxName( commandLine.nextToken() );
+        folder = readAstring( commandLine );
             
         target = getMailbox( session, folder, command );
         if ( target == null ) return true;

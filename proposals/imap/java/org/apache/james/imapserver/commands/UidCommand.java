@@ -7,15 +7,19 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.CommandFetch;
-import org.apache.james.imapserver.CommandStore;
-import org.apache.james.imapserver.ImapRequest;
-import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.*;
+import org.apache.james.util.Assert;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
-class UidCommand extends SelectedStateCommand
+class UidCommand implements ImapCommand
 {
+    public boolean validForState( ImapSessionState state )
+    {
+        return ( state == ImapSessionState.SELECTED );
+    }
+
     public boolean process( ImapRequest request, ImapSession session )
     {
         int arguments = request.arguments();

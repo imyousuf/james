@@ -14,21 +14,22 @@ import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.MailboxException;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class UnsubscribeCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public UnsubscribeCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "UNSUBSCRIBE";
 
-        String folder;
-        if ( arguments != 1 ) {
-            session.badResponse( "Command should be <tag> <UNSUBSCRIBE> <mailbox>" );
-            return true;
-        }
-        folder = decodeMailboxName( commandLine.nextToken() );
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
+
+        String folder = (String) argValues.get( 0 );
 
         try {
             if ( session.getImapHost().unsubscribe( session.getCurrentUser(), folder ) ) {

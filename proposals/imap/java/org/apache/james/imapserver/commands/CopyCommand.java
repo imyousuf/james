@@ -19,48 +19,45 @@ import java.util.StringTokenizer;
 
 class CopyCommand extends SelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public CopyCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "COPY";
 
-        if ( arguments < 4 ) {
-            session.badResponse( "Command should be <tag> <COPY> <message set> <mailbox name>" );
-            return true;
-        }
-        List set = session.decodeSet( commandLine.nextToken(),
-                              session.getCurrentMailbox().getExists() );
+        this.getArgs().add( new SetArgument() );
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        List set = (List) argValues.get( 0 );
         getLogger().debug( "Fetching message set of size: " + set.size() );
-        String targetFolder = decodeMailboxName( commandLine.nextToken() );
+        String targetFolder = (String) argValues.get( 1 );
 
-
-        ACLMailbox targetMailbox = getMailbox( session, targetFolder, command );
+        ACLMailbox targetMailbox = getMailbox( session, targetFolder, this.commandName );
         if ( targetMailbox == null ) {
             return true;
         }
         try { // long tries clause against an AccessControlException
             if ( !session.getCurrentMailbox().hasInsertRights( session.getCurrentUser() ) ) {
-                session.noResponse( command, "Insert access not granted." );
+                session.noResponse( this.commandName, "Insert access not granted." );
                 return true;
             }
-            for ( int i = 0; i < set.size(); i++ ) {
-                int msn = ((Integer) set.get( i )).intValue();
-                MessageAttributes attrs = session.getCurrentMailbox().getMessageAttributes( msn, session.getCurrentUser() );
-            }
+            // TODO - copy all messages in set.
+            int msn = ((Integer)set.get( 0 ) ).intValue();
+            session.getCurrentMailbox().getMessageAttributes( msn, session.getCurrentUser() );
         }
         catch ( AccessControlException ace ) {
-            session.noResponse( command, "No such mailbox." );
+            session.noResponse( this.commandName, "No such mailbox." );
             session.logACE( ace );
             return true;
         }
         catch ( AuthorizationException aze ) {
-            session.noResponse( command, "You do not have the rights to expunge mailbox: " + targetFolder );
+            session.noResponse( this.commandName, "You do not have the rights to expunge mailbox: " + targetFolder );
             session.logAZE( aze );
             return true;
         }
 
-        session.okResponse( command );
+        session.okResponse( this.commandName );
         return true;
     }
 }
