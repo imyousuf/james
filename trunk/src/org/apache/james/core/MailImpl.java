@@ -139,7 +139,7 @@ public class MailImpl implements Mail {
         while (e.hasMoreElements()) {
             size += ((Header)e.nextElement()).toString().length();
         }
-        return fullMessageSize;
+        return size;
 	}
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -220,7 +220,7 @@ public class MailImpl implements Mail {
         MimeMessage original = getMessage();
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         recipients.add(getSender());
         InternetAddress addr[] = {new InternetAddress(getSender().toString())};
         reply.setRecipients(Message.RecipientType.TO, addr);
