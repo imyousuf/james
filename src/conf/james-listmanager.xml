@@ -1,4 +1,9 @@
+      <!-- Add a Manager and Processor for each list -->
+      <!-- TODO: add more examples                   -->
+      <!-- CHECKME: check the <resource> path        -->
+
         <mailet match="CommandListservMatcher=announce@localhost" class="CommandListservManager">
+           <!-- CHECKME! -->
            <!--resources-->
            <resources>/opt/james/apps/james/conf/miResources.xml</resources>
            <!-- general information -->

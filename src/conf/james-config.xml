@@ -20,7 +20,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.12 $ Committed on $Date: 2003/07/03 07:50:14 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.13 $ Committed on $Date: 2003/07/16 15:02:45 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -191,6 +191,7 @@
          -->
 
         <!-- This is an example configuration including configuration for a list server. -->
+        <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
         <!--
           &listserverConfig;
         -->
@@ -747,6 +748,7 @@
       -->
 
       <!-- This is an example configuration including configuration for a list server. -->
+      <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
       <!--
         &listserverStores;
       -->
