@@ -202,8 +202,10 @@ public class JDBCMailRepository
         try {
             // Initialise the sql strings.
             String fileName = sqlFileName.substring("file://".length());
-            fileName = ((BlockContext)context).getBaseDirectory() +
-                        File.separator + fileName;
+            if (fileName.startsWith("/")) {
+                fileName = ((BlockContext)context).getBaseDirectory() +
+                           File.separator + fileName;
+            }
             File sqlFile = (new File(fileName)).getCanonicalFile();
 
             String resourceName = "org.apache.james.mailrepository.JDBCMailRepository";

@@ -31,15 +31,17 @@ public class NNTPUtil {
     static File getDirectory(Context context, Configuration configuration, String child)
         throws ConfigurationException
     {
-        String str = configuration.getChild(child).getValue();
-        if (!str.toLowerCase().startsWith("file://") ) {
+        String fileName = configuration.getChild(child).getValue();
+        if (!fileName.toLowerCase().startsWith("file://") ) {
             throw new ConfigurationException
                 ("Malformed " + child + " - Must be of the format \"file://<filename>\".");
         }
-        str = str.substring("file://".length());
-        str = ((BlockContext)context).getBaseDirectory() +
-                File.separator + str;
-        File f = new File(str);
+        fileName = fileName.substring("file://".length());
+        if (!(fileName.startsWith("/"))) {
+            fileName = ((BlockContext)context).getBaseDirectory() +
+                       File.separator + fileName;
+        }
+        File f = new File(fileName);
         if ( f.exists() && f.isFile() )
             throw new NNTPException("Expecting '"+f.getAbsolutePath()+"' directory");
         if ( f.exists() == false )
