@@ -58,36 +58,40 @@
 
 package org.apache.james.fetchmail;
 
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
+
+import javax.mail.Address;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
+import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailServer;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  *
  * A class which fetches mail from a single account and inserts it
  * into the incoming spool
  *
- * $Id: FetchMail.java,v 1.6 2003/03/08 21:14:02 noel Exp $
+ * $Id: FetchMail.java,v 1.7 2003/04/28 12:03:26 danny Exp $
  *
  */
 public class FetchMail extends AbstractLogEnabled implements Configurable, Target {
@@ -194,7 +198,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             // set the X-fetched-from header
             received.addHeader("X-fetched-from", fetchTaskName);
 
-            MailImpl mail = new MailImpl(server.getId(), new
+            Mail mail = new MailImpl(server.getId(), new
                     MailAddress((InternetAddress) received.getFrom()[0]), recipients, received);
 
 
@@ -208,7 +212,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 count++;
             }
             if (count > 3) {
-                mail.setState(mail.ERROR);
+                mail.setState(Mail.ERROR);
                 mail.setErrorMessage("This mail from FetchMail task " + fetchTaskName + " seems to be bounceing!");
                 getLogger().error("A message from FetchMail task " + fetchTaskName + " seems to be bounceing! Moved to Error repository");
                 return false;
@@ -298,7 +302,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             //
             // see if this folder contains subfolders and recurse is true
             if (bRecurse) {
-                if ((folder.getType() & folder.HOLDS_FOLDERS) != 0) {
+                if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
                     //
                     // folder contains subfolders...
                     Folder folders[] = folder.list();
