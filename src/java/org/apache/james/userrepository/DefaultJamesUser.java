@@ -16,20 +16,36 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 public class DefaultJamesUser 
         extends DefaultUser
         implements JamesUser, Initializable {
 
+    /**
+     * Whether forwarding is enabled for this user.
+     */
     private boolean forwarding;
+
+    /**
+     * The mail address to which this user's email is forwarded.
+     */
     private MailAddress forwardingDestination;
+
+    /**
+     * Is this user an alias for another username on the system.
+     */
     private boolean aliasing;
+
+
+    /**
+     * The user name that this user name is aliasing.
+     */
     private String alias;
 
     public DefaultJamesUser(String name, String alg) {
-	super(name, alg);
+        super(name, alg);
     }
 
     public DefaultJamesUser(String name, String passwordHash, String hashAlg) {
@@ -51,40 +67,84 @@ public class DefaultJamesUser
         alias = "";
     }
 
+    /**
+     * Set whether mail to this user is to be forwarded to another
+     * email address
+     *
+     * @param forward whether mail is forwarded
+     */
     public void setForwarding(boolean forward) {
-	forwarding = forward;
+        forwarding = forward;
     }
 
+    /**
+     * Get whether mail to this user is to be forwarded to another
+     * email address.
+     *
+     * @return forward whether mail is forwarded
+     */
     public boolean getForwarding() {
-	return forwarding;
+        return forwarding;
     }
 
     
+    /**
+     * Set the destination address to which mail to this user
+     * will be forwarded.
+     *
+     * @param address the forward-to address
+     */
     public boolean setForwardingDestination(MailAddress address) {
-	/* Some verification would be good */
-	forwardingDestination = address;
-	return true;
+        /* TODO: Some verification would be good */
+        forwardingDestination = address;
+        return true;
     }
 
+    /**
+     * Get the destination address to which mail to this user
+     * will be forwarded.
+     *
+     * @return the forward-to address
+     */
     public MailAddress getForwardingDestination() {
-	return forwardingDestination;
+        return forwardingDestination;
     }
 
+    /**
+     * Set whether this user id is an alias.
+     *
+     * @param alias whether this id is an alias
+     */
     public void setAliasing(boolean alias) {
         aliasing = alias;
     }
 
+    /**
+     * Get whether this user id is an alias.
+     *
+     * @return whether this id is an alias
+     */
     public boolean getAliasing() {
-	return aliasing;
+        return aliasing;
     }
 
+    /**
+     * Set the user id for which this id is an alias.
+     *
+     * @param address the user id for which this id is an alias
+     */
     public boolean setAlias(String address) {
-	/* Some verification would be good */
-	alias = address;
-	return true;
+        /* TODO: Some verification would be good */
+        alias = address;
+        return true;
     }
 
+    /**
+     * Get the user id for which this id is an alias.
+     *
+     * @return the user id for which this id is an alias
+     */
     public String getAlias() {
-	return alias;
+        return alias;
     }
 }
