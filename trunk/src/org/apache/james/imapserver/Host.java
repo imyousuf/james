@@ -1,20 +1,16 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.avalon.Contextualizable;
+import java.util.List;
+import java.util.Collection;
 import org.apache.avalon.Composer;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
@@ -160,7 +156,7 @@ public interface Host
      * @param username String user who has finished with this mailbox
      * @param mbox a non-null reference to an ACL Mailbox.
      */
-    void releaseMailbox(String user, ACLMailbox mbox);
+    void releaseMailbox( String user, ACLMailbox mbox );
  
     /**
      * Returns the namespace which should be used for this user unless they
@@ -169,7 +165,7 @@ public interface Host
      * @param username String an email address
      * @returns a String of a namespace
      */
-    String getDefaultNamespace(String username);
+    String getDefaultNamespace( String username );
 
 
     /**

@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 /**
@@ -22,17 +21,17 @@ package org.apache.james.imapserver;
 public class MailboxException extends Exception {
 
     public final static String ALREADY_EXISTS_LOCALLY
-	= "Already exists locally";
+        = "Already exists locally";
     public final static String ALREADY_EXISTS_REMOTELY
-	= "Already exists remotely";
+        = "Already exists remotely";
     public final static String IF_CREATED_LOCAL
-	= "If created, mailbox would be local";
+        = "If created, mailbox would be local";
     public final static String IF_CREATED_REMOTE
-	= "If created, mailbox would be remote";
+        = "If created, mailbox would be remote";
     public final static String NOT_LOCAL
-	= "Does not exist locally, no further information available";
+        = "Does not exist locally, no further information available";
     public final static String LOCAL_BUT_DELETED
-	= "Was local but has been deleted.";
+        = "Was local but has been deleted.";
 
     protected String status = null; 
     protected String remoteServer = null;
@@ -53,8 +52,8 @@ public class MailboxException extends Exception {
      * @param aStatus String constant indicating condition
      */
     public MailboxException(String message, String aStatus) {
-	super(message);
-	this.status = aStatus;
+        super(message);
+        this.status = aStatus;
     }
 
     /**
@@ -65,22 +64,21 @@ public class MailboxException extends Exception {
      * @param sServer String indicating another server where Mailbox should be.
      */
     public MailboxException(String message, String aStatus, String aServer) {
-	super(message);
-	this.status = aStatus;
-	this.remoteServer = aServer;
+        super(message);
+        this.status = aStatus;
+        this.remoteServer = aServer;
     }
 
     public String getStatus() {
-	return status;
+        return status;
     }
 
     public String getRemoteServer() {
-	return remoteServer;
+        return remoteServer;
     }
 
     public boolean isRemote() {
-	return ( status.equals(ALREADY_EXISTS_REMOTELY)
-		 || status.equals(IF_CREATED_REMOTE) ) ;
+        return ( status.equals(ALREADY_EXISTS_REMOTELY)
+                 || status.equals(IF_CREATED_REMOTE) ) ;
     }
- 
 }

@@ -1,17 +1,14 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import java.io.Serializable;
+import java.util.Set;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 
@@ -39,7 +36,8 @@ import org.apache.james.AuthorizationException;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1  on 14 Dec 2000
  */
-public interface ACL extends Serializable {
+public interface ACL 
+    extends Serializable {
 
     char LOOKUP_RIGHTS = 'l';
     char READ_RIGHTS = 'r';

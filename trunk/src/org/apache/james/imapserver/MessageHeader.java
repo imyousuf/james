@@ -1,15 +1,13 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.io.Serializable;
-
 
 /**
  * Class for holding the name-value pairs of an RFC822 or MIME header.
@@ -28,28 +26,28 @@ public class MessageHeader implements Serializable {
     private final String value;
 
     public MessageHeader(String headerLine) {
-	int colon = headerLine.indexOf(":");
-	name = headerLine.substring(0, colon);
-	StringBuffer unwrapped = new StringBuffer(headerLine.length());
-	boolean finished = false;
-	int pos = colon + 1;
-	while (!finished) {
-	    int crlf = headerLine.indexOf(CRLF, pos);
-	    if (crlf == -1) {
-		unwrapped.append(headerLine.substring(pos));
-		finished = true;
-	    } else {
-		unwrapped.append(headerLine.substring(pos, crlf));
-		unwrapped.append(" ");
-		pos = crlf +3;
-	    }
-	}
-	value = unwrapped.toString();
+        int colon = headerLine.indexOf(":");
+        name = headerLine.substring(0, colon);
+        StringBuffer unwrapped = new StringBuffer(headerLine.length());
+        boolean finished = false;
+        int pos = colon + 1;
+        while (!finished) {
+            int crlf = headerLine.indexOf(CRLF, pos);
+            if (crlf == -1) {
+                unwrapped.append(headerLine.substring(pos));
+                finished = true;
+            } else {
+                unwrapped.append(headerLine.substring(pos, crlf));
+                unwrapped.append(" ");
+                pos = crlf +3;
+            }
+        }
+        value = unwrapped.toString();
     }
 
     public MessageHeader(String name, String value) {
-	this.name = name;
-	this.value = value;
+        this.name = name;
+        this.value = value;
     }
 
     /**
@@ -58,7 +56,7 @@ public class MessageHeader implements Serializable {
      * @returns a String
      */
     public String getName() {
-	return name;
+        return name;
     }
 
     /**
@@ -67,10 +65,8 @@ public class MessageHeader implements Serializable {
      * @returns String
      */
     public String getValue() {
-	return value;
+        return value;
     }
-
-
 }
 
 

@@ -1,19 +1,16 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.Map;
-
+import java.util.Set;
 import org.apache.avalon.Initializable;
-
 
 /**
  * Object representing the record of a folder in an IMAP on an IMAP Host.
@@ -22,9 +19,8 @@ import org.apache.avalon.Initializable;
  * @version 0.1 on 14 Dec 2000
  */
 
-public class SimpleFolderRecord implements FolderRecord, Serializable,
-					   Initializable {
-
+public class SimpleFolderRecord 
+    implements FolderRecord, Serializable, Initializable {
 
     private final String fullName; 
     private final String owner;
@@ -42,7 +38,6 @@ public class SimpleFolderRecord implements FolderRecord, Serializable,
     private int recent;
     private Map unseenByUser;
 
-
     /**
      * Constructor Records the full name, including namespace, of this mailbox
      * relative, to a specified user, and the absolute name.. 
@@ -52,129 +47,127 @@ public class SimpleFolderRecord implements FolderRecord, Serializable,
      * mailbox name is absolute.
      */
     public SimpleFolderRecord(String mailboxName, String user,
-			      String absName) {
-	fullName = mailboxName;
-	owner = user;
-	absoluteName = absName;
+                              String absName) {
+        fullName = mailboxName;
+        owner = user;
+        absoluteName = absName;
     }
 
     public void init() {
-	nameInUse = true;
-	deleted = false;
-	uidValidity = 1; 
-	highestUID = 1; 
+        nameInUse = true;
+        deleted = false;
+        uidValidity = 1; 
+        highestUID = 1; 
     }
 
     public String getFullName() {
-	return fullName;
+        return fullName;
     }
 
     public String getUser() {
-	return owner;
+        return owner;
     }
 
     public String getAbsoluteName() {
-	return absoluteName;
+        return absoluteName;
     }
 
     public void setNameInUse(boolean state) {
-	nameInUse = state;
+        nameInUse = state;
     }
 
     public boolean isNameInUse() {
-	return nameInUse;
+        return nameInUse;
     }
 
     public void setDeleted(boolean state) {
-	deleted = state;
+        deleted = state;
     }
 
     public boolean isDeleted() {
-	return deleted;
+        return deleted;
     }
 
     public void setUidValidity(int uidV) {
-	if (uidV > uidValidity) {
-	    uidValidity = uidV;
-	}
+        if (uidV > uidValidity) {
+            uidValidity = uidV;
+        }
     }
 
     public int getUidValidity() {
-	return uidValidity;
+        return uidValidity;
     }
 
     public void setHighestUid(int uid) {
-	    highestUID = uid;
+        highestUID = uid;
     }
 
     public int getHighestUid() {
-	return highestUID;
+        return highestUID;
     }
 
-
     public void setLookupRights(Set users) {
-	usersWithLookupRights = users;
+        usersWithLookupRights = users;
     }
 
     public boolean hasLookupRights(String user) {
-	return usersWithLookupRights.contains(user) ;
+        return usersWithLookupRights.contains(user) ;
     }
-
  
     public void setReadRights(Set users) {
-	usersWithReadRights = users;
+        usersWithReadRights = users;
     }
 
     public boolean hasReadRights(String user) {
-	return usersWithReadRights.contains(user) ;
+        return usersWithReadRights.contains(user) ;
     }
 
     public void setMarked(boolean mark) {
-	marked = mark;
+        marked = mark;
     }
 
     public boolean isMarked() {
-	return marked;
+        return marked;
     }
 
     public void setNotSelectableByAnyone(boolean state) {
-	notSelectableByAnyone = state;
+        notSelectableByAnyone = state;
     }
 
     public boolean isNotSelectableByAnyone() {
-	return notSelectableByAnyone;
+        return notSelectableByAnyone;
     }
 
     public boolean isSelectable(String user) {
-	return (!notSelectableByAnyone && hasReadRights(user));
+        return (!notSelectableByAnyone && hasReadRights(user));
     }
 
     public void setExists(int num) {
-	exists = num;
+        exists = num;
     }
 
     public int getExists() {
-	return exists;
+        return exists;
     }
 
     public void setRecent(int num) {
-	recent = num;
+        recent = num;
     }
 
     public int getRecent() {
-	return recent;
+        return recent;
     }
 
     public void setUnseenbyUser(Map unseen) {
-	unseenByUser = unseen;
+        unseenByUser = unseen;
     }
 
     public int getUnseen(String user) {
-	if (unseenByUser.containsKey(user)) {
-	    Integer unseen = ((Integer)unseenByUser.get(user));
-	    return unseen.intValue();
-	} else {
-	    return exists;
-	}
+        if (unseenByUser.containsKey(user)) {
+            Integer unseen = ((Integer)unseenByUser.get(user));
+            return unseen.intValue();
+        } else {
+            return exists;
+        }
     }
 }

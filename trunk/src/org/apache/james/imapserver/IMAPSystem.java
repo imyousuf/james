@@ -1,23 +1,19 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.util.Iterator;
-import org.apache.avalon.Contextualizable;
-import org.apache.avalon.Context;
-import org.apache.avalon.Composer;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.configuration.Configurable;
-
 import org.apache.james.AuthenticationException;
-
-
 
 /**
  * An IMAP4rev1 messaging system, possible containing multiple Hosts. There
@@ -29,8 +25,8 @@ import org.apache.james.AuthenticationException;
  * @version 0.1 on 14 Dec 2000
  * @see Host
  */
-
-public interface IMAPSystem extends Configurable, Contextualizable, Composer {
+public interface IMAPSystem 
+    extends Configurable, Contextualizable, Composer {
 
     String IMAP_SYSTEM = "IMAP_SYSTEM";
     String PRIVATE = "Private";
@@ -43,7 +39,6 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      * Example: #news.org.apache vs #mail.org.apache
      */
     String getNamespaceToken();
-
 
     /**
      * Returns the home server (server with user's INBOX) for specified user.
@@ -58,7 +53,6 @@ public interface IMAPSystem extends Configurable, Contextualizable, Composer {
      */
     String getHomeServer( String username )
         throws AuthenticationException;
-
 
     /**
      * Returns the character used as a mail hierarchy seperator in a given

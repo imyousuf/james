@@ -1,24 +1,20 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-
 import java.util.*;
-import org.apache.avalon.Context;
+import org.apache.avalon.Component;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.Context;
+import org.apache.avalon.Initializable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.avalon.Initializable;
-import org.apache.avalon.Component;
-
 import org.apache.james.AuthenticationException;
-
 
 /**
  * A simple, single-server, implementation of IMAPSystem.
@@ -27,28 +23,19 @@ import org.apache.james.AuthenticationException;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @version 0.1 on 14 Dec 2000
  */
-
-public class SimpleSystem implements IMAPSystem, Component, Initializable {
+public class SimpleSystem 
+    implements IMAPSystem, Component, Initializable {
 
     private static final String namespaceToken = "#";
     private static final String hierarchySeperator = ".";
     private static final String namespace
-	= "((\"#mail.\" \".\")) ((\"#users.\" \".\")) ((\"#shared.\" \".\"))";
+        = "((\"#mail.\" \".\")) ((\"#users.\" \".\")) ((\"#shared.\" \".\"))";
 
     private static String singleServer;
     private Set servers = new HashSet();
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-
-
-    /**
-     * Constructor
-     *
-     * @param host String this machine.
-     */
-    public SimpleSystem() {
-    }
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -63,9 +50,9 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
     }
 
     public void init() {
-	// Derive namespace and namespaceToken from conf
-	singleServer = (String) context.get("HostName");
-	servers.add(singleServer);
+        // Derive namespace and namespaceToken from conf
+        singleServer = (String) context.get("HostName");
+        servers.add(singleServer);
     }
 
     /**
@@ -74,9 +61,8 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
      * Example: #news.org.apache vs #mail.org.apache
      */
     public String getNamespaceToken() {
-	return namespaceToken;
+        return namespaceToken;
     }
-
 
     /**
      * Returns the home server (server with user's INBOX) for specified user.
@@ -90,10 +76,9 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
      * the user.
      */
     public String getHomeServer(String username)
-	throws AuthenticationException {
-	return singleServer;
+        throws AuthenticationException {
+        return singleServer;
     }
-
 
     /**
      * Returns the character used as a mail hierarchy seperator in a given
@@ -106,9 +91,8 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
      * @returns char, usually '.', '/', or '\'
      */
     public String getHierarchySeperator(String namespace) {
-	return hierarchySeperator;
+        return hierarchySeperator;
     }
-
 
     /**
      * Provides the set of namesapces a given user can access. Implementations
@@ -122,9 +106,8 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
      * <shared namespace(s)>, per RFC2342
      */
     public String getNamespaces(String username) {
-	return namespace;
+        return namespace;
     }
-
 
     /**
      * Returns an iterator over the collection of servers on which this user
@@ -135,13 +118,8 @@ public class SimpleSystem implements IMAPSystem, Component, Initializable {
      * @return iterator over a collection of strings
      */
     public Iterator getAccessibleServers(String username) {
-	return Collections.unmodifiableSet(servers).iterator();
+        return Collections.unmodifiableSet(servers).iterator();
     }
-
-    public void destroy() {
-    }
-
-
 }
 
 

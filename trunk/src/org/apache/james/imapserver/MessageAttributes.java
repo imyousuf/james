@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
 import java.util.Date;
@@ -70,14 +69,17 @@ public interface MessageAttributes  {
     int getSize();
 
     /**
-     * Provides the Envelope structure information for this message. This is a parsed representation of the rfc-822 envelope information. This is not to be confused with the SMTP envelope!
+     * Provides the Envelope structure information for this message. 
+     * This is a parsed representation of the rfc-822 envelope information. 
+     * This is not to be confused with the SMTP envelope!
      *
      * @returns String satisfying envelope syntax in rfc 2060.
      */
     String getEnvelope();
 
     /**
-     * Provides the Body Structure information for this message. This is a parsed representtion of the MIME structure of the message.
+     * Provides the Body Structure information for this message. 
+     * This is a parsed representtion of the MIME structure of the message.
      *
      * @returns String satisfying body syntax in rfc 2060.
      */

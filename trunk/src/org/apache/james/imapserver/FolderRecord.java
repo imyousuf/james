@@ -1,15 +1,14 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.imapserver;
 
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface for objects representing the record of a folder on an IMAP host.
@@ -19,8 +18,7 @@ import java.util.Map;
  */
 
 public interface FolderRecord {
-	
-	
+             
     /**
      * Returns the full name, including namespace, of this mailbox. 
      * Example 1: '#mail.projectBonzi'
@@ -102,7 +100,7 @@ public interface FolderRecord {
      */
     int getUidValidity();
 
-   /**
+    /**
      * Records the highest assigned Unique Identifier Value for this mailbox.
      *
      * @param uid int the highest uid assigned to a message in this mailbox.
@@ -146,12 +144,12 @@ public interface FolderRecord {
      */
     boolean hasReadRights(String user);
 
-   /**
+    /**
      * Record if mailbox is marked.
      */
     void setMarked(boolean mark);
 
-   /**
+    /**
      * Indicates if the mailbox is marked. Usually means unseen mail.
      *
      * @returns boolean true if marked
