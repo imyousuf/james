@@ -42,6 +42,7 @@
 <li>[PG]  (code) Corrrected handling of NNTP messages to avoid character encoding issues</li>
 <li>[NjB] (code) James.getId bug - courtesy of Sid Stuart</li>
 <li>[KS}  (code) Added NNTP linecounting support</li>
+<li>[KS}  (code) Fixed NNTP authentication</li>
 <li>[HJ]  (code) Fixed bug 18726 (optional socket factory to specify outgoing bind address)</li>
 <li>[NjB] (code) Fixed bug 19418 (changed notify/wait code in spooler)</li>
 <li>[NjB] (code) Fixed bug 18307</li>
