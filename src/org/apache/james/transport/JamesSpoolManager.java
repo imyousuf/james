@@ -69,6 +69,7 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
             String processorName = processorConf.getAttribute("name");
             try {
                 LinearProcessor processor = new LinearProcessor();
+                processor.setSpool(spool);
                 processor.setLogger(logger);
                 processor.init();
                 processors.put(processorName, processor);
@@ -161,36 +162,22 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                 if (processor == null) {
                     throw new MailetException("Unable to find processor " + processorName);
                 }
+                logger.log("Processing " + mail.getName() + " through " + processorName, "Processor", logger.INFO);
                 processor.service(mail);
-            } catch (MessagingException me) {
-                if (processorName.equals("error")) {
-                    //We got an error on the error processor... just kill the message
-                    mail.setState(Mail.GHOST);
-                } else {
-                    //We got an error... send it through the error process
-                    mail.setState("error");
-                }
+                return;
             } catch (Exception e) {
-                //This is a strange error message we probably want to prevent...
+                //This is a strange error situation that shouldn't ordinarily happen
                 System.err.println("Exception in processor <" + processorName + ">");
                 e.printStackTrace();
-                if (processorName.equals("error")) {
-                    //We got an error on the error processor... just kill the message
+                if (processorName.equals(Mail.ERROR)) {
+                    //We got an error on the error processor... kill the message
                     mail.setState(Mail.GHOST);
+                    mail.setErrorMessage(e.getMessage());
                 } else {
-                    //We got an error... send it through the error processor
-                    mail.setState("error");
+                    //We got an error... send it to the error processor
+                    mail.setState(Mail.ERROR);
+                    mail.setErrorMessage(e.getMessage());
                 }
-            }
-            logger.log("Processed " + mail.getName() + " through " + processorName, "Processor", logger.INFO);
-            logger.log("Result was " + mail.getState(), "Processor", logger.INFO);
-            if (mail.getState().equals(Mail.GHOST)) {
-                //Need to delete this message
-                return;
-            }
-            if (mail.getState().equals(processorName)) {
-                //We're done... if it's not sent to a different processor, we shut down
-                return;
             }
         }
     }
