@@ -35,6 +35,7 @@ import org.apache.james.imapserver.*;
 import org.apache.james.services.*;
 import org.apache.james.transport.*;
 import org.apache.james.userrepository.DefaultJamesUser;
+import org.apache.james.util.RFC822DateFormat;
 import org.apache.log.Logger;
 import org.apache.log.Priority;
 import org.apache.mailet.*;
@@ -52,8 +53,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.9 $
- * Committed on $Date: 2001/09/25 10:44:11 $ by: $Author: charlesb $
+ * This is $Revision: 1.10 $
+ * Committed on $Date: 2001/09/25 12:27:43 $ by: $Author: charlesb $
  */
 public class James
     extends AbstractLoggable
@@ -427,7 +428,7 @@ public class James
             part.setContent(orig.getContent(), orig.getContentType());
             part.setHeader("Content-Type", orig.getContentType());
             multipart.addBodyPart(part);
-
+            reply.setHeader("Date", RFC822DateFormat.toString(new Date()));
             reply.setContent(multipart);
             reply.setHeader("Content-Type", multipart.getContentType());
         } catch (IOException ioe) {
