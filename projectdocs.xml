@@ -54,7 +54,7 @@ Legal:
     <pathelement location="lib/activation.jar"/>
     <pathelement location="lib/jmxri.jar"/>
     <pathelement location="lib/jmxtools.jar"/>
-    <pathelement location="lib/mail_1_2.jar"/>
+    <pathelement location="lib/mail_1_3.jar"/>
     <pathelement location="lib/jakarta-oro-2.0.1.jar"/>
     <pathelement location="lib/town.jar"/>
 
@@ -75,7 +75,7 @@ Legal:
     <echo message=""/>
     <echo>
       *************************************************************
-      ** 
+      **
       ** Building integrated javadocs for james on avalon        **
       **
       *************************************************************
@@ -97,7 +97,7 @@ Legal:
     <available property="jdbc3.present" classname="java.sql.Savepoint">
       <classpath refid="project.class.path"/>
     </available>
-    <available property="servlet.present" 
+    <available property="servlet.present"
                classname="javax.servlet.ServletContext"/>
     <available property="jsse.present" classname="javax.net.ssl.SSLServerSocket" />
   </target>
@@ -141,7 +141,7 @@ Legal:
     <echo message="Copying logkit sources"/>
     <copy todir="${build.src}" >
       <fileset dir="${logkit.src.dir}" >
-        <exclude name="org/apache/log/output/ServletOutputLogTarget.java" 
+        <exclude name="org/apache/log/output/ServletOutputLogTarget.java"
                unless="servlet.present" />
       </fileset>
     </copy>
@@ -215,7 +215,7 @@ Legal:
     <javadoc packagenames="org.apache.*"
              sourcepath="${build.src}"
              destdir="${build.javadocs}">
-     <classpath refid="project.class.path" /> 
+     <classpath refid="project.class.path" />
       <doclet name="com.sun.tools.doclets.standard.Standard">
        <param name="-author"/>
        <param name="-version"/>
