@@ -8,18 +8,19 @@ GOALS:
         SQL statements from SQL definition file for specific product (done)
 - Simpler to create database-backed UserRepository implementations for 
         different User implementations (done)
-- Consolidate existing UserRepository implementations - refactor out common
-        functionality
 - Simplify UserRepository specification in config - make it URL:// based, 
-        like MailRepository. 
+        like MailRepository. (done)
+- Consolidate existing UserRepository implementations - refactor out common
+        functionality (TODO)
 - Have UserStore serve up repository implementations based on: storage,
-        User implementation, and location.
+        User implementation, and location. (TODO)
         
 
 OTHER GOALS (reuse development in JdbcMailRepository):
-- use Avalon and Cornerstone DataSource components in JdbcMailRepository
-- Use SqlResources.java to provide db-specific SQL to JdbcMailRepository
-- Automatic table generation for JdbcMailRepository
+- use Avalon and Cornerstone DataSource components in JdbcMailRepository (done)
+- Use SqlResources.java to provide db-specific SQL to JdbcMailRepository (done)
+- Automatic table generation for JdbcMailRepository (done)
+- Get rid of the separate database .properties files. (done)
 
 BUILD INSTRUCTIONS:
 ./build.sh -buildfile proposals/userstore/build.xml
@@ -42,8 +43,9 @@ The only config properties you should need to set are:
             <dburl>-- the jdbc connection string for your database</dburl>
             <user>-- database user --</user>
             <password>-- database password --</password>
+
             
-TEST INSTRUCTIONS:
+TEST INSTRUCTIONS (FOR USER REPOSITORIES):
 - Telnet to the remote manager: "telnet localhost 4555".
 - Do some user management - type "help" for options.
 - type "use list-james", to switch to the repository for this list.
@@ -54,6 +56,31 @@ TEST INSTRUCTIONS:
 "LocalUsers").
 
 NOTES:
+MAIL REPOSITORY
+Mail repositories are now configured primarily by their "destinationURL" 
+property. This has the format "db://<datasource>/<table>[/<repository>]". Other
+config such as the "sqlFile" (where to find sqlResources.xml, and the "filestore"
+for mixed storage, can also be included, or can be left to defaults (see below).
+
+Each repository registered in the MailStore can now take a "config" section,
+which is the default configuration used by the MailStore when creating a repository 
+of that class. This allows us to have a configurable JDBCMailRepository, without
+needing to specify config everywhere it's used. I've set up the SPOOL repository 
+to use mixed storage (a filestore in addition to the database), but the MAIL 
+repository to use pure db storage.
+
+The new config has been tested with "inbox" and "spool" repositories, but it's not 
+yet tested with the "error", "spam" and "outgoing" repositories.
+
+The statements in the SqlResources.xml file have been tested on MySQL and M$SQL. 
+Only M$ has the optimised "getMessageSize" SQL, but this is optional. 
+
+You no longer have to manually create the tables required - this is automatic.
+Create Table statements are included for M$SQL and MySQL; we'll need to add others
+for other db products.
+
+
+USERS REPOSITORY
 I've added an "AbstractJdbcUsersRepository", which takes care of most of the work
 of a JdbcUsersRepository, making it pretty easy to add new ones. The abstract
 implementation doesn't have knowledge of User implementations, this is restricted to

@@ -77,7 +77,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
-        getLogger().debug("AbstractJdbcUsersRepository.compose()");
+        getLogger().debug(this.getClass().getName() + ".compose()");
 
         m_datasources = 
             (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
@@ -100,14 +100,49 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      */
     public void configure(Configuration configuration) throws ConfigurationException 
     {
-        getLogger().debug("AbstractJdbcUsersRepository.configure()");
+        getLogger().debug(this.getClass().getName() +  ".configure()");
 
-        // Get the name of the datasource, and the table to use.
-        m_datasourceName = configuration.getChild("data-source", true).getValue();
+        // Parse the DestinationURL for the name of the datasource, 
+        // the table to use, and the (optional) repository Key.
+        String destUrl = configuration.getAttribute("destinationURL");
+        // normalise the destination, to simplify processing.
+        if ( ! destUrl.endsWith("/") ) {
+            destUrl += "/";
+        }
+        // Split on "/", starting after "db://"
+        List urlParams = new LinkedList();
+        int start = 5;
+        int end = destUrl.indexOf('/', start);
+        while ( end > -1 ) {
+            urlParams.add(destUrl.substring(start, end));
+            start = end + 1;
+            end = destUrl.indexOf('/', start);
+        }
+
+        // Build SqlParameters and get datasource name from URL parameters
+        m_sqlParameters = new HashMap();
+        switch ( urlParams.size() ) {
+        case 3:
+            m_sqlParameters.put("key", urlParams.get(2));
+        case 2:
+            m_sqlParameters.put("table", urlParams.get(1));
+        case 1:
+            m_datasourceName = (String)urlParams.get(0);
+            break;
+        default:
+            throw new ConfigurationException
+                ("Malformed destinationURL - " +
+                 "Must be of the format \"db://<data-source>[/<table>[/<key>]]\".");
+        }
+
+        getLogger().debug("Parsed URL: table = '" + m_sqlParameters.get("table") + 
+                          "', key = '" + m_sqlParameters.get("key") + "'");
+        
+        // Get the SQL file location
         m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
 
-        // Get the sql parameters from the configuration object.
-        m_sqlParameters = new HashMap();
+        // Get other sql parameters from the configuration object,
+        // if any.
         Configuration sqlParamsConfig = configuration.getChild("sqlParameters");
         String[] paramNames = sqlParamsConfig.getAttributeNames();
         for (int i = 0; i < paramNames.length; i++ ) {
@@ -128,7 +163,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
      */
     public void initialize() throws Exception 
     {
-        getLogger().debug("AbstractJdbcUsersRepository.initialize()");
+        getLogger().debug( this.getClass().getName() + ".initialize()");
 
         // Get the data-source required.
         m_datasource = (DataSourceComponent)m_datasources.select(m_datasourceName);
@@ -140,11 +175,10 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
             // Initialise the sql strings.
             java.io.File sqlFile = new java.io.File(m_sqlFileName);
-            String resourceName = this.getClass().getName();
-
+            
             getLogger().debug("Reading SQL resources from file: " + 
                               sqlFile.getAbsolutePath() + ", section " +
-                              resourceName + ".");
+                              this.getClass().getName() + ".");
 
             SqlResources sqlStatements = new SqlResources();
             sqlStatements.init(sqlFile, this.getClass().getName(), 
@@ -196,8 +230,11 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                 createStatement.execute();
                 createStatement.close();
 
-                getLogger().info("AbstractJdbcUsersRepository: Created table \'" + 
+                getLogger().info(this.getClass().getName() + ": Created table \'" + 
                                  tableName + "\'.");
+            }
+            else {
+                getLogger().debug("Using table: " + tableName);
             }
         
         }
@@ -243,7 +280,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
         catch ( SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database");
+            throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
             closeConnection(conn);
@@ -271,7 +308,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
         catch ( SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database");
+            throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
             closeConnection(conn);
@@ -295,7 +332,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
         catch ( SQLException sqlExc ) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database");
+            throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
             closeConnection(conn);
@@ -321,7 +358,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
         catch ( SQLException sqlExc ) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database");
+            throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
             closeConnection(conn);
@@ -371,7 +408,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         }
         catch ( SQLException sqlExc ) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database");
+            throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
             closeConnection(conn);

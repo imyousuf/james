@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2001/08/15 04:41:30 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: darrell $ on $Date: 2001/08/17 15:15:58 $
+ * $Revision: 1.2 $
  *
  */
 public class RemoteManagerHandler
@@ -54,6 +54,7 @@ public class RemoteManagerHandler
 
     private UsersStore usersStore;
     private UsersRepository users;
+    private boolean inLocalUsers = true;
     private TimeScheduler scheduler;
     private MailServer mailServer;
 
@@ -198,18 +199,26 @@ public class RemoteManagerHandler
                 out.println("usage: adduser [username] [password]");
                 return true;
             }
+
+            boolean success = false;
             if (users.contains(username)) {
                 out.println("user " + username + " already exist");
-            } else {
+            } 
+            else if ( inLocalUsers ) {
+                success = mailServer.addUser(username, passwd);
+            }
+            else {
                 DefaultUser user = new DefaultUser(username, "SHA");
                 user.setPassword(passwd);
-                if( users.addUser(user)) {
-                    out.println("User " + username + " added");
-                    getLogger().info("User " + username + " added");
-                } else {
-                    out.println("Error adding user " + username);
-                    getLogger().info("Error adding user " + username);
-                }
+                success = users.addUser(user);
+            }
+            if ( success ) {
+                out.println("User " + username + " added");
+                getLogger().info("User " + username + " added");
+            }
+            else {
+                out.println("Error adding user " + username);
+                getLogger().info("Error adding user " + username);
             }
             out.flush();
         } else if (command.equalsIgnoreCase("SETPASSWORD")) {
@@ -407,6 +416,12 @@ public class RemoteManagerHandler
             else {
                 users = repos;
                 out.println("Changed to repository '" + repositoryName + "'.");
+                if ( repositoryName.equalsIgnoreCase("localusers") ) {
+                    inLocalUsers = true;
+                }
+                else {
+                    inLocalUsers = false;
+                }
                 return true;
             }
 
