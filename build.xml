@@ -39,7 +39,6 @@ Legal:
     developers this part makes no difference.
   -->
   <property name="build.compiler.emacs" value="on"/>
-  <property name="build.compiler.warnings" value="true"/>
   <property name="build.compiler.pedantic" value="true"/>
   <property name="build.compiler.depend" value="true"/>
   <property name="build.compiler.fulldepend" value="true"/>
@@ -105,12 +104,16 @@ Legal:
        ===================================================================
   -->
   <property name="xerces.jar" value="${lib.dir}/xerces.jar"/>
-  <property name="framework.jar" value="${lib.dir}/avalon-framework.jar"/>
-  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur.jar"/>
-  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad.jar"/>
-  <property name="logkit.jar" value="${lib.dir}/logkit.jar"/>
-  <property name="cornerstone.bar" value="${lib.dir}/cornerstone.bar"/>
-  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client.jar"/>
+  <property name="framework.jar" value="${lib.dir}/avalon-framework-20010912.jar"/>
+  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20010919.jar"/>
+  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20010919.jar"/>
+  <property name="logkit.jar" value="${lib.dir}/logkit-20010912.jar"/>
+  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20010919.bar"/>
+  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20010919.jar"/>
+  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20010919.jar"/>
+  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20010919.jar"/>
+  <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20010919.jar"/>
+
   <!--
     <property name="activation.jar" value="${lib.dir}/activation.jar"/>
   -->
@@ -356,23 +359,20 @@ Legal:
     <delete dir="${dist.dir}/apps/${name}"/>
     <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
 
-    <copy todir="${dist.dir}/bin">
-      <fileset dir="lib">
-        <include name="phoenix-engine.jar"/>
-        <include name="phoenix-loader.jar"/>
-      </fileset>
-    </copy>
+    <copy file="${phoenix-engine.jar}" tofile="${dist.dir}/bin/phoenix-engine.jar"/>
+    <copy file="${phoenix-loader.jar}" tofile="${dist.dir}/bin/phoenix-loader.jar"/>
+
+    <copy file="${phoenix.client.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${framework.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${excalibur.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${scratchpad.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${avalon-jmx.jar}" todir="${dist.dir}/lib"/>
+    <copy file="${logkit.jar}" todir="${dist.dir}/lib"/>
 
     <copy todir="${dist.dir}/lib">
       <fileset dir="lib">
-        <include name="phoenix-client.jar"/>
-        <include name="avalon-framework.jar"/>
-        <include name="avalon-excalibur.jar"/>
-        <include name="avalon-scratchpad.jar"/>
-        <include name="avalon-jmx.jar"/>
         <include name="jmxri.jar"/>
         <include name="jmxtools.jar"/>
-        <include name="logkit.jar"/>
         <include name="xerces.jar"/>
       </fileset>
     </copy>
