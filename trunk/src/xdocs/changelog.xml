@@ -16,12 +16,11 @@
 <li>[SS4] (code) DNS service can auto-discover DNS servers</li>
 <li>[SS4] (code) return an unmodifiable Collection from findMXRecords()</li>
 <li>[SS4] (code) Added some more logging to DNS service</li>
-<li>[PG,HB]  (code) NNTP dot stuffing fix</li>
-<li>[PG]  (code) NNTP OVER/XOVER fix</li>
 </section>
 
 <section name="Version 2.1.1">
 <p>Expected release January 2003</p>
+<li> [NjB] (code) Fixed synchronizaion bug in file repository</li>
 <li> [NjB] (code) Enabled log rotation</li>
 <li> [NjB] (doc) Fixed broken links</li>
 <li> [DA, NjB]  (update) Updated JavaMail and JAF</li>
