@@ -38,8 +38,8 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/07 23:24:27 $
- * $Revision: 1.6 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/17 18:33:28 $
+ * $Revision: 1.7 $
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
@@ -54,6 +54,12 @@ public class UsersFileRepository
     private ObjectRepository or;
     private String destination;
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
@@ -64,13 +70,21 @@ public class UsersFileRepository
         }
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
 
-	try {
+        try {
             store = (Store)componentManager.
                 lookup( "org.apache.avalon.cornerstone.services.store.Store" );
-
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
@@ -78,6 +92,13 @@ public class UsersFileRepository
         }
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize()
         throws Exception {
 
@@ -113,80 +134,80 @@ public class UsersFileRepository
     }
 
     public synchronized boolean addUser(User user) {
-	String username = user.getUserName();
-	if (contains(username)) {
-	    return false;
-	}
+        String username = user.getUserName();
+        if (contains(username)) {
+            return false;
+        }
         try {
             or.put(username, user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
         }
-	return true;
+        return true;
     }
 
     public synchronized void addUser(String name, Object attributes) {
-	if (attributes instanceof String)
-        {
-	    User newbie = new DefaultUser(name, "SHA");
+        if (attributes instanceof String) {
+            User newbie = new DefaultUser(name, "SHA");
             newbie.setPassword( (String) attributes);
-	    addUser(newbie);
-	}
-        else
-        {
+            addUser(newbie);
+        }
+        else {
             throw new RuntimeException("Improper use of deprecated method" 
                                        + " - use addUser(User user)");
         }
     }
 
     public synchronized User getUserByName(String name) {
-	if (contains(name)) {
+        if (contains(name)) {
             try {
                 return (User)or.get(name);
             } catch (Exception e) {
                 throw new RuntimeException("Exception while retrieving user: "
                                            + e.getMessage());
             }
-	} else {
-	    return null;
-	}
+        } else {
+            return null;
+        }
     }
 
     public User getUserByNameCaseInsensitive(String name) {
-	String realName = getRealName(name);
-	if (realName == null ) {
-          throw new RuntimeException("No such user");
-	}
-	return getUserByName(realName);
+        String realName = getRealName(name);
+        // TODO: This clause is in violation of the contract for the
+        //       interface - class should return false if the user
+        //       doesn't exist
+        if (realName == null ) {
+            throw new RuntimeException("No such user");
+        }
+        return getUserByName(realName);
     }
 
     public String getRealName(String name) {
         Iterator it = list();
-	while (it.hasNext()) {
-	    String temp = (String) it.next();
-	    if (name.equalsIgnoreCase(temp)) {
-		return temp;
-	    }
-	}
-	return null;
+        while (it.hasNext()) {
+            String temp = (String) it.next();
+            if (name.equalsIgnoreCase(temp)) {
+                return temp;
+            }
+        }
+        return null;
     }
-    public Object getAttributes(String name) {
-       
-        throw new RuntimeException("Improper use of deprecated method - read javadocs");
-        
+
+    public Object getAttributes(String name) {       
+        throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
     }
 
     public boolean updateUser(User user) {
-	String username = user.getUserName();
-	if (!contains(username)) {
-	    return false;
-	}
+    String username = user.getUserName();
+    if (!contains(username)) {
+        return false;
+    }
         try {
             or.put(username, user);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e );
         }
-	return true;
+        return true;
     }
 
     public synchronized void removeUser(String name) {
@@ -194,17 +215,17 @@ public class UsersFileRepository
     }
 
     public boolean contains(String name) {
-	return or.containsKey(name);
+        return or.containsKey(name);
     }
 
     public boolean containsCaseInsensitive(String name) {
-	Iterator it = list();
-	while (it.hasNext()) {
-	    if (name.equalsIgnoreCase((String)it.next())) {
-		return true;
-	    }
-	}
-	return false;
+        Iterator it = list();
+        while (it.hasNext()) {
+            if (name.equalsIgnoreCase((String)it.next())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean test(String name, Object attributes) {
@@ -216,17 +237,17 @@ public class UsersFileRepository
     }
 
     public boolean test(String name, String password) {
-	User user;
-	try {
-	    if (contains(name)) {
-	        user = (User) or.get(name);
-	    } else {
+        User user;
+        try {
+            if (contains(name)) {
+                user = (User) or.get(name);
+            } else {
                return false;
-	    }
+            }
         } catch (Exception e) {
             throw new RuntimeException("Exception retrieving User" + e);
         }
-	return user.verifyPassword(password);
+        return user.verifyPassword(password);
     }
 
     public int countUsers() {

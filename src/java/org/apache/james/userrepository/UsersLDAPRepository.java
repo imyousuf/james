@@ -71,6 +71,40 @@ public class UsersLDAPRepository
         logger = a_Logger;
     }
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
+    public void contextualize(Context context)
+        throws ContextException {
+        Collection serverNames
+            = (Collection)context.get(Constants.SERVER_NAMES);
+        usersDomain = (String)serverNames.iterator().next();
+    }
+
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
+    public void compose(ComponentManager compMgr) {
+        this.comp = comp;
+    }
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf)
         throws ConfigurationException {
 
@@ -92,17 +126,6 @@ public class UsersLDAPRepository
         passwordAttr = conf.getChild("PasswordAttribute").getValue();
     }
 
-    public void compose(ComponentManager compMgr) {
-        this.comp = comp;
-    }
-
-    public void contextualize(Context context)
-        throws ContextException {
-        Collection serverNames
-            = (Collection)context.get(Constants.SERVER_NAMES);
-        usersDomain = (String)serverNames.iterator().next();
-    }
-
     public void setServerRoot() {
         StringBuffer serverRootBuffer =
             new StringBuffer(128)
@@ -116,6 +139,13 @@ public class UsersLDAPRepository
         baseNodeDN = base;
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() throws Exception {
         //setServerRoot();
         StringBuffer urlBuffer =
@@ -245,6 +275,9 @@ public class UsersLDAPRepository
         return contains(name);
     }
 
+    // TODO: This is in violation of the contract for the interface.
+    //       Should only return null if the user doesn't exist.  Otherwise
+    //       this should return a consistent string representation of the name
     public String getRealName(String name) {
         return null;
     }
@@ -309,9 +342,6 @@ public class UsersLDAPRepository
                         .append(baseNodeDN)
                         .append(e);
             logger.error(exceptionBuffer.toString());
-            //System.out.println("Problem adding user " + userName + " to: " + baseNodeDN);
-            //System.out.println(e.getMessage());
-            //e.printStackTrace();
         }
 
         // Add attributes to user objects, if necessary
@@ -694,8 +724,9 @@ public class UsersLDAPRepository
     }
 
     /**
-     * Disposes of all open directory contexts.
-     * Based on signature from interface Disposable in new Avalon
+     * Disposes of all open directory contexts
+     *
+     * @throws Exception if an error is encountered during shutdown
      */
     public void dispose() throws Exception {
         closeDirContext(ctx);

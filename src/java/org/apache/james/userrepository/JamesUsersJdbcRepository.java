@@ -62,21 +62,18 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
 
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 
-        throws SQLException 
-    {
+        throws SQLException {
         setUserForStatement(user, userInsert, false);
     }
 
     protected void setUserForUpdateStatement(User user, 
                                              PreparedStatement userUpdate) 
-        throws SQLException 
-    {
+        throws SQLException {
         setUserForStatement(user, userUpdate, true);
     }
 
     private void setUserForStatement(User user, PreparedStatement stmt,
-                                     boolean userNameLast) throws SQLException
-    {
+                                     boolean userNameLast) throws SQLException {
         // Determine column offsets to use, based on username column pos.
         int nameIndex = 1;
         int colOffset = 1;
