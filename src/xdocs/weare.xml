@@ -4,8 +4,7 @@
 
  <properties>
   <title>Who We Are</title>
-  <author email="danny@thought.co.uk">Danny Angus</author>
-  <author email="sergek@lokitech.com">Serge Knystautas</author>
+  <author email="james-dev@jakarta.apache.org">James Team</author>
  </properties>
 
 <body>
@@ -23,6 +22,7 @@
 <p><b>Danny Angus (danny at autonomous.co.uk) (DA)</b><br/> Danny is CTO of <a href="http://www.autonomous.co.uk">Autonomous Software Ltd.</a> where I try not to get too distracted by open source projects.</p>
 <p><b>Peter M. Goldstein (farsight at alum.mit.edu) (PG)</b></p>
 <p><b>Noel J. Bergman (noel at devtech.com) (NjB)</b></p>
+<p><b>Stephen J. McConnell (mcconnell at apache.org) (SJM)</b></p>
 </section>
 
 <section name="Other Contributors">
@@ -46,6 +46,7 @@
 <p><b>Steve Short (sshort at postx.com) (SS3)</b></p>
 <p><b>Aaron Knauf (aknauf at xtra.co.nz) (AK)</b></p>
 <p><b>Serge "Sergei" Sozonoff (serge at globalbeach.com) (SS4)</b></p>
+<p><b>Kai Londenberg (kai.londenberg at my-vwclub.de) [KL]</b></p>
 </section>
 
 </body>
