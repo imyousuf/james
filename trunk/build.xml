@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.143 $  Committed on $Date: 2004/02/21 17:33:40 $ by: $Author: sbrewin $
+ James build file $Revision: 1.144 $  Committed on $Date: 2004/03/21 04:43:18 $ by: $Author: serge $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -44,7 +44,7 @@ Legal:
     Set the properties for build tools directory
     ===================================================================
      -->
-     
+
     <property name="tools.dir" value="tools"/>
     <property name="tools.lib.dir" value="${tools.dir}/lib"/>
 
@@ -88,12 +88,12 @@ Legal:
             <include name="*.jar"/>
         </fileset>
     </path>
-    
+
     <taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
-        <classpath refid="tools.class.path"/>        
+        <classpath refid="tools.class.path"/>
     </taskdef>
 
-    
+
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="tools.class.path"/>
     </taskdef>
@@ -202,7 +202,7 @@ Legal:
 
     <!--
     ===================================================================
-                                   jmx 
+                                   jmx
     ===================================================================
     -->
     <target name="prepare-mxinfo">
@@ -216,7 +216,7 @@ Legal:
 
     <!--
     ===================================================================
-                                   jdbc3 
+                                   jdbc3
     ===================================================================
     -->
     <target name="prepare-jdbc3" depends="prepare-common" if="jdbc3.present">
@@ -238,7 +238,7 @@ Legal:
     ===================================================================
     -->
     <target name="compile" depends="compile-main, compile-proposal"/>
-    
+
     <target name="compile-main" depends="prepare">
       <echo message="Compiling James Java sources"/>
       <available property="jndi.present" classname="javax.naming.InitialContext"/>
@@ -320,7 +320,7 @@ Legal:
           <param name="-breakiterator"/>
           <param name="-use"/>
           <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
-          <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>  
+          <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
           <param name="-link" value="http://avalon.apache.org/api"/>
           <param name="-link" value="http://avalon.apache.org/phoenix/api"/>
           <param name="-link" value="http://avalon.apache.org/cornerstone/api"/>
@@ -340,7 +340,7 @@ Legal:
     <target name="xdocs" depends="prepare">
       <style style="${docs.src}/stylesheets/site.xsl"
                 basedir="${docs.src}/"
-                destdir="${build.docs}/" 
+                destdir="${build.docs}/"
                 includes="**/*.xml" >
       </style>
       <copy todir="${build.docs}" filtering="no">
@@ -364,7 +364,7 @@ Legal:
 
     <!--
     ===================================================================
-                                build   website 
+                                build   website
     ===================================================================
     -->
     <target name="website" depends="xdocs,javadocs">
@@ -418,14 +418,14 @@ Legal:
 
       <!-- Make mailet api jar-->
       <echo message="Making Mailet API Jar (mailet-api-${mailet-api-version}.jar)"/>
-      <jar jarfile="${build.lib}/mailet-api-${mailet-api-version}.jar" 
-               basedir="${build.classes}" 
+      <jar jarfile="${build.lib}/mailet-api-${mailet-api-version}.jar"
+               basedir="${build.classes}"
                includes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
 
       <!-- Make mailet implementation jar-->
       <echo message="Making Mailet Jar (mailet-${mailet-version}.jar)"/>
-      <jar jarfile="${build.lib}/mailet-${mailet-version}.jar" 
-               basedir="${build.classes}" 
+      <jar jarfile="${build.lib}/mailet-${mailet-version}.jar"
+               basedir="${build.classes}"
                includes="org/apache/mailet/**"
                excludes="org/apache/mailet/Mailet.class,org/apache/mailet/MailetConfig.class,org/apache/mailet/Mail.class,org/apache/mailet/MailetContext.class,org/apache/mailet/MailAddress.class,org/apache/mailet/MailRepository,org/apache/mailet/SpoolRepository,org/apache/mailet/UserRepository,org/apache/mailet/Datasource,org/apache/mailet/User,org/apache/mailet/MailetException"/>
 
@@ -448,7 +448,7 @@ Legal:
       <echo message="Making James Sarfile (james.sar)"/>
 
       <!-- Make sar file-->
-      <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml" 
+      <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml"
              environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
         <lib dir="${build.lib}/">
           <include name="mailet-api-${mailet-api-version}.jar"/>
@@ -485,7 +485,7 @@ Legal:
           <include name="cornerstone-sockets-impl-1.0.jar"/>
           <include name="cornerstone-datasources-api-1.0.jar"/>
           <include name="cornerstone-datasources-impl-1.0.jar"/>
-          
+
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
@@ -495,7 +495,7 @@ Legal:
         </zipfileset>
         <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
           <include name="*.xml"/>
-        </zipfileset>                
+        </zipfileset>
       </sar>
     </target>
 
@@ -510,11 +510,11 @@ Legal:
 
       <!--installs sar into ./dist/ ready to test-->
       <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
-        
+
       <!-- Make mailet.jar-->
-      <!-- jar jarfile="${build.lib}/mailet.jar" 
-               basedir="${build.classes}" 
-               manifest="${src.dir}/Manifest.mf" 
+      <!-- jar jarfile="${build.lib}/mailet.jar"
+               basedir="${build.classes}"
+               manifest="${src.dir}/Manifest.mf"
                includes="org/apache/mailet/**"/ -->
           <!-- copy file="${build.lib}/mailet.jar" todir="${dist.dir}/lib"/ -->
     </target>
@@ -583,6 +583,8 @@ Legal:
                 <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -601,6 +603,8 @@ Legal:
                 <include name="*.xml"/>
                 <include name="KEYS"/>
                 <include name="README"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
                 <include name="${phoenix.dir}/**"/>
@@ -610,7 +614,7 @@ Legal:
                 <include name="www/**"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz" 
+        <gzip zipfile="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar.gz"
              src="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
         <delete file="${dist.source.dir}/${name}-with-phoenix-${version}-src.tar"/>
     </target>
@@ -632,6 +636,8 @@ Legal:
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
             </fileset>
         </zip>
@@ -647,6 +653,8 @@ Legal:
                 <include name="*.txt"/>
                 <include name="README"/>
                 <include name="KEYS"/>
+                <include name="LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
                 <include name="build.*"/>
             </tarfileset>
         </tar>
@@ -689,7 +697,7 @@ Legal:
                 <exclude name="${name}-${version}/downloads/**"/>
             </tarfileset>
         </tar>
-        <gzip zipfile="${dist.dir}/downloads/bin/${name}-MailetSDK-${version}.tar.gz" 
+        <gzip zipfile="${dist.dir}/downloads/bin/${name}-MailetSDK-${version}.tar.gz"
             src="${dist.dir}/downloads/bin/${name}-MailetSDK-${version}.tar"/>
         <delete file="${dist.dir}/downloads/bin/${name}-MailetSDK-${version}.tar"/>
         <delete dir="${dist.dir}/MailetSDK"/>
@@ -707,8 +715,8 @@ Legal:
 
     <!--
     ===================================================================
-                                   Help on usage                                                       
-    =================================================================== 
+                                   Help on usage
+    ===================================================================
     -->
     <target name="usage">
         <echo message=""/>
@@ -731,5 +739,5 @@ Legal:
         <echo message=""/>
         <echo message=""/>
     </target>
-  
+
 </project>
