@@ -72,4 +72,19 @@ public class BaseTest extends TestCase implements Configurable {
             }
         }
     }
+
+    // ------------ helper methods ----------------------
+
+    /** 
+     * @param conf Test configuration
+     * @param name Child name
+     * @return String values of child elements 
+     */
+    protected String[] getChildrenValues(Configuration conf,String name) throws ConfigurationException {
+        Configuration[] childconf = conf.getChildren(name);
+        String[] val = new String[childconf.length];
+        for ( int i = 0 ; i < childconf.length ; i++ )
+            val[i] = childconf[i].getValue();
+        return val;
+    }
 }
