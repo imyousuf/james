@@ -59,6 +59,7 @@ public class AvalonUsersStore
             String repName = repConf.getAttribute("name");
             String repClass = repConf.getAttribute("class");
 
+	    getLogger().debug("Starting " + repClass);
             UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
 
             setupLogger((Component)rep);
