@@ -16,4 +16,5 @@ org.apache.james.transport.mailets.debug
 org.apache.james.transport.matchers
 org.apache.james.userrepository
 org.apache.james.util
+org.apache.james.util.mordred
 org.apache.mailet
