@@ -530,9 +530,11 @@ public class NNTPHandler
             return;
         }
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
+            // Reject re-authentication
             if ( isAlreadyAuthenticated ) {
                 writeLoggedFlushedResponse("482 Already authenticated - rejecting new credentials");
             }
+            // Reject doubly sent user
             if (user != null) {
                 user = null;
                 password = null;
@@ -543,10 +545,12 @@ public class NNTPHandler
             user = value;
             writeLoggedFlushedResponse("381 More authentication information required");
         } else if ( command.equals(AUTHINFO_PARAM_PASS) ) {
+            // Reject password sent before user
             if (user == null) {
                 writeLoggedFlushedResponse("482 User not yet specified.  Rejecting user.");
                 return;
             }
+            // Reject doubly sent password
             if (password != null) {
                 user = null;
                 password = null;
@@ -555,7 +559,8 @@ public class NNTPHandler
                 return;
             }
             password = value;
-            if ( isAuthenticated() ) {
+            isAlreadyAuthenticated = isAuthenticated();
+            if ( isAlreadyAuthenticated ) {
                 writeLoggedFlushedResponse("281 Authentication accepted");
             } else {
                 writeLoggedFlushedResponse("482 Authentication rejected");
@@ -587,7 +592,7 @@ public class NNTPHandler
             return;
         }
         Iterator iter = theConfigData.getNNTPRepository().getArticlesSince(theDate);
-        writeLoggedResponse("230 list of new articles by message-id follows");
+        writeLoggedFlushedResponse("230 list of new articles by message-id follows");
         while ( iter.hasNext() ) {
             StringBuffer iterBuffer =
                 new StringBuffer(64)
@@ -625,7 +630,7 @@ public class NNTPHandler
             return;
         }
         Iterator iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
-        writeLoggedResponse("231 list of new newsgroups follows");
+        writeLoggedFlushedResponse("231 list of new newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
             StringBuffer iterBuffer =
@@ -723,7 +728,7 @@ public class NNTPHandler
         }
 
         Iterator iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
-        writeLoggedResponse("215 list of newsgroups follows");
+        writeLoggedFlushedResponse("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup theGroup = (NNTPGroup)iter.next();
             if (isListNewsgroups) {
@@ -879,6 +884,7 @@ public class NNTPHandler
                 }
                 if ( article == null ) {
                     writeLoggedFlushedResponse("423 no such article number in this group");
+                    return;
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -945,6 +951,7 @@ public class NNTPHandler
                 }
                 if ( article == null ) {
                     writeLoggedFlushedResponse("423 no such article number in this group");
+                    return;
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -957,7 +964,7 @@ public class NNTPHandler
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    writeLoggedResponse(respBuffer.toString());
+                    writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
@@ -1011,6 +1018,7 @@ public class NNTPHandler
                 }
                 if ( article == null ) {
                     writeLoggedFlushedResponse("423 no such article number in this group");
+                    return;
                 } else {
                     currentArticleNumber = newArticleNumber;
                     String articleID = article.getUniqueID();
@@ -1197,7 +1205,7 @@ public class NNTPHandler
                 currentArticleNumber = -1;
             }
 
-            writeLoggedResponse("211 list of article numbers follow");
+            writeLoggedFlushedResponse("211 list of article numbers follow");
 
             Iterator iter = group.getArticles();
             while (iter.hasNext()) {
@@ -1213,7 +1221,7 @@ public class NNTPHandler
      */
     private void doLISTOVERVIEWFMT() {
         // 9.5.3.1.1
-        writeLoggedResponse("215 Information follows");
+        writeLoggedFlushedResponse("215 Information follows");
         String[] overviewHeaders = theConfigData.getNNTPRepository().getOverviewFormat();
         for (int i = 0;  i < overviewHeaders.length; i++) {
             writeLoggedResponse(overviewHeaders[i]);
@@ -1274,7 +1282,7 @@ public class NNTPHandler
         } else if ( article.length == 0 ) {
             writeLoggedFlushedResponse("430 no such article");
         } else {
-            writeLoggedResponse("221 Header follows");
+            writeLoggedFlushedResponse("221 Header follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
                 String val = article[i].getHeader(hdr);
                 if ( val == null ) {
