@@ -102,7 +102,7 @@ import java.util.Iterator;
  * <P>Sample configuration common to all notification mailet subclasses:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="<I>a notification mailet</I>">
- *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;sendingAddress&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
  *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
@@ -115,8 +115,7 @@ import java.util.Iterator;
  * <I>message</I> and <I>attachError</I> can be used instead of
  * <I>notice and </I> and <I>attachStackTrace</I>.
  *
- * <P>CVS $Id: AbstractNotify.java,v 1.1.2.5 2003/06/15 18:40:20 noel Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.1.2.6 $ $Date: 2003/06/25 22:02:31 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {

@@ -103,7 +103,7 @@ import java.util.ArrayList;
  * <P>Sample configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="Bounce">
- *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;sendingAddress&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sendingAddress&gt;
  *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
  *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
  *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
@@ -118,23 +118,22 @@ import java.util.ArrayList;
  * configuration:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="Redirect">
- *   &lt;sender&gt;<I>an address or postmaster</I>&lt;/sender&gt;
- *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
+ *   &lt;sender&gt;<I>an address or postmaster or sender or unaltered</I>&lt;/sender&gt;
+ *   &lt;attachError&gt;<I>true or false</I>&lt;/attachError&gt;
  *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
  *   &lt;prefix&gt;<I>a string</I>&lt;/prefix&gt;
- *   &lt;passThrough&gt;true or false, default=true&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
  *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
  *   &lt;returnPath&gt;null&lt;/returnPath&gt;
- *   &lt;inline&gt;see {@link Redirect}, default=NONE&lt;/inline&gt;
- *   &lt;attachment&gt;see {@link Redirect}, default=message&lt;/attachment&gt;
+ *   &lt;inline&gt;see {@link Redirect}&lt;/inline&gt;
+ *   &lt;attachment&gt;see {@link Redirect}&lt;/attachment&gt;
  *   &lt;isReply&gt;true&lt;/isReply&gt;
  *   &lt;static&gt;true&lt;/static&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: Bounce.java,v 1.1.2.5 2003/06/15 18:40:20 noel Exp $</P>
- * @version 2.2.0
+ * @version CVS $Revision: 1.1.2.6 $ $Date: 2003/06/25 22:02:32 $
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
