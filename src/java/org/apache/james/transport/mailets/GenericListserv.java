@@ -84,7 +84,25 @@ public abstract class GenericListserv extends GenericMailet {
                 return;
             }
 
-            MimeMessage message = mail.getMessage();
+            //Create a copy of this message to send out
+            MimeMessage message = new MimeMessage(mail.getMessage());
+            //We need to remove this header from the copy we're sending around
+            message.removeHeader("Return-Path");
+
+            //Figure out the listserv address.
+            MailAddress listservAddr = getListservAddress();
+            if (listservAddr == null) {
+                //Use the recipient
+                listservAddr = (MailAddress)mail.getRecipients().iterator().next();
+            }
+
+            //Check if the X-been-there header is set to the listserv's name
+            //  (the address).  If it has, this means it's a message from this
+            //  listserv that's getting bounced back, so we need to swallow it
+            if (listservAddr.equals(message.getHeader("X-been-there"))) {
+                mail.setState(Mail.GHOST);
+                return;
+            }
 
             //Set the subject if set
             if (getSubjectPrefix() != null) {
@@ -106,18 +124,18 @@ public abstract class GenericListserv extends GenericMailet {
                 }
                 message.setSubject(subj);
             }
-            MailAddress listservAddr = getListservAddress();
-            if (listservAddr == null) {
-                //Use the recipient
-                listservAddr = (MailAddress)mail.getRecipients().iterator().next();
-            }
 
+            //If replies should go to this list, we need to set the header
             if (isReplyToList()) {
                 message.setHeader("Reply-To", listservAddr.toString());
             }
+            //We're going to set this special header to avoid bounces
+            //  getting sent back out to the list
+            message.setHeader("X-been-there", listservAddr.toString());
 
             //Send the message to the list members
-            getMailetContext().sendMail(listservAddr, members, message);
+            //We set the postmaster as the sender for now so bounces go to him/her
+            getMailetContext().sendMail(getMailetContext().getPostmaster(), members, message);
 
             //Kill the old message
             mail.setState(Mail.GHOST);
