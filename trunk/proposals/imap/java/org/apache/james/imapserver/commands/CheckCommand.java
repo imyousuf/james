@@ -11,10 +11,16 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class CheckCommand extends SelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public CheckCommand()
+    {
+        this.commandName = "CHECK";
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         int arguments = request.arguments();
         StringTokenizer commandLine = request.getCommandLine();

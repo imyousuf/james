@@ -7,13 +7,13 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
-import org.apache.james.imapserver.ImapSessionState;
 
-public interface ImapCommand
+import java.util.StringTokenizer;
+
+public interface ImapArgument
 {
-    boolean validForState( ImapSessionState state );
+    Object parse( StringTokenizer tokens ) throws Exception;
 
-    boolean process( ImapRequest request, ImapSession session );
+    String format();
 }

@@ -16,24 +16,21 @@ import org.apache.james.imapserver.MailboxException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.List;
 
-class ListOrLsubCommand extends AuthenticatedSelectedStateCommand
+class ListCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public ListCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "LIST";
 
-        if ( arguments != 2 ) {
-            if ( command.equalsIgnoreCase( "LIST" ) ) {
-                session.taggedResponse( BAD_LIST_MSG );
-            }
-            else {
-                session.taggedResponse( BAD_LSUB_MSG );
-            }
-            return true;
-        }
+        this.getArgs().add( new AstringArgument( "reference name" ) );
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.commandName;
 
         boolean subscribeOnly;
         if ( command.equalsIgnoreCase( "LIST" ) ) {
@@ -43,12 +40,8 @@ class ListOrLsubCommand extends AuthenticatedSelectedStateCommand
             subscribeOnly = true;
         }
 
-        String reference = decodeMailboxName( commandLine.nextToken() );
-        if ( ! reference.equals( "" ) ) {
-            reference = decodeMailboxName( reference );
-        }
-
-        String folder = decodeMailboxName( commandLine.nextToken() );
+        String reference = (String) argValues.get( 0 );
+        String folder = (String) argValues.get( 1 );
 
         Collection list = null;
         try {

@@ -12,22 +12,22 @@ import org.apache.james.AuthorizationException;
 import org.apache.james.imapserver.*;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class CreateCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public CreateCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
-        String folder = null;
+        this.commandName = "CREATE";
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
 
-        if ( arguments != 1 ) {
-            session.badResponse( "Command should be <tag> <CREATE> <mailbox>" );
-            return true;
-        }
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.commandName;
+        String folder = (String) argValues.get( 0 );
+
         try {
-            folder = decodeMailboxName( commandLine.nextToken() );
             if ( session.getCurrentFolder() == folder ) {
                 session.noResponse( command, "Folder exists and is selected." );
                 return true;

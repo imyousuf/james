@@ -13,14 +13,18 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class ExpungeCommand extends SelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public ExpungeCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "EXPUNGE";
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
 
         try {
             if ( session.getCurrentMailbox().expunge( session.getCurrentUser() ) ) {

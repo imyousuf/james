@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.2 $  Committed on $Date: 2002/01/17 06:09:00 $ by: $Author: darrell $
+ James build file $Revision: 1.3 $  Committed on $Date: 2002/01/23 21:53:31 $ by: $Author: darrell $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -147,9 +147,9 @@ Legal:
   -->
   <target name="main" depends="dist-lite" />
 
-  <target name="build-removeDist" depends="delete-dist,dist-lite"/>
   <target name="build" depends="dist-lite" />
-  <target name="rebuild" depends="clean,dist-lite"/>
+  <target name="rebuild-dist" depends="delete-dist,dist-lite"/>
+  <target name="rebuild-all" depends="clean,dist-lite"/>
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -357,7 +357,7 @@ Legal:
         <include name="james-server.xml"/>
       </zipfileset>
 
-      <zipfileset dir="${conf.proposal.dir}" fullpath="conf/sqlResources.xml">
+      <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
         <include name="sqlResources.xml"/>
       </zipfileset>
 
@@ -724,6 +724,7 @@ Legal:
 
   <target name="delete-dist" depends="setup-properties">
     <delete dir="${dist.dir}"/>
+    <delete file="${build.lib}/${name}.sar"/>
   </target>
 </project>
 

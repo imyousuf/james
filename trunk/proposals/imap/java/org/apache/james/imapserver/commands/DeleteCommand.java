@@ -15,22 +15,24 @@ import org.apache.james.imapserver.ImapSessionState;
 import org.apache.james.imapserver.MailboxException;
 
 import java.util.StringTokenizer;
+import java.util.List;
 
 class DeleteCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public DeleteCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "DELETE";
 
-        String folder;
-        if ( arguments != 1 ) {
-            session.badResponse( "Command should be <tag> <DELETE> <mailbox>" );
-            return true;
-        }
-        folder = decodeMailboxName( commandLine.nextToken() );
-        if ( session.getCurrentFolder() == folder ) {
+        this.getArgs().add( new AstringArgument( "mailbox" ) );
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
+
+        String folder = (String) argValues.get( 0 );
+
+        if ( session.getCurrentFolder().equals( folder ) ) {
             session.noResponse( command, "You can't delete a folder while you have it selected." );
             return true;
         }

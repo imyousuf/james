@@ -11,9 +11,16 @@ package org.apache.james.imapserver.commands;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 
+import java.util.List;
+
 class LogoutCommand extends CommandTemplate
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public LogoutCommand()
+    {
+        this.commandName = "LOGOUT";
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         session.setConnectionClosed( session.closeConnection( NORMAL_CLOSE, "", "" ) );
         return false;

@@ -17,16 +17,11 @@ public interface ImapConstants
 
     String SP = " ";
     String VERSION = "IMAP4rev1";
-    String CAPABILITY_RESPONSE = "CAPABILITY " + VERSION; //add as implemented
 
     String AUTH_FAIL_MSG
             = "NO Command not authorized on this mailbox";
     String BAD_LISTRIGHTS_MSG
             = "BAD Command should be <tag> <LISTRIGHTS> <mailbox> <identifier>";
-    String BAD_LIST_MSG
-            = "BAD Command should be <tag> <LIST> <reference name> <mailbox>";
-    String BAD_LSUB_MSG
-            = "BAD Command should be <tag> <LSUB> <reference name> <mailbox>";
     String NO_NOTLOCAL_MSG
             = "NO Mailbox does not exist on this server";
 

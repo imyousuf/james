@@ -11,9 +11,16 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
+import java.util.List;
+
 class CloseCommand extends SelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public CloseCommand()
+    {
+        this.commandName = "CLOSE";
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         try {
             session.getCurrentMailbox().expunge( session.getCurrentUser() );

@@ -8,6 +8,11 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapSessionState;
+import org.apache.james.imapserver.ImapRequest;
+import org.apache.james.imapserver.ImapSession;
+import org.apache.james.util.Assert;
+
+import java.util.List;
 
 /**
  * A base class for ImapCommands only valid in the SELECTED state.

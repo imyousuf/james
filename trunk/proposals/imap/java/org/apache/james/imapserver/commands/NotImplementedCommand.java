@@ -10,9 +10,15 @@ package org.apache.james.imapserver.commands;
 
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
+import org.apache.james.imapserver.ImapSessionState;
 
-class NotImplementedCommand extends CommandTemplate
+class NotImplementedCommand implements ImapCommand
 {
+    public boolean validForState( ImapSessionState state )
+    {
+        return true;
+    }
+
     public boolean process( ImapRequest request, ImapSession session )
     {
         session.notImplementedResponse(request.getCommand() );

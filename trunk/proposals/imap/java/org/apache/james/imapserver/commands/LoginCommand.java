@@ -12,17 +12,25 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
+import java.util.StringTokenizer;
+import java.util.List;
+
 class LoginCommand extends NonAuthenticatedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    LoginCommand()
     {
-        if ( request.arguments() != 2 ) {
-            String badMsg = "Command should be <tag> <LOGIN> <username> <password>";
-            session.badResponse( badMsg );
-            return true;
-        }
-        session.setCurrentUser( decodeAstring( request.getCommandLine().nextToken() ) );
-        String password = decodeAstring( request.getCommandLine().nextToken() );
+        this.commandName = "LOGIN";
+
+        this.getArgs().add( new AstringArgument( "username" ) );
+        this.getArgs().add( new AstringArgument( "password" ) );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String userName = (String) argValues.get(0);
+        String password = (String) argValues.get(1);
+
+        session.setCurrentUser( userName );
         if ( session.getUsers().test( session.getCurrentUser(), password ) ) {
             session.getSecurityLogger().info( "Login successful for " + session.getCurrentUser() + " from  "
                                  + session.getRemoteHost() + "(" + session.getRemoteIP() + ")" );
@@ -74,6 +82,7 @@ class LoginCommand extends NonAuthenticatedStateCommand
 
 
         } // failed password test
+
         // We should add ability to monitor attempts to login
         session.noResponse( request.getCommand() );
         session.getSecurityLogger().error( "Failed attempt to use Login command for account "

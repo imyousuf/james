@@ -12,9 +12,16 @@ import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
 
+import java.util.List;
+
 class NoopCommand extends CommandTemplate
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public NoopCommand()
+    {
+        this.commandName = "NOOP";
+    }
+
+    public boolean doProcess( ImapRequest request, ImapSession session, List argValues )
     {
         if ( session.getState() == ImapSessionState.SELECTED ) {
             session.checkSize();

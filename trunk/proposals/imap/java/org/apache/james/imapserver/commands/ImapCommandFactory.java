@@ -43,15 +43,15 @@ public final class ImapCommandFactory
 
         // Commands valid in AUTHENTICATED or SELECTED state.
         // RFC2060: SELECT, EXAMINE, CREATE, DELETE, RENAME, SUBSCRIBE, UNSUBSCRIBE, LIST, LSUB, STATUS, and APPEND
-        _imapCommands.put( "SELECT", SelectOrExamineCommand.class );
-        _imapCommands.put( "EXAMINE", SelectOrExamineCommand.class );
+        _imapCommands.put( "SELECT", SelectCommand.class );
+        _imapCommands.put( "EXAMINE", ExamineCommand.class );
         _imapCommands.put( "CREATE", CreateCommand.class );
         _imapCommands.put( "DELETE", DeleteCommand.class );
         _imapCommands.put( "RENAME", RenameCommand.class );
         _imapCommands.put( "SUBSCRIBE", SubscribeCommand.class );
         _imapCommands.put( "UNSUBSCRIBE", UnsubscribeCommand.class );
-        _imapCommands.put( "LIST", ListOrLsubCommand.class );
-        _imapCommands.put( "LSUB", ListOrLsubCommand.class );
+        _imapCommands.put( "LIST", ListCommand.class );
+        _imapCommands.put( "LSUB", LsubCommand.class );
         _imapCommands.put( "STATUS", StatusCommand.class );
         _imapCommands.put( "APPEND", NotImplementedCommand.class );
         // RFC2342 NAMESPACE

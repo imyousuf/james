@@ -19,39 +19,21 @@ import java.util.StringTokenizer;
 
 class StatusCommand extends AuthenticatedSelectedStateCommand
 {
-    public boolean process( ImapRequest request, ImapSession session )
+    public StatusCommand()
     {
-        int arguments = request.arguments();
-        StringTokenizer commandLine = request.getCommandLine();
-        String command = request.getCommand();
+        this.commandName = "STATUS";
 
-        String folder;
-        if ( arguments < 4 ) {
-            session.badResponse( "Command should be <tag> <STATUS> <mailboxname> (status data items)" );
-            return true;
-        }
-        folder = decodeMailboxName( commandLine.nextToken() );
-        List dataNames = new ArrayList();
-        String attr = commandLine.nextToken();
-        if ( !attr.startsWith( "(" ) ) { //single attr
-            session.badResponse( "Command should be <tag> <STATUS> <mailboxname> (status data items)" );
-            return true;
-        }
-        else if ( attr.endsWith( ")" ) ) { //single attr in paranthesis
-            dataNames.add( attr.substring( 1, attr.length() - 1 ) );
-        }
-        else { // multiple attrs
-            dataNames.add( attr.substring( 1 ).trim() );
-            while ( commandLine.hasMoreTokens() ) {
-                attr = commandLine.nextToken();
-                if ( attr.endsWith( ")" ) ) {
-                    dataNames.add( attr.substring( 0, attr.length() - 1 ) );
-                }
-                else {
-                    dataNames.add( attr );
-                }
-            }
-        }
+        this.getArgs().add( "mailbox" );
+        this.getArgs().add( "status data item" );
+    }
+
+    protected boolean doProcess( ImapRequest request, ImapSession session, List argValues )
+    {
+        String command = this.getCommand();
+
+        String folder = (String) argValues.get( 0 );
+        List dataNames = (List) argValues.get( 1 );
+
         try {
             String response = session.getImapHost().getMailboxStatus( session.getCurrentUser(), folder,
                                                          dataNames );
