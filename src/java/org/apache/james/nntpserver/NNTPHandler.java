@@ -244,10 +244,22 @@ public class NNTPHandler extends BaseConnectionHandler
     }
     private void doNEWGROUPS(StringTokenizer tok) {
         // see section 11.3
-        writer.println("230 list of new newsgroups follows");
+        // there seeem to be few differences.
+        // draft-ietf-nntpext-base-13.txt mentions 231 in section 11.3.1, 
+        // but examples have response code 230. rfc977 has 231 response code.
+        // both draft-ietf-nntpext-base-13.txt and rfc977 have only group names 
+        // in response lines, but INN sends 
+        // '<group name> <last article> <first article> <posting allowed>'
+        // NOTE: following INN over either document.
+        writer.println("231 list of new newsgroups follows");
         Iterator iter = repo.getGroupsSince(getDateFrom(tok));
-        while ( iter.hasNext() )
-            writer.println(((NNTPGroup)iter.next()).getName());
+        while ( iter.hasNext() ) {
+            NNTPGroup group = (NNTPGroup)iter.next();
+            writer.println(group.getName()+" "+
+                           group.getLastArticleNumber()+" "+
+                           group.getFirstArticleNumber()+" " +
+                           (group.isPostAllowed()?"y":"n"));
+        }
         writer.println(".");
     }
     // returns the date from @param input.
