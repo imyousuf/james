@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -137,7 +138,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 throw new IOException("Could not find message");
             }
 
-            headers = rsRetrieveMessageStream.getBytes(1);
+            Blob b = rsRetrieveMessageStream.getBlob(1);
+            headers = b.getBytes(1, (int)b.length());
             if (DEEP_DEBUG) {
                 System.err.println("stopping");
                 System.err.println(System.currentTimeMillis() - start);

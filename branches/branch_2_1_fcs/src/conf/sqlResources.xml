@@ -22,6 +22,7 @@
     <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
     <dbMatcher db="sapdb" databaseProductName="sap.*"/>
     <dbMatcher db="hypersonic" databaseProductName="HypersonicSQL"/>
+    <dbMatcher db="db2" databaseProductName="db2.*"/>
 </dbMatchers>
 
 <!-- SQL statements to use for various components. -->
@@ -195,6 +196,8 @@
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -261,12 +264,11 @@
         recipients varchar2(1000) NOT NULL ,
         remote_host varchar2(100) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
-        message_body long raw NOT NULL ,
-        message_attributes long raw NULL ,
+        message_body blob NOT NULL ,
+        message_attributes blob NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (repository_name, message_name)
         )
-        TABLESPACE system
     </sql>
     <sql name="createTable" db="postgresql">
         CREATE TABLE ${table} (
@@ -298,6 +300,22 @@
             message_attributes long byte NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+        message_name varchar(200) NOT NULL ,
+        repository_name varchar(255) NOT NULL ,
+        message_state varchar(30) NOT NULL ,
+        error_message varchar(200) ,
+        sender varchar(255) ,
+        recipients varchar(1000) NOT NULL ,
+        remote_host varchar(100) NOT NULL ,
+        remote_addr varchar(20) NOT NULL ,
+        message_body blob NOT NULL ,
+        message_attributes blob ,
+        last_updated timestamp NOT NULL ,
+        PRIMARY KEY (repository_name, message_name)
         )
     </sql>
 </sqlDefs>
@@ -341,6 +359,8 @@
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -407,8 +427,8 @@
         recipients varchar2(1000) NOT NULL ,
         remote_host varchar2(255) NOT NULL ,
         remote_addr varchar2(20) NOT NULL ,
-        message_body long raw NOT NULL ,
-        message_attributes long raw NULL ,
+        message_body blob NOT NULL ,
+        message_attributes blob NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (message_name, repository_name)
         )
@@ -445,6 +465,23 @@
             PRIMARY KEY (message_name, repository_name)
         )
     </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+        message_name varchar(200) NOT NULL ,
+        repository_name varchar(255) NOT NULL ,
+        message_state varchar(30) NOT NULL ,
+        error_message varchar(200) ,
+        sender varchar(255) ,
+        recipients varchar(1000) NOT NULL ,
+        remote_host varchar(100) NOT NULL ,
+        remote_addr varchar(20) NOT NULL ,
+        message_body blob NOT NULL ,
+        message_attributes blob ,
+        last_updated timestamp NOT NULL ,
+        PRIMARY KEY (repository_name, message_name)        
+        )
+    </sql>
 </sqlDefs>
 
 </sqlResources>
+

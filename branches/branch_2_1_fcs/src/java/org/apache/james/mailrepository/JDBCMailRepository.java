@@ -69,7 +69,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.14 $ $Date: 2004/03/20 07:15:12 $
+ * @version CVS $Revision: 1.30.4.15 $ $Date: 2004/04/14 06:06:59 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -824,7 +824,8 @@ public class JDBCMailRepository
                     
                     if (rsMessageAttr.next()) {
                         try {
-                            byte[] serialized_attr = rsMessageAttr.getBytes(1);
+                            Blob b = rsMessageAttr.getBlob(1);
+                            byte[] serialized_attr = b.getBytes(1, (int)b.length());
                             // this check is for better backwards compatibility
                             if (serialized_attr != null) {
                                 ByteArrayInputStream bais = new ByteArrayInputStream(serialized_attr);
