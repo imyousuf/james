@@ -114,7 +114,7 @@ import org.apache.mailet.MailAddress;
  * <TD width="20%">&lt;to&gt;</TD>
  * <TD width="80%">
  * A comma delimited list of addresses to appear in the To: header;.<BR>
- * It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
+ * It can include constants &quot;sender&quot;, &quot;from&quot;, &quot;postmaster&quot;, &quot;reversePath&quot;, &quot;to&quot;, &quot;null&quot; and &quot;unaltered&quot;;
  * if &quot;null&quot; is specified alone it will remove this header.<BR>
  * Default: &quot;unaltered&quot;.
  * </TD>
@@ -293,7 +293,7 @@ import org.apache.mailet.MailAddress;
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2003/07/04 16:42:17 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date: 2003/07/07 06:17:42 $
  * @since 2.2.0
  */
 
