@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.11 $
- * Committed on $Date: 2001/11/27 01:34:28 $ by: $Author: serge $
+ * This is $Revision: 1.12 $
+ * Committed on $Date: 2001/12/07 23:28:34 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -264,12 +264,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (!mail.getState().equals(Mail.ERROR)) {
                 mail.setState(Mail.ERROR);
                 mail.setErrorMessage("0");
+                mail.setLastUpdated(new Date());
             }
             int retries = Integer.parseInt(mail.getErrorMessage());
             if (retries < maxRetries) {
                 log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
                 ++retries;
                 mail.setErrorMessage(retries + "");
+                mail.setLastUpdated(new Date());
                 return false;
             }
         }
