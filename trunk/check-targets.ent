@@ -10,15 +10,19 @@ becomes stable.
     <!-- Set up properties -->
     <property file="check-targets.properties"/>
     <target name="setup-dependencies">
+
         <available property="javax.activation.present"
                classname="javax.activation.URLDataSource"
                classpathref="project.class.path" />
         <available property="javax.mail.present"
                classname="javax.mail.Message"
                classpathref="project.class.path" />
+        <!--
         <available property="junit.present"
                classname="junit.framework.Test"
                classpathref="project.class.path" />
+      <echo message="JUNIT: ${junit.jar}"/>
+        -->
     </target>
 
   <!-- called if a dependency is missing which has a BSD or ASL or
@@ -124,6 +128,7 @@ becomes stable.
   </target>
 
   <!-- JUnit -->
+  <!--
   <target name="junit-check" unless="junit.present" depends="setup-dependencies">
     <antcall target="missing-dependency">
       <param name="id" value="${junit.id}"/>
@@ -141,4 +146,4 @@ becomes stable.
       <param name="license.url" value="${junit.license.url}"/>
     </antcall>
   </target>
-
+  -->
