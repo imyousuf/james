@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.51 $ Committed on $Date: 2003/05/07 03:15:30 $ by: $Author: noel $ -->
+<!-- $Revision: 1.52 $ Committed on $Date: 2003/05/12 21:10:59 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -183,21 +183,50 @@
          <!-- Important check to avoid looping -->
          <mailet match="RelayLimit=30" class="Null"/>
 
+         <!-- White List:
+              If you use block lists, you will probably want to check
+              for known permitted senders.  This is particularly true
+              if you use more aggressive block lists, such as SPEWS,
+              that are prone to block entire subnets without regard
+              for non-spamming senders.
+          -->
+
+         <!-- specific known senders -->
+         <!--
+         <mailet match="SenderIs=goodboy@goodhost"
+                 class="ToProcessor">
+            <processor> transport </processor>
+         </mailet>
+         -->
+
+         <!-- People on this list agree to pay a penalty if they send spam -->
+         <mailet match="InSpammerBlacklist=query.bondedsender.org"
+                 class="ToProcessor">
+           <processor> transport </processor>
+         </mailet>
+
+         <!-- E-mail legally required not to be spam (see: http://www.habeas.com) -->
+         <!--
+         <mailet match="HasHabeasWarrantMark" class="ToProcessor">
+            <processor> transport </processor>
+         </mailet>
+         -->
+         <!-- End of White List -->
+
          <!-- Check for delivery from a known spam server -->
          <!-- This set of matchers/mailets redirect all emails from known -->
          <!-- black holes, open relays, and spam servers to the spam processor -->
          <!-- For this set to function properly, the spam processor must be configured. -->
-         <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor">
-            <processor> spam </processor>
-            <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
+         <mailet match="InSpammerBlacklist=dnsbl.njabl.org"
+                 class="ToProcessor">
+           <processor> spam </processor>
+           <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
          </mailet>
-         <mailet match="InSpammerBlacklist=dialups.mail-abuse.org" class="ToProcessor">
-            <processor> spam </processor>
-            <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
-         </mailet>
-         <mailet match="InSpammerBlacklist=relays.mail-abuse.org" class="ToProcessor">
-            <processor> spam </processor>
-            <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
+
+         <mailet match="InSpammerBlacklist=relays.ordb.org"
+                 class="ToProcessor">
+           <processor> spam </processor>
+           <notice>550 Requested action not taken: rejected - see http://www.ordb.org/ </notice>
          </mailet>
 
          <!-- Sample matching to kill a message (send to Null) -->
@@ -246,7 +275,7 @@
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery">
              <!-- These are new and override the James level equivalents -->
-       	     <inboxURI>db://maildb/inbox/</inboxURI>
+             <inboxURI>db://maildb/inbox/</inboxURI>
              <users>LocalUsers</users>
              <ignoreCase>true</ignoreCase>
              <enableAliases>true</enableAliases>
