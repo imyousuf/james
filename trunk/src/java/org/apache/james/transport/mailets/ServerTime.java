@@ -20,8 +20,8 @@ import org.apache.mailet.MailAddress;
 
 /**
  * Returns the current time for the mail server.  Sample configuration:
- * <mailet match="RecipientIs=time@cadenza.lokitech.com" class="ServerTime">
- * </mailet>
+ * &lt;mailet match="RecipientIs=time@cadenza.lokitech.com" class="ServerTime"&gt;
+ * &lt;/mailet&gt;
  *
  */
 public class ServerTime extends GenericMailet {

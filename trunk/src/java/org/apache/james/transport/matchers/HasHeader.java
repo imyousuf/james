@@ -13,12 +13,12 @@ import org.apache.mailet.Mail;
 import java.util.Collection;
 
 /**
- * use: <mailet match="HasHeader=<header>" class="..." />
+ * use: &lt;mailet match="HasHeader=&lt;header&gt;" class="..." /&gt;
  *
  * This matcher simply checks to see if the header named is present.
  * If complements the AddHeader mailet.
  *
- * TODO: support lists of headers and values, e.g, match="{<header>[=value]}+"
+ * TODO: support lists of headers and values, e.g, match="{&lt;header&gt;[=value]}+"
  *       [will require a complete rewrite from the current trivial one-liner]
  *
  */

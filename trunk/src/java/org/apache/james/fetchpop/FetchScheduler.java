@@ -26,9 +26,9 @@ import java.util.Iterator;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.6 2003/01/14 13:41:48 serge Exp $
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *
+ * @version 1.0.0, 18/06/2000
  */
 public class FetchScheduler
     extends AbstractLogEnabled

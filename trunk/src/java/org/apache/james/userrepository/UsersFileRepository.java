@@ -29,13 +29,13 @@ import java.util.Iterator;
  * Implementation of a Repository to store users on the File System.
  *
  * Requires a configuration element in the .conf.xml file of the form:
- *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *  &lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *              type="USERS"
- *              model="SYNCHRONOUS"/>
+ *              model="SYNCHRONOUS"/&gt;
  * Requires a logger called UsersRepository.
  *
  *
- * @version CVS $Revision: 1.13 $
+ * @version CVS $Revision: 1.14 $
  *
  */
 public class UsersFileRepository

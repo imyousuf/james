@@ -25,7 +25,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**
  * <p>
- * This is a <b>reliable</b> DataSource implementation, based on the pooling logic written for <a
+ * This is a reliable DataSource implementation, based on the pooling logic written for <a
  * href="http://share.whichever.com/">Town</a> and the configuration found in Avalon's excalibur
  * code.
  * </p>
@@ -46,7 +46,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.19 $
+ * @version CVS $Revision: 1.20 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled

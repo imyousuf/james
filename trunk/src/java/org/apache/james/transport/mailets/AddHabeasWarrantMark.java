@@ -15,7 +15,7 @@ import org.apache.mailet.Mail ;
  * This matcher adds the Hebeas Warrant Mark to a message.
  * For details see: http://www.hebeas.com
  *
- * Usage: <mailet match="<suitable-matcher>" class="AddHabeasWarrantMark" />
+ * Usage: &lt;mailet match="&lt;suitable-matcher&gt;" class="AddHabeasWarrantMark" /&gt;
  *
  * NOTE: Although this mailet is covered by the Apache Software License,
  * the Habeas Warrant Mark is copyright.  A separate license from Habeas

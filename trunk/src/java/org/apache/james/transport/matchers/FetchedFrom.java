@@ -19,7 +19,7 @@ import java.util.Collection;
  * This is used to match all mail fetched from a specific pop account.
  * Once the condition is met the header is stripped from the message to prevent looping if the mail is re-inserted into the spool.
  *
- * $Id: FetchedFrom.java,v 1.4 2003/01/14 13:41:58 serge Exp $
+ * $version
  */
 
 public class FetchedFrom extends GenericMatcher {

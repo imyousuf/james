@@ -36,14 +36,14 @@ import org.apache.mailet.SpoolRepository;
  * the chain of matchers/mailets.
  *
  *  SAMPLE CONFIGURATION
- *  <processor name="try" onerror="return,log">
- *      <mailet match="RecipientIsLocal" class="LocalDelivery">
- *      </mailet>
- *      <mailet match="All" class="RemoteDelivery">
- *          <delayTime>21600000</delayTime>
- *          <maxRetries>5</maxRetries>
- *      </mailet>
- *  </processor>
+ *  &lt;processor name="try" onerror="return,log"&gt;
+ *      &lt;mailet match="RecipientIsLocal" class="LocalDelivery"&gt;
+ *      &lt;/mailet&gt;
+ *      &lt;mailet match="All" class="RemoteDelivery"&gt;
+ *          &lt;delayTime&gt;21600000&lt;/delayTime&gt;
+ *          &lt;maxRetries&gt;5&lt;/maxRetries&gt;
+ *      &lt;/mailet&gt;
+ *  &lt;/processor&gt;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */

@@ -20,9 +20,9 @@ import java.util.Collection;
  *
  * Usage: Place this matcher
  *
- * <mailet match="HasHabeasWarrantMark" class="ToProcessor">
- *     <processor> transport </processor>
- * </mailet>
+ * &lt;mailet match="HasHabeasWarrantMark" class="ToProcessor"&gt;
+ *     &lt;processor&gt; transport &lt;/processor&gt;
+ * &lt;/mailet&gt;
  *
  * in the root processs before the DNSRBL block lists (the InSpammerBlacklist matcher).
  *

@@ -34,9 +34,9 @@ import org.apache.mailet.MailAddress;
  *
  * <p>e.g.</p>
  * <pre>
- *    <mailet match="RecipientIs=forwarded@myhost"
- *            class="UseHeaderRecipients">
- *    </mailet>
+ *    &lt;mailet match="RecipientIs=forwarded@myhost"
+ *            class="UseHeaderRecipients"&gt;
+ *    &lt;/mailet&gt;
  * </pre>
  *
  * @version 1.0.0, 24/11/2000
