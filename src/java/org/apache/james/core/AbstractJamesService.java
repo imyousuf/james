@@ -24,11 +24,14 @@ import java.net.UnknownHostException;
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.james.services.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+
+import org.apache.james.services.JamesConnectionManager;
+
 import org.apache.excalibur.thread.ThreadPool;
+
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -420,9 +423,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             if(null != threadPool) {
                 
                 //TODO remove cast when avalon updates allow us to use the correct class
+                //connectionManager.connect(
+                //    connectionName,serverSocket,this,
+                //    (org.apache.avalon.excalibur.thread.ThreadPool)threadPool);
                 connectionManager.connect(
-                    connectionName,serverSocket,this,
-                    (org.apache.avalon.excalibur.thread.ThreadPool)threadPool);
+                    connectionName,serverSocket,this,threadPool);
             } else {
                 connectionManager.connect(connectionName,serverSocket,this); // default pool
             }
