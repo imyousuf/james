@@ -35,6 +35,7 @@ import org.apache.james.dnsserver.*;
 import org.apache.james.imapserver.*;
 import org.apache.james.pop3server.*;
 import org.apache.james.remotemanager.*;
+import org.apache.james.nntpserver.NNTPServer;
 import org.apache.james.services.*;
 import org.apache.james.smtpserver.*;
 import org.apache.james.transport.*;
@@ -89,6 +90,7 @@ public class James
     private boolean provideSMTP = false;
     private boolean providePOP3 = false;
     private boolean provideIMAP = false;
+    private boolean provideNNTP = false;
     private IMAPSystem imapSystem;
     private Host imapHost;
     protected BlockContext           blockContext;
@@ -193,7 +195,11 @@ public class James
             provideIMAP = true;
             getLogger().info("Providing IMAP services");
         }
-        if (! (provideSMTP | providePOP3 | provideIMAP)) {
+        if (services.getAttribute("NNTP").equals("TRUE")) {
+            provideNNTP = true;
+            getLogger().info("Providing NNTP services");
+        }
+        if (! (provideSMTP | providePOP3 | provideIMAP | provideNNTP)) {
             throw new ConfigurationException ("Fatal configuration error: no services specified!");
         }
 
@@ -330,6 +336,20 @@ public class James
             }
         }
 
+        NNTPServer nntpServer = null;
+        if (provideNNTP) {
+            nntpServer = new NNTPServer();
+            try {
+                setupLogger( nntpServer, "NNTPServer" );
+                nntpServer.configure(conf.getChild("nntpServer"));
+                nntpServer.contextualize(context);
+                nntpServer.compose(compMgr);
+            } catch (Exception e) {
+                getLogger().error("Exception in NNTPServer init: " + e.getMessage());
+                throw e;
+            }
+        }
+
         RemoteManager remoteAdmin = new RemoteManager();
         try {
             setupLogger( remoteAdmin, "RemoteManager" );
@@ -369,12 +389,14 @@ public class James
             smtpServer.init();
             dnsServer.init();
         }
+        if (provideNNTP) nntpServer.init();
         remoteAdmin.init();
 
         System.out.print(VERSION + " providing: ");
         if (provideSMTP) {System.out.print("SMTP ");}
         if (providePOP3) {System.out.print("POP3 ");}
         if (provideIMAP) {System.out.print("IMAP ");}
+        if (provideNNTP) {System.out.print("NNTP ");}
         System.out.println("services.");
 
         getLogger().info("JAMES ...init end");
