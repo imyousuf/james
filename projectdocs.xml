@@ -31,6 +31,7 @@ Legal:
 
   <property name="james.src.dir" value="src"/>
   <property name="avalon.src.dir" value="../jakarta-avalon/src/java"/>
+  <property name="scratchpad.src.dir" value="../jakarta-avalon/src/scratchpad"/>
   <property name="cornerstone.src.dir" value="../jakarta-avalon-cornerstone/src/java"/>
   <property name="logkit.src.dir" value="../jakarta-avalon-logkit/src/java"/>
   <property name="phoenix.src.dir" value="../jakarta-avalon-phoenix/src/java"/>
@@ -40,11 +41,15 @@ Legal:
 
   <path id="project.class.path">
     <pathelement path="${java.class.path}" />
-    <fileset dir="${james.lib.dir}">
-      <include name="jmx*.jar" />
-      <include name="mail*.jar" />
-      <include name="town.jar" />
-    </fileset>
+    <pathelement location="lib/activation.jar"/>
+    <pathelement location="lib/jmxri.jar"/>
+    <pathelement location="lib/jmxtools.jar"/>
+    <pathelement location="lib/mail_1_2.jar"/>
+    <pathelement location="lib/town.jar"/>
+    <pathelement location="lib/xerces.jar"/>
+    <pathelement location="./../jakarta-avalon/lib/bytecode.jar"/>
+    <pathelement location="./../jakarta-avalon/lib/jdom.jar"/>
+
   </path>
 
 
@@ -110,6 +115,12 @@ Legal:
       <fileset dir="${avalon.src.dir}" >
         <exclude name="org/apache/avalon/excalibur/datasource/J2eeDataSource.java"
                  unless="j2ee.present" />
+      </fileset>
+    </copy>
+    <echo message=" "/>
+    <echo message="Copying scratchpad sources"/>
+    <copy todir="${build.src}" >
+      <fileset dir="${scratchpad.src.dir}" >
       </fileset>
     </copy>
     <echo message=" "/>
