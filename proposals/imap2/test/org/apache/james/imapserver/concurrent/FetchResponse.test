@@ -1,9 +1,5 @@
 # Tests that updates made by one session trigger a fetch response
 # in a concurrent session on the same mailbox
-
-# TODO: Check sending of fetch responses when using other selected state commands.
-#            eg FETCH, STORE, COPY...
-# TODO: make sure SILENT is only effective on calling mailbox (not other listeners)
 SESSION: 1
 C: 1a CREATE multibox
 S: 1a OK CREATE completed.
