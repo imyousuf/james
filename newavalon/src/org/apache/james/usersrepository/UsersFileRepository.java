@@ -40,11 +40,9 @@ public class UsersFileRepository implements UsersRepository, Loggable, Component
     private Logger logger;// =  LogKit.getLoggerFor("james.users-store");
     private Store store;
     private Store.ObjectRepository or;
-    //  private String path;
-    //  private String name;
+ 
     private String destination;
-    //  private String type;
-    //  private String model;
+
     private Lock lock;
 
     public UsersFileRepository() {

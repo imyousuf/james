@@ -162,32 +162,45 @@
 		</namespaces>
 	    </imapHost> 
 
-            <!-- The spool repository is a singular location where incoming mails are temporaly stored
+            <!-- The spool repository is a singular location where incoming mails are temporarily stored
 	     before being processed.
                  (ex. file://c:/james/spool/) -->
             <spoolRepository>
 	        <repository destinationURL="file://../var/mail/spool/"
-		          type="SPOOL"
-                          model="SYNCHRONOUS">
+		     type="SPOOL"
+                     model="SYNCHRONOUS">
                 </repository>
             </spoolRepository>
+
+            <!-- Alternative spool repository definition for Town use
+            <spoolRepository>
+	        <repository  destinationURL="town://mainspool"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+                    <conn>file:///dev/james/dist/var/maildatabase</conn>
+                    <table>Message</table>
+                </repository>
+            </spoolRepository>
+            -->
 
 	    <!-- The inbox repository is the location for users inboxes -->
             <inboxRepository>
 	        <repository destinationURL="file://../var/mail/inboxes/"
-                            type="MAIL"
-                            model="SYNCHRONOUS">
+                    type="MAIL"
+                    model="SYNCHRONOUS">
                 </repository>
             </inboxRepository>
 
-           <!--
-            These are optional in case you'd like to store the mail spool and POP3 messages in
-            the database.  Simply uncomment these and remove the ones above.
-            <spoolRepository> town://mainspool </spoolRepository>
-            <inboxRepository> town://inbox </inboxRepository>
+            <!-- Alternative inbox repository definition for Town use
+            <inboxRepository>
+	        <repository  destinationURL="town://inbox"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+                    <conn>file:///dev/james/dist/var/maildatabase</conn>
+                    <table>Message</table>
+                </repository>
+            </inboxRepository>
             -->
-
-     
 
             <smtpServer>
                 <port>25</port>
@@ -412,8 +425,24 @@
                     <model> CACHE </model>
                 </models>
               </repository>
+
+              <repository class="org.apache.james.mailrepository.TownSpoolRepository">
+                <protocols>
+                    <protocol> town </protocol>
+                </protocols>
+                <types>
+		    <type> SPOOL </type>
+		    <type> MAIL </type>
+                </types>
+                <models>
+                    <model> SYNCHRONOUS </model>
+                    <model> ASYNCHRONOUS </model>
+                    <model> CACHE </model>
+                </models>
+              </repository>
           </repositories>
         </configuration>
+
 
     </block>
        
@@ -421,18 +450,27 @@
     <block class="org.apache.james.core.AvalonUsersStore" 
            name="users-store" >
 
-        <!-- We need to make template configurations for LDAP and RDBMS user stores -->
-
         <!-- Configure file based user store here, defaults should be fine -->
 
         <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
         <!--  <provide name="james-storage" role="org.apache.avalon.services.Store"/> -->
+
+        <!-- We need to make template configurations for LDAP and RDBMS user stores -->
+
 
         <configuration>
 	    <repository name="LocalUsers"
 	                class="org.apache.james.usersrepository.UsersFileRepository">
 	        <destination URL="file://../var/users/"/>
             </repository>
+            <!-- Uncomment this to store users in an RDBMS
+	    <repository name="LocalUsers"
+	                class="org.apache.james.usersrepository.UsersTownRepository">
+	        <destination URL="town://users/">
+                <conn>file:///var/maildatabase</conn>
+	        <table>Users</table>
+            </repository>
+            -->
             <repository name="list-james"
 	                class="org.apache.james.usersrepository.UsersFileRepository">
 	        <destination URL="file://../var/lists/list-james/"/>

@@ -12,7 +12,14 @@ import org.apache.avalon.services.Store;
 
 
 /**
- * Interface for a Repository to store Mails.
+ * Interface for an object which provides MailRepositories or SpoolRepositories
+ *
+ * <p>The select method requires a configuration object with the form:
+ *  <br><repository destinationURL="file://path-to-root-dir-for-repository"
+ *  <br>            type="MAIL"
+ *  <br>            model="SYNCHRONOUS"/>
+ *  <br></repository>
+ * <p>This configuration, including any included child elements, is used to configure the returned component.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -21,3 +28,4 @@ public interface MailStore extends Store {
     // MailRepository getInbox(String user);
 
 }
+ 
