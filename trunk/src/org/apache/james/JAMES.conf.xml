@@ -23,7 +23,7 @@
         </service>
         <service name="JamesObjectStore">
             <resource type="org.apache.avalon.blocks.Logger" mapTo="ApacheDefaultLogger"/>
-            <resource type="org.apache.avalon.blocks.Store" mapTo="JamesObjectStore"/>
+            <resource type="org.apache.avalon.blocks.Store" mapTo="ApacheDefaultStore"/>
         </service>
     </servicesmap>
 
