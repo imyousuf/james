@@ -27,5 +27,41 @@ children, all of which are required.</p>
 <li><strong>interval</strong> - A non-negative integer representing the number of milliseconds between fetches.</li>
 </ul>
 </section>
+<section name="Considerations when handling fetched mail">
+<p>There are a number of issues which have to be considered when handling fetched mail, such as avoiding circular
+routeing of mail, some scenarios are described below with suggested configurations.</p>
+
+<subsection name="All mail for the domain is handled locally by this server">
+<p>This is the intended primary use of FetchPOP.
+If all mail for a domain being fetched is ultimately being handled by this server then it is enough to add
+the domain name as a servername to the servernames section described <a href="serverwide_configuration_2_1.html">here</a>.
+<br/>This is the simplest solution and is used where James is being used to redistribute all mail from the
+free catch-all POP accounts provided by many domain registration/hosting companies.</p>
+</subsection>
+<subsection name="Only part of this domains mail is being handled locally">
+<p>If only part of a domain's mail(perhaps only a single users POP account) is being handled by this instance
+of James we need to ensure that outgoing mail to other users on the same domain is not intercepted by James.
+To manage this FetchPop adds a header, X-fetchedby, to the fetched message. We can examine this header with
+a special matcher <b>FetchedFrom</b> exactly once, as the matcher removes the header to prevent outgoing replies
+or redirections from looping.<br/> FetchedFrom takes the name set in the fetch configuration as its condition
+&lt;mailet match="FetchedFrom=<i>fetchname</i>" class="ToProcessor"&gt;<br/>
+We can use this to direct fetched mail to a new processor we set up to handle mail fetched from one or more POP accounts.
+<br/>This processor should contain mailets which will filter and forward mail to real local or remote users.
+This can be achieved in the usual fashion as described elsewhere in this documentation.</p>
+</subsection>
+ <subsection name="Catching undeliverable mail">
+<p>It is important to note that this first version of FetchPop does not access the original intended recipient
+address of the mail, but uses the <b>To:</b> address from the Headers only. This may result in no valid user
+being found for mail where the fetched account is in the cc or bcc field, or is not present in the mail headers
+at all. It is intended that this behaviour be addressed in the next version of James, but in the meantime a
+catch-all forwarding of locally undeliverable fetched mail is recommended.</p>
+<p>In the case of the first scenario we can use the &lt;mailet match="FetchedFrom=<i>fetchname</i>" class="forward"&gt; matcher.<br/>
+Place this between the "RecipientIsLocal" and "HostIsLocal" in the Transport processor as set up in the default configuration
+and it will intercept mail fetched by your fetcher but not delivered to a local user</p>
+<p>In the case of the second scenario we can use the &lt;mailet match="All" class="forward"&gt; matcher.<br/>
+Place this at the end of your new processor to catch all mail which can't be forwarded or redirected by the mailets
+you have defined.</p>
+</subsection>
+</section>
 </body>
 </document>
