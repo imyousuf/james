@@ -3,22 +3,25 @@ This Document contains references to relevant RFCs and Drafts.
 Basic RFC
 ---------
 RFC 822: Mail Message Format
+RFC 1123: Requirements for Internet Hosts -- Application and Support (updated by RFC 2821)
 RFC 2045: Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
 
 SMTP
 ----
-RFC 821: SMTP Protocol
-RFC 974: Mail routing and the domain system
+RFC 821: SMTP Protocol (OBSOLETE - see RFC 2821)
+RFC 974: Mail routing and the domain system  (OBSOLETE - see RFC 2821)
 RFC 1652: SMTP Service Extension for 8bit-MIMEtransport (elective, but widely adopted)
 RFC 1830: SMTP Service Extensions for Transmission of Large and Binary MIME Messages (experimental, but cool idea)
-RFC 1869: SMTP Service Extensions
+RFC 1869: SMTP Service Extensions  (OBSOLETE - see RFC 2821)
 RFC 1870: SMTP Service Extension for Message Size Declaration
 RFC 1891: SMTP Service Extension for Delivery Status Notifications (elective)
 RFC 1893: Enhanced Mail System Status Codes (experimental)
 RFC 1985: SMTP Service Extension for Remote Message Queue Starting (elective)
 RFC 2034: SMTP Service Extension for Returning Enhanced Error Codes (elective)
+RFC 2142: Mailbox Names For Common Services, Roles And Functions
 RFC 2197: SMTP Service Extension for Command Pipelining (elective)
 RFC 2554: SMTP Service Extension for Authentication
+RFC 2821: Simple Mail Transfer Protocol
 
 POP3
 ----
