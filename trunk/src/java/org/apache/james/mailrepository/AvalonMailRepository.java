@@ -46,9 +46,10 @@ public class AvalonMailRepository
     extends AbstractLogEnabled
     implements MailRepository, Component, Configurable, Composable, Initializable {
 
-    private Lock lock;
     protected final static boolean DEEP_DEBUG = false;
     private static final String TYPE = "MAIL";
+
+    private Lock lock;
     private Store store;
     private StreamRepository sr;
     private ObjectRepository or;
@@ -56,6 +57,12 @@ public class AvalonMailRepository
     private String destination;
     private Set keys;
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
         if (getLogger().isDebugEnabled()) {
@@ -73,12 +80,28 @@ public class AvalonMailRepository
         // ignore model
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
             throws ComponentException {
         store = (Store)componentManager.
-            lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+        lookup( "org.apache.avalon.cornerstone.services.store.Store" );
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize()
             throws Exception {
         try {
@@ -150,8 +173,26 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * Releases a lock on a message identified the key
+     *
+     * @param key the key of the message to be unlocked
+     *
+     * @return true if successfully released the lock, false otherwise
+     */
     public boolean unlock(String key) {
         if (lock.unlock(key)) {
+            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                StringBuffer debugBuffer =
+                    new StringBuffer(256)
+                            .append("Unlocked ")
+                            .append(key)
+                            .append(" for ")
+                            .append(Thread.currentThread().getName())
+                            .append(" @ ")
+                            .append(new java.util.Date(System.currentTimeMillis()));
+                getLogger().debug(debugBuffer.toString());
+            }
             synchronized (this) {
                 notifyAll();
             }
@@ -161,8 +202,26 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * Obtains a lock on a message identified by key
+     *
+     * @param key the key of the message to be locked
+     *
+     * @return true if successfully obtained the lock, false otherwise
+     */
     public boolean lock(String key) {
         if (lock.lock(key)) {
+            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                StringBuffer debugBuffer =
+                    new StringBuffer(256)
+                            .append("Locked ")
+                            .append(key)
+                            .append(" for ")
+                            .append(Thread.currentThread().getName())
+                            .append(" @ ")
+                            .append(new java.util.Date(System.currentTimeMillis()));
+                getLogger().debug(debugBuffer.toString());
+            }
             synchronized (this) {
                 notifyAll();
             }
@@ -172,6 +231,12 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * Stores a message in this repository. Shouldn't this return the key
+     * under which it is stored?
+     *
+     * @param mc the mail message to store
+     */
     public void store(MailImpl mc) {
         try {
             String key = mc.getName();
@@ -250,6 +315,13 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * Retrieves a message given a key. At the moment, keys can be obtained
+     * from list() in superinterface Store.Repository
+     *
+     * @param key the key of the message to retrieve
+     * @return the mail corresponding to this key, null if none exists
+     */
     public MailImpl retrieve(String key) {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
@@ -278,10 +350,20 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * Removes a specified message
+     *
+     * @param mail the message to be removed from the repository
+     */
     public void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
+    /**
+     * Removes a message identified by key.
+     *
+     * @param key the key of the message to be removed from the repository
+     */
     public void remove(String key) {
         if (lock(key)) {
             try {
@@ -301,9 +383,15 @@ public class AvalonMailRepository
         }
     }
 
+    /**
+     * List string keys of messages in repository.
+     *
+     * @return an <code>Iterator</code> over the list of keys in the repository
+     *
+     */
     public Iterator list() {
-//  Fix ConcurrentModificationException by cloning the keyset before getting an iterator
-//        return keys.iterator();
+        // Fix ConcurrentModificationException by cloning 
+        // the keyset before getting an iterator
         final HashSet clone = new HashSet();
         clone.addAll( keys );
         return clone.iterator();
