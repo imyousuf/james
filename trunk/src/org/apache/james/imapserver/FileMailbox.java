@@ -267,7 +267,7 @@ public class FileMailbox implements ACLMailbox, Serializable {
      */
     public void reInit() throws Exception {
 	listeners = new HashSet();
-	logger = LogKit.getLoggerFor("MailRepository");
+	logger = LogKit.getLoggerFor("james.MailRepository");
         logger.info("FileMailbox reInit for " + absoluteName);
 	localUsers = (UsersRepository)compMgr.lookup("org.apache.james.services.UsersRepository");
 	String rootPath
