@@ -119,7 +119,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.60 $
+ * @version This is $Revision: 1.61 $
 
  */
 public class James
@@ -712,8 +712,8 @@ public class James
             throw new MessagingException("Unable to create multipart body", ioe);
         }
         reply.saveChanges();
-        //Send it off...
-        sendMail(bouncer, recipients, reply);
+        //Send it off ... with null reverse-path
+        sendMail(null, recipients, reply);
     }
     /**
      * Returns whether that account has a local inbox on this server
