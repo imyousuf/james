@@ -443,7 +443,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      *
      * @return is the service enabled.
      */
-    protected final boolean isEnabled() {
+    public final boolean isEnabled() {
         return enabled;
     }
 
@@ -490,5 +490,36 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected boolean isDefaultTLSEnabled() {
         return false;
+    }
+    
+    /**
+    * Returns the port that the service is bound to 
+    * 
+    * @return int The port number     
+    */  
+    public int  getPort() {
+        return port;
+    }
+    
+    /**
+    * Returns the address if the network interface the socket is bound to 
+    * 
+    * @return String The network interface name     
+    */  
+    public String  getNetworkInterface() {
+       if (bindTo == null) {
+            return "All";
+        } else {
+            return bindTo.getHostAddress();
+        }
+    }
+    
+    /**
+    * Returns the server socket type, plain or SSL 
+    * 
+    * @return String The scoekt type, plain or SSL     
+    */  
+    public String  getSocketType() {
+        return serverSocketType;
     }
 }

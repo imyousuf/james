@@ -40,7 +40,7 @@ import org.apache.mailet.UsersRepository;
  * NNTP Server
  *
  */
-public class NNTPServer extends AbstractJamesService {
+public class NNTPServer extends AbstractJamesService implements NNTPServerMBean {
 
     /**
      * Whether authentication is required to access this NNTP server

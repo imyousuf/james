@@ -42,7 +42,7 @@ import org.apache.mailet.UsersRepository;
  *
  * @version 1.0.0, 24/04/1999
  */
-public class POP3Server extends AbstractJamesService {
+public class POP3Server extends AbstractJamesService implements POP3ServerMBean {
 
     /**
      * The internal mail server service

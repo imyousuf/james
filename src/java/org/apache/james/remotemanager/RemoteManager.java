@@ -47,7 +47,7 @@ import org.apache.mailet.UsersRepository;
  * @version 1.0.0, 24/04/1999
  */
 public class RemoteManager
-    extends AbstractJamesService {
+    extends AbstractJamesService implements RemoteManagerMBean {
 
     /**
      * A HashMap of (user id, passwords) for James administrators

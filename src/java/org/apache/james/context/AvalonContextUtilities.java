@@ -100,5 +100,5 @@ public class AvalonContextUtilities {
      * Private constructor to ensure that instances of this class aren't
      * instantiated.
      */
-    private AvalonContextUtilities() {};
+    private AvalonContextUtilities() {}
 }

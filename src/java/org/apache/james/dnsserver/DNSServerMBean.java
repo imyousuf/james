@@ -14,24 +14,17 @@
  * implied.  See the License for the specific language governing       *
  * permissions and limitations under the License.                      *
  ***********************************************************************/
-
-package org.apache.james;
+package org.apache.james.dnsserver;
 
 /**
- * An interface to expose James management functionality through JMX.  At
- * the time of this writing, this interface is just an example.
+ * An interface to expose James management functionality through JMX.
  * 
- * @phoenix:mx-topic name="MainJAMESServerManagement"
+ * @phoenix:mx-topic name="DNSServer"
  */
-public interface JamesMBean {
-
+public interface DNSServerMBean {
     /**
-     * Adds a user to this mail server.
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add a new user
-     * @param userName the name of the user being added
-     * @param password the password of the user being added
-     */
-    boolean addUser(String userName, String password);
+    * @phoenix:mx-operation
+    * @phoenix:mx-description Returns the list of DNS servers
+    */    
+    public String[] getDNSServers();
 }
