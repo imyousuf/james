@@ -32,6 +32,7 @@ public final class InitialMail extends TestCase
     {
         super.setUp();
         Properties props = new Properties();
+        props.setProperty("mail.debug","true");
         _session = Session.getDefaultInstance( props );
 
         _fromAddress = new InternetAddress( FROM_ADDRESS );
