@@ -101,7 +101,7 @@ public class UsersTownRepository implements UsersRepository, Configurable {
 
 	public synchronized Object getAttributes(String strUserName) {
 		try {
-			TableDataSet MRUser = TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
+			TableDataSet MRUser = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
 			MRUser.setWhere("UserName = '" + strUserName+"'");
 			if (MRUser.size() == 0) {
 				logger.log("User "+strUserName+" could not be found while fetching password.",
