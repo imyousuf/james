@@ -89,7 +89,7 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * <P>CVS $Id: JamesSpoolManager.java,v 1.34 2003/06/17 22:07:28 noel Exp $</P>
+ * <P>CVS $Id: JamesSpoolManager.java,v 1.35 2003/06/19 16:17:48 vincenzo Exp $</P>
  * @version 2.2.0
  */
 public class JamesSpoolManager
@@ -404,7 +404,7 @@ public class JamesSpoolManager
                     getLogger().debug("Result was " + mail.getState());
                 }
                 return;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 // This is a strange error situation that shouldn't ordinarily
                 // happen
                 StringBuffer exceptionBuffer =
