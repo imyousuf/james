@@ -22,7 +22,8 @@ import org.apache.james.smtpserver.*;
 import org.apache.james.dnsserver.*;
 import org.apache.james.pop3server.*;
 import org.apache.james.remotemanager.*;
-import org.apache.james.usermanager.*;
+import org.apache.james.userrepository.*;
+import org.apache.james.mailrepository.*;
 
 import javax.mail.internet.*;
 import javax.mail.Address;
@@ -133,6 +134,7 @@ public class James implements MailServer, Block, MailetContext {
         logger.log("Private SpoolRepository Spool opened", "JamesSystem", logger.INFO);
         comp.put(Constants.SPOOL_REPOSITORY, spool);
 
+        /*
         UserManager userManager = new UserManager();
         try {
             userManager.setConfiguration(conf.getConfiguration("usersManager"));
@@ -144,8 +146,19 @@ public class James implements MailServer, Block, MailetContext {
             throw e;
         }
         comp.put(Constants.USERS_MANAGER, userManager);
+        */
+        String usersRepository = conf.getConfiguration("userRepository").getValue("file://../var/users/");
+        try {
+            this.users = (UsersRepository) store.getPrivateRepository(usersRepository, UsersRepository.USER, Store.ASYNCHRONOUS);
+        } catch (Exception e) {
+            logger.log("Cannot open private UserRepository", "JamesSystem", logger.ERROR);
+            throw e;
+        }
+        comp.put(Constants.LOCAL_USERS, users);
+
+
         logger.log("Users Manager Opened", "JamesSystem", logger.INFO);
-        users = (UsersRepository) userManager.getUserRepository("LocalUsers");
+        //users = (UsersRepository) userManager.getUserRepository("LocalUsers");
 
         POP3Server pop3Server = new POP3Server();
         try {
@@ -324,10 +337,10 @@ public class James implements MailServer, Block, MailetContext {
     }
 
     public void bounce(Mail mail, String message) throws MessagingException {
-        bounce(mail, message, getPostmaster().toString());
+        bounce(mail, message, getPostmaster());
     }
 
-    public void bounce(Mail mail, String message, String bouncer) throws MessagingException {
+    public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         MimeMessage orig = mail.getMessage();
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
@@ -338,33 +351,37 @@ public class James implements MailServer, Block, MailetContext {
             recipients.add(new MailAddress((InternetAddress)addresses[i]));
         }
         //Change the sender...
-        reply.setFrom(new InternetAddress(bouncer));
+        reply.setFrom(bouncer.toInternetAddress());
         try {
             //Create the message body
             MimeMultipart multipart = new MimeMultipart();
             //Add message as the first mime body part
             MimeBodyPart part = new MimeBodyPart();
             part.setContent(message, "text/plain");
+            part.setHeader("Content-Type", "text/plain");
             multipart.addBodyPart(part);
+
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
             part.setContent(orig.getContent(), orig.getContentType());
+            part.setHeader("Content-Type", orig.getContentType());
             multipart.addBodyPart(part);
+
             reply.setContent(multipart);
+            reply.setHeader("Content-Type", multipart.getContentType());
         } catch (IOException ioe) {
             throw new MessagingException("Unable to create multipart body");
         }
         //Send it off...
-        sendMail(new MailAddress(bouncer), recipients, reply);
+        sendMail(bouncer, recipients, reply);
     }
 
     public Collection getLocalUsers() {
-        UserManager usersManager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
-        Vector users = new Vector();
-        for (Enumeration e = usersManager.getUserRepository("LocalUsers").list(); e.hasMoreElements(); ) {
-            users.add(e.nextElement());
+        Vector userList = new Vector();
+        for (Enumeration e = users.list(); e.hasMoreElements(); ) {
+            userList.add(e.nextElement());
         }
-        return users;
+        return userList;
     }
 
     public MailAddress getPostmaster() {
@@ -416,10 +433,10 @@ public class James implements MailServer, Block, MailetContext {
      * @param password String plaintext password
      * @returns boolean true if user added succesfully, else false.
      */
-  
+
     public boolean addUser(String userName, String password) {
-	users.addUser(userName, password);
-	return true;
+        users.addUser(userName, password);
+        return true;
     }
 
 }
