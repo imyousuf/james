@@ -12,7 +12,7 @@ package org.apache.james;
  * This is a fake class to display an error message if you try to execute James
  * without having Avalon installed.
  *
- * @version 1.0.0 (CVS $Revision: 1.4 $ $Date: 2001/01/09 12:21:21 $)
+ * @version 1.0.0 (CVS $Revision: 1.1 $ $Date: 2001/05/11 10:36:17 $)
  * @author <a href="mailto:scoobie@pop.systemy.it">Federico Barbieri</a>
  */
 
