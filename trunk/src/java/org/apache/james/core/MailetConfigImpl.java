@@ -68,6 +68,8 @@ import java.util.Iterator;
 /**
  * Implements the configuration object for a Mailet.
  *
+ * <P>CVS $Id: MailetConfigImpl.java,v 1.8 2003/06/17 16:03:14 noel Exp $</P>
+ * @version 2.2.0
  */
 public class MailetConfigImpl implements MailetConfig {
 
@@ -133,6 +135,22 @@ public class MailetConfigImpl implements MailetConfig {
     public Iterator getInitParameterNames() {
         throw new UnsupportedOperationException("Not yet implemented");
         //return params.keySet().iterator();
+    }
+
+    /**
+     * Get the value of an (XML) attribute stored in this MailetConfig.
+     *
+     * @param name the name of the attribute whose value is to be retrieved.
+     *
+     * @return the attribute value
+     */
+    public String getInitAttribute(String name) {
+        try {
+            return configuration.getAttribute(name);
+        } catch (ConfigurationException ce) {
+            throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
+        }
+
     }
 
     /**
