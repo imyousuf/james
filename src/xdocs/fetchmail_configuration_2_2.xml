@@ -131,7 +131,7 @@ periodically. Fetch tasks run concurrently.</p>
 <li><strong><a href="#maxmessagesize">maxmessagesize</a></strong> (0, 1)</li>
 <li><strong><a href="#recipientnotfound">recipientnotfound</a></strong> (1, 1)</li>
 <li><strong><a href="#recursesubfolders">recursesubfolders</a></strong> (1, 1)</li>
-<li><strong><a href="#remoteReceivedHeaderIndex">remoteReceivedHeaderIndex</a></strong> (0, 1)</li>
+<li><strong><a href="#remoteReceivedHeader">remoteReceivedHeader</a></strong> (0, 1)</li>
 <li><strong><a href="#remoterecipient">remoterecipient</a></strong> (1, 1)</li>
 <li><strong><a href="#undeliverable">undeliverable</a></strong> (1, 1)</li>
 <li><strong><a href="#userundefined">userundefined</a></strong> (1, 1)</li>
@@ -469,10 +469,11 @@ its subfolders. If false, mail is fetched from just the root folder.</p>
 </p>
 </subsection>
 
-<subsection name="remoteReceivedHeaderIndex">
-<p>The <strong>remoteReceivedHeaderIndex</strong> tag declares the zero based
+<subsection name="remoteReceivedHeader">
+<p>The <strong>remoteReceivedHeader</strong> tag declares the zero based
 index of the RFC2822 compliant RECEIVED header used to determine the address and
-host name of the remote MTA that sent a fetched message.</p>
+host name of the remote MTA that sent a fetched message and what happens to 
+messages when the specified header is invalid.</p>
 
 <p>Typically, the first (index = 0) RECEIVED header is for the local MTA that 
 delivered the message to the message store and the second (index = 1) RECEIVED
@@ -490,17 +491,47 @@ index of 2, and so forth.</p>
 <p>Matchers such as InSpammerBlacklist use the remote address and/or remote host
 name to identify illegitimate remote MTAs. If you do not use such matchers, the
 <strong>remoteReceivedHeaderIndex</strong> tag may be omitted or the default
-value of -1 can be specified. This causes the remote address to be set to
+index value of -1 can be specified. This causes the remote address to be set to
 <code>127.0.0.1</code> and the remote host name to be set to
 <code>localhost</code>. Matchers almost always considered these values to be
 legitimate.</p>
 
-<p>The tag value is an integer whose meaning is described above.</p>
+<p>The tag has these attributes:
+<dl>
+<dt><strong>index</strong></dt>
+<dd>An integer whose meaning is described above.
+</dd>
+<dt><strong>reject</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose specified recieved header is invalid
+will not be injected into the James input spool. If &quot;false&quot;, mail whose 
+specified recieved header is invalid will be injected into the James input spool with 
+the Mail Attribute <code>org.apache.james.fetchmail.isInvalidReceivedHeader</code>
+added to the mail.
+</dd>
+<dt><strong>leaveonserver</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose specified recieved header is invalid
+will be left on the server. If &quot;false&quot;, mail whose specified recieved header
+is invalid will be marked for deletion.</dd>
+<dt><strong>markseen</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose specified recieved header is invalid
+will be marked as seen on the server. If &quot;false&quot;, mail whose specified
+recieved header is invalid will not be marked as seen.</dd>
+</dl>
+</p>
 
 <p>
 <source>
-&lt;remoteReceivedHeaderIndex&gt;1&lt;/remoteReceivedHeaderIndex&gt;
+&lt;remoteReceivedHeader
+    index=&quot;1&quot; 
+    reject=&quot;true&quot;
+    leaveonserver=&quot;true&quot;
+    markseen=&quot;true&quot;/&gt;
 </source>
+</p>
+
+<p>An example configuration using James mailet processing to notify the postmaster
+of fetched messages that contain an invalid Received header can be found in the file
+<code>$PHOENIX_HOME/apps/james/conf/samples/fetchmail/remoteReceivedHeader.xml</code>.
 </p>
 </subsection>
 

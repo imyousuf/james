@@ -218,7 +218,25 @@ class ParsedConfiguration
      * The index of the received header to use to compute the remote address
      * and remote host name for a message. This is 0 based and defaults to -1.
      */
-    private int fieldRemoteReceivedHeaderIndex;    
+    private int fieldRemoteReceivedHeaderIndex = -1;
+    
+    /**
+     * Keep messages with an invalid received header on the remote mailserver.
+     * Normally, messages are kept in the folder on the mailserver if they have been
+     * rejected
+     */
+    private boolean fieldLeaveRemoteReceivedHeaderInvalid = true;
+    
+    /**
+     * Mark messages with an invalid received header on the remote mailserver as 
+     * seen.  Normally, messages are not marked as seen if they have been rejected.
+     */
+    private boolean fieldMarkRemoteReceivedHeaderInvalidSeen = false;
+    
+    /**
+     * Reject messages with an invalid received header.
+     */
+    private boolean fieldRejectRemoteReceivedHeaderInvalid;                
     
     /**
      * Reject messages for which a recipient could not be determined.
@@ -367,8 +385,18 @@ class ParsedConfiguration
         setMarkUndeliverableSeen(
             undeliverable.getAttributeAsBoolean("markseen"));
 
-        setRemoteReceivedHeaderIndex(
-            conf.getChild("remoteReceivedHeaderIndex").getValueAsInteger(-1));
+        Configuration remotereceivedheader = conf.getChild("remotereceivedheader", false);
+        if (null != remotereceivedheader)
+        {
+            setRemoteReceivedHeaderIndex(
+                remotereceivedheader.getAttributeAsInteger("index"));
+            setRejectRemoteReceivedHeaderInvalid(
+                remotereceivedheader.getAttributeAsBoolean("reject"));
+            setLeaveRemoteReceivedHeaderInvalid(
+                remotereceivedheader.getAttributeAsBoolean("leaveonserver"));
+            setMarkRemoteReceivedHeaderInvalidSeen(
+                remotereceivedheader.getAttributeAsBoolean("markseen"));
+        }            
 
         Configuration maxmessagesize = conf.getChild("maxmessagesize", false);
         if (null != maxmessagesize)
@@ -456,7 +484,11 @@ class ParsedConfiguration
             && isLeaveUserUndefined()
             && !isMarkUserUndefinedSeen()
             && isLeaveUndeliverable()
-            && !isMarkUndeliverableSeen()                                   
+            && !isMarkUndeliverableSeen()
+            && isLeaveMaxMessageSizeExceeded()
+            && !isMarkMaxMessageSizeExceededSeen()              
+            && isLeaveRemoteReceivedHeaderInvalid()
+            && !isMarkRemoteReceivedHeaderInvalidSeen()             
             ;
     }   
 
@@ -1066,6 +1098,63 @@ protected void setLocalUsers(UsersRepository localUsers)
     protected void setRejectMaxMessageSizeExceeded(boolean rejectMaxMessageSize)
     {
         fieldRejectMaxMessageSizeExceeded = rejectMaxMessageSize;
+    }
+
+    /**
+     * Returns the leaveRemoteReceivedHeaderInvalid.
+     * @return boolean
+     */
+    public boolean isLeaveRemoteReceivedHeaderInvalid()
+    {
+        return fieldLeaveRemoteReceivedHeaderInvalid;
+    }
+
+    /**
+     * Returns the markRemoteReceivedHeaderInvalidSeen.
+     * @return boolean
+     */
+    public boolean isMarkRemoteReceivedHeaderInvalidSeen()
+    {
+        return fieldMarkRemoteReceivedHeaderInvalidSeen;
+    }
+
+    /**
+     * Returns the rejectRemoteReceivedHeaderInvalid.
+     * @return boolean
+     */
+    public boolean isRejectRemoteReceivedHeaderInvalid()
+    {
+        return fieldRejectRemoteReceivedHeaderInvalid;
+    }
+
+    /**
+     * Sets the leaveRemoteReceivedHeaderInvalid.
+     * @param leaveRemoteReceivedHeaderInvalid The leaveRemoteReceivedHeaderInvalid to set
+     */
+    protected void setLeaveRemoteReceivedHeaderInvalid(boolean leaveRemoteReceivedHeaderInvalid)
+    {
+        fieldLeaveRemoteReceivedHeaderInvalid =
+            leaveRemoteReceivedHeaderInvalid;
+    }
+
+    /**
+     * Sets the markRemoteReceivedHeaderInvalidSeen.
+     * @param markRemoteReceivedHeaderInvalidSeen The markRemoteReceivedHeaderInvalidSeen to set
+     */
+    protected void setMarkRemoteReceivedHeaderInvalidSeen(boolean markRemoteReceivedHeaderInvalidSeen)
+    {
+        fieldMarkRemoteReceivedHeaderInvalidSeen =
+            markRemoteReceivedHeaderInvalidSeen;
+    }
+
+    /**
+     * Sets the rejectRemoteReceivedHeaderInvalid.
+     * @param rejectRemoteReceivedHeaderInvalid The rejectRemoteReceivedHeaderInvalid to set
+     */
+    protected void setRejectRemoteReceivedHeaderInvalid(boolean rejectRemoteReceivedHeaderInvalid)
+    {
+        fieldRejectRemoteReceivedHeaderInvalid =
+            rejectRemoteReceivedHeaderInvalid;
     }
 
 }
