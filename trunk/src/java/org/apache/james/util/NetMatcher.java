@@ -151,9 +151,8 @@ public class NetMatcher
     }
 
     protected void log(String s) { }
-}
 
-class InetNetwork
+static class InetNetwork
 {
     /*
      * Implements network masking, and is compatible with RFC 1518 and
@@ -302,4 +301,5 @@ class InetNetwork
         }
         return addr;
     }
+}
 }
