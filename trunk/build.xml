@@ -106,7 +106,7 @@ All theese package are in current distribution.
     <mkdir dir="${build.dest}"/>
 
     <!-- copy src files -->
-    <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**"/>
+    <copydir src="${src.dir}" dest="${build.src}" excludes="**/CVS/**,*.xml"/> -->
 
     <!-- substitute tokens as needed -->
     <replace file="${build.src}/${constants.file}" token="@@version@@" value="${version}"/>
@@ -117,13 +117,14 @@ All theese package are in current distribution.
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src">
     <javac srcdir="${build.src}" destdir="${build.dest}" classpath="${classpath}" debug="${debug}"/>
+    <copyfile src="${src.dir}/org/apache/james/${name}.conf.xml" dest="${build.dest}/conf/${name}.conf.xml"/> -->
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" items="org"/>
+    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" items="org,conf"/>
   </target>
 
   <!-- =================================================================== -->
@@ -138,10 +139,10 @@ All theese package are in current distribution.
     <mkdir dir="${dist.dir}/docs"/>
 
     <copydir src="${build.src}" dest="${dist.dir}/src" excludes="james.conf.xml"/>
-    <copyfile src="${src.dir}/org/apache/james/james.conf.xml" dest="${dist.dir}/conf/james.conf.xml"/>
     <copydir src="./docs/" dest="${dist.dir}/docs"/>
 
     <copyfile src="${build.dir}/${name}.jar" dest="${dist.dir}/bin/${name}.jar"/>
+
     <copyfile src="./lib/Avalon.jar" dest="${dist.dir}/bin/Avalon.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail.jar" dest="${dist.dir}/lib/mail.jar"/>
