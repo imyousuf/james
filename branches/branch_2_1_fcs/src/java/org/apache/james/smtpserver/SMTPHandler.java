@@ -81,7 +81,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.35.4.10 $
+ * @version This is $Revision: 1.35.4.11 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -233,6 +233,16 @@ public class SMTPHandler
     private String authenticatedUser;
 
     /**
+     * whether or not authorization is required for this connection
+     */
+    private boolean authRequired;
+
+    /**
+     * whether or not authorization is required for this connection
+     */
+    private boolean relayingAllowed;
+
+    /**
      * The id associated with this particular SMTP interaction.
      */
     private String smtpID;
@@ -335,6 +345,8 @@ public class SMTPHandler
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
+            relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
+            authRequired = theConfigData.isAuthRequired(remoteIP);
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
@@ -638,7 +650,7 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            if (theConfigData.isAuthRequired(remoteIP)) {
+            if (authRequired) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -653,7 +665,7 @@ public class SMTPHandler
                           .append(remoteIP)
                           .append("])");
             responseString = clearResponseBuffer();
-            if (theConfigData.isAuthRequired(remoteIP)) {
+            if (authRequired) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -684,7 +696,7 @@ public class SMTPHandler
                 responseString = "250-SIZE " + maxMessageSize;
                 writeLoggedResponse(responseString);
             }
-            if (theConfigData.isAuthRequired(remoteIP)) {
+            if (authRequired) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -699,7 +711,7 @@ public class SMTPHandler
                            .append(remoteIP)
                            .append("])");
             responseString = clearResponseBuffer();
-            if (theConfigData.isAuthRequired(remoteIP)) {
+            if (authRequired) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -1129,7 +1141,7 @@ public class SMTPHandler
                 }
                 return;
             }
-            if (theConfigData.isAuthRequired(remoteIP)) {
+            if (authRequired) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
                 if (getUser() == null) {
@@ -1163,6 +1175,14 @@ public class SMTPHandler
                             return;
                         }
                     }
+                }
+            } else if (!relayingAllowed) {
+                String toDomain = recipientAddress.getHost();
+                if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
+                    responseString = "550 - Requested action not taken: relaying denied";
+                    writeLoggedFlushedResponse(responseString);
+                    getLogger().error("Rejected message - " + remoteIP + " not authorized to relay to " + toDomain);
+                    return;
                 }
             }
             rcptColl.add(recipientAddress);
