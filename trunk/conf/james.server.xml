@@ -23,6 +23,7 @@
       <category name="Mailets" target="mailets-target" priority="DEBUG" />
       <category name="James.SMTPServer" target="smtpserver-target" priority="DEBUG" />
       <category name="James.POP3Server" target="pop3server-target" priority="DEBUG" />
+      <category name="James.NNTPServer" target="nntpserver-target" priority="DEBUG" />
       <category name="James.DnsServer" target="dnsserver-target" priority="DEBUG" />
       <category name="James.RemoteManager" target="remotemanager-target" priority="DEBUG" />
       <category name="James.SpoolManager" target="spoolmanager-target" priority="DEBUG" />
@@ -44,6 +45,7 @@
       <log-target name="mailets-target" location="/logs/mailets.log" />
       <log-target name="smtpserver-target" location="/logs/smtpserver.log" />
       <log-target name="pop3server-target" location="/logs/pop3server.log" />
+      <log-target name="nntpserver-target" location="/logs/pop3server.log" />
       <log-target name="dnsserver-target" location="/logs/dnsserver.log" />
       <log-target name="remotemanager-target" location="/logs/remotemanager.log" />
       <log-target name="spoolmanager-target" location="/logs/spoolmanager.log" />
