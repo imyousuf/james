@@ -10,7 +10,67 @@
     <person name="Stuart Roebuck" email="stuart.roebuck@adolos.co.uk" id="SR"/>
     <person name="Ivan Seskar" email="iseskar@upsideweb.com" id="IS"/>
     <person name="Prasanna Uppaladadium" email="prasanna@vayusphere.com" id="PU"/>
+    <person name="Gabriel Bucher" email="gabriel.bucher@razor.ch" id="GB"/>
+	<person name="Danny Angus" email="danny@thought.co.uk" id="DA"/>
+	<person name="Darrell DeBoer" email="?" id="DD"/>
+	<person name="Harmeet Bedi" email="harmeet@kodemuse.com" id="HB"/>
+	<person name="Matthew Pangaro" email="mattp@lokitech.com" id="MP"/>
+	<person name="Jason Borden" email="jborden@javasense.com" id="JB"/>
   </devs>
+
+<release version="2.0a1" date="30-Sep-2001">
+  <action dev="CB,*" type="update">
+  	Moved to Avalon snapshot of 9-25-2001.
+  </action>
+  <action type="HB" type="code">
+    Added NNTP service.
+  </action>
+  <action dev="JB" type="code">
+    SMTP AUTH support
+  </action>
+  <action dev="SK" type="update">
+    Support null senders, i.e., MAIL RCPT: <>.
+  </action>
+  <action dev="DD,SK" type="update">
+    Converted Town mail and user repositories to straight JDBC ones, using Excalibur connection pooling and configurable SQL statements per DB.
+  </action>
+  <action dev="SK" type="update">
+  	Messages are no longer loaded until absolutely necessary.
+  </action>
+  <action dev="GB" type="update">
+    Fixed exception being thrown on MailAddress parsing.
+  </action>
+  <action dev="CB" type="update">
+    Rebuilt CVS tree after hack and moved src to src/java.
+  </action>
+  <action type="docs">
+    Added a whole bunch of related RFCs to the webdocs.
+  </action>
+  <action dev="DA" type="update">
+  	Add date to bounced emails.
+  </action>
+  <action dev="HB" type="update">
+  	Updated DNS library and started process to move it to Avalon service.
+  </action>
+  <action type="update">
+    More checks to fix "stuck file" problem in Avalon mail repository.
+  </action>
+  <action dev="MP" type="code">
+    Limit the size of a message on reception (rather than waiting until processors).
+  </action>
+  <action dev="SK" type="update">
+    Fixed dot-stuffing in SMTP reception/delivery.
+  </action>
+  <action dev="SK" type="update">
+    Improved how Return-Path and Received headers are generated during SMTP reception.
+  </action>
+  <action dev="SK" type="update">
+    More efficient remote delivery code, better error messages, and gateway parameter to route all messages to a single target.
+  </action>
+  <action type="DA" type="update">
+    Fixed timezone bug in RFC822DateFormat
+  </action>
+</release>
 
 <release version="1.2.1" date="13-Dec-2000">
   <action dev="SK,SR,CB" type="update">
