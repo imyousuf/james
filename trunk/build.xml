@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.144 $  Committed on $Date: 2004/03/21 04:43:18 $ by: $Author: serge $
+ James build file $Revision: 1.145 $  Committed on $Date: 2004/04/17 13:29:24 $ by: $Author: sbrewin $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -140,6 +140,7 @@ Legal:
       <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
+      <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      
       <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
       <fixcrlf srcdir="." includes="build.bat" eol="crlf"/>
       <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
@@ -213,6 +214,20 @@ Legal:
          <mxinfo/>
        </phoenix-mxinfo>
     </target>
+    
+    <!--
+       ===================================================================
+                                   meta-inf
+
+           Currently a straight copy from source to build.
+           Add augmentions as required.
+       ===================================================================
+    -->
+    <target name="prepare-metainf">
+        <copy todir="${build.metainf}">
+            <fileset dir="${metainf.dir}"/>
+        </copy>
+    </target>    
 
     <!--
     ===================================================================
@@ -230,7 +245,7 @@ Legal:
                                   Prepare target
     ===================================================================
     -->
-    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo"/>
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo,prepare-metainf"/>
 
     <!--
     ===================================================================
@@ -432,7 +447,8 @@ Legal:
       <!-- Make james jar-->
       <echo message="Making James Jar (james-${version}.jar)"/>
       <jar jarfile="${build.lib}/${name}-${version}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
-        <include name="org/apache/james/**"/>
+          <include name="org/apache/james/**"/>
+          <metainf dir="${build.metainf}"/>        
       </jar>
 
     </target>
@@ -453,7 +469,7 @@ Legal:
         <lib dir="${build.lib}/">
           <include name="mailet-api-${mailet-api-version}.jar"/>
           <include name="mailet-${mailet-version}.jar"/>
-          <include name="james-${version}.jar"/>
+          <include name="james-${version}.jar"/>         
         </lib>
         <lib dir="lib">
           <include name="dnsjava-1.4.3.jar"/>
