@@ -176,6 +176,26 @@ Matchers and use them in the James SpoolManager can be found <a href="spoolmanag
 
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
 <tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AttachmentFileNameIs"><strong>AttachmentFileNameIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: It can be used to refuse emails with SCR, PIF, EXE etc. attachments.
+It matches mails that has a file attachment with a file name meeting one of the supplied filters.
+All recipients are returned.</p>
+
+<p>Configuration string: A comma or space delimited list of file names. 
+File names may start with a wildcard '*'. Example: *.scr,*.bat,*.pif,*.pi,*.com,*.exe</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
 <td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="CommandForListserv"><strong>CommandForListserv</strong></a></font></td>
 </tr>
 <tr>
