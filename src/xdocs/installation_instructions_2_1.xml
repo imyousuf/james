@@ -5,7 +5,7 @@
  <properties>
   <title>James 2.1 - Installation</title>
  </properties>
-<body> 
+<body>
 <section name="Requirements">
 <p>James requires a Java Runtime Environment of Java version 1.3 or higher installed to run the 
 James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
@@ -24,6 +24,16 @@ server sockets on such ports in standard configurations, James requires root acc
 <p>
 Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
 other than what's been discussed here, it has no additional special requirements.</p>
+</section>
+<section name="Installation Comments">
+<p>James installation involves a number of steps, each of which is described in some detail in the 
+following sections.  But as this sequence of steps has confused some users in the past, additional 
+comments seem warranted.</p>
+<p>It is important to realize that the James configuration files are not unpacked from the James 
+distribution until the first time James is started.  This is a consequence of the design of the 
+Avalon Phoenix container used to run James.  Once James has been started, the distribution will 
+be unpacked.  The server should be stopped, the configuration files edited, and the server restarted.</p>
+<p>So the installation sequence is: <b>1) Start, 2) Stop, 3) Edit, 4) Restart</b>.</p>
 </section>
 <section name="Installing the Binary">
 <subsection name="Installing a Stand-alone James Server">
@@ -47,76 +57,37 @@ will be ready to configure your James installation.</p>
 
 <section name="Initial Configuration">
 <p>
-After installing the binary, the next step is to adjust the initial configuration.  The most essential 
-configuration is set in the config.xml file.  This file can be found in the apps/james/SAR-INF subdirectory 
-of the installation directory.</p>
+After installing the binary, the next step is to adjust the initial configuration.  The server should be stopped, and then 
+configuration can proceed.  The most essential configuration is set in the config.xml file.  This file can be 
+found in the apps/james/SAR-INF subdirectory of the installation directory.</p>
 <p>The out of the box configuration makes certain assumptions and has some default values that are unlikely to 
 be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:
 </p>
 <ul>
-<li>RemoteManager Administrator Account - .  More information can be found <a href="remotemanager_configuration_2_1.html">here</a>.</li>
+<li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
+installation an administrator account must be created.  More information can be found <a href="remotemanager_configuration_2_1.html">here</a>.</li>
 <li>DNS Servers - James needs to have access to a DNS server for domain resolution.  The out of the box 
 configuration assumes that there is a DNS server on localhost.  In general administrators will have to change 
 the configuration to point to a valid DNS server.  This can be done by adjusting the dnsserver configuration 
 block in the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
-<li>Managed Domain Names/IP - Out of the box, James only handles mail that is sent to recipients at 
+<li>Managed Domain Names/IP Addresses - Out of the box, James only handles mail that is sent to recipients at 
 localhost.  It will attempt to deliver all other email to remote SMTP servers.  To allow James to handle email 
 for your domain or IP address, you simply need to add the appropriate domain name or IP address to the servernames 
 section of the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+<li>Postmaster Address - More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
 </ul>
-  <p>
-    <b>Summary</b> (for impatient people)
-  </p>
-  
-<p> M$ users should just run /bin/run.bat. Unix users will find run.sh under the 
-  same directory. A JVM must be present and its location specified in the JAVA_HOME 
-  environment variable. Set this on windows at the command prompt with something 
-  similar to &quot;set JAVA_HOME=\jdk1.3\bin&quot; on *nix with JAVA_HOME=/jdk1.3/</p>
-<p> Running [run* --help] will provide a simple command line help. </p>
-  <p>
-    Most UNIX systems require superuser privileges to open sockets below 1024,
-    which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
-    These default ports can be changed in the config.xml file. (Obviously, you
-    would then need to reconfigure your clients. This may not be an option if
-    you want to receive mail from external mailservers.)
-  </p>
-  
-<p> The Avalon framework will unpack the necessary configuration files you will 
-  need to start the server.  Wait until it is running stop it again (ctrl-c) and 
-  edit the configuration (thereafter *nix users can run the server in the background 
-  using ./run.sh &amp;). For basic use, you only need to set two items in the 
-  config.xml file: a root password for the remote administration facility 
-  and the IP address of a DNS server. Once you have edited the configuration files, 
-  press 'Enter' on the terminal where Avalon is waiting. </p>
+<p>In addition to adjusting these parameters, you may wish to consult the documentation for a discussion of
+common configurations.  A list of such configurations, as well as the steps necessary to configure them, can
+be found <a href="documentation_2_1.html">here</a>.</p>
 </section>
-
-<section name="Step 4: Kickstart.">
-  <p>
-    Once started you'll see a message saying Avalon is running. This means that
-    Avalon has loaded JAMES and every other needed Block (see /logs/avalon.log)
-    and is now waiting for a socket request.
-    Since at the beginning James is empty, it will not have any local users
-    registered.
-    To register a local user open a telnet session with localhost on port 4555,
-    log in as root ("root[enter]  &lt;password-you-set-in-config.xml&gt;[enter]") and
-    type "help" for a list of available commands in the "JAMES remote
-    administrator tool". It is really a basic set but should allow you to test
-    installation.
-  </p>
-  <p>
-    Once you have some local users registered, try sending mail to one of them
-    @localhost with SMTP (port 25) (assuming you have not changed the default
-    server names in the config.xml file). You'll see the mail appear under
-    ../var/mail/localinbox/[user].
-    Try now to retrieve that mail using POP3 (port 110).
-    Trace out JAMES actions in /logs/*info.log.
-    Actions that will be taken by JAMES on incoming mail are configured in
-    the mailet pipe line (/SAR-INF/config.xml). Look at it if you want to
-    understand what's happening.
-  </p>
-  <p>
-  Good luck :)
-  </p>
+<section name="Starting James with Your Configuration">
+<p>Once you have edited the configuration file you will need to restart James so that the changes take 
+effect.  When James starts, a list of the James services and the ports on which they are listening should 
+be displayed on the console.  Additional information about the system configuration is printed in the James log files 
+upon startup.</p>
+<p>Finally, after configuration is complete, it will be necessary to create user accounts before the James server 
+will be fully operational.  Instructions on creating user accounts can be found 
+<a href="adding_users_2_1.html">here</a>.</p>
 </section>
 
 </body>
