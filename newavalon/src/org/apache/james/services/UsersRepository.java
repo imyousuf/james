@@ -11,7 +11,7 @@ package org.apache.james.services;
 import org.apache.avalon.services.*;
 import org.apache.avalon.*;
 //import org.apache.avalon.utils.*;
-//import java.util.*;
+import java.util.Iterator;
 //import java.io.*;
 
 /**
@@ -55,5 +55,12 @@ public interface UsersRepository extends Store.Repository {
      * Returns a count of the users in the repository.
      */
     public int countUsers();
+
+    /**
+     * List users in repository.
+     *
+     * @returns Iterator over a collection of Strings, each being one user in the repository.
+     */
+    public Iterator list();
 
 }
