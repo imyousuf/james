@@ -11,6 +11,10 @@
       <group>oro</group>
       <version>2.0.6</version>
     </info>
+    <gump>
+      <alias>jakarta-oro</alias>
+      <id>oro</id>
+    </gump>
   </resource>
 
   <resource>
@@ -54,6 +58,9 @@
       <version>1.0.2</version>
       <type>jar</type>
     </info>
+    <gump>
+      <alias>jaf</alias>
+    </gump>
   </resource>
 
   <resource>
