@@ -23,7 +23,7 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 
 /**
  * <p>This is a <b>reliable</b> DataSource implementation, based on the pooling
- * logic written for <a href="http://www.whichever.com/">Town</a> and the
+ * logic written for <a href="http://share.whichever.com/">Town</a> and the
  * configuration found in Avalon's excalibur code.
  * </p>
  * <p>This uses the normal <code>java.sql.Connection</code> object and
@@ -42,7 +42,7 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.1 $ $Date: 2001/12/05 22:10:14 $
+ * @version CVS $Revision: 1.2 $ $Date: 2001/12/07 22:09:38 $
  * @since 4.0
  */
 public class JdbcDataSource
