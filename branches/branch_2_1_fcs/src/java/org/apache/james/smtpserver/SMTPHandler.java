@@ -40,7 +40,7 @@ import java.util.*;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version CVS $Revision: 1.35.4.17 $ $Date: 2004/03/22 05:48:38 $
+ * @version CVS $Revision: 1.35.4.18 $ $Date: 2004/04/16 02:23:36 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -361,7 +361,7 @@ public class SMTPHandler
             theWatchdog.stop();
             getLogger().debug("Closing socket.");
         } catch (SocketException se) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
@@ -369,10 +369,10 @@ public class SMTPHandler
                         .append(" (")
                         .append(remoteIP)
                         .append(") closed remotely.");
-                getLogger().debug(errorBuffer.toString(), se );
+                getLogger().error(errorBuffer.toString(), se );
             }
         } catch ( InterruptedIOException iioe ) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
@@ -380,10 +380,10 @@ public class SMTPHandler
                         .append(" (")
                         .append(remoteIP)
                         .append(") timeout.");
-                getLogger().debug( errorBuffer.toString(), iioe );
+                getLogger().error( errorBuffer.toString(), iioe );
             }
         } catch ( IOException ioe ) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(256)
                             .append("Exception handling socket to ")
@@ -392,11 +392,11 @@ public class SMTPHandler
                             .append(remoteIP)
                             .append(") : ")
                             .append(ioe.getMessage());
-                getLogger().debug( errorBuffer.toString(), ioe );
+                getLogger().error( errorBuffer.toString(), ioe );
             }
         } catch (Exception e) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug( "Exception opening socket: "
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error( "Exception opening socket: "
                                    + e.getMessage(), e );
             }
         } finally {
