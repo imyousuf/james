@@ -52,15 +52,15 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.8 $
- * Committed on $Date: 2001/09/06 13:19:32 $ by: $Author: donaldp $
+ * This is $Revision: 1.9 $
+ * Committed on $Date: 2001/09/25 10:44:11 $ by: $Author: charlesb $
  */
 public class James
     extends AbstractLoggable
     implements Block, Contextualizable, Composable, Configurable,
                Initializable, MailServer, MailetContext {
 
-    public final static String VERSION = "jakarta-james 1.3-dev";
+    private final static String VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     private final static boolean DEEP_DEBUG = true;
 
     private DefaultComponentManager compMgr; //Components shared
@@ -264,7 +264,7 @@ public class James
         // an attribute
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
-        System.out.println("James "+VERSION);
+        System.out.println(VERSION);
         getLogger().info("JAMES ...init end");
     }
 
