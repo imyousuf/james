@@ -11,10 +11,8 @@ import java.io.InputStream;
 import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Vector;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
@@ -32,37 +30,31 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it 
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.4 2002/10/02 06:12:02 pgoldstein Exp $
+ * <br>$Id: FetchPOP.java,v 1.5 2002/10/30 12:45:11 danny Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */
 public class FetchPOP extends AbstractLogEnabled implements Configurable, Target {
-
     /**
      * The MailServer service
      */
     private MailServer server;
-
     /**
      * The unique, identifying name for this task
      */
     private String fetchTaskName;
-
     /**
      * The POP3 server host name for this fetch task
      */
     private String popHost;
-
     /**
      * The POP3 user name for this fetch task
      */
     private String popUser;
-
     /**
      * The POP3 user password for this fetch task
      */
     private String popPass;
-
     /**
      * @see org.apache.avalon.cornerstone.services.scheduler.Target#targetTriggered(String)
      */
@@ -84,15 +76,22 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
             for (int i = 0; i < messages.length; i++) {
                 InputStream in = new ReaderInputStream(pop.retrieveMessage(messages[i].number));
                 getLogger().debug("Retrieve:" + pop.getReplyString());
-                MimeMessage message = new MimeMessage(null, in);
-                in.close();
-                message.addHeader("X-fetched-from", fetchTaskName);
-                message.saveChanges();
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Sent message " + message.toString());
+                MimeMessage message = null;
+                try {
+                    message = new MimeMessage(null, in);
+                    in.close();
+                    message.addHeader("X-fetched-from", fetchTaskName);
+                    message.saveChanges();
+                    try {
+                        server.sendMail(message);
+                        getLogger().debug("Sent message " + message.toString());
+                        received.add(messages[i]);
+                    } catch (MessagingException innerE) {
+                        getLogger().error("can't insert message " + message.toString() + "created from "+messages[i].identifier);
+                    }
+                } catch (MessagingException outerE) {
+                    getLogger().error("can't create message out of fetched message "+messages[i].identifier);
                 }
-                server.sendMail(message);
-                received.add(messages[i]);
             }
             Enumeration enum = received.elements();
             while (enum.hasMoreElements()) {
@@ -111,28 +110,21 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
             getLogger().error(e.getMessage());
         } catch (IOException e) {
             getLogger().error(e.getMessage());
-        } catch (MessagingException e) {
-            getLogger().error(e.getMessage());
         }
     }
-
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+    public void compose(final ComponentManager componentManager) throws ComponentException {
         try {
             server = (MailServer) componentManager.lookup(MailServer.ROLE);
         } catch (ClassCastException cce) {
             StringBuffer errorBuffer =
-                new StringBuffer(128)
-                        .append("Component ")
-                        .append(MailServer.ROLE)
-                        .append("does not implement the required interface.");
+                new StringBuffer(128).append("Component ").append(MailServer.ROLE).append(
+                    "does not implement the required interface.");
             throw new ComponentException(errorBuffer.toString());
         }
     }
-
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -142,7 +134,7 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
         this.popPass = conf.getChild("password").getValue();
         this.fetchTaskName = conf.getAttribute("name");
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Configured FetchPOP");
+            getLogger().info("Configured FetchPOP fetch task " + fetchTaskName);
         }
     }
 }
