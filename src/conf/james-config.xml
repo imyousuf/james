@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE config [
-<!ENTITY listserverConfig SYSTEM "file:../apps/james/conf/james-listmanager.xml">
-<!ENTITY listserverStores SYSTEM "file:../apps/james/conf/james-liststores.xml">
-<!ENTITY fetchmailConfig SYSTEM "file:../apps/james/conf/james-fetchmail.xml">
+<!ENTITY listserverConfig SYSTEM "../conf/james-listmanager.xml">
+<!ENTITY listserverStores SYSTEM "../conf/james-liststores.xml">
+<!ENTITY fetchmailConfig SYSTEM "../conf/james-fetchmail.xml">
 ]>
 
 <!--  Configuration file for the ASF James server -->
@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.25 $ Committed on $Date: 2004/05/12 20:35:19 $ by: $Author: sbrewin $ -->
+<!-- $Revision: 1.40.2.24 $ Committed on $Date: 2004/05/08 02:25:36 $ by: $Author: noel $ -->
 
 <config>
    <James>
