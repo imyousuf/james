@@ -52,8 +52,7 @@ import java.util.Vector;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.5 $
- * Committed on $Date: 2002/08/23 07:48:31 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.6 $
  */
 public class AvalonListserv extends GenericListserv {
 

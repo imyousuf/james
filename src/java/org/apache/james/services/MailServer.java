@@ -21,8 +21,7 @@ import java.util.Collection;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.9 $
- * Committed on $Date: 2002/08/16 22:00:07 $ by: $Author: pgoldstein $
+ * @version This is $Revision: 1.10 $
  */
 public interface MailServer
 {

@@ -41,8 +41,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * This is $Revision: 1.25 $
- * Committed on $Date: 2002/09/14 07:25:00 $ by: $Author: pgoldstein $
+ * @version This is $Revision: 1.26 $
  */
 public class SMTPHandler
     extends BaseConnectionHandler

@@ -23,8 +23,7 @@ import org.apache.mailet.MailAddress;
  * <br>&lt;/mailet&gt;
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.5 $
- * Committed on $Date: 2002/08/23 08:00:29 $ by: $Author: pgoldstein $ 
+ * @version This is $Revision: 1.6 $
  */
 public class AvalonListservManager extends GenericListservManager {
 

@@ -53,9 +53,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
-
- * This is $Revision: 1.31 $
- * Committed on $Date: 2002/09/14 06:22:36 $ by: $Author: pgoldstein $
+ * @version This is $Revision: 1.32 $
 
  */
 public class James

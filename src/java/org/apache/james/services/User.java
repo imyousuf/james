@@ -12,8 +12,7 @@ package org.apache.james.services;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/16 22:00:07 $
- * $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 public interface User {

@@ -41,8 +41,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.15 $
- * Committed on $Date: 2002/09/14 07:28:55 $ by: $Author: pgoldstein $
+ * @version This is $Revision: 1.16 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
