@@ -67,8 +67,9 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * a repository with the entire message in the database, which is how James 1.2 worked.
      */
     public synchronized InputStream getInputStream() throws IOException {
+        Connection conn =null;
         try {
-            Connection conn = repository.getConnection();
+            conn = repository.getConnection();
 
             byte[] headers = null;
 
@@ -94,7 +95,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 System.err.println(System.currentTimeMillis() - start);
             }
 
-            conn.close();
+
 
             InputStream in = new ByteArrayInputStream(headers);
             try {
@@ -108,7 +109,12 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             return in;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
-        }
+        }finally {
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
+            }
     }
 
     /**
@@ -120,9 +126,9 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             System.err.println("no SQL statement to find size");
             return super.getMessageSize();
         }
-
+Connection conn=null;
         try {
-            Connection conn = repository.getConnection();
+            conn = repository.getConnection();
 
             PreparedStatement retrieveMessageSize = conn.prepareStatement(retrieveMessageBodySizeSQL);
             retrieveMessageSize.setString(1, key);
@@ -136,7 +142,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             long size = rsRetrieveMessageSize.getLong(1);
             rsRetrieveMessageSize.close();
             retrieveMessageSize.close();
-            conn.close();
+
 
             try {
                 if (sr != null) {
@@ -155,7 +161,12 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
-        }
+        }finally {
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
+            }
     }
 
     /**
