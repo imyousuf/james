@@ -34,6 +34,12 @@ import org.apache.mailet.*;
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
  * the mail will be considered underiverable and will be returned to sender.
  *
+ * TO DO (in priority):
+ * 1. Support a gateway (a single server where all mail will be delivered) (DONE)
+ * 2. Provide better failure messages
+ * 3. More efficiently handle numerous recipients
+ * 4. Migrate to use Phoenix for the delivery threads
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -43,6 +49,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
     private int maxRetries = 5; // default number of retries
     private int deliveryThreadCount = 1; // default number of delivery threads
+    private String gatewayServer = null; // the server to send all email to
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
 
@@ -55,6 +62,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
         } catch (Exception e) {
         }
+		gatewayServer = getInitParameter("gateway");
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
@@ -103,23 +111,38 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             log("attempting to deliver " + mail.getName());
             MimeMessage message = mail.getMessage();
+
+			//Create an array of the recipients as InternetAddress objects
             Collection recipients = mail.getRecipients();
-            MailAddress rcpt = (MailAddress) recipients.iterator().next();
-            String host = rcpt.getHost();
-            InternetAddress addr[] = new InternetAddress[recipients.size()];
-            int j = 0;
-            for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
-                rcpt = (MailAddress)i.next();
-                addr[j] = rcpt.toInternetAddress();
-            }
-            Exception e = null;
+			InternetAddress addr[] = new InternetAddress[recipients.size()];
+			int j = 0;
+			for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
+				MailAddress rcpt = (MailAddress)i.next();
+				addr[j] = rcpt.toInternetAddress();
+			}
+
+            //Figure out which servers to try to send to.  This collection
+            //  will hold all the possible target servers
+            Collection targetServers = null;
+            if (gatewayServer == null) {
+	            MailAddress rcpt = (MailAddress) recipients.iterator().next();
+				String host = rcpt.getHost();
+
+                //Lookup the possible targets
+                targetServers = getMailetContext().getMailServers(host);
+                if (targetServers.size() == 0) {
+					log("No mail serves found for: " + host);
+					throw new Exception("No route found to " + host);
+				}
+			} else {
+				targetServers = new Vector();
+				targetServers.add(gatewayServer);
+			}
+
+            Exception lastError = null;
 
             if (addr.length > 0) {
-                //Lookup the possible targets
-                Iterator i = getMailetContext().getMailServers(host).iterator();
-                if (! i.hasNext()) {
-                    log("No mail servers found for: " + host);
-                }
+				Iterator i = targetServers.iterator();
                 while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
@@ -149,7 +172,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         return;
                     } catch (MessagingException me) {
                         log("Exception caught in RemoteDelivery.deliver() : " + me);
-                        e = me;
+                        lastError = me;
                         /*
                           } catch (java.net.SocketException se) {
                           //Only remember this exception if we received no other exception
@@ -165,10 +188,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 }// end while
                 //If we encountered an exception while looping through, send the last exception we got
-                if (e != null) {
-                    throw e;
+                if (lastError != null) {
+                    throw lastError;
                 }
-                throw new MessagingException("No route found to " + host);
             } else {
                 log("no recipients specified... not sure how this could have happened.");
             }
