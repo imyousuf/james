@@ -392,7 +392,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
                     Mail mc = (Mail) e.nextElement();
                     userInbox.remove(mc.getName());
                 }
-                out.println(OK_RESPONSE + " Apache James POP3 Server signinig off.");
+                out.println(OK_RESPONSE + " Apache James POP3 Server signing off.");
             } catch (Exception ex) {
                 out.println(ERR_RESPONSE + " Some deleted messages were not removed");
                 logger.log("Some deleted messages were not removed: " + ex.getMessage(), "POP3", logger.ERROR);
