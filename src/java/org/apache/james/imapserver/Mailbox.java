@@ -512,8 +512,6 @@ public interface Mailbox
      *
      * @param username String represnting user
      * @returns List of Integers wrapping uids of message
-     * @throws AccessControlException if user does not have lookup rights for
-     * this mailbox.
      */
     List listUIDs( String user );
 
