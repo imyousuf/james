@@ -47,6 +47,8 @@
     <property name="magic.cache" value="${magic.home}/main"/>
     <unbar repository="${magic.cache}"
       href="http://www.dpml.net/james/bars/james-supplemental-1.0.bar"/>
+    <unbar repository="${magic.cache}" 
+      href="http://www.dpml.net/avalonx/supplemental/bars/avalonx-supplemental-1.0.bar"/>
   </target>
 
 </project>
