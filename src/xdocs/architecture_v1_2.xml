@@ -1,5 +1,4 @@
-
-<<?xml version="1.0"?>
+<?xml version="1.0"?>
 
 <document>
 
@@ -25,7 +24,7 @@
 <p>
     JAMES is built on top of Avalon, the Java Apache Server Framework.
     Versions 1.1 and 1.2 of James use a slightly older version of Avalon,
-    specifically the <bran>avalon-james-1-1b1</code> branch. We intend to
+    specifically the <i>avalon-james-1-1b1</i> branch. We intend to
     migrate to the new Avalon in the near future.
 </p>
 
