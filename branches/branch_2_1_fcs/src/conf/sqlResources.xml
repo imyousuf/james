@@ -178,6 +178,7 @@
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -253,6 +254,21 @@
         )
         TABLESPACE system
     </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body bytea NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
     <sql name="createTable" db="sapdb">
         CREATE TABLE ${table} (
             message_name varchar (200) NOT NULL,
@@ -299,6 +315,7 @@
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -370,6 +387,21 @@
         message_body long raw NOT NULL ,
         last_updated date NOT NULL ,
         PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body bytea NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
         )
     </sql>
     <sql name="createTable" db="sapdb">
