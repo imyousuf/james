@@ -52,47 +52,15 @@ public class AvalonSpoolRepository
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept() called");
         }
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                for(Iterator it = list(); it.hasNext(); ) {
-
-                    String s = it.next().toString();
-                    if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(64)
-                                    .append("Found item ")
-                                    .append(s)
-                                    .append(" in spool.");
-                        getLogger().debug(logBuffer.toString());
-                    }
-                    if (lock(s)) {
-                        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                            getLogger().debug("accept() has locked: " + s);
-                        }
-                        try {
-                            MailImpl mail = retrieve(s);
-                            // Retrieve can return null if the mail is no longer on the spool
-                            // (i.e. another thread has gotten to it first).
-                            // In this case we simply continue to the next key
-                            if (mail == null) {
-                                continue;
-                            }
-                            return mail;
-                        } catch (javax.mail.MessagingException e) {
-                            getLogger().error("Exception during retrieve -- skipping item " + s, e);
-                        }
-                    }
-                }
-
-                wait();
-            } catch (InterruptedException ex) {
-                throw ex;
-            } catch (ConcurrentModificationException cme) {
-               // Should never get here now that list methods clones keyset for iterator
-                getLogger().error("CME in spooler - please report to http://james.apache.org", cme);
+        return accept(new SpoolRepository.AcceptFilter () {
+            public boolean accept (String _, String __, long ___, String ____) {
+                return true;
             }
-        }
-        throw new InterruptedException();
+
+            public long getWaitTime () {
+                return 0;
+            }
+        });
     }
 
     /**
@@ -161,12 +129,11 @@ public class AvalonSpoolRepository
      *
      * @return  the mail
      */
-    public synchronized Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException
-    {
+    public synchronized Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept(Filter) called");
         }
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) try {
             for (Iterator it = list(); it.hasNext(); ) {
                 String s = it.next().toString();
                 if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -179,38 +146,35 @@ public class AvalonSpoolRepository
                 }
                 if (lock(s)) {
                     if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                        getLogger().debug("accept(delay) has locked: " + s);
+                        getLogger().debug("accept(Filter) has locked: " + s);
                     }
-                    MailImpl mail = null;
                     try {
-                        mail = retrieve(s);
+                        MailImpl mail = retrieve(s);
+                        // Retrieve can return null if the mail is no longer on the spool
+                        // (i.e. another thread has gotten to it first).
+                        // In this case we simply continue to the next key
+                        if (mail == null || !filter.accept (mail.getName(),
+                                                            mail.getState(),
+                                                            mail.getLastUpdated().getTime(),
+                                                            mail.getErrorMessage())) {
+                            unlock(s);
+                            continue;
+                        }
+                        return mail;
                     } catch (javax.mail.MessagingException e) {
+                        unlock(s);
                         getLogger().error("Exception during retrieve -- skipping item " + s, e);
                     }
-                    // Retrieve can return null if the mail is no longer on the spool
-                    // (i.e. another thread has gotten to it first).
-                    // In this case we simply continue to the next key
-                    if (mail == null) {
-                        continue;
-                    }
-                    if (filter.accept (mail.getName(),
-                                       mail.getState(),
-                                       mail.getLastUpdated().getTime(),
-                                       mail.getErrorMessage())) {
-                        return mail;
-                    }
-                    
                 }
             }
+
             //We did not find any... let's wait for a certain amount of time
-            try {
-                wait (filter.getWaitTime());
-            } catch (InterruptedException ex) {
-                throw ex;
-            } catch (ConcurrentModificationException cme) {
-               // Should never get here now that list methods clones keyset for iterator
-                getLogger().error("CME in spooler - please report to http://james.apache.org", cme);
-            }
+            wait (filter.getWaitTime());
+        } catch (InterruptedException ex) {
+            throw ex;
+        } catch (ConcurrentModificationException cme) {
+            // Should never get here now that list methods clones keyset for iterator
+            getLogger().error("CME in spooler - please report to http://james.apache.org", cme);
         }
         throw new InterruptedException();
     }

@@ -121,43 +121,15 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * Return a message to process.  This is a message in the spool that is not locked.
      */
     public Mail accept() throws InterruptedException {
-        while (!Thread.currentThread().isInterrupted()) {
-            //Loop through until we are either out of pending messages or have a message
-            // that we can lock
-            PendingMessage next = null;
-            while ((next = getNextPendingMessage()) != null && !Thread.currentThread().isInterrupted()) {
-                if (lock(next.key)) {
-                    try {
-                        MailImpl mail = retrieve(next.key);
-                        // Retrieve can return null if the mail is no longer on the spool
-                        // (i.e. another thread has gotten to it first).
-                        // In this case we simply continue to the next key
-                        if (mail == null) {
-                            continue;
-                        }
-                        return mail;
-                    } catch (javax.mail.MessagingException e) {
-                        getLogger().error("Exception during retrieve -- skipping item " + next.key, e);
-                    }
-                }
+        return accept(new SpoolRepository.AcceptFilter () {
+            public boolean accept (String _, String __, long ___, String ____) {
+                return true;
             }
-            //Nothing to do... sleep!
-            try {
-                synchronized (this) {
-                    //StringBuffer errorBuffer =
-                    //    new StringBuffer(128)
-                    //            .append("waiting : ")
-                    //            .append(WAIT_LIMIT/1000L)
-                    //            .append(" in ")
-                    //            .append(repositoryName);
-                    //System.err.println(errorBuffer.toString());
-                    wait(WAIT_LIMIT);
-                }
-            } catch (InterruptedException ex) {
-                throw ex;
+
+            public long getWaitTime () {
+                return 0;
             }
-        }
-        throw new InterruptedException();
+        });
     }
 
     /**
@@ -229,10 +201,12 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                         // (i.e. another thread has gotten to it first).
                         // In this case we simply continue to the next key
                         if (mail == null) {
+                            unlock(next.key);
                             continue;
                         }
                         return mail;
                     } catch (javax.mail.MessagingException e) {
+                        unlock(next.key);
                         getLogger().error("Exception during retrieve -- skipping item " + next.key, e);
                     }
                 }
