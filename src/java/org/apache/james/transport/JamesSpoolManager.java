@@ -89,8 +89,8 @@ import org.apache.mailet.SpoolRepository;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- *
- * @version This is $Revision: 1.32 $
+ * <P>CVS $Id: JamesSpoolManager.java,v 1.33 2003/06/17 16:03:14 noel Exp $</P>
+ * @version 2.2.0
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -383,6 +383,7 @@ public class JamesSpoolManager
                             .append(mail.getName());
                     String exceptionMessage = exceptionMessageBuffer.toString();
                     getLogger().debug(exceptionMessage);
+                    mail.setState(Mail.ERROR);
                     throw new MailetException(exceptionMessage);
                 }
                 StringBuffer logMessageBuffer = null;
@@ -417,8 +418,7 @@ public class JamesSpoolManager
                     mail.setState(Mail.GHOST);
                     mail.setErrorMessage(e.getMessage());
                 } else {
-                    //We got an error... send it to the error processor
-                    mail.setState(Mail.ERROR);
+                    //We got an error... send it to the requested processor
                     mail.setErrorMessage(e.getMessage());
                 }
             }
