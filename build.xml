@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.139 $  Committed on $Date: 2003/10/20 02:58:09 $ by: $Author: noel $
+ James build file $Revision: 1.140 $  Committed on $Date: 2003/10/20 04:06:10 $ by: $Author: mcconnell $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -24,6 +24,7 @@ Legal:
     -->
     <property file=".ant.properties"/>
     <property file="${user.home}/.ant.properties"/>
+    <property file="check-targets.properties"/>
     <property file="include.properties"/>
     <property file="default.properties"/>
 
@@ -86,7 +87,7 @@ Legal:
     -->
 
     &check-targets;
-    <target name="check-dependencies" depends="javamail-check,activation-check,junit-check"/>
+    <target name="check-dependencies" depends="javamail-check,activation-check"/>
 
     <!--
     ===================================================================
