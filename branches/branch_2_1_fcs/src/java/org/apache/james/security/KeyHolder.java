@@ -42,7 +42,7 @@ import org.bouncycastle.mail.smime.*;
  * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
  * libraries, particularly for the SMIME activity.</p>
  * <b>Requires JDK 1.4+</b>
- * @version CVS $Revision: 1.1 $ $Date: 2004/08/05 12:22:38 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2004/08/05 12:30:48 $
  * @since 2.2.1
  */
 public class KeyHolder {
