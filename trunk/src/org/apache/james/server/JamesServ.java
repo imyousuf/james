@@ -26,6 +26,7 @@ public class JamesServ {
     private LoggerInterface logger;
     private JamesSpoolManager spoolMgr = null;
     protected static int mid = 0;
+    private MessageSpool spool;
 
     /**
      * This method was created in VisualAge.
@@ -42,7 +43,6 @@ public class JamesServ {
 
         try {
             FileInputStream in = new FileInputStream(confFile);
-
             props.load(in);
             in.close();
         } catch (IOException e) {
@@ -53,10 +53,8 @@ public class JamesServ {
 
         if (props.getProperty("server.name") == null) {
             InetAddress serverHost = null;
-
             try {
                 serverHost = InetAddress.getLocalHost();
-
                 props.put("server.name", serverHost.getHostName());
             } catch (UnknownHostException e) {
                 logger.log("Cannot identify LocalHost: " + e.getMessage(), logger.ERROR_LEVEL);
@@ -64,9 +62,19 @@ public class JamesServ {
             }
         }
 
-        // Create a new spool manager
-        spoolMgr = new JamesSpoolManager();
+        // Create the message spooler
         try {
+            spool = new MessageSpool();
+            spool.init(this, getBranchProperties(props, "spool."));
+        } catch (Exception e) {
+            logger.log("Exception in Message spool init: " + e.getMessage(), logger.ERROR_LEVEL);
+            System.exit(1);
+        }
+        logger.log("Message spool instantiated.", logger.INFO_LEVEL);
+
+        // Create a new spool manager
+        try {
+            spoolMgr = new JamesSpoolManager();
             spoolMgr.init(this, getBranchProperties(props, "spoolManager."));
         } catch (Exception e) {
             logger.log("Exception in SpoolManager init: " + e.getMessage(), logger.ERROR_LEVEL);
@@ -75,17 +83,16 @@ public class JamesServ {
         logger.log("SpoolManager instantiated", logger.INFO_LEVEL);
 
         int threads = 1;
-
         try {
-            threads = Integer.parseInt(props.getProperty("spool.threads"));
+            threads = Integer.parseInt(props.getProperty("spoolManagerthreads"));
         } catch (Exception e) {
-            logger.log("Unknown spool.threads. Using default(" + threads + "): " + e.getMessage(), logger.WARNING_LEVEL);
+            logger.log("Unknown spoolManagerthreads. Using default(" + threads + "): " + e.getMessage(), logger.WARNING_LEVEL);
         }
 
         while (threads-- > 0) {
             new Thread(spoolMgr, "James spoolmgr " + (threads + 1)).start();
+            logger.log("Spool tread " + (threads + 1) + " started", logger.INFO_LEVEL);
         }
-        logger.log("Spool treads started", logger.INFO_LEVEL);
     }
 
     /**
@@ -119,7 +126,7 @@ public class JamesServ {
      * @return org.apache.james.MessageSpool
      */
     public MessageSpool getSpool() {
-        return spoolMgr.getSpool();
+        return spool;
     }
 
     /**
@@ -148,9 +155,6 @@ public class JamesServ {
 
         for (int i = 1; i < Integer.parseInt(props.getProperty("listener.number", "1")) + 1; i++) {
             try {
-//System.out.println(props.getProperty("listener." + i));
-//System.out.println(Boolean.getBoolean(props.getProperty("listener." + i)));
-//                if (Boolean.getBoolean(props.getProperty("listener." + i))) {
                 if (props.getProperty("listener." + i).equals("true")) {
                     SocketListener sl = new SocketListener();
                     sl.init(this, getBranchProperties(props, "listener." + i + "."));
@@ -166,11 +170,8 @@ public class JamesServ {
         Properties branch = new Properties();
         String rootName;
         int prefixLength = prefix.length();
-//System.out.println(prefix);
-//System.out.println(prefixLength);
         for (Enumeration e = root.propertyNames(); e.hasMoreElements();) {
             rootName = (String) e.nextElement();
-//System.out.println(rootName);
             if (rootName.startsWith(prefix)) {
                 branch.put(rootName.substring(prefixLength), root.getProperty(rootName));
             }

@@ -14,8 +14,7 @@ import javax.mail.internet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @version 0.9
  */
-public class DeliveryState      // extends Hashtable
-{
+public class DeliveryState implements Serializable {
     protected InternetAddress[] recipients;
     protected int state = NOT_PROCESSED;
     protected Properties hash;

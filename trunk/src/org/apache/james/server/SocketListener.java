@@ -39,8 +39,7 @@ public class SocketListener implements Runnable, Configurable {
      * 
      * 
      * @param serv
-     * @param port
-     * @param handlerClassName
+     * @param props
      * 
      * @exception Exception
      * 
