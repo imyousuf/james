@@ -11,6 +11,6 @@ if [ "$JAVA_HOME" = "" ] ; then
   exit 1
 fi
 
-LOCAL_CLASSPATH=Loader.jar:../lib/AvalonAware.jar:../lib/xerces_1_1_1.jar:../lib/mail_1_1_3.jar:../lib/activation.jar
+LOCAL_CLASSPATH=Loader.jar:../lib/AvalonAware.jar:../lib/xerces.jar:../lib/mail_1_1_3.jar:../lib/activation.jar
 
 $JAVA_HOME/bin/java -cp $CLASSPATH:$LOCAL_CLASSPATH org.apache.avalon.loader.Main $*
