@@ -110,20 +110,6 @@ public class POP3Handler
                                              // the connection timeout timer.  Defaults to
                                              // 20 seconds.
 
-
-    /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
-     */
-    public void configure(Configuration configuration)
-            throws ConfigurationException {
-        super.configure(configuration);
-
-        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
-    }
-
     /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
      * The instance uses the specified <code>ComponentManager</code> to 
@@ -142,6 +128,19 @@ public class POP3Handler
         users = usersStore.getRepository("LocalUsers");
         scheduler = (TimeScheduler)componentManager.
             lookup( "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" );
+    }
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure(Configuration configuration)
+            throws ConfigurationException {
+        super.configure(configuration);
+
+        lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
     }
 
     /**

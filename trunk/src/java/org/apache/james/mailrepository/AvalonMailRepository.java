@@ -46,7 +46,11 @@ public class AvalonMailRepository
     extends AbstractLogEnabled
     implements MailRepository, Component, Configurable, Composable, Initializable {
 
+    /**
+     * Whether 'deep debugging' is turned on.
+     */
     protected final static boolean DEEP_DEBUG = false;
+
     private static final String TYPE = "MAIL";
 
     private Lock lock;
@@ -56,6 +60,21 @@ public class AvalonMailRepository
     private MailStore mailstore;
     private String destination;
     private Set keys;
+
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
+    public void compose( final ComponentManager componentManager )
+            throws ComponentException {
+        store = (Store)componentManager.
+        lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+    }
 
     /**
      * Pass the <code>Configuration</code> to the instance.
@@ -78,21 +97,6 @@ public class AvalonMailRepository
             throw new ConfigurationException(exceptionString);
         }
         // ignore model
-    }
-
-    /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
-     */
-    public void compose( final ComponentManager componentManager )
-            throws ComponentException {
-        store = (Store)componentManager.
-        lookup( "org.apache.avalon.cornerstone.services.store.Store" );
     }
 
     /**

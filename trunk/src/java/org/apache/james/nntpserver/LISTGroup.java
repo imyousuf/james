@@ -12,14 +12,21 @@ import org.apache.james.nntpserver.repository.NNTPGroup;
 import java.io.PrintWriter;
 
 /**
- * formatted Group Information. 
- * Group information is displayed differently depending on the 
- * LIST command parameter
+ * <p>Formatted Group Information.</p>
+ * <p>Group information is displayed differently depending on the 
+ * LIST command parameter</p>
+ *
+ * <p>TODO: This badly needs refactoring.</p>
  *
  * @author  Harmeet Bedi <harmeet@kodemuse.com>
  */
 interface LISTGroup {
 
+    /**
+     * List group information to some source
+     *
+     * @param group the group whose information is to be listed
+     */
     void show(NNTPGroup group);
 
     /**

@@ -38,13 +38,18 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/17 18:33:28 $
- * $Revision: 1.7 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/23 08:00:29 $
+ * $Revision: 1.8 $
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
     implements UsersRepository, Component, Configurable, Composable, Initializable {
  
+    /**
+     * Whether 'deep debugging' is turned on.
+     *
+     * TODO: Shouldn't this be false by default?
+     */
     protected static boolean DEEP_DEBUG = true;
 
     /** @deprecated what was this for? */
@@ -53,22 +58,6 @@ public class UsersFileRepository
     private Store store;
     private ObjectRepository or;
     private String destination;
-
-    /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
-     */
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
-
-        destination = configuration.getChild( "destination" ).getAttribute( "URL" );
-
-        if (!destination.endsWith(File.separator)) {
-            destination += File.separator;
-        }
-    }
 
     /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
@@ -89,6 +78,22 @@ public class UsersFileRepository
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
             throw new ComponentException( message, e );
+        }
+    }
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure( final Configuration configuration )
+        throws ConfigurationException {
+
+        destination = configuration.getChild( "destination" ).getAttribute( "URL" );
+
+        if (!destination.endsWith(File.separator)) {
+            destination += File.separator;
         }
     }
 

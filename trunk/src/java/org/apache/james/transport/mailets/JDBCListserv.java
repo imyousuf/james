@@ -70,6 +70,9 @@ public class JDBCListserv extends GenericListserv {
                 }
             };
 
+    /**
+     * Initialize the mailet
+     */
     public void init() throws MessagingException {
         if (getInitParameter("data_source") == null) {
             throw new MailetException("data_source not specified for JDBCListserv");

@@ -45,8 +45,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/18 07:21:09 $
- * $Revision: 1.13 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/23 08:00:29 $
+ * $Revision: 1.14 $
  *
  */
 public class RemoteManagerHandler
@@ -91,26 +91,6 @@ public class RemoteManagerHandler
     private HashMap admaccount = new HashMap();
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
-     */
-    public void configure( final Configuration configuration )
-        throws ConfigurationException {
-
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
-
-        final Configuration admin = configuration.getChild( "administrator_accounts" );
-        final Configuration[] accounts = admin.getChildren( "account" );
-        for ( int i = 0; i < accounts.length; i++ )
-        {
-            admaccount.put( accounts[ i ].getAttribute( "login" ),
-                            accounts[ i ].getAttribute( "password" ) );
-        }
-    }
-
-    /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
      * The instance uses the specified <code>ComponentManager</code> to 
      * acquire the components it needs for execution.
@@ -129,6 +109,26 @@ public class RemoteManagerHandler
         usersStore = (UsersStore)componentManager.
             lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");;
+    }
+
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
+    public void configure( final Configuration configuration )
+        throws ConfigurationException {
+
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 120000 );
+
+        final Configuration admin = configuration.getChild( "administrator_accounts" );
+        final Configuration[] accounts = admin.getChildren( "account" );
+        for ( int i = 0; i < accounts.length; i++ )
+        {
+            admaccount.put( accounts[ i ].getAttribute( "login" ),
+                            accounts[ i ].getAttribute( "password" ) );
+        }
     }
 
     /**

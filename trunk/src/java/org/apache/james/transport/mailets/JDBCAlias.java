@@ -51,6 +51,9 @@ public class JDBCAlias extends GenericMailet {
                 }
             };
 
+    /**
+     * Initialize the mailet
+     */
     public void init() throws MessagingException {
         String mappingsURL = getInitParameter("mappings");
 

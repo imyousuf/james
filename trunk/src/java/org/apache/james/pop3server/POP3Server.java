@@ -100,8 +100,7 @@ public class POP3Server
      *
      * @throws Exception if an error is encountered during shutdown
      */
-    public void dispose()
-    {
+    public void dispose() {
         getLogger().info( "POP3Server dispose..." );
         getLogger().info( "POP3Server dispose..." + m_connectionName);
         super.dispose();

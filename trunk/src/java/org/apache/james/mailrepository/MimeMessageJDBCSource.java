@@ -26,6 +26,10 @@ import java.sql.Statement;
  * InputStream to the JDBC field/record, possibly sequenced with the file stream.
  */
 public class MimeMessageJDBCSource extends MimeMessageSource {
+
+    /**
+     * Whether 'deep debugging' is turned on.
+     */
     private static final boolean DEEP_DEBUG = false;
 
     //Define how to get to the data
