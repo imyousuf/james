@@ -46,7 +46,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.12 $ $Date: 2002/08/12 07:41:36 $
+ * @version CVS $Revision: 1.13 $ $Date: 2002/08/16 21:06:32 $
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
  * @since 4.0
@@ -272,7 +272,10 @@ public class JdbcDataSource extends AbstractLogEnabled
     }
 
     /**
-     * Need to clean up all connections
+     * The dispose operation is called at the end of a components lifecycle.
+     * Cleans up all JDBC connections.
+     *
+     * @throws Exception if an error is encountered during shutdown
      */
     public void dispose() {
         // Stop the background monitoring thread

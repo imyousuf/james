@@ -11,19 +11,58 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * An InputStream class that terminates the stream when it encounters a
+ * particular byte sequence.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class CharTerminatedInputStream
     extends InputStream {
 
+    /**
+     * The wrapped input stream
+     */
     private InputStream in;
+
+    /**
+     * The terminating character array
+     */
     private int match[];
+
+    /**
+     * An array containing the last N characters read from the stream, where
+     * N is the length of the terminating character array
+     */
     private int buffer[];
+
+    /**
+     * The number of bytes that have been read that have not been placed
+     * in the internal buffer.
+     */
     private int pos = 0;
+
+    /**
+     * Whether the terminating sequence has been read from the stream
+     */
     private boolean endFound = false;
 
+    /**
+     * A constructor for this object that takes a stream to be wrapped
+     * and a terminating character sequence.
+     *
+     * @param in the <code>InputStream</code> to be wrapped
+     * @param terminator the array of characters that will terminate the stream.
+     *
+     * @throws IllegalArgumentException if the terminator array is null or empty
+     */
     public CharTerminatedInputStream(InputStream in, char[] terminator) {
+        if (terminator == null) {
+            throw new IllegalArgumentException("The terminating character array cannot be null.");
+        }
+        if (terminator.length == 0) {
+            throw new IllegalArgumentException("The terminating character array cannot be of zero length.");
+        }
         match = new int[terminator.length];
         buffer = new int[terminator.length];
         for (int i = 0; i < terminator.length; i++) {
@@ -33,6 +72,12 @@ public class CharTerminatedInputStream
         this.in = in;
     }
 
+    /**
+     * Read a byte off this stream.
+     *
+     * @return the byte read off the stream
+     * @throws IOException if an IOException is encountered while reading off the stream
+     */
     public int read() throws IOException {
         if (endFound) {
             //We've found the match to the terminator
@@ -90,6 +135,11 @@ public class CharTerminatedInputStream
         return -1;
     }
 
+    /**
+     * Private helper method to update the internal buffer of last read characters
+     *
+     * @return the byte that was previously at the front of the internal buffer
+     */
     private int topChar() {
         int b = buffer[0];
         if (pos > 1) {

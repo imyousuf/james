@@ -13,8 +13,8 @@ import java.sql.*;
 import java.util.Map;
 
 /**
- * Insert the type's description here.
- * Creation date: (8/24/99 11:41:10 AM)
+ * An entry in a connection pool.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class PoolConnEntry implements java.sql.Connection{
@@ -23,7 +23,9 @@ public class PoolConnEntry implements java.sql.Connection{
     // States for connections (in use, being tested, or active)
     public final static int     AVAILABLE = 0;
     public final static int     ACTIVE = 1;
+
     private JdbcDataSource      container;
+
     private Connection          connection;
     private int                 status;
     private long                lockTime;
@@ -124,7 +126,7 @@ public class PoolConnEntry implements java.sql.Connection{
     /**
      * Insert the method's description here.
      * Creation date: (8/24/99 11:43:19 AM)
-     * @return long
+     * @return a long representing the time this entry was created
      */
     public long getCreateDate() {
         return createDate;
@@ -222,6 +224,11 @@ public class PoolConnEntry implements java.sql.Connection{
         container.releaseConnection(this);
     }
 
+    /**
+     * Returns whether this entry is closed.
+     *
+     * @return whether the underlying conntection is closed
+     */
     public boolean isClosed() throws SQLException {
         return connection.isClosed();
     }

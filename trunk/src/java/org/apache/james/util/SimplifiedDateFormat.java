@@ -13,14 +13,14 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * This interface is designed to provide a simplified subset of the
- * methods provided by the <code>java.text.DateFormat</code> class.
+ * <p>This interface is designed to provide a simplified subset of the
+ * methods provided by the <code>java.text.DateFormat</code> class.</p>
  *
- * This interface is necessary because of the difficulty in writing
+ * <p>This interface is necessary because of the difficulty in writing
  * thread safe classes that inherit from <code>java.text.DateFormat</code>.
  * This difficulty leads us to approach the problem using composition
  * rather than inheritance.  In general classes that implement this
- * interface will delegate these calls to an internal DateFormat object.
+ * interface will delegate these calls to an internal DateFormat object.</p>
  *    
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
@@ -39,8 +39,8 @@ public interface SimplifiedDateFormat {
      *
      * @param source A <code>String</code> whose beginning should be parsed.
      * @return A <code>Date</code> parsed from the string.
-     * @exception ParseException if the beginning of the specified string
-     *            cannot be parsed.
+     * @throws ParseException if the beginning of the specified string
+     *         cannot be parsed.
      */
     public Date parse(String source) throws ParseException;
 

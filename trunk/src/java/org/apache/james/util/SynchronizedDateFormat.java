@@ -26,10 +26,25 @@ import java.util.TimeZone;
 public class SynchronizedDateFormat implements SimplifiedDateFormat {
     private final DateFormat internalDateFormat;
 
+    /**
+     * Public constructor that mimics that of SimpleDateFormat.  See
+     * java.text.SimpleDateFormat for more details.
+     *
+     * @param pattern the pattern that defines this DateFormat
+     * @param locale the locale
+     */
     public SynchronizedDateFormat(String pattern, Locale locale) {
         internalDateFormat = new SimpleDateFormat(pattern, locale);
     }
 
+    /**
+     * <p>Wrapper method to allow child classes to synchronize a preexisting
+     * DateFormat.</p>
+     *
+     * <p>TODO: Investigate replacing this with a factory method.</p>
+     *
+     * @param the DateFormat to synchronize
+     */
     protected SynchronizedDateFormat(DateFormat theDateFormat) {
         internalDateFormat = theDateFormat;
     }
@@ -57,8 +72,8 @@ public class SynchronizedDateFormat implements SimplifiedDateFormat {
      *
      * @param source A <code>String</code> whose beginning should be parsed.
      * @return A <code>Date</code> parsed from the string.
-     * @exception ParseException if the beginning of the specified string
-     *            cannot be parsed.
+     * @throws ParseException if the beginning of the specified string
+     *         cannot be parsed.
      */
     public Date parse(String source) throws ParseException {
         synchronized (internalDateFormat) {

@@ -10,15 +10,32 @@ package org.apache.james.util;
 import java.util.Hashtable;
 
 /**
+ * Provides Lock functionality
+ *
  * @author Federico Barbieri <fede@apache.org>
  */
 public class Lock {
+    /**
+     * An internal hash table of keys to locks
+     */
     private Hashtable locks = new Hashtable();
 
+    /**
+     * Check to see if the object is locked
+     *
+     * @param key the Object on which to check the lock
+     * @return true if the object is locked, false otherwise
+     */
     public boolean isLocked(final Object key) {
         return (locks.get(key) != null);
     }
 
+    /**
+     * Check to see if we can lock on a given object.
+     *
+     * @param key the Object on which to lock
+     * @return true if the calling thread can lock, false otherwise
+     */
     public boolean canI(final Object key) {
         Object o = locks.get( key );
 
@@ -29,6 +46,12 @@ public class Lock {
         return false;
     }
 
+    /**
+     * Lock on a given object.
+     *
+     * @param key the Object on which to lock
+     * @return true if the locking was successful, false otherwise
+     */
     public boolean lock(final Object key) {
         Object theLock;
 
@@ -46,6 +69,12 @@ public class Lock {
         }
     }
 
+    /**
+     * Release the lock on a given object.
+     *
+     * @param key the Object on which the lock is held
+     * @return true if the unlocking was successful, false otherwise
+     */
     public boolean unlock(final Object key) {
         Object theLock;
         synchronized (this) {
@@ -62,6 +91,11 @@ public class Lock {
         }
     }
 
+    /**
+     * Private helper method to abstract away caller ID.
+     *
+     * @return the id of the caller (i.e. the Thread reference)
+     */
     private Object getCallerId() {
         return Thread.currentThread();
     }

@@ -33,6 +33,16 @@ import java.util.Map;
 public class SqlResources
 {
     /**
+     * A map of statement types to SQL statements
+     */
+    private Map m_sql = new HashMap();
+
+    /**
+     * A Perl5 regexp matching helper class
+     */
+    private Perl5Util m_perl5Util = new Perl5Util();
+
+    /**
      * Configures a DbResources object to provide SQL statements from a file.
      * 
      * SQL statements returned may be specific to the particular type
@@ -174,6 +184,11 @@ public class SqlResources
      * connected to. This value is then used to choose the specific SQL 
      * expressions to use.
      *
+     * @param conn the JDBC connection being tested
+     * @param dbMatchersElement the XML element containing the database type information
+     *
+     * @return the type of database to which James is connected
+     *
      */
     private String matchDbConnection(Connection conn, 
                                      Element dbMatchersElement)
@@ -250,8 +265,8 @@ public class SqlResources
      * @param name     the name of the SQL resource required.
      * @param required true if the resource is required
      * @return the requested resource
-     * @exception ConfigurationException
-     *                   if a required resource cannot be found.
+     * @throws ConfigurationException
+     *         if a required resource cannot be found.
      */
     public String getSqlString(String name, boolean required)
     {
@@ -267,7 +282,4 @@ public class SqlResources
         }
         return sql;
     }
-
-    private Map m_sql = new HashMap();
-    private Perl5Util m_perl5Util = new Perl5Util();
 }

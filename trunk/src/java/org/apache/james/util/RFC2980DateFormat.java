@@ -17,6 +17,9 @@ import java.util.Locale;
  */
 public class RFC2980DateFormat extends SynchronizedDateFormat {
 
+    /**
+     * Constructor for RFC2980DateFormat
+     */
     public RFC2980DateFormat() {
         super("yyyyMMddHHmmss", Locale.ENGLISH);
     }
