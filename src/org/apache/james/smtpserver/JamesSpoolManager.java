@@ -46,8 +46,11 @@ public class JamesSpoolManager implements Stoppable, Contextualizable {
   
         this.store = (org.apache.avalon.blocks.Store) context.getImplementation(Interfaces.STORE);
         this.spool = (MessageSpool) context.getImplementation("spool");
-        this.repository = (org.apache.avalon.blocks.Store.ObjectRepository) store.getPublicRepository(org.apache.avalon.blocks.Store.OBJECT, org.apache.avalon.blocks.Store.SYNCHRONOUS, "LocalInbox");
-        this.repository.setDestination(conf.getChild("repository").getValueAsString());
+        try {
+            this.repository = (org.apache.avalon.blocks.Store.ObjectRepository) store.getPublicRepository("LocalInbox");
+        } catch (RuntimeException e) {
+            this.repository = (org.apache.avalon.blocks.Store.ObjectRepository) store.getNewPublicRepository(org.apache.avalon.blocks.Store.OBJECT, org.apache.avalon.blocks.Store.SYNCHRONOUS, "LocalInbox", conf.getChild("repository").getValueAsString());
+        }
         logger.log("LocalInbox opened in " + conf.getChild("repository").getValueAsString(), "SMTPServer", logger.INFO);
         this.servletcontext = new JamesMailContext(context);
 

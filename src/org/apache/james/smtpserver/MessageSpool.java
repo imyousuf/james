@@ -39,15 +39,13 @@ public class MessageSpool implements Contextualizable {
         this.logger = (Logger) context.getImplementation(Interfaces.LOGGER);;
         String path = conf.getChild("repository").getValueAsString();
         try {
-            sr = (Store.StreamRepository) store.getPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS);
-            sr.setDestination(path);
+            sr = (Store.StreamRepository) store.getNewPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS, path);
         } catch (Exception e) {
             logger.log("Exception in Stream Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
         try {
-            or = (Store.ObjectRepository) store.getPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS);
-            or.setDestination(path);
+            or = (Store.ObjectRepository) store.getNewPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS, path);
         } catch (Exception e) {
             logger.log("Exception in Persistent Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
@@ -104,7 +102,7 @@ public class MessageSpool implements Contextualizable {
     }
 
     public synchronized OutputStream store(String key, MessageContainer mc) {
-        logger.log("Enter store " + key, "Store", Logger.INFO);
+        logger.log("Enter store " + key, "SMTPServer", Logger.INFO);
 
         if (!lock.lock(key)) {
             return (OutputStream) null;
@@ -114,8 +112,11 @@ public class MessageSpool implements Contextualizable {
         for (Enumeration e = mc.getRecipients().elements(); e.hasMoreElements(); ) {
             logger.log("  recipient: " + e.nextElement(), "SMTPServer", logger.DEBUG);
         }
+        logger.log("storing to object repository", "SMTPServer", logger.DEBUG);
         or.store(key, mc);
+        logger.log("storing to stream repository", "SMTPServer", logger.DEBUG);
         OutputStream out = sr.store(key);
+        logger.log("storing OK", "SMTPServer", logger.DEBUG);
         notifyAll();
         return out;
     }
@@ -130,7 +131,6 @@ public class MessageSpool implements Contextualizable {
     }
 
     public MessageContainer addMessage(String key, String sender, Vector recipients) {
-        logger.log("Store.addMessage", "Store", Logger.INFO);
         MessageContainer mc = new MessageContainer(sender, recipients);
         mc.setBodyOutputStream( store(key, mc) );
         return mc;
