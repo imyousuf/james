@@ -8,12 +8,17 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.*;
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.utils.*;
-import org.apache.james.*;
 import java.net.*;
 import java.util.Date;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.*;
+import org.apache.avalon.util.lang.*;
+
+import org.apache.james.*;
+import org.apache.james.util.InternetPrintWriter;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
 
 /**
  * @version 1.0.0, 24/04/1999
@@ -23,67 +28,68 @@ public class POP3Server implements SocketServer.SocketHandler, Configurable, Com
 
     private Context context;
     private Configuration conf;
-    private ComponentManager comp;
-    private ThreadManager threadManager;
-    private Logger logger;
+    private ComponentManager compMgr;
+    private WorkerPool workerPool;
+    private Logger logger =  LogKit.getLoggerFor("james.POP3Server");
 
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
     }
-
-    public void setContext(Context context) {
+    
+    public void compose(ComponentManager comp) {
+        compMgr = comp;
+    }
+    
+    public void contextualize(Context context) {
         this.context = context;
     }
 
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-    }
 
     public void init() throws Exception {
 
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        logger.log("POP3Server init...", "POP3", logger.INFO);
-        this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
-        SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
-        int port = conf.getConfiguration("port").getValueAsInt(110);
+        logger.info("POP3Server init...");
+	
+	workerPool = ThreadManager.getWorkerPool("whateverNameYouFancy");
+        SocketServer socketServer = (SocketServer) compMgr.lookup("org.apache.avalon.services.SocketServer");
+        int port = conf.getChild("port").getValueAsInt(110);
         InetAddress bind = null;
         try {
-            String bindTo = conf.getConfiguration("bind").getValue();
+            String bindTo = conf.getChild("bind").getValue();
             if (bindTo.length() > 0) {
                 bind = InetAddress.getByName(bindTo);
             }
         } catch (ConfigurationException e) {
         }
 
-        String type = SocketServer.DEFAULT;
-        try {
-            if (conf.getConfiguration("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
+	String type = SocketServer.DEFAULT;
+	
+	try {
+	    if (conf.getChild("useTLS").getValue().equals("TRUE")) type = SocketServer.TLS;
         } catch (ConfigurationException e) {
         }
-        String typeMsg = "POP3Listener using " + type + " on port " + port;
-        logger.log(typeMsg, "POP3", logger.INFO);
+	logger.info("POP3Listener using " + type + " on port " + port);
 
         socketServer.openListener("POP3Listener", type, port, bind, this);
-
-        logger.log("POP3Server ...init end", "POP3", logger.INFO);
+        logger.info("POP3Server ...init end");
     }
 
     public void parseRequest(Socket s) {
 
         try {
             POP3Handler handler = new POP3Handler();
-            handler.setConfiguration(conf.getConfiguration("pop3handler"));
-            handler.setContext(context);
-            handler.setComponentManager(comp);
+            handler.configure(conf.getChild("pop3handler"));
+            handler.contextualize(context);
+            handler.compose(compMgr);
             handler.init();
             handler.parseRequest(s);
-            threadManager.execute((Runnable) handler);
+            workerPool.execute((Runnable) handler);
         } catch (Exception e) {
-            logger.log("Cannot parse request on socket " + s + " : " + e.getMessage(), "POP3", logger.ERROR);
+            logger.error("Cannot parse request on socket " + s + " : "
+			 + e.getMessage());
         }
     }
 
-    public void destroy() {
+    public void destroy() throws Exception {
     }
 }
-
+    

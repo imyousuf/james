@@ -10,14 +10,23 @@ package org.apache.james.smtpserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.apache.mailet.*;
-import org.apache.avalon.blocks.*;
-import org.apache.james.*;
-import org.apache.james.core.*;
-import org.apache.avalon.*;
-import org.apache.james.util.*;
+
 import javax.mail.*;
 import javax.mail.internet.*;
+
+import org.apache.avalon.*;
+import org.apache.avalon.services.*;
+
+import org.apache.james.*;
+import org.apache.james.core.*;
+import org.apache.james.services.MailServer;
+import org.apache.james.util.*;
+
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
+import org.apache.mailet.*;
+
 
 /**
  * This handles an individual incoming message.  It handles regular SMTP
@@ -26,7 +35,7 @@ import javax.mail.internet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell, Contextualizable {
+public class SMTPHandler implements Composer, Configurable, Runnable, Stoppable, Scheduler.Target, Contextualizable {
 
     public final static String SERVER_NAME = "SERVER_NAME";
     public final static String SERVER_TYPE = "SERVER_TYPE";
@@ -50,11 +59,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private String messageID;
     private String smtpID;
 
-    private ComponentManager comp;
+    private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger;
-    private TimeServer timeServer;
+    private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
+    private Scheduler scheduler;
     private MailServer mailServer;
 
     private String servername;
@@ -62,23 +71,24 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     private static long count;
     private Hashtable state;
     private Random random;
+    private long timeout;
 
-    public void setConfiguration(Configuration conf) {
+    public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
+	timeout = conf.getChild("connectiontimeout").getValueAsLong(120000);
     }
 
-    public void setContext(Context context) {
+    public void  contextualize(Context context) {
         this.context = context;
     }
 
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
+    public void compose(ComponentManager comp) {
+        compMgr = comp;
     }
 
     public void init() throws Exception {
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-        timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
+        mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
+        scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
         servername = (String) context.get(Constants.HELO_NAME);
         state = new Hashtable();
         random = new Random();
@@ -102,11 +112,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             state.put(REMOTE_IP, remoteIP);
             state.put(SMTP_ID, smtpID);
         } catch (Exception e) {
-            logger.log("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage(), "SMTP", logger.ERROR);
+            logger.error("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
             throw new RuntimeException("Cannot open connection from " + remoteHost + " (" + remoteIP + "): " + e.getMessage());
         }
 
-        logger.log("Connection from " + remoteHost + " (" + remoteIP + ")", "SMTP", logger.INFO);
+        logger.info("Connection from " + remoteHost + " (" + remoteIP + ")");
     }
 
     public void run() {
@@ -115,33 +125,34 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
-            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout").getValueAsLong(120000));
+            scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
             out.println("220 " + this.servername + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
 
             while  (parseCommand(in.readLine())) {
-                timeServer.resetAlarm(this.toString());
+                scheduler.resetAlarm(this.toString());
             }
             socket.close();
-            timeServer.removeAlarm(this.toString());
+            scheduler.removeAlarm(this.toString());
         } catch (SocketException e) {
-            logger.log("Socket to " + remoteHost + " closed remotely.", "SMTP", logger.DEBUG);
+            logger.debug("Socket to " + remoteHost + " closed remotely.");
         } catch (InterruptedIOException e) {
-            logger.log("Socket to " + remoteHost + " timeout.", "SMTP", logger.DEBUG);
+            logger.debug("Socket to " + remoteHost + " timeout.");
         } catch (IOException e) {
-            logger.log("Exception handling socket to " + remoteHost + ":" + e.getMessage(), "SMTP", logger.DEBUG);
+            logger.debug("Exception handling socket to " + remoteHost + ":"
+			 + e.getMessage());
         } catch (Exception e) {
-            logger.log("Exception opening socket: " + e.getMessage(), "SMTP", logger.DEBUG);
+            logger.debug("Exception opening socket: " + e.getMessage());
         } finally {
             try {
             socket.close();
             } catch (IOException e) {
-                logger.log("Exception closing socket: " + e.getMessage(), "SMTP", logger.ERROR);
+                logger.error("Exception closing socket: " + e.getMessage());
             }
         }
     }
 
-    public void wake(String name, String memo) {
-        logger.log("Connection timeout on socket", "SMTP", logger.ERROR);
+    public void wake(String name, Scheduler.Event event) {
+        logger.error("Connection timeout on socket");
         try {
             out.println("Connection timeout. Closing connection");
             socket.close();
@@ -150,10 +161,10 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
     }
 
     private boolean parseCommand(String command)
-    throws Exception {
+	throws Exception {
 
         if (command == null) return false;
-        logger.log("Command received: " + command, "SMTP", logger.INFO);
+        logger.info("Command received: " + command);
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -209,7 +220,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 String sender = argument1.trim();
                 if (!sender.startsWith("<") || !sender.endsWith(">")) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.log("Error parsing sender address: " + sender + ": did not start and end with < >", "SMTP", logger.ERROR);
+                    logger.error("Error parsing sender address: " + sender
+				 + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress senderAddress = null;
@@ -219,7 +231,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.log("Error parsing sender address: " + sender + ": " + pe.getMessage(), "SMTP", logger.ERROR);
+                    logger.error("Error parsing sender address: " + sender
+				 + ": " + pe.getMessage());
                     return true;
                 }
                 state.put(SENDER, senderAddress);
@@ -242,7 +255,9 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 String recipient = argument1.trim();
                 if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                     out.println("Syntax error in parameters or arguments");
-                    logger.log("Error parsing recipient address: " + recipient + ": did not start and end with < >", "SMTP", logger.ERROR);
+                    logger.error("Error parsing recipient address: "
+				 + recipient
+				 + ": did not start and end with < >");
                     return true;
                 }
                 MailAddress recipientAddress = null;
@@ -252,7 +267,8 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     recipientAddress = new MailAddress(recipient);
                 } catch (Exception pe) {
                     out.println("501 Syntax error in parameters or arguments");
-                    logger.log("Error parsing recipient address: " + recipient + ": " + pe.getMessage(), "SMTP", logger.ERROR);
+                    logger.error("Error parsing recipient address: "
+				 + recipient + ": " + pe.getMessage());
                     return true;
                 }
                 rcptColl.add(recipientAddress);
@@ -317,10 +333,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     mailServer.sendMail(mail);
                 } catch (MessagingException me) {
                     out.println("451 Error processing message: " + me.getMessage());
-                    logger.log("Error processing message: " + me.getMessage(), "SMTP", logger.ERROR);
+                    logger.error("Error processing message: "
+				 + me.getMessage());
                     return true;
                 }
-                logger.log("Mail sent to Mail Server", "SMTP", logger.INFO);
+                logger.info("Mail sent to Mail Server");
                 resetState();
                 out.println("250 Message received");
                 return true;
