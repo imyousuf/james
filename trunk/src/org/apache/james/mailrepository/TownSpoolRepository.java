@@ -208,7 +208,7 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             mc.setErrorMessage(message.getAsString("error_message"));
             mc.setSender(new MailAddress(message.getAsString("sender")));
             StringTokenizer st = new StringTokenizer(message.getAsString("recipients"), "\r\n", false);
-            Vector recipients = new Vector();
+            Set recipients = new HashSet();
             while (st.hasMoreTokens()) {
                 recipients.add(new MailAddress(st.nextToken()));
             }

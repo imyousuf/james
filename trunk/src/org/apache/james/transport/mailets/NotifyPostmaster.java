@@ -145,7 +145,7 @@ public class NotifyPostmaster extends GenericMailet {
         }
 
         //Create the list of recipients in our MailAddress format
-        Collection recipients = new Vector();
+        Set recipients = new HashSet();
         recipients.add(getMailetContext().getPostmaster());
 
         //Set additional headers
