@@ -76,7 +76,7 @@ import java.util.*;
  * see for example {@link SMIMESign}.
  * The default is to not have any explanation text.</li>
  * </ul>
- * @version CVS $Revision: 1.1.2.1 $ $Date: 2004/08/05 12:30:49 $
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2004/08/08 16:16:35 $
  * @since 2.2.1
  */
 public abstract class SMIMEAbstractSign extends GenericMailet {
@@ -654,31 +654,39 @@ public abstract class SMIMEAbstractSign extends GenericMailet {
     protected final String getReplacedExplanationText(String explanationText, String signerName,
     String signerAddress, String reversePath, String headers) {
         
-        StringBuffer replacedExplanationText = new StringBuffer(explanationText);
+        String replacedExplanationText = explanationText;
         
-        replaceTemplate(replacedExplanationText, SIGNER_NAME_PATTERN, signerName);
-        replaceTemplate(replacedExplanationText, SIGNER_ADDRESS_PATTERN, signerAddress);
-        replaceTemplate(replacedExplanationText, REVERSE_PATH_PATTERN, reversePath);
-        replaceTemplate(replacedExplanationText, HEADERS_PATTERN, headers);
+        replacedExplanationText = getReplacedString(replacedExplanationText, SIGNER_NAME_PATTERN, signerName);
+        replacedExplanationText = getReplacedString(replacedExplanationText, SIGNER_ADDRESS_PATTERN, signerAddress);
+        replacedExplanationText = getReplacedString(replacedExplanationText, REVERSE_PATH_PATTERN, reversePath);
+        replacedExplanationText = getReplacedString(replacedExplanationText, HEADERS_PATTERN, headers);
         
-        return replacedExplanationText.toString();
+        return replacedExplanationText;
     }
     
     /**
-     * Searches the <I>template</I> StringBuffer for all occurrences of the <I>pattern</I> string
-     * and substitutes them with the <I>actual</I> string.
-     * Requires jdk 1.4+.
-     * @param template The template StringBuffer to work on.
+     * Searches the <I>template</I> String for all occurrences of the <I>pattern</I> string
+     * and creates a new String substituting them with the <I>actual</I> String.
+     * @param template The template String to work on.
      * @param pattern The string to search for the replacement.
      * @param actual The actual string to use for the replacement.
      */    
-    private void replaceTemplate(StringBuffer template, String pattern, String actual) {
+    private String getReplacedString(String template, String pattern, String actual) {
          if (actual != null) {
+             StringBuffer sb = new StringBuffer(template.length());
             int fromIndex = 0;
             int index;
             while ((index = template.indexOf(pattern, fromIndex)) >= 0) {
-                template.replace(index, index + pattern.length(), actual);
+                sb.append(template.substring(fromIndex, index));
+                sb.append(actual);
+                fromIndex = index + pattern.length();
             }
+            if (fromIndex < template.length()){
+                sb.append(template.substring(fromIndex));
+            }
+            return sb.toString();
+        } else {
+            return new String(template);
         }
     }
     
