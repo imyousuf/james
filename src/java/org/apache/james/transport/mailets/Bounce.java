@@ -58,6 +58,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -92,9 +93,9 @@ import java.util.ArrayList;
  * meaning that no reply should be sent.</P>
  * <P>A sender of the notification message can optionally be specified.
  * If one is not specified, the postmaster's address will be used.<BR>
- * A notice text can be specified, and in such case will be inserted into the 
+ * A notice text can be specified, and in such case will be inserted into the
  * notification inline text.<BR>
- * If the notified message has an "error message" set, it will be inserted into the 
+ * If the notified message has an "error message" set, it will be inserted into the
  * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
  * is set to true, such error message will be attached to the notification message.<BR>
  * <P>passThrough is <B>true</B>.</P>
@@ -127,7 +128,7 @@ import java.util.ArrayList;
  *
  */
 public class Bounce extends AbstractNotify {
-    
+
     /**
      * Return a string describing this mailet.
      *
@@ -140,36 +141,36 @@ public class Bounce extends AbstractNotify {
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
-    
+
     /**
-     * @return SpecialAddress.RETURN_PATH
+     * @return <CODE>SpecialAddress.RETURN_PATH</CODE>
      */
     protected Collection getRecipients() {
         Collection newRecipients = new HashSet();
         newRecipients.add(SpecialAddress.RETURN_PATH);
         return newRecipients;
     }
-        
+
     /**
-     * @return SpecialAddress.RETURN_PATH
+     * @return <CODE>SpecialAddress.RETURN_PATH</CODE>
      */
     protected InternetAddress[] getTo() {
         InternetAddress[] apparentlyTo = new InternetAddress[1];
         apparentlyTo[0] = SpecialAddress.RETURN_PATH.toInternetAddress();
         return apparentlyTo;
     }
-    
+
     /**
-     * @return NULL (the meaning of bounce)
+     * @return <CODE>SpecialAddress.NULL</CODE> (the meaning of bounce)
      */
     protected MailAddress getReturnPath() {
         return SpecialAddress.NULL;
     }
-    
+
     /* ******************************************************************** */
     /* ******************* End of getX and setX methods ******************* */
     /* ******************************************************************** */
-    
+
     /**
      * Service does the hard work,and redirects the originalMail in the form specified.
      * Checks that the original return path is not empty,
@@ -192,6 +193,6 @@ public class Bounce extends AbstractNotify {
         }
         super.service(originalMail);
     }
-    
+
 }
 
