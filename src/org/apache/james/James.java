@@ -221,9 +221,9 @@ public class James implements MailServer, Block {
 	public static void main(String[] args) {
 
 	    System.out.println("ERROR!");
-	    System.out.println("Cannot exceute James as a stand alone application.");
-	    System.out.println("To run James you need to have the Avalon framework installed.");
-	    System.out.println("Please refere to the Readme file to know how to run James.");
+	    System.out.println("Cannot execute James as a stand alone application.");
+	    System.out.println("To run James, you need to have the Avalon framework installed.");
+	    System.out.println("Please refer to the Readme file to know how to run James.");
     }
 
     public void destroy()
