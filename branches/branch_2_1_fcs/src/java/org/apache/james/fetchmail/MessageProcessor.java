@@ -642,8 +642,14 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected MailAddress getSender() throws MessagingException
     {
-        String from =
-            ((InternetAddress) getMessageIn().getFrom()[0]).getAddress().trim();
+        String from = "FETCHMAIL-SERVICE";
+        try {
+            from = ((InternetAddress) getMessageIn().getFrom()[0]).getAddress().trim();
+        }
+        catch (Exception _) {
+            getLogger().info("Could not identify sender -- using default value");
+        }
+
         InternetAddress internetAddress = null;
 
         // Check for domain part, add default if missing
