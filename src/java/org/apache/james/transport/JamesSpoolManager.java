@@ -35,8 +35,8 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2001/06/21 17:20:32 $ by: $Author: charlesb $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2001/09/11 04:34:20 $ by: $Author: serge $
  */
 public class JamesSpoolManager
     extends AbstractLoggable
@@ -215,6 +215,10 @@ public class JamesSpoolManager
     protected void process(MailImpl mail) {
         while (true) {
             String processorName = mail.getState();
+            if (processorName.equals(Mail.GHOST)) {
+                //This message should disappear
+                return;
+            }
             try {
                 LinearProcessor processor
                     = (LinearProcessor)processors.get(processorName);
