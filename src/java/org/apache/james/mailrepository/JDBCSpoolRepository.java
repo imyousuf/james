@@ -58,6 +58,9 @@
 
 package org.apache.james.mailrepository;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
@@ -142,6 +145,18 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * When the queue was last read
      */
     private long pendingMessagesLoadTime = 0;
+    /**
+     * Maximum size of the pendingMessages queue
+     */
+    private int maxPendingMessages = 0;
+
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration conf) throws ConfigurationException {
+        super.configure(conf);
+        maxPendingMessages = conf.getChild("maxcache").getValueAsInteger(1000);
+    }
 
     /**
      * Return the key of a message to process.  This is a message in the spool that is not locked.
@@ -282,12 +297,13 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 listMessages =
                     conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
                 listMessages.setString(1, repositoryName);
+                listMessages.setMaxRows(maxPendingMessages);
                 rsListMessages = listMessages.executeQuery();
-                //Continue to have it loop through the list of messages until we hit
-                //  a possible message, or we retrieve 1000 messages.  This 1000 cap is to
-                //  avoid loading thousands or hundreds of thousands of messages when the
-                //  spool is enourmous.
-                while (rsListMessages.next() && pendingMessages.size() < 1000 && !Thread.currentThread().isInterrupted()) {
+                // Continue to have it loop through the list of messages until we hit
+                // a possible message, or we retrieve maxPendingMessages messages.
+                // This maxPendingMessages cap is to avoid loading thousands or
+                // hundreds of thousands of messages when the spool is enourmous.
+                while (rsListMessages.next() && pendingMessages.size() < maxPendingMessages && !Thread.currentThread().isInterrupted()) {
                     String key = rsListMessages.getString(1);
                     String state = rsListMessages.getString(2);
                     long lastUpdated = rsListMessages.getTimestamp(3).getTime();
