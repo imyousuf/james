@@ -37,7 +37,7 @@ processing, such as list servers, or providing gateways into other
 systems, messaging systems such as NNTP, SMS or proprietary messaging,
 or insertion into non-standard storage media.
 
-James itself provides a number of mailets performing configurable 
+James itself provides a number of mailets performing configurable
 standard MTA services, such as aliasing and forwarding.
 
 ----------------------------------------------------------------------
@@ -65,10 +65,10 @@ of their technologies within James.
         Project Management:
 ----------------------------------------------------------------------
 
-James has a small yet mature self-sustaining community.  We seldom seek 
-recourse to the Jakarta PMC, and equally seldom are we scrutinized by 
-them. We are perhaps not the most active project, and some of us may 
-feel that this sometimes causes James to be disregarded. Likewise, 
+James has a small yet mature self-sustaining community.  We seldom seek
+recourse to the Jakarta PMC, and equally seldom are we scrutinized by
+them. We are perhaps not the most active project, and some of us may
+feel that this sometimes causes James to be disregarded. Likewise,
 apart from Avalon, we have few direct ties with other jakarta projects.
 
 We believe that normalizing our relationship with the ASF Board
@@ -118,21 +118,22 @@ increasing fault tolerance across the board.
 2/ To promote the Mailet API as a standard API (providing portability
 to mail-specific code) to all Java projects involved with processing
 email both OS and commercial, this will involve further isolating the
-Mailet API from any dependence on James or James' dependencies. And to
+Mailet API from any dependence on James or James' dependencies, and to
 continually support, refine and enhance the Mailet API in response to
 feedback from Mailet API users and Mailet developers, for example to
 cover message domains other than e-mail.
 
 3/ To build on James' Mailet packages in order to provide more, and
 more sophisticated, behaviors which would be available to any
-application implementing the Mailet API. 
+application implementing the Mailet API.
 
-4/ Provide a common message repository abstraction to all of James' protocol
-servers (e.g, SMTP, POP3, NNTP and IMAP) and support standard repository
-data formats like maildir and mbox to ease migration to James.
+4/ Provide a common message repository abstraction to all of James' 
+protocol servers (e.g, SMTP, POP3, NNTP and IMAP) and support standard
+repository data formats like maildir and mbox to ease migration to 
+James.
 
-5/ Provide a common user repository abstraction to all of James' protocol
-servers.
+5/ Provide a common user repository abstraction to all of James' 
+protocol servers.
 
 These plans include:
 - Providing functionality capable of reproducing services provided by
@@ -146,25 +147,25 @@ such as sendmail.
 ----------------------------------------------------------------------
 Our Community:
 ----------------------------------------------------------------------
-The James community is small, but focused and self-sustaining, 
-comprised of six active committers, and six currently inactive. 
-Only one of the active committers, Serge Knystautas, has been 
-associated with the project since it started, and the continued 
-success of James is no longer dependent on his continued 
+The James community is small, but focused and self-sustaining,
+comprised of six active committers, and six currently inactive.
+Only one of the active committers, Serge Knystautas, has been
+associated with the project since it started, and the continued
+success of James is no longer dependent on his continued
 participation.
 
-Our developer community includes a number of Avalon contributors and 
-committers, and a number of people who are working with or on James in 
+Our developer community includes a number of Avalon contributors and
+committers, and a number of people who are working with or on James in
 a commercial setting.
 
-Our user base is hard to quantify, but includes a wide cross-section 
+Our user base is hard to quantify, but includes a wide cross-section
 of different classes of users, from individuals through small
-enterprises looking for big enterprise mail functionality, commercial 
+enterprises looking for big enterprise mail functionality, commercial
 users adapting James or using James to provide bespoke services
 through to students using James in their course work.
 
-We believe that this represents a healthy interest in James, and the 
-fact that James continues to be of interest to so many groups in spite 
+We believe that this represents a healthy interest in James, and the
+fact that James continues to be of interest to so many groups in spite
 of the existence of email server software with much higher profiles,
 sendmail, Microsoft Exchange, etc., is perhaps better proof of its worth
 than is its market share in comparison with those goliaths.
@@ -174,9 +175,14 @@ than is its market share in comparison with those goliaths.
 Conclusion
 ----------------------------------------------------------------------
 We believe, as we hope we have shown, that James is a mature and
-worthwhile candidate for inclusion as a top level Apache project, and 
-hereby take the opportunity of presenting our proposal for 
+worthwhile candidate for inclusion as a top level Apache project, and
+hereby take the opportunity of presenting our proposal for
 consideration by the Board of Directors.
 
 On behalf of The James committers,
-Danny Angus
+
+  Danny Angus
+  Charles Bennet
+  Noel Bergman
+  Peter Goldstein
+  Serge Knystautas
