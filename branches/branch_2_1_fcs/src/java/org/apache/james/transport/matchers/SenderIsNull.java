@@ -70,7 +70,7 @@ import java.util.Collection;
  * &lt;mailet match=&quot;SenderIsNull&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/24 08:25:55 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/06/24 08:27:57 $
  * @since 2.2.0
  */
 public class SenderIsNull extends GenericMatcher {
