@@ -48,10 +48,10 @@ public class PicoListserv extends AbstractMailet {
         transport = (Mailet) context.get("transport");
     }
 
-    protected Vector getMembers() {
-        Vector reply = new Vector();
+    protected Collection getMembers() {
+        Collection reply = new Vector();
         for (Enumeration e = members.list(); e.hasMoreElements(); ) {
-            reply.addElement(e.nextElement());
+            reply.add(e.nextElement());
         }
         return reply;
     }
@@ -69,8 +69,8 @@ public class PicoListserv extends AbstractMailet {
     }
 
     protected String getListservAddress() {
-        Vector serverNames = (Vector) getContext().get(Resources.SERVER_NAMES);
-        return listName + "@" + serverNames.elementAt(0);
+        Collection serverNames = (Collection) getContext().get(Resources.SERVER_NAMES);
+        return listName + "@" + serverNames.iterator().next();
     }
 
     public String getMailetInfo() {

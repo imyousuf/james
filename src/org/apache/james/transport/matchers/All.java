@@ -8,6 +8,7 @@
 
 package org.apache.james.transport.matchers;
 
+import java.util.Collection;
 import org.apache.mail.*;
 import org.apache.james.transport.*;
 /**
@@ -15,15 +16,12 @@ import org.apache.james.transport.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class All extends AbstractMatcher {
-    
-    private Mail[] res = {(Mail) null, (Mail) null};
-    
+
     public void init(String condition) {
     }
 
-    public Mail[] match(Mail mail) {
-        res[0] = mail;
-        return res;
+    public Collection match(Mail mail) {
+        return mail.getRecipients();
     }
 }
-    
+

@@ -18,27 +18,23 @@ import java.util.*;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class SenderIs extends AbstractMatcher {
-    
-    private Vector senders;
+
+    private Collection senders;
     private Mail[] res = {null, null};
-    
+
     public void init(String condition) {
         StringTokenizer st = new StringTokenizer(condition, ", ");
         senders = new Vector();
         while (st.hasMoreTokens()) {
-            senders.addElement(st.nextToken());
+            senders.add(st.nextToken());
         }
     }
 
-    public Mail[] match(Mail mail) {
+    public Collection match(Mail mail) {
         if (senders.contains(mail.getSender())) {
-            res[0] = mail;
-            res[1] = null;
-            return res;
+            return mail.getRecipients();
         } else {
-            res[0] = null;
-            res[1] = mail;
-            return res;
+            return null;
         }
     }
 }

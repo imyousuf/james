@@ -8,22 +8,22 @@
 
 package org.apache.mail;
 
-
+import java.util.Collection;
 
 /**
  * This interface define the behaviour of the "routing" inside the processor pipe.
- * The match(Mail) method return an array of two Mail object. The [0] is a reference 
- * to the Mail matching condition, the [1] is the one not matching.
- * 
+ * The match(Mail) method returns a Collection of recipients that meet the
+ * match criteria.
+ *
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public interface Matcher {
-    
+
     public void init(String condition);
-    
-    public Mail[] match(Mail mail);
+
+    public Collection match(Mail mail);
 
     public MailetContext getContext();
 }
-    
+

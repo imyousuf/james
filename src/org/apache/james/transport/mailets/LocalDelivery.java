@@ -31,14 +31,14 @@ public class LocalDelivery extends AbstractMailet {
     }
 
     public void service(Mail mail) {
-        Vector recipients = mail.getRecipients();
-        Vector errors = new Vector();
-        for (Enumeration e = recipients.elements(); e.hasMoreElements(); ) {
-            String recipient = (String) e.nextElement();
+        Collection recipients = mail.getRecipients();
+        Collection errors = new Vector();
+        for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            String recipient = (String) i.next();
             try {
                 james.getUserInbox(Mail.getUser(recipient)).store(mail);
             } catch (Exception ex) {
-                errors.addElement(recipient);
+                errors.add(recipient);
             }
         }
         if (errors.isEmpty()) {

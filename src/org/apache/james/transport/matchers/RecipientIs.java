@@ -17,28 +17,19 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RecipientIs extends AbstractMatcher {
-    
-    private Vector recipients;
-    
+public class RecipientIs extends AbstractRecipientMatcher {
+
+    private Collection recipients;
+
     public void init(String condition) {
         StringTokenizer st = new StringTokenizer(condition, ", ");
         recipients = new Vector();
         while (st.hasMoreTokens()) {
-            recipients.addElement(st.nextToken());
+            recipients.add(st.nextToken());
         }
     }
 
-    public Mail[] match(Mail mail) {
-        Vector matching = new Vector();
-        Vector notMatching = new Vector();
-        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
-            String rec = (String) e.nextElement();
-            if (recipients.contains(rec)) {
-                matching.addElement(rec);
-            }
-        }
-        notMatching = VectorUtils.subtract(mail.getRecipients(), matching);
-        return split(mail, matching, notMatching);
+    public boolean matchRecipient(String recipient) {
+        return recipients.contains(recipient);
     }
-}    
+}

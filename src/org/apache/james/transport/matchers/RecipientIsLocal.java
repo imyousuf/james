@@ -18,27 +18,18 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RecipientIsLocal extends AbstractMatcher {
-    
-    private Vector localhosts;
+public class RecipientIsLocal extends AbstractRecipientMatcher {
+
+    private Collection localhosts;
     private UsersRepository users;
-    
+
     public void init(String condition) {
-        localhosts = (Vector) getContext().get(Resources.SERVER_NAMES);
+        localhosts = (Collection) getContext().get(Resources.SERVER_NAMES);
         UserManager usersManager = (UserManager) getContext().getComponentManager().getComponent(Resources.USERS_MANAGER);
         users = usersManager.getUserRepository("LocalUsers");
     }
 
-    public Mail[] match(Mail mail) {
-        Vector matching = new Vector();
-        Vector notMatching = new Vector();
-        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
-            String rec = (String) e.nextElement();
-            if (localhosts.contains(Mail.getHost(rec)) && users.contains(Mail.getUser(rec))) {
-                matching.addElement(rec);
-            }
-        }
-        notMatching = VectorUtils.subtract(mail.getRecipients(), matching);
-        return split(mail, matching, notMatching);
+    public boolean matchRecipient(String recipient) {
+        return localhosts.contains(Mail.getHost(recipient)) && users.contains(Mail.getUser(recipient));
     }
 }

@@ -44,13 +44,13 @@ public class ServerTime extends AbstractMailet {
             response.setSubject("The time is now...");
             response.setText("This mail server thinks it's " + new java.util.Date() + ".");
 
-            Vector recipients = new Vector();
-            recipients.addElement(mail.getSender());
+            Collection recipients = new Vector();
+            recipients.add(mail.getSender());
             InternetAddress addr[] = {new InternetAddress(mail.getSender())};
             response.setRecipients(Message.RecipientType.TO, addr);
-            response.setFrom(new InternetAddress(mail.getRecipients().elementAt(0).toString()));
+            response.setFrom(new InternetAddress(mail.getRecipients().iterator().next().toString()));
 
-            mail.setSender(mail.getRecipients().elementAt(0).toString());
+            mail.setSender(mail.getRecipients().iterator().next().toString());
             mail.setMessage(response);
             mail.setRecipients(recipients);
             transport.service(mail);

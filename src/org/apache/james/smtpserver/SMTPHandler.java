@@ -220,11 +220,11 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 out.println("501 Usage: RCPT TO:<recipient>");
                 return true;
             } else {
-                Vector rcptVector = (Vector) state.get(RCPT_VECTOR);
-                if (rcptVector == null) rcptVector = new Vector();
+                Collection rcptColl = (Collection) state.get(RCPT_VECTOR);
+                if (rcptColl == null) rcptColl = new Vector();
                 String recipient = argument1.replace('<', ' ').replace('>', ' ').trim();
-                rcptVector.addElement(recipient);
-                state.put(RCPT_VECTOR, rcptVector);
+                rcptColl.add(recipient);
+                state.put(RCPT_VECTOR, rcptColl);
                 out.println("250 Recipient <" + recipient + "> OK");
                 return true;
             }
@@ -268,7 +268,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                     String received = "from " + state.get(REMOTE_NAME) + " ([" + state.get(REMOTE_IP)
                         + "])\r\n          by " + this.servername + " ("
                         + softwaretype + ") with SMTP ID " + state.get(SMTP_ID);
-                    if (((Vector)state.get(RCPT_VECTOR)).size () == 1) {
+                    if (((Collection)state.get(RCPT_VECTOR)).size () == 1) {
                         //Only indicate a recipient if they're the only recipient
                         //(prevents email address harvesting and large headers in bulk email)
                         received += "\r\n          for <"

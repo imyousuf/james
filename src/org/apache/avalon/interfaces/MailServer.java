@@ -22,10 +22,10 @@ import java.io.*;
 
 public interface MailServer {
 
-    public void sendMail(String sender, Vector recipients, MimeMessage msg)
+    public void sendMail(String sender, Collection recipients, MimeMessage msg)
     throws MessagingException;
 
-    public void sendMail(String sender, Vector recipients, InputStream msg)
+    public void sendMail(String sender, Collection recipients, InputStream msg)
     throws MessagingException;
 
     public void sendMail(Mail mail)

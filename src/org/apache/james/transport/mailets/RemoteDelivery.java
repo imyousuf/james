@@ -93,13 +93,13 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 	private void deliver(Mail mail) {
 		try {
 			MimeMessage message = mail.getMessage ();
-			Vector recipients = mail.getRecipients ();
-			String rec = (String) recipients.elementAt(0);
+			Collection recipients = mail.getRecipients ();
+			String rec = (String) recipients.iterator().next();
 			String host = rec.substring(rec.indexOf('@') + 1);
 			InternetAddress addr[] = new InternetAddress[recipients.size()];
 			int j = 0;
-			for (Enumeration e = recipients.elements(); e.hasMoreElements(); j++) {
-				addr[j] = new InternetAddress((String) e.nextElement());
+			for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
+				addr[j] = new InternetAddress((String) i.next());
 			}
 
 			transport.sendMessage (message, addr);
@@ -142,8 +142,8 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
                 //original message as an attachment.  q.q.v. old james stuff.
                 MimeMessage reply = (MimeMessage) (mail.getMessage()).reply(false);
                 reply.setSubject("Unable to deliver this message to recipients: " + reason);
-                Vector recipients = new Vector ();
-                recipients.addElement (mail.getSender ());
+                Collection recipients = new Vector ();
+                recipients.add(mail.getSender ());
                 InternetAddress addr[] = {new InternetAddress(mail.getSender())};
                 reply.setRecipients(Message.RecipientType.TO, addr);
                 reply.setFrom(postmaster);
@@ -178,19 +178,19 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 	public void service(Mail mail) {
 		//Do I want to give the internal key, or the message's Message ID
 		logger.log("Remotly delivering mail " + mail.getName());
-		Vector recipients = mail.getRecipients();
+		Collection recipients = mail.getRecipients();
 
 		//Must first organize the recipients into distinct servers (name made case insensitive)
 		Hashtable targets = new Hashtable ();
-		for (Enumeration e = recipients.elements(); e.hasMoreElements ();) {
-			String target = (String)e.nextElement ();
-			String targetServer = target.substring (target.indexOf ("@") + 1).toLowerCase ();
-			Vector temp = (Vector)targets.get(targetServer);
+		for (Iterator i = recipients.iterator(); i.hasNext();) {
+			String target = (String)i.next();
+			String targetServer = target.substring(target.indexOf ("@") + 1).toLowerCase ();
+			Collection temp = (Collection)targets.get(targetServer);
 			if (temp == null) {
 				temp = new Vector ();
 				targets.put (targetServer, temp);
 			}
-			temp.addElement (target);
+			temp.add(target);
 		}
 
 		//We have the recipients organized into distinct servers... put them into the
@@ -203,9 +203,9 @@ public class RemoteDelivery extends AbstractMailet implements TimeServer.Bell {
 
 		//store the new message containers - organized by server
 		String name = mail.getName();
-		for (Enumeration e = targets.keys(); e.hasMoreElements(); ) {
-		    String host = (String) e.nextElement();
-		    Vector rec = (Vector) targets.get(host);
+		for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
+		    String host = (String) i.next();
+		    Collection rec = (Collection) targets.get(host);
 		    logger.log("Sending mail to " + rec + " on " + host);
 		    mail.setRecipients(rec);
 		    mail.setName(name + "-to-" + host);
