@@ -97,9 +97,9 @@
   <target name="gump" depends="verify">
     <x:home/>
     <x:gump description="James Server" 
-         public="true" filename="gump-template.xml">
+         public="true" filename="project/gump.xml">
       <x:url href="http://james.apache.org/"/>
-      <x:cvs repository="james-cvs" dir="trunk"/>
+      <x:cvs repository="james"/>
       <x:license file="LICENSE.TXT"/>
       <x:nag to="server-dev@james.apache.org"/>
     </x:gump>
