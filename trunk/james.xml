@@ -1,0 +1,233 @@
+
+
+<project name="james" default="main" basedir=".">
+
+  <property file="ant.properties"/>
+  <property file="${user.home}/.ant.properties"/>
+  <property file="default.properties"/>
+  <property file="${ant.project.name}.properties"/>
+
+  <path id="project.class.path">
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${xerces.jar}"/>
+    <pathelement location="${xalan.jar}"/>
+    <pathelement location="${xml-apis.jar}"/>
+    <pathelement location="${dns.jar}"/>
+    <pathelement location="${commons-net.jar}"/>
+    <pathelement location="${commons-collections.jar}"/>
+    <pathelement location="${jakarta-oro.jar}"/>
+    <pathelement location="${avalon-framework.jar}"/>
+    <pathelement location="${excalibur-threadcontext.jar}"/>
+    <pathelement location="${excalibur-collections.jar}"/>
+    <pathelement location="${excalibur-pool.jar}"/>
+    <pathelement location="${excalibur-thread.jar}"/>
+    <pathelement location="${excalibur-datasource.jar}"/>
+    <pathelement location="${excalibur-io.jar}"/>
+    <pathelement location="${cornerstone-threads.jar}"/>
+    <pathelement location="${cornerstone-connection.jar}"/>
+    <pathelement location="${cornerstone-store.jar}"/>
+    <pathelement location="${cornerstone-scheduler.jar}"/>
+    <pathelement location="${cornerstone-sockets.jar}"/>
+    <pathelement location="${cornerstone-datasources.jar}"/>
+    <pathelement location="${javax-mail.jar}"/>
+    <pathelement location="${javax-activation.jar}"/>
+    <pathelement location="${metagenerate.jar}"/>
+    <pathelement location="${qdox.jar}"/>
+    <pathelement path="${java.class.path}" />
+    <pathelement path="${build.classes}" />
+  </path>
+
+  <property name="constants.file" value="org/apache/james/Constants.java"/>
+  <property name="poolconn.file" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
+  <property name="mailet.file" value="org/apache/mailet/MailetContextConstants.java"/>
+  <property name="jdbc.file" value="org/apache/james/util/mordred/JdbcDataSource.java"/>
+
+
+  <!-- Main target -->
+  <target name="main" depends="jars" description="Create minimal distribution" />
+
+  <!-- Compile the project -->
+  <target name="prepare">
+
+    <available property="jdbc3.present" classname="java.sql.Savepoint"/>
+
+    <mkdir dir="${build.src}"/>
+    <copy todir="${build.src}">
+      <fileset dir="${java.dir}">
+        <include name="${constants.file}"/>
+        <include name="${poolconn.file}"/>
+        <include name="${mailet.file}"/>
+        <include name="${jdbc.file}"/>
+      </fileset>
+    </copy>
+    <replace file="${build.src}/${constants.file}" token="@@VERSION@@" value="${version}"/>
+    <replace file="${build.src}/${constants.file}" token="@@NAME@@" value="${Name}"/>
+    <replace file="${build.src}/${constants.file}" token="@@DATE@@" value="${TODAY}"/>
+
+  </target>
+
+  <target name="prepare-jdbc3" depends="prepare" if="jdbc3.present">
+     <echo message="JDBC v3 in classpath - making code JDBC 3.0 compliant"/>
+     <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY" value=""/>
+     <replace file="${build.src}/${poolconn.file}" token="JDBC_3_ANT_KEY */" value=""/>
+  </target>
+
+  <!-- Compile the project -->
+  <target name="compile" depends="prepare-jdbc3">
+
+    <mkdir dir="${build.classes}"/>
+    <available property="jndi.present" classname="javax.naming.InitialContext"/>
+
+    <javac srcdir="${build.src}"
+           destdir="${build.classes}"
+           debug="${build.debug}"
+           optimize="${build.optimize}"
+           deprecation="${build.deprecation}">
+      <classpath refid="project.class.path" />
+    </javac>
+
+    <javac srcdir="${java.dir}"
+           destdir="${build.classes}"
+           debug="${build.debug}"
+           optimize="${build.optimize}"
+           deprecation="${build.deprecation}">
+      <classpath refid="project.class.path" />
+      <src path="${java.dir}"/>
+      <exclude name="${constants.file}"/>
+      <exclude name="${mailet.file}"/>
+      <exclude name="${poolconn.file}"/>
+      <exclude name="${jdbc.file}"/>
+      <exclude name="org/apache/james/userrepository/UsersLDAPRepository.java" unless="jndi.present"/>
+    </javac>
+
+  </target>
+
+  <!-- Creates all the .jar file -->
+  <target name="jars" depends="compile">
+
+    <mkdir dir="${build.lib}"/>
+    <mkdir dir="${build.gen}"/>
+
+    <jar jarfile="${build.lib}/${name}-${package-version}.jar"
+         basedir="${build.classes}" includes="org/apache/james/**" >
+
+      <!--
+      <manifest>
+
+        <attribute name="Extension-Name" value="${extension.name}"/>
+        <attribute name="Specification-Vendor" value="${vendor}"/>
+        <attribute name="Specification-Version" value="${version}"/>
+        <attribute name="Implementation-Vendor" value="${vendor}"/>
+        <attribute name="Implementation-Version" value="${package-version}"/>
+
+        <attribute name="Extension-List" value="framework thread connection datasources store"/>
+
+        <attribute name="framework-Extension-Name" value="${avalon-framework.extension.name}"/>
+        <attribute name="framework-Specification-Version" value="${avalon-framework.extension.version}"/>
+        <attribute name="framework-Implementation-Version" value="${avalon-framework.extension.implementation}"/>
+
+        <attribute name="thread-Extension-Name" value="${cornerstone-threads.ext.name}"/>
+        <attribute name="thread-Specification-Version" value="${cornerstone-threads.ext.version}"/>
+
+        <attribute name="connection-Extension-Name" value="${cornerstone-connection.ext.name}"/>
+        <attribute name="connection-Specification-Version" value="${cornerstone-connection.ext.version}"/>
+
+        <attribute name="datasources-Extension-Name" value="${cornerstone-datasources.ext.name}"/>
+        <attribute name="datasources-Specification-Version" value="${cornerstone-datasources.ext.version}"/>
+
+        <attribute name="store-Extension-Name" value="${cornerstone-store.ext.name}"/>
+        <attribute name="store-Specification-Version" value="${cornerstone-store.ext.version}"/>
+
+        <attribute name="scheduler-Extension-Name" value="${cornerstone-scheduler.ext.name}"/>
+        <attribute name="scheduler-Specification-Version" value="${cornerstone-scheduler.ext.version}"/>
+
+        <attribute name="sockets-Extension-Name" value="${cornerstone-sockets.ext.name}"/>
+        <attribute name="sockets-Specification-Version" value="${cornerstone-sockets.ext.version}"/>
+
+      </manifest>
+      -->
+
+      <fileset dir="${java.dir}">
+         <include name="**/*.mxinfo"/>
+         <include name="**/*.xinfo"/>
+         <include name="**/*-schema.xml"/>
+         <include name="**/*.xconfig"/>
+      </fileset>
+
+    </jar>
+
+    <jar jarfile="${build.lib}/mailet.jar" basedir="${build.classes}" 
+       manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/>
+
+  </target>
+
+  <!-- Creates all the .sar file -->
+  <target name="sar" depends="jars" description="Generates the sar files">
+
+    <mkdir dir="${build.lib}"/>
+
+    <jar jarfile="${build.lib}/james-new.sar"
+       compress="${build.compress}"
+       manifest="${src.dir}/Manifest.mf">
+      <zipfileset dir="${src.dir}/conf" prefix="SAR-INF/">
+        <include name="assembly.xml"/>
+        <include name="config.xml"/>
+        <include name="environment.xml"/>
+      </zipfileset>
+      <zipfileset dir="lib" prefix="SAR-INF/lib">
+        <include name="dnsjava-1.2.3.jar"/>
+        <include name="jakarta-oro-2.0.1.jar"/>
+        <include name="mm.mysql-2.0.14.jar"/>
+        <include name="activation.jar"/>
+        <include name="mail_1_3.jar"/>
+        <include name="commons-net-1.0.0-dev.jar"/>
+      </zipfileset>
+      <zipfileset dir="${avalon-framework.lib}" prefix="SAR-INF/lib">
+        <include name="avalon-framework.jar"/>
+      </zipfileset>
+      <zipfileset dir="${cornerstone.home}/build/lib" prefix="SAR-INF/lib">
+        <include name="cornerstone-threads-1.0.jar"/>
+        <include name="cornerstone-connection-1.0.jar"/>
+        <include name="cornerstone-store-1.0.jar"/>
+        <include name="cornerstone-scheduler-1.0.jar"/>
+        <include name="cornerstone-sockets-1.0.jar"/>
+        <include name="cornerstone-datasources-1.0.jar"/>
+      </zipfileset>
+      <zipfileset dir="${excalibur-collections.lib}" prefix="SAR-INF/lib">
+        <include name="excalibur-collections-1.0.jar"/>
+      </zipfileset>
+      <zipfileset dir="${excalibur-threadcontext.lib}" prefix="SAR-INF/lib">
+        <include name="excalibur-threadcontext-1.0.jar"/>
+      </zipfileset>
+      <zipfileset dir="${excalibur-thread.lib}" prefix="SAR-INF/lib">
+        <include name="excalibur-thread-1.1.jar"/>
+      </zipfileset>
+      <zipfileset dir="${excalibur-datasource.lib}" prefix="SAR-INF/lib">
+        <include name="excalibur-datasource-1.0.jar"/>
+      </zipfileset>
+      <zipfileset dir="${excalibur-io.lib}" prefix="SAR-INF/lib">
+        <include name="excalibur-io-1.1.jar"/>
+      </zipfileset>
+      <zipfileset dir="${build.dir}/lib" prefix="SAR-INF/lib">
+        <include name="james-3.0.jar"/>
+        <include name="mailet.jar"/>
+      </zipfileset>
+    </jar>
+
+  </target>
+
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+
+  <target name="patch">
+    <replace dir="." summary="true" defaultexcludes="yes"
+       token="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector"
+       value="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector">
+     <include name="**/*.xinfo"/>
+     <include name="**/*.xml"/>
+     <include name="**/*.java"/>
+    </replace>
+  </target>
+
+</project>
