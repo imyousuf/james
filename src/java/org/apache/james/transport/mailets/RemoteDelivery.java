@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.10 $
- * Committed on $Date: 2001/10/20 12:56:48 $ by: $Author: serge $
+ * This is $Revision: 1.11 $
+ * Committed on $Date: 2001/11/27 01:34:28 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -55,6 +55,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
     private int deliveryThreadCount = 1; // default number of delivery threads
     private String gatewayServer = null; // the server to send all email to
+    private String gatewayPort = null;  //the port of the gateway server to send all email to
     private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
 
@@ -81,6 +82,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("Invalid timeout setting: " + getInitParameter("timeout"));
         }
         gatewayServer = getInitParameter("gateway");
+        gatewayPort = getInitParameter("gatewayPort");
         ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         String outgoingPath = getInitParameter("outgoing");
         if (outgoingPath == null) {
@@ -180,11 +182,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         //Many of these properties are only in later JavaMail versions
                         //"mail.smtp.ehlo"  //default true
                         //"mail.smtp.auth"  //default false
-                        //"mail.smtp.port"  //default 25
                         //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
                         //"mail.smtp.localhost" //local server name, InetAddress.getLocalHost().getHostName();
-
 
                         Transport transport = session.getTransport(urlname);
                         transport.connect();
@@ -378,6 +378,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.ehlo", "false");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
+
+        //If there's a gateway port, we can just set it here
+        if (gatewayPort != null) {
+            props.put("mail.smtp.port", gatewayPort);
+        }
         Session session = Session.getInstance(props, null);
         while (!Thread.currentThread().interrupted()) {
             try {
