@@ -38,13 +38,24 @@ class NNTPArticleImpl implements NNTPArticle {
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
     public void writeArticle(PrintWriter prt) {
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(f));
+            reader = new BufferedReader(new FileReader(f));
             String line = null;
-            while ( ( line = reader.readLine() ) != null )
+            while ( ( line = reader.readLine() ) != null ) {
                 prt.println(line);
-            reader.close();
-        } catch(IOException ex) { throw new NNTPException(ex); }
+            }
+        } catch(IOException ex) {
+            throw new NNTPException(ex);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException ioe) {
+                throw new NNTPException(ioe);
+            }
+        }
     }
     public void writeHead(PrintWriter prt) {
         try {
@@ -86,14 +97,14 @@ class NNTPArticleImpl implements NNTPArticle {
             String references = hdr.getHeader("References",null);
             long byteCount = f.length();
             long lineCount = -1;
-            prt.print(articleNumber+"\t");
-            prt.print((subject==null?"":subject)+"\t");
-            prt.print((author==null?"":author)+"\t");
-            prt.print((date==null?"":date)+"\t");
-            prt.print((msgId==null?"":msgId)+"\t");
-            prt.print((references==null?"":references)+"\t");
-            prt.print(byteCount+"\t");
-            prt.println(lineCount+"");
+            prt.print(articleNumber + "\t");
+            prt.print((subject==null?"":subject) + "\t");
+            prt.print((author==null?"":author) + "\t");
+            prt.print((date==null?"":date) + "\t");
+            prt.print((msgId==null?"":msgId) + "\t");
+            prt.print((references==null?"":references) + "\t");
+            prt.print(byteCount + "\t");
+            prt.println(lineCount + "");
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
     public String getHeader(String header) {

@@ -57,12 +57,14 @@ public class POP3Hammering {
     }
 
     void receiveMail(boolean delete) {
+        Store store = null;
+        Folder folder = null;
         try {
             Session session = Session.getDefaultInstance(prop, null);
-            Store store = session.getStore("pop3");
+            store = session.getStore("pop3");
             store.connect(mailHost, user, password);
 
-            Folder folder = store.getFolder("INBOX");
+            folder = store.getFolder("INBOX");
 
             if(folder == null || !folder.exists()) {
                 System.out.println("This folder does not exist.");
@@ -89,6 +91,21 @@ public class POP3Hammering {
             e.printStackTrace();
         } catch (Throwable e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (folder != null) {
+                    folder.close(true);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                if (store != null) {
+                    store.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -118,7 +118,13 @@ class NNTPSpooler extends AbstractLogEnabled
             }
         }
         private void process(File f) throws Exception {
-            getLogger().debug("process: "+f.getAbsolutePath()+","+f.getCanonicalPath());
+            StringBuffer logBuffer =
+                new StringBuffer(160)
+                        .append("process: ")
+                        .append(f.getAbsolutePath())
+                        .append(",")
+                        .append(f.getCanonicalPath());
+            getLogger().debug(logBuffer.toString());
             final MimeMessage msg;
             String articleID;
             {   // get the message for copying to destination groups.

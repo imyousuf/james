@@ -18,7 +18,6 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.*;
@@ -54,8 +53,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.23 $
- * Committed on $Date: 2002/06/03 16:07:05 $ by: $Author: hammant $
+ * This is $Revision: 1.24 $
+ * Committed on $Date: 2002/08/08 00:47:45 $ by: $Author: pgoldstein $
 
  */
 public class James
@@ -90,11 +89,10 @@ public class James
     private Map mailboxes; //Not to be shared!
     private Hashtable attributes = new Hashtable();
 
-    protected BlockContext           blockContext;
-
+    protected Context           myContext;
 
     public void contextualize(final Context context) {
-        this.blockContext = (BlockContext)context;
+        this.myContext = context;
     }
 
     public void configure(Configuration conf) {
@@ -102,8 +100,7 @@ public class James
     }
 
     /**
-     * Override compose method of AbstractBlock to create new
-     * ComponentManager object
+     *
      */
     public void compose(ComponentManager comp) {
         compMgr = new DefaultComponentManager(comp);
@@ -115,20 +112,27 @@ public class James
         getLogger().info("JAMES init...");
 
         // TODO: This should retrieve a more specific named thread pool from
-        // BlockContext that is set up in server.xml
-        // workerPool = blockContext.getThreadPool( "default" );
+        // Context that is set up in server.xml
         try {
             mailstore = (MailStore) compMgr.lookup( MailStore.ROLE );
         } catch (Exception e) {
-            getLogger().warn("Can't get Store: " + e);
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn("Can't get Store: " + e);
+            }
         }
-        getLogger().debug("Using MailStore: " + mailstore.toString());
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Using MailStore: " + mailstore.toString());
+        }
         try {
             usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
         } catch (Exception e) {
-            getLogger().warn("Can't get Store: " + e);
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn("Can't get Store: " + e);
+            }
         }
-        getLogger().debug("Using UsersStore: " + usersStore.toString());
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Using UsersStore: " + usersStore.toString());
+        }
         context = new DefaultContext();
 
         String hostName = null;
@@ -144,7 +148,7 @@ public class James
         serverNames = new Vector();
         Configuration serverConf = conf.getChild("servernames");
         if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
-            serverNames.add(hostName.toLowerCase());
+            serverNames.add(hostName.toLowerCase(Locale.US));
         }
 
         final Configuration[] serverNameConfs =
@@ -156,8 +160,10 @@ public class James
             throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
         }
 
-        for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
-            getLogger().info("Handling mail for: " + i.next());
+        if (getLogger().isInfoEnabled()) {
+            for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
+                getLogger().info("Handling mail for: " + i.next());
+            }
         }
         context.put(Constants.SERVER_NAMES, this.serverNames);
         attributes.put(Constants.SERVER_NAMES, this.serverNames);
@@ -200,7 +206,9 @@ public class James
         compMgr.put( MailServer.ROLE, this);
 
         spool = mailstore.getInboundSpool();
-        if (DEEP_DEBUG) getLogger().debug("Got spool");
+        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+            getLogger().debug("Got spool");
+        }
 
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);
@@ -258,7 +266,14 @@ public class James
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
-        getLogger().info("Mail " + mailimpl.getName() + " pushed in spool");
+        if (getLogger().isInfoEnabled()) {
+            StringBuffer logBuffer = 
+                new StringBuffer(64)
+                        .append("Mail ")
+                        .append(mailimpl.getName())
+                        .append(" pushed in spool");
+            getLogger().info(logBuffer.toString());
+        }
     }
 
     /**
@@ -278,7 +293,12 @@ public class James
         } else {
             // need mailbox object
             getLogger().info("Need inbox for " + userName );
-            String destination = inboxRootURL + userName + "/";
+            StringBuffer destinationBuffer =
+                new StringBuffer(192)
+                        .append(inboxRootURL)
+                        .append(userName)
+                        .append("/");
+            String destination = destinationBuffer.toString();
             DefaultConfiguration mboxConf
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
             mboxConf.setAttribute("destinationURL", destination);
@@ -288,7 +308,10 @@ public class James
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
                 e.printStackTrace();
-                getLogger().error("Cannot open user Mailbox" + e);
+                if (getLogger().isErrorEnabled())
+                {
+                    getLogger().error("Cannot open user Mailbox" + e);
+                }
                 throw new RuntimeException("Error in getUserInbox." + e);
             }
             return userInbox;
@@ -296,7 +319,13 @@ public class James
     }
 
     public String getId() {
-        return "Mail" + System.currentTimeMillis() + "-" + count++;
+        StringBuffer idBuffer = 
+            new StringBuffer(64)
+                    .append("Mail")
+                    .append(System.currentTimeMillis())
+                    .append("-")
+                    .append(count++);
+        return idBuffer.toString();
     }
 
     public static void main(String[] args) {
@@ -415,7 +444,8 @@ public class James
         return postmaster;
     }
 
-    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
+    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
+        throws MessagingException {
         String username;
         if (ignoreCase) {
             username = localusers.getRealName(recipient.getUser());
@@ -434,13 +464,23 @@ public class James
                 recipients.add(forwardTo);
                 try {
                     sendMail(sender, recipients, message);
-                    getLogger().info("Mail for " + username + " forwarded to "
-                                         +  forwardTo.toString());
+                    StringBuffer logBuffer =
+                        new StringBuffer(128)
+                                .append("Mail for ")
+                                .append(username)
+                                .append(" forwarded to ")
+                                .append(forwardTo.toString());
+                    getLogger().info(logBuffer.toString());
                     return;
                 } catch (MessagingException me) {
-                    getLogger().error("Error forwarding mail to "
-                              + forwardTo.toString()
-                              + "attempting local delivery");
+                    if (getLogger().isErrorEnabled()) {
+                        StringBuffer logBuffer = 
+                            new StringBuffer(128)
+                                    .append("Error forwarding mail to ")
+                                    .append(forwardTo.toString())
+                                    .append("attempting local delivery");
+                        getLogger().error(logBuffer.toString());
+                    }
                 }
             }
         }
@@ -452,15 +492,15 @@ public class James
     }
 
     public int getMajorVersion() {
-        return 1;
+        return 2;
     }
 
     public int getMinorVersion() {
-        return 3;
+        return 1;
     }
 
     public boolean isLocalServer( final String serverName ) {
-        return serverNames.contains(serverName.toLowerCase());
+        return serverNames.contains(serverName.toLowerCase(Locale.US));
     }
 
     public String getServerInfo() {
