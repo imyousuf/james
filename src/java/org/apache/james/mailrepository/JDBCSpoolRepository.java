@@ -166,8 +166,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                     //            .append(" in ")
                     //            .append(repositoryName);
                     //System.err.println(errorBuffer.toString());
-//                    wait(WAIT_LIMIT);
-                    wait(); // we'll be woken by store() calling notify()
+                    wait(WAIT_LIMIT);
                 }
             } catch (InterruptedException ex) {
                 throw ex;
@@ -211,12 +210,12 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 }
             }
             //Nothing to do... sleep!
-//            if (sleepUntil == 0) {
-//                sleepUntil = System.currentTimeMillis() + WAIT_LIMIT;
-//            }
+            if (sleepUntil == 0) {
+                sleepUntil = System.currentTimeMillis() + WAIT_LIMIT;
+            }
             try {
                 synchronized (this) {
-                    long waitTime = (sleepUntil == 0) ? 0 : sleepUntil - System.currentTimeMillis();
+                    long waitTime = sleepUntil - System.currentTimeMillis();
                     //StringBuffer errorBuffer =
                     //    new StringBuffer(128)
                     //            .append("waiting ")
