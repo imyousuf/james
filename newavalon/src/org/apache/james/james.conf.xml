@@ -325,19 +325,6 @@
                     <model> CACHE </model>
                 </models>
               </repository>
-              <repository class="org.apache.james.usersrepository.UsersFileRepository">
-                <protocols>
-                    <protocol> file </protocol>
-                </protocols>
-                <types>
-                    <type> USERS </type>
-                </types>
-                <models>
-                    <model> SYNCHRONOUS </model>
-                    <model> ASYNCHRONOUS </model>
-                    <model> CACHE </model>
-                </models>
-              </repository>
           </repositories>
         </configuration>
 
