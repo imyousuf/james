@@ -233,9 +233,9 @@ public class AvalonMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-            synchronized (this) {
-                notifyAll();
-            }
+//            synchronized (this) {
+//                notifyAll();
+//            }
             return true;
         } else {
             return false;
@@ -262,9 +262,9 @@ public class AvalonMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-            synchronized (this) {
-                notifyAll();
-            }
+//            synchronized (this) {
+//                notifyAll();
+//            }
             return true;
         } else {
             return false;
@@ -346,7 +346,8 @@ public class AvalonMailRepository
             }
 
             synchronized (this) {
-                notifyAll();
+//                notifyAll();
+                notify();
             }
         } catch (Exception e) {
             getLogger().error("Exception storing mail: " + e);
