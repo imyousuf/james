@@ -15,6 +15,7 @@ import javax.mail.internet.*;
 import org.apache.mailet.*;
 
 /**
+ * The implementation of the configuration object for a Matcher.
  *
  * @author Serge Knystautas <sergek@lokitech.com>
  */
