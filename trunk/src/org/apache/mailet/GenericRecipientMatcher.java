@@ -9,7 +9,7 @@
 package org.apache.mailet;
 
 import java.util.*;
-import javax.mail.internet.*;
+import javax.mail.*;
 
 /**
  * GenericMatcher makes writing recipient based matchers easier. It provides
@@ -32,7 +32,7 @@ public abstract class GenericRecipientMatcher extends GenericMatcher {
      * @param mail - the message and routing information to determine whether to match
      * @return Collection the Collection of MailAddress objects that have been matched
      */
-    public final Collection match(Mail mail) {
+    public final Collection match(Mail mail) throws MessagingException {
         Collection matching = new Vector();
         for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
             MailAddress rec = (MailAddress) i.next();
@@ -50,6 +50,5 @@ public abstract class GenericRecipientMatcher extends GenericMatcher {
      * @param recipient - the address to determine whether to match
      * @return boolean whether the recipient is a match
      */
-    public abstract boolean matchRecipient(MailAddress recipient);
-
+    public abstract boolean matchRecipient(MailAddress recipient) throws MessagingException;
 }

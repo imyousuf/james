@@ -9,6 +9,7 @@
 package org.apache.mailet;
 
 import java.util.*;
+import javax.mail.*;
 
 /**
  * GenericMatcher implements the Matcher and MatcherConfig interfaces.
@@ -96,10 +97,10 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      *
      * @param MatcherConfig config - the MatcherConfig object that contains
      *          configutation information for this matcher
-     * @throws MailetException
+     * @throws MessagingException
      *          if an exception occurs that interrupts the matcher's normal operation
      */
-    public void init(MatcherConfig newConfig) throws MailetException {
+    public void init(MatcherConfig newConfig) throws MessagingException {
         config = newConfig;
         init();
     }
@@ -115,7 +116,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * @throws MatcherException
      *          if an exception occurs that interrupts the matcher's normal operation
      */
-    public void init() throws MailetException {
+    public void init() throws MessagingException {
         //Do nothing... can be overriden
     }
 
@@ -148,10 +149,10 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      *
      * @param mail - the Mail object that contains the MimeMessage and
      *          routing information
-     * @return Collection - the recipients that the mailet container should have the
+     * @return java.util.Collection - the recipients that the mailet container should have the
      *          mailet affect.
-     * @throws MailetException - if an exception occurs that interferes with the mailet's normal operation
+     * @throws javax.mail.MessagingException - if an exception occurs that interferes with the mailet's normal operation
      *          occurred
      */
-    public abstract Collection match(Mail mail) throws MailetException, javax.mail.MessagingException;
+    public abstract Collection match(Mail mail) throws MessagingException;
 }

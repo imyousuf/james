@@ -87,10 +87,10 @@ public interface Mailet {
      *
      * @param config - a MailetConfig object containing the mailet's configuration
      *          and initialization parameters
-     * @throws MailetException - if an exception has occurred that interferes with
+     * @throws MessagingException - if an exception has occurred that interferes with
      *          the mailet's normal operation
      */
-    public void init(MailetConfig config) throws MailetException;
+    public void init(MailetConfig config) throws javax.mail.MessagingException;
 
     /**
      * Called by the mailet container to allow the mailet to process to
@@ -107,10 +107,9 @@ public interface Mailet {
      * Java tutorial on multi-threaded programming</a>.
      *
      * @param mail - the Mail object that contains the message and routing information
-     * @throws MailetException - if an exception occurs that interferes with the mailet's
-     *      normal operation
-     * @throws MessagingException - if an message or address parsing exception occurs
+     * @throws javax.mail.MessagingException - if an message or address parsing exception occurs or
+     *      an exception that interferes with the mailet's normal operation
      */
-    public void service(Mail mail) throws MailetException, javax.mail.MessagingException;
+    public void service(Mail mail) throws javax.mail.MessagingException;
 
 }

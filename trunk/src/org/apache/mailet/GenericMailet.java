@@ -9,6 +9,7 @@
 package org.apache.mailet;
 
 import java.util.*;
+import javax.mail.*;
 
 /**
  * GenericMailet makes writing mailets easier. It provides simple
@@ -115,10 +116,10 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      *
      * @param MailetConfig config - the MailetConfig object that contains
      *          configutation information for this mailet
-     * @throws MailetException
+     * @throws MessagingException
      *          if an exception occurs that interrupts the mailet's normal operation
      */
-    public void init(MailetConfig newConfig) throws MailetException {
+    public void init(MailetConfig newConfig) throws MessagingException {
         config = newConfig;
         init();
     }
@@ -131,10 +132,10 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * method and it will be called by GenericMailet.init(MailetConfig config).
      * The MailetConfig object can still be retrieved via getMailetConfig().
      *
-     * @throws MailetException
+     * @throws MessagingException
      *          if an exception occurs that interrupts the mailet's normal operation
      */
-    public void init() throws MailetException {
+    public void init() throws MessagingException {
         //Do nothing... can be overriden
     }
 
@@ -167,10 +168,10 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      *
      * @param mail - the Mail object that contains the MimeMessage and
      *          routing information
-     * @throws MailetException - if an exception occurs that interferes with the mailet's normal operation
+     * @throws javax.mail.MessagingException - if an exception occurs that interferes with the mailet's normal operation
      *          occurred
      */
-    public abstract void service(Mail mail) throws MailetException, javax.mail.MessagingException;
+    public abstract void service(Mail mail) throws javax.mail.MessagingException;
 }
 
 
