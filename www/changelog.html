@@ -151,17 +151,9 @@
 
 <p>No release date.  Planned changes:</p>
 
-<li>All enhancements from James v2</li>
+<li>All enhancements from James v2.2</li>
 
-<li>Mailet API v3</li>
-
-<li>Use of JNDI for resources and user repositories</li>
-
-<li>Use of JavaMail stores</li>
-
-<li>Improved performance</li>
-
-<li>More fully featured mailing list support</li>
+<li>Mailet API improvements</li>
 
 <li>And <a href="http://nagoya.apache.org/wiki/apachewiki.cgi?JamesV3">more</a>
 </li>
@@ -178,48 +170,37 @@
 <td>
 <blockquote>
 
-<p>Expected release June 2003</p>
+<p>No release date, although we have released 15 <a href="http://james.apache.org/download.cgi#Test%20Builds">test builds</a>.  These builds are largely production-ready, but for various reasons were not voted as an official release.</p>
 
-<li>[NjB,MT,VGP] (code) Added Quota Matcher framework and fixed storage matcher</li>
+<p>The latest list of changes is available in our <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10411&report=changelog">JIRA changelog</a> and <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10411&report=roadmap">JIRA roadmap</a>.  The changelog lists changes already in test builds, and the roadmap indicates what's in CVS or scheduled to be fixed by a certain release.</p>
 
-<li>[NjB] (code) Fixed LocalDelivery.LocalMimeMessage to prevent re-rendering</li>
+<p>Below are some highlights of features and changes already available:</p>
 
-<li>[JW,NjB] (code) Enable allow partial sends from RemoteDelivery</li>
+<li>mbox support</li>
 
-<li>[NjB] (code) Control size of ResultSets</li>
+<li>Mail attributes</li>
 
-<li>[NjB] (code) ThreadPool implementing hard limit on upper number of threads</li>
+<li>JavaMail 1.3.1</li>
 
-<li>[NjB] (code) Fixes to RemoteManager to fix response buffering and logging</li>
+<li>dnsjava 1.4.3, includes auto-discover DNS servers</li>
 
-<li>[NjB] (code) Improved performance looking up message size</li>
+<li>FetchMAIL, deprecating FetchPop</li>
 
-<li>[NjB] (code) Added support for &lt;authorizedAddresses&gt; when using SMTP AUTH</li>
+<li>Quotas</li>
 
-<li>[CB3] (code) New RecipientIsRegex matcher</li>
+<li>Extensive message redirect system</li>
 
-<li>[HJ] (code) New AttachmentFileNameIs matcher</li>
+<li>Improved network address handling</li>
 
-<li>[HJ] (code) Improved support for character encoded subjects in mailing lists</li>
+<li>Multiple remote delivery gateway servers</li>
 
-<li>[NjB] (code) Added support for &lt;authorizedAddresses&gt; to implement fast fail relay rejection</li>
+<li>Many performance improvements</li>
 
-<li>[TS,NjB] (code) Added support for multiple gateway servers.</li>
+<li>Many new matchers and mailets</li>
 
-<li>[NjB] (code) Changed RemoteDelivery to increment the delivery error count per pass, not per server.</li>
+<li>Many bug fixes</li>
 
-
-<li>[JW] (code) JavaMail tuning in RemoteDelivery</li>
-
-<li>[SS4] (update) Upgrade to DnsJava 1.3.2</li>
-
-<li>[SS4] (code) DNS service can auto-discover DNS servers</li>
-
-<li>[SS4] (code) return an unmodifiable Collection from findMXRecords()</li>
-
-<li>[SS4] (code) Added some more logging to DNS service</li>
-
-<li>[SH] (code) Implemented MailetConfig.getInitParameterNames()</li>
+<li>And many more!</li>
 
 </blockquote>
 </td>
