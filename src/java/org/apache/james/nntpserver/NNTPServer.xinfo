@@ -14,23 +14,18 @@
 
   <dependencies>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.connection.ConnectionManager</role>
       <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager" version="1.0"/>
     </dependency>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.sockets.SocketManager</role>
       <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
     </dependency>
     <dependency>
-      <role>org.apache.avalon.cornerstone.services.scheduler.TimeScheduler</role>
       <service name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" version="1.0"/>
     </dependency> 
     <dependency>
-      <role>org.apache.james.nntpserver.repository.NNTPRepository</role>
       <service name="org.apache.james.nntpserver.repository.NNTPRepository" version="1.0"/>
     </dependency> 
     <dependency>
-      <role>org.apache.james.services.UsersStore</role>
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency> 
   </dependencies>
