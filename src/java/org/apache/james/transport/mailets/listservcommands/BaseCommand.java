@@ -49,7 +49,7 @@ import java.util.Properties;
  * <br />
  * <br />
  *
- * @version CVS $Revision: 1.1.2.3 $ $Date: 2004/03/15 03:54:20 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date: 2004/04/16 20:59:53 $
  * @since 2.2.0
  * @see org.apache.james.transport.mailets.CommandListservManager
  */
@@ -207,6 +207,7 @@ public abstract class BaseCommand implements IListServCommand {
         message.setRecipients(Message.RecipientType.TO, toAddrs);
         message.setFrom(from);
         message.setSubject(emailSubject);
+        message.setSentDate(new java.util.Date());
 
         MimeMultipart msgbody = new MimeMultipart();
         MimeBodyPart html = new MimeBodyPart();
