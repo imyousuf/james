@@ -7,73 +7,79 @@
  */
 package org.apache.james.core;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.net.URL;
-import java.net.MalformedURLException;
-
 import org.apache.avalon.*;
-//import org.apache.cornerstone.services.Store;
-import org.apache.phoenix.AbstractBlock;
-
-import org.apache.james.services.UsersStore;
 import org.apache.james.services.UsersRepository;
-
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
+import org.apache.james.services.UsersStore;
+import org.apache.phoenix.Block;
 
 /**
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */
-public class AvalonUsersStore extends AbstractBlock implements UsersStore, Initializable {
+public class AvalonUsersStore 
+    extends AbstractLoggable 
+    implements Block, Composer, Configurable, UsersStore, Initializable {
 
     private HashMap repositories;
-  
-    
+    protected Configuration          configuration;
+    protected ComponentManager       componentManager;
+
+    public void configure( final Configuration configuration )
+        throws ConfigurationException {
+        this.configuration = configuration;
+    }
+
+    public void compose( final ComponentManager componentManager )
+        throws ComponentManagerException {
+        this.componentManager = componentManager;
+    }
+      
     public void init() 
         throws Exception {
 
         getLogger().info("AvalonUsersStore init...");
         repositories = new HashMap();
      
-        Iterator repConfs = m_configuration.getChildren("repository");
+        Iterator repConfs = configuration.getChildren("repository");
         while (repConfs.hasNext()) {
             Configuration repConf = (Configuration) repConfs.next();
-	    String repName = repConf.getAttribute("name");
-	    String repClass = repConf.getAttribute("class");
-	    UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
-	    if (rep instanceof Loggable) {
-		setupLogger((Component)rep);
-	    }
-	    if (rep instanceof Configurable) {
-		((Configurable) rep).configure(repConf);
-	    }
-	    if (rep instanceof Composer) {
-		((Composer) rep).compose( m_componentManager );
-	    }
-	    /*
-            if (rep instanceof Contextualizable) {
-		((Contextualizable) rep).contextualize(context);
-	    }
-	    */
-	    if (rep instanceof Initializable) {
-		((Initializable) rep).init();
-	    }
-	    repositories.put(repName, rep);
-	    getLogger().info("UsersRepository " + repName + " started.");
+            String repName = repConf.getAttribute("name");
+            String repClass = repConf.getAttribute("class");
+            UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
+            if (rep instanceof Loggable) {
+                setupLogger((Component)rep);
+            }
+            if (rep instanceof Configurable) {
+                ((Configurable) rep).configure(repConf);
+            }
+            if (rep instanceof Composer) {
+                ((Composer) rep).compose( componentManager );
+            }
+            /*
+              if (rep instanceof Contextualizable) {
+              ((Contextualizable) rep).contextualize(context);
+              }
+            */
+            if (rep instanceof Initializable) {
+                ((Initializable) rep).init();
+            }
+            repositories.put(repName, rep);
+            getLogger().info("UsersRepository " + repName + " started.");
         }
         getLogger().info("AvalonUsersStore ...init");
     }
     
 
     public UsersRepository getRepository(String request) {
-	UsersRepository response = (UsersRepository) repositories.get(request);
-	if (response == null) {
-	    getLogger().warn("No users repository called: " + request);
-	}
-	return response;
+        UsersRepository response = (UsersRepository) repositories.get(request);
+        if (response == null) {
+            getLogger().warn("No users repository called: " + request);
+        }
+        return response;
     }
 
 
