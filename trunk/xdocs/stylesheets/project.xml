@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="JAMES"
+        href="http://jakarta.apache.org/james/">
+
+    <title>The Jakarta Site</title>
+    <logo href="http://jakarta.apache.org/james/images/james-logo.gif">JAMES - Java Apache Mail Enterprise Server</logo>
+
+    <body>
+    <menu name="About">
+        <item name="Overview"       href="/james/index.html"/>
+        <item name="Install"        href="/james/install.html"/>
+        <item name="Mailets Concept"    href="/james/mailetconcept.html"/>
+        <item name="Architecture"   href="/james/architecture.html"/>
+        <item name="Coding Standards"   href="/james/code-standards.html"/>
+        <item name="License"        href="/james/license.html"/>
+        <item name="TODO"       href="/james/todo.html"/>
+    </menu>
+
+    <menu name="Guides">
+        <item name="Mailet API"     href="/james/javadoc/mailet/index.html"/>
+        <item name="Using LDAP"     href="/james/usingLDAP.html"/>
+        <item name="Bundled Mailets"    href="/james/mailet_list.html"/>
+        <item name="Bundled Matchers"   href="/james/matcher_list.html"/>
+    </menu>
+
+    </body>
+</project>
