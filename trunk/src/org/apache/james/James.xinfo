@@ -15,10 +15,15 @@
   <!-- services that are offered by this block -->
   <services>
     <service name="org.apache.james.services.MailServer" version="1.0" />
+    <service name="org.apache.mailet.MailetContext" version="1.0" />
   </services>
 
   <dependencies>
 
+    <dependency>
+      <role>org.apache.james.services.DNSServer</role>
+      <service name="org.apache.james.services.DNSServer" version="1.0"/>
+    </dependency>
     <dependency>
       <role>org.apache.james.services.MailStore</role>
       <service name="org.apache.james.services.MailStore" version="1.0"/>

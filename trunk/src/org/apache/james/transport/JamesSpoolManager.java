@@ -23,10 +23,13 @@ import org.apache.avalon.context.Context;
 import org.apache.avalon.context.Contextualizable;
 import org.apache.avalon.context.DefaultContext;
 import org.apache.avalon.logger.AbstractLoggable;
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.mailet.*;
+import org.apache.phoenix.Block;
+import org.apache.phoenix.BlockContext;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -34,7 +37,7 @@ import org.apache.mailet.*;
  */
 public class JamesSpoolManager
     extends AbstractLoggable
-    implements Composable, Configurable, Initializable, Runnable, Stoppable, Contextualizable {
+    implements Composable, Configurable, Initializable, Runnable, Stoppable, Contextualizable, Block {
 
     private DefaultComponentManager compMgr;
     //using implementation as we need put method.
@@ -43,13 +46,18 @@ public class JamesSpoolManager
     private SpoolRepository spool;
     private MailetContext mailetcontext;
     private HashMap processors;
+    private int threads;
+    protected BlockContext           blockContext;
+    private ThreadPool workerPool;
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
+        threads = conf.getChild("threads").getValueAsInt(1);
     }
 
     public void contextualize(Context context) {
         this.context = new DefaultContext( context );
+        this.blockContext = (BlockContext)context;
     }
 
     public void compose(ComponentManager comp) {
@@ -59,7 +67,19 @@ public class JamesSpoolManager
     public void init() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
+        workerPool = blockContext.getThreadPool( "default" );
+        Configuration spoolConf = conf.getChild("spoolRepository");
+        Configuration spoolRepConf = spoolConf.getChild("repository");
+        MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+        try {
+            this.spool = (SpoolRepository) mailstore.select(spoolRepConf);
+        } catch (Exception e) {
+            getLogger().error("Cannot open private SpoolRepository");
+            throw e;
+        }
+        getLogger().info("Private SpoolRepository Spool opened");
+        //compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
+        //spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
         mailetcontext = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
         MailetLoader mailetLoader = new MailetLoader();
         MatchLoader matchLoader = new MatchLoader();
@@ -143,7 +163,8 @@ public class JamesSpoolManager
                 throw ex;
             }
         }
-
+        while ( threads-- > 0 )
+            workerPool.execute(this);
     }
 
     /**

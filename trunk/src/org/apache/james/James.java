@@ -31,13 +31,8 @@ import org.apache.avalon.context.DefaultContext;
 import org.apache.avalon.logger.AbstractLoggable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.core.*;
-import org.apache.james.dnsserver.*;
 import org.apache.james.imapserver.*;
-import org.apache.james.nntpserver.NNTPServer;
-import org.apache.james.pop3server.*;
-import org.apache.james.remotemanager.*;
 import org.apache.james.services.*;
-import org.apache.james.smtpserver.*;
 import org.apache.james.transport.*;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -68,7 +63,7 @@ public class James
     private Configuration conf;
 
     private Logger mailetLogger = LogKit.getLoggerFor("james.Mailets");
-    private ThreadPool workerPool;
+    //private ThreadPool workerPool;
     private MailStore mailstore;
     private UsersStore usersStore;
     private SpoolRepository spool;
@@ -87,10 +82,6 @@ public class James
 
     // IMAP related fields
     private boolean useIMAPstorage = false;
-    private boolean provideSMTP = false;
-    private boolean providePOP3 = false;
-    private boolean provideIMAP = false;
-    private boolean provideNNTP = false;
     private IMAPSystem imapSystem;
     private Host imapHost;
     protected BlockContext           blockContext;
@@ -119,7 +110,7 @@ public class James
 
         //TODO: This should retrieve a more specific named thread pool from BlockContext
         //that is set up in server.xml
-        workerPool = blockContext.getThreadPool( "default" );
+        //workerPool = blockContext.getThreadPool( "default" );
         try {
             mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
         } catch (Exception e) {
@@ -181,28 +172,6 @@ public class James
         String postmaster = conf.getChild("postmaster").getValue("root@localhost");
         context.put(Constants.POSTMASTER, new MailAddress(postmaster));
 
-        // Get services to provide
-        Configuration services = conf.getChild("services");
-        if (services.getAttribute("SMTP").equals("TRUE")) {
-            provideSMTP = true;
-            getLogger().info("Providing SMTP services");
-        }
-        if (services.getAttribute("POP3").equals("TRUE")) {
-            providePOP3 = true;
-            getLogger().info("Providing POP3 services");
-        }
-        if (services.getAttribute("IMAP").equals("TRUE")) {
-            provideIMAP = true;
-            getLogger().info("Providing IMAP services");
-        }
-        if (services.getAttribute("NNTP").equals("TRUE")) {
-            provideNNTP = true;
-            getLogger().info("Providing NNTP services");
-        }
-        if (! (provideSMTP | providePOP3 | provideIMAP | provideNNTP)) {
-            throw new ConfigurationException ("Fatal configuration error: no services specified!");
-        }
-
         //Get localusers
         try {
             localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
@@ -218,9 +187,13 @@ public class James
         if (conf.getChild("storage").getValue().equals("IMAP")) {
             useIMAPstorage = true;
         }
-        if (provideIMAP && (! useIMAPstorage)) {
-            throw new ConfigurationException ("Fatal configuration error: IMAP service requires IMAP storage ");
-        }
+        
+        //IMAPServer instance is controlled via assembly.xml. 
+        //Assumption is that assembly.xml will set the correct IMAP Store 
+        //if IMAP is enabled.
+        //if (provideIMAP && (! useIMAPstorage)) {
+        //    throw new ConfigurationException ("Fatal configuration error: IMAP service requires IMAP storage ");
+        //}
 
         // Get the LocalInbox repository
         if (useIMAPstorage) {
@@ -279,95 +252,16 @@ public class James
             throw e;
         }
         getLogger().info("Private SpoolRepository Spool opened");
-        compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
-
-
-        POP3Server pop3Server = null;
-        if (providePOP3) {
-            pop3Server = new POP3Server();
-            try {
-                setupLogger( pop3Server, "POP3Server" );
-                pop3Server.configure(conf.getChild("pop3Server"));
-                pop3Server.contextualize(context);
-                pop3Server.compose(compMgr);
-            } catch (Exception e) {
-                getLogger().error("Exception in POP3Server init: " + e.getMessage());
-                throw e;
-            }
-        }
-
-        IMAPServer imapServer = null;
-        if (provideIMAP) {
-            getLogger().info("Attempting IMAPServer init... ");
-            imapServer = new IMAPServer();
-            try {
-                setupLogger( imapServer, "IMAPServer" );
-                imapServer.configure(conf.getChild("imapServer"));
-                imapServer.contextualize(context);
-                imapServer.compose(compMgr);
-            } catch (Exception e) {
-                getLogger().error("Exception in IMAPServer init: " + e.getMessage());
-                throw e;
-            }
-        }
-
-        SMTPServer smtpServer = null;
-        DNSServer dnsServer = null;
-        if (provideSMTP) {
-            dnsServer = new DNSServer();
-            try {
-                setupLogger( dnsServer, "DnsServer" );
-                dnsServer.configure( conf.getChild("dnsServer") );
-            } catch (Exception e) {
-                getLogger().error( "Exception in DNSServer init: " + e.getMessage(), e );
-                throw e;
-            }
-            compMgr.put("DNS_SERVER", dnsServer);
-
-            smtpServer = new SMTPServer();
-            try {
-                setupLogger( smtpServer, "SMTPServer" );
-                smtpServer.contextualize( context );
-                smtpServer.compose( compMgr );
-                smtpServer.configure( conf.getChild("smtpServer") );
-            } catch (Exception e) {
-                getLogger().error( "Exception in SMTPServer init: " + e.getMessage(), e );
-                throw e;
-            }
-        }
-
-        NNTPServer nntpServer = null;
-        if (provideNNTP) {
-            nntpServer = new NNTPServer();
-            try {
-                setupLogger( nntpServer, "NNTPServer" );
-                nntpServer.configure(conf.getChild("nntpServer"));
-                nntpServer.contextualize(context);
-                nntpServer.compose(compMgr);
-            } catch (Exception e) {
-                getLogger().error("Exception in NNTPServer init: " + e.getMessage());
-                throw e;
-            }
-        }
-
-        RemoteManager remoteAdmin = new RemoteManager();
-        try {
-            setupLogger( remoteAdmin, "RemoteManager" );
-            remoteAdmin.configure(conf.getChild("remoteManager"));
-            remoteAdmin.compose(compMgr);
-        } catch (Exception e) {
-            getLogger().error("Exception in RemoteAdmin init: " + e.getMessage());
-            throw e;
-        }
-
+        //compMgr.put("org.apache.james.services.SpoolRepository", (Component)spool);
         // For mailet engine provide MailetContext
-        compMgr.put("org.apache.mailet.MailetContext", this);
+        //compMgr.put("org.apache.mailet.MailetContext", this);
         // For AVALON aware mailets and matchers, we put the Component object as
         // an attribute
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
         // int threads = conf.getConfiguration("spoolmanagerthreads").getValueAsInt(1);
         //while (threads-- > 0) {
+/*
         try {
             JamesSpoolManager spoolMgr = new JamesSpoolManager();
             setupLogger( spoolMgr, "SpoolManager" );
@@ -381,24 +275,8 @@ public class James
             getLogger().error("Exception in SpoolManager init: " + e.getMessage());
             throw e;
         }
-
-
-        if (providePOP3) pop3Server.init();
-        if (provideIMAP) imapServer.init();
-        if (provideSMTP) {
-            smtpServer.init();
-            dnsServer.init();
-        }
-        if (provideNNTP) nntpServer.init();
-        remoteAdmin.init();
-
-        System.out.print(VERSION + " providing: ");
-        if (provideSMTP) {System.out.print("SMTP ");}
-        if (providePOP3) {System.out.print("POP3 ");}
-        if (provideIMAP) {System.out.print("IMAP ");}
-        if (provideNNTP) {System.out.print("NNTP ");}
-        System.out.println("services.");
-
+*/
+        System.out.println("James "+VERSION);
         getLogger().info("JAMES ...init end");
     }
 
@@ -510,7 +388,7 @@ public class James
     public Collection getMailServers(String host) {
         DNSServer dnsServer = null;
         try {
-            dnsServer = (DNSServer) compMgr.lookup("DNS_SERVER");
+            dnsServer = (DNSServer) compMgr.lookup("org.apache.james.services.DNSServer");
         } catch ( final ComponentException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
