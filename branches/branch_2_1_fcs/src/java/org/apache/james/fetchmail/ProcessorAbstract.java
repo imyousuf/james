@@ -288,6 +288,15 @@ abstract public class ProcessorAbstract
     }
     
     /**
+     * Returns the leaveRemoteReceivedHeaderInvalid.
+     * @return boolean
+     */
+    protected boolean isLeaveRemoteReceivedHeaderInvalid()
+    {
+        return getConfiguration().isLeaveRemoteReceivedHeaderInvalid();
+    }    
+    
+    /**
      * Returns the LeaveMaxMessageSizeExceeded.
      * @return boolean
      */
@@ -313,6 +322,15 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().isRejectUserUndefined();
     }
+    
+    /**
+     * Returns the RejectRemoteReceivedHeaderInvalid.
+     * @return boolean
+     */
+    protected boolean isRejectRemoteReceivedHeaderInvalid()
+    {
+        return getConfiguration().isRejectRemoteReceivedHeaderInvalid();
+    }    
     
     /**
      * Returns the RejectMaxMessageSizeExceeded.
@@ -394,6 +412,15 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().isMarkUserUndefinedSeen();
     }
+    
+    /**
+     * Returns the markRemoteReceivedHeaderInvalidSeen.
+     * @return boolean
+     */
+    protected boolean isMarkRemoteReceivedHeaderInvalidSeen()
+    {
+        return getConfiguration().isMarkRemoteReceivedHeaderInvalidSeen();
+    }    
     
     /**
      * Returns the MarkMaxMessageSizeExceededSeen.

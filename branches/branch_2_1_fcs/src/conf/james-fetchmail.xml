@@ -68,19 +68,6 @@
             <!-- How frequently this host is checked - in milliseconds. 600000 is every ten minutes -->
             <interval>600000</interval>
             
-            <!-- The zero based index of the RECEIVED Header used to compute the remote address and remote host name -->
-            <!-- of the MTA that delivered a fetched message. -->
-            <!-- Typically, the first (index = 0) RECEIVED Header is for the local MTA that delivers mail to the message store -->
-            <!-- and the second RECEIVED Header (index = 1) is the remote domain delivering mail to the MTA, so the second -->
-            <!-- RECEIVED Header is the one to use. -->
-            <!-- Some configurations will differ. Look at the RECEIVED Headers and set the index to point to the first -->
-            <!-- remote MTA. -->
-            <!-- Matchers such as InSpammerBlacklist use the remote address and/or remote host name to identify illegitimate -->
-            <!-- remote MTAs. -->
-            <!-- This tag is optional. If omitted, it will default to an index of -1, which is interpreted as use 127.0.0.1 for the -->
-            <!-- remote address and use 'localhost' for the remote host name. Both are almost always considered legitimate. -->
-            <remoteReceivedHeaderIndex>1</remoteReceivedHeaderIndex>
-            
             <!-- name of the javamail provider you wish to use -->
             <!-- (pop3, imap, etc. -->
             <javaMailProviderName>pop3</javaMailProviderName>
@@ -131,6 +118,34 @@
             <!--     if false, messages left on the server will not be marked as seen -->            
             <fetched leaveonserver="false" markseen="true"/>
 
+            <!-- Specify the index of the RECEIVED Header used to compute the remote address and remote host name -->
+            <!-- and what happens to messages that contain an invalid header at that index. -->
+            <!-- Matchers such as InSpammerBlacklist use the remote address and/or remote host name to identify illegitimate -->
+            <!-- remote MTAs. -->
+            <!-- This tag is optional. If omitted, the remote address will be set to 127.0.0.1 and the remote domain -->
+            <!-- will be set to 'localhost'. Both are almost always considered legitimate. -->
+            <!-- index -->                     
+            <!--     The zero based index of the RECEIVED Header used to compute the remote address and remote host name -->
+            <!--     of the MTA that delivered a fetched message. -->
+            <!--     Typically, the first (index = 0) RECEIVED Header is for the local MTA that delivers mail to the message store -->
+            <!--     and the second RECEIVED Header (index = 1) is the remote domain delivering mail to the MTA, so the second -->
+            <!--     RECEIVED Header is the one to use. -->
+            <!--     Some configurations will differ. Look at the RECEIVED Headers and set the index to point to the first remote MTA. -->
+            <!--     An index of -1 is is interpreted as use 127.0.0.1 for the remote address and use 'localhost' for the remote host name. -->
+            <!-- reject -->
+            <!--     if true, messages whose received header at the specified index is invalid will be rejected -->
+            <!--     if false, messages whose received header at the specified index is invalid will be accepted -->
+            <!--     and the Mail Attribute "org.apache.james.fetchmail.isInvalidReceivedHeader" -->
+            <!--     will be added to the message. Use the HasMailAttribute matcher to detect them. -->
+            <!-- The following apply if reject="true" and a message is rejected... -->
+            <!--     leaveonserver -->
+            <!--         if true, messages will be left on the server -->
+            <!--         if false, messages will be deleted from the server -->
+            <!--     markseen -->
+            <!--         if true, messages left on the server will be marked as seen -->
+            <!--         if false, messages left on the server will not be marked as seen -->             
+            <remotereceivedheader index="1" reject="true" leaveonserver="true" markseen="false"/>
+                
             <!-- Specify what happens to messages whose size exceeds the specified limit. -->
             <!-- This tag is optional. If omitted, there is no limit. -->
             <!-- limit -->
@@ -149,7 +164,7 @@
             <!--     markseen -->
             <!--         if true, messages left on the server will be marked as seen -->
             <!--         if false, messages left on the server will not be marked as seen -->            
-            <maxmessagesize limit=0 reject="false" leaveonserver="true" markseen="false"/>
+            <maxmessagesize limit="0" reject="false" leaveonserver="true" markseen="false"/>
             
             <!-- Specify what happens to undeliverable messages -->
             <!-- leaveonserver -->
