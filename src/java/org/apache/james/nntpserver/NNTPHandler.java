@@ -361,8 +361,10 @@ public class NNTPHandler
 
             getLogger().info("Connection closed");
         } catch (Exception e) {
-            doQUIT(null);
-            getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            if (!(socket == null || socket.isClosed())) {
+                doQUIT(null);
+                getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            }
         } finally {
             resetHandler();
         }
