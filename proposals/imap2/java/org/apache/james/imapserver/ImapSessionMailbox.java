@@ -265,14 +265,26 @@ public class ImapSessionMailbox implements ImapMailbox, MailboxListener {
     }
     
     static final class FlagUpdate {
-        int msn;
-        Long uid;
-        Flags flags;
+        private int msn;
+        private Long uid;
+        private Flags flags;
 
         public FlagUpdate(int msn, Long uid, Flags flags) {
             this.msn = msn;
             this.uid = uid;
             this.flags = flags;
+        }
+
+        public int getMsn() {
+            return msn;
+        }
+
+        public Long getUid() {
+            return uid;
+        }
+
+        public Flags getFlags() {
+            return flags;
         }
     }
 

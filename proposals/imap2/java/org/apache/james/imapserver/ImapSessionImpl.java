@@ -73,7 +73,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public final class ImapSessionImpl implements ImapSession
 {
@@ -115,32 +115,32 @@ public final class ImapSessionImpl implements ImapSession
         ImapSessionMailbox selected = getSelected();
         if (selected != null) {
             // New message response
-            // TODO: need RECENT...
             if (selected.isSizeChanged()) {
                 request.existsResponse(selected.getMessageCount());
                 request.recentResponse(selected.getRecentCount(true));
                 selected.setSizeChanged(false);
             }
 
+            // Message updates
             List flagUpdates = selected.getFlagUpdates();
             Iterator iter = flagUpdates.iterator();
             while (iter.hasNext()) {
                 ImapSessionMailbox.FlagUpdate entry = 
                         (ImapSessionMailbox.FlagUpdate) iter.next();
-                int msn = entry.msn;
-                Flags updatedFlags = entry.flags;
+                int msn = entry.getMsn();
+                Flags updatedFlags = entry.getFlags();
                 StringBuffer out = new StringBuffer( "FLAGS " );
                 out.append( MessageFlags.format(updatedFlags) );
-                if (entry.uid != null) {
+                if (entry.getUid() != null) {
                     out.append(" UID ");
-                    out.append(entry.uid);
+                    out.append(entry.getUid());
                 }
                 request.fetchResponse(msn, out.toString());
 
             }
 
+            // Expunged messages
             if (! omitExpunged) {
-                // Expunge response - TODO can't send on certain commands
                 int[] expunged = selected.getExpunged();
                 for (int i = 0; i < expunged.length; i++) {
                     int msn = expunged[i];
