@@ -2,15 +2,15 @@
 
 <!-- ===========================================================================
 
- James build file 
- 
+ James build file
+
 Authors:
  Federico Barbieri <scoobie@systemy.it>
 
 Todo:
  - write the target rule that reacts on class presence.
- 
-Legal: 
+
+Legal:
   Copyright (c) 1999 The Apache Software Foundation. All Rights Reserved.
 
 ================================================================================
@@ -18,7 +18,7 @@ Legal:
 
                           Needed package to run JAMES
                           ===========================
-                             
+
 JAMES is a mail server running on top of the Avalon framework.
 
 To compile and run it you need the org.apache.avalon.blocks package and its needed packages.
@@ -31,41 +31,42 @@ All theese package are in current distribution.
 ============================================================================ -->
 
 <project default="package" basedir=".">
+  <target name="init">
+	<property name="name" value="JAMES"/>
+	<property name="version" value="1.0b1"/>
+	<property name="year" value="1999-2000"/>
 
-  <property name="name" value="JAMES"/>
-  <property name="version" value="1.0b1"/>
-  <property name="year" value="1999-2000"/>
+	<property name="build.compiler" value="classic"/>
+	<property name="debug" value="off"/>
+	<property name="optimize" value="on"/>
+	<property name="deprecation" value="off"/>
+	<property name="classpath" value="./lib/Avalon.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
 
-  <property name="build.compiler" value="classic"/>
-  <property name="debug" value="off"/>
-  <property name="optimize" value="on"/>
-  <property name="deprecation" value="off"/>
-  <property name="classpath" value="./lib/Avalon.jar;./lib/activation.jar;./lib/mail.jar;./lib/xerces_1_0_1.jar;./lib/dnsjava.jar"/>
+	<property name="src.dir" value="./src"/>
+	<property name="dtd.dir" value="./dtd"/>
+	<property name="docs.dir" value="./docs"/>
+	<property name="sheets.dir" value="./stylesheets"/>
+	<property name="images.dir" value="./resources"/>
+	<property name="samples.dir" value="./samples"/>
+	<property name="packages" value="org.apache.*"/>
 
-  <property name="src.dir" value="./src"/>
-  <property name="dtd.dir" value="./dtd"/>
-  <property name="docs.dir" value="./docs"/>
-  <property name="sheets.dir" value="./stylesheets"/>
-  <property name="images.dir" value="./resources"/>
-  <property name="samples.dir" value="./samples"/>
-  <property name="packages" value="org.apache.*"/>
+	<property name="sbk.docs" value="./build/sbkdocs"/>
+	<property name="style" value="../xml-site/style/"/>
+	<property name="doc.generator" value="org.apache.stylebook.StyleBook"/>
 
-  <property name="sbk.docs" value="./build/sbkdocs"/>
-  <property name="style" value="../xml-site/style/"/>
-  <property name="doc.generator" value="org.apache.stylebook.StyleBook"/>
+	<property name="constants.file" value="org/apache/james/Constants.java"/>
 
-  <property name="constants.file" value="org/apache/james/Constants.java"/>
+	<property name="build.dir" value="./build"/>
+	<property name="build.src" value="./build/src"/>
+	<property name="build.dest" value="./build/classes"/>
+	<property name="build.docs" value="./build/docs"/>
+	<property name="build.javadocs" value="./build/javadocs"/>
 
-  <property name="build.dir" value="./build"/>
-  <property name="build.src" value="./build/src"/>
-  <property name="build.dest" value="./build/classes"/>
-  <property name="build.docs" value="./build/docs"/>
-  <property name="build.javadocs" value="./build/javadocs"/>
+	<property name="dist.dir" value="./dist"/>
 
-  <property name="dist.dir" value="./dist"/>
-
-  <property name="site.dir" value="../xml-site/sources/james"/>
-  <property name="site.docs" value="../xml-site/targets/james"/>
+	<property name="site.dir" value="../xml-site/sources/james"/>
+	<property name="site.docs" value="../xml-site/targets/james"/>
+  </target>
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -92,7 +93,7 @@ All theese package are in current distribution.
   <!-- =================================================================== -->
   <!-- Prepares the build directory                                        -->
   <!-- =================================================================== -->
-  <target name="prepare">
+  <target name="prepare" depends="init">
     <mkdir dir="${build.dir}"/>
   </target>
 
@@ -157,13 +158,13 @@ All theese package are in current distribution.
 
     <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
     <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
-    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/> 
+    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/>
   </target>
 
   <!-- =================================================================== -->
   <!-- Cleans everything                                                   -->
   <!-- =================================================================== -->
-  <target name="clean">
+  <target name="clean" depends="init">
     <deltree dir="${build.dir}"/>
     <deltree dir="${dist.dir}"/>
   </target>
