@@ -315,7 +315,7 @@ public class NNTPHandler extends BaseConnectionHandler
             if ( param.equalsIgnoreCase("NEWSGROUPS") )
                 output = LISTGroup.Factory.NEWSGROUPS(writer);
             else
-                assert(param,param.equalsIgnoreCase("ACTIVE"));
+                check(param,param.equalsIgnoreCase("ACTIVE"));
             if ( tok.hasMoreTokens() )
                 wildmat = tok.nextToken();
         }
@@ -325,13 +325,13 @@ public class NNTPHandler extends BaseConnectionHandler
             output.show((NNTPGroup)iter.next());
         writer.println(".");
     }
-    private void assert(String id,boolean b) {
+    private void check(String id,boolean b) {
         if ( b == false )
             throw new RuntimeException(id);
     }
     private void doIHAVE(String id) {
         // see section 9.3.2.1
-        assert(id,id.startsWith("<") && id.endsWith(">"));
+        check(id,id.startsWith("<") && id.endsWith(">"));
         NNTPArticle article = repo.getArticleFromID(id);
         if ( article != null )
             writer.println("435 article not wanted - do not send it");
