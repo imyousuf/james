@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/documentation_2_1.htm -->
 
-<!-- $Revision: 1.42 $ Committed on $Date: 2003/01/18 19:02:43 $ by: $Author: hbedi $ -->
+<!-- $Revision: 1.43 $ Committed on $Date: 2003/01/18 20:58:26 $ by: $Author: hbedi $ -->
 
 <config>
    <James>
@@ -339,7 +339,7 @@
     <!-- but does not free as many resources as removing them would -->
    <pop3server enabled="true">
       <!-- port 995 is the well-known/IANA registered port for POP3S  ie over SSL/TLS -->
-      <!-- port 100 is the well-known/IANA registered port for Standard POP3 -->
+      <!-- port 110 is the well-known/IANA registered port for Standard POP3 -->
       <port>110</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
