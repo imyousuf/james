@@ -45,13 +45,13 @@ public class File_Persistent_Object_Repository
             {
                 final ObjectInputStream stream = new ObjectInputStream( inputStream );
                 final Object object = stream.readObject();
-                if( DEBUG ) LOGGER.debug( "returning object " + 
+                if( DEBUG ) m_logger.debug( "returning object " + 
                                           object + " for key " + key );
                 return object;
             }
 	    catch( final Exception e1 )
 		{
-		    LOGGER.warn("Exception caught while retrieving an object - position 1: " + e1);
+		    m_logger.warn("Exception caught while retrieving an object - position 1: " + e1);
 		    throw new RuntimeException( "Exception caught while retrieving an object pos1: " + e1 );
 		}
             finally
@@ -61,7 +61,7 @@ public class File_Persistent_Object_Repository
         } 
         catch( final Exception e )
         {
-	    LOGGER.warn("Exception caught while retrieving an object: " + e);
+	    m_logger.warn("Exception caught while retrieving an object: " + e);
             throw new RuntimeException( "Exception caught while retrieving an object: " + e );
         }
     }
@@ -79,11 +79,11 @@ public class File_Persistent_Object_Repository
             {
                 final ObjectOutputStream stream = new ObjectOutputStream( outputStream );
                 stream.writeObject( value );
-                if( DEBUG ) LOGGER.debug( "storing object " + value + " for key " + key );
+                if( DEBUG ) m_logger.debug( "storing object " + value + " for key " + key );
             }
 	    catch( final Exception e1 )
 		{
-		    LOGGER.warn("Exception caught while storing an object - position 1: " + e1);
+		    m_logger.warn("Exception caught while storing an object - position 1: " + e1);
 		    throw new RuntimeException( "Exception caught while storing an object pos1: " + e1 );
 		}
             finally
@@ -93,7 +93,7 @@ public class File_Persistent_Object_Repository
         } 
         catch( final Exception e )
         {
-	    LOGGER.warn("Exception caught while storing an object: " + e);
+	    m_logger.warn("Exception caught while storing an object: " + e);
             throw new RuntimeException( "Exception caught while storing an object: " + e );
         }
     }

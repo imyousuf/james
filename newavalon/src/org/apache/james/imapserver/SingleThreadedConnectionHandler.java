@@ -87,8 +87,8 @@ public class SingleThreadedConnectionHandler implements ConnectionHandler {
     private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger= LogKit.getLoggerFor("IMAPServer") ;
-    private Logger securityLogger = LogKit.getLoggerFor("Security") ;
+    private Logger logger= LogKit.getLoggerFor("james.IMAPServer") ;
+    private Logger securityLogger = LogKit.getLoggerFor("james.Security") ;
     private MailServer mailServer;
     private UsersRepository users;
     private Scheduler scheduler;

@@ -62,7 +62,7 @@ public class SMTPHandler implements Composer, Configurable, Runnable, Stoppable,
     private ComponentManager compMgr;
     private Configuration conf;
     private Context context;
-    private Logger logger =  LogKit.getLoggerFor("SMTPServer");
+    private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
     private Scheduler scheduler;
     private MailServer mailServer;
 

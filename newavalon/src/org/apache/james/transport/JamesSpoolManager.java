@@ -32,7 +32,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Run
     private Configuration conf;
     private Context context;
     private SpoolRepository spool;
-    private Logger logger =  LogKit.getLoggerFor("SpoolManager");
+    private Logger logger =  LogKit.getLoggerFor("james.SpoolManager");
     private MailetContext mailetcontext;
 
     private HashMap processors;

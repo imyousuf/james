@@ -28,7 +28,7 @@ public class SMTPServer implements SocketServer.SocketHandler, Configurable, Com
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private Logger logger =  LogKit.getLoggerFor("SMTPServer");
+    private Logger logger =  LogKit.getLoggerFor("james.SMTPServer");
     private WorkerPool workerPool;
  
     

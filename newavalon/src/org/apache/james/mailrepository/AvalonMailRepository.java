@@ -44,7 +44,7 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
     private static final String TYPE = "MAIL";
     private final static boolean        LOG        = true;
     private final static boolean        DEBUG      = LOG && false;
-    private Logger logger =  LogKit.getLoggerFor("MailRepository");
+    private Logger logger =  LogKit.getLoggerFor("james.MailRepository");
     private Store store;
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;

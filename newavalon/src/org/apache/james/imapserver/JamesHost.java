@@ -44,7 +44,7 @@ public class JamesHost implements Host, Component, Initializable {
     private Context context;
     private Configuration conf;
     private ComponentManager compMgr;
-    private Logger logger  = LogKit.getLoggerFor("JamesHost");
+    private Logger logger  = LogKit.getLoggerFor("james.JamesHost");
     private String rootPath; // ends with File.seperator
     private File rootFolder;
     private IMAPSystem imapSystem;

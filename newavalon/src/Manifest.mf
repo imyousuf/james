@@ -10,3 +10,5 @@ Avalon-Block: true
 Name: org/apache/james/core/AvalonUsersStore.class
 Avalon-Block: true
 
+Name: org/apache/james/filestorage/RepositoryManager.class
+Avalon-Block: true

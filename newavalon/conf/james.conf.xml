@@ -61,6 +61,7 @@
 
       <category name="" target="default" priority="DEBUG" />
       <category name="objectstorage" target="objectstorage-target" priority="DEBUG" />
+      <category name="james-storage" target="james-storage-target" priority="DEBUG" />
       <category name="mailstore" target="mailstore-target" priority="DEBUG" />
       <category name="users-store" target="userstore-target" priority="DEBUG" />
       <category name="JAMES" target="james-core-target" priority="DEBUG" />
@@ -83,6 +84,7 @@
 
       <log-target name="default" location="/logs/james-default.log" />
       <log-target name="objectstorage-target" location="/logs/objectstorage.log" />
+      <log-target name="james-storage-target" location="/logs/jamesstorage.log" />
       <log-target name="mailstore-target" location="/logs/mailstore.log" />
       <log-target name="userstore-target" location="/logs/userstore.log" />
       <log-target name="james-core-target" location="/logs/james-core.log" />
@@ -363,8 +365,9 @@
     <block class="org.apache.james.core.AvalonMailStore" 
            name="mailstore" >
 
-        <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
 
+      <!--  <provide name="objectstorage" role="org.apache.avalon.services.Store"/> -->
+        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
         <configuration>
 	  <repositories>
                  <repository class="org.apache.james.mailrepository.AvalonMailRepository">
@@ -403,8 +406,8 @@
            name="users-store" >
 
 
-        <provide name="objectstorage" role="org.apache.avalon.services.Store"/>
-
+      <!--  <provide name="objectstorage" role="org.apache.avalon.services.Store"/> -->
+        <provide name="james-storage" role="org.apache.avalon.services.Store"/>
         <configuration>
 	    <repository name="LocalUsers"
 	                class="org.apache.james.usersrepository.UsersFileRepository">
@@ -419,7 +422,7 @@
     </block>
       
 
- <!-- The Low-Level Storage block
+ <!-- The Low-Level Storage block -->
 
     <block class="org.apache.james.filestorage.RepositoryManager" 
            name="james-storage" >
@@ -461,9 +464,9 @@
 
     </block>
 
--->
 
-    <!-- The Storage block -->
+
+    <!-- The Storage block 
     <block class="org.apache.avalon.blocks.masterstore.RepositoryManager" 
            name="objectstorage" >
 
@@ -500,7 +503,7 @@
 
     </block>
 
-
+-->
     <!-- The Socket Manager block -->
     <block class="org.apache.avalon.blocks.serversocket.SocketManager" name="sockets" >
 

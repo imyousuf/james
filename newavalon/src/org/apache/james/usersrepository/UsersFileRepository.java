@@ -33,11 +33,11 @@ import org.apache.james.services.UsersRepository;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class UsersFileRepository implements UsersRepository, Component, Configurable, Composer {
+public class UsersFileRepository implements UsersRepository, Loggable, Component, Configurable, Composer {
     private static final String TYPE = "USERS";
     private final static boolean        LOG        = true;
     private final static boolean        DEBUG      = LOG && false;
-    private Logger logger =  LogKit.getLoggerFor("UsersStore");
+    private Logger logger;// =  LogKit.getLoggerFor("james.users-store");
     private Store store;
     private Store.ObjectRepository or;
     //  private String path;
@@ -47,9 +47,12 @@ public class UsersFileRepository implements UsersRepository, Component, Configur
     //  private String model;
     private Lock lock;
 
-   public UsersFileRepository() {
+    public UsersFileRepository() {
     }
 
+    public void setLogger(final Logger a_Logger) {
+	logger = a_Logger;
+    }
 
     public void configure(Configuration conf) throws ConfigurationException {
 
