@@ -44,7 +44,7 @@ mail domains that the server considers local.</li>
 <li><strong>repository</strong> - this defines the mail repository that will be used to store 
 mail delivered locally.  This element has no body.  The required attribute <strong>type</strong> 
 is always set to "MAIL".  The required attribute <strong>repositoryURL</strong> addresses the
-repository as described in <a href="repository_configuration.html">the repository configuration section</a>.</li>
+repository as described in <a href="repositories_2_1.html">the repository configuration section</a>.</li>
 </ul>
 </ul>
 </p>
