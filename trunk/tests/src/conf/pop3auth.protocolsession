@@ -8,3 +8,5 @@ C: USER test
 S: \+OK.*
 C: PASS test
 S: \+OK.*
+C: QUIT
+S: \+OK.*
