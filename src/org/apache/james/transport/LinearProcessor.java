@@ -66,11 +66,28 @@ public class LinearProcessor {
             logger.log("===== i = " + i + " =====", "Processor", logger.INFO);
             MailImpl next = (MailImpl) unprocessed.get(i);
             if (!isEmpty(next)) {
-                Collection rcpts = ((Matcher) matchers.get(i)).match(next);
-                //Split the recipients
-                if (rcpts == null) {
-                    rcpts = new Vector();
+                Collection rcpts = null;
+                Matcher matcher = (Matcher) matchers.get(i);
+                try {
+                    rcpts = matcher.match(next);
+                    if (rcpts == null) {
+                        rcpts = new Vector();
+                    }
+                    verifyMailAddresses(rcpts);
+                } catch (MailetException ex) {
+                    ex.printStackTrace();/*DEBUG*/
+                    next.setState(Mail.ERROR);
+                    next.setErrorMessage("Exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + ex.getMessage());
+                    logger.log("exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + ex.getMessage(), "Processor", logger.ERROR);
+                    throw ex;
+                } catch (MessagingException me) {
+                    me.printStackTrace();/*DEBUG*/
+                    next.setState(Mail.ERROR);
+                    next.setErrorMessage("Exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + me.getMessage());
+                    logger.log("exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + me.getMessage(), "Processor", logger.ERROR);
+                    throw me;
                 }
+                //Split the recipients
                 Collection notRcpts = new Vector();
                 notRcpts.addAll(next.getRecipients());
                 notRcpts.removeAll(rcpts);
@@ -112,6 +129,7 @@ public class LinearProcessor {
                 Mailet mailet = (Mailet) mailets.get(i);
                 try {
                     mailet.service(next);
+                    verifyMailAddresses(mail.getRecipients());
                 } catch (MailetException ex) {
                     ex.printStackTrace();/*DEBUG*/
                     next.setState(Mail.ERROR);
@@ -181,6 +199,16 @@ public class LinearProcessor {
             } else {
                 logger.log("unprocessed " + j + " -> " + printRecipients(m), "Processor", logger.INFO);
             }
+        }
+    }
+
+    /**
+     * Checks that all objects in this class are of the form MailAddress
+     */
+    private void verifyMailAddresses(Collection col) throws MailetException {
+        MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
+        if (addresses.length != col.size()) {
+            throw new MailetException("The recipient list contains objects other than MailAddress objects");
         }
     }
 }
