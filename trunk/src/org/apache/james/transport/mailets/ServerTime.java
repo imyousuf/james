@@ -28,17 +28,17 @@ public class ServerTime extends GenericMailet {
      */
     public void service(Mail mail) throws MailetException, MessagingException {
         log("Sending timestamp");
-        MimeMessage response = new MimeMessage(Session.getDefaultInstance(new Properties(), null));
+        MimeMessage response = (MimeMessage)mail.getMessage().reply(false);
         response.setSubject("The time is now...");
         response.setText("This mail server thinks it's " + new java.util.Date() + ".");
 
         Collection recipients = new Vector();
-        recipients.add(mail.getSender());
-        InternetAddress addr[] = {new InternetAddress(mail.getSender().toString())};
-        response.setRecipients(Message.RecipientType.TO, addr);
-        response.setFrom(new InternetAddress(mail.getRecipients().iterator().next().toString()));
+        Address addresses[] = response.getAllRecipients();
+        for (int i = 0; i < addresses.length; i++) {
+            recipients.add(new MailAddress((InternetAddress)addresses[0]));
+        }
 
-        MailAddress sender = (MailAddress)mail.getRecipients().iterator().next();
+        MailAddress sender = new MailAddress((InternetAddress)response.getFrom()[0]);
         getMailetContext().sendMail(sender, recipients, response);
     }
 
