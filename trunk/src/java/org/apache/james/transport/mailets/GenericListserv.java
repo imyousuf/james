@@ -141,7 +141,6 @@ public abstract class GenericListserv extends GenericMailet {
                 //reduce them to one at the beginning
                 re ="RE:";
                 index = subj.indexOf(re,re.length());
-                System.err.println("3i-"+index);
                 while(index > 0){
                     subj = subj.substring(0, index) + subj.substring(index + re.length() + 1);
                     index = subj.indexOf(re,1);
@@ -150,12 +149,12 @@ public abstract class GenericListserv extends GenericMailet {
                 index = subj.indexOf(prefix);
                 if (index > -1) {
                     if (index == 0) {
-                        subj = prefix + ' ' + subj.substring(index + prefix.length() + 1);
+                        subj = prefix + subj.substring(index + prefix.length());
                     } else {
-                        subj = prefix + ' ' + subj.substring(0, index) + subj.substring(index + prefix.length() + 1);
+                        subj = prefix + subj.substring(0, index) + subj.substring(index + prefix.length());
                     }
                 } else {
-                    subj = prefix + ' ' + subj;
+                    subj = prefix + subj;
                 }
                 message.setSubject(subj);
             }
