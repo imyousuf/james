@@ -48,7 +48,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.15 $
+ * @version CVS $Revision: 1.16 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -234,14 +234,23 @@ public class JdbcDataSource extends AbstractLogEnabled
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Loading new driver: " + jdbcDriver);
                 }
-                Thread.currentThread().getContextClassLoader().loadClass(jdbcDriver);
+                // TODO: Figure out why this breaks when we change the Class.forName to
+                //       a loadClass method call on the class loader.
+                // DO NOT MESS WITH THIS UNLESS YOU ARE WILLING TO TEST
+                // AND FIX THE PROBLEMS!
+                Class.forName(jdbcDriver, true, Thread.currentThread().getContextClassLoader());
+                // These variations do NOT work:
+                // getClass().getClassLoader().loadClass(jdbcDriver);                    -- DON'T USE -- BROKEN!!
+                // Thread.currentThread().getContextClassLoader().loadClass(jdbcDriver); -- DON'T USE -- BROKEN!!
             } catch(ClassNotFoundException cnfe) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
                             .append("'")
                             .append(jdbcDriver)
                             .append("' could not be found in classloader.  Please specify a valid JDBC driver");
-                throw new ConfigurationException(exceptionBuffer.toString());
+                String exceptionMessage = exceptionBuffer.toString();
+                getLogger().error(exceptionMessage);
+                throw new ConfigurationException(exceptionMessage);
             }
             if(jdbcURL == null) {
                 throw new ConfigurationException("You need to specify a valid JDBC connection string, e.g., <dburl>jdbc:driver:database</dburl>");
