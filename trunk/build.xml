@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.111 $  Committed on $Date: 2002/09/26 11:52:07 $ by: $Author: danny $
+ James build file $Revision: 1.112 $  Committed on $Date: 2002/10/20 21:03:50 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -100,8 +100,8 @@ Legal:
        ===================================================================
   -->
     <property name="lib.dir" value="lib"/>
-    <property name="phoenix" value="phoenix-bin"/>
-    <property name="phoenix.lib.dir" value="${phoenix}/lib"/>
+    <property name="phoenix.dir" value="phoenix-bin"/>
+    <property name="phoenix.lib.dir" value="${phoenix.dir}/lib"/>
 
     <!--
        ===================================================================
@@ -157,7 +157,7 @@ Legal:
         <available property="jdbc3.present" classname="java.sql.Savepoint"/>
         <mkdir dir="${dist.dir}"/>
         <copy todir="${dist.dir}">
-            <fileset dir="${phoenix}">
+            <fileset dir="${phoenix.dir}">
                 <exclude name="CVS/**"/>
             </fileset>
             <fileset dir=".">
@@ -170,8 +170,10 @@ Legal:
         <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.sh" eol="lf"/>
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.bat" eol="crlf"/>
+        <fixcrlf srcdir="${phoenix.dir}/bin" includes="phoenix.sh" eol="lf"/>
         <chmod perm="+x">
             <fileset dir="${dist.dir}/bin">
                 <include name="run.sh"/>
