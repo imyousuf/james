@@ -32,22 +32,25 @@ public class AvalonSpoolRepository
     implements SpoolRepository {
 
     public synchronized String accept() {
-    	if (DEEP_DEBUG) {
+        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept() called");
         }
         while (true) {
             try {
                 for(Iterator it = list(); it.hasNext(); ) {
 
-                    String s = it.next().toString();
-                    if (DEEP_DEBUG) {
-                        getLogger().debug("Found item " + s
-                                                      + " in spool.");
+                    String s = it.next().toString();                    
+                    if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                        StringBuffer logBuffer =
+                            new StringBuffer(64)
+                                    .append("Found item ")
+                                    .append(s)
+                                    .append(" in spool.");
+                        getLogger().debug(logBuffer.toString());
                     }
                     if (lock(s)) {
-                        if (DEEP_DEBUG) {
-                            getLogger().debug("accept() has locked: "
-                                                          + s);
+                        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                            getLogger().debug("accept() has locked: " + s);
                         }
                         return s;
                     }
@@ -62,21 +65,24 @@ public class AvalonSpoolRepository
     }
 
     public synchronized String accept(long delay) {
-	    if (DEEP_DEBUG) {
+        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept(delay) called");
         }
         while (true) {
             long youngest = 0;
             for (Iterator it = list(); it.hasNext(); ) {
                 String s = it.next().toString();
-		        if (DEEP_DEBUG) {
-                    getLogger().debug("Found item " + s
-                                                  + " in spool.");
+                if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                    StringBuffer logBuffer =
+                        new StringBuffer(64)
+                                .append("Found item ")
+                                .append(s)
+                                .append(" in spool.");
+                    getLogger().debug(logBuffer.toString());
                 }
                 if (lock(s)) {
-		            if (DEEP_DEBUG) {
-                        getLogger().debug("accept(delay) has"
-                                                      + " locked: "  + s);
+                    if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                        getLogger().debug("accept(delay) has locked: " + s);
                     }
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.

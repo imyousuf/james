@@ -62,22 +62,27 @@ public class RemoteManager
     }
 
     public void initialize() throws Exception {
-
         getLogger().info( "RemoteManager init..." );
-        getLogger().info( "RemoteManager using " + m_serverSocketType + " on port " + m_port );
+        StringBuffer infoBuffer =
+            new StringBuffer(64)
+                    .append("RemoteManager using ")
+                    .append(m_serverSocketType)
+                    .append(" on port ")
+                    .append(m_port);
+        getLogger().info(infoBuffer.toString());
         super.initialize();
         getLogger().info("RemoteManager ...init end");
     }
 
     public void dispose()
     {
-    	getLogger().info( "RemoteManager dispose..." );
-    	getLogger().info( "RemoteManager dispose..." + m_connectionName);
-    	super.dispose();
+        getLogger().info( "RemoteManager dispose..." );
+        getLogger().info( "RemoteManager dispose..." + m_connectionName);
+        super.dispose();
        
         // This is needed to make sure that sockets are released promptly on Windows 2000
-	System.gc();
+	    System.gc();
 	
-	getLogger().info( "RemoteManager ...dispose end" );
+    	getLogger().info( "RemoteManager ...dispose end" );
     }
 }

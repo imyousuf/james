@@ -96,15 +96,20 @@ public class AvalonMailStore
             getLogger().error("Cannot open private SpoolRepository");
             throw e;
         }
-        getLogger().info("SpoolRepository inboundSpool opened: "
-                          + inboundSpool.hashCode());
-        getLogger().info("James MailStore ...init");
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("SpoolRepository inboundSpool opened: "
+                              + inboundSpool.hashCode());
+            getLogger().info("James MailStore ...init");
+        }
     }
 
     public synchronized void registerRepository(Configuration repConf)
         throws ConfigurationException {
         String className = repConf.getAttribute("class");
-        getLogger().info("Registering Repository " + className);
+        boolean infoEnabled = getLogger().isInfoEnabled();
+        if (infoEnabled) {
+            getLogger().info("Registering Repository " + className);
+        }
         Configuration[] protocols
             = repConf.getChild("protocols").getChildren("protocol");
         Configuration[] types = repConf.getChild("types").getChildren("type");
@@ -115,9 +120,17 @@ public class AvalonMailStore
             for ( int j = 0; j < types.length; j++ )
             {
                 String type = types[j].getValue();
-        String key = protocol + type ;
+                String key = protocol + type ;
                 classes.put(key, className);
-                getLogger().info("Registered class: " + key+"->"+className);
+                if (infoEnabled) {
+                    StringBuffer logBuffer =
+                        new StringBuffer(128)
+                                .append("Registered class: ")
+                                .append(key)
+                                .append("->")
+                                .append(className);
+                    getLogger().info(logBuffer.toString());
+                }
             }
         }
 
@@ -162,15 +175,32 @@ public class AvalonMailStore
             String type = repConf.getAttribute("type");
             String repID = destination + type;
             MailRepository reply = (MailRepository) repositories.get(repID);
+            StringBuffer logBuffer = null;
             if (reply != null) {
-                getLogger().debug("obtained repository: " + repID
-                                  + "," + reply.getClass());
+                if (getLogger().isDebugEnabled()) {
+                    logBuffer =
+                        new StringBuffer(128)
+                                .append("obtained repository: ")
+                                .append(repID)
+                                .append(",")
+                                .append(reply.getClass());
+                    getLogger().debug(logBuffer.toString());
+                }
                 return (Component)reply;
             } else {
                 String repClass = (String) classes.get( protocol + type );
 
-                getLogger().debug( "Need instance of " + repClass +
-                                   " to handle: " + protocol + "," + type  );
+                if (getLogger().isDebugEnabled()) {
+                    logBuffer =
+                        new StringBuffer(128)
+                                .append("obtained repository: ")
+                                .append(repClass)
+                                .append(" to handle: ")
+                                .append(protocol)
+                                .append(",")
+                                .append(type);
+                    getLogger().debug( logBuffer.toString() );
+                }
 
                 // If default values have been set, create a new repository
                 // configuration element using the default values
@@ -206,11 +236,21 @@ public class AvalonMailStore
                         ((Initializable) reply).initialize();
                     }
                     repositories.put(repID, reply);
-                    getLogger().info("added repository: "+repID+"->"+repClass);
+                    if (getLogger().isInfoEnabled()) {
+                        logBuffer =
+                            new StringBuffer(128)
+                                .append("added repository: ")
+                                .append(repID)
+                                .append("->")
+                                .append(repClass);
+                        getLogger().info(logBuffer.toString());
+                    }
                     return (Component)reply;
                 } catch (Exception e) {
-                    getLogger().warn( "Exception while creating repository:" +
-                                      e.getMessage(), e );
+                    if (getLogger().isWarnEnabled()) {
+                        getLogger().warn( "Exception while creating repository:" +
+                                          e.getMessage(), e );
+                    }
                     e.printStackTrace();
                     throw new
                         ComponentException("Cannot find or init repository",
@@ -239,7 +279,9 @@ public class AvalonMailStore
         try {
             comp = select(hint);
         } catch(ComponentException ex) {
-            getLogger().error("Exception AvalonMailStore.hasComponent-"+ex.toString());
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Exception AvalonMailStore.hasComponent-" + ex.toString());
+            }
         }
         return (comp != null);
     }

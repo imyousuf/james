@@ -7,6 +7,7 @@
  */
 package org.apache.mailet;
 
+import java.util.Locale;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.ParseException;
 
@@ -177,7 +178,12 @@ public class MailAddress implements java.io.Serializable {
     }
 
     public String toString() {
-        return user + "@" + host;
+        StringBuffer addressBuffer = 
+            new StringBuffer(128)
+                    .append(user)
+                    .append("@")
+                    .append(host);
+        return addressBuffer.toString();
     }
 
     public InternetAddress toInternetAddress() {
@@ -193,7 +199,8 @@ public class MailAddress implements java.io.Serializable {
         if (obj == null) {
             return false;
         } else if (obj instanceof String) {
-            return toString().equalsIgnoreCase(obj.toString());
+            String theString = (String)obj;
+            return toString().equalsIgnoreCase(theString);
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
             return getUser().equalsIgnoreCase(addr.getUser()) && getHost().equalsIgnoreCase(addr.getHost());
@@ -211,7 +218,7 @@ public class MailAddress implements java.io.Serializable {
      * @return the hashcode.
      */
     public int hashCode() {
-        return toString().toLowerCase().hashCode();
+        return toString().toLowerCase(Locale.US).hashCode();
     }
 
     private String parseQuotedLocalPart(String address) throws ParseException {
@@ -412,9 +419,11 @@ public class MailAddress implements java.io.Serializable {
                 break;
             }
             char ch = address.charAt(pos);
-            if (ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'
-                || ch == '-') {
-                resultSB.append(ch + "");
+            if ((ch >= '0' && ch <= '9') || 
+                (ch >= 'a' && ch <= 'z') || 
+                (ch >= 'A' && ch <= 'Z') ||
+                (ch == '-')) {
+                resultSB.append(ch);
                 pos++;
                 continue;
             }

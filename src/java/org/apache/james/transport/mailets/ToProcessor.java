@@ -39,13 +39,24 @@ public class ToProcessor extends GenericMailet {
     }
 
     public void service(Mail mail) throws MessagingException {
-        log("Sending mail " + mail + " to " + processor);
+        StringBuffer logBuffer =
+            new StringBuffer(128)
+                    .append("Sending mail ")
+                    .append(mail)
+                    .append(" to ")
+                    .append(processor);
+        log(logBuffer.toString());
         mail.setState(processor);
         if (noticeText != null) {
             if (mail.getErrorMessage() == null) {
                 mail.setErrorMessage(noticeText);
             } else {
-                mail.setErrorMessage(mail.getErrorMessage() + "\r\n" + noticeText);
+                StringBuffer errorMessageBuffer =
+                    new StringBuffer(256)
+                            .append(mail.getErrorMessage())
+                            .append("\r\n")
+                            .append(noticeText);
+                mail.setErrorMessage(errorMessageBuffer.toString());
             }
         }
     }

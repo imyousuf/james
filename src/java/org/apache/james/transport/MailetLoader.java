@@ -61,11 +61,22 @@ public class MailetLoader implements Component, Configurable {
                     //do this so we loop through all the packages
                 }
             }
-            throw new ClassNotFoundException("Requested mailet not found: " + mailetName + ".  looked in " + mailetPackages.toString());
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Requested mailet not found: ")
+                        .append(mailetName)
+                        .append(".  looked in ")
+                        .append(mailetPackages.toString());
+            throw new ClassNotFoundException(exceptionBuffer.toString());
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            throw new MailetException("Could not load mailet (" + mailetName + ")", e);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Could not load mailet (")
+                        .append(mailetName)
+                        .append(")");
+            throw new MailetException(exceptionBuffer.toString(), e);
         }
     }
 }

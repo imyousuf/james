@@ -46,9 +46,15 @@ public class MultiThreadDeliveryPounder extends Thread {
                 msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user + "@localhost"));
                 msg.setContent(body + i, "text/plain");
                 Transport.send(msg);
-                System.out.println("Sent message : " + msg.getContent() +
-                        " from: " + msg.getFrom()[0] + " To: " +
-                        msg.getAllRecipients()[0]);
+                StringBuffer outputBuffer =
+                    new StringBuffer(256)
+                        .append("Sent message : ")
+                        .append(msg.getContent())
+                        .append(" from: ")
+                        .append(msg.getFrom()[0])
+                        .append(" To: ")
+                        .append(msg.getAllRecipients()[0]);
+                System.out.println(outputBuffer.toString());
             }
         } catch (Throwable e) {
             e.printStackTrace();

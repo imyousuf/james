@@ -9,7 +9,6 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.excalibur.concurrent.Lock;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
@@ -39,8 +38,8 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
- * $Revision: 1.5 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/07 23:24:27 $
+ * $Revision: 1.6 $
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
@@ -54,7 +53,6 @@ public class UsersFileRepository
     private Store store;
     private ObjectRepository or;
     private String destination;
-    private Lock lock  = new Lock();
 
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -72,7 +70,6 @@ public class UsersFileRepository
 	try {
             store = (Store)componentManager.
                 lookup( "org.apache.avalon.cornerstone.services.store.Store" );
-            lock = new Lock();
 
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
@@ -95,9 +92,18 @@ public class UsersFileRepository
             objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
 
             or = (ObjectRepository)store.select( objectConfiguration );
-	    getLogger().debug(this.getClass().getName() + " created in " + destination);
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer logBuffer =
+                    new StringBuffer(192)
+                            .append(this.getClass().getName())
+                            .append(" created in ")
+                            .append(destination);
+                getLogger().debug(logBuffer.toString());
+            }
         } catch (Exception e) {
-            getLogger().error("Failed to initialize repository:" + e.getMessage(), e );
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to initialize repository:" + e.getMessage(), e );
+            }
             throw e;
         }
     }

@@ -27,7 +27,12 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
     }
 
     public String getSourceId() {
-        return repositoryName + "/" + key;
+        StringBuffer sourceIdBuffer =
+            new StringBuffer(128)
+                    .append(repositoryName)
+                    .append("/")
+                    .append(key);
+        return sourceIdBuffer.toString();
     }
 
     public InputStream getInputStream() throws IOException {

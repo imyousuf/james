@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.mail.Message;
@@ -547,7 +548,7 @@ public class Redirect extends GenericMailet {
 */
     private int getTypeCode(String param) {
         int code;
-        param = param.toLowerCase();
+        param = param.toLowerCase(Locale.US);
         if(param.compareTo("unaltered") == 0) {
             return UNALTERED;
         }

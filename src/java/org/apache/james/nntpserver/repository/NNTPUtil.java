@@ -11,6 +11,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
@@ -19,6 +20,7 @@ import org.apache.james.nntpserver.NNTPException;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Locale;
 
 /**
  * Helper fuctions. 
@@ -28,24 +30,39 @@ import java.io.PrintStream;
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class NNTPUtil {
+
+    private final static int prefixLength = "file://".length();
+
     static File getDirectory(Context context, Configuration configuration, String child)
         throws ConfigurationException
     {
         String fileName = configuration.getChild(child).getValue();
-        if (!fileName.toLowerCase().startsWith("file://") ) {
-            throw new ConfigurationException
-                ("Malformed " + child + " - Must be of the format \"file://<filename>\".");
+        if (!fileName.toLowerCase(Locale.US).startsWith("file://") ) {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Malformed ")
+                        .append(child)
+                        .append(" - Must be of the format \"file://<filename>\".");
+            throw new ConfigurationException(exceptionBuffer.toString());
         }
-        fileName = fileName.substring("file://".length());
+        fileName = fileName.substring(prefixLength);
         if (!(fileName.startsWith("/"))) {
             fileName = ((BlockContext)context).getBaseDirectory() +
                        File.separator + fileName;
         }
         File f = new File(fileName);
         if ( f.exists() && f.isFile() )
-            throw new NNTPException("Expecting '"+f.getAbsolutePath()+"' directory");
-        if ( f.exists() == false )
+        {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(160)
+                        .append("Expecting '")
+                        .append(f.getAbsolutePath())
+                        .append("' directory");
+            throw new NNTPException(exceptionBuffer.toString());
+        }
+        if ( f.exists() == false ) {
             f.mkdirs();
+        }
         return f;
     }
     public static Object createInstance(Context context, 
@@ -72,10 +89,17 @@ public class NNTPUtil {
     }
 
     public static void show(Configuration conf,PrintStream prt) {
-        prt.println("conf.getClass="+conf.getClass().getName());
-        prt.println("name="+conf.getName());
+        prt.println("conf.getClass=" + conf.getClass().getName());
+        prt.println("name=" + conf.getName());
         Configuration[] children = conf.getChildren();
-        for ( int i = 0 ; i < children.length ; i++ )
-            prt.println(i+". "+children[i].getName());
+        for ( int i = 0 ; i < children.length ; i++ ) {
+            
+            StringBuffer showBuffer =
+                new StringBuffer(64)
+                        .append(i)
+                        .append(". ")
+                        .append(children[i].getName());
+            prt.println(showBuffer.toString());
+        }
     }
 }

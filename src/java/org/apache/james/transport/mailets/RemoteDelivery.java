@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.20 $
- * Committed on $Date: 2002/04/18 14:45:47 $ by: $Author: serge $
+ * This is $Revision: 1.21 $
+ * Committed on $Date: 2002/08/07 23:26:38 $ by: $Author: pgoldstein $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -112,7 +112,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
         }
         for (int i = 0; i < deliveryThreadCount; i++) {
-            Thread t = new Thread(this, "Remote delivery thread (" + i + ")");
+            StringBuffer nameBuffer =
+                new StringBuffer(32)
+                        .append("Remote delivery thread (")
+                        .append(i)
+                        .append(")");
+            Thread t = new Thread(this, nameBuffer.toString());
             t.start();
             deliveryThreads.add(t);
         }
@@ -154,7 +159,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 targetServers = getMailetContext().getMailServers(host);
                 if (targetServers.size() == 0) {
                     log("No mail server found for: " + host);
-                    return failMessage(mail, new MessagingException("There are no DNS entries for the hostname " + host + ".  I cannot determine where to send this message."), false);
+                    StringBuffer exceptionBuffer =
+                        new StringBuffer(128)
+                            .append("There are no DNS entries for the hostname ")
+                            .append(host)
+                            .append(".  I cannot determine where to send this message.");
+                    return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
                 }
             } else {
                 targetServers = new Vector();
@@ -168,7 +178,15 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 while ( i.hasNext()) {
                     try {
                         String outgoingmailserver = i.next().toString ();
-                        log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver + " to " + Arrays.asList(addr));
+                        StringBuffer logMessageBuffer =
+                            new StringBuffer(256)
+                                    .append("attempting delivery of ")
+                                    .append(mail.getName())
+                                    .append(" to host ")
+                                    .append(outgoingmailserver)
+                                    .append(" to ")
+                                    .append(Arrays.asList(addr));
+                        log(logMessageBuffer.toString());
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
                         Properties props = session.getProperties();
@@ -177,8 +195,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             props.put("mail.smtp.user", "<>");
                             props.put("mail.smtp.from", "<>");
                         } else {
-                            props.put("mail.smtp.user", mail.getSender().toString());
-                            props.put("mail.smtp.from", mail.getSender().toString());
+                            String sender = mail.getSender().toString();
+                            props.put("mail.smtp.user", sender);
+                            props.put("mail.smtp.from", sender);
                         }
 
                         //Many of these properties are only in later JavaMail versions
@@ -187,15 +206,33 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         //"mail.smtp.dsn.ret"  //default to nothing... appended as RET= after MAIL FROM line.
                         //"mail.smtp.dsn.notify" //default to nothing...appended as NOTIFY= after RCPT TO line.
 
-                        Transport transport = session.getTransport(urlname);
-                        transport.connect();
-                        transport.sendMessage(message, addr);
-                        transport.close();
-                        log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
+                        Transport transport = null;
+                        try {
+                            transport = session.getTransport(urlname);
+                            transport.connect();
+                            transport.sendMessage(message, addr);
+                        } finally {
+                            if (transport != null) {
+                                transport.close();
+                            }
+                        }
+                        logMessageBuffer =
+                            new StringBuffer(256)
+                                    .append("mail (")
+                                    .append(mail.getName())
+                                    .append(") sent successfully to ")
+                                    .append(outgoingmailserver);
+                        log(logMessageBuffer.toString());
                         return true;
                     } catch (MessagingException me) {
                         //MessagingException are horribly difficult to figure out what actually happened.
-                        log("Exception delivering message (" + mail.getName() + ") - " + me.getMessage());
+                        StringBuffer exceptionBuffer =
+                            new StringBuffer(256)
+                                    .append("Exception delivering message (")
+                                    .append(mail.getName())
+                                    .append(") - ")
+                                    .append(me.getMessage());
+                        log(exceptionBuffer.toString());
                         //Assume it is a permanent exception, or prove ourselves otherwise
                         boolean permanent = true;
                         if (me.getNextException() != null && me.getNextException() instanceof java.io.IOException) {
@@ -282,7 +319,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } else {
             out.print("Temporary");
         }
-        out.print(" exception delivering mail (" + mail.getName() + ": ");
+        StringBuffer logBuffer =
+            new StringBuffer(64)
+                .append(" exception delivering mail (")
+                .append(mail.getName())
+                .append(": ");
+        out.print(logBuffer.toString());
         ex.printStackTrace(out);
         log(sout.toString());
         if (!permanent) {
@@ -293,7 +335,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
             int retries = Integer.parseInt(mail.getErrorMessage());
             if (retries < maxRetries) {
-                log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
+                logBuffer =
+                    new StringBuffer(128)
+                            .append("Storing message ")
+                            .append(mail.getName())
+                            .append(" into outgoing after ")
+                            .append(retries)
+                            .append(" retries"); 
+                log(logBuffer.toString());
                 ++retries;
                 mail.setErrorMessage(retries + "");
                 mail.setLastUpdated(new Date());
@@ -314,7 +363,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch(Exception e){
             machine = "[address unknown]";
         }
-        out.println("Hi. This is the James mail server at " + machine + ".");
+        StringBuffer bounceBuffer =
+            new StringBuffer(128)
+                    .append("Hi. This is the James mail server at ")
+                    .append(machine)
+                    .append(".");
+        out.println(bounceBuffer.toString());
         out.println("I'm afraid I wasn't able to deliver your message to the following addresses.");
         out.println("This is a permanent error; I've given up. Sorry it didn't work out.  Below");
         out.println("I include the list of recipients and the reason why I was unable to deliver");
@@ -378,7 +432,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         Hashtable targets = new Hashtable();
         for (Iterator i = recipients.iterator(); i.hasNext();) {
             MailAddress target = (MailAddress)i.next();
-            String targetServer = target.getHost().toLowerCase();
+            String targetServer = target.getHost().toLowerCase(Locale.US);
             Collection temp = (Collection)targets.get(targetServer);
             if (temp == null) {
                 temp = new Vector();
@@ -395,9 +449,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
             String host = (String) i.next();
             Collection rec = (Collection) targets.get(host);
-            log("sending mail to " + rec + " on host " + host);
+            StringBuffer logMessageBuffer =
+                new StringBuffer(128)
+                        .append("sending mail to ")
+                        .append(rec)
+                        .append(" on host ")
+                        .append(host);
+            log(logMessageBuffer.toString());
             mail.setRecipients(rec);
-            mail.setName(name + "-to-" + host);
+            StringBuffer nameBuffer =
+                new StringBuffer(128)
+                        .append(name)
+                        .append("-to-")
+                        .append(host);
+            mail.setName(nameBuffer.toString());
             outgoing.store(mail);
             //Set it to try to deliver (in a separate thread) immediately (triggered by storage)
         }
@@ -444,17 +509,22 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             try {
                 String key = outgoing.accept(delayTime);
                 try {
-                   log(Thread.currentThread().getName() + " will process mail " + key);
-                   MailImpl mail = outgoing.retrieve(key);
-                   if (deliver(mail, session)) {
-                       //Message was successfully delivered/fully failed... delete it
-                       outgoing.remove(key);
-                   } else {
-                       //Something happened that will delay delivery.  Store any updates
-                       outgoing.store(mail);
-                   }
-                   //Clear the object handle to make sure it recycles this object.
-                   mail = null;
+                    StringBuffer logMessageBuffer = 
+                        new StringBuffer(128)
+                                .append(Thread.currentThread().getName())
+                                .append(" will process mail ")
+                                .append(key);
+                    log(logMessageBuffer.toString());
+                    MailImpl mail = outgoing.retrieve(key);
+                    if (deliver(mail, session)) {
+                        //Message was successfully delivered/fully failed... delete it
+                        outgoing.remove(key);
+                    } else {
+                        //Something happened that will delay delivery.  Store any updates
+                        outgoing.store(mail);
+                    }
+                    //Clear the object handle to make sure it recycles this object.
+                    mail = null;
                 } catch (Exception e) {
                     // Prevent unexpected exceptions from causing looping by removing
                     // message from outgoing.

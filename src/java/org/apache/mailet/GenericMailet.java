@@ -145,7 +145,12 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * @param msg - a String specifying the message to be written to the log file
      */
     public void log(String message) {
-        getMailetContext().log(config.getMailetName() + ": " + message);
+        StringBuffer logBuffer =
+            new StringBuffer(256)
+                    .append(getMailetName())
+                    .append(": ")
+                    .append(message);
+        getMailetContext().log(logBuffer.toString());
     }
 
     /**
@@ -156,7 +161,12 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
      * @param t - the java.lang.Throwable error or exception
      */
     public void log(String message, Throwable t) {
-        getMailetContext().log(config.getMailetName() + ": " + message, t);
+        StringBuffer logBuffer =
+            new StringBuffer(256)
+                    .append(config.getMailetName())
+                    .append(": ")
+                    .append(message);
+        getMailetContext().log(logBuffer.toString(), t);
     }
 
     /**

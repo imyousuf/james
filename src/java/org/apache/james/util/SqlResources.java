@@ -80,9 +80,13 @@ public class SqlResources
 
         }
         if ( sectionElement == null ) {
-            throw new RuntimeException("Error loading sql definition file. " +
-                                       "The element named \'" + sqlDefsSection +
-                                       "\' does not exist.");
+            StringBuffer exceptionBuffer =
+                new StringBuffer(64)
+                        .append("Error loading sql definition file. ")
+                        .append("The element named \'")
+                        .append(sqlDefsSection)
+                        .append("\' does not exist.");
+            throw new RuntimeException(exceptionBuffer.toString());
         }
 
         // Get parameters defined within the file as defaults,
@@ -146,8 +150,12 @@ public class SqlResources
                 String paramName = (String)paramNames.next();
                 String paramValue = (String)parameters.get(paramName);
 
-                String replace = "${" + paramName + "}";
-                sqlString = substituteSubString(sqlString, replace, paramValue);
+                StringBuffer replaceBuffer =
+                    new StringBuffer(64)
+                            .append("${")
+                            .append(paramName)
+                            .append("}");
+                sqlString = substituteSubString(sqlString, replaceBuffer.toString(), paramValue);
             }
 
             // Add to the sqlMap - either the "default" or the "product" map
@@ -179,12 +187,15 @@ public class SqlResources
             // Get the values for this matcher element.
             Element dbMatcher = (Element)dbMatchers.item(i);
             String dbMatchName = dbMatcher.getAttribute("db");
-            String dbProductPattern = dbMatcher.getAttribute("databaseProductName");
-            dbProductPattern = "/" + dbProductPattern + "/i";
+            StringBuffer dbProductPatternBuffer =
+                new StringBuffer(64)
+                        .append("/")
+                        .append(dbMatcher.getAttribute("databaseProductName"))
+                        .append("/i");
 
             // If the connection databaseProcuctName matches the pattern,
             // use the match name from this matcher.
-            if ( m_perl5Util.match(dbProductPattern, dbProductName) ) {
+            if ( m_perl5Util.match(dbProductPatternBuffer.toString(), dbProductName) ) {
                 return dbMatchName;
             }
         }
@@ -247,8 +258,12 @@ public class SqlResources
         String sql = getSqlString(name);
 
         if ( sql == null ) {
-            throw new RuntimeException("Required SQL resource: '" + name + 
-                                       "' was not found.");
+            StringBuffer exceptionBuffer =
+                new StringBuffer(64)
+                        .append("Required SQL resource: '")
+                        .append(name)
+                        .append("' was not found.");
+            throw new RuntimeException(exceptionBuffer.toString());
         }
         return sql;
     }

@@ -19,8 +19,8 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: danny $ on $Date: 2002/07/30 10:38:35 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/07 23:24:27 $
+ * $Revision: 1.4 $
  */
 
 public class DefaultUser implements User, Serializable {
@@ -36,7 +36,7 @@ public class DefaultUser implements User, Serializable {
      */
     public DefaultUser(String name, String hashAlg) {
         userName = name;
-	algorithm = hashAlg;
+        algorithm = hashAlg;
     }
 
     /**
@@ -49,8 +49,8 @@ public class DefaultUser implements User, Serializable {
      * password
      */
     public DefaultUser(String name, String passwordHash, String hashAlg) {
-	userName = name;
-	hashedPassword = passwordHash;
+        userName = name;
+        hashedPassword = passwordHash;
         algorithm = hashAlg;
     }
 
@@ -60,7 +60,7 @@ public class DefaultUser implements User, Serializable {
      * @return the String of this users name
      */
     public String getUserName() {
-	return userName;
+        return userName;
     }
 
     /**
@@ -72,11 +72,11 @@ public class DefaultUser implements User, Serializable {
      */
     public boolean verifyPassword(String pass) {
         try {
- 	    String hashGuess = DigestUtil.digestString(pass, algorithm);
-	    return hashedPassword.equals(hashGuess);
+            String hashGuess = DigestUtil.digestString(pass, algorithm);
+            return hashedPassword.equals(hashGuess);
         } catch (NoSuchAlgorithmException nsae) {
-	    throw new RuntimeException("Security error: " + nsae);
-	}
+        throw new RuntimeException("Security error: " + nsae);
+    }
     }
 
     /**
@@ -91,8 +91,8 @@ public class DefaultUser implements User, Serializable {
             hashedPassword = DigestUtil.digestString(newPass, algorithm);
             return true;
         } catch (NoSuchAlgorithmException nsae) {
-	    throw new RuntimeException("Security error: " + nsae);
-	}
+            throw new RuntimeException("Security error: " + nsae);
+        }
     }
 
     /**
@@ -101,7 +101,7 @@ public class DefaultUser implements User, Serializable {
      * @return the String of the hashed Password
      */
     protected String getHashedPassword() {
-	return hashedPassword;
+        return hashedPassword;
     }
 
     /**

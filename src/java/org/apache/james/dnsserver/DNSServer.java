@@ -35,7 +35,7 @@ public class DNSServer
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        // Get this servers that this block will use for lookups
+        // Get this servers that this service will use for lookups
         final Configuration serversConfiguration = configuration.getChild( "servers" );
         final Configuration[] serverConfigurations =
             serversConfiguration.getChildren( "server" );
@@ -63,8 +63,10 @@ public class DNSServer
             }
         }
 
-        for (Iterator i = servers.iterator(); i.hasNext(); ) {
-            getLogger().info("DNS Servers is: " + i.next());
+        if (getLogger().isInfoEnabled()) {
+            for (Iterator i = servers.iterator(); i.hasNext(); ) {
+                getLogger().info("DNS Servers is: " + i.next());
+            }
         }
 
         //Create the extended resolver...

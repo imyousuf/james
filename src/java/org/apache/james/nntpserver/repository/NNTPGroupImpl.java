@@ -90,7 +90,7 @@ class NNTPGroupImpl implements NNTPGroup {
         return getArticle(getCurrentArticleNumber());
     }
     public NNTPArticle getArticle(int number) {
-        File f = new File(root,number+"");
+        File f = new File(root,number + "");
         return f.exists() ? new NNTPArticleImpl(f) : null;
     }
 //     public NNTPArticle getArticleFromID(String id) {
@@ -99,7 +99,7 @@ class NNTPGroupImpl implements NNTPGroup {
 //         int idx = id.indexOf('@');
 //         if ( idx != -1 )
 //             id = id.substring(0,idx);
-//         File f = new File(root,id+".id");
+//         File f = new File(root,id + ".id");
 //         if ( f.exists() == false )
 //             return null;
 //         try {

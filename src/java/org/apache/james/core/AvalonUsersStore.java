@@ -67,7 +67,9 @@ public class AvalonUsersStore
             String repName = repConf.getAttribute("name");
             String repClass = repConf.getAttribute("class");
 
-	    getLogger().debug("Starting " + repClass);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Starting " + repClass);
+            }
             UsersRepository rep = (UsersRepository) Class.forName(repClass).newInstance();
 
             setupLogger((Component)rep);
@@ -85,7 +87,14 @@ public class AvalonUsersStore
                 ((Initializable) rep).initialize();
             }
             repositories.put(repName, rep);
-            getLogger().info("UsersRepository " + repName + " started.");
+            if (getLogger().isInfoEnabled()) {
+                StringBuffer logBuffer = 
+                    new StringBuffer(64)
+                            .append("UsersRepository ")
+                            .append(repName)
+                            .append(" started.");
+                getLogger().info(logBuffer.toString());
+            }
         }
         getLogger().info("AvalonUsersStore ...init");
     }
@@ -93,7 +102,7 @@ public class AvalonUsersStore
 
     public UsersRepository getRepository(String request) {
         UsersRepository response = (UsersRepository) repositories.get(request);
-        if (response == null) {
+        if ((response == null) && (getLogger().isWarnEnabled())) {
             getLogger().warn("No users repository called: " + request);
         }
         return response;
