@@ -14,9 +14,9 @@ import java.util.Date;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.3 $
  */
-public interface ImapMessage1
+public interface ImapMessage
 {
     MimeMessage getMimeMessage();
 

@@ -19,10 +19,10 @@ import java.util.Date;
  * way of handling *all* messages needs to be available for James (maybe MailImpl?)
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SimpleImapMessage
-        extends AbstractLogEnabled implements ImapMessage1
+        extends AbstractLogEnabled implements ImapMessage
 {
     private MimeMessage mimeMessage;
     private MessageFlags flags;
