@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.27 $  Committed on $Date: 2004/04/17 17:23:18 $ by: $Author: sbrewin $
+ James build file $Revision: 1.116.2.26 $  Committed on $Date: 2004/04/16 21:02:04 $ by: $Author: noel $
 
 Authors:
  James Project <server-dev@james.apache.org>
@@ -75,7 +75,6 @@ Legal:
     <property name="build.docs" value="${build.dir}/docs"/>
     <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
     <property name="build.conf" value="${build.dir}/conf"/>
-    <property name="build.metainf" value="${build.dir}/meta-inf"/>    
 
     <!--
        ===================================================================
@@ -95,7 +94,6 @@ Legal:
     <property name="conf.dir" value="${src.dir}/conf"/>
     <property name="xdocs.dir" value="${src.dir}/xdocs"/>
     <property name="docs.src" value="${xdocs.dir}"/>
-    <property name="metainf.dir" value="${src.dir}/meta-inf"/>    
 
     <property name="constants.file" value="org/apache/james/Constants.java"/>
     <property name="poolconn.file" value="org/apache/james/util/mordred/PoolConnEntry.java"/>
@@ -193,7 +191,6 @@ Legal:
         <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
-        <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />        
         <fixcrlf srcdir="." includes="build.sh" eol="lf"/>
         <fixcrlf srcdir="." includes="build.bat" eol="crlf"/>
         <fixcrlf srcdir="." includes="build.xml" eol="lf"/>
@@ -249,20 +246,6 @@ Legal:
     </target>
     <!--
        ===================================================================
-                                   meta-inf
-
-           Currently a straight copy from source to build.
-           Add augmentions as required.
-       ===================================================================
-    -->
-    <target name="prepare-metainf">
-        <copy todir="${build.metainf}">
-            <fileset dir="${metainf.dir}"/>
-        </copy>
-    </target>
-        
-    <!--
-       ===================================================================
                                    jdbc3
        ===================================================================
   -->
@@ -277,7 +260,7 @@ Legal:
                                   Prepare target
        ===================================================================
     -->
-    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo,prepare-metainf"/>
+    <target name="prepare" depends="prepare-common,prepare-phoenix,prepare-jdbc3,prepare-mxinfo"/>
 
     <!--
        ===================================================================
@@ -434,7 +417,6 @@ Legal:
         <jar jarfile="${build.lib}/${name}.jar" basedir="${build.classes}" manifest="${src.dir}/Manifest.mf">
             <include name="org/apache/james/**"/>
             <include name="org/apache/mailet/**"/>
-            <metainf dir="${build.metainf}"/>            
         </jar>
         <!-- Make sar file-->
         <sar sarfile="${build.lib}/${name}.sar" config="${conf.dir}/james-config.xml" environment="${conf.dir}/james-server.xml" assembly="${conf.dir}/james-assembly.xml">
