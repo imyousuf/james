@@ -191,7 +191,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
 
             // Initialise the sql strings.
             String fileName = m_sqlFileName.substring("file://".length());
-            if (fileName.startsWith("/")) {
+            if (!(fileName.startsWith("/"))) {
                 fileName = ((BlockContext)context).getBaseDirectory() +
                            File.separator + fileName;
             }
