@@ -128,6 +128,7 @@ periodically. Fetch tasks run concurrently.</p>
 <li><strong><a href="#javaMailFolderName">javaMailFolderName</a></strong> (1, 1)</li>
 <li><strong><a href="#javaMailProperties">javaMailProperties</a></strong> (0, 1)</li>
 <li><strong><a href="#javaMailProviderName">javaMailProviderName</a></strong> (1, 1)</li>
+<li><strong><a href="#maxmessagesize">maxmessagesize</a></strong> (0, 1)</li>
 <li><strong><a href="#recipientnotfound">recipientnotfound</a></strong> (1, 1)</li>
 <li><strong><a href="#recursesubfolders">recursesubfolders</a></strong> (1, 1)</li>
 <li><strong><a href="#remoteReceivedHeaderIndex">remoteReceivedHeaderIndex</a></strong> (0, 1)</li>
@@ -358,6 +359,50 @@ Provider for the protocol.</p>
 <source>
 &lt;javaMailProviderName&gt;pop3&lt;/javaMailProviderName&gt;
 </source>
+</p>
+</subsection>
+
+<subsection name="maxmessagesize">
+<p>The <strong>maxmessagesize</strong> tag declares the maximum permitted message
+size for messages injected into the James input spool and what happens to fetched
+messages that exceed this size.</p>
+<p>The tag has these attributes:
+<dl>
+<dt><strong>limit</strong></dt>
+<dd>An integer. The maximum message size expressed in Kilobytes. If 0, there is
+no limit.</dd>
+<dt><strong>reject</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose message size exceeds the maximum
+permitted size will not be injected into the James input spool. If 
+&quot;false&quot;, mail whose message size exceeds the maximum permitted size will
+have its contents removed, an explanatory error message and the Mail Attribute
+<code>org.apache.james.fetchmail.isMaxMessageSizeExceeded</code> added prior to 
+injection into the James input spool, (see below for the location of an example).</dd>
+<dt><strong>leaveonserver</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose message size exceeds the maximum
+permitted size will be left on the server. If &quot;false&quot;, mail whose message
+size exceeds the maximum permitted size will be marked for deletion.</dd>
+<dt><strong>markseen</strong></dt>
+<dd>A boolean. If &quot;true&quot;, mail whose message size exceeds the maximum
+permitted size will be marked as seen on the server. If &quot;false&quot;,
+mail whose message size exceeds the maximum permitted size will not be marked as
+seen.</dd>
+</dl>
+</p>
+
+<p>
+<source>
+&lt;maxmessagesize 
+    limit=&quot;4096&quot;
+    reject=&quot;false&quot;
+    leaveonserver=&quot;false&quot;
+    markseen=&quot;false&quot;/&gt;
+</source>
+</p>
+
+<p>An example configuration using James mailet processing to bounce fetched
+messages that exceed the maximum permitted size can be found in the file
+<code>$PHOENIX_HOME/apps/james/conf/samples/fetchmail/maxMessageSize.xml</code>.
 </p>
 </subsection>
 

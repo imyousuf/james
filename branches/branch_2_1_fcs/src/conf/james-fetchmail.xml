@@ -130,6 +130,26 @@
             <!--     if true, messages left on the server will be marked as seen -->
             <!--     if false, messages left on the server will not be marked as seen -->            
             <fetched leaveonserver="false" markseen="true"/>
+
+            <!-- Specify what happens to messages whose size exceeds the specified limit. -->
+            <!-- This tag is optional. If omitted, there is no limit. -->
+            <!-- limit -->
+            <!--     The maximum message size in Kilobytes of messages injected into James. -->
+            <!--     A value of 0 means no limit. -->
+            <!-- reject -->
+            <!--     if true, messages whose size exceeds the limit will be rejected -->
+            <!--     if false, messages whose size exceeds the limit will be stripped of their message bodies -->
+            <!--     prior to injection into James and the MailAttribute "org.apache.james.fetchmail.isMaxMessageSizeExceeded" -->
+            <!--     will be added to the message with the value set to the original message size in bytes. -->
+            <!--     Use the HasMailAttribute matcher to detect them. -->
+            <!-- The following apply if reject="true" and a message is rejected... -->
+            <!--     leaveonserver -->
+            <!--         if true, messages will be left on the server -->
+            <!--         if false, messages will be deleted from the server -->
+            <!--     markseen -->
+            <!--         if true, messages left on the server will be marked as seen -->
+            <!--         if false, messages left on the server will not be marked as seen -->            
+            <maxmessagesize limit=0 reject="false" leaveonserver="true" markseen="false"/>
             
             <!-- Specify what happens to undeliverable messages -->
             <!-- leaveonserver -->

@@ -58,6 +58,7 @@
  
 package org.apache.james.fetchmail;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -68,8 +69,11 @@ import java.util.StringTokenizer;
 
 import javax.mail.Address;
 import javax.mail.Flags;
+import javax.mail.Folder;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
@@ -94,15 +98,19 @@ import org.apache.mailet.MailAddress;
  * <p>Messages written to the input spool have the following Mail Attributes
  *  set if the corresponding condition is satisfied:
  * <dl>
- * <dt>org.apache.james.fetchmail.isRemoteRecipient (java.lang.Boolean)</dt>
+ * <dt>org.apache.james.fetchmail.isRemoteRecipient</dt>
  *      <dd>The recipient is on a remote host</dd>
- * <dt>org.apache.james.fetchmail.isUserUndefined (java.lang.Boolean)</dt>
+ * <dt>org.apache.james.fetchmail.isUserUndefined</dt>
  *      <dd>The recipient is on a localhost but not defined to James</dd>
- * <dt>org.apache.james.fetchmail.isBlacklistedRecipient (java.lang.Boolean)</dt>
+ * <dt>org.apache.james.fetchmail.isBlacklistedRecipient</dt>
  *      <dd>The recipient is in the configured blacklist</dd>
- * <dt>org.apache.james.fetchmail.isRecipientNotFound (java.lang.Boolean)</dt>
+ * <dt>org.apache.james.fetchmail.isRecipientNotFound</dt>
  *      <dd>The recipient could not be found. Delivery is to the configured recipient. 
  *          See the discussion of delivery to a sole intended recipient below.</dd>
+ * <dt>org.apache.james.fetchmail.isMaxMessageSizeExceeded (java.lang.String)</dt>
+ *      <dd>The message size exceeds the configured limit. An empty message is
+ *          written to the input spool. The Mail Attribute value is a String
+ *          representing the size of the original message in bytes.</dd>
  * </dl>
  * 
  * <p>Configuration settings -
@@ -120,6 +128,8 @@ import org.apache.mailet.MailAddress;
  *      <dd>Rejects recipients on local hosts who are not defined as James users</dd>
  * <dt>RejectRecipientNotFound</dt>
  *      <dd>See the discussion of delivery to a sole intended recipient below</dd>
+ * <dt>RejectMaxMessageSizeExceeded</dt>
+ *      <dd>Rejects messages whose size exceeds the configured limit</dd>
  * </dl>
  * 
  * <p>Rejection processing is intentionally limited to managing the status of the
@@ -133,6 +143,12 @@ import org.apache.mailet.MailAddress;
  * described above identify the filter states. The Matcher/Mailet chain can 
  * then be used to perform any further processing required, such as notifying
  * the Postmaster and/or sender, marking the message for error processing, etc.</p>
+ * 
+ * <p>Note that in the case of a message exceeding the message size limit, the
+ * message that is written to the input spool has no content. This enables 
+ * configuration of a mailet notifying the sender that their mail has not been
+ * delivered due to its size while maintaining the purpose of the filter which is
+ * to avoid injecting excessively large messages into the input spool.</p>
  * 
  * <p>Delivery is to a sole intended recipient. The recipient is determined in the
  * following manner:</p>
@@ -196,6 +212,11 @@ public class MessageProcessor extends ProcessorAbstract
      * Recipient is not a local user
      */ 
     private boolean fieldUserUndefined = false;
+    
+    /**
+     * The Maximum Message has been exceeded
+     */ 
+    private Boolean fieldMaxMessageSizeExceeded;    
     
     
     /**
@@ -311,7 +332,7 @@ public class MessageProcessor extends ProcessorAbstract
             StringBuffer messageBuffer =
                 new StringBuffer("Intended recipient not found. Using configured recipient as new envelope recipient - ");
             messageBuffer.append(intendedRecipient);
-            messageBuffer.append('.');            
+            messageBuffer.append('.');
             logStatusInfo(messageBuffer.toString());
         }
 
@@ -320,8 +341,7 @@ public class MessageProcessor extends ProcessorAbstract
         setRemoteRecipient(!isLocalServer(intendedRecipient));
         setUserUndefined(!isLocalRecipient(intendedRecipient));
 
-        // Check recipient against blacklist / whitelist
-        // Return if rejected
+        // Apply the filters. Return if rejected
         if (isRejectBlacklisted() && isBlacklistedRecipient())
         {
             rejectBlacklistedRecipient(intendedRecipient);
@@ -337,6 +357,13 @@ public class MessageProcessor extends ProcessorAbstract
         if (isRejectUserUndefined() && isUserUndefined())
         {
             rejectUserUndefined(intendedRecipient);
+            return;
+        }
+
+        if (isRejectMaxMessageSizeExceeded()
+            && isMaxMessageSizeExceeded().booleanValue())
+        {
+            rejectMaxMessageSizeExceeded(getMessageIn().getSize());
             return;
         }
 
@@ -364,7 +391,8 @@ public class MessageProcessor extends ProcessorAbstract
             return;
         }
 
-        createMailAttributes(mail);
+        addMailAttributes(mail);
+        addErrorMessages(mail);        
 
         // If this mail is bouncing move it to the ERROR repository
         if (isBouncing())
@@ -473,11 +501,38 @@ public class MessageProcessor extends ProcessorAbstract
         logStatusInfo(messageBuffer.toString());
 
         return;
-    }   
+    }
     
     /**
-     * Method createMessage answers a new <code>MimeMessage</code> from the
-     * fetched message.
+     * Method rejectMaxMessageSizeExceeded.
+     * @param message size
+     * @throws MessagingException
+     */
+    protected void rejectMaxMessageSizeExceeded(int messageSize)
+        throws MessagingException
+    {
+        // Update the flags of the received message
+        if (!isLeaveMaxMessageSizeExceeded())
+            setMessageDeleted();
+
+        if (isMarkMaxMessageSizeExceededSeen())
+            setMessageSeen();
+
+        StringBuffer messageBuffer =
+            new StringBuffer("Rejected mail exceeding message size limit. Message size: ");
+        messageBuffer.append(messageSize/1024);
+        messageBuffer.append("KB.");          
+        logStatusInfo(messageBuffer.toString());
+
+        return;
+    }       
+    
+    /**
+     * <p>Method createMessage answers a new <code>MimeMessage</code> from the
+     * fetched message.</p>
+     * 
+     * <p>If the maximum message size is exceeded, an empty message is created,
+     * else the new message is a copy of the received message.</p>
      * 
      * @return MimeMessage
      * @throws MessagingException
@@ -485,15 +540,48 @@ public class MessageProcessor extends ProcessorAbstract
     protected MimeMessage createMessage() throws MessagingException
     {
         // Create a new messsage from the received message
-        MimeMessage messageOut = new MimeMessage(getMessageIn());
+        MimeMessage messageOut = null;
+        if (isMaxMessageSizeExceeded().booleanValue())
+            messageOut = createEmptyMessage();
+        else
+            messageOut = new MimeMessage(getMessageIn());
 
         // set the X-fetched headers
         // Note this is still required to detect bouncing mail and
         // for backwards compatibility with fetchPop 
         messageOut.addHeader("X-fetched-from", getFetchTaskName());
-        
-        return messageOut;       
-    }   
+
+        return messageOut;
+    }
+    
+    /**
+     * Method createEmptyMessage answers a new 
+     * <code>MimeMessage</code> from the fetched message with the message 
+     * contents removed. 
+     * 
+     * @return MimeMessage
+     * @throws MessagingException
+     */
+    protected MimeMessage createEmptyMessage()
+        throws MessagingException
+    {
+        // Create an empty messsage
+        MimeMessage messageOut = new MimeMessage(getSession());
+
+        // Propogate the headers and subject
+        Enumeration headersInEnum = getMessageIn().getAllHeaderLines();
+        while (headersInEnum.hasMoreElements())
+            messageOut.addHeaderLine((String) headersInEnum.nextElement());
+        messageOut.setSubject(getMessageIn().getSubject());
+
+        // Add empty text
+        messageOut.setText("");
+
+        // Save
+        messageOut.saveChanges();
+
+        return messageOut;
+    }       
 
     /**
      * Method createMail creates a new <code>Mail</code>.
@@ -536,6 +624,7 @@ public class MessageProcessor extends ProcessorAbstract
         }
         return mail;
     }
+     
 
     /**
      * Method getSender answers a <code>MailAddress</code> for the sender.
@@ -582,37 +671,43 @@ public class MessageProcessor extends ProcessorAbstract
         String[] headers = getMessageIn().getHeader(RFC2822Headers.RECEIVED);
         StringBuffer domainBuffer = new StringBuffer();
 
-        // If there are RECEIVED headers and the index to begin at is greater
-        // than -1, try and extract the domain
-        if (headers.length > 0 && getRemoteReceivedHeaderIndex() > -1)
+        // It isn't documented, but getHeader() will answer null if there
+        // are no matching headers, so we need to check!
+        if (null != headers)
         {
-            final String headerTokens = " \n\r";
-
-            // Search the headers for a domain
-            for (int headerIndex =
-                headers.length > getRemoteReceivedHeaderIndex()
-                    ? getRemoteReceivedHeaderIndex()
-                    : headers.length - 1;
-                headerIndex >= 0 && domainBuffer.length() == 0;
-                headerIndex--)
+            // If there are RECEIVED headers and the index to begin at is greater
+            // than -1, try and extract the domain
+            if (headers.length > 0 && getRemoteReceivedHeaderIndex() > -1)
             {
-                // Find the "from" token
-                StringTokenizer tokenizer =
-                    new StringTokenizer(headers[headerIndex], headerTokens);
-                boolean inFrom = false;
-                while (!inFrom && tokenizer.hasMoreTokens())
-                    inFrom = tokenizer.nextToken().equals("from");
+                final String headerTokens = " \n\r";
 
-                // Add subsequent tokens to the domain buffer until another 
-                // field is encountered or there are no more tokens
-                while (inFrom && tokenizer.hasMoreTokens())
+                // Search the headers for a domain
+                for (int headerIndex =
+                    headers.length > getRemoteReceivedHeaderIndex()
+                        ? getRemoteReceivedHeaderIndex()
+                        : headers.length - 1;
+                    headerIndex >= 0 && domainBuffer.length() == 0;
+                    headerIndex--)
                 {
-                    String token = tokenizer.nextToken();
-                    if (inFrom =
-                        getRFC2822RECEIVEDHeaderFields().indexOf(token) == -1)
+                    // Find the "from" token
+                    StringTokenizer tokenizer =
+                        new StringTokenizer(headers[headerIndex], headerTokens);
+                    boolean inFrom = false;
+                    while (!inFrom && tokenizer.hasMoreTokens())
+                        inFrom = tokenizer.nextToken().equals("from");
+
+                    // Add subsequent tokens to the domain buffer until another 
+                    // field is encountered or there are no more tokens
+                    while (inFrom && tokenizer.hasMoreTokens())
                     {
-                        domainBuffer.append(token);
-                        domainBuffer.append(' ');
+                        String token = tokenizer.nextToken();
+                        if (inFrom =
+                            getRFC2822RECEIVEDHeaderFields().indexOf(token)
+                                == -1)
+                        {
+                            domainBuffer.append(token);
+                            domainBuffer.append(' ');
+                        }
                     }
                 }
             }
@@ -732,22 +827,24 @@ public class MessageProcessor extends ProcessorAbstract
     }       
 
     /**
-     * Check if this mail has been bouncing by counting the X-fetched-from headers
+     * Check if this mail has been bouncing by counting the X-fetched-from 
+     * headers for this task
      * 
      * @return boolean
-     */  
+     */
     protected boolean isBouncing() throws MessagingException
     {
         Enumeration enum =
             getMessageIn().getMatchingHeaderLines(
                 new String[] { "X-fetched-from" });
-        int count = 1;
+        int count = 0;
         while (enum.hasMoreElements())
         {
-            enum.nextElement();
-            count++;
+            String header = (String) enum.nextElement();
+            if (header.equals(getFetchTaskName()))
+                count++;
         }
-        return count > 3;
+        return count >= 3;
     }
     
     /**
@@ -1095,12 +1192,12 @@ public class MessageProcessor extends ProcessorAbstract
     {
         fieldUserUndefined = userUndefined;
     }
-
+    
     /**
-     * Creates the mail attributes on a <code>Mail</code>. 
+     * Adds the mail attributes to a <code>Mail</code>. 
      * @param aMail a Mail instance
      */
-    protected void createMailAttributes(Mail aMail)
+    protected void addMailAttributes(Mail aMail) throws MessagingException
     {
         aMail.setAttribute(
             getAttributePrefix() + "taskName",
@@ -1127,7 +1224,30 @@ public class MessageProcessor extends ProcessorAbstract
             aMail.setAttribute(
                 getAttributePrefix() + "isRecipientNotFound",
                 null);
-    }     
+
+        if (isMaxMessageSizeExceeded().booleanValue())
+            aMail.setAttribute(
+                getAttributePrefix() + "isMaxMessageSizeExceeded",
+                new Integer(getMessageIn().getSize()).toString());
+    }
+
+    /**
+     * Adds any  required error messages to a <code>Mail</code>. 
+     * @param aMail a Mail instance
+     */
+    protected void addErrorMessages(Mail mail) throws MessagingException
+    {
+        if (isMaxMessageSizeExceeded().booleanValue())
+        {
+            StringBuffer msgBuffer =
+                new StringBuffer("550 - Rejected - This message has been rejected as the message size of ");
+            msgBuffer.append(getMessageIn().getSize() * 1000 / 1024 / 1000f);
+            msgBuffer.append("KB exceeds the maximum permitted size of ");
+            msgBuffer.append(getMaxMessageSizeLimit() / 1024);
+            msgBuffer.append("KB.");
+            mail.setErrorMessage(msgBuffer.toString());
+        }
+    }         
 
     /**
      * Sets the Blacklisted.
@@ -1339,6 +1459,59 @@ public class MessageProcessor extends ProcessorAbstract
     public static String getRFC2822RECEIVEDHeaderFields()
     {
         return fieldRFC2822RECEIVEDHeaderFields;
+    }
+
+    /**
+     * Returns the maxMessageSizeExceeded, lazily initialised as required.
+     * @return Boolean
+     */
+    protected Boolean isMaxMessageSizeExceeded() throws MessagingException
+    {
+        Boolean isMaxMessageSizeExceeded = null;
+        if (null
+            == (isMaxMessageSizeExceeded = isMaxMessageSizeExceededBasic()))
+        {
+            updateMaxMessageSizeExceeded();
+            return isMaxMessageSizeExceeded();
+        }
+        return isMaxMessageSizeExceeded;
+    }    
+
+    /**
+     * Refreshes the maxMessageSizeExceeded.
+     */
+    protected void updateMaxMessageSizeExceeded() throws MessagingException
+    {
+        setMaxMessageSizeExceeded(computeMaxMessageSizeExceeded());
+    }
+
+    /**
+     * Compute the maxMessageSizeExceeded.
+     * @return Boolean
+     */
+    protected Boolean computeMaxMessageSizeExceeded() throws MessagingException
+    {
+        if (0 == getMaxMessageSizeLimit())
+            return Boolean.FALSE;
+        return new Boolean(getMessageIn().getSize() > getMaxMessageSizeLimit());
+    }
+    
+    /**
+     * Returns the maxMessageSizeExceeded.
+     * @return Boolean
+     */
+    private Boolean isMaxMessageSizeExceededBasic()
+    {
+        return fieldMaxMessageSizeExceeded;
+    }    
+
+    /**
+     * Sets the maxMessageSizeExceeded.
+     * @param maxMessageSizeExceeded The maxMessageSizeExceeded to set
+     */
+    protected void setMaxMessageSizeExceeded(Boolean maxMessageSizeExceeded)
+    {
+        fieldMaxMessageSizeExceeded = maxMessageSizeExceeded;
     }
 
 }

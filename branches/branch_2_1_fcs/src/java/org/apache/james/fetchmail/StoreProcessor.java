@@ -72,30 +72,14 @@ import javax.mail.Store;
 public class StoreProcessor extends ProcessorAbstract
 {
     /**
-     * The Session to use.
-     */ 
-    private Session fieldSession;
-
-    /**
      * Constructor for StoreProcessor.
      * @param account 
      */
-    private StoreProcessor(Account account)
+    protected StoreProcessor(Account account)
     {
         super(account);        
     }
     
-    /**
-     * Constructor for StoreProcessor.
-     * @param account
-     * @param session
-     */
-    protected StoreProcessor(Account account, Session session)
-    {
-        this(account);
-        setSession(session);
-    }
-
     /**
      * Method process connects to a Folder in a Message Store, creates a
      * <code>FolderProcessor</code> and runs it to process the messages in
@@ -106,7 +90,6 @@ public class StoreProcessor extends ProcessorAbstract
     public void process() throws MessagingException
     {
         Store store = null;
-        Session session = null;
         Folder folder = null;
 
         StringBuffer logMessageBuffer =
@@ -170,24 +153,6 @@ public class StoreProcessor extends ProcessorAbstract
             logMessageBuffer.append("'");
             getLogger().info(logMessageBuffer.toString());
         }
-    }
-
-    /**
-     * Returns the session.
-     * @return Session
-     */
-    protected Session getSession()
-    {
-        return fieldSession;
-    }
-
-    /**
-     * Sets the session.
-     * @param session The session to set
-     */
-    protected void setSession(Session session)
-    {
-        fieldSession = session;
     }
 
 }
