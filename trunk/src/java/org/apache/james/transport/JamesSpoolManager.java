@@ -15,6 +15,7 @@ import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.component.DefaultComponentManager;
+import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -22,7 +23,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
@@ -36,13 +36,13 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.9 $
- * Committed on $Date: 2002/03/01 15:58:40 $ by: $Author: danny $
+ * This is $Revision: 1.10 $
+ * Committed on $Date: 2002/06/03 16:07:07 $ by: $Author: hammant $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
     implements Contextualizable, Composable, Configurable, Initializable,
-               Runnable, Disposable,  Block {
+               Runnable, Disposable, Component {
 
     private final static boolean DEEP_DEBUG = true;
     private DefaultComponentManager compMgr;

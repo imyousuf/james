@@ -21,7 +21,6 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
@@ -38,7 +37,7 @@ import java.util.HashMap;
  */
 public class AvalonMailStore
     extends AbstractLogEnabled
-    implements Block, Contextualizable, Composable, Configurable, Initializable, MailStore {
+    implements Contextualizable, Composable, Configurable, Initializable, MailStore {
 
     private static final String REPOSITORY_NAME = "Repository";
     private static long id;

@@ -12,7 +12,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.Block;
 import org.xbill.DNS.*;
 
 import java.net.InetAddress;
@@ -25,7 +24,7 @@ import java.util.*;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Block, Configurable, Initializable, 
+    implements Configurable, Initializable,
     org.apache.james.services.DNSServer {
 
     private Resolver resolver;
