@@ -1,30 +1,38 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.mailrepository;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.internet.*;
-import javax.mail.MessagingException;
-
-import org.apache.avalon.*;
-//import org.apache.avalon.services.*;
+import com.workingdogs.town.ConnDefinition;
+import com.workingdogs.town.QueryDataSet;
+import com.workingdogs.town.Record;
+import com.workingdogs.town.TableDataSet;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import javax.mail.internet.MimeMessage;
+import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Component;
+import org.apache.avalon.Configurable;
+import org.apache.avalon.Configuration;
+import org.apache.avalon.ConfigurationException;
 import org.apache.avalon.util.Lock;
 import org.apache.avalon.util.LockException;
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
-import org.apache.mailet.*;
-import org.apache.james.core.*;
+import org.apache.james.core.JamesMimeMessage;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
-
-import com.workingdogs.town.*;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Implementation of a SpoolRepository on a database.
@@ -47,29 +55,28 @@ import com.workingdogs.town.*;
  * @version 1.0.0, 24/04/1999
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
-public class TownSpoolRepository implements SpoolRepository, Component, Configurable {
+public class TownSpoolRepository
+    extends AbstractLoggable
+    implements SpoolRepository, Component, Configurable {
   
     private Lock lock;
-    private Logger logger =  LogKit.getLoggerFor("james.MailRepository");
     private String destination;
     private String repositoryName;
 
     private String conndefinition;
     private String tableName;
 
-    public TownSpoolRepository() {
-    }
-
     public void configure(Configuration conf) throws ConfigurationException {
-	destination = conf.getAttribute("destinationURL");
-	repositoryName = destination.substring(destination.indexOf("//") + 2);
-	String checkType = conf.getAttribute("type");
-	if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-	    logger.warn("Attempt to configure TownSpoolRepository as "
-			+ checkType);
-	    throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
-	}
-	// ignore model
+        destination = conf.getAttribute("destinationURL");
+        repositoryName = destination.substring(destination.indexOf("//") + 2);
+        String checkType = conf.getAttribute("type");
+        if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
+            final String message = 
+                "Attempt to configure TownSpoolRepository as " + checkType;
+            getLogger().warn( message );
+            throw new ConfigurationException( message );
+        }
+        // ignore model
         conndefinition = conf.getChild("conn").getValue();
         tableName = conf.getChild("table").getValue();
     }
@@ -146,9 +153,7 @@ public class TownSpoolRepository implements SpoolRepository, Component, Configur
                         if (in instanceof TownMimeMessageInputStream) {
                             //This must already be stored in the same database (hopefully)
 
-
                             //  Let's copy the record from here to there
-
 
                             //Once we do this, we'll no longer mark to saveInRecord
                         }
@@ -168,7 +173,7 @@ public class TownSpoolRepository implements SpoolRepository, Component, Configur
                 mail.setValue("message_body", bout.toByteArray());
             }
             if (mail.toBeSavedWithUpdate() && messageBody instanceof JamesMimeMessage
-                    && !((JamesMimeMessage)messageBody).isModified()) {
+                && !((JamesMimeMessage)messageBody).isModified()) {
                 //Do nothing... the message wasn't changed.
             } else {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -192,9 +197,9 @@ public class TownSpoolRepository implements SpoolRepository, Component, Configur
             //System.err.println("retrieving " + key);
             //TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             QueryDataSet messages = new QueryDataSet(ConnDefinition.getInstance(conndefinition),
-                    "SELECT message_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated"
-                    + " FROM " + tableName
-                    + " WHERE message_name='" + key + "' and repository_name='" + repositoryName + "'");
+                                                     "SELECT message_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated"
+                                                     + " FROM " + tableName
+                                                     + " WHERE message_name='" + key + "' and repository_name='" + repositoryName + "'");
             //messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
             MailImpl mc = new MailImpl();
@@ -245,8 +250,8 @@ public class TownSpoolRepository implements SpoolRepository, Component, Configur
     public Iterator list() {
         try {
             QueryDataSet messages = new QueryDataSet(ConnDefinition.getInstance(conndefinition),
-                    "SELECT message_name FROM " + tableName + " WHERE repository_name = '" + repositoryName + "' "
-                    + "ORDER BY last_updated");
+                                                     "SELECT message_name FROM " + tableName + " WHERE repository_name = '" + repositoryName + "' "
+                                                     + "ORDER BY last_updated");
             List messageList = new ArrayList(messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 messageList.add(messages.getRecord(i).getAsString("message_name"));
