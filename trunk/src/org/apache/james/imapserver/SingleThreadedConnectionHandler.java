@@ -11,24 +11,29 @@ import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
-import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.*;
 import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
 import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Stoppable;
+import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
-import org.apache.cornerstone.services.Scheduler;
+import org.apache.cornerstone.services.connection.ConnectionHandler;
+import org.apache.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.cornerstone.services.scheduler.Target;
+import org.apache.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthenticationException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.Constants;
-import org.apache.james.core.EnhancedMimeMessage;
 import org.apache.james.services.*;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
-import org.apache.mailet.Mail;
 
 /**
  * An IMAP Handler handles one IMAP connection. TBC - it may spawn worker
@@ -41,7 +46,8 @@ import org.apache.mailet.Mail;
  */
 public class SingleThreadedConnectionHandler
     extends BaseCommand
-    implements ConnectionHandler {
+    implements ConnectionHandler, Contextualizable, Composer, Configurable, 
+    Initializable, Stoppable, Target, MailboxEventListener {
 
     //mainly to switch on stack traces and catch responses;  
     private static final boolean DEEP_DEBUG = true;
@@ -89,14 +95,11 @@ public class SingleThreadedConnectionHandler
     private static final String NO_NOTLOCAL_MSG
         = "NO Mailbox does not exist on this server";
 
-    private ComponentManager compMgr;
-    private Configuration conf;
-    private Context context;
-    private Logger securityLogger = LogKit.getLoggerFor("james.Security") ;
+    private Logger securityLogger = LogKit.getLoggerFor("james.Security");
     private MailServer mailServer;
     private UsersRepository users;
-    private Scheduler scheduler;
-    private long timeout;
+    private TimeScheduler scheduler;
+    private int timeout;
 
     private Socket socket;
     private BufferedReader in;
@@ -105,7 +108,7 @@ public class SingleThreadedConnectionHandler
     private String remoteHost;
     private String remoteIP;
     private String servername;
-    private String softwaretype;
+    private String softwaretype  = "JAMES IMAP4rev1 Server " + Constants.SOFTWARE_VERSION;
     private int state;
     private String user;
 
@@ -127,50 +130,50 @@ public class SingleThreadedConnectionHandler
     private int exists;
     private int recent;
     private List sequence;
+
+    public void compose( final ComponentManager componentManager ) 
+        throws ComponentManagerException {
+
+        mailServer = (MailServer)componentManager.
+            lookup("org.apache.james.services.MailServer");
+        users = (UsersRepository)componentManager.
+            lookup("org.apache.james.services.UsersRepository");
+        scheduler = (TimeScheduler)componentManager.
+            lookup("org.apache.cornerstone.services.scheduler.TimeScheduler");
+        imapSystem = (IMAPSystem)componentManager.
+            lookup("org.apache.james.imapserver.IMAPSystem");
+        imapHost = (Host)componentManager.
+            lookup("org.apache.james.imapserver.Host");
+    }
  
-    /**
-     * Constructor has no parameters to allow Class.forName() stuff.
-     */
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
-        timeout = conf.getChild("connectiontimeout").getValueAsLong();
+    public void contextualize( final Context context ) {
+        servername = (String)context.get( Constants.HELO_NAME );
     }
 
-    public void compose(ComponentManager comp) {
-        compMgr = comp;
-    }
-
-    public void contextualize(Context context) {
-        this.context = context;
+    public void configure( final Configuration configuration ) 
+        throws ConfigurationException {
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInt( 1800000 );
     }
 
     public void init() throws Exception {
-        try {
-            logger.info("SingleThreadedConnectionHandler starting ...");
-            this.mailServer = (MailServer)
-                compMgr.lookup("org.apache.james.services.MailServer");
-            users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-            scheduler = (Scheduler) compMgr.lookup("org.apache.cornerstone.services.Scheduler");
-            softwaretype = "JAMES IMAP4rev1 Server "
-                + Constants.SOFTWARE_VERSION;
-            servername = (String) context.get(Constants.HELO_NAME);
-            imapSystem = (IMAPSystem)
-                compMgr.lookup("org.apache.james.imapserver.IMAPSystem");
-            imapHost = (Host) compMgr.lookup("org.apache.james.imapserver.Host");
-            namespaceToken = imapSystem.getNamespaceToken();
-            logger.info("SingleThreadedConnectionHandler initialized");
-        } catch (Exception e) {
-            logger.error("Exception initialising SingleThreadedConnectionHandler : " + e);
-            logger.error("Exception message is: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        logger.info("SingleThreadedConnectionHandler starting ...");
+        namespaceToken = imapSystem.getNamespaceToken();
+        logger.info("SingleThreadedConnectionHandler initialized");
     }
 
-    public void parseRequest(Socket socket) {
+    /**
+     * Handle a connection.
+     * This handler is responsible for processing connections as they occur.
+     *
+     * @param connection the connection
+     * @exception IOException if an error reading from socket occurs
+     * @exception ProtocolException if an error handling connection occurs
+     */
+    public void handleConnection( final Socket connection ) 
+        throws IOException {
 
         try {
-            this.socket = socket;
+            this.socket = connection;
             in = new BufferedReader(new
                                     InputStreamReader(socket.getInputStream()));
             outs = socket.getOutputStream();
@@ -182,12 +185,10 @@ public class SingleThreadedConnectionHandler
                          + remoteIP + "): " + e.getMessage());
         }
         logger.info("Connection from " + remoteHost + " (" + remoteIP + ")");
-    }
-
-    public void run() {
 
         try {
-            scheduler.setAlarm(this.toString(), new Scheduler.Alarm(timeout), this);
+            final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
+            scheduler.addTrigger( this.toString(), trigger, this );
            
             if (false) { // arbitrary rejection of connection
                 // could screen connections by IP or host or implement
@@ -215,7 +216,7 @@ public class SingleThreadedConnectionHandler
                                         + ") received by SingleThreadedConnectionHandler");
                 }
                 while (parseCommand(in.readLine())) {
-                    scheduler.resetAlarm(this.toString());
+                    scheduler.resetTrigger(this.toString());
                 }
             }
 
@@ -233,9 +234,11 @@ public class SingleThreadedConnectionHandler
             connectionClosed = closeConnection(UNTAGGED_BYE,
                                                "Error processing command.", "");
         }
+
+        scheduler.removeTrigger(this.toString());
     }
 
-    public void wake( String name, Scheduler.Event event ) {
+    public void targetTriggered( final String triggerName ) {
         logger.info("Connection timeout on socket");
         connectionClosed = closeConnection(UNTAGGED_BYE,
                                            "Autologout. Idle too long.", "");
@@ -244,7 +247,7 @@ public class SingleThreadedConnectionHandler
     private boolean closeConnection( int exitStatus, 
                                      String message1,
                                      String message2 ) {
-        scheduler.removeAlarm(this.toString());
+        scheduler.removeTrigger(this.toString());
         if (state == SELECTED) {
             currentMailbox.removeMailboxEventListener(this);
             imapHost.releaseMailbox(user, currentMailbox);
