@@ -30,7 +30,7 @@ import java.util.Iterator;
 public interface MailetContext {
 
     /**
-     * Bounces the message using a stanard format with the given message.
+     * Bounces the message using a standard format with the given message.
      * Will be sent back to the sender from the postmaster as specified for
      * this mailet context, adding message to top of mail server queue using
      * sendMail().

@@ -48,7 +48,7 @@ import org.apache.mailet.MailAddress;
 *the relevant one:</P>
 *<UL>
 *<LI>attachError() , should error messages be appended to the message</LI>
-*<LI>getAttachementType(), what should be attached to the message</LI>
+*<LI>getAttachmentType(), what should be attached to the message</LI>
 *<LI>getInLineType(), what should be included in the message</LI>
 *<LI>getMessage(), The text of the message itself</LI>
 *<LI>getRecipients(), the recipients the mail is sent to</LI>
