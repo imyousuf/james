@@ -66,7 +66,11 @@ public class JDBCMailRepository
     private static final boolean DEEP_DEBUG = false;
 
 
+    /**
+     * The Avalon context used by the instance
+     */
     protected Context context;
+
     private Lock lock;
 
     // Configuration elements
@@ -83,17 +87,35 @@ public class JDBCMailRepository
     protected DataSourceComponent datasource;
     protected String datasourceName;
 
-    // Contains all of the sql strings for this component.
+    /**
+     * Contains all of the sql strings for this component.
+     */
     protected SqlResources sqlQueries;
 
-    // The JDBCUtil helper class
+    /**
+     * The JDBCUtil helper class
+     */
     protected JDBCUtil theJDBCUtil;
 
+    /**
+     * Pass the Context to the component.
+     * This method is called after the setLogger()
+     * method and before any other method.
+     *
+     * @param context the context
+     * @throws ContextException if context is invalid
+     */
     public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }
 
+    /**
+     * Pass the <code>Configuration</code> to the instance.
+     *
+     * @param configuration the class configurations.
+     * @throws ConfigurationException if an error occurs
+     */
     public void configure(Configuration conf) throws ConfigurationException {
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".configure()");
@@ -164,6 +186,15 @@ public class JDBCMailRepository
         }
     }
 
+    /**
+     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
+     * The instance uses the specified <code>ComponentManager</code> to 
+     * acquire the components it needs for execution.
+     *
+     * @param componentManager The <code>ComponentManager</code> which this
+     *                <code>Composable</code> uses.
+     * @throws ComponentException if an error occurs
+     */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
         StringBuffer logBuffer = null;
@@ -222,6 +253,7 @@ public class JDBCMailRepository
      *     and performing paramter substitution,
      * 3) Initialises the database with the required tables, if necessary.
      *
+     * @throws Exception if an error occurs
      */
     public void initialize() throws Exception {
         StringBuffer logBuffer = null;
@@ -321,6 +353,17 @@ public class JDBCMailRepository
 
     public synchronized boolean unlock(String key) {
         if (lock.unlock(key)) {
+            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                StringBuffer debugBuffer =
+                    new StringBuffer(256)
+                            .append("Unlocked ")
+                            .append(key)
+                            .append(" for ")
+                            .append(Thread.currentThread().getName())
+                            .append(" @ ")
+                            .append(new java.util.Date(System.currentTimeMillis()));
+                getLogger().debug(debugBuffer.toString());
+            }
             notifyAll();
             return true;
         } else {
@@ -330,7 +373,17 @@ public class JDBCMailRepository
 
     public synchronized boolean lock(String key) {
         if (lock.lock(key)) {
-            //notifyAll();
+            if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+                StringBuffer debugBuffer =
+                    new StringBuffer(256)
+                            .append("Locked ")
+                            .append(key)
+                            .append(" for ")
+                            .append(Thread.currentThread().getName())
+                            .append(" @ ")
+                            .append(new java.util.Date(System.currentTimeMillis()));
+                getLogger().debug(debugBuffer.toString());
+            }
             return true;
         } else {
             return false;

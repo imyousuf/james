@@ -33,10 +33,19 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     String key = null;
     StreamRepository sr = null;
 
+    /**
+     * SQL used to retrieve the message body
+     */
     String retrieveMessageBodySQL = null;
+
+    /**
+     * SQL used to retrieve the size of the message body
+     */
     String retrieveMessageBodySizeSQL = null;
 
-    // The JDBCUtil helper class
+    /**
+     * The JDBCUtil helper class
+     */
     private static final JDBCUtil theJDBCUtil =
             new JDBCUtil() {
                 protected void delegatedLog(String logString) {
@@ -68,6 +77,13 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
     }
 
+    /**
+     * Returns a unique String ID that represents the location from where 
+     * this source is loaded.  This will be used to identify where the data 
+     * is, primarily to avoid situations where this data would get overwritten.
+     *
+     * @return the String ID
+     */
     public String getSourceId() {
         StringBuffer sourceIdBuffer =
             new StringBuffer(128)

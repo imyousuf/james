@@ -31,6 +31,15 @@ public class AvalonSpoolRepository
     extends AvalonMailRepository
     implements SpoolRepository {
 
+    /**
+     * <p>Returns the key for an arbitrarily selected mail deposited in this Repository.
+     * Usage: SpoolManager calls accept() to see if there are any unprocessed 
+     * mails in the spool repository.</p>
+     *
+     * <p>Synchronized to ensure thread safe access to the underlying spool.</p>
+     *
+     * @return the key for the mail
+     */
     public synchronized String accept() {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept() called");
@@ -64,6 +73,17 @@ public class AvalonSpoolRepository
         }
     }
 
+    /**
+     * <p>Returns the key for an arbitrarily selected mail deposited in this Repository that
+     * is either ready immediately for delivery, or is younger than it's last_updated plus
+     * the number of failed attempts times the delay time.
+     * Usage: RemoteDeliverySpool calls accept() with some delay and should block until an
+     * unprocessed mail is available.</p>
+     *
+     * <p>Synchronized to ensure thread safe access to the underlying spool.</p>
+     *
+     * @return the key for the mail
+     */
     public synchronized String accept(long delay) {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Method accept(delay) called");
@@ -86,7 +106,13 @@ public class AvalonSpoolRepository
                     }
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.
+
+                    // Retrieve can return null if the mail is no longer in the store.
+                    // In this case we simply continue to the next key
                     MailImpl mail = retrieve(s);
+                    if (mail == null) {
+                        continue;
+                    }
                     if (mail.getState().equals(Mail.ERROR)) {
                         //Test the time...
                         long timeToProcess = delay + mail.getLastUpdated().getTime();
@@ -117,6 +143,6 @@ public class AvalonSpoolRepository
             } catch (ConcurrentModificationException ignoredAlso) {
                // Should never get here now that list methods clones keyset for iterator
             }
-}
+        }
     }
 }
