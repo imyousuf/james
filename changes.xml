@@ -21,8 +21,30 @@
 	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
 	<person name="Paul Hammant" email="Paul_Hammant@yahoo.com" id="PH" />
 	<person name="Jeff Keyser" email="JKeyser@telocity.com" id="JK" />
+	<person name="Noel Bergman" email="??" id="NB" />
+	<person name="Andrei Ivanov" email="myfam@surfeu.fi" id="AI" />
   </devs>
 
+<release version="2.0a4-dev" date="??">
+  <action name="PH" type="code">
+    Upgrade James to the Avalon 4.0/4.1 actual releases.
+  </action>
+  <action name="NB" type="update">
+    Fixed InSpammerBlacklist
+  </action>
+  <action name="NB,SK" type="update">
+    Fixed MailImpl.duplicate to include remote addr, remote host, and last updated fields.
+  </action>
+  <action name="SK" type="update">
+    Cleaned up error handling in LocalDelivery.
+  </action>
+  <action name="SS2" type="update">
+    Reported the lack of in.close in MimeMessageSource.getSize(), which was causing stranded file handles, especially during large POP3 sessions.
+  </action>
+  <action name="AI" type="update">
+    Matcher config implementation object now properly set with matcher name.
+  </action>
+</release>
 <release version="2.0a3" date="20-April-2002">
   <action dev="SK" type="code">
     FileRepository should no longer produce 0-byte files.  It checks that the source is different than the target, or confirm it is in memory before saving to disk.
