@@ -1,0 +1,373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<meta NAME="Author" CONTENT="Federico Barbieri">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+<h1 align="center">Configurations</h1>
+<h4 align="center">JAMES documentation is under construction.<br>
+        Everything you can find outside this page <br> is to be considered obsolete.  </h4>
+
+<h3>Configuration</h3>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>
+
+<h3>James Server Configuration</h3>
+<blockquote>
+    <h4>James Configuration</h4>
+<blockquote>
+    <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> postmaster </td>
+            <td> root@localhost </td>
+            <td> Is the source of error replyes and the email users will mail to for any problem</td>
+        </tr>
+        <tr>
+            <td> servernames</td>
+        </tr>
+        <tr>
+            <td> servername</td>
+            <td> N.A. </td>
+            <td> Is a list of host names James will consider as local. Any user [user]@[name]
+            will be considered to be local. If this is left empty James will attempt to detect
+            automatically the name. Look in jamesinfo.log for a line like "[...] Local host is: [name]"</td>
+        </tr>
+        <tr>
+            <td> spoolRepository </td>
+            <td> file://../var/mail/spool/ </td>
+            <td> This is the path where incoming messages are stored before beeing processed. </td>
+        </tr>
+        <tr>
+            <td> inboxRepository </td>
+            <td> file://../var/mail/localinbox/ </td>
+            <td> This is the root for local users inbox. Each user will have a personal folder
+            [inboxRepository]/[user] </td>
+        </tr>
+        <tr>
+            <td> spoolmanagerthreads </td>
+            <td> 1 </td>
+            <td> This is the number of thread that work polling mails from the spool and take care
+            of processing them. </td>
+        </tr>
+    </table>
+
+    <h4>SMTP Server</h4>
+<blockquote>
+    <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> port </td>
+            <td> 25 </td>
+            <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> smtphandler </td>
+            <td> N.A. </td>
+            <td> Parent for all SMTPHandler configuations. </td>
+        </tr>
+        <tr>
+            <td> connectiontimeout </td>
+            <td> 120000 </td>
+            <td> If nothing is received from an open connection for more than {timeout] mills 
+            the connection is closed. </td>
+        </tr>
+    </table>
+    <h4>POP3 Server</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> port </td>
+            <td> 110 </td>
+            <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> pop3handler </td>
+            <td> N.A. </td>
+            <td> Parent for all POP3Handler configuations. </td>
+        </tr>
+        <tr>
+            <td> connectiontimeout </td>
+            <td> 120000 </td>
+            <td> If nothing is received from an open connection for more than {timeout] mills 
+            the connection is closed. </td>
+        </tr>
+    </table>
+    <h4>Users Manager</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> repository </td>
+            <td> file://../var/users/ </td>
+            <td> The path where local mail account informations are stored. </td>
+        </tr>
+    </table>
+    <h4>Remote Manager</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> port </td>
+            <td> 4555 </td>
+            <td> The port we are listening to. </td>
+        </tr>
+        <tr>
+            <td> administrator_accounts </td>
+            <td> N.A. </td>
+            <td> The parent of &ltaccount&gt </td>
+        </tr>
+        <tr>
+            <td> account </td>
+            <td> login="root" password="root" </td>
+            <td> A list of root account to administer JAMES. </td>
+        </tr>
+        <tr>
+            <td> connectiontimeout </td>
+            <td> 120000 </td>
+            <td> If nothing is received from an open connection for more than {timeout] mills 
+        </tr>
+    </table>
+    <h4>Transport</h4>
+<blockquote>
+        <p>Blah blah blah blah blah blah blah blah blah blah blah</p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>&ltname&gt</th>
+            <th>default value</th>
+            <th>meaning</th>
+        </tr>
+        <tr>
+            <td> DNSservers/server </td>
+            <td> N.A. </td>
+            <td> This is a list of DNS to resolve external address. </td>
+        </tr>
+        <tr>
+            <td> authoritative </td>
+            <td> false </td>
+            <td> Refere to the DNS servers </td>
+        </tr>
+        <tr>
+            <td> repository </td>
+            <td> file://../var/mail/delayed/ </td>
+            <td> This is a temp repository path shared with the name of "TMP_REPOSITORY". 
+            It is used by the RemoteDelivery Mailet to store mail for futher delivery. 
+            (Note: this is not very elegant and will probally change soon) </td>
+        </tr>
+        <tr>
+            <td> servlets </td>
+            <td> rootpath="org.apache.james.transport.servlet." </td>
+            <td> This is the parent node for all mailet configurations. The rootpath specify
+            where mailet repository is. (Note: need to plug more than one repository) </td>
+        </tr>
+    </table>
+<blockquote>
+</blockquote>
+</blockquote>
+<br><br>
+    <h3>The mailet Processor pipe line</h3>
+<blockquote>
+        <p>This is James sitemap. It defines how each incoming mail will be processed. 
+        Incoming mails begins their process at the first mailet in the pipe.
+        Each step is described by a &ltservet&gt tag with some attributes: 
+        &ltservlet match="[matchClass]=[matchParameters]" class="[mailetClass]"&gt.
+        The Match class split the mail into two: one with all recipients matching conditions and
+        the other with all recipient not matching. All information in the mail except recipients 
+        cloned so bot matching and not matching are identical (again except recipients).
+        The matching mail will be passed to the specified mailet for processing. After processing 
+        both mails, the untoched not matching and the processed matching, goes to next step in pipe.
+        Some mailet will not return anything after process. The Null mailet for example will simply
+        destroy any incoming mail or the RemoteDelivery since after delivery the mail needs no 
+        more processing.</p><br> 
+        
+    <h4>Matches</h4>
+<blockquote>
+        <p>The Match interface defines how match class should work. Their work is to split a Vector
+        of recipients into two: the ones matching a specified condition and all others. Condition 
+        may or may not be present. You can make one simple boolean operation merging two matches into one 
+        or you can write your own class implementing the Match interface.
+        Currently implemented match: </p> 
+</blockquote>    
+    <table border=1>
+        <tr>
+            <th>class name</th>
+            <th>parameter</th>
+            <th>action</th>
+            <th>example</th>
+        </tr>
+        <tr>
+            <td> All </td>
+            <td> none </td>
+            <td> match all recipients. </td>
+            <td> match="All" </td>
+        </tr>
+        <tr>
+            <td> HostIs </td>
+            <td> comma separated list of hosts names </td>
+            <td> match all recipient belonging to one of the specified hosts </td>
+            <td> match="HostIs=myHost.mydom.org,yourHost" </td>
+        </tr>
+        <tr>
+            <td> RecipientIs </td>
+            <td> comma separated list of recipients </td>
+            <td> match all recipients defined in condition. </td>
+            <td> match="RecipientIs=root@localhost,admin@localhost" </td>
+        </tr>
+        <tr>
+            <td> UserIs </td>
+            <td> comma separated list of accounts </td>
+            <td> match all recipients defined in condition regardless of host. </td>
+            <td> match="UserIs=root,admin" </td>
+        </tr>
+        <tr>
+            <td> HostIsLocal </td>
+            <td> none </td>
+            <td> check recipients's hosts against the list of host names set in configuration for localhost
+            (see &ltservername&gt). </td>
+            <td> match="HostIsLocal" </td>
+        </tr>
+        <tr>
+            <td> RecipientIsLocal </td>
+            <td> none </td>
+            <td> match recipient which host is local (see HostIsLocal) and that are recognized by the 
+            Users Manager to be local accounts. </td>
+            <td> match="RecipientIsLocal" </td>
+        </tr>
+        <tr>
+            <td> SenderIs </td>
+            <td> comma separated list of address. </td>
+            <td> match all recipients if sender is in the condition string, else match none. </td>
+            <td> match="SenderIs=badBay@badhost" </td>
+        </tr>
+    </table>
+<blockquote>
+       Some examples:<br>
+        - &ltservlet match="RecipientIsLocal" class="LocalDelivery"&gt<br><br>
+        
+        - &ltservlet match="UserIs=root & HostIsLocal" class="Forward"&gt<br><br>
+        
+        - &ltservlet match="SenderIs=badBoy@myhost,badGirl@yourhost" class="Null"&gt<br><br>
+        
+</blockquote>    
+    <h4>Mailet</h4>
+<blockquote>
+        <b>The inteface and pattern around mailet is in a pre beta stage since there is no 
+        experience on that and so everything is to be considered under development.</b><br>
+        Mailet are the ones performing process on mails. They are provided with a Mail object 
+        on which thy can perform any kind of task and they reply with another Mail object 
+        conteining he response. Wise use of mailet allow to write any mail based application
+        as http application using servlet. Simple mailet provides basic mail functionality like
+        mail forwarding, mailing list, "I'm on vacation" message, mail logging etc. As simply as
+        these mailet, you can write and deploy your own mailet to perform any kind of task. <br>
+        Here you are some mailet samples with their configuration:<br><br>
+        
+        <b>Null</b>
+<blockquote>
+            Destroy any incoming mail. No configuration needed.<br><br>
+            &ltservlet match="SenderIs=badBoy@badhost" class="Null"&gt<br>
+            &lt/servlet&gt<br><br>
+            
+</blockquote>
+
+        <b>Identity</b>
+<blockquote>
+            Leave any incoming mail untoched.Sort of debug servlet (not really useful).
+            No configuration needed.<br><br>
+            &ltservlet match="All" class="Identity"&gt<br>
+            &lt/servlet&gt<br><br>
+</blockquote>
+
+        <b>Forward</b>
+<blockquote>
+            Replace the recipient list with recipient specified in configurations.<br><br>
+            &ltservlet match="RecipientIs=root@localhost" class="Forward"&gt<br>
+<blockquote>
+            &ltforwardto&gt green@blue.org &lt/forwardto&gt<br>
+            &ltforwardto&gt red@yellow.com &lt/forwardto&gt<br>
+</blockquote>
+            &lt/servlet&gt<br><br>
+</blockquote>
+
+        <b>ToRepository</b>
+<blockquote>
+            Stores mails in the specified MailRepository. Useful for mail logging etc.
+            If the passThrough is false the mail will be destroyed, if true it will be 
+            returned untouched to the pipe.<br><br>
+            &ltservlet match="RecipientIs=root@localhost" class="ToRepository"&gt<br>
+<blockquote>
+            &ltrepositoryPath&gt file://../var/mail/logAdmin &lt/repositoryPath&gt<br>
+            &ltpassThrough&gt true &lt/passThrough&gt (default false)<br>
+</blockquote>
+            &lt/servlet&gt<br><br>
+</blockquote>
+
+        <b>LocalDelivery</b>
+<blockquote>
+            Store mail in the local inbox, one folder for each user.<br><br>
+            &ltservlet match="RecipientIsLocal" class="LocalDelivery"&gt<br>
+            &lt/servlet&gt<br><br>
+</blockquote>
+
+        <b>RemoteDelivery</b>
+<blockquote>
+            Realy mails to remote hosts. "delayTime" is the time in mills the servlet will wait
+            before retrying sending a mail which fail at first time. "maxRetryes" is the number of
+            retryes before sending back to sender the mail.<br><br>
+            &ltservlet match="!RecipientIsLocal" class="RemoteDelivery"&gt<br>
+<blockquote>
+            &ltdelayTime&gt 21600000 &lt/delayTime&gt <br>
+            &ltmaxRetyes&gt 5 &lt/maxRetyes&gt <br>
+</blockquote>
+            &lt/servlet&gt<br><br>
+            <br>
+            .<br>
+</blockquote>
+
+</blockquote>
+</blockquote>    
+
+<p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>
