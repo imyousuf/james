@@ -162,7 +162,7 @@ public class LinearProcessor
 
             //See if the state was changed by the mailet
             if (!mail.getState().equals(originalState)) {
-                logger.debug("State changed by: " + mailet.getMailetInfo());
+                getLogger().debug("State changed by: " + mailet.getMailetInfo());
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(mail.GHOST)) {
                     //let this instance die...
@@ -181,7 +181,7 @@ public class LinearProcessor
             } else {
                 //Ok, we made it through with the same state... move it to the next
                 //  spot in the array
-                logger.debug("State not changed by: " + mailet.getMailetInfo());
+                getLogger().debug("State not changed by: " + mailet.getMailetInfo());
                 unprocessed[i + 1].add(mail);
             }
 
@@ -223,7 +223,7 @@ public class LinearProcessor
             }
         }
         mail.setErrorMessage(sout.toString());
-        logger.error(sout.toString());
+        getLogger().error(sout.toString());
         throw me;
     }
 }

@@ -33,13 +33,16 @@ public class AvalonSpoolRepository
     implements SpoolRepository {
 
     public synchronized String accept() {
-
+	if (DEEP_DEBUG) getLogger().debug("Method accept() called");
         while (true) {
             for(Iterator it = list(); it.hasNext(); ) {
                 
                 String s = it.next().toString();
+		if (DEEP_DEBUG) getLogger().debug("Found item " + s
+                                                  + " in spool.");
                 if (lock.lock(s)) {
-		    getLogger().debug("accept() has locked: " + s);
+		    if (DEEP_DEBUG) getLogger().debug("accept() has locked: "
+                                                      + s);
                     return s;
                 }
                 //  Object o = it.next();
@@ -55,11 +58,16 @@ public class AvalonSpoolRepository
     }
 
     public synchronized String accept(long delay) {
+	if (DEEP_DEBUG) getLogger().debug("Method accept(delay) called");
         while (true) {
             long youngest = 0;
             for (Iterator it = list(); it.hasNext(); ) {
                 String s = it.next().toString();
+		if (DEEP_DEBUG) getLogger().debug("Found item " + s
+                                                  + " in spool.");
                 if (lock.lock(s)) {
+		    if (DEEP_DEBUG) getLogger().debug("accept(delay) has"
+                                                      + " locked: "  + s);
                     //We have a lock on this object... let's grab the message
                     //  and see if it's a valid time.
                     MailImpl mail = retrieve(s);

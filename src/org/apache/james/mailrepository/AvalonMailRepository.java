@@ -46,13 +46,14 @@ public class AvalonMailRepository
     implements MailRepository, Component, Configurable, Composable {
 
     protected Lock lock;
+    protected static boolean DEEP_DEBUG = true;
     private static final String TYPE = "MAIL";
     private Store store;
     private StreamRepository sr;
     private ObjectRepository or;
     private MailStore mailstore;
     private String destination;
-    private static boolean DEEP_DEBUG = true;
+
 
     public void configure(Configuration conf) throws ConfigurationException {
         destination = conf.getAttribute("destinationURL");
