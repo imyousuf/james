@@ -12,7 +12,7 @@
     </menu>
     
     <menu name="Translated">
-        <item name="Japanese (web)" href="http://www.terra-intl.com/jakarta/james/"/>
+        <item name="Japanese (web)" href="http://james.terra-intl.com/"/>
     </menu>
 
     <menu name="Downloads">
@@ -54,8 +54,9 @@
     </menu>
 
     <menu name="Related Projects (web)">
-        <item name="Ant"                   href="http://jakarta.apache.org/ant/index.html"/>
-        <item name="Avalon"                href="http://jakarta.apache.org/avalon/index.html"/>
+        <item name="Jakarta"               href="http://jakarta.apache.org/index.html"/>
+        <item name="Ant"                   href="http://ant.apache.org/index.html"/>
+        <item name="Avalon"                href="http://avalon.apache.org/index.html"/>
     </menu>
 
     </body>
