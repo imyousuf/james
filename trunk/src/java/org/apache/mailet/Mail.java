@@ -88,15 +88,6 @@ public interface Mail extends Serializable, Cloneable {
     void setErrorMessage(String msg);
 
     /**
-     * Sets the MimeMessage associated with this message via an inputstream.  The Mail
-     * object will parse out the inputstream and construct a MimeMessage object.
-     *
-     * @param in - the inputstream to read to construct the MimeMessage
-     * @throws MessagingException - if there was an error parsing the inputstream
-     */
-    void setMessage(InputStream in) throws MessagingException;
-
-    /**
      * Sets the MimeMessage associated with this message via the object.
      *
      * @param message - the new MimeMessage that this Mail object will wrap
