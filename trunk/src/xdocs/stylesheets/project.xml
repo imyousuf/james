@@ -11,6 +11,7 @@
         <item name="Install"           href="/install.html"/>
         <item name="Configuration"     href="/configuration_v2_0.html"/>
         <item name="Architecture"      href="/architecture_v2_0.html"/>
+		<item name="James FAQ"      href="/FAQ.html"/>
 	</menu>
 
     <menu name="Download">
@@ -19,7 +20,7 @@
     </menu>
 	
     <menu name="Guides">
-        <item name="James API"		href="javadocs/index.html"/>
+        <item name="James API"		href="/javadocs/index.html"/>
         <item name="Mailet API"     href="/mailet/index.html"/>
         <item name="Using JDBC"     href="/usingJDBC_v2.0.html"/>
         <item name="Using LDAP"     href="/usingLDAP_v1_2.html"/>
