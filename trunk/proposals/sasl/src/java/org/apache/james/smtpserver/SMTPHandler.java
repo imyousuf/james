@@ -43,8 +43,8 @@ import javax.security.sasl.*;
  * @author Jason Borden <jborden@javasense.com>
  * @author Matthew Pangaro <mattp@lokitech.com>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2002/01/17 06:09:00 $ by: $Author: darrell $
+ * This is $Revision: 1.1 $
+ * Committed on $Date: 2002/09/24 03:46:58 $ by: $Author: pgoldstein $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
