@@ -6,28 +6,50 @@
 <!-- JAMES POP3 server Blocks -->
 
         <block class="org.apache.james.pop3server.POP3Server"
-               serverName="James"
-               implementedInterface="">
+                serverName="James"
+                implementedInterface=""
+                help="This block impement a POP3 server. Il will look for mails
+                    under [mailboxName].[username]">
 
             <port>110</port>
             <pop3handler>
-                <servername> maggie </servername>
-                <postmaster> admin@localhost </postmaster>
-                <connectiontimeout> 120000 </connectiontimeout>
+
+                <servername>
+<!-- ________________ FILL ME ________________ -->
+<!-- Place your server name here. It is used for hello message.  -->
+                </servername>
+
+                <connectiontimeout help="After this time in milliseconds that no
+                        command are received the connection will be closed">
+                    120000 
+                </connectiontimeout>
+                <mailboxName help="The name of the public repository where mails
+                        are stored">
+                    localInbox 
+                </mailboxName>
             </pop3handler>
         </block>
 
 <!-- JAMES SMTP server Blocks -->
 
         <block class="org.apache.james.smtpserver.SMTPServer"
-               serverName="James"
-               implementedInterface="">
+                serverName="James"
+                implementedInterface=""
+                help="This block implements a SMTP server. Incoming mails will be
+                    delivered to the MailServer implementation">
 
             <port>25</port>
             <smtphandler>
-                <servername> maggie </servername>
-                <postmaster> admin@localhost </postmaster>
-                <connectiontimeout> 120000 </connectiontimeout>
+
+                <servername>
+<!-- ________________ FILL ME ________________ -->
+<!-- Place your server name here. It is used for hello message.  -->
+                </servername>
+
+                <connectiontimeout help="After this time in milliseconds that no
+                        command are received the connection will be closed">
+                    120000 
+                </connectiontimeout>
             </smtphandler>
         </block>
 
@@ -37,18 +59,32 @@
                serverName="James"
                implementedInterface="org.apache.avalon.blocks.MailServer">
 
-            <servername> maggie </servername>
-            <spoolmanagerthreads>
+                <servername>
+<!-- ________________ FILL ME ________________ -->
+<!-- Place your server name here. It is used for hello message.  -->
+                </servername>
+
+            <spoolRepository> 
+<!-- ________________ FILL ME ________________ -->
+<!-- Place here the path where incoming mail are temporaly stored before 
+    beeing processed. (ex. file://c:/james/spool/) -->
+            </spoolRepository>
+
+            <spoolmanagerthreads help="The number of threads that spool and 
+                    process messages from spoolRepository.">
                 1
             </spoolmanagerthreads>
-            <spoolRepository>
-                file://c:/archivio/store/james/smtpspool/
-            </spoolRepository>
             <spoolmanager>
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
                 <localhost> maggie.galaxus </localhost>
+
+<!-- ________________ ATTENTION ________________ -->
+<!-- Configure your mail Servlet processing pipe here. Take commented lines as 
+    example (commented lines are not necessary). -->
+
                 <servlets rootpath="org.apache.james.james.servlet.">
+    <!-- EXAMPLE
                     <servlet match="All" class="ToRepository">
                         <repository> file://c:/archivio/store/james/maillog/ </repository>
                         <passThrought> true </passThrought>
@@ -56,23 +92,51 @@
                     <servlet match="RecipientIs=root@localhost,admin@localhost | HostIs=systemy.it" class="Forward">
                         <forwardto> scoobie@localhost </forwardto>
                     </servlet>
-                    <servlet match="HostIs=maggie,localhost,maggie.galaxus" class="LocalDelivery">
+    EXAMPLE -->
+
+<!-- These servlet act as system servlet and provides local deliver -->
+
+<!-- ________________ FILL ME ________________ -->
+<!--  Fill the HostIs parameter to comma separated list of your server names 
+without spaces (ex. HostIs=maggie.galaxus,localhost) + + + + + + -->
+                    <servlet match="HostIs= " class="LocalDelivery">
+
                         <repository> localInbox </repository>
                     </servlet>
+
+<!-- These servlet act as system servlet and provides remote deliver -->
                     <servlet match="All" class="RemoteDelivery">
-                        <outgoingmailserver> 212.216.176.34 </outgoingmailserver>
-                        <repository> file://c:/archivio/store/james/delayed/ </repository>
+
+                        <outgoingmailserver>  
+<!-- ________________ FILL ME ________________ -->
+<!--  Fill the outgoingmailserver with your default mail server (ex. mail.tin.it) -->
+                        </outgoingmailserver>
+
+                        <repository>  
+<!-- ________________ FILL ME ________________ -->
+<!--  Fill the repository path where to store temoporaly underiverable messages 
+    (ex. file://c:/archivio/store/james/delayed/) -->
+                        </repository>
+
                         <delayTime>20000</delayTime>
                         <maxRetyes>5</maxRetyes>
                     </servlet>
+
 <!-- The last servlet in the pipe is the one managing errors -->
                     <servlet match="All" class="ToRepository">
-                        <repository> file://c:/archivio/store/james/errors/ </repository>
+
+                        <repository>  
+<!-- ________________ FILL ME ________________ -->
+<!--  Fill the repository path where error are stored 
+    (ex. (file://c:/archivio/store/james/errors/) -->
+                        </repository>
+
                         <passThrought> false </passThrought>
                     </servlet>
                 </servlets>
             </spoolmanager>
         </block>
+
 <!-- Block to manage JAMES users accounts -->
 
         <block class="org.apache.james.remotemanager.RemoteManager"
@@ -80,23 +144,32 @@
                implementedInterface="">
             <port>4555</port>
             <AdministratorAccounts>
-                <Account login="root" password="pippo"/>
-                <Account login="scoobie" password="pippo"/>
+                <Account login="root" password="root"/>
             </AdministratorAccounts>
-            <connectiontimeout> 30000 </connectiontimeout>
+                <connectiontimeout help="After this time in milliseconds that no
+                        command are received the connection will be closed">
+                    60000 
+                </connectiontimeout>
         </block>
 
 <!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
 
+<!-- ________________ ATTENTION ________________ -->
+
+<!--  Add these lines to the Logger implementation under the avalon.conf.xml.
+    Copy each <channel> element under <channels> element in avalon.conf.xml and
+    each <writer> under <logwriters>. If you want you can change logfile 
+    destination. -->
+    
         <block class="[...]"
                serverName="all"
                implementedInterface="org.apache.avalon.blocks.Logger">
             <channels>
-                <channel name="RemoteManager"   logwriter="admin"/>
-                <channel name="POP3Server"      logwriter="popfile"/>
-                <channel name="SMTPServer"      logwriter="smtpfile"/>
-                <channel name="JAMES"           logwriter="jamesfile"/>
-                <channel name="Mail Servlet"    logwriter="jamesfile"/>
+                <channel name="RemoteManager"  loglevel="DEBUG"  logwriter="admin"/>
+                <channel name="POP3Server"     loglevel="DEBUG"  logwriter="popfile"/>
+                <channel name="SMTPServer"     loglevel="DEBUG"  logwriter="smtpfile"/>
+                <channel name="JAMES"          loglevel="DEBUG"  logwriter="jamesfile"/>
+                <channel name="Mail Servlet"   loglevel="DEBUG"  logwriter="jamesfile"/>
             </channels>
             <logwriters>
                 <writer name="jamesfile" class="org.apache.avalon.blocks.omero.FileWriter">
@@ -129,7 +202,12 @@
                 </writer>
             </logwriters>
         </block>
+
+<!-- ________________ ATTENTION ________________ -->
                 
+<!--  Add these lines to the Store implementation under the avalon.conf.xml.
+    Copy <repository type=...> under <repositoriesDefinition> and 
+    <repository name=... under <publicrepositories> -->
         <block class="[...]"
                serverName="all"
                implementedInterface="org.apache.avalon.blocks.Store">
@@ -139,12 +217,20 @@
                     class="org.apache.james.MessageContainerRepository"/>
             </repositoriesDefinition>
             <publicrepositories>
+
                 <repository name="localInbox" type="MESSAGE_CONTAINER" model="SYNCHRONOUS">
-                    file://c:/archivio/store/james/localinbox/
+<!-- ________________ FILL ME ________________ -->
+<!-- Fill element with path where processed message are stored. This public 
+    Repository is shared amongst the MailServer and POP3Server.
+    (ex. file://c:/archivio/store/james/localinbox/) -->
                 </repository>
+
                 <repository name="MailUsers" type="OBJECT" model="SYNCHRONOUS">
-                    file://c:/archivio/store/james/users/
+<!-- ________________ FILL ME ________________ -->
+<!-- Fill element with path where users data are stored.
+    (ex. file://c:/archivio/store/james/users/) -->
                 </repository>
+
             </publicrepositories>
         </block>
     </blocks>
