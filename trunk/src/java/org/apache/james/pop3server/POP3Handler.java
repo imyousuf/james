@@ -163,8 +163,9 @@ public class POP3Handler
 
     private boolean parseCommand(String commandRaw) {
         if (commandRaw == null) return false;
-        getLogger().info("Command received: " + commandRaw);
+        //getLogger().info("Command received: " + commandRaw);
         String command = commandRaw.trim();
+        commandRaw = command;
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -179,6 +180,14 @@ public class POP3Handler
         String argument1 = (String) null;
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
+        }
+        if (getLogger().isInfoEnabled()) {
+            // Don't display password in logger
+            if (!command.equalsIgnoreCase("PASS")) {
+                getLogger().info("Command received: " + commandRaw);
+            } else {
+                getLogger().info("Command received: PASS <password omitted>");
+            }
         }
 
         if (command.equalsIgnoreCase("USER"))
