@@ -34,8 +34,7 @@
         <log-target name="smtpserver-target" location="/logs/smtpserver.log"/>
         <category name="nntpserver" target="nntpserver-target" priority="DEBUG"/>
         <log-target name="nntpserver-target" location="/logs/nntpserver.log"/>
-        <category name="nntp-repository" target="nntp-repository-target" priority="DEBUG
-"/>
+        <category name="nntp-repository" target="nntp-repository-target" priority="DEBUG"/>
         <log-target name="nntp-repository-target" location="/logs/nntp-repository.log"/>
         <category name="mailstore" target="mailstore-target" priority="DEBUG"/>
         <log-target name="mailstore-target" location="/logs/mailstore.log"/>
