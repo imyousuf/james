@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.48 $ Committed on $Date: 2003/02/22 20:17:43 $ by: $Author: noel $ -->
+<!-- $Revision: 1.49 $ Committed on $Date: 2003/04/28 13:59:28 $ by: $Author: danny $ -->
 
 <config>
    <James>
@@ -685,7 +685,6 @@
       <!-- To allow James to use a database you must configure the database connection here. -->
       <!-- If you are not using a database, you can leave this section unchanged. -->
       <!-- These connections are referred to by name in URLs elsewhere in the config file. -->
-      <data-sources>
 
          <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
          <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
@@ -725,7 +724,6 @@
          </data-source>
          -->
 
-      </data-sources>
    </database-connections>
 
    <!-- Configuration for Cornerstone Services -->
