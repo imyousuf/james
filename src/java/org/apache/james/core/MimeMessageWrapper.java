@@ -816,6 +816,7 @@ public class MimeMessageWrapper extends MimeMessage {
             loadMessage();
         }
         modified = true;
+        headers.setHeader(name, value);
         message.setHeader(name, value);
     }
 
@@ -824,6 +825,7 @@ public class MimeMessageWrapper extends MimeMessage {
             loadMessage();
         }
         modified = true;
+        headers.addHeader(name, value);
         message.addHeader(name, value);
     }
 
@@ -832,6 +834,7 @@ public class MimeMessageWrapper extends MimeMessage {
             loadMessage();
         }
         modified = true;
+        headers.removeHeader(name);
         message.removeHeader(name);
     }
 
@@ -839,6 +842,7 @@ public class MimeMessageWrapper extends MimeMessage {
         if (message == null) {
             loadMessage();
         }
+        headers.addHeaderLine(line);
         message.addHeaderLine(line);
     }
 
