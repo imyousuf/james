@@ -61,20 +61,20 @@ package org.apache.james.nntpserver;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.util.CharTerminatedInputStream;
+import org.apache.james.util.DotStuffingInputStream;
+import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.RFC977DateFormat;
 import org.apache.james.util.RFC2980DateFormat;
@@ -82,16 +82,29 @@ import org.apache.james.util.SimplifiedDateFormat;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.SequenceInputStream;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import javax.mail.MessagingException;
 
 /**
  * The NNTP protocol is defined by RFC 977.
@@ -99,7 +112,6 @@ import java.util.*;
  * URL: http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-15.txt
  *
  * Common NNTP extensions are in RFC 2980.
- *
  */
 public class NNTPHandler
     extends AbstractLogEnabled
@@ -181,6 +193,11 @@ public class NNTPHandler
     private final static String COMMAND_QUIT = "QUIT";
 
     /**
+     * The text string for the NNTP SLAVE command.
+     */
+    private final static String COMMAND_SLAVE = "SLAVE";
+
+    /**
      * The text string for the NNTP DATE command.
      */
     private final static String COMMAND_DATE = "DATE";
@@ -231,6 +248,11 @@ public class NNTPHandler
     private final static String COMMAND_AUTHINFO = "AUTHINFO";
 
     /**
+     * The text string for the NNTP PAT command.
+     */
+    private final static String COMMAND_PAT = "PAT";
+
+    /**
      * The text string for the NNTP MODE READER parameter.
      */
     private final static String MODE_TYPE_READER = "READER";
@@ -251,9 +273,24 @@ public class NNTPHandler
     private final static String AUTHINFO_PARAM_PASS = "PASS";
 
     /**
+     * The character array that indicates termination of an NNTP message
+     */
+    private final static char[] NNTPTerminator = { '\r', '\n', '.', '\r', '\n' };
+
+    /**
      * The thread executing this handler 
      */
     private Thread handlerThread;
+
+    /**
+     * The remote host name obtained by lookup on the socket.
+     */
+    private String remoteHost;
+
+    /**
+     * The remote IP address of the socket.
+     */
+    private String remoteIP;
 
     /**
      * The TCP/IP socket over which the POP3 interaction
@@ -262,9 +299,19 @@ public class NNTPHandler
     private Socket socket;
 
     /**
+     * The incoming stream of bytes coming from the socket.
+     */
+    private InputStream in;
+
+    /**
      * The reader associated with incoming characters.
      */
     private BufferedReader reader;
+
+    /**
+     * The socket's output stream
+     */
+    private OutputStream outs;
 
     /**
      * The writer to which outgoing messages are written.
@@ -371,16 +418,31 @@ public class NNTPHandler
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection( Socket connection ) throws IOException {
-
         try {
             this.socket = connection;
             synchronized (this) {
                 handlerThread = Thread.currentThread();
             }
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 1024);
-            writer = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 1024), true);
+            remoteIP = socket.getInetAddress().getHostAddress();
+            remoteHost = socket.getInetAddress().getHostName();
+            in = new BufferedInputStream(socket.getInputStream(), 1024);
+            // An ASCII encoding can be used because all transmissions other
+            // that those in the message body command are guaranteed
+            // to be ASCII
+            reader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
+            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
+            writer = new InternetPrintWriter(outs, true);
         } catch (Exception e) {
-            getLogger().error( "Cannot open connection from: " + e.getMessage(), e );
+            StringBuffer exceptionBuffer = 
+                new StringBuffer(256)
+                    .append("Cannot open connection from ")
+                    .append(remoteHost)
+                    .append(" (")
+                    .append(remoteIP)
+                    .append("): ")
+                    .append(e.getMessage());
+            String exceptionString = exceptionBuffer.toString();
+            getLogger().error(exceptionString, e );
         }
 
         try {
@@ -407,17 +469,16 @@ public class NNTPHandler
             }
             theWatchdog.stop();
 
-            getLogger().debug("Connection closed");
+            getLogger().info("Connection closed");
         } catch (Exception e) {
-            // if the connection has been idled out, the
+            // If the connection has been idled out, the
             // socket will be closed and null.  Do NOT
             // log the exception or attempt to send the
             // closing connection message
             if (socket != null) {
                 try {
                     doQUIT(null);
-                } catch(Throwable t) { }
-
+                } catch (Throwable t) {}
                 getLogger().error( "Exception during connection:" + e.getMessage(), e );
             }
         } finally {
@@ -449,11 +510,16 @@ public class NNTPHandler
             reader = null;
         }
 
+        in = null;
+
         if (writer != null) {
             writer.close();
             writer = null;
         }
+        outs = null;
 
+        remoteHost = null;
+        remoteIP = null;
         try {
             if (socket != null) {
                 socket.close();
@@ -510,14 +576,20 @@ public class NNTPHandler
         }
         command = command.toUpperCase(Locale.US);
 
+        boolean returnValue = true;
         if (!isAuthorized(command) ) {
             writeLoggedFlushedResponse("502 User is not authenticated");
             getLogger().debug("Command not allowed.");
-            return true;
+            return returnValue;
         }
-        if ((command.equals(COMMAND_MODE)) && (argument != null) &&
-            argument.toUpperCase(Locale.US).equals(MODE_TYPE_READER)) {
-            doMODEREADER(argument);
+        if ((command.equals(COMMAND_MODE)) && (argument != null)) {
+            if (argument.toUpperCase(Locale.US).equals(MODE_TYPE_READER)) {
+                doMODEREADER(argument);
+            } else if (argument.toUpperCase(Locale.US).equals(MODE_TYPE_STREAM)) {
+                doMODESTREAM(argument);
+            } else {
+                writeLoggedFlushedResponse("500 Command not understood");
+            }
         } else if ( command.equals(COMMAND_LIST)) {
             doLIST(argument);
         } else if ( command.equals(COMMAND_GROUP) ) {
@@ -540,6 +612,7 @@ public class NNTPHandler
             doIHAVE(argument);
         } else if ( command.equals(COMMAND_QUIT) ) {
             doQUIT(argument);
+            returnValue = false;
         } else if ( command.equals(COMMAND_DATE) ) {
             doDATE(argument);
         } else if ( command.equals(COMMAND_HELP) ) {
@@ -560,12 +633,14 @@ public class NNTPHandler
             doXHDR(argument);
         } else if ( command.equals(COMMAND_AUTHINFO) ) {
             doAUTHINFO(argument);
-        } else if ( command.equals("PAT") ) {
+        } else if ( command.equals(COMMAND_SLAVE) ) {
+            doSLAVE(argument);
+        } else if ( command.equals(COMMAND_PAT) ) {
             doPAT(argument);
         } else {
             doUnknownCommand(command, argument);
         }
-        return (command.equals(COMMAND_QUIT) == false);
+        return returnValue;
     }
 
     /**
@@ -608,9 +683,7 @@ public class NNTPHandler
             writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
-
         command = command.toUpperCase(Locale.US);
-
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
             // Reject re-authentication
             if ( isAlreadyAuthenticated ) {
@@ -661,12 +734,13 @@ public class NNTPHandler
      * an argument.
      *
      * @param argument the argument passed in with the NEWNEWS command.
-     *                 Should be NEWNEWS newsgroups date time [GMT] [<distribution>]
-     *                 see RFC 977 #3.8, RFC 2980 #4.5.
+     *                 Should be a wildmat followed by a date.
      */
     private void doNEWNEWS(String argument) {
+        // see section 11.4
 
         String wildmat = "*";
+
         if (argument != null) {
             int spaceIndex = argument.indexOf(" ");
             if (spaceIndex >= 0) {
@@ -693,16 +767,13 @@ public class NNTPHandler
         }
 
         writeLoggedFlushedResponse("230 list of new articles by message-id follows");
-
-        Iterator groups = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
-        while (groups.hasNext() ) {
-            Iterator articles = ((NNTPGroup)(groups.next())).getArticlesSince(theDate);
-            while ( articles.hasNext() ) {
+        Iterator groupIter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
+        while ( groupIter.hasNext() ) {
+            Iterator articleIter = ((NNTPGroup)(groupIter.next())).getArticlesSince(theDate);
+            while (articleIter.hasNext()) {
                 StringBuffer iterBuffer =
-                                         new StringBuffer(64)
-                                         .append("<")
-                                         .append(((NNTPArticle)articles.next()).getUniqueID())
-                                         .append(">");
+                    new StringBuffer(64)
+                        .append(((NNTPArticle)articleIter.next()).getUniqueID());
                 writeLoggedResponse(iterBuffer.toString());
             }
         }
@@ -713,7 +784,7 @@ public class NNTPHandler
      * Lists the groups added since the date passed in as
      * an argument.
      *
-     * @param argument the argument passed in with the NEWNEWS command.
+     * @param argument the argument passed in with the NEWGROUPS command.
      *                 Should be a date.
      */
     private void doNEWGROUPS(String argument) {
@@ -763,6 +834,16 @@ public class NNTPHandler
     }
 
     /**
+     * Acknowledges a SLAVE command.  No special preference is given
+     * to slave connections.
+     *
+     * @param argument the argument passed in with the SLAVE command.
+     */
+    private void doSLAVE(String argument) {
+        writeLoggedFlushedResponse("202 slave status noted");
+    }
+
+    /**
      * Returns the current date according to the news server.
      *
      * @param argument the argument passed in with the DATE command
@@ -770,7 +851,7 @@ public class NNTPHandler
     private void doDATE(String argument) {
         Date dt = new Date(System.currentTimeMillis()-UTC_OFFSET);
         String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
-        writeLoggedFlushedResponse("111 "+dtStr);
+        writeLoggedFlushedResponse("111 " + dtStr);
     }
 
     /**
@@ -788,7 +869,6 @@ public class NNTPHandler
      * @param argument the argument passed in with the LIST command.
      */
     private void doLIST(String argument) {
-
         // see section 9.4.1
         String wildmat = "*";
         boolean isListNewsgroups = false;
@@ -862,7 +942,12 @@ public class NNTPHandler
             writeLoggedFlushedResponse("435 article not wanted - do not send it");
         } else {
             writeLoggedFlushedResponse("335 send article to be transferred. End with <CR-LF>.<CR-LF>");
-            createArticle();
+            try {
+                createArticle();
+            } catch (RuntimeException e) {
+                writeLoggedFlushedResponse("436 transfer failed - try again later");
+                throw e;
+            }
             writeLoggedFlushedResponse("235 article received ok");
         }
     }
@@ -1007,7 +1092,8 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            article.writeBody(writer);
+            writer.flush();
+            article.writeBody(new ExtraDotOutputStream(outs));
             writeLoggedFlushedResponse(".");
         }
     }
@@ -1074,7 +1160,8 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            article.writeHead(writer);
+            writer.flush();
+            article.writeHead(new ExtraDotOutputStream(outs));
             writeLoggedFlushedResponse(".");
         }
     }
@@ -1141,7 +1228,8 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            article.writeArticle(writer);
+            writer.flush();
+            article.writeArticle(new ExtraDotOutputStream(outs));
             writeLoggedFlushedResponse(".");
         }
     }
@@ -1275,6 +1363,16 @@ public class NNTPHandler
         // 7.2
         writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
+    }
+
+    /**
+     * Informs the server that the client is a news server.
+     *
+     * @param argument the argument passed in with the MODE STREAM command
+     */
+    private void doMODESTREAM(String argument) {
+        // 7.2
+        writeLoggedFlushedResponse("500 Command not understood");
     }
 
     /**
@@ -1436,9 +1534,9 @@ public class NNTPHandler
         } else {
             writeLoggedResponse("224 Overview information follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
-                article[i].writeOverview(writer);
+                article[i].writeOverview(outs);
                 if (i % 100 == 0) {
-                    // Reset the watchdog ever hundred headers or so
+                    // Reset the watchdog every hundred headers or so
                     // to ensure the connection doesn't timeout for slow
                     // clients
                     theWatchdog.reset();
@@ -1452,7 +1550,51 @@ public class NNTPHandler
      * Handles the transaction for getting the article data.
      */
     private void createArticle() {
-        theConfigData.getNNTPRepository().createArticle(new NNTPLineReaderImpl(reader));
+        try {
+            InputStream msgIn = new CharTerminatedInputStream(in, NNTPTerminator);
+            // Removes the dot stuffing
+            msgIn = new DotStuffingInputStream(msgIn);
+            MailHeaders headers = new MailHeaders(msgIn);
+            processMessageHeaders(headers);
+            processMessage(headers, msgIn);
+        } catch (MessagingException me) {
+            throw new NNTPException("MessagingException encountered when loading article.");
+        }
+    }
+
+    /**
+     * Processes the NNTP message headers coming in off the wire.
+     *
+     * @param headers the headers of the message being read
+     */
+    private MailHeaders processMessageHeaders(MailHeaders headers)
+        throws MessagingException {
+        return headers;
+    }
+
+    /**
+     * Processes the NNTP message coming in off the wire.  Reads the
+     * content and delivers to the spool.
+     *
+     * @param headers the headers of the message being read
+     * @param msgIn the stream containing the message content
+     */
+    private void processMessage(MailHeaders headers, InputStream bodyIn)
+        throws MessagingException {
+        InputStream messageIn = null;
+        try {
+            messageIn = new SequenceInputStream(new ByteArrayInputStream(headers.toByteArray()), bodyIn);
+            theConfigData.getNNTPRepository().createArticle(messageIn);
+        } finally {
+            if (messageIn != null) {
+                try {
+                    messageIn.close();
+                } catch (IOException ioe) {
+                    // Ignore exception on close.
+                }
+                messageIn = null;
+            }
+        }
     }
 
     /**
