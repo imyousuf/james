@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>Frequently Asked Questions</title>
+  <author email="danny@thought.co.uk">Danny Angus</author>
+ </properties>
+
+<body>
+
+<section name="This FAQ">
+<P>This is a living document that provides answers to common questions about James, installation, configuration, admin and running not already answered in the documentation. Last Updated February 2002.</P>
+</section>
+
+<section name="Questions">
+<p>
+<ul>
+<li><a href="#1">Would you please teach me how to set up a mailing list</a></li>
+<li><a href="#2">Is James an Open Relay for Spam?</a></li>
+<li><a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a></li>
+<li><a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a></li>
+<li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
+<li><a href="#6">What about IMAP support?</a></li>
+<li><a href="#7">What about support virtual hosting?</a></li>
+<li><a href="#8">Where do I stick classes and jars?</a></li>
+<li><a href="#9">How do I upgrade to a newer version of James?</a></li>
+<li><a href="#10">How do I run James as an NT/2k/XP service?</a></li>
+</ul>
+</p>
+
+
+</section>
+
+<section name="Answers">
+<a name="1"></a>
+  <subsection name="Would you please teach me how to set up a mailing list">
+  <p>James currently (v2.0a2) includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
+  <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
+<source>
+&lt;mailet match="CommandForListserv=james@localhost"
+    class="AvalonListservManager">
+    &lt;repositoryName>list-james&lt;/repositoryName>
+&lt;/mailet>
+</source>
+<p>that will intercept the command emails sent to
+<ul>
+<li>james-on@localhost to subscribe the sender</li>
+<li>james-off@localhost to unsubscribe the sender</li>
+</ul>
+</p>
+<p>and-</p>
+<source>
+&lt;mailet match="RecipientIs=james@localhost" class="AvalonListserv">
+    &lt;membersonly> false &lt;/membersonly>
+    &lt;attachmentsallowed> true &lt;/attachmentsallowed>
+    &lt;replytolist> true &lt;/replytolist>
+    &lt;repositoryName>list-james&lt;/repositoryName>
+    &lt;subjectprefix>JamesList&lt;/subjectprefix>
+&lt;/mailet>
+</source>
+  <p>Which will distribute the mail to the current subscribers</p>
+  <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
+<source>
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.ListUsersJdbcRepository"
+    destinationURL="db://maildb/lists/list-james">
+    &lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
+&lt;/repository>
+</source>
+  <p>Database users will also need to ensure that they have configured a data-source named to match the destination URL</p>
+  <p>Using the filesystem:-</p>
+<source>
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.UsersFileRepository">
+    &lt;destination URL="file://var/lists/list-james/"/>
+&lt;/repository>
+</source>
+
+      <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
+      <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
+      <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.<br/>Danny Angus</p>
+
+
+  </subsection>
+  <a name="2"></a>
+  <subsection name="James seems to be an open relay for Spam, is it?">
+  <p>In some simple tests of mail relays James appears to be an open relay, properly configured it is not. </p>
+  <p>Because James is an email application platform it currently accepts all mail delivered to it via SMTP for processing. Only after the mail has been recieved does this processing begin.</p>
+  <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.</p>
+  <p>This also means that James will not verify addresses, but of course this means that valid addresses can't be harvested from James by spammers either.<br/>Danny Angus</p>
+
+  </subsection>
+
+  <a name="3"></a>
+  <subsection name="I can send messages to James, but nobody is receiving them.  What do I do?">
+  <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.<br />Serge Knystautas</p>
+
+  </subsection>
+
+  <a name="4"></a>
+  <subsection name="I can send people messages via James, but nobody can send me messages.  What do I do?">
+  <p>You need to do one of two things:
+  <ol>
+  <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
+  <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
+  </ol>
+  Serge Knystautas</p>
+
+  </subsection>
+
+  <a name="5"></a>
+  <subsection name="I'm trying to debug messages that James is trying to deliver.  Where should I look?">
+  <p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
+  <p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br />Serge Knystautas</p>
+
+  </subsection>
+
+  <a name="6"></a>
+  <subsection name="What about IMAP support?">
+  <p>Unfortunately IMAP support is currently stalled.  There is a proposal in CVS, but IMAP is a significantly more complex than other mail protocols, both from a protocol command support and in terms of complexity you need on the server.  If you are interested in taking the proverbial ball and running with it, we would all very much appreciated. (I personally am incredibly frustrated with an old Netscape Mail server, but I've sworn myself to upgrade only to James's IMAP once ready as incentive.)
+  <br />Serge Knystautas</p>
+     </subsection>
+
+  <a name="7"></a>
+  <subsection name="What about support virtual hosting?">
+  <p>Virtual hosting is something the developers are still wrestling with.  The challenge is that POP3 does not support virtual hosting in that it does not have a command to indicate what domain the user is in.  What this means is the mail server needs to develop a 'mapping' or 'translation', e.g., 'user1@domaina.com' gets a username 'domaina.user1'.  This allows the mail server to have a single username namespace.  We have seen a few good proposals put forward, but nothing that seemed the clear solution as ideally we could have this part solve the next issue.</p>
+  <p>Beyond that, James needs to refine virtual hosting for mailet processing.  The mailet API has a Mail.getUser() method that no longer would be useable as a reliable indicator of whether they were in the local username namespace.  To date we are unclear of the best way to bring this translation into the mailet processing.  Similarly, it would be nice to support different mailet processing based on the domain, although this is somewhat feasible using the limited processing flow offered with a HostIs/ForwardTo combination.</p>
+  <p>This is one of the most requested feature, so hopefully this will be resolved soon.
+  <br />Serge Knystautas</p>
+  </subsection>
+
+  <a name="8"></a>
+  <subsection name="Where do I stick classes and jars?">
+  <p>We are largely reliant on what Avalon is doing in terms of classloading, but here are a few tips and suggestions:
+  <ul>
+  <li>Stick jars in the james/lib directory and add them to the classpath in run.bat or run.sh.</li>
+  <li>Custom mailets and matchers must be included in the james.bar (which is just a zip like a jar or war file).</li>
+  </ul>
+  Eventually we hope to support mailet reloading and a special lib and classes directory within the james directory that custom mailets can load from, but for now these are hopefully some useful tips.
+  <br />Serge Knystautas</p>
+  </subsection>
+
+  <a name="9"></a>
+  <subsection name="How do I upgrade to a newer version of James?">
+  <p>
+  <ol><li>Rename the previous james directory into a james.old</li>
+  <li>Run phoenix to let the new james.sar be deployed.</li>
+  <li>Copy config.xml from james.old to the new deployed james/conf directory</li>
+  <li>Replace the var directory by the previous var directory.  This will copy over user accounts, inboxes, spools, and whatever else.</li>
+  <li>Restart James.</li>
+  </ol>
+  Daniel Herlemont
+  </p>
+  </subsection>
+
+  <a href="10"></a>
+  <subsection name="How do I run James as an NT/2k/XP service?">
+  <p>You can use Alexandria will setup/run JAMES on NT/2k/XP</p>
+  <p>I created a .bat file called InstallJamesNTService.bat containing the
+following (I used the Alexandria tomcat.bat file as my template, as you can
+see):</p>
+  <source>
+
+  @echo off
+  echo --------
+  echo Usage:   %0 jdk_home james_home (classic/hotspot/server)
+  echo NOTE:    You MAY NOT use spaces in the path names.
+  echo          JDK 1.3 does not come with hotpot server by default, you must
+  echo          install this seperately if you wish to use it.
+  echo Example: %0 c:\progra~1\jdk c:\progra~1\james classic
+  echo --------
+
+  if "%1" == "" goto eof
+  if "%2" == "" goto eof
+  if "%3" == "" goto eof
+
+  copy JavaService.exe %2\bin\James.exe > nul
+  %2\bin\James.exe -install JamesMailServer
+  %1\jre\bin\%3\jvm.dll -Djava.ext.dirs=%2\lib -Djava.class.path=%CLASSPATH%;%2\bin\phoenix-loader.jar;%2\bin\phoenix-engine.jar -start org.apache.avalon.phoenix.launcher.Main -out %2\logs\stdout.log -err %2\logs\stderr.log
+
+  goto eof
+
+  :eof
+  </source>
+  <p>
+  I created another .bat file called UnistallJamesNTService containing the following 1 line:
+  </p>
+  <source>
+  James -uninstall JamesMailServer
+  </source>
+  <p>By copying the 2 above .bat files and the JavaService.exe (follow the download link  at http://www.alexandriasc.com/software/JavaService/index.html) to the <james>\bin folder, I am able to install and uninstall the JamesMailServer NT service!
+  <br />Taken from http://www.mail-archive.com/james-user@jakarta.apache.org/msg01389.html by Steve Belt
+  </p>
+  </subsection>
+
+  </section>
+
+
+</body>
+</document>
