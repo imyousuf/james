@@ -14,6 +14,9 @@ import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.context.Context;
+import org.apache.avalon.framework.context.ContextException;
+import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
 import org.apache.avalon.excalibur.io.AndFileFilter;
 import org.apache.avalon.excalibur.io.DirectoryFileFilter;
@@ -23,8 +26,9 @@ import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.avalon.phoenix.Block;
 
 public class NNTPRepositoryImpl extends AbstractLoggable 
-    implements NNTPRepository, Configurable, Initializable, Block
+    implements NNTPRepository, Contextualizable, Configurable, Initializable, Block
 {
+    private Context context;
     private boolean readOnly;
     // the groups are located under this path.
     private File rootPath;
@@ -33,18 +37,25 @@ public class NNTPRepositoryImpl extends AbstractLoggable
     private NNTPSpooler spool;
     private ArticleIDRepository articleIDRepo;
     private String[] addGroups = null;
+
+
+    public void contextualize(Context context)
+            throws ContextException {
+        this.context = context;
+    }
+
     public void configure( Configuration configuration ) throws ConfigurationException {
         //System.out.println(getClass().getName()+": configure");
         //NNTPUtil.show(configuration,System.out);
         readOnly = configuration.getChild("readOnly").getValueAsBoolean(false);
-        rootPath = NNTPUtil.getDirectory(configuration,"rootPath");
-        tempPath = NNTPUtil.getDirectory(configuration,"tempPath");
-        File articleIDPath = NNTPUtil.getDirectory(configuration,"articleIDPath");
+        rootPath = NNTPUtil.getDirectory(context, configuration, "rootPath");
+        tempPath = NNTPUtil.getDirectory(context, configuration, "tempPath");
+        File articleIDPath = NNTPUtil.getDirectory(context, configuration, "articleIDPath");
         String articleIDDomainSuffix = configuration.getChild("articleIDDomainSuffix")
             .getValue("foo.bar.sho.boo");
         articleIDRepo = new ArticleIDRepository(articleIDPath,articleIDDomainSuffix);
         spool = (NNTPSpooler)NNTPUtil.createInstance
-            (configuration.getChild("spool"),getLogger(),
+            (context,configuration.getChild("spool"),getLogger(),
              "org.apache.james.nntpserver.repository.NNTPSpooler");
         spool.setRepository(this);
         spool.setArticleIDRepository(articleIDRepo);
