@@ -13,9 +13,7 @@ import java.net.*;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-
 import org.apache.avalon.*;
-
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 
@@ -35,9 +33,8 @@ import org.apache.james.AuthorizationException;
  * @see FolderRecord
  * @see RecordRepository
  */
-
-public interface Host extends Configurable, Composer, Contextualizable,
-			      org.apache.avalon.services.Service {
+public interface Host 
+    extends Configurable, Composer, Contextualizable, org.apache.phoenix.Service {
    
     public static final String IMAP_HOST = "IMAP_HOST";
 
@@ -54,14 +51,14 @@ public interface Host extends Configurable, Composer, Contextualizable,
     public boolean isHomeServer (String username);
 
 
-   /**
-    * Establishes if the specified user can access any mailboxes on this host.
-    * Used during login process to decide what sort of LOGIN-REFERRAL must be
-    * sent to client.
-    *
-    * @param username an email address
-    * @returns true if the specified user has at least read access to any
-    * mailboxes on this host.
+    /**
+     * Establishes if the specified user can access any mailboxes on this host.
+     * Used during login process to decide what sort of LOGIN-REFERRAL must be
+     * sent to client.
+     *
+     * @param username an email address
+     * @returns true if the specified user has at least read access to any
+     * mailboxes on this host.
      */
     public boolean hasLocalAccess (String username);
 
@@ -79,7 +76,7 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @throws MailboxException if mailbox does not exist locally.
      */
     public ACLMailbox getMailbox(String user, String mailboxName)
-	throws AccessControlException, MailboxException;
+        throws AccessControlException, MailboxException;
 
 
     /**
@@ -105,8 +102,8 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @see FolderRecord
      */
     public ACLMailbox createMailbox(String user, String mailboxName)
-	throws AccessControlException, AuthorizationException,
-	       MailboxException;
+        throws AccessControlException, AuthorizationException,
+        MailboxException;
 
 
     /**
@@ -126,7 +123,7 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @see FolderRecord
      */
     public boolean deleteMailbox(String user, String mailboxName)
-	throws MailboxException, AuthorizationException;
+        throws MailboxException, AuthorizationException;
 
 
     /**
@@ -153,8 +150,8 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @see FolderRecord
      */
     public boolean renameMailbox(String user, String oldMailboxName,
-				 String newMailboxName)
-	throws MailboxException, AuthorizationException;
+                                 String newMailboxName)
+        throws MailboxException, AuthorizationException;
 
     /**
      * Releases a reference to a mailbox, allowing Host to do any housekeeping.
@@ -226,8 +223,8 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * not exist locally.
      */
     public Collection listMailboxes(String username, String referenceName,
-				  String mailboxName, boolean subscribedOnly)
-	throws MailboxException, AccessControlException;
+                                    String mailboxName, boolean subscribedOnly)
+        throws MailboxException, AccessControlException;
 
     /**
      * Subscribes a user to a mailbox. The mailbox must exist locally and the
@@ -241,7 +238,7 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @throws MailboxException if the mailbox does not exist locally.
      */
     public boolean subscribe(String username, String mailbox)
-	throws MailboxException, AccessControlException;
+        throws MailboxException, AccessControlException;
 
     /**
      * Unsubscribes from a given mailbox. 
@@ -251,7 +248,7 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @returns true if unsubscribe completes successfully
      */
     public boolean unsubscribe(String username, String mailbox)
-	throws MailboxException, AccessControlException;
+        throws MailboxException, AccessControlException;
 
 
     /**
@@ -275,8 +272,8 @@ public interface Host extends Configurable, Composer, Contextualizable,
      * @throws MailboxException if the mailboxName does not exist locally. 
      */
     public String getMailboxStatus(String username, String mailboxName,
-				   List dataItems)
-	throws MailboxException, AccessControlException;
+                                   List dataItems)
+        throws MailboxException, AccessControlException;
 
 
 
