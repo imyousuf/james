@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.114 $  Committed on $Date: 2002/10/30 21:04:12 $ by: $Author: pgoldstein $
+ James build file $Revision: 1.115 $  Committed on $Date: 2002/12/14 20:41:36 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -27,7 +27,7 @@ Legal:
     <property file="${user.home}/.ant.properties"/>
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
-    <property name="version" value="2.1a1-cvs"/>
+    <property name="version" value="2.1"/>
     <property name="year" value="1999-2002"/>
     <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
@@ -170,6 +170,7 @@ Legal:
         <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.sh" eol="lf"/>
         <fixcrlf srcdir="${dist.dir}/bin" includes="run.bat" eol="crlf"/>
@@ -337,6 +338,8 @@ Legal:
                 <include name="mailet/**"/>
             </fileset>
         </copy>
+        <fixcrlf srcdir="${www.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+        <fixcrlf srcdir="${www.dir}" includes="**/*.css" eol="lf" tab="remove" tablength="4" />
     </target>
     <!--
        ===================================================================
@@ -445,6 +448,7 @@ Legal:
             <fileset dir=".">
                 <include name="src/**"/>
                 <include name="lib/**"/>
+                <include name="${phoenix.lib.dir}/**"/>
                 <include name="proposals/**"/>
                 <include name="www/**"/>
                 <include name="tools/**"/>
@@ -459,6 +463,7 @@ Legal:
             <tarfileset dir="." username="${name}" group="${name}">
                 <include name="src/**"/>
                 <include name="lib/**"/>
+                <include name="${phoenix.lib.dir}/**"/>
                 <include name="proposals/**"/>
                 <include name="www/**"/>
                 <include name="tools/**"/>
@@ -484,6 +489,7 @@ Legal:
                 <include name="README"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
+                <include name="${phoenix.dir}/**"/>
                 <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
@@ -501,6 +507,7 @@ Legal:
                 <include name="README"/>
                 <include name="build.*"/>
                 <include name="lib/**"/>
+                <include name="${phoenix.dir}/**"/>
                 <include name="proposals/**"/>
                 <include name="src/**"/>
                 <include name="tools/**"/>
