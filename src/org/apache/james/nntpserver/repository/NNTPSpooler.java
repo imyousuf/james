@@ -15,7 +15,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.james.util.Lock;
-import org.apache.avalon.util.io.IOUtil;
+import org.apache.excalibur.io.IOUtil;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 

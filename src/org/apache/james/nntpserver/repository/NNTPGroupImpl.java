@@ -9,9 +9,9 @@ package org.apache.james.nntpserver.repository;
 
 import java.util.*;
 import java.io.*;
-import org.apache.avalon.util.io.ExtensionFileFilter;
-import org.apache.avalon.util.io.InvertedFileFilter;
-import org.apache.avalon.util.io.AndFileFilter;
+import org.apache.excalibur.io.ExtensionFileFilter;
+import org.apache.excalibur.io.InvertedFileFilter;
+import org.apache.excalibur.io.AndFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 

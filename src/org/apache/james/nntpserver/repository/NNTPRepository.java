@@ -14,8 +14,8 @@ import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.AbstractLoggable;
 import java.util.*;
 import java.io.*;
-import org.apache.avalon.util.io.AndFileFilter;
-import org.apache.avalon.util.io.DirectoryFileFilter;
+import org.apache.excalibur.io.AndFileFilter;
+import org.apache.excalibur.io.DirectoryFileFilter;
 import org.apache.oro.io.GlobFilenameFilter;
 
 public interface NNTPRepository {

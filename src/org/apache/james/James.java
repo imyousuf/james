@@ -29,7 +29,7 @@ import org.apache.avalon.configuration.Configurable;
 import org.apache.avalon.configuration.Configuration;
 import org.apache.avalon.configuration.ConfigurationException;
 import org.apache.avalon.configuration.DefaultConfiguration;
-import org.apache.avalon.util.thread.ThreadPool;
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.dnsserver.*;
 import org.apache.james.imapserver.*;
