@@ -476,15 +476,16 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         // Always get the user via case-insensitive SQL,
         // then check case if necessary.
         Connection conn = openConnection();
+        PreparedStatement getUsersStatement = null;
+        ResultSet rsUsers = null;
         try {
             // Get a ResultSet containing all users.
             String sql = m_userByNameCaseInsensitiveSql;
-            PreparedStatement getUsersStatement = 
-                conn.prepareStatement(sql);
+            getUsersStatement = conn.prepareStatement(sql);
 
             getUsersStatement.setString(1, name.toLowerCase(Locale.US));
 
-            ResultSet rsUsers = getUsersStatement.executeQuery();
+            rsUsers = getUsersStatement.executeQuery();
 
             // For case-insensitive matching, the first matching user will be returned.
             User user = null;
@@ -505,6 +506,8 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
             throw new CascadingRuntimeException("Error accessing database", sqlExc);
         }
         finally {
+            theJDBCUtil.closeJDBCResultSet(rsUsers);
+            theJDBCUtil.closeJDBCStatement(getUsersStatement);
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
