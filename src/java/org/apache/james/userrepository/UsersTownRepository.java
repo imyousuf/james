@@ -15,6 +15,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Loggable;
+import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
@@ -53,6 +54,34 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
     }
 
     // Methods from interface Repository
+
+    public boolean addUser(User user) {
+	return false;
+    }
+
+    public  User getUserByName(String name) {
+	return new DefaultUser("dummy", "dummy");
+    }
+
+    public User getUserByNameCaseInsensitive(String name) {
+	return getUserByName(name);
+    }
+
+    public boolean containsCaseInsensitive(String name) {
+        return contains(name);
+    }
+
+    public String getRealName(String name) {
+	return null;
+    }
+
+    public boolean updateUser(User user) {
+	return false;
+    }
+
+    public boolean test(String name, String password) {
+	return false;
+    }
 
     public synchronized void addUser(String strUserName, Object attributes) {
         try {

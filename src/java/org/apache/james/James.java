@@ -34,6 +34,7 @@ import org.apache.james.core.*;
 import org.apache.james.imapserver.*;
 import org.apache.james.services.*;
 import org.apache.james.transport.*;
+import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.log.Logger;
 import org.apache.log.Priority;
 import org.apache.mailet.*;
@@ -72,6 +73,9 @@ public class James
     private String inboxRootURL;
     private UsersRepository localusers;
     private Collection serverNames;
+    private boolean ignoreCase;
+    private boolean enableAliases;
+    private boolean enableForwarding;
 
     // this used to be long, but increment operations on long are not
     // thread safe. Changed to int. 'int' should be ok, because id generation
@@ -163,6 +167,23 @@ public class James
         this.postmaster = new MailAddress( postMasterAddress );
         context.put( Constants.POSTMASTER, postmaster );
 
+        Configuration userNamesConf = conf.getChild("usernames");
+        if (userNamesConf.getAttribute("ignoreCase").equals("TRUE")) {
+            ignoreCase = true;
+        } else {
+	    ignoreCase = false;
+	}
+        if (userNamesConf.getAttribute("enableAliases").equals("TRUE")) {
+            enableAliases = true;
+        } else {
+	    enableAliases = false;
+	}
+        if (userNamesConf.getAttribute("enableForwarding").equals("TRUE")) {
+            enableForwarding = true;
+        } else {
+	    enableForwarding = false;
+	}
+
         //Get localusers
         try {
             localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
@@ -206,7 +227,6 @@ public class James
                 getLogger().info("Using SimpleSystem.");
                 imapHost = (Host) Class.forName(imapHostClass).newInstance();
                 //imapHost = new JamesHost();
-		setupLogger(imapHost, "imaphost");
                 imapHost.configure(conf.getChild("imapHost"));
                 imapHost.contextualize(context);
                 imapHost.compose(compMgr);
@@ -448,8 +468,12 @@ public class James
         sendMail(bouncer, recipients, reply);
     }
 
-    public boolean isLocalUser(String userAccout) {
-        return localusers.contains(userAccout);
+    public boolean isLocalUser(String name) {
+	if (ignoreCase) {
+	    return localusers.containsCaseInsensitive(name);
+	} else {
+            return localusers.contains(name);
+	}
     }
 
     public MailAddress getPostmaster() {
@@ -458,10 +482,39 @@ public class James
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
 
+        String username;
+        if (ignoreCase) {
+            username = localusers.getRealName(recipient.getUser());
+        } else {
+            username = recipient.getUser();
+        }
+	JamesUser user;
+	if (enableAliases || enableForwarding) {
+	    user = (JamesUser) localusers.getUserByName(username);
+	    if (enableAliases && user.getAliasing()) {
+	        username = user.getAlias();
+	    }
+	    if (enableForwarding && user.getForwarding()) {
+		MailAddress forwardTo = user.getForwardingDestination();
+		Collection recipients = new HashSet();
+		recipients.add(forwardTo);
+		try {
+		    sendMail(sender, recipients, message);
+		    getLogger().info("Mail for " + username + " forwarded to "
+                                 +  forwardTo.toString());
+		    return;
+		} catch (MessagingException me) {
+		    getLogger().error("Error forwarding mail to "
+				      + forwardTo.toString()
+				      + "attempting local delivery");
+		}
+	    }
+	}
+
         if (useIMAPstorage) {
             ACLMailbox mbox = null;
             try {
-                String folderName = "#users." + recipient.getUser() + ".INBOX";
+                String folderName = "#users." + username + ".INBOX";
                 getLogger().debug("Want to store to: " + folderName);
                 mbox = imapHost.getMailbox(MailServer.MDA, folderName);
                 if(mbox.store(message,MailServer.MDA)) {
@@ -484,7 +537,7 @@ public class James
             Collection recipients = new HashSet();
             recipients.add(recipient);
             MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-            getUserInbox(recipient.getUser()).store(mailImpl);
+            getUserInbox(username).store(mailImpl);
         }
     }
 
@@ -531,14 +584,18 @@ public class James
      * @returns boolean true if user added succesfully, else false.
      */
     public boolean addUser(String userName, String password) {
-        localusers.addUser(userName, password);
-        if (useIMAPstorage) {
+	boolean success;
+	DefaultJamesUser user = new DefaultJamesUser(userName, "SHA");
+	user.setPassword(password);
+	user.initialize();
+        success = localusers.addUser(user);
+        if (useIMAPstorage && success) {
             JamesHost jh = (JamesHost) imapHost;
             if (jh.createPrivateMailAccount(userName)) {
                 getLogger().info("New MailAccount created for" + userName);
             }
         }
-        return true;
+        return success;
     }
 
 }

@@ -18,8 +18,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/07 10:39:43 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:35 $
+ * $Revision: 1.1 $
  */
 
 public class DefaultJamesUser 
