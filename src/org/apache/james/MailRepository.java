@@ -71,7 +71,7 @@ public class MailRepository implements Store.Repository {
     }
     
     public String getChildDestination(String childName) {
-        return destination + childName.replace('.', '/') + "/";
+        return destination + childName.replace ('.', File.pathSeparatorChar) + File.pathSeparator;
     }
     
     public synchronized void unlock(Object key) {
