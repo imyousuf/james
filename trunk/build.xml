@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.102 $  Committed on $Date: 2002/08/15 07:07:21 $ by: $Author: hammant $
+ James build file $Revision: 1.103 $  Committed on $Date: 2002/08/18 19:17:27 $ by: $Author: pgoldstein $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -177,7 +177,7 @@ Legal:
     </target>
     <!--
        ===================================================================
-	                               jdbc3 
+                                   jdbc3 
        ===================================================================
   -->
     <target name="prepare-jdbc3" depends="prepare" if="jdbc3.present">
@@ -229,12 +229,12 @@ Legal:
                 <param name="-version"/>
                 <param name="-breakiterator"/>
                 <param name="-use"/>
-       			<param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
-       			<param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/phoenix/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/cornerstone/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/logkit/api"/>       			                
+                <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+                <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/phoenix/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/cornerstone/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/logkit/api"/>       			                
                 <param name="-doctitle" value="${Name} ${version}"/>
                 <param name="-windowtitle" value="${Name} API"/>
                 <param name="-bottom" value="&quot;Copyright &#169; 2001 Apache Jakarta Project. All Rights Reserved.&quot;"/>
@@ -248,12 +248,12 @@ Legal:
                 <param name="-version"/>
                 <param name="-breakiterator"/>
                 <param name="-use"/>
-       			<param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
-       			<param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>  
-				<param name="-link" value="http://jakarta.apache.org/avalon/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/phoenix/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/cornerstone/api"/>
-				<param name="-link" value="http://jakarta.apache.org/avalon/logkit/api"/>       			       			
+                <param name="-link" value="http://java.sun.com/j2se/1.4/docs/api"/>
+                <param name="-link" value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>  
+                <param name="-link" value="http://jakarta.apache.org/avalon/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/phoenix/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/cornerstone/api"/>
+                <param name="-link" value="http://jakarta.apache.org/avalon/logkit/api"/>       			       			
                 <param name="-doctitle" value="Apache Jakarta Mailet API"/>
                 <param name="-windowtitle" value="Apache Jakarta Mailet API"/>
                 <param name="-bottom" value="&quot;Copyright &#169; 2002 Apache Jakarta Project. All Rights Reserved.&quot;"/>
@@ -266,15 +266,15 @@ Legal:
        ===================================================================
   -->
     <target name="xdocs" depends="prepare,prepare-jdbc3">
-  		<style style="${docs.src}/stylesheets/site.xsl"
+        <style style="${docs.src}/stylesheets/site.xsl"
                 basedir="${docs.src}/"
-		destdir="${build.docs}/" 
-		includes="**/*.xml" >
-		</style>
+                destdir="${build.docs}/" 
+                includes="**/*.xml" >
+        </style>
         <copy todir="${build.docs}" filtering="no">
-        	<fileset dir="${docs.src}">
+            <fileset dir="${docs.src}">
                         <include name="**/*.css"/>
-        	</fileset>
+            </fileset>
         </copy>
         <copy todir="${build.docs}/images" filtering="no">
             <fileset dir="${docs.src}/images">
@@ -316,7 +316,7 @@ Legal:
     </target>
     <!--
        ===================================================================
-				Build everything
+                Build everything
        ===================================================================
   -->
     <target name="everything" depends="clean,website,dist-bin,dist-src,dist-mailet-SDK"/>
