@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
@@ -30,7 +30,7 @@ import org.apache.avalon.framework.activity.Initializable;
  * 
  * @author <a href="mailto:buchi@email.com">Gabriel Bucher</a>
  */
-public class UserManagerAdminImpl extends AbstractLoggable
+public class UserManagerAdminImpl extends AbstractLogEnabled;
         implements UserManagerAdmin, Contextualizable, Composable, Configurable, Initializable {
 
     private static final String USER_MANAGER = "usermanager";

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.rmi.RemoteException;
 import javax.mail.internet.ParseException;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
@@ -35,7 +35,7 @@ import org.apache.mailet.MailAddress;
  * 
  * @author <a href="buchi@email.com">Gabriel Bucher</a>
  */
-public class UserManagerImpl extends AbstractLoggable
+public class UserManagerImpl extends AbstractLogEnabled
         implements UserManager, Contextualizable, Composable, Configurable, Initializable {
 
     private MailServer mailServer;

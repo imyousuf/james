@@ -20,11 +20,11 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.Loggable;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
-import org.apache.log.Logger;
 
 /**
  * Implementation of a Repository to store users.
@@ -35,8 +35,7 @@ import org.apache.log.Logger;
  * @author  Charles Bennett
  */
 public class UsersLDAPRepository
-    implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable
-{
+    implements UsersRepository, LogEnabled, Configurable, Contextualizable, Initializable{
 
     private ComponentManager comp;
 
@@ -67,7 +66,7 @@ public class UsersLDAPRepository
     private String passwordAttr;
 
 
-    public void setLogger(final Logger a_Logger) {
+    public void enableLogging(final Logger a_Logger) {
         logger = a_Logger;
     }
 

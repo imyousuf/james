@@ -20,7 +20,6 @@ import java.util.Iterator;
  */
 public interface UsersStore 
 {
-
     String ROLE = "org.apache.james.services.UsersStore";
 
     UsersRepository getRepository( String name );

@@ -7,10 +7,11 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.Serializable;
-import java.util.Set;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
+
+import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Interface for objects representing for an IMAP4rev1 Access Control List.

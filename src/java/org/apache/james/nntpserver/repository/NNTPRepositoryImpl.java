@@ -24,7 +24,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
@@ -35,7 +35,7 @@ import org.apache.oro.io.GlobFilenameFilter;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-public class NNTPRepositoryImpl extends AbstractLoggable 
+public class NNTPRepositoryImpl extends AbstractLogEnabled 
     implements NNTPRepository, Contextualizable, Configurable, Initializable, Block
 {
     private Context context;

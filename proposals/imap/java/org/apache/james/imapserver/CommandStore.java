@@ -7,15 +7,14 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.*;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.imapserver.commands.ImapCommand;
+
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.StringTokenizer;
 //import org.apache.james.core.EnhancedMimeMessage;
 
 /**

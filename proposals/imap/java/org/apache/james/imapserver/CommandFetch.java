@@ -7,16 +7,17 @@
  */
 package org.apache.james.imapserver;
 
+import org.apache.james.AccessControlException;
+import org.apache.james.AuthorizationException;
+import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.imapserver.commands.ImapCommand;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
-import org.apache.james.imapserver.commands.ImapCommand;
-import org.apache.james.core.MimeMessageWrapper;
 
 /**
  * Implements the IMAP FETCH command for a given ImapRequestImpl.

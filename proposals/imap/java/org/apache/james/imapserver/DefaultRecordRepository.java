@@ -7,10 +7,14 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.util.*;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.Assert;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 
 
 /**
@@ -21,7 +25,7 @@ import org.apache.james.util.Assert;
  * @see RecordRepository
  */
 public class DefaultRecordRepository
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements RecordRepository   {
  
     private String path;

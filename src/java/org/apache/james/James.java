@@ -28,14 +28,14 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.james.transport.*;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.james.util.RFC822DateFormat;
-import org.apache.log.Logger;
 import org.apache.log.Priority;
 import org.apache.mailet.*;
 import org.apache.avalon.phoenix.Block;
@@ -52,11 +52,11 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.15 $
- * Committed on $Date: 2001/12/07 21:53:27 $ by: $Author: serge $
+ * This is $Revision: 1.16 $
+ * Committed on $Date: 2002/01/17 06:09:01 $ by: $Author: darrell $
  */
 public class James
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements Block, Contextualizable, Composable, Configurable,
                Initializable, MailServer, MailetContext {
 
@@ -465,7 +465,7 @@ public class James
     public void log(String message, Throwable t) {
         //System.err.println(message);
         //t.printStackTrace(); //DEBUG
-        getMailetLogger().log(Priority.INFO,message,t);
+        getMailetLogger().info(message,t);
     }
 
     /**

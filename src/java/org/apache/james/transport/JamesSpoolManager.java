@@ -25,7 +25,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
 import org.apache.james.*;
 import org.apache.james.core.*;
@@ -36,11 +36,11 @@ import org.apache.mailet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.6 $
- * Committed on $Date: 2001/10/25 12:36:16 $ by: $Author: serge $
+ * This is $Revision: 1.7 $
+ * Committed on $Date: 2002/01/17 06:09:02 $ by: $Author: darrell $
  */
 public class JamesSpoolManager
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements Contextualizable, Composable, Configurable, Initializable,
                Runnable, Disposable,  Block {
 

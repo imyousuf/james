@@ -9,7 +9,7 @@ package org.apache.james.userrepository;
 
 import java.util.*;
 import org.apache.james.services.*;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**
  * A partial implementation of a Repository to store users.
@@ -20,7 +20,7 @@ import org.apache.avalon.framework.logger.AbstractLoggable;
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
 public abstract class AbstractUsersRepository
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements UsersRepository
 {
     //

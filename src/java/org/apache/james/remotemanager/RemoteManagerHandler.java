@@ -18,7 +18,7 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: danny $ on $Date: 2002/01/09 21:35:50 $
- * $Revision: 1.7 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/17 06:09:01 $
+ * $Revision: 1.8 $
  *
  */
 public class RemoteManagerHandler

@@ -14,10 +14,10 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.Loggable;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.nntpserver.NNTPException;
-import org.apache.log.Logger;
 
 /**
  * Helper fuctions. 
@@ -55,8 +55,8 @@ public class NNTPUtil {
         } catch(ConfigurationException ce) { }
         try {
             Object obj = Class.forName(clsName).newInstance();
-            if ( obj instanceof Loggable )
-                ((Loggable)obj).setLogger( logger );
+            if ( obj instanceof LogEnabled )
+                ((LogEnabled)obj).enableLogging( logger );
             if (obj instanceof Contextualizable) 
                 ((Contextualizable)obj).contextualize(context);
             if ( obj instanceof Configurable )

@@ -16,7 +16,7 @@ import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 //Notice how cornerstone is dependent on Excalibur
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
@@ -42,11 +42,11 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.2 $ $Date: 2001/12/07 22:09:38 $
+ * @version CVS $Revision: 1.3 $ $Date: 2002/01/17 06:09:02 $
  * @since 4.0
  */
 public class JdbcDataSource
-    extends AbstractLoggable implements Configurable, Runnable, Disposable, DataSourceComponent
+    extends AbstractLogEnabled implements Configurable, Runnable, Disposable, DataSourceComponent
 {
     /**
      * Configure and set up DB connection.  Here we set the connection

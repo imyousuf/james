@@ -20,12 +20,11 @@ import org.apache.mailet.MailAddress;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.5 $
- * Committed on $Date: 2002/01/12 01:10:30 $ by: $Author: darrell $
+ * This is $Revision: 1.6 $
+ * Committed on $Date: 2002/01/17 06:09:02 $ by: $Author: darrell $
  */
 public interface MailServer
 {
-
     String ROLE = "org.apache.james.services.MailServer";
 
     /**

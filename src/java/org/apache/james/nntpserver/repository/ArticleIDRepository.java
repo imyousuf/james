@@ -15,9 +15,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
-import org.apache.james.nntpserver.repository.ArticleIDRepository;
-import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.util.Base64;
 
 /** 

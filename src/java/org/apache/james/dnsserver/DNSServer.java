@@ -20,7 +20,7 @@ import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
 import org.apache.james.transport.Resources;
 import org.xbill.DNS.Cache;
@@ -43,7 +43,7 @@ import org.xbill.DNS.Type;
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class DNSServer
-    extends AbstractLoggable
+    extends AbstractLogEnabled
     implements Block, Configurable, Initializable, 
     org.apache.james.services.DNSServer {
 

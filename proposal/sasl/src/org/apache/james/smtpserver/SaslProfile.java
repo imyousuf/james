@@ -13,10 +13,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.security.sasl.*;
-import org.apache.avalon.framework.logger.AbstractLoggable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.log4j.BasicConfigurator;
 
-class SaslProfile extends AbstractLoggable {
+class SaslProfile extends AbstractLogEnabled {
 
     private SaslServer server = null;
     private DataInputStream in    = null;
