@@ -13,9 +13,9 @@
 <!-- are preceded by a CHECKME! or CONFIRM? comment in the left margin. -->
 
 <!-- For production use you will probably need to make more extensive changes, see -->
-<!-- http://jakarta.apache.org/james/configuration_v2_1.html -->
+<!-- http://jakarta.apache.org/james/documentation_2_1.htm -->
 
-<!-- $Revision: 1.40 $ Committed on $Date: 2002/12/30 00:01:34 $ by: $Author: serge $ -->
+<!-- $Revision: 1.41 $ Committed on $Date: 2003/01/07 07:48:30 $ by: $Author: serge $ -->
 
 <config>
    <James>
