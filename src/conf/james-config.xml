@@ -20,7 +20,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.13 $ Committed on $Date: 2003/07/16 15:02:45 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.14 $ Committed on $Date: 2003/07/21 02:56:08 $ by: $Author: serge $ -->
 
 <config>
    <James>
@@ -793,7 +793,7 @@
          <!-- If you see "SQLException: Giving up... no connections available." in your -->
          <!-- log files or bounced mail you should increase this value -->
          <!--
-         <data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
+         <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
             <driver>com.inet.tds.TdsDriver</driver>
             <dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
             <user>sa_james</user>
