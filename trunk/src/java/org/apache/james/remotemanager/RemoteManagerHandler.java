@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: serge $ on $Date: 2001/09/11 04:33:21 $
- * $Revision: 1.3 $
+ * Last changed by: $Author: serge $ on $Date: 2001/10/26 04:48:50 $
+ * $Revision: 1.4 $
  *
  */
 public class RemoteManagerHandler
@@ -120,19 +120,20 @@ public class RemoteManagerHandler
             getLogger().info( "Access from " + remoteHost + "(" + remoteIP + ")" );
             out.println( "JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION );
             out.println("Please enter your login and password");
-	    out.println("Login id:");
-            String login = in.readLine();
-	    out.println("Password:");
-            String password = in.readLine();
-
-            while (!password.equals(admaccount.get(login)) || password.length() == 0) {
+            String login = null;
+            String password = null;
+            do {
                 scheduler.resetTrigger(this.toString());
-                final String message = "Login failed for " + login;
-                out.println( message );
-                getLogger().info( message );
+                if (login != null) {
+                    final String message = "Login failed for " + login;
+                    out.println( message );
+                    getLogger().info( message );
+                }
+                out.println("Login id:");
                 login = in.readLine();
+                out.println("Password:");
                 password = in.readLine();
-            }
+            } while (!password.equals(admaccount.get(login)) || password.length() == 0);
 
             scheduler.resetTrigger(this.toString());
 
@@ -203,7 +204,7 @@ public class RemoteManagerHandler
             boolean success = false;
             if (users.contains(username)) {
                 out.println("user " + username + " already exist");
-            } 
+            }
             else if ( inLocalUsers ) {
                 success = mailServer.addUser(username, passwd);
             }
@@ -309,7 +310,7 @@ public class RemoteManagerHandler
 	    }
 	    JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
 	    if (aliasUser == null) {
-		out.println("Alias unknown to server" 
+		out.println("Alias unknown to server"
                             + " - create that user first.");
 		return true;
 	    }
