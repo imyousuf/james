@@ -8,17 +8,17 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
+import org.apache.mailet.*;
 
 /**
  * Opposite of Null Mailet. It let any incoming mail untouched. Used only for
  * debugging.
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Identity extends AbstractMailet {
+public class Identity extends GenericMailet {
 
     public void service(Mail mail) {
+        //Do nothing
     }
 
     public String getMailetInfo() {

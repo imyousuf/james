@@ -8,29 +8,27 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.avalon.utils.*;
+import org.apache.mailet.*;
 import java.util.*;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
-public class UserIs extends AbstractRecipientMatcher {
+public class UserIs extends GenericRecipientMatcher {
+    Vector users = null;
 
-    private Collection users;
-
-    public void init(String condition) {
-        StringTokenizer st = new StringTokenizer(condition, ", ");
+    public void init() {
+        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         users = new Vector();
         while (st.hasMoreTokens()) {
             users.add(st.nextToken());
         }
     }
 
-    public boolean matchRecipient(String recipient) {
-        return users.contains(Mail.getUser(recipient));
+    public boolean matchRecipient(MailAddress recipient) {
+        return users.contains(recipient.getUser());
     }
 }
 

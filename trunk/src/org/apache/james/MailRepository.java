@@ -13,12 +13,13 @@ import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.*;
+import org.apache.james.core.*;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 /**
- * Implementation of a Repository to store Mails.
+ * Implementation of a Repository to store MailImpls.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
@@ -49,7 +50,7 @@ public class MailRepository implements Store.Repository {
         this.model = model;
         this.type = type;
     }
-        
+
     public void setComponentManager(ComponentManager comp) {
 
         Store store = (Store) comp.getComponent(Interfaces.STORE);
@@ -57,23 +58,23 @@ public class MailRepository implements Store.Repository {
         this.or = (Store.ObjectRepository) store.getPrivateRepository(destination, Store.OBJECT, model);
         lock = new Lock();
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public String getType() {
         return type;
     }
-    
+
     public String getModel() {
         return model;
     }
-    
+
     public String getChildDestination(String childName) {
         return destination + childName.replace ('.', File.separatorChar) + File.separator;
     }
-    
+
     public synchronized void unlock(Object key) {
 
         if (lock.unlock(key)) {
@@ -108,7 +109,7 @@ public class MailRepository implements Store.Repository {
         }
     }
 
-    public synchronized void store(Mail mc) {
+    public synchronized void store(MailImpl mc) {
         try {
             String key = mc.getName();
             OutputStream out = sr.store(key);
@@ -122,8 +123,8 @@ public class MailRepository implements Store.Repository {
         }
     }
 
-    public synchronized Mail retrieve(String key) {
-        Mail mc = (Mail) or.get(key);
+    public synchronized MailImpl retrieve(String key) {
+        MailImpl mc = (MailImpl) or.get(key);
         try {
             mc.setMessage(sr.retrieve(key));
         } catch (Exception me) {
@@ -131,8 +132,8 @@ public class MailRepository implements Store.Repository {
         }
         return mc;
     }
-    
-    public synchronized void remove(Mail mail) {
+
+    public synchronized void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
@@ -148,4 +149,4 @@ public class MailRepository implements Store.Repository {
     }
 }
 
-    
+

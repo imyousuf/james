@@ -8,43 +8,35 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.avalon.*;
+import org.apache.mailet.*;
 import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.*;
 
 /**
  * Replace incoming recipient with specified ones.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
-public class Forward extends AbstractMailet {
+public class Forward extends GenericMailet {
 
     private Collection newRecipients;
-    private Mailet transport;
 
-    public void init () {
+    public void init () throws MailetException {
         newRecipients = new Vector();
-        MailetContext context = getContext();
-        Configuration conf = context.getConfiguration();
-        transport = (Mailet) context.get("transport");
-        for (Enumeration e = conf.getConfigurations("forwardto"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
-            newRecipients.add(c.getValue());
+        StringTokenizer st = new StringTokenizer(getMailetConfig().getInitParameter("forwardto"), ",", false);
+        try {
+            while (st.hasMoreTokens()) {
+                newRecipients.add(new MailAddress(st.nextToken()));
+            }
+        } catch (ParseException pe) {
+            throw new MailetException("Invalid mail address specified", pe);
         }
     }
 
-    public void service(Mail mail) throws Exception {
-
-        mail.setRecipients(newRecipients);
-        MailetContext context = getContext();
-        transport = (Mailet) context.get("transport");
-        try {
-            transport.service(mail);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+    public void service(Mail mail) throws MailetException, MessagingException {
+        getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
         mail.setState(Mail.GHOST);
     }
 

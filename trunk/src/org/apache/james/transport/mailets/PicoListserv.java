@@ -14,8 +14,8 @@ import javax.mail.internet.*;
 import org.apache.avalon.*;
 import org.apache.james.*;
 import org.apache.james.usermanager.*;
-import org.apache.avalon.blocks.*;
-import org.apache.mail.*;
+//import org.apache.avalon.blocks.*;
+import org.apache.mailet.*;
 import org.apache.james.transport.*;
 
 /**
@@ -24,34 +24,38 @@ import org.apache.james.transport.*;
  * <attachmentsallowed>
  * <replytolist>
  */
-public class PicoListserv extends AbstractMailet {
+public class PicoListserv extends GenericMailet {
 
     protected boolean membersOnly = false;
     protected boolean attachmentsAllowed = true;
     protected boolean replyToList = true;
     protected String listName = null;
     private UsersRepository members;
-    private Logger logger;
-    private Mailet transport;
 
-    public void init () {
-        MailetContext context = getContext();
-        ComponentManager comp = context.getComponentManager();
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        Configuration conf = context.getConfiguration();
-        listName = conf.getConfiguration ("listName").getValue();
-        membersOnly = conf.getConfiguration("membersonly").getValueAsBoolean(false);
-        attachmentsAllowed = conf.getConfiguration("attachmentsallowed").getValueAsBoolean(true);
-        replyToList = conf.getConfiguration("replytolist").getValueAsBoolean(true);
+    public void init() {
+        listName = getInitParameter("listName");
+        try {
+            membersOnly = new Boolean(getInitParameter("membersonly")).booleanValue();
+        } catch (Exception e) {
+        }
+        try {
+            attachmentsAllowed = new Boolean(getInitParameter("attachmentsallowed")).booleanValue();
+        } catch (Exception e) {
+        }
+        try {
+            replyToList = new Boolean(getInitParameter("replytolist")).booleanValue();
+        } catch (Exception e) {
+        }
+
+        ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
         members = (UsersRepository) manager.getUserRepository("list-" + listName);
-        transport = (Mailet) context.get("transport");
     }
 
-    protected Collection getMembers() {
+    protected Collection getMembers() throws MessagingException {
         Collection reply = new Vector();
         for (Enumeration e = members.list(); e.hasMoreElements(); ) {
-            reply.add(e.nextElement());
+            reply.add(new MailAddress(e.nextElement().toString()));
         }
         return reply;
     }
@@ -69,18 +73,16 @@ public class PicoListserv extends AbstractMailet {
     }
 
     protected String getListservAddress() {
-        Collection serverNames = (Collection) getContext().get(Resources.SERVER_NAMES);
+        Collection serverNames = (Collection) getMailetContext().getServerNames();
         return listName + "@" + serverNames.iterator().next();
+    }
+
+    public void service(Mail mail) throws MailetException, MessagingException {
+        getMailetContext().sendMail(mail.getSender(), getMembers(), mail.getMessage());
+        mail.setState(Mail.GHOST);
     }
 
     public String getMailetInfo() {
         return "PicoListserv Mailet";
     }
-
-    public void service(Mail mail) throws Exception {
-        mail.setRecipients(getMembers());
-        transport.service(mail);
-        mail.setState(Mail.GHOST);
-    }
 }
-

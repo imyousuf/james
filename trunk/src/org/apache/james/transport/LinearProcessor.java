@@ -13,7 +13,10 @@ import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.utils.*;
 import org.apache.james.*;
-import org.apache.mail.*;
+import org.apache.james.core.*;
+import org.apache.mailet.*;
+import javax.mail.*;
+import javax.mail.internet.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -30,72 +33,40 @@ import org.apache.mail.*;
         </mailet>
     </processor>
 */
-public class LinearProcessor extends AbstractMailet {
+public class LinearProcessor {
 
-    private MatchLoader matchLoader;
-    private MailetLoader mailetLoader;
-    private Logger logger;
     private List mailets;
-    private List mailetMatchs;
+    private List matchers;
     private Vector unprocessed;
     private Random random;
+    private Logger logger;
 
-    private static final String OP_NOT = "!";
-    private static final String OP_OR = "|";
-    private static final String OP_AND = "&";
-
-    public void init() throws Exception {
-
-        MailetContext context = getContext();
-        Configuration conf = context.getConfiguration();
-        ComponentManager comp = context.getComponentManager();
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-
-        logger.log("LinearProcessor init...", "Mailets", Logger.INFO);
-
-        mailetLoader = (MailetLoader) comp.getComponent(Resources.MAILET_LOADER);
-        matchLoader = (MatchLoader) comp.getComponent(Resources.MATCH_LOADER);
-
-        this.mailetMatchs = new Vector();
+    public void init() {
+        this.matchers = new Vector();
         this.mailets = new Vector();
         this.unprocessed = new Vector();    //mailets.size() + 1, 2);
-        for (Enumeration e = conf.getConfigurations("mailet"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
-            String className = c.getAttribute("class");
-            try {
-                Mailet mailet = mailetLoader.getMailet(className, context.getChildContext(c));
-                mailets.add(mailet);
-                logger.log("Mailet " + className + " instantiated", "Mailets", Logger.INFO);
-            } catch (Exception ex) {
-                logger.log("Unable to init mailet " + className + ": " + ex, "Mailets", Logger.INFO);
-//                ex.printStackTrace();/*DEBUG*/
-                throw ex;
-            }
-            String matchName = c.getAttribute("match");
-            try {
-                Matcher match = matchLoader.getMatch(matchName, context);
-                mailetMatchs.add(match);
-                logger.log("Matcher " + matchName + " instantiated", "Mailets", Logger.INFO);
-            } catch (Exception ex) {
-                logger.log("Unable to init matcher " + matchName + ": " + ex, "Mailets", Logger.INFO);
-//                ex.printStackTrace();/*DEBUG*/
-                throw ex;
-            }
-        }
         random = new Random();
     }
 
-    public void service(Mail mail) throws Exception {
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
 
-        logger.log("Processing mail " + mail.getName(), "Mailets", Logger.INFO);
+    public void add(Matcher matcher, Mailet mailet) {
+        matchers.add(matcher);
+        mailets.add(mailet);
+    }
+
+    public void service(MailImpl mail) throws MailetException, MessagingException {
+        logger.log("Processing mail " + mail.getName(), "Processor", logger.INFO);
         unprocessed.setSize(mailets.size() + 2);
         unprocessed.add(0, mail);
         printPipe(unprocessed);/*DEBUG*/
         for (int i = 0; true ; i++) {
-            logger.log("===== i = " + i + " =====", "Mailets", Logger.INFO);
-            Mail next = (Mail) unprocessed.get(i);
+            logger.log("===== i = " + i + " =====", "Processor", logger.INFO);
+            MailImpl next = (MailImpl) unprocessed.get(i);
             if (!isEmpty(next)) {
-                Collection rcpts = ((Matcher) mailetMatchs.get(i)).match(next);
+                Collection rcpts = ((Matcher) matchers.get(i)).match(next);
                 //Split the recipients
                 if (rcpts == null) {
                     rcpts = new Vector();
@@ -106,20 +77,20 @@ public class LinearProcessor extends AbstractMailet {
 
                 //Leave recipients that match (and the other Mail info)
                 //in this spot in the array, and push all others onto the next spot (mailet).
-                Mail[] mailBucket = {null, null};
+                MailImpl[] mailBucket = {null, null};
                 if (rcpts.isEmpty()) {
                     next.setRecipients(notRcpts);
-                    mailBucket[0] = (Mail) null;
+                    mailBucket[0] = (MailImpl) null;
                     mailBucket[1] = next;
                 } else if (notRcpts.isEmpty()) {
                     next.setRecipients(rcpts);
                     mailBucket[0] = next;
-                    mailBucket[1] = (Mail) null;
+                    mailBucket[1] = (MailImpl) null;
                 } else {
                     //This old method of key creation might create
                     //duplicates in certain circumtances
-                    //Mail notNext = mail.duplicate(next.getName() + "!");
-                    Mail notNext = mail.duplicate(newName(next));
+                    //MailImpl notNext = mail.duplicate(next.getName() + "!");
+                    MailImpl notNext = (MailImpl)mail.duplicate(newName(next));
                     next.setRecipients(rcpts);
                     notNext.setRecipients(notRcpts);
                     mailBucket[0] = next;
@@ -128,12 +99,12 @@ public class LinearProcessor extends AbstractMailet {
                 unprocessed.set(i, mailBucket[0]);
                 unprocessed.set(i + 1, mailBucket[1]);
 
-                logger.log("--- after split (" + i + ")---", "Mailets", Logger.INFO);
+                logger.log("--- after split (" + i + ")---", "Processor", logger.INFO);
                 printPipe(unprocessed);/*DEBUG*/
             } else {
                 try {
                     do {
-                        next = (Mail) unprocessed.get(--i);
+                        next = (MailImpl) unprocessed.get(--i);
                     } while (isEmpty(next));
                 } catch (ArrayIndexOutOfBoundsException emptyPipe) {
                     break;
@@ -141,12 +112,18 @@ public class LinearProcessor extends AbstractMailet {
                 Mailet mailet = (Mailet) mailets.get(i);
                 try {
                     mailet.service(next);
-                } catch (Exception ex) {
+                } catch (MailetException ex) {
                     ex.printStackTrace();/*DEBUG*/
                     next.setState(Mail.ERROR);
-                    next.setErrorMessage("Exception during " + mailet + " service: " + ex.getMessage());
-                    logger.log("Exception during " + mailet + " service: " + ex.getMessage(), "Mailets", Logger.INFO);
+                    next.setErrorMessage("Exception calling " + mailet.getMailetConfig().getMailetName() + ": " + ex.getMessage());
+                    logger.log("exception calling " + mailet.getMailetConfig().getMailetName() + ": " + ex.getMessage(), "Processor", logger.ERROR);
                     throw ex;
+                } catch (MessagingException me) {
+                    me.printStackTrace();/*DEBUG*/
+                    next.setState(Mail.ERROR);
+                    next.setErrorMessage("Exception calling " + mailet.getMailetConfig().getMailetName() + ": " + me.getMessage());
+                    logger.log("exception calling " + mailet.getMailetConfig().getMailetName() + ": " + me.getMessage(), "Processor", logger.ERROR);
+                    throw me;
                 }
                 if (isEmpty(next)) {
                     unprocessed.set(i + 1, null);
@@ -154,21 +131,26 @@ public class LinearProcessor extends AbstractMailet {
                     unprocessed.set(i + 1, next);
                 }
                 unprocessed.set(i, null);
-                logger.log("--- after service (" + i + ")---", "Mailets", Logger.INFO);
+                logger.log("--- after service (" + i + ")---", "Processor", logger.INFO);
                 printPipe(unprocessed);/*DEBUG*/
             }
         }
-        logger.log("Mail " + mail.getName() + " processed", "Mailets", Logger.INFO);
+        logger.log("Mail " + mail.getName() + " processed", "Processor", logger.INFO);
     }
 
     private boolean isEmpty(Mail mail) {
-        if (mail == null) return true;
-        else if (mail.getRecipients().isEmpty()) return true;
-        else if (mail.getState() == mail.GHOST) return true;
-        else return false;
+        if (mail == null) {
+            return true;
+        }  else if (mail.getRecipients().isEmpty()) {
+            return true;
+        } else if (mail.getState() == mail.GHOST) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    private String newName(Mail mail) {
+    private String newName(MailImpl mail) {
         String name = mail.getName();
         return name + "-!" + Math.abs(random.nextInt());
     }
@@ -180,11 +162,14 @@ public class LinearProcessor extends AbstractMailet {
         StringBuffer buffer = new StringBuffer("Recipients: ");
         boolean empty = true;
         for (Iterator i = rec.iterator(); i.hasNext(); ) {
-            buffer.append((String) i.next() + " ");
+            buffer.append(i.next().toString() + " ");
             empty = false;
         }
-        if (empty) return "Empty";
-        else return buffer.toString();
+        if (empty) {
+            return "Empty";
+        } else {
+            return buffer.toString();
+        }
     }
 
     private void printPipe(List unprocessed) {
@@ -192,13 +177,10 @@ public class LinearProcessor extends AbstractMailet {
         for (Iterator i = unprocessed.iterator(); i.hasNext(); j++) {
             Mail m = (Mail) i.next();
             if (m == null) {
-                logger.log("unprocessed " + j + " -> Null ", "Mailets", Logger.INFO);
+                logger.log("unprocessed " + j + " -> Null ", "Processor", logger.INFO);
             } else {
-                logger.log("unprocessed " + j + " -> " + printRecipients(m), "Mailets", Logger.INFO);
+                logger.log("unprocessed " + j + " -> " + printRecipients(m), "Processor", logger.INFO);
             }
         }
-    }
-    public String getMailetInfo() {
-        return "LinearProcessor";
     }
 }

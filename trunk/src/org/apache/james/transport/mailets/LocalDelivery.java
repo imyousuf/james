@@ -8,35 +8,26 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.avalon.*;
+import org.apache.mailet.*;
 import java.util.*;
-import org.apache.james.*;
-import org.apache.avalon.blocks.*;
+import javax.mail.MessagingException;
 
 /**
  * Receive  a Mail from JamesSpoolManager and takes care of delivery
- * the message to local inboxs.
+ * the message to local inboxes.
  *
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
-public class LocalDelivery extends AbstractMailet {
+public class LocalDelivery extends GenericMailet {
 
-    private MailServer james;
-
-    public void init()
-    throws Exception {
-        james = (MailServer) getContext().getComponentManager().getComponent(Interfaces.MAIL_SERVER);
-    }
-
-    public void service(Mail mail) {
+    public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
         for (Iterator i = recipients.iterator(); i.hasNext(); ) {
-            String recipient = (String) i.next();
+            MailAddress recipient = (MailAddress) i.next();
             try {
-                james.getUserInbox(Mail.getUser(recipient)).store(mail);
+                getMailetContext().storeMail(mail.getSender(), recipient, mail.getMessage());
             } catch (Exception ex) {
                 errors.add(recipient);
             }
@@ -44,9 +35,10 @@ public class LocalDelivery extends AbstractMailet {
         if (errors.isEmpty()) {
             mail.setState(Mail.GHOST);
         } else {
-            mail.setRecipients(errors);
-            mail.setState(Mail.ERROR);
-            mail.setErrorMessage("Unable to delivery locally message");
+            getMailetContext().sendMail(mail.getSender(), errors, mail.getMessage(), Mail.ERROR);
+            //mail.setRecipients(errors);
+            //mail.setState(Mail.ERROR);
+            //mail.setErrorMessage("Unable to delivery locally message");
         }
     }
 

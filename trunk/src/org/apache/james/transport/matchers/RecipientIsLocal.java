@@ -8,28 +8,25 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.*;
-import org.apache.james.transport.*;
-import org.apache.james.usermanager.*;
-import org.apache.avalon.utils.*;
+import org.apache.mailet.*;
 import java.util.*;
 
 /**
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Serge Knystautas <sergek@lokitech.com>
  */
-public class RecipientIsLocal extends AbstractRecipientMatcher {
+public class RecipientIsLocal extends GenericRecipientMatcher {
 
     private Collection localhosts;
-    private UsersRepository users;
+    private Collection users;
 
-    public void init(String condition) {
-        localhosts = (Collection) getContext().get(Resources.SERVER_NAMES);
-        UserManager usersManager = (UserManager) getContext().getComponentManager().getComponent(Resources.USERS_MANAGER);
-        users = usersManager.getUserRepository("LocalUsers");
+    public void init() {
+        localhosts = getMailetContext().getServerNames();
+        users = getMailetContext().getLocalUsers();
     }
 
-    public boolean matchRecipient(String recipient) {
-        return localhosts.contains(Mail.getHost(recipient)) && users.contains(Mail.getUser(recipient));
+    public boolean matchRecipient(MailAddress recipient) {
+        return localhosts.contains(recipient.getHost()) && users.contains(recipient.getUser());
     }
 }

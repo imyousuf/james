@@ -13,20 +13,22 @@ package org.apache.james.transport;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class Resources {
-    
-    public static final String SERVER_NAMES = "SERVER_NAMES";
+
+    //Already defined in Constants
+    //public static final String SERVER_NAMES = "SERVER_NAMES";
 
     public static final String USERS_MANAGER = "USERS_MANAGER";
 
-    public static final String POSTMASTER = "POSTMASTER";
-    
+    //Already defined in Constants
+    //public static final String POSTMASTER = "POSTMASTER";
+
     public static final String MAIL_SERVER = "MAIL_SERVER";
-    
+
     public static final String TRANSPORT = "TRANSPORT";
-    
+
     public static final String TMP_REPOSITORY = "TMP_REPOSITORY";
-    
+
     public static final String MAILET_LOADER = "MAILET_LOADER";
-    
+
     public static final String MATCH_LOADER = "MATCH_LOADER";
 }

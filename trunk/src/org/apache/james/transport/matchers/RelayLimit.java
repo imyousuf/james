@@ -8,10 +8,9 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mail.Mail;
-import org.apache.james.transport.*;
-import javax.mail.internet.*;
+import org.apache.mailet.*;
 import javax.mail.*;
+import javax.mail.internet.*;
 import java.util.*;
 
 /**
@@ -20,30 +19,26 @@ import java.util.*;
  * @version 1.0.0, 1/5/2000
  */
 
-public class RelayLimit extends AbstractMatcher {
+public class RelayLimit extends GenericMatcher {
     int limit = 30;
 
-    public void init(String condition) {
-        limit = Integer.parseInt(condition);
+    public void init() {
+        limit = Integer.parseInt(getCondition());
     }
 
-    public Collection match(Mail mail) {
-        try {
-            MimeMessage mm = mail.getMessage();
-            int count = 0;
-            for (Enumeration e = mm.getAllHeaders(); e.hasMoreElements();) {
-                Header hdr = (Header)e.nextElement();
-                if (hdr.getName().equals("Received")) {
-                    count++;
-                }
+    public Collection match(Mail mail) throws MessagingException {
+        MimeMessage mm = mail.getMessage();
+        int count = 0;
+        for (Enumeration e = mm.getAllHeaders(); e.hasMoreElements();) {
+            Header hdr = (Header)e.nextElement();
+            if (hdr.getName().equals("Received")) {
+                count++;
             }
-            if (count >= limit) {
-                return mail.getRecipients();
-            } else {
-                return null;
-            }
-        } catch (MessagingException ex) {
         }
-        return null;
+        if (count >= limit) {
+            return mail.getRecipients();
+        } else {
+            return null;
+        }
     }
 }

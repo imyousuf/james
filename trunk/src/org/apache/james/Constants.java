@@ -13,11 +13,11 @@ package org.apache.james;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
 public class Constants {
-    
+
     public static final String SOFTWARE_VERSION = "@@version@@";
 
     public static final String SOFTWARE_NAME = "JAMES Mail Server";
-    
+
     public static final String SERVER_NAMES = "SERVER_NAMES";
 
     public static final String USERS_MANAGER = "USERS_MANAGER";
@@ -25,8 +25,10 @@ public class Constants {
     public static final String SPOOL_REPOSITORY = "SPOOL_REPOSITORY";
 
     public static final String POSTMASTER = "POSTMASTER";
-    
+
     public static final String HELO_NAME = "HELO_NAME";
-    
+
     public static final int HEADERLIMIT = 2048;
+
+    public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
 }

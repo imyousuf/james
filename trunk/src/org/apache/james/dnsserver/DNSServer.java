@@ -14,7 +14,7 @@ import java.util.*;
 
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.Mail;
 import org.apache.james.transport.Resources;
 
 import org.xbill.DNS.*;
@@ -45,7 +45,7 @@ public class DNSServer implements Component, Configurable, Contextualizable {
     public void setContext(Context context) {
     }
 
-	public void init() throws Exception {
+    public void init() throws Exception {
 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("DNSServer init...", "DNS", logger.INFO);

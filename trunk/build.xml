@@ -59,7 +59,8 @@ All theese package are in current distribution.
 	<property name="build.dir" value="./build"/>
 	<property name="build.src" value="./build/src"/>
 	<property name="build.dest" value="./build/classes"/>
-	<property name="build.docs" value="./build/docs"/>
+    <property name="build.docs" value="./build/docs"/>
+    <property name="build.mailetdocs" value="./build/mailetdocs"/>
 	<property name="build.javadocs" value="./build/javadocs"/>
 
 	<property name="dist.dir" value="./dist"/>
@@ -83,6 +84,8 @@ All theese package are in current distribution.
     <echo message="   compile  --> compiles the source code"/>
     <echo message="   dist     --> generates the JAMES distribution"/>
     <echo message="   clean    --> cleans up the directory"/>
+    <echo message="   javadoc  --> creates the Javadoc"/>
+    <echo message="   javadocmailet --> creates the Javadoc for the mailet API"/>
     <echo message=""/>
     <echo message=" See the comments inside the build.xml file for more details."/>
     <echo message="-------------------------------------------------------------"/>
@@ -190,6 +193,17 @@ All theese package are in current distribution.
         />
   </target>
 
+  <!-- =================================================================== -->
+  <!-- Generates the javadoc for the mailet API                            -->
+  <!-- =================================================================== -->
+  <target name="javadocmailet" depends="prepare-src">
+    <mkdir dir="${build.mailetdocs}"/>
+    <javadoc sourcepath="${build.src}"
+        destdir="${build.mailetdocs}"
+        packagenames="org.apache.mailet.*"
+        classpath="${classpath}"
+        />
+  </target>
 </project>
 
 
