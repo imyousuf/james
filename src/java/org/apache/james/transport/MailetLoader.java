@@ -67,13 +67,18 @@ public class MailetLoader implements Component, Configurable {
         try {
             for (int i = 0; i < mailetPackages.size(); i++) {
                 String className = (String)mailetPackages.elementAt(i) + mailetName;
+                ClassLoader theClassLoader = null;
                 try {
                     MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
                     configImpl.setMailetContext(context);
 
-                    Mailet mailet = (Mailet) this.getClass().getClassLoader().loadClass(className).newInstance();
+                    if (theClassLoader == null) {
+                        theClassLoader = this.getClass().getClassLoader();
+                    }
+
+                    Mailet mailet = (Mailet) theClassLoader.loadClass(className).newInstance();
                     mailet.init(configImpl);
                     return mailet;
                 } catch (ClassNotFoundException cnfe) {
