@@ -24,7 +24,7 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.phoenix.BlockContext;
+import org.apache.james.context.AvalonContextConstants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
@@ -246,8 +246,24 @@ public class JDBCMailRepository
             // Initialise the sql strings.
             String fileName = sqlFileName.substring("file://".length());
             if (!(fileName.startsWith("/"))) {
-                fileName = ((BlockContext)context).getBaseDirectory() +
-                           File.separator + fileName;
+                String baseDirectory = "";
+                try {
+                    File applicationHome =
+                        (File)context.get(AvalonContextConstants.APPLICATION_HOME);
+                    baseDirectory = applicationHome.toString();
+                } catch (ContextException ce) {
+                    getLogger().fatalError("Encountered exception when resolving application home in Avalon context.", ce);
+                    throw ce;
+                } catch (ClassCastException cce) {
+                    getLogger().fatalError("Application home object stored in Avalon context was not of type java.io.File.", cce);
+                    throw cce;
+                }
+                StringBuffer fileNameBuffer =
+                    new StringBuffer(128)
+                            .append(baseDirectory)
+                            .append(File.separator)
+                            .append(fileName);
+                fileName = fileNameBuffer.toString();
             }
             File sqlFile = (new File(fileName)).getCanonicalFile();
 
