@@ -19,14 +19,15 @@ import java.util.*;
 public class RecipientIsLocal extends GenericRecipientMatcher {
 
     private Collection localhosts;
-    private Collection users;
 
     public void init() {
+        //This shouldn't change after startup
         localhosts = getMailetContext().getServerNames();
-        users = getMailetContext().getLocalUsers();
     }
 
     public boolean matchRecipient(MailAddress recipient) {
+        //This might change after startup
+        Collection users = getMailetContext().getLocalUsers();
         return localhosts.contains(recipient.getHost()) && users.contains(recipient.getUser());
     }
 }
