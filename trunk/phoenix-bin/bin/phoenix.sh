@@ -93,6 +93,7 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   PHOENIX_HOME=`cygpath --path --windows "$PHOENIX_HOME"`
+  PHOENIX_TMPDIR=`cygpath --path --windows "$PHOENIX_TMPDIR"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
