@@ -221,7 +221,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         notifyAll();
         for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
             Thread t = (Thread)i.next();
-            t.stop();
+            t.interrupt();
         }
     }
 
@@ -238,7 +238,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     public void run() {
         //Checks the pool and delivers a mail message
-        while (true) {
+        while (!Thread.currentThread().interrupted()) {
             try {
                 String key = outgoing.accept(delayTime);
                 log(Thread.currentThread().getName() + " will process mail " + key);
