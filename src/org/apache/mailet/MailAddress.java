@@ -188,7 +188,7 @@ public class MailAddress implements java.io.Serializable {
             return toString().equals(obj.toString());
         } else if (obj instanceof MailAddress) {
             MailAddress addr = (MailAddress)obj;
-            return getUser().equals(addr.getUser()) && getHost().equals(addr.getHost());
+            return getUser().equals(addr.getUser()) && getHost().toLowerCase().equals(addr.getHost().toLowerCase());
         }
         return false;
     }

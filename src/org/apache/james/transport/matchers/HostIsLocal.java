@@ -21,10 +21,13 @@ public class HostIsLocal extends GenericRecipientMatcher {
     private Collection localhosts;
 
     public void init() {
-        localhosts = getMailetContext().getServerNames();
+        localhosts = new Vector();
+        for (Iterator i = getMailetContext().getServerNames().iterator(); i.hasNext(); ) {
+            localhosts.add(i.next().toString().toLowerCase());
+        }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        return localhosts.contains(recipient.getHost());
+        return localhosts.contains(recipient.getHost().toLowerCase());
     }
 }
