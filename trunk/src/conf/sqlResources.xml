@@ -20,6 +20,7 @@
     <dbMatcher db="oracle" databaseProductName="oracle.*"/>
     <dbMatcher db="mysql" databaseProductName="my.*"/>
     <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
+    <dbMatcher db="sapdb" databaseProductName="sap.*"/>
 </dbMatchers>
 
 <!-- SQL statements to use for various components.
@@ -150,6 +151,22 @@
 			)
 
     </sql>
+	<sql name="createTable" db="sapdb">
+		CREATE TABLE ${table} (
+			message_name varchar (200) NOT NULL,
+			repository_name varchar (200) NOT NULL,
+			message_state varchar (30) NOT NULL ,
+			error_message varchar (200) NULL ,
+			sender varchar (200) NULL ,
+			recipients long NOT NULL ,
+			remote_host varchar (100) NOT NULL ,
+			remote_addr varchar (20) NOT NULL ,
+			message_body long byte NOT NULL ,
+			last_updated date NOT NULL,
+			PRIMARY KEY (message_name, repository_name)
+		)
+	</sql>
+
 </sqlDefs>
 
 <sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
@@ -199,15 +216,37 @@
 			)
 
     </sql>
+	<sql name="createTable" db="sapdb">
+		CREATE TABLE ${table} (
+			message_name varchar (200) NOT NULL,
+			repository_name varchar (200) NOT NULL,
+			message_state varchar (30) NOT NULL ,
+			error_message varchar (200) NULL ,
+			sender varchar (200) NULL ,
+			recipients long NOT NULL ,
+			remote_host varchar (100) NOT NULL ,
+			remote_addr varchar (20) NOT NULL ,
+			message_body long byte NOT NULL ,
+			last_updated date NOT NULL,
+			PRIMARY KEY (message_name, repository_name)
+		)
+	</sql>
 </sqlDefs>
 
 <sqlDefs name="org.apache.james.transport.mailets.JDBCAlias">
     <sql name="tableName">${table}</sql>
-    <sql name="select">SELECT source_email_address
-                 FROM ${table}
-                 WHERE target_email_address = ?
+    <sql name="select">
+		SELECT source_email_address
+		FROM ${table}
+		WHERE target_email_address = ?
     </sql>
-    <sql name="createTable">CREATE TABLE ${table} (source_email_address VARCHAR(200) NOT NULL, target_email_address VARCHAR(200) PRIMARY KEY(source_email_address))</sql>
+    <sql name="createTable">
+    	CREATE TABLE ${table} (
+    		source_email_address VARCHAR(200) NOT NULL,
+    		target_email_address VARCHAR(200)
+    		PRIMARY KEY(source_email_address)
+    	)
+    </sql>
 </sqlDefs>
 
 </sqlResources>
