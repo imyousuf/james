@@ -306,18 +306,6 @@ public class James
         SMTPServer smtpServer = null;
         DNSServer dnsServer = null;
         if (provideSMTP) {
-            smtpServer = new SMTPServer();
-            try {
-                setupLogger( smtpServer, "SMTPServer" );
-                smtpServer.contextualize( context );
-                smtpServer.compose( compMgr );
-                smtpServer.configure( conf.getChild("smtpServer") );
-                smtpServer.init();
-            } catch (Exception e) {
-                getLogger().error( "Exception in SMTPServer init: " + e.getMessage(), e );
-                throw e;
-            }
-
             dnsServer = new DNSServer();
             try {
                 setupLogger( dnsServer, "DnsServer" );
@@ -327,6 +315,17 @@ public class James
                 throw e;
             }
             compMgr.put("DNS_SERVER", dnsServer);
+
+            smtpServer = new SMTPServer();
+            try {
+                setupLogger( smtpServer, "SMTPServer" );
+                smtpServer.contextualize( context );
+                smtpServer.compose( compMgr );
+                smtpServer.configure( conf.getChild("smtpServer") );
+            } catch (Exception e) {
+                getLogger().error( "Exception in SMTPServer init: " + e.getMessage(), e );
+                throw e;
+            }
         }
 
         RemoteManager remoteAdmin = new RemoteManager();
@@ -471,11 +470,9 @@ public class James
         }
     }
 
-
     public String getId() {
         return "Mail" + System.currentTimeMillis() + "-" + count++;
     }
-
 
     public static void main(String[] args) {
         System.out.println("ERROR!");
@@ -483,12 +480,6 @@ public class James
         System.out.println("To run James, you need to have the Avalon framework installed.");
         System.out.println("Please refer to the Readme file to know how to run James.");
     }
-
-
-    public void destroy() {
-        //Does nothing... is this even called?
-    }
-
 
     //Methods for MailetContext
 
