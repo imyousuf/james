@@ -425,17 +425,24 @@ public class POP3Handler
     private void stat() {
         userMailbox = new ArrayList();
         userMailbox.add(DELETED);
-        for (Iterator it = userInbox.list(); it.hasNext(); ) {
-            String key = (String) it.next();
-            Mail mc = userInbox.retrieve(key);
-            // Retrieve can return null if the mail is no longer in the store.
-            // In this case we simply continue to the next key
-            if (mc == null) {
-                continue;
+        try {
+            for (Iterator it = userInbox.list(); it.hasNext(); ) {
+                String key = (String) it.next();
+                Mail mc = userInbox.retrieve(key);
+                // Retrieve can return null if the mail is no longer in the store.
+                // In this case we simply continue to the next key
+                if (mc == null) {
+                    continue;
+                }
+                userMailbox.add(mc);
             }
-            userMailbox.add(mc);
+        } catch(MessagingException e) {
+            // In the event of an exception being thrown there may or may not be anything in userMailbox
+            getLogger().error("Unable to STAT mail box ", e);
         }
-        backupUserMailbox = (ArrayList) userMailbox.clone();
+        finally {
+            backupUserMailbox = (ArrayList) userMailbox.clone();
+        }
     }
 
     /**
@@ -532,8 +539,8 @@ public class POP3Handler
      * Reads in the user id.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUSER(String command,String argument,String argument1) {
         String responseString = null;
@@ -552,8 +559,8 @@ public class POP3Handler
      * Reads in and validates the password.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doPASS(String command,String argument,String argument1) {
         String responseString = null;
@@ -587,8 +594,8 @@ public class POP3Handler
      * aggregate size.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doSTAT(String command,String argument,String argument1) {
         String responseString = null;
@@ -629,8 +636,8 @@ public class POP3Handler
      * a single message.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doLIST(String command,String argument,String argument1) {
         String responseString = null;
@@ -733,8 +740,8 @@ public class POP3Handler
      * Returns a listing of message ids to the client.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUIDL(String command,String argument,String argument1) {
         String responseString = null;
@@ -811,8 +818,8 @@ public class POP3Handler
      * Calls stat() to reset the mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doRSET(String command,String argument,String argument1) {
         String responseString = null;
@@ -831,8 +838,8 @@ public class POP3Handler
      * mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doDELE(String command,String argument,String argument1) {
         String responseString = null;
@@ -881,8 +888,8 @@ public class POP3Handler
      * Like all good NOOPs, does nothing much.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doNOOP(String command,String argument,String argument1) {
         String responseString = null;
@@ -901,8 +908,8 @@ public class POP3Handler
      * mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doRETR(String command,String argument,String argument1) {
         String responseString = null;
@@ -972,8 +979,8 @@ public class POP3Handler
      *  TOP [mail message number] [number of lines to return]
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doTOP(String command,String argument,String argument1) {
         String responseString = null;
@@ -1043,8 +1050,8 @@ public class POP3Handler
      * This method handles cleanup of the POP3Handler state.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doQUIT(String command,String argument,String argument1) {
         String responseString = null;
@@ -1055,10 +1062,11 @@ public class POP3Handler
         }
         List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
         try {
-            for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
-                MailImpl mc = (MailImpl) it.next();
-                userInbox.remove(mc.getName());
-            }
+            userInbox.remove(toBeRemoved);
+            // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
+            //    MailImpl mc = (MailImpl) it.next();
+            //    userInbox.remove(mc.getName());
+            //}
             responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
             writeLoggedFlushedResponse(responseString);
         } catch (Exception ex) {
@@ -1073,8 +1081,8 @@ public class POP3Handler
      * Returns an error response and logs the command.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUnknownCmd(String command,String argument,String argument1) {
         writeLoggedFlushedResponse(ERR_RESPONSE);

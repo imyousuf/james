@@ -110,7 +110,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.9 $ $Date: 2003/08/28 16:22:37 $
+ * @version CVS $Revision: 1.30.4.10 $ $Date: 2003/08/28 16:32:02 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -874,8 +874,8 @@ public class JDBCMailRepository
     }
 
     /**
-     * Removes a list of mails from the repository
-     * @param mails The list of <code>MailImpl</code>'s to delete
+     * Removes a Collection of mails from the repository
+     * @param mails The Collection of <code>MailImpl</code>'s to delete
      * @throws MessagingException
      * @since 2.2.0
      */

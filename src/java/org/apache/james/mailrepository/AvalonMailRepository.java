@@ -401,8 +401,8 @@ public class AvalonMailRepository
 
 
     /**
-     * Removes a list of mails from the repository
-     * @param mails The list of <code>MailImpl</code>'s to delete
+     * Removes a Collection of mails from the repository
+     * @param mails The Collection of <code>MailImpl</code>'s to delete
      * @throws MessagingException
      * @since 2.2.0
      */
