@@ -109,7 +109,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.7 $ $Date: 2003/07/15 10:12:45 $
+ * @version CVS $Revision: 1.30.4.8 $ $Date: 2003/07/17 13:26:12 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -774,10 +774,13 @@ public class JDBCMailRepository
                     if (rsMessageAttr.next()) {
                         try {
                             byte[] serialized_attr = rsMessageAttr.getBytes(1);
-                            ByteArrayInputStream bais = new ByteArrayInputStream (serialized_attr);
-                            ObjectInputStream ois = new ObjectInputStream (bais);
-                            attributes = (HashMap)ois.readObject();
-                            ois.close();
+                            // this check is for better backwards compatibility
+                            if (serialized_attr != null) {
+                                ByteArrayInputStream bais = new ByteArrayInputStream(serialized_attr);
+                                ObjectInputStream ois = new ObjectInputStream(bais);
+                                attributes = (HashMap)ois.readObject();
+                                ois.close();
+                            }
                         } catch (IOException ioe) {
                             if (getLogger().isDebugEnabled()) {
                                 StringBuffer debugBuffer =
