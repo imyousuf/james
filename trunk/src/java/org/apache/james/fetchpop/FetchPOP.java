@@ -32,7 +32,7 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it 
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.2 2002/09/24 22:03:12 pgoldstein Exp $
+ * <br>$Id: FetchPOP.java,v 1.3 2002/09/27 14:06:55 danny Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */
@@ -86,7 +86,7 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
                 getLogger().debug("Retrieve:" + pop.getReplyString());
                 MimeMessage message = new MimeMessage(null, in);
                 in.close();
-                message.addHeader("X-fetchpop", "Fetched by James");
+                message.addHeader("X-fetched-from", fetchTaskName);
                 message.saveChanges();
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Sent message " + message.toString());
