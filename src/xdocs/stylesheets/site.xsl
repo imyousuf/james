@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.1 2002/07/30 13:37:34 danny Exp $ -->
+<!-- $Id: site.xsl,v 1.2 2002/11/21 15:10:45 danny Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -49,7 +49,7 @@
     <html>
     <head>
     <xsl:apply-templates select="meta"/>
-    <title><xsl:value-of select="$project/title"/> - <xsl:value-of select="properties/title"/></title>
+    <title>Apache Jakarta James - <xsl:value-of select="properties/title"/> - <xsl:value-of select="$project/title"/></title>
     <xsl:for-each select="properties/author">
       <xsl:variable name="name">
         <xsl:value-of select="."/>
@@ -60,6 +60,10 @@
       <meta name="author" value="{$name}"/>
       <meta name="email" value="{$email}"/>
     </xsl:for-each>
+<meta name="keywords" content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux."/>
+<meta name="description" content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux."/>
+<meta name="ROBOTS" content="ALL"/>
+
     <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style" />
     </head>
 

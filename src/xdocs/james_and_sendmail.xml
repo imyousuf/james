@@ -3,7 +3,7 @@
 <document>
 
  <properties>
-  <title>Routing mail from sendmail through James</title>
+  <title>Sendmail integration</title>
   <author email="danny@apache.org">Danny Angus</author>
  </properties>
 
