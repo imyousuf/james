@@ -65,8 +65,9 @@ public class JDBCSpoolRepository
     public synchronized String accept() {
         while (true) {
             try {
+                //System.err.println("querying db");
                 Connection conn = getConnection();
-                PreparedStatement listMessages = conn.prepareStatement(listMessagesSQL);
+                PreparedStatement listMessages = conn.prepareStatement(sqlQueries.getProperty("listMessagesSQL"));
                 listMessages.setString(1, repositoryName);
                 ResultSet rsListMessages = listMessages.executeQuery();
 
@@ -99,7 +100,7 @@ public class JDBCSpoolRepository
             long next = 0;
             try {
                 Connection conn = getConnection();
-                PreparedStatement listMessages = conn.prepareStatement(listMessagesSQL);
+                PreparedStatement listMessages = conn.prepareStatement(sqlQueries.getProperty("listMessagesSQL"));
                 listMessages.setString(1, repositoryName);
                 ResultSet rsListMessages = listMessages.executeQuery();
 
