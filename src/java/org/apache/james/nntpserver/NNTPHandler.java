@@ -49,9 +49,6 @@ import java.util.*;
  *
  * Common NNTP extensions are in RFC 2980.
  *
- * @author Fedor Karpelevitch
- * @author Harmeet <hbedi@apache.org>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
  */
 public class NNTPHandler
     extends AbstractLogEnabled
@@ -361,13 +358,17 @@ public class NNTPHandler
 
             getLogger().info("Connection closed");
         } catch (Exception e) {
-            // unexpected error. try to send quit msg.
-            // this may fail if socket has been closed by peer.
-            try {
-                doQUIT(null);
-            } catch(Throwable t) { }
+            // if the connection has been idled out, the
+            // socket will be closed and null.  Do NOT
+            // log the exception or attempt to send the
+            // closing connection message
+            if (socket != null) {
+                try {
+                    doQUIT(null);
+                } catch(Throwable t) { }
 
-            getLogger().error( "Exception during connection:" + e.getMessage(), e );
+                getLogger().error( "Exception during connection:" + e.getMessage(), e );
+            }
         } finally {
             resetHandler();
         }
