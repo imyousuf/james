@@ -33,7 +33,6 @@ public class ServerTime extends GenericMailet {
      * @throws MessagingException if an error is encountered while formulating the reply message
      */
     public void service(Mail mail) throws javax.mail.MessagingException {
-        log("Sending timestamp");
         MimeMessage response = (MimeMessage)mail.getMessage().reply(false);
         response.setSubject("The time is now...");
         StringBuffer textBuffer =

@@ -44,6 +44,11 @@ import java.util.Vector;
 public class UseHeaderRecipients extends GenericMailet {
 
     /**
+     * Controls certain log messages
+     */
+    private final boolean DEBUG = false;
+
+    /**
      * Process an incoming email, removing the currently identified
      * recipients and replacing them with the recipients indicated in
      * the Mail-For, To and Cc headers of the actual email.
@@ -65,9 +70,11 @@ public class UseHeaderRecipients extends GenericMailet {
             recipients.addAll(getHeaderMailAddresses(message, "To"));
             recipients.addAll(getHeaderMailAddresses(message, "Cc"));
         }
-        log("All recipients = " + recipients.toString());
+        if (DEBUG) {
+            log("All recipients = " + recipients.toString());
+            log("Reprocessing mail using recipients in message headers");
+        }
 
-        log("Reprocessing mail using recipients in message headers");
         // Return email to the "root" process.
         getMailetContext().sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage());
         mail.setState(Mail.GHOST);
@@ -92,12 +99,15 @@ public class UseHeaderRecipients extends GenericMailet {
      * @return the collection of MailAddress objects.
      */
     private Collection getHeaderMailAddresses(MimeMessage message, String name) throws MessagingException {
-        StringBuffer logBuffer =
-            new StringBuffer(64)
-                    .append("Checking ")
-                    .append(name)
-                    .append(" headers");
-        log(logBuffer.toString());
+
+        if (DEBUG) {
+            StringBuffer logBuffer =
+                new StringBuffer(64)
+                        .append("Checking ")
+                        .append(name)
+                        .append(" headers");
+            log(logBuffer.toString());
+        }
         Collection addresses = new Vector();
         String[] headers = message.getHeader(name);
         String addressString;
@@ -108,7 +118,9 @@ public class UseHeaderRecipients extends GenericMailet {
                 while (st.hasMoreTokens()) {
                     addressString = st.nextToken();
                     iAddress = new InternetAddress(addressString);
-                    log("Address = " + iAddress.toString());
+                    if (DEBUG) {
+                        log("Address = " + iAddress.toString());
+                    }
                     addresses.add(new MailAddress(iAddress));
                 }
             }
