@@ -118,6 +118,30 @@ public class MailImpl implements Mail {
         return lastUpdated;
     }
 
+    /**
+     * <p>Return the size of the message including its headers.
+     * MimeMessage.getSize() method only returns the size of the
+     * message body.</p>
+     *
+     * <p>Note: this size is not guaranteed to be accurate - see Sun's
+     * documentation of MimeMessage.getSize().</p>
+     *
+     * @return approximate size of full message including headers.
+     *
+     * @author Stuart Roebuck <stuart.roebuck@adolos.co.uk>
+     */
+    public int getSize() throws MessagingException {
+		//SK: Should probably eventually store this as a locally
+		//  maintained value (so we don't have to load and reparse
+		//  messages each time).
+        int size = message.getSize();
+        Enumeration e = message.getAllHeaders();
+        while (e.hasMoreElements()) {
+            size += ((Header)e.nextElement()).toString().length();
+        }
+        return fullMessageSize;
+	}
+
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
             sender = new MailAddress((String) in.readObject());

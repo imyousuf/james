@@ -24,6 +24,9 @@
   <action dev="IS" type="code">
     Added UsersTownRepository to let you maintain user lists in a database
   </action>
+  <action dev="SR" type="update">
+    In POP3 handler, properly includes headers in calculating size of messages.
+  </action>
   <action dev="SK" type="code">
     Optimization of town mail repository, introduction of JamesMimeMessageInputStream and the James MimeMessage.  Should significantly reduce the number of unnecessary parses or saves on MimeMessages in server.
   </action>
