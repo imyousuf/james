@@ -169,13 +169,13 @@ public class XMLResources
         for ( int i = 0; i < resCount; i++ ) {
             // See if this needs to be processed (is default or product specific)
             Element resElement = (Element)(resDefs.item(i));
-            String resDb = resElement.getAttribute("for");
+            String resSelect = resElement.getAttribute("for");
             Map resMap;
-            if ( resDb.equals("")) {
+            if ( resSelect.equals("")) {
                 // default
                 resMap = defaultStrings;
             }
-            else if (resDb.equals(selectTag) ) {
+            else if (resSelect.equals(selectTag) ) {
                 // Specific to this product
                 resMap = selectTagStrings;
             }
@@ -231,9 +231,9 @@ public class XMLResources
      * expressions to use.
      *
      * @param select the String to be checked
-     * @param dbMatchersElement the XML element containing the database type information
+     * @param matchersElement the XML element containing selector patterns
      *
-     * @return the type of database to which James is connected
+     * @return the selector tag that will be used to select custom resources
      *
      */
     private String match(String select, Element matchersElement)
@@ -268,9 +268,9 @@ public class XMLResources
      * @param replace the string to replace with
      * @return the substituted string
      */
-    private String substituteSubString( String input, 
-                                        String find,
-                                        String replace )
+    static private String substituteSubString( String input, 
+                                               String find,
+                                               String replace )
     {
         int find_length = find.length();
         int replace_length = replace.length();
@@ -328,8 +328,7 @@ public class XMLResources
     }
 
     /**
-     * Returns a named string for the specified connection, replacing
-     * parameters with the values set.
+     * Returns a named string, replacing parameters with the values set.
      * 
      * @param name          the name of the String resource required.
      * @param parameters    a map of parameters (name-value string pairs) which are
@@ -338,8 +337,19 @@ public class XMLResources
      */
     public String getString(String name, Map parameters)
     {
-        String str = getString(name);
+        return replaceParameters(getString(name), parameters);
+    }
 
+    /**
+     * Returns a named string, replacing parameters with the values set.
+     * 
+     * @param name          the name of the String resource required.
+     * @param parameters    a map of parameters (name-value string pairs) which are
+     *                      replaced where found in the input strings
+     * @return the requested resource
+     */
+    static public String replaceParameters(String str, Map parameters)
+    {
         // Do parameter replacements for this string resource.
         Iterator paramNames = parameters.keySet().iterator();
         while ( paramNames.hasNext() ) {
