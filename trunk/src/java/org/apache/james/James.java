@@ -46,6 +46,7 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.DNSServer;
@@ -71,7 +72,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <br> 3) Provides container services for Mailets
  *
  *
- * @version This is $Revision: 1.43 $
+ * @version This is $Revision: 1.44 $
 
  */
 public class James
@@ -371,7 +372,8 @@ public class James
 
         //TODO NOT unless specifically required by conf
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
-
+        //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
+        attributes.put("confDir", ((BlockContext)myContext).getBaseDirectory().getCanonicalPath()+"/conf/");
         System.out.println(SOFTWARE_NAME_VERSION);
         getLogger().info("JAMES ...init end");
     }
