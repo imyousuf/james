@@ -34,7 +34,7 @@ import org.apache.mailet.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler implements Composer, Stoppable, Configurable, Service, Scheduler.Target, Contextualizable {
+public class POP3Handler implements Composer, Stoppable, Configurable, Service, Scheduler.Target, Contextualizable, Runnable {
 
     private ComponentManager compMgr;
     private Configuration conf;
@@ -85,12 +85,19 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
 
     public void init() throws Exception {
 
-        mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
-        users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
-        scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
-        softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
-        servername = (String) context.get(Constants.HELO_NAME);
-        userMailbox = new Vector();
+	try {
+	    mailServer = (MailServer) compMgr.lookup("org.apache.james.services.MailServer");
+	    users = (UsersRepository) compMgr.lookup("org.apache.james.services.UsersRepository");
+	    scheduler = (Scheduler) compMgr.lookup("org.apache.avalon.services.Scheduler");
+	    softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
+	    servername = (String) context.get(Constants.HELO_NAME);
+	    userMailbox = new Vector();
+
+	} catch (Exception e) {
+	    logger.error("Exception initializing a PO3Handler was : " + e);
+	    e.printStackTrace();
+	    throw e;
+	}
     }
 
     public void parseRequest(Socket socket) {

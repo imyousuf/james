@@ -26,9 +26,14 @@ import org.apache.avalon.services.Service;
 public interface MailServer extends Service {
 
     /**
-     * Reserved system name for multi-user mailboxes
+     * Reserved user name for teh mail delivery agent for multi-user mailboxes
      */
     public static final String MDA = "JamesMDA"; 
+
+    /**
+     * Reserved user name meaning all users for multi-user mailboxes
+     */
+    public static final String ALL = "AllMailUsers";
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
     throws MessagingException;
