@@ -18,6 +18,7 @@ import org.apache.james.core.*;
  * Interface for a Repository to store Mails.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  */
 public interface MailRepository extends Service {
 

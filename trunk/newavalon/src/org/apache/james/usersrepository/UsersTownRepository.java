@@ -21,21 +21,16 @@ import com.workingdogs.town.*;
  * @version 1.0.0, 10/01/2000
  * @author  Ivan Seskar, Upside Technologies <seskar@winlab.rutgers.edu>
  */
-public class UsersTownRepository implements UsersRepository, Loggable, Component, Configurable, Composer {
+public class UsersTownRepository implements UsersRepository, Loggable, Component, Configurable {
 
-    private String name;
-    private String type;
-    private String model;
-
-    private String destination;
-    private String prefix;
-    private String repositoryName;
+    //private String destination;
+    //private String repositoryName;
 
     private String conndefinition;
     private String tableName;
 
     //  System defined logger funtion
-    private ComponentManager comp;
+    //private ComponentManager comp;
     private Logger logger;
 
     // Constructor - empty
@@ -47,45 +42,16 @@ public class UsersTownRepository implements UsersRepository, Loggable, Component
     }
 
     public void configure(Configuration conf) throws ConfigurationException {
-
+	//  destination = conf.getChild("destination").getAttribute("URL");
+	//  repositoryName = destination.substring(destination.indexOf("//") + 2);
 	conndefinition= conf.getChild("conn").getValue();
 	tableName = conf.getChild("table").getValue("Users");
 
     }
 
-   public void compose(ComponentManager compMgr) {
-       this.comp = comp;
-   }
+ 
 	
     // Methods from interface Repository
-    public void setAttributes(String name, String destination, String type, String model) {
-        this.name = name;
-        this.model = model;
-        this.type = type;
-
-        this.destination = destination;
-        int slash = destination.indexOf("//");
-        prefix = destination.substring(0, slash + 2);
-        repositoryName = destination.substring(slash + 2);
-    }
-
-
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getChildDestination(String childName) {
-        return prefix + repositoryName + "/" + childName;
-    }
 
     public synchronized void addUser(String strUserName, Object attributes) {
         try {
