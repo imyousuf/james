@@ -21,7 +21,46 @@
 	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
   </devs>
 
-<release version="snap">
+<release version="2.0a3" date="20-April-2002">
+  <action dev="SK" type="update">
+    FileRepository should no longer produce 0-byte files.  It checks that the source is different than the target, or confirm it is in memory before saving to disk.
+  </action>
+  <action dev="SK" type="update">
+    Removed check that connection is not closed before returning it.  The pooler is already confirming the connection was open before putting it in the pool, so this was a big unnecessary performance drain.
+  </action>
+  <action dev="SK" type="update">
+    Fixed the delay in the mail spool repository as it wasn't rechecking correctly after it emptied the spool.
+  </action>
+  <action dev="" type="update">
+    Added dot-stuffing in POP3 message delivery to fix problems with Netscape and other mail clients and to comply with RFC.
+  </action>
+  <action dev="" type="update">
+    Fixed bounce method to use the Return-Path header if there is one.
+  </action>
+  <action dev="SK" type="update">
+    Improved handling of delivery error messages when the remote server returns a specific 5XY complaint.
+  </action>
+  <action dev="SK" type="update">
+    Better diagnosing of temporary vs. permanent delivery exceptions, most notably "Could not connect to host.." is a temporary exception.
+  </action>
+  <action dev="SK" type="update">
+    Remote SMTP delivery now sets the remote hostname using the servername configuration setting (uses the first one).
+  </action>
+  <action dev="SK" type="update">
+    Have it cleanly (not print stack trace) if the remote manager handler has io/socket exceptions.
+  </action>
+  <action dev="SK" type="update">
+    Support in "IsSenderInFakeDomain" to handle null senders properly (was producing a false positive in this case).
+  </action>
+  <action dev="" type="update">
+    Added releaseConnection method to BaseConnectionHandler as per Paul H's bug report.
+  </action>
+  <action dev="" type="update">
+    Reordered 250 SMTP responses to fix Mac client issue per Giles Chanot's bug report.
+  </action>
+</release>
+
+<release version="2.0a2">
   <action dev="EP" type="update">
     Used getAsBooleanValue in various configuration methods to make code more readable.
   </action>
