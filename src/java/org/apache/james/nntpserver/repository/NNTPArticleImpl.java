@@ -8,14 +8,21 @@
 package org.apache.james.nntpserver.repository;
 
 import org.apache.james.nntpserver.NNTPException;
+import org.apache.avalon.excalibur.io.IOUtil;
 
 import javax.mail.internet.InternetHeaders;
-import java.io.*;
 
-/** 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+
+/**
  * Please see NNTPArticle for comments
  *
- * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 class NNTPArticleImpl implements NNTPArticle {
 
@@ -41,34 +48,38 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getGroup()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getGroup()
      */
     public NNTPGroup getGroup() {
         return group;
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getArticleNumber()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getArticleNumber()
      */
     public int getArticleNumber() {
         return Integer.parseInt(articleFile.getName());
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getUniqueID()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getUniqueID()
      */
     public String getUniqueID() {
+        FileInputStream fin = null;
         try {
-            FileInputStream fin = new FileInputStream(articleFile);
+            fin = new FileInputStream(articleFile);
             InternetHeaders headers = new InternetHeaders(fin);
             String[] idheader = headers.getHeader("Message-Id");
-            fin.close();
             return ( idheader.length > 0 ) ? idheader[0] : null;
-        } catch(Exception ex) { throw new NNTPException(ex); }
+        } catch(Exception ex) { 
+            throw new NNTPException(ex); 
+        } finally {
+            IOUtil.shutdownStream(fin);
+        }
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeArticle(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeArticle(PrintWriter)
      */
     public void writeArticle(PrintWriter prt) {
         BufferedReader reader = null;
@@ -76,6 +87,10 @@ class NNTPArticleImpl implements NNTPArticle {
             reader = new BufferedReader(new FileReader(articleFile));
             String line = null;
             while ( ( line = reader.readLine() ) != null ) {
+                // add extra dot if line starts with '.'
+                // '.' indicates end of article.
+                if ( line.startsWith(".") )
+                    prt.print(".");
                 prt.println(line);
             }
         } catch(IOException ex) {
@@ -92,7 +107,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeHead(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeHead(PrintWriter)
      */
     public void writeHead(PrintWriter prt) {
         try {
@@ -101,6 +116,8 @@ class NNTPArticleImpl implements NNTPArticle {
             while ( ( line = reader.readLine() ) != null ) {
                 if ( line.trim().length() == 0 )
                     break;
+                if ( line.startsWith(".") )
+                    prt.print(".");
                 prt.println(line);
             }
             reader.close();
@@ -108,7 +125,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeBody(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeBody(PrintWriter)
      */
     public void writeBody(PrintWriter prt) {
         try {
@@ -116,9 +133,11 @@ class NNTPArticleImpl implements NNTPArticle {
             String line = null;
             boolean startWriting = false;
             while ( ( line = reader.readLine() ) != null ) {
-                if ( startWriting )
+                if ( startWriting ) {
+                    if ( line.startsWith(".") )
+                        prt.print(".");
                     prt.println(line);
-                else
+                } else
                     startWriting = ( line.trim().length() == 0 );
             }
             reader.close();
@@ -126,7 +145,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeOverview(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeOverview(PrintWriter)
      */
     public void writeOverview(PrintWriter prt) {
         try {
@@ -139,21 +158,23 @@ class NNTPArticleImpl implements NNTPArticle {
             String msgId = hdr.getHeader("Message-Id",null);
             String references = hdr.getHeader("References",null);
             long byteCount = articleFile.length();
+            // TODO: Address the line count issue.
             long lineCount = -1;
-            StringBuffer line=new StringBuffer(128)
+            StringBuffer line=new StringBuffer(256)
+                .append(getArticleNumber())      .append("\t")
                 .append(cleanHeader(subject))    .append("\t")
                 .append(cleanHeader(author))     .append("\t")
                 .append(cleanHeader(date))       .append("\t")
                 .append(cleanHeader(msgId))      .append("\t")
                 .append(cleanHeader(references)) .append("\t")
-                .append(byteCount + "\t")
-                .append(lineCount + "");
+                .append(byteCount)               .append("\t")
+                .append(lineCount);
             prt.println(line.toString());
         } catch(Exception ex) { throw new NNTPException(ex); }
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getHeader(String)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getHeader(String)
      */
     public String getHeader(String header) {
         try {
@@ -180,7 +201,7 @@ class NNTPArticleImpl implements NNTPArticle {
         StringBuffer sb = new StringBuffer(field);
         for( int i=0 ; i<sb.length() ; i++ ) {
             char c = sb.charAt(i);
-            if( (c=='\n') || (c=='\t') ) {
+            if( (c=='\n') || (c=='\t') || (c=='\r') ) {
                 sb.setCharAt(i, ' ');
             }
         }
