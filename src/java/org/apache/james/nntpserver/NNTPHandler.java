@@ -341,7 +341,7 @@ public class NNTPHandler extends BaseConnectionHandler
         // section 9.2.1
         NNTPArticle article = null;
         if ( (param != null) && param.startsWith("<") && param.endsWith(">") ) {
-            article = repo.getArticleFromID(param.substring(1,param.length()-2));
+            article = repo.getArticleFromID(param);
             if ( article == null )
                 writer.println("430 no such article");
             else
