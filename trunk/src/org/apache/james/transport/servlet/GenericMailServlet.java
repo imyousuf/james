@@ -9,10 +9,10 @@
 package org.apache.james.transport.servlet;
 
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.mail.*;
 import org.apache.mail.servlet.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.interfaces.*;
 
 /**
  * @version 1.0.0, 24/04/1999

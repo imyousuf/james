@@ -9,7 +9,7 @@
 package org.apache.james.transport.match;
 
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.james.transport.Resources;
 import org.apache.james.usermanager.*;
 import org.apache.mail.Mail;

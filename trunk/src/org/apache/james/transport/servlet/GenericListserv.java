@@ -11,9 +11,9 @@ package org.apache.james.transport.servlet;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.james.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.mail.*;
 import org.apache.james.transport.*;
 

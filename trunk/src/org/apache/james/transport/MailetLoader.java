@@ -8,7 +8,7 @@
 package org.apache.james.transport;
 
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.mail.servlet.*;
 import org.apache.james.transport.servlet.*;
 

@@ -8,8 +8,8 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.arch.*;
-import org.apache.avalon.blocks.*;
+import org.apache.java.lang.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
 import java.net.*;

@@ -12,10 +12,10 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.james.*;
 import org.apache.mail.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.james.transport.*;
 
 import javax.mail.URLName;

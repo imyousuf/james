@@ -8,8 +8,8 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.arch.*;
-import org.apache.avalon.blocks.*;
+import org.apache.java.lang.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.james.*;
 import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;

@@ -9,9 +9,9 @@
 package org.apache.james.transport;
 
 import java.util.*;
-import org.apache.arch.*;
+import org.apache.java.lang.*;
 import org.apache.james.*;
-import org.apache.avalon.blocks.*;
+import org.apache.avalon.interfaces.*;
 import org.apache.mail.*;
 import org.apache.java.util.*;
 import org.apache.james.transport.match.*;

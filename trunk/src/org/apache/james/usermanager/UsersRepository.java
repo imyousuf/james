@@ -8,8 +8,8 @@
 
 package org.apache.james.usermanager;
 
-import org.apache.avalon.blocks.*;
-import org.apache.arch.*;
+import org.apache.avalon.interfaces.*;
+import org.apache.java.lang.*;
 import org.apache.java.util.*;
 import java.util.*;
 import java.io.*;
