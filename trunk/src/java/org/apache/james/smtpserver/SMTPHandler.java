@@ -11,6 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,7 +60,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.39 $
+ * @version This is $Revision: 1.40 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
