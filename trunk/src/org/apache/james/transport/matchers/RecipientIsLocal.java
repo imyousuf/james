@@ -22,12 +22,16 @@ public class RecipientIsLocal extends GenericRecipientMatcher {
 
     public void init() {
         //This shouldn't change after startup
-        localhosts = getMailetContext().getServerNames();
+        localhosts = new Vector();
+        for (Iterator i = getMailetContext().getServerNames().iterator(); i.hasNext(); ) {
+            localhosts.add(i.next().toString().toLowerCase());
+        }
     }
 
     public boolean matchRecipient(MailAddress recipient) {
         //This might change after startup
         Collection users = getMailetContext().getLocalUsers();
-        return localhosts.contains(recipient.getHost()) && users.contains(recipient.getUser());
+        return localhosts.contains(recipient.getHost().toLowerCase())
+                && users.contains(recipient.getUser());
     }
 }
