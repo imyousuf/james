@@ -21,7 +21,7 @@ import org.apache.arch.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class POP3Handler implements Composer, Stoppable, Configurable, Service {
+public class POP3Handler implements Composer, Stoppable, Configurable, Service, TimeServer.Bell {
 
     private SimpleComponentManager comp;
     private Configuration conf;
@@ -29,6 +29,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service {
     private Store store;
     private Store.ObjectRepository userRepository;
     private MessageContainerRepository userInbox;
+    private TimeServer timeServer;
 
     private Socket socket;
     private BufferedReader in;
@@ -71,6 +72,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service {
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
         this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
+        this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         this.servername = conf.getConfiguration("servername", "localhost").getValue();
         this.postmaster = conf.getConfiguration("postmaster", "postmaster@" + this.servername).getValue();
         this.softwaretype = "Apache James POP3 v @@version@@";
@@ -95,11 +97,15 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service {
     public void run() {
     	
         try {
+            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
             state = AUTHENTICATION_READY;
             user = "unknown";
             out.println("+OK" + this.servername + " POP3 server (" + this.softwaretype + ") ready ");
-            while (parseCommand(in.readLine()));
+            while (parseCommand(in.readLine())) {
+                timeServer.resetAlarm(this.toString());
+            }
             socket.close();
+            timeServer.removeAlarm("RemoteManager");
             logger.log("Connection closed", "POP3Server", logger.INFO);
 
         } catch (Exception e) {
@@ -109,6 +115,15 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service {
         }
     }
     
+    public void wake(String name, String memo) {
+        logger.log("Connection timeout on socket", "POP3Server", logger.ERROR);
+        try {
+            out.println("Connection timeout. Closing connection");
+            socket.close();
+        } catch (IOException e) {
+        }
+    }
+
     private boolean parseCommand(String command) {
 //        if (command == null) return false;
         logger.log("Command recieved: " + command, "POP3Server", logger.INFO);

@@ -22,7 +22,7 @@ import org.apache.arch.*;
  * @author Federico Barbieri <scoobie@systemy.it>
  * @version 0.9
  */
-public class SMTPHandler implements Composer, Configurable, Stoppable {
+public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell {
 
 	public static String SERVER_NAME = "SERVER_NAME";
 	public static String POSTMASTER = "POSTMASTER";
@@ -50,6 +50,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
     private MessageSpool spool;    
     private Logger logger;
     private IdProvider idp;
+    private TimeServer timeServer;
 
     private String servername;
     private String postmaster;
@@ -69,6 +70,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         spool = (MessageSpool) comp.getComponent("spool");
         idp = (IdProvider) comp.getComponent("idprovider");
+        timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         state = new Hashtable();
 
         servername = conf.getConfiguration("servername", "localhost").getValue();
@@ -103,14 +105,14 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
             // Initially greet the connector
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
+            timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
             out.println("220 " + this.servername + " SMTP server (" + this.softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
-            out.flush();
 
-            for  (String commandLine = in.readLine();
-                commandLine != null && parseCommand(commandLine);
-                commandLine = in.readLine()) out.flush();
+            while  (parseCommand(in.readLine())) {
+                timeServer.resetAlarm(this.toString());
+            }
             socket.close();
-
+            timeServer.removeAlarm("RemoteManager");
         } catch (SocketException e) {
             logger.log("Socket to " + remoteHost + " closed remotely.", "SMTPServer", logger.DEBUG);
         } catch (InterruptedIOException e) {
@@ -128,9 +130,19 @@ public class SMTPHandler implements Composer, Configurable, Stoppable {
         }
     }
 
+    public void wake(String name, String memo) {
+        logger.log("Connection timeout on socket", "SMTPServer", logger.ERROR);
+        try {
+            out.println("Connection timeout. Closing connection");
+            socket.close();
+        } catch (IOException e) {
+        }
+    }
+
     private boolean parseCommand(String command)
     throws Exception {
             
+        if (command == null) return false;
         logger.log("Command recieved: " + command, "SMTPServer", logger.INFO);
         StringTokenizer commandLine = new StringTokenizer(command.trim(), " :");
         int arguments = commandLine.countTokens();
