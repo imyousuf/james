@@ -33,7 +33,7 @@ Legal:
 
   <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
-  <property name="build.compiler" value="classic"/> 
+  <property name="build.compiler" value="classic"/>
 
   <!--
     these are here only for those who use jikes compiler. For other
@@ -257,9 +257,9 @@ Legal:
     <available property="jndi.present" classname="javax.naming.InitialContext" />
 
     <mkdir dir="${build.classes}"/>
- 
-    <javac srcdir="${build.src}" 
-           destdir="${build.classes}" 
+
+    <javac srcdir="${build.src}"
+           destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
            deprecation="${deprecation}">
@@ -381,15 +381,9 @@ Legal:
     <copy file="${scripts.dir}/run.bat" tofile="${dist.dir}/bin/run.bat"/>
     <copy file="${scripts.dir}/run.sh" tofile="${dist.dir}/bin/run.sh"/>
     <copy file="${conf.dir}/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
-    <chmod dir="${dist.dir}" perm="go-rwx" />
-    <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
-    <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
-    <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
-
     <copy todir="${dist.dir}/conf">
       <fileset dir="${conf.dir}">
         <include name="inet*"/>
-        <include name="maildatabase*"/>
         <include name="*.properties"/>
       </fileset>
     </copy>
@@ -398,6 +392,11 @@ Legal:
     <replace file="${dist.dir}/README" token="@@version@@" value="${version}"/>
     <copy file="LICENSE.txt" tofile="${dist.dir}/LICENSE"/>
     <copy file="build.xml" tofile="${dist.dir}/build.xml"/>
+
+    <chmod dir="${dist.dir}" perm="go-rwx" />
+    <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
+    <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
+    <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
   </target>
 
 
@@ -452,7 +451,7 @@ Legal:
        <param name="-use"/>
        <param name="-doctitle" value="${Name}"/>
        <param name="-windowtitle" value="${Name} API"/>
-       <param name="-bottom" 
+       <param name="-bottom"
               value="&quot;Copyright &#169; 2001 Apache Jakarta Project. All Rights Reserved.&quot;"/>
       </doclet>
     </javadoc>
@@ -477,7 +476,7 @@ Legal:
        <param name="-use"/>
        <param name="-doctitle" value="Mailet"/>
        <param name="-windowtitle" value="$Mailet API"/>
-       <param name="-bottom" 
+       <param name="-bottom"
               value="&quot;Copyright &#169; 2001 Apache Jakarta Project. All Rights Reserved.&quot;"/>
       </doclet>
     </javadoc>
@@ -691,7 +690,7 @@ Legal:
 
   </target>
 
-  <!-- 
+  <!--
        ===================================================================
                  Unit test targets
        ===================================================================
