@@ -20,7 +20,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.14 $ Committed on $Date: 2003/07/21 02:56:08 $ by: $Author: serge $ -->
+<!-- $Revision: 1.40.2.15 $ Committed on $Date: 2003/07/24 01:45:58 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -763,7 +763,17 @@
       <!-- If you are not using a database, you can leave this section unchanged. -->
       <!-- These connections are referred to by name in URLs elsewhere in the config file. -->
       <data-sources>
+         <!--
+              James has previously used an in-house connection pool, Mordred.
+              Mordred is being deprecated in favor of Jakarta Commons DBCP.
+              To use DBCP:    org.apache.james.util.mordred.JdbcDataSource
+              To use Mordred: org.apache.james.util.dbcp.JdbcDataSource
 
+              Change it back, of course, to use Mordred.
+
+              NOTE: DBCP is configured to recover from a database server outage.
+                    This, alone, may be reason for you to give it a try.
+         -->
          <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
          <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
          <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
@@ -777,7 +787,7 @@
          <!-- If you see "SQLException: Giving up... no connections available." in your -->
          <!-- log files or bounced mail you should increase this value -->
          <!--
-         <data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
+         <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
             <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
             <user>username</user>

@@ -73,7 +73,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * <li><b>max_idle</b> - The maximum number of idle connections.  0 means no limit.  (default 0)</li>
  * </ul>
  *
- * @version CVS $Revision: 1.1.2.1 $
+ * @version CVS $Revision: 1.1.2.2 $
  */
 public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,
@@ -98,11 +98,23 @@ public class JdbcDataSource extends AbstractLogEnabled
             String user = configuration.getChild("user").getValue(null);
             String password = configuration.getChild("password").getValue(null);
 
-            //First cut at this
-            //This approach can't survive a database outage, so this is a sidewase upgrade
-            //  from mordred feature-wise, although upgrade from potential upgrades and
-            //  maintenance perspective.
-            source = new BasicDataSource();
+            // This inner class extends DBCP's BasicDataSource, and
+            // turns on validation (using Connection.isClosed()), so
+            // that the pool can recover from a server outage.
+            source = new BasicDataSource() {
+                protected synchronized javax.sql.DataSource createDataSource()
+                        throws SQLException {
+                    if (dataSource != null) {
+                        return (dataSource);
+                    } else {
+                        javax.sql.DataSource ds = super.createDataSource();
+                        connectionPool.setTestOnBorrow(true);
+                        connectionPool.setTestOnReturn(true);
+                        return ds;
+                    }
+                }
+            };
+
             source.setDriverClassName(driver);
             source.setUrl(dburl);
             source.setUsername(user);
@@ -115,6 +127,22 @@ public class JdbcDataSource extends AbstractLogEnabled
 
             //This is necessary, otherwise a connection could hang forever
             source.setMaxWait(configuration.getChild("max_wait").getValueAsInteger(5000));
+
+            // DBCP uses a PrintWriter approach to logging.  This
+            // Writer class will bridge between DBCP and Avalon
+            // Logging. Unfortunately, DBCP 1.0 is clueless about the
+            // concept of a log level.
+            final java.io.Writer writer = new java.io.CharArrayWriter() {
+                public void flush() {
+                    // flush the stream to the log
+                    if (JdbcDataSource.this.getLogger().isErrorEnabled()) {
+                        JdbcDataSource.this.getLogger().error(toString());
+                    }
+                    reset();    // reset the contents for the next message
+                }
+            };
+
+            source.setLogWriter(new PrintWriter(writer, true));
 
             /*
             Extra debug for first cut
