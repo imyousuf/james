@@ -19,7 +19,7 @@ public class SenderIs extends GenericMatcher {
 
     private Collection senders;
 
-    public void init(String condition) {
+    public void init() {
         StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
         senders = new Vector();
         while (st.hasMoreTokens()) {

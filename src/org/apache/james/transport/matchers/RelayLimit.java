@@ -26,7 +26,7 @@ public class RelayLimit extends GenericMatcher {
         limit = Integer.parseInt(getCondition());
     }
 
-    public Collection match(Mail mail) throws MessagingException {
+    public Collection match(Mail mail) throws javax.mail.MessagingException {
         MimeMessage mm = mail.getMessage();
         int count = 0;
         for (Enumeration e = mm.getAllHeaders(); e.hasMoreElements();) {

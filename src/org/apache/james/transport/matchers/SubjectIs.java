@@ -20,7 +20,7 @@ import java.util.*;
  */
 
 public class SubjectIs extends GenericMatcher {
-    public Collection match(Mail mail) throws MessagingException {
+    public Collection match(Mail mail) throws javax.mail.MessagingException {
         MimeMessage mm = mail.getMessage();
         String subject = mm.getSubject();
         if (subject != null && subject.equals(getCondition())) {

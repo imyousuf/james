@@ -8,6 +8,7 @@
 package org.apache.james.transport;
 
 import java.util.*;
+import javax.mail.*;
 import org.apache.avalon.*;
 import org.apache.mailet.*;
 import org.apache.james.core.*;
@@ -35,7 +36,7 @@ public class MailetLoader implements Component, Configurable {
     }
 
     public Mailet getMailet(String mailetName, MailetContext context, Configuration configuration)
-    throws MailetException {
+    throws MessagingException {
         try {
             for (int i = 0; i < mailetPackages.size(); i++) {
                 String className = (String)mailetPackages.elementAt(i) + mailetName;
@@ -53,11 +54,10 @@ public class MailetLoader implements Component, Configurable {
                 }
             }
             throw new ClassNotFoundException("Requested mailet not found: " + mailetName + ".  looked in " + mailetPackages.toString());
-        } catch (MailetException me) {
+        } catch (MessagingException me) {
             throw me;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            throw new MailetException("Could not load mailet (" + mailetName + ")", t);
+        } catch (Exception e) {
+            throw new MailetException("Could not load mailet (" + mailetName + ")", e);
         }
     }
 }
