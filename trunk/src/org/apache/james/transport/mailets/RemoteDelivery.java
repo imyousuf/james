@@ -29,19 +29,21 @@ import javax.mail.internet.*;
 /**
  * Receive  a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
- * store it in the "delayed" Repository and set an Alarm. After "delayTime" the
+ * store it in the "outgoing" Repository and set an Alarm. After "delayTime" the
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
  * the mail will be considered underiverable and will be returned to sender.
  *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
+public class RemoteDelivery extends GenericMailet implements Runnable {
 
-    private MailRepository delayed;
-    private TimeServer timeServer;
+    private SpoolRepository outgoing;
+    //private TimeServer timeServer;
     private long delayTime = 21600000; // default is 6*60*60*1000 mills
     private int maxRetries = 5; // default number of retries
+    private int deliveryThreadCount = 1; // default number of delivery threads
+    private Collection deliveryThreads = new Vector();
     private MailServer mailServer;
 
     public void init() throws MailetException {
@@ -54,21 +56,35 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
         } catch (Exception e) {
         }
         ComponentManager comp = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
+        //timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
 
-        // Instanziate the a MailRepository for delayed mails
+        // Instanziate the a MailRepository for outgoing mails
         Store store = (Store) comp.getComponent(Interfaces.STORE);
-        String delayedPath = getInitParameter("delayed");
-        if (delayedPath == null) {
-            delayedPath = "../var/mail/delayed";
+        String outgoingPath = getInitParameter("outgoing");
+        if (outgoingPath == null) {
+            outgoingPath = "file:///../var/mail/outgoing";
         }
-        delayed = (MailRepository) store.getPrivateRepository(delayedPath, MailRepository.MAIL, Store.ASYNCHRONOUS);
+        outgoing = (SpoolRepository) store.getPrivateRepository(outgoingPath, SpoolRepository.SPOOL, Store.ASYNCHRONOUS);
 
+        /*
         int i = 0;
-        for (Enumeration e = delayed.list(); e.hasMoreElements(); ) {
+        //Viewing list of outgoing messages, and queueing them up to be sent... need to change this
+        for (Enumeration e = outgoing.list(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
             timeServer.setAlarm(key, this, ++i * 10000);
-            log("delayed message " + key + " set for delivery in " + (i * 10) + " seconds");
+            log("outgoing message " + key + " set for delivery in " + (i * 10) + " seconds");
+        }
+        */
+
+        //Start up a number of threads
+        try {
+            deliveryThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
+        } catch (Exception e) {
+        }
+        for (int i = 0; i < deliveryThreadCount; i++) {
+            Thread t = new Thread(this, "Remote delivery thread (" + i + ")");
+            t.start();
+            deliveryThreads.add(t);
         }
     }
 
@@ -83,6 +99,7 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
      */
     private void deliver(MailImpl mail) {
         try {
+            log("attempting to deliver " + mail.getName());
             MimeMessage message = mail.getMessage();
             Collection recipients = mail.getRecipients();
             MailAddress rec = (MailAddress) recipients.iterator().next();
@@ -90,7 +107,8 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
             InternetAddress addr[] = new InternetAddress[recipients.size()];
             int j = 0;
             for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
-                addr[j] = new InternetAddress(i.next().toString());
+                rec = (MailAddress)i.next();
+                addr[j] = rec.toInternetAddress();
             }
 
             if (addr.length > 0) {
@@ -98,25 +116,25 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
                 for (Iterator i = getMailetContext().getMailServers(host).iterator(); i.hasNext();) {
                     try {
                         String outgoingmailserver = i.next().toString ();
+                        log("attempting delivery of " + mail.getName() + " to host " + outgoingmailserver);
                         URLName urlname = new URLName("smtp://" + outgoingmailserver);
 
                         Transport transport = Session.getDefaultInstance(System.getProperties(), null).getTransport(urlname);
-
-                        transport.connect ();
+                        transport.connect();
                         transport.sendMessage(message, addr);
-                        transport.close ();
+                        transport.close();
+                        log("mail (" + mail.getName() + ") sent successfully to " + outgoingmailserver);
                         return;
                     } catch (MessagingException me) {
-                        if (!i.hasNext())
+                        if (!i.hasNext()) {
                             throw me;
+                        }
                     }
                 }
                 throw new MessagingException("No route found to " + host);
+            } else {
+                log("no recipients specified... not sure how this could have happened.");
             }
-
-            log("Mail sent");
-            //We've succeeded somehow!!!  Cheers!
-            return;
         } catch (Exception ex) {
             //We should do a better job checking this... if the failure is a general
             //connect exception, this is less descriptive than more specific SMTP command
@@ -125,7 +143,7 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
 
             //Unable to deliver message after numerous tries... fail accordingly
             ex.printStackTrace();
-            failMessage (mail, "Delivery failure: " + ex.toString ());
+            failMessage(mail, "Delivery failure: " + ex.toString());
         }
     }
 
@@ -136,39 +154,28 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
      * @param reason java.lang.String
      */
     private void failMessage(MailImpl mail, String reason) {
-        log("Exception delivering mail: " + reason);
+        log("Exception delivering mail (" + mail.getName() + ": " + reason);
         if (!mail.getState().equals(Mail.ERROR)) {
             mail.setState(Mail.ERROR);
             mail.setErrorMessage("1");
         }
         int retries = Integer.parseInt(mail.getErrorMessage());
         if (retries > maxRetries) {
-            log("Sending back message " + mail.getName () + " after " + retries + " retries");
-            //log("Sending back message " + mail.getMessage ().getMessageID () + " after " + retries + " retries");
+            log("Sending back message " + mail.getName() + " after max (" + retries + ") retries reached");
             try {
-                //FIXME: need much better logging of why this message failed, including the
-                //original message as an attachment.  q.q.v. old james stuff.
-                MimeMessage reply = (MimeMessage) (mail.getMessage()).reply(false);
-                reply.setSubject("Unable to deliver this message to recipients: " + reason);
-                Collection recipients = new Vector ();
-                recipients.add(mail.getSender().toString());
-                InternetAddress addr[] = {new InternetAddress(mail.getSender().toString())};
-                reply.setRecipients(javax.mail.Message.RecipientType.TO, addr);
-                reply.setFrom(getMailetContext().getPostmaster().toInternetAddress());
-
-                mailServer.sendMail(getMailetContext().getPostmaster(), recipients, reply);
-            } catch (Exception ignore) {
-                // FIXME: cannot destroy mails... what should we do here ?
-                log("Unable to reply. Destroying message");
-                //This should go to straight to the postmaster... but I'm sleepy
+                getMailetContext().bounce(mail, reason);
+            } catch (MessagingException me) {
+                log("encountered unexpected messaging exception while bouncing message: " + me.getMessage());
             }
         } else {
+            //Change the name (unique identifier) of this message... we want to save a new copy
+            // of it, so change the unique idea for restoring
             mail.setName(mail.getName() + retries);
-            log("Storing message " + mail.getName() + " into delayed after " + retries + " retries");
+            log("Storing message " + mail.getName() + " into outgoing after " + retries + " retries");
             ++retries;
             mail.setErrorMessage(retries + "");
-            delayed.store(mail);
-            timeServer.setAlarm(mail.getName(), this, delayTime);
+            outgoing.store(mail);
+            //timeServer.setAlarm(mail.getName(), this, delayTime);
         }
     }
 
@@ -180,7 +187,7 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
      * For this message, we take the list of recipients, organize these into distinct
      * servers, and duplicate the message for each of these servers, and then call
      * the deliver (messagecontainer) method for each server-specific
-     * messagecontainer ... that will handle storing it in the delayed queue if needed.
+     * messagecontainer ... that will handle storing it in the outgoing queue if needed.
      *
      * @param mail org.apache.mailet.Mail
      * @return org.apache.mailet.MessageContainer
@@ -189,7 +196,7 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
         MailImpl mail = (MailImpl)genericmail;
 
         //Do I want to give the internal key, or the message's Message ID
-        log("Remotly delivering mail " + mail.getName());
+        log("Remotely delivering mail " + mail.getName());
         Collection recipients = mail.getRecipients();
 
         //Must first organize the recipients into distinct servers (name made case insensitive)
@@ -200,7 +207,7 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
             Collection temp = (Collection)targets.get(targetServer);
             if (temp == null) {
                 temp = new Vector();
-                targets.put (targetServer, temp);
+                targets.put(targetServer, temp);
             }
             temp.add(target);
         }
@@ -208,27 +215,54 @@ public class RemoteDelivery extends GenericMailet implements TimeServer.Bell {
         //We have the recipients organized into distinct servers... put them into the
         //delivery store organized like this... this is ultra inefficient I think...
 
-        //remove the original message from the container... I guess I would
-        //just return null so the primary James stream stops consider this message
-        // ??????? this really doesn't look right... it should work, but ugghgghghghhh...
-        //delayed.remove (mail.getMessageId ());
-
-        //store the new message containers - organized by server
+        //store the new message containers, organized by server, in the outgoing mail repository
         String name = mail.getName();
         for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
             String host = (String) i.next();
-            Collection rec = (Collection) targets.get(host);
-            log("Sending mail to " + rec + " on " + host);
+            Collection rec = (Collection)targets.get(host);
+            log("sending mail to " + rec + " on " + host);
             mail.setRecipients(rec);
             mail.setName(name + "-to-" + host);
-            deliver(mail);
+            outgoing.store(mail);
+            //Set it to try to deliver (in a separate thread) immediately
+            //timeServer.setAlarm(mail.getName(), this, 0);
         }
         mail.setState(Mail.GHOST);
     }
 
+    public void destroy() {
+        //Wake up all threads from waiting for an accept
+        notifyAll();
+        /*
+        for (Iterator i = deliveryThreads.iterator(); i.hasNext(); ) {
+            Thread t = (Thread)i.next();
+            t.stop();
+        }
+        */
+    }
+
     public void wake(String name, String memo) {
-        MailImpl mail = delayed.retrieve(name);
+        log("waking for " + name + " with memo: " + memo);
+        MailImpl mail = outgoing.retrieve(name);
         deliver(mail);
-        delayed.remove(name);
+        outgoing.remove(name);
+    }
+
+    /**
+     * Handles checking the outgoing spool for new mail and delivering them if
+     * there are any
+     */
+    public void run() {
+        //Checks the pool and delivers a mail message
+        while (true) {
+            try {
+                String key = outgoing.accept(delayTime);
+                log(Thread.currentThread().getName() + " will process mail " + key);
+                MailImpl mail = outgoing.retrieve(key);
+                deliver(mail);
+                outgoing.remove(key);
+            } catch (Exception e) {
+            }
+        }
     }
 }
