@@ -13,7 +13,8 @@ import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.*;
+import org.apache.james.core.*;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
@@ -32,13 +33,13 @@ public interface MailRepository extends Store.Repository {
 
 
     /** Stores a message in this repository. Shouldn't this return the key under which it is stored? */
-    public void store(Mail mc) ;
+    public void store(MailImpl mc) ;
       
     /** Retrieves a message given a key. At the moment, keys can be obtained  from list() in superinterface Store.Repository */
-    public Mail retrieve(String key);
+    public MailImpl retrieve(String key);
     
     /** Removes a specified message */
-    public void remove(Mail mail); 
+    public void remove(MailImpl mail); 
 
     /** Removes a message identifed by key. */
     public void remove(String key) ;

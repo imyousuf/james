@@ -13,21 +13,18 @@ import org.apache.avalon.*;
 import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
-import org.apache.mail.Mail;
+import org.apache.mailet.*;
+import org.apache.james.core.*;
 import javax.mail.internet.*;
 import javax.mail.MessagingException;
 
 /**
- * Implementation of a MailRepository on a FileSystem.
+ * Implementation of a spool MailRepository on a FileSystem.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class MailFSRepository implements MailRepository {
+public class AvalonSpoolRepository implements SpoolRepository {
 
-    /**
-     * Define a STREAM repository. Streams are stored in the specified
-     * destination.
-     */
 
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;
@@ -38,7 +35,7 @@ public class MailFSRepository implements MailRepository {
     private String model;
     private Lock lock;
 
-    public MailFSRepository() {
+    public AvalonSpoolRepository() {
     }
 
     public void setAttributes(String name, String destination, String type, String model) {
@@ -91,9 +88,23 @@ public class MailFSRepository implements MailRepository {
         }
     }
 
+    public synchronized String accept() {
 
+        while (true) {
+            for(Enumeration e = or.list(); e.hasMoreElements(); ) {
+                Object o = e.nextElement();
+                if (lock.lock(o)) {
+                    return o.toString();
+                }
+            }
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
 
-    public synchronized void store(Mail mc) {
+    public synchronized void store(MailImpl mc) {
         try {
             String key = mc.getName();
             OutputStream out = sr.store(key);
@@ -107,8 +118,8 @@ public class MailFSRepository implements MailRepository {
         }
     }
 
-    public synchronized Mail retrieve(String key) {
-        Mail mc = (Mail) or.get(key);
+    public synchronized MailImpl retrieve(String key) {
+        MailImpl mc = (MailImpl) or.get(key);
         try {
             mc.setMessage(sr.retrieve(key));
         } catch (Exception me) {
@@ -117,7 +128,7 @@ public class MailFSRepository implements MailRepository {
         return mc;
     }
     
-    public synchronized void remove(Mail mail) {
+    public synchronized void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
