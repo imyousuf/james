@@ -65,18 +65,8 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
 
         for (Enumeration e = conf.getConfigurations("processor"); e.hasMoreElements(); ) {
             Configuration processorConf = (Configuration) e.nextElement();
-            //String className = processorConf.getAttribute("class");
             String processorName = processorConf.getAttribute("name");
             try {
-                //JamesMailetContext cont = new JamesMailetContext(context);
-                //cont.setConfiguration(c);
-                //cont.setComponentManager(comp);
-
-                //Should instead use the loader - SK
-                //Mailet mailet = (Mailet) Class.forName(className).newInstance();
-                //mailet.setMailetContext(cont);
-                //Mailet mailet = mailetLoader.getMailet(className, this, c);
-
                 LinearProcessor processor = new LinearProcessor();
                 processor.setLogger(logger);
                 processor.init();
@@ -123,23 +113,6 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
             }
         }
 
-        /*
-        //I HAVE NO IDEA WHY THIS LOOP HAPPENS A SECOND TIME - Serge
-        for (Enumeration e = conf.getConfigurations("processor"); e.hasMoreElements(); ) {
-            Configuration c = (Configuration) e.nextElement();
-            String processorName = c.getAttribute("name");
-            try {
-                Mailet mailet = (Mailet) context.get(processorName);
-                mailet.init();
-                logger.log("processor " + processorName + " initialized", "Processor", logger.INFO);
-            } catch (Exception ex) {
-                logger.log("Unable to init processor " + processorName + ": " + ex, "Processor", logger.ERROR);
-                throw ex;
-            }
-        }
-        */
-        //rootMailet = (Mailet) context.get("root");
-        //errorMailet = (Mailet) context.get("error");
     }
 
     /**
