@@ -15,6 +15,8 @@
 <p>Released 1 December 2001</p>
 <ul>
 <li>(DA) (update) Fixed POP3 message size bug that prevented retrieval</li>
+<li>(SK) (code) Added Mordred database connection pooling.  It is the marriage of Town's db pooling code and Excalibur's configuration.</li>
+<li>(SK) (update) Changed MailImpl.getSize() to getMessageSize() and from int to long.</li>
 <li>(SK) (docs) Small updates to documentation</li>
 <li>(SK) (code) Added JDBCListserv, straight JDBC implementation of old TownListserv that extends GenericListserv</li>
 <li>(SK) (update) Patched bug in GenericListserv for when subject was null</li>
