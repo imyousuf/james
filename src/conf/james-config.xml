@@ -15,7 +15,7 @@ are preceeded by a CHECKME! or CONFIRM? comment in the left margin.
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldstein $-->
+$Revision: 1.29 $ Committed on $Date: 2002/09/04 17:05:38 $ by: $Author: pgoldstein $-->
 
 <config>
    <James>
@@ -35,7 +35,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
          <servername>localhost</servername>
       </servernames>
 
-      <!-- Set whether user names are case sensitive or insensitive -->
+      <!-- Set whether user names are case sensitive or case insensitive -->
       <!-- Set whether to enable local aliases -->
       <usernames ignoreCase="TRUE" enableAliases="TRUE" enableForwarding="TRUE"/>
 
@@ -113,9 +113,9 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
             <passThrough> true </passThrough>
          </mailet>
 
-         <!-- If you want to notify the sender their message was marked as spam, uncomment this         -->
+         <!-- If you want to notify the sender their message generated an error, uncomment this         -->
          <!--<mailet match="All" class="NotifySender"/>-->
-         <!-- If you want to notify the postmaster that a message was marked  as spam, uncomment this  -->
+         <!-- If you want to notify the postmaster that a message generated an error, uncomment this  -->
          <!--<mailet match="All" class="NotifyPostmaster"/>-->
       </processor>
 
@@ -125,7 +125,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
 
-         <!-- If the host is handled by this server and it did not get  locally delivered,  this is an invalid recipient -->
+         <!-- If the host is handled by this server and it did not get locally delivered, this is an invalid recipient -->
          <mailet match="HostIsLocal" class="ToProcessor">
             <processor>error</processor>
          </mailet>
@@ -134,7 +134,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
                   e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*, 192.168.0.*"-->
 
          <!-- This matcher-mailet pair can prevent relaying...
-          if you change  this,  you risk making your mail server an open relay point for  spam.
+          if you change this, you risk making your mail server an open relay point for spam.
 
                 NOTE 1: the order of matcher-mailets is important: it must come after
                 valid local recipients have been dealt with but before any attempt is
@@ -142,7 +142,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
 
                 NOTE 2: Add your own network, if you want to relay mail outwards
 
-                NOTE 3: If you use SMTP AUTH, you may want to comment this
+                NOTE 3: If you use SMTP AUTH, you may want to comment this out
                 so users who are on the road can still use the server -->
 
          <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
@@ -211,9 +211,9 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
 
    <remotemanager>
       <port>4555</port>
-      <!--  uncomment this if you want to bind to a specific  inetaddress -->
+      <!--  uncomment this if you want to bind to a specific inetaddress -->
       <!--<bind> </bind>-->
-      <!--  uncomment this if you want to use TLS (SSL)  on this port -->
+      <!--  uncomment this if you want to use TLS (SSL) on this port -->
       <!--<useTLS>true</useTLS>-->
       <handler>
          <!-- helloName is the single host name this instance of James will
@@ -407,7 +407,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
       </repositories>
 
       <!-- Spool repository configuration -->
-      <!-- The spool repository is a singular location where incoming mails are temporarily stored before being processed.
+      <!-- The spool repository is the single location where incoming mails are temporarily stored before being processed.
         (ex. file://c:/james/spool/) -->
       <!-- Default setting: file based repository - enter path ( :/// for absolute) -->
       <spoolRepository>
@@ -425,8 +425,8 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
    <users-store>
       <!-- Configure User Repositories here.
       User repositories are required for the following purposes:
-      - hold information about Users of the James mail server
-      - hold lists of users for the listserv mailet
+      - holding information about Users of the James mail server
+      - holding lists of users for the listserv mailet
       Currently, 2 different storage options are available:
       - file-based storage using Java serialisation
       - database-backed storage
@@ -557,7 +557,7 @@ $Revision: 1.28 $ Committed on $Date: 2002/08/23 06:09:42 $ by: $Author: pgoldst
          <name>default</name>
          <!-- normal priority == 5, max-priority = 10 -->
          <priority>5</priority>
-         <!-- are threads deamon threads ? -->
+         <!-- are threads daemon threads ? -->
          <is-daemon>false</is-daemon>
          <max-threads>40</max-threads>
          <!-- these are ignored at the moment but will be fixed in later revisions -->
