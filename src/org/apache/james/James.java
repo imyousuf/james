@@ -75,7 +75,10 @@ public class James
     private String inboxRootURL;
     private UsersRepository localusers;
     private Collection serverNames;
-    private static long count;
+    // this used to be long, but increment operations on long are not
+    // thread safe. Changed to int. 'int' should be ok, because id generation
+    // is based on System time and count
+    private static int count;
     private String helloName;
     private String hostName;
     private Map mailboxes; //Not to be shared!
