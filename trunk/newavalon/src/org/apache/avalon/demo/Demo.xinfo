@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <meta>
+
+    <contributors>
+      <author name="Charles Benett" email="charles@benett1.demon.co.uk"/>
+    </contributors>
+
+  </meta>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.avalon.demo.DemoService" version="1.0" />
+  </services>
+
+  <dependancies>
+    <dependancy>
+      <name>org.apache.avalon.services.Store</name>
+      <service name="org.apache.avalon.services.Store" version="1.0"/>
+    </dependancy>
+    <dependancy>
+      <name>org.apache.avalon.services.SocketServer</name>
+      <service name="org.apache.avalon.services.SocketServer" version="1.0"/>
+    </dependancy>
+  </dependancies>
+</blockinfo>
