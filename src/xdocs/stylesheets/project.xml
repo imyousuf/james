@@ -23,11 +23,13 @@
     </menu>
 
     <menu name="Guides">
+        <item name="James API"		href="javadocs/index.html"/>
         <item name="Mailet API"     href="/mailet/index.html"/>
-        <item name="Using LDAP"     href="/usingLDAP_v1_2.html"/>
         <item name="Using JDBC"     href="/usingJDBC_v2.0.html"/>
+        <item name="Using LDAP"     href="/usingLDAP_v1_2.html"/>
         <item name="Using TLS"     href="/usingTLS_v1_2.html"/>
         <item name="Useful RFCs {web}"   href="http://jakarta.apache.org/james/rfclist"/>
+        
     </menu>
 
     <menu name="Get Involved {web}">
