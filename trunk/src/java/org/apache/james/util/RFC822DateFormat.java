@@ -27,7 +27,7 @@ public class RFC822DateFormat {
     private static TimeZone defaultTZ;
 
     static {
-        df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.US);
+        df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.ENGLISH);
         tz = new DecimalFormat("00");
         defaultTZ = TimeZone.getDefault();
     }
