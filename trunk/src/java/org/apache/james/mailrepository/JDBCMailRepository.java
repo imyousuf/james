@@ -287,7 +287,7 @@ public class JDBCMailRepository
 
     public synchronized boolean lock(String key) {
         if (lock.lock(key)) {
-            notifyAll();
+            //notifyAll();
             return true;
         } else {
             return false;
@@ -580,7 +580,6 @@ public class JDBCMailRepository
     protected Connection getConnection() {
         int attempts = 0;
         while (attempts < 1000) {
-            //System.err.println("trying " + attempts + " time");
             try {
                 return datasource.getConnection();
             } catch (SQLException e1) {
