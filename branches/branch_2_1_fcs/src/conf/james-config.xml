@@ -15,7 +15,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://jakarta.apache.org/james/documentation_v2_1.html -->
 
-<!-- $Revision: 1.40.2.1 $ Committed on $Date: 2003/01/10 06:43:38 $ by: $Author: noel $ -->
+<!-- $Revision: 1.40.2.2 $ Committed on $Date: 2003/02/11 18:18:07 $ by: $Author: noel $ -->
 
 <config>
    <James>
@@ -622,7 +622,7 @@
          <!--
          <data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
-            <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
+            <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
             <user>username</user>
             <password>password</password>
             <max>20</max>
