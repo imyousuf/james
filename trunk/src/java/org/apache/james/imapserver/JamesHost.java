@@ -947,10 +947,12 @@ public class JamesHost
         ACLMailbox userRootFolder = new FileMailbox();
         ACLMailbox userInbox = new FileMailbox();
         try{
+            setupLogger(userRootFolder);
             userRootFolder.configure(conf);
             userRootFolder.contextualize(context);
             userRootFolder.compose(compMgr);
             userRootFolder.prepareMailbox(user, userRootAbsName, user);
+            setupLogger(userInbox);
             userInbox.configure(conf);
             userInbox.contextualize(context);
             userInbox.compose(compMgr);
@@ -960,7 +962,7 @@ public class JamesHost
             userInbox.initialize();
             userInbox.setRights(user, MailServer.MDA, "lrswi");
         } catch (Exception e) {
-            getLogger().error("Exception creating new account: " + e);
+            getLogger().error("Exception creating new account ", e);
             return false;
         }
         userInboxRecord.initialize();
