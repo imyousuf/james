@@ -11,6 +11,7 @@ package org.apache.james.remotemanager;
 import org.apache.arch.*;
 import org.apache.avalon.blocks.*;
 import org.apache.james.*;
+import org.apache.james.transport.*;
 import org.apache.james.usermanager.*;
 import java.net.*;
 import java.io.*;
@@ -30,7 +31,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
     private ComponentManager comp;
     private Configuration conf;
     private Logger logger;
-    private UserManager userManager;
+    private UsersRepository userManager;
     private TimeServer timeServer;
 
     private BufferedReader in;
@@ -65,7 +66,8 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
         if (admaccount.isEmpty()) {
             logger.log("No Administrative account defined", "RemoteManager", logger.WARNING);
         }
-        this.userManager = (UserManager) comp.getComponent(Constants.USERS_MANAGER);
+        UserManager manager = (UserManager) comp.getComponent(Resources.USERS_MANAGER);
+        userManager = (UsersRepository) manager.getUserRepository("LocalUsers");
         logger.log("RemoteManager ...init end", "RemoteManager", logger.INFO);
     }
 
@@ -156,7 +158,7 @@ public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bel
                 return true;
             }
             try {
-                userManager.remove(user);
+                userManager.removeUser(user);
             } catch (Exception e) {
                 out.println("Error deleting user " + user + " : " + e.getMessage());
                 return true;

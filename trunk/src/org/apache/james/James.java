@@ -41,6 +41,7 @@ public class James implements MailServer, Block {
     private Store store;
     private MailRepository spool;
     private MailRepository localInbox;
+    private Vector serverNames;
     
     public James() {
     }
@@ -62,7 +63,7 @@ public class James implements MailServer, Block {
 
         context = new SimpleContext();
             // Get this server names 
-        Vector serverNames = new Vector();
+        serverNames = new Vector();
         for (Enumeration e = conf.getConfigurations("servernames.servername"); e.hasMoreElements(); ) {
             serverNames.addElement(((Configuration) e.nextElement()).getValue());
         }
@@ -108,11 +109,13 @@ public class James implements MailServer, Block {
             userManager.setConfiguration(conf.getConfiguration("usersManager"));
             userManager.setContext(context);
             userManager.setComponentManager(comp);
+            userManager.init();
         } catch (Exception e) {
             logger.log("Exception in UserManager init: " + e.getMessage(), "JAMES", logger.ERROR);
             throw e;
         }
         comp.put(Constants.USERS_MANAGER, userManager);
+        logger.log("Users Manager Opened", "JAMES", logger.INFO);
         
         POP3Server pop3Server = new POP3Server();
         try {
@@ -182,6 +185,7 @@ public class James implements MailServer, Block {
         if (!headers.isValid()) {
             throw new MessagingException("Some REQURED header field is missing. Invalid Message");
         }
+//        headers.setReceivedStamp("Unknown", (String) serverNames.elementAt(0));
         ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
         sendMail(new Mail(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
