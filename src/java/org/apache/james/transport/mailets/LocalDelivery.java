@@ -37,14 +37,15 @@ public class LocalDelivery extends GenericMailet {
                 errors.add(recipient);
             }
         }
-        if (errors.isEmpty()) {
-            mail.setState(Mail.GHOST);
-        } else {
-            getMailetContext().sendMail(mail.getSender(), errors, mail.getMessage(), Mail.ERROR);
-            //mail.setRecipients(errors);
-            //mail.setState(Mail.ERROR);
-            //mail.setErrorMessage("Unable to delivery locally message");
+
+        if (!errors.isEmpty()) {
+            //If there were errors, we need to send a message to the sender
+            //  with the details
+            getMailetContext().sendMail(mail.getSender(),
+                                        errors, mail.getMessage(), Mail.ERROR);
         }
+        //We always consume this message
+        mail.setState(Mail.GHOST);
     }
 
     public String getMailetInfo() {
