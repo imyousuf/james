@@ -73,9 +73,9 @@ public class JDBCAlias extends GenericMailet {
             }
 
             //Build the query
-            query = "SELECT " + getInitParameter("source_column")
+            query = "SELECT " + getInitParameter("target_column")
                     + " FROM " + tableName + " WHERE "
-                    + getInitParameter("target_column") + " = ?";
+                    + getInitParameter("source_column") + " = ?";
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
@@ -103,11 +103,12 @@ public class JDBCAlias extends GenericMailet {
         Collection recipientsToAdd = new Vector();
         try {
             conn = getConnection();
+            mappingStmt = conn.prepareStatement(query);
+
 
             for (Iterator i = recipients.iterator(); i.hasNext(); ) {
                 try {
                     MailAddress source = (MailAddress)i.next();
-                    mappingStmt = conn.prepareStatement(query);
                     mappingStmt.setString(1, source.toString());
                     mappingRS = mappingStmt.executeQuery();
                     if (!mappingRS.next()) {
@@ -128,12 +129,16 @@ public class JDBCAlias extends GenericMailet {
                     }
                 } finally {
                     mappingRS.close();
-                    mappingStmt.close();
                 }
             }
         } catch (SQLException sqle) {
             throw new MessagingException("Error accessing database", sqle);
         } finally {
+            try {
+                mappingStmt.close();
+            } catch (Exception e) {
+                //ignore
+            }
             try {
                 conn.close();
             } catch (Exception e) {
