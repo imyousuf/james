@@ -18,7 +18,7 @@
 package org.apache.james.transport;
 
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.excalibur.thread.ThreadPool;
+//import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentException;
@@ -38,6 +38,8 @@ import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.*;
 
 import javax.mail.MessagingException;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -47,7 +49,7 @@ import java.util.Iterator;
  * processor, and removing them from the spool when processing is
  * complete.
  *
- * @version CVS $Revision: 1.20.4.14 $ $Date: 2004/04/13 19:53:34 $
+ * @version CVS $Revision: 1.20.4.15 $ $Date: 2004/04/14 04:36:15 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -85,21 +87,43 @@ public class JamesSpoolManager
     private int numThreads;
 
     /**
-     * The ThreadPool containing the spool threads.
+     * The ThreadPool containing worker threads.
+     *
+     * This used to be used, but for threads that lived the entire
+     * lifespan of the application.  Currently commented out.  In
+     * the future, we could use a thread pool to run short-lived
+     * workers, so that we have a smaller number of readers that
+     * accept a message from the spool, and dispatch to a pool of
+     * worker threads that process the message.
      */
-    private ThreadPool workerPool;
+    // private ThreadPool workerPool;
 
     /**
      * The ThreadManager from which the thread pool is obtained.
      */
-    private ThreadManager threadManager;
+    // private ThreadManager threadManager;
+
+    /**
+     * Number of active threads
+     */
+    private int numActive;
+
+    /**
+     * Spool threads are active
+     */
+    private boolean active;
+
+    /**
+     * Spool threads
+     */
+    private Collection spoolThreads;
 
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(ComponentManager comp)
         throws ComponentException {
-        threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
+        // threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
         compMgr = new DefaultComponentManager(comp);
     }
 
@@ -117,7 +141,7 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        workerPool = threadManager.getThreadPool( "default" );
+        // workerPool = threadManager.getThreadPool( "default" );
         MailStore mailstore
             = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
         spool = mailstore.getInboundSpool();
@@ -295,8 +319,15 @@ public class JamesSpoolManager
                     .append(" Thread(s)");
             getLogger().info(infoBuffer.toString());
         }
-        for ( int i = 0 ; i < numThreads ; i++ )
-            workerPool.execute(this);
+
+        active = true;
+        numActive = 0;
+        spoolThreads = new java.util.ArrayList(numThreads);
+        for ( int i = 0 ; i < numThreads ; i++ ) {
+            Thread reader = new Thread(this, "Spool Thread #" + i);
+            spoolThreads.add(reader);
+            reader.start();
+        }
     }
 
     /**
@@ -312,7 +343,8 @@ public class JamesSpoolManager
             getLogger().info("Spool=" + spool.getClass().getName());
         }
 
-        while(true) {
+        numActive++;
+        while(active) {
             String key = null;
             try {
                 MailImpl mail = (MailImpl)spool.accept();
@@ -348,6 +380,8 @@ public class JamesSpoolManager
                     spool.unlock(key);
                 }
                 mail = null;
+            } catch (InterruptedException ie) {
+                getLogger().info("Interrupted JamesSpoolManager: " + Thread.currentThread().getName());
             } catch (Throwable e) {
                 if (getLogger().isErrorEnabled()) {
                     getLogger().error("Exception processing " + key + " in JamesSpoolManager.run "
@@ -369,7 +403,11 @@ public class JamesSpoolManager
                 */
             }
         }
-        
+        if (getLogger().isInfoEnabled())
+        {
+            getLogger().info("Stop JamesSpoolManager: " + Thread.currentThread().getName());
+        }
+        numActive--;
     }
 
     /**
@@ -470,6 +508,20 @@ public class JamesSpoolManager
      */
     public void dispose() {
         getLogger().info("JamesSpoolManager dispose...");
+        active = false; // shutdown the threads
+        for (Iterator it = spoolThreads.iterator(); it.hasNext(); ) {
+            ((Thread) it.next()).interrupt(); // interrupt any waiting accept() calls.
+        }
+
+        long stop = System.currentTimeMillis() + 60000;
+        // give the spooler threads one minute to terminate gracefully
+        while (numActive != 0 && stop > System.currentTimeMillis()) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception ignored) {}
+        }
+        getLogger().info("JamesSpoolManager thread shutdown completed.");
+
         Iterator it = processors.keySet().iterator();
         while (it.hasNext()) {
             String processorName = (String)it.next();
