@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.17 $
+ * @version This is $Revision: 1.18 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -216,7 +216,7 @@ public class JamesSpoolManager
                                         .append(ex.toString());
                             getLogger().error( errorBuffer.toString(), ex );
                         }
-                        System.err.println("Unable to init mailet " + matcherName);
+                        System.err.println("Unable to init matcher " + matcherName);
                         System.err.println("Check spool manager logs for more details.");
                         ex.printStackTrace();
                         //System.exit(1);
@@ -399,8 +399,7 @@ public class JamesSpoolManager
                             .append("Exception in processor <")
                             .append(processorName)
                             .append(">");
-                System.err.println(exceptionBuffer.toString());
-                e.printStackTrace();
+                getLogger().error(exceptionBuffer.toString(), e);
                 if (processorName.equals(Mail.ERROR)) {
                     // We got an error on the error processor...
                     // kill the message
