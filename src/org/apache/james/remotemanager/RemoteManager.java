@@ -8,9 +8,10 @@
 
 package org.apache.james.remotemanager;
 
+import org.apache.arch.*;
 import org.apache.avalon.blocks.*;
 import org.apache.james.*;
-import org.apache.arch.*;
+import org.apache.james.usermanager.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -24,13 +25,12 @@ import java.util.*;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RemoteManager implements Block, SocketServer.SocketHandler, TimeServer.Bell {
+public class RemoteManager implements SocketServer.SocketHandler, TimeServer.Bell, Composer, Configurable {
 
     private ComponentManager comp;
     private Configuration conf;
     private Logger logger;
-    private Store store;
-    private Store.ObjectRepository userRepository;
+    private UserManager userManager;
     private TimeServer timeServer;
 
     private BufferedReader in;
@@ -54,24 +54,18 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("RemoteManager init...", "RemoteManager", logger.INFO);
-        this.store = (Store) comp.getComponent(Interfaces.STORE);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("JAMESRemoteControlListener", SocketServer.DEFAULT, conf.getConfiguration("port", "4554").getValueAsInt(), this);
         admaccount = new Hashtable();
-        for (Enumeration e = conf.getConfigurations("AdministratorAccounts.Account"); e.hasMoreElements();) {
+        for (Enumeration e = conf.getConfigurations("administrator_accounts.account"); e.hasMoreElements();) {
             Configuration c = (Configuration) e.nextElement();
             admaccount.put(c.getAttribute("login"), c.getAttribute("password"));
         }
         if (admaccount.isEmpty()) {
             logger.log("No Administrative account defined", "RemoteManager", logger.WARNING);
         }
-        try {
-            this.userRepository = (Store.ObjectRepository) store.getPublicRepository("MailUsers");
-        } catch (RuntimeException e) {
-            logger.log("Cannot open public Repository MailUsers", "RemoteManager", logger.ERROR);
-            throw e;
-        }
+        this.userManager = (UserManager) comp.getComponent(Constants.USERS_MANAGER);
         logger.log("RemoteManager ...init end", "RemoteManager", logger.INFO);
     }
 
@@ -87,7 +81,7 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
             r_out = s.getOutputStream();
             out = new PrintWriter(r_out, true);
             logger.log("Access from " + remoteHost + "(" + remoteIP + ")", "RemoteManager", logger.INFO);
-            out.println(Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION);
+            out.println("JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION);
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
@@ -151,7 +145,7 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
                 out.println("usage: adduser [username] [password]");
                 return true;
             }
-            userRepository.store(user, passwd);
+            userManager.addUser(user, passwd);
             out.println("User " + user + " added");
             out.flush();
             logger.log("User " + user + " added", "RemoteManager", logger.INFO);
@@ -162,7 +156,7 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
                 return true;
             }
             try {
-                userRepository.remove(user);
+                userManager.remove(user);
             } catch (Exception e) {
                 out.println("Error deleting user " + user + " : " + e.getMessage());
                 return true;
@@ -171,7 +165,7 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
             logger.log("User " + user + " deleted", "RemoteManager", logger.INFO);
         } else if (command.equalsIgnoreCase("LISTUSERS")) {
             out.println("Existing accounts:");
-            for (Enumeration e = userRepository.list(); e.hasMoreElements();) {
+            for (Enumeration e = userManager.list(); e.hasMoreElements();) {
                 out.println("user: " + (String) e.nextElement());
             }
         } else if (command.equalsIgnoreCase("HELP")) {

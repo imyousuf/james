@@ -12,13 +12,16 @@ import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
-import org.apache.avalon.blocks.*;
-import org.apache.james.*;
-import org.apache.java.util.*;
+
 import org.apache.arch.*;
+import org.apache.mail.Mail;
+import org.apache.avalon.blocks.*;
+import org.apache.java.util.*;
+import org.apache.james.*;
+import org.apache.james.usermanager.*;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.*;
-import org.apache.mail.Mail;
 
 /**
  * @author Federico Barbieri <scoobie@systemy.it>
@@ -26,12 +29,13 @@ import org.apache.mail.Mail;
  */
 public class POP3Handler implements Composer, Stoppable, Configurable, Service, TimeServer.Bell, Contextualizable {
 
-    private SimpleComponentManager comp;
+    private ComponentManager comp;
     private Configuration conf;
+    private Context context;
     private Logger logger;
     private MailServer mailServer;
     private MailRepository userInbox;
-    private Store.ObjectRepository userRepository;
+    private UserManager userManager;
     private TimeServer timeServer;
 
     private Socket socket;
@@ -63,11 +67,11 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
     }
     
     public void setComponentManager(ComponentManager comp) {
-        this.comp = (SimpleComponentManager) comp;
+        this.comp = comp;
     }
 
     public void setContext(Context context) {
-        this.servername = (String) context.get("servername");
+        this.context = context;
     }
     
     public void init() 
@@ -75,9 +79,10 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
         
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         this.mailServer = (MailServer) comp.getComponent(Interfaces.MAIL_SERVER);
-        this.userRepository = (Store.ObjectRepository) comp.getComponent("mailUsers");
+        this.userManager = (UserManager) comp.getComponent(Constants.USERS_MANAGER);
         this.timeServer = (TimeServer) comp.getComponent(Interfaces.TIME_SERVER);
-        this.softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
+        this.softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
+        this.servername = (String) context.get(Constants.HELO_NAME);
         this.userMailbox = new Vector();
     }
     
@@ -156,7 +161,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             return true;
         } else if (command.equalsIgnoreCase("PASS")) {
             if (state == AUTHENTICATION_USERSET && argument != null) {
-                if (userRepository.test(user, argument)) {
+                if (userManager.test(user, argument)) {
                     state = TRANSACTION;
                     out.println("+OK. Welcome " + user);
                     userInbox = mailServer.getUserInbox(user);

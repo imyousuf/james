@@ -4,6 +4,7 @@ import java.net.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.xbill.DNS.*;
+import org.apache.arch.*;
 import java.util.*;
 
 /**
@@ -11,7 +12,7 @@ import java.util.*;
  * Creation date: (3/4/00 12:11:14 PM)
  * @author: Serge Knystautas <sergek@lokitech.com>
  */
-public class SmartTransport {
+public class SmartTransport implements Component {
 	private Resolver resolver;
 	private Cache cache;
 	private byte dnsCredibility;

@@ -5,27 +5,19 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
- 
-package org.apache.avalon.blocks;
 
-import javax.mail.internet.*;
-import javax.mail.MessagingException;
+package org.apache.james.transport.match;
+
+import org.apache.mail.Mail;
 import java.util.*;
-import org.apache.arch.*;
-import org.apache.james.*;
-import java.io.*;
-
 /**
+ * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
+public class All extends AbstractMatch {
 
-public interface MailServer {
-
-    public void sendMail(String sender, Vector recipients, MimeMessage msg)
-    throws MessagingException;
-    
-    public void sendMail(String sender, Vector recipients, InputStream msg)
-    throws MessagingException;
-    
-    public MailRepository getUserInbox(String userName);
+    public Vector match(Mail mail, String condition) {
+        return mail.getRecipients();
+    }
 }
+    

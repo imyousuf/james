@@ -8,10 +8,9 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.java.util.*;
 import org.apache.arch.*;
+import org.apache.avalon.blocks.*;
+import org.apache.java.util.*;
 import org.apache.james.*;
 import java.net.*;
 import java.util.Date;
@@ -20,19 +19,22 @@ import java.util.Date;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class POP3Server implements SocketServer.SocketHandler, Block {
+public class POP3Server implements SocketServer.SocketHandler, Configurable, Composer, Service, Contextualizable {
 
-    private ComponentManager comp;
+    private Context context;
     private Configuration conf;
-    private Logger logger;
+    private ComponentManager comp;
     private ThreadManager threadManager;
-    private SimpleComponentManager pop3CM;
-    private SimpleContext context;
+    private Logger logger;
 
     public POP3Server() {}
 
     public void setConfiguration(Configuration conf) {
         this.conf = conf;
+    }
+    
+    public void setContext(Context context) {
+        this.context = context;
     }
     
     public void setComponentManager(ComponentManager comp) {
@@ -44,26 +46,6 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("POP3Server init...", "POP3Server", logger.INFO);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        Store.Repository mailUsers = (Store.Repository) store.getPublicRepository("MailUsers");
-        logger.log("Public Repository MailUsers opened", "POP3Server", logger.INFO);
-        pop3CM = new SimpleComponentManager(comp);
-        context = new SimpleContext();
-        pop3CM.put("mailUsers", mailUsers);
-        String servername = "";
-        try {
-            servername = conf.getConfiguration("servername").getValue();
-        } catch (ConfigurationException ce) {
-        }
-        if (servername.equals("")) {
-            try {
-                servername = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException ue) {
-                servername = "localhost";
-            }
-        }
-        logger.log("Localhost name set to: " + servername, "POP3Server", logger.INFO);
-        context.put("servername", servername);
         SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
         socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
         logger.log("POP3Server ...init end", "POP3Server", logger.INFO);
@@ -75,7 +57,7 @@ public class POP3Server implements SocketServer.SocketHandler, Block {
             POP3Handler handler = new POP3Handler();
             handler.setConfiguration(conf.getConfiguration("pop3handler"));
             handler.setContext(context);
-            handler.setComponentManager(pop3CM);
+            handler.setComponentManager(comp);
             handler.init();
             handler.parseRequest(s);
             threadManager.execute((Runnable) handler);

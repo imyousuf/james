@@ -6,16 +6,18 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.remotemanager;
+package org.apache.james.transport.match;
 
-import org.apache.james.JamesConstants;
+import org.apache.mail.Mail;
+import java.util.*;
+import org.apache.arch.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Constants extends JamesConstants {
+public interface Match extends Component, Composer, Contextualizable {
     
-    public static final String SOFTWARE_NAME = "JAMES RemoteAdministration Tool";
-
+    public Vector match(Mail mail, String condition);
 }
+    

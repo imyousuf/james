@@ -5,7 +5,7 @@
  * version 1.1, a copy of which has been included  with this distribution in *
  * the LICENSE file.                                                         *
  *****************************************************************************/
-package org.apache.james.james;
+package org.apache.james.transport;
 
 import java.io.*;
 import java.net.*;
@@ -15,8 +15,8 @@ import org.apache.avalon.blocks.*;
 import org.apache.java.util.*;
 import org.apache.james.*;
 import org.apache.mail.*;
-import org.apache.james.james.servlet.*;
-import org.apache.james.james.match.*;
+import org.apache.james.transport.servlet.*;
+import org.apache.james.transport.match.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
@@ -60,6 +60,21 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JamesSpoolManager init...", "JAMES", logger.INFO);
         this.spool = (MailRepository) comp.getComponent(Constants.SPOOL_REPOSITORY);
+
+		StringBuffer servers = new StringBuffer ();
+		for (Enumeration e = conf.getConfigurations("DNSservers.server") ; e.hasMoreElements(); ) {
+			Configuration c = (Configuration)e.nextElement ();
+			servers.append (c.getValue () + " ");
+		}
+		boolean authoritative = conf.getConfiguration("authoritative", "false").getValueAsBoolean();
+		SmartTransport transport = new SmartTransport (servers.toString(), authoritative);
+		comp.put(Resources.TRANSPORT, transport);
+
+		String delayedRepository = conf.getConfiguration("repository", "file://../tmp/").getValue();
+		Store store = (Store) comp.getComponent(Interfaces.STORE);
+		MailRepository delayed = (MailRepository) store.getPrivateRepository(delayedRepository, MailRepository.MAIL, Store.ASYNCHRONOUS);
+		comp.put(Resources.TMP_REPOSITORY, delayed);
+		
         this.servletMatchs = new Vector();
         this.servlets = new Vector();
         servletsRootPath = conf.getConfiguration("servlets").getAttribute("rootpath");
@@ -118,16 +133,16 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                             break;
                         }
                         GenericMailServlet servlet = (GenericMailServlet) servlets.elementAt(i);
-			Mail response = null;
-			try {
+                        Mail response = null;
+                        try {
                             response = servlet.service(next);
-			} catch (Exception ex) {
-                ex.printStackTrace();
-			    response = next;
-			    response.setState(Mail.ERROR);
-			    response.setErrorMessage("Exception during mail servlet service: " + ex.getMessage());
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            response = next;
+                            response.setState(Mail.ERROR);
+                            response.setErrorMessage("Exception during mail servlet service: " + ex.getMessage());
                             logger.log("Exception during mail servlet service: " + ex.getMessage(), "JAMES", logger.ERROR);
-			}
+                        }
                         if (response == null) {
                             unprocessed.setElementAt(null, i + 1);
                         } else if (response.getState() == Mail.ERROR) {
@@ -201,7 +216,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         if (opNot) {
             conditions = conditions.substring(1);
         }
-        String matchClass = "org.apache.james.james.match." + conditions;
+        String matchClass = "org.apache.james.transport.match." + conditions;
         String param = "";
         int sep = conditions.indexOf("=");
         if (sep != -1) {
