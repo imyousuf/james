@@ -13,7 +13,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.*;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.avalon.phoenix.Service;
 
 /**
  * The interface for Phoenix blocks to the James MailServer
@@ -21,11 +20,11 @@ import org.apache.avalon.phoenix.Service;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2001/10/31 14:31:25 $ by: $Author: serge $
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2002/01/12 01:10:30 $ by: $Author: darrell $
  */
 public interface MailServer
-    extends Service {
+{
 
     String ROLE = "org.apache.james.services.MailServer";
 

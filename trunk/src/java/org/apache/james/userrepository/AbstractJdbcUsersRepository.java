@@ -48,7 +48,7 @@ import java.io.File;
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepository
-    implements UsersRepository, Loggable, Component, Contextualizable, Composable, Configurable, Initializable
+    implements Component, Contextualizable, Composable, Configurable, Initializable
 {
     protected Context context;
     protected Map m_sqlParameters;

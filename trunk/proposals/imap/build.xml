@@ -2,8 +2,6 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.1 $  Committed on $Date: 2001/10/31 14:06:57 $ by: $Author: serge $
-
 Authors:
  Federico Barbieri <scoobie@systemy.it>
  Serge
@@ -24,14 +22,14 @@ Legal:
 
   <!--
     Give user a chance to override without editing this file
-    (and without typing -D each time he <s it)
+    (and without typing -D each time he compiles it)
   -->
   <property file=".ant.properties"/>
   <property file="${user.home}/.ant.properties"/>
 
   <property name="name" value="james"/>
   <property name="Name" value="James"/>
-  <property name="version" value="2.0a1-dev"/>
+  <property name="version" value="2.0a2"/>
   <property name="year" value="1999-2001"/>
 
   <!-- There should be no need to override default compiler but need to change
@@ -108,15 +106,15 @@ Legal:
        ===================================================================
   -->
   <property name="xerces.jar" value="${lib.dir}/xerces.jar"/>
-  <property name="framework.jar" value="${lib.dir}/avalon-framework-20010912.jar"/>
-  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20010919.jar"/>
-  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20010919.jar"/>
-  <property name="logkit.jar" value="${lib.dir}/logkit-20010912.jar"/>
-  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20010925.bar"/>
-  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20010925.jar"/>
-  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20010925.jar"/>
-  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20010925.jar"/>
-  <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20010919.jar"/>
+  <property name="framework.jar" value="${lib.dir}/avalon-framework-20011115.jar"/>
+  <property name="excalibur.jar" value="${lib.dir}/avalon-excalibur-20011120.jar"/>
+  <property name="scratchpad.jar" value="${lib.dir}/avalon-scratchpad-20011122.jar"/>
+  <property name="logkit.jar" value="${lib.dir}/logkit-1.0.jar"/>
+  <property name="cornerstone.bar" value="${lib.dir}/cornerstone-20011230.bar"/>
+  <property name="phoenix.client.jar" value="${lib.dir}/phoenix-client-20011230.jar"/>
+  <property name="phoenix-loader.jar" value="${lib.dir}/phoenix-loader-20011230.jar"/>
+  <property name="phoenix-engine.jar" value="${lib.dir}/phoenix-engine-20011230.jar"/>
+  <property name="avalon-jmx.jar" value="${lib.dir}/avalon-jmx-20011230.jar"/>
 
   <!--
     <property name="activation.jar" value="${lib.dir}/activation.jar"/>
@@ -365,6 +363,7 @@ Legal:
   <target name="dist-lite" depends="sar">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
+    <mkdir dir="${dist.dir}/ext"/>
 
     <delete dir="${dist.dir}/apps/${name}"/>
     <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
