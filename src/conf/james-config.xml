@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.21 $
-    Committed on $Date: 2002/03/11 14:35:40 $ by: $Author: serge $
+    This is $Revision: 1.22 $
+    Committed on $Date: 2002/03/11 21:46:32 $ by: $Author: serge $
 -->
 <config>
 
@@ -192,6 +192,14 @@
             <maxRetries> 5 </maxRetries>
             <!-- The number of threads that should be trying to deliver outgoing messages -->
             <deliveryThreads> 1 </deliveryThreads>
+            <!-- A single mail server to deliver all outgoing messages.  This is useful if this is a backup or failover machine, or if you otherwise want all messages to be sent only to particular mail server, regardless of the email addresses specified in the message -->
+            <!--
+            <gateway> otherserver.mydomain.com </gateway>
+            -->
+            <!-- If your gateway mail server is listening on a port other than 25, you can set James to connect to it on that port -->
+            <!--
+            <gatewayPort> 25 </gatewayPort>
+            -->
           </mailet>
         </processor>
 
