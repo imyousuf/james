@@ -148,6 +148,9 @@
 <ul>
 <li><a href="#1">Would you please teach me how to set up a mailing list</a></li>
 <li><a href="#2">Is James an Open Relay for Spam?</a></li>
+<li><a href="#3">I can send messages to James, but nobody is receiving them.  What do I do?</a></li>
+<li><a href="#4">I can send people messages via James, but nobody can send me messages.  What do I do?</a></li>
+<li><a href="#5">I'm trying to debug messages that James is trying to deliver.  Where should I look?</a></li>
 </ul>
 </p>
                             </blockquote>
@@ -184,9 +187,9 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;mailet match=&quot;CommandForListserv=james@localhost&quot; 
-	class=&quot;AvalonListservManager&quot;&gt;
-	&lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
+&lt;mailet match=&quot;CommandForListserv=james@localhost&quot;
+    class=&quot;AvalonListservManager&quot;&gt;
+    &lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
 &lt;/mailet&gt;
 </pre></td>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
@@ -216,11 +219,11 @@
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
 &lt;mailet match=&quot;RecipientIs=james@localhost&quot; class=&quot;AvalonListserv&quot;&gt;
- 	&lt;membersonly&gt; false &lt;/membersonly&gt;
- 	&lt;attachmentsallowed&gt; true &lt;/attachmentsallowed&gt;
- 	&lt;replytolist&gt; true &lt;/replytolist&gt;
- 	&lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
- 	&lt;subjectprefix&gt;JamesList&lt;/subjectprefix&gt;
+    &lt;membersonly&gt; false &lt;/membersonly&gt;
+    &lt;attachmentsallowed&gt; true &lt;/attachmentsallowed&gt;
+    &lt;replytolist&gt; true &lt;/replytolist&gt;
+    &lt;repositoryName&gt;list-james&lt;/repositoryName&gt;
+    &lt;subjectprefix&gt;JamesList&lt;/subjectprefix&gt;
 &lt;/mailet&gt;
 </pre></td>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
@@ -244,10 +247,10 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;repository name=&quot;list-james&quot; 
-	class=&quot;org.apache.james.userrepository.ListUsersJdbcRepository&quot; 
-	destinationURL=&quot;db://maildb/lists/list-james&quot;&gt;
-	&lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
+&lt;repository name=&quot;list-james&quot;
+    class=&quot;org.apache.james.userrepository.ListUsersJdbcRepository&quot;
+    destinationURL=&quot;db://maildb/lists/list-james&quot;&gt;
+    &lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
 &lt;/repository&gt;
 </pre></td>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
@@ -271,8 +274,8 @@
     <tr>
       <td bgcolor="#023264" width="1"><img src="/images/void.gif" width="1" height="1" vspace="0" hspace="0" border="0"/></td>
       <td bgcolor="#ffffff"><pre>
-&lt;repository name=&quot;list-james&quot; 
-	class=&quot;org.apache.james.userrepository.UsersFileRepository&quot;&gt;
+&lt;repository name=&quot;list-james&quot;
+    class=&quot;org.apache.james.userrepository.UsersFileRepository&quot;&gt;
     &lt;destination URL=&quot;file://var/lists/list-james/&quot;/&gt;
 &lt;/repository&gt;
 </pre></td>
@@ -304,6 +307,54 @@
                                     <p>In some simple tests of mail relays James appears to be an open relay, properly configured it is not. </p>
                                                 <p>Because James is an email application platform it currently accepts all mail delivered to it via SMTP for processing. Only after the mail has been recieved does this processing begin.</p>
                                                 <p>This means that James accepts Spam. However the default configuration, and any sensible re-configuration has a number of anti-spam measures which will prevent the re-transmisson of spam from James. This makes it a blackhole for spam.<br />Danny Angus</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="3" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I can send messages to James, but nobody is receiving them.  What do I do?"><strong>I can send messages to James, but nobody is receiving them.  What do I do?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>Check that you've added valid DNS servers to your James installation.  Email delivery requires the use of special mail related DNS information (MX records), so James needs to explicitly be given DNS servers.  Look at your config.xml file for a &lt;dnsserver&gt; section and add one or more DNS servers.<br />Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="4" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I can send people messages via James, but nobody can send me messages.  What do I do?"><strong>I can send people messages via James, but nobody can send me messages.  What do I do?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>You need to do one of two things:
+  <ol>
+  <li>Update your domain's DNS entries so there are MX records that point to the machine that is running James.  Note that it is illegal for MX records to point to IP addresses.  You need to point MX records to a valid CNAME or A name entry, and then map that eventually to an IP address.</li>
+  <li>You could alternatively give people an email address with IP addresses.  Most people will think it's a very strange email address, but hello@[192.168.0.1] is a valid email address.  Note that you need to wrap the IP address in brackets.</li>
+  </ol>
+  Serge Knystautas</p>
+                            </blockquote>
+      </td></tr>
+      <tr><td><br/></td></tr>
+    </table>
+                                                <a name="5" />
+                                                    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica,sanserif">
+          <a name="I'm trying to debug messages that James is trying to deliver.  Where should I look?"><strong>I'm trying to debug messages that James is trying to deliver.  Where should I look?</strong></a>
+        </font>
+      </td></tr>
+      <tr><td>
+        <blockquote>
+                                    <p>First step is to look in the log directory at the James.Mailet.log file.  Look for entries that include the text "RemoteDelivery".  This should provide some high-level debug information of James's attempt to delivery mail remotely.</p>
+                                                <p>If you want to delve into the code, look at the RemoteDelivery mailet.  You may also want to review the mail repository source code for the repository type you are using (file, db, etc...).<br />Serge Knystautas</p>
                             </blockquote>
       </td></tr>
       <tr><td><br/></td></tr>
