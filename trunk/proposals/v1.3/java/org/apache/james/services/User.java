@@ -12,8 +12,8 @@ package org.apache.james.services;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/05/16 14:00:30 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/07 10:39:39 $
+ * $Revision: 1.2 $
  */
 
 public interface User {
@@ -27,5 +27,14 @@ public interface User {
      * Return true if pass matches password of this user.
      */
     boolean verifyPassword(String pass);
+
+    /**
+     * Sets new password from String. No checks made on guessability of
+     * password.
+     *
+     * @param newPass the String that is the new password.
+     * @returns true if newPass successfully added
+     */
+    public boolean setPassword(String newPass);
 
 }

@@ -585,7 +585,8 @@ public class James
      */
     public boolean addUser(String userName, String password) {
 	boolean success;
-	DefaultJamesUser user = new DefaultJamesUser(userName, password);
+	DefaultJamesUser user = new DefaultJamesUser(userName, "SHA");
+	user.setPassword(password);
 	user.initialize();
         success = localusers.addUser(user);
         if (useIMAPstorage && success) {

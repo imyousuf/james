@@ -38,8 +38,8 @@ import org.apache.james.services.User;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/06 13:17:48 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: charlesb $ on $Date: 2001/06/07 10:39:48 $
+ * $Revision: 1.5 $
  */
 public class UsersFileRepository
     extends AbstractLoggable
@@ -121,7 +121,8 @@ public class UsersFileRepository
     public synchronized void addUser(String name, Object attributes) {
 	if (attributes instanceof String)
         {
-	    User newbie = new DefaultUser(name, (String) attributes);
+	    User newbie = new DefaultUser(name, "SHA");
+            newbie.setPassword( (String) attributes);
 	    addUser(newbie);
 	}
         else
