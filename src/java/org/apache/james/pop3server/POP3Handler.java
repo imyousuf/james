@@ -661,11 +661,11 @@ public class POP3Handler
                                     .append(ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
-                                    .append(") does not exist.");
+                                    .append(") already deleted.");
                         responseString = responseBuffer.toString();
                         writeLoggedFlushedResponse(responseString);
                     }
-                } catch (ArrayIndexOutOfBoundsException npe) {
+                } catch (IndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
                                 .append(ERR_RESPONSE)
@@ -743,11 +743,11 @@ public class POP3Handler
                                     .append(ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
-                                    .append(") does not exist.");
+                                    .append(") already deleted.");
                         responseString = responseBuffer.toString();
                         writeLoggedFlushedResponse(responseString);
                     }
-                } catch (ArrayIndexOutOfBoundsException npe) {
+                } catch (IndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
                                 .append(ERR_RESPONSE)
@@ -819,14 +819,14 @@ public class POP3Handler
                                 .append(ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
-                                .append(") does not exist.");
+                                .append(") already deleted.");
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                 } else {
                     userMailbox.set(num, DELETED);
-                    writeLoggedFlushedResponse(OK_RESPONSE + " Message removed");
+                    writeLoggedFlushedResponse(OK_RESPONSE + " Message deleted");
                 }
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
@@ -903,7 +903,7 @@ public class POP3Handler
                                 .append(ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
-                                .append(") deleted.");
+                                .append(") already deleted.");
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                 }
@@ -913,7 +913,7 @@ public class POP3Handler
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
                 writeLoggedFlushedResponse(responseString);
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
@@ -988,7 +988,7 @@ public class POP3Handler
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
                 writeLoggedFlushedResponse(responseString);
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
