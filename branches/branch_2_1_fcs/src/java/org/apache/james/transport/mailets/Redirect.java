@@ -68,7 +68,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.ArrayList;
 
 
 import javax.mail.Message;
@@ -81,6 +81,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.james.util.RFC2822Headers;
 import org.apache.james.util.RFC822DateFormat;
+import org.apache.james.core.MailImpl;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -92,25 +93,6 @@ import org.apache.mailet.MailAddress;
 *This mailet can produce listserver, forward and notify behaviour, with the original
 *message intact, attached, appended or left out altogether.<BR>
 *This built in functionality is controlled by the configuration as laid out below.</P>
-*<P>However it is also designed to be easily subclassed to make authoring redirection
-*mailets simple. <BR>
-*By extending it and overriding one or more of these methods new behaviour can
-*be quickly created without the author having to address any other issue than
-*the relevant one:</P>
-*<UL>
-*<LI>attachError() , should error messages be appended to the message</LI>
-*<LI>getAttachmentType(), what should be attached to the message</LI>
-*<LI>getInLineType(), what should be included in the message</LI>
-*<LI>getMessage(), The text of the message itself</LI>
-*<LI>getRecipients(), the recipients the mail is sent to</LI>
-*<LI>getReplyTo(), where replys to this message will be sent</LI>
-*<LI>getSender(), who the mail is from</LI>
-*<LI>getSubjectPrefix(), a prefix to be added to the message subject</LI>
-*<LI>getTo(), a list of people to whom the mail is *apparently* sent</LI>
-*<LI>getPassThrough(), should this mailet allow the original message to continue processing or GHOST it.</LI>
-*<LI>isStatic(), should this mailet run the get methods for every mail, or just
-*once. </LI>
-*</UL>
 *<P>The configuration parameters are:</P>
 *<TABLE width="75%" border="0" cellspacing="2" cellpadding="2">
 *<TR>
@@ -118,14 +100,16 @@ import org.apache.mailet.MailAddress;
 *<TD width="80%">A comma delimited list of email addresses for recipients of
 *this message, it will use the &quot;to&quot; list if not specified. These
 *addresses will only appear in the To: header if no &quot;to&quot; list is
-*supplied.</TD>
+*supplied.<BR>
+*It can include constants &quot;sender&quot;, &quot;postmaster&quot; and &quot;returnPath&quot;</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;to&gt;</TD>
 *<TD width="80%">A comma delimited list of addresses to appear in the To: header,
 *the email will only be delivered to these addresses if they are in the recipients
 *list.<BR>
-*The recipients list will be used if this is not supplied.</TD>
+*The recipients list will be used if this is not supplied.<BR>
+*It can include constants &quot;sender&quot;, &quot;postmaster&quot;, &quot;returnPath&quot; and &quot;unaltered&quot;</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;sender&gt;</TD>
@@ -186,15 +170,26 @@ import org.apache.mailet.MailAddress;
 *</TR>
 *<TR>
 *<TD width="20%">&lt;replyto&gt;</TD>
-*<TD width="80%">A single email address to appear in the Rely-To: header, can
+*<TD width="80%">A single email address to appear in the Reply-To: header, can
 *also be &quot;sender&quot; or &quot;postmaster&quot;, this header is not
-*set if this is omited.</TD>
+*set if this is omitted.</TD>
+*</TR>
+*<TR>
+*<TD width="20%">&lt;returnPath&gt;</TD>
+*<TD width="80%">A single email address to appear in the Return-Path: header, can
+*also be &quot;sender&quot; or &quot;postmaster&quot; or &quot;null&quot;; this header is not
+*set if this parameter is omitted.</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;prefix&gt;</TD>
 *<TD width="80%">An optional subject prefix prepended to the original message
 *subject, for example:<BR>
 *Undeliverable mail: </TD>
+*</TR>
+*<TR>
+*<TD width="20%">&lt;isReply&gt;</TD>
+*<TD width="80%">TRUE or FALSE, if true the IN_REPLY_TO header will be set to the
+*id of the current message.</TD>
 *</TR>
 *<TR>
 *<TD width="20%">&lt;static&gt;</TD>
@@ -204,8 +199,6 @@ import org.apache.mailet.MailAddress;
 *their values.  This will boost performance where a redirect task
 *doesn't contain any dynamic values.  If this is FALSE, it tells the
 *mailet to recalculate the values for each e-mail processed.</P>
-*<P>Note: If you use "magic words" such as "sender" in the &lt;sender&gt;
-*tag, you must NOT use set static to TRUE.</P>
 *<P>This defaults to false.<BR>
 *</TD>
 *</TR>
@@ -240,69 +233,35 @@ import org.apache.mailet.MailAddress;
 *&lt;static&gt;TRUE&lt;/static&gt;<BR>
 *&lt;/mailet&gt;</P>
  *
- * @author  Danny Angus   <danny@thought.co.uk>
  *
  */
-public class Redirect extends GenericMailet {
 
+public class Redirect extends AbstractRedirect {
+            
     /**
-     * Controls certain log messages
-     */
-    private boolean isDebug = false;
-
-    // The values that indicate how to attach the original mail
-    // to the redirected mail.
-
-    private static final int UNALTERED           = 0;
-
-    private static final int HEADS               = 1;
-
-    private static final int BODY                = 2;
-
-    private static final int ALL                 = 3;
-
-    private static final int NONE                = 4;
-
-    private static final int MESSAGE             = 5;
-
-    private InternetAddress[] apparentlyTo;
-    private String messageText;
-    private Collection recipients;
-    private MailAddress replyTo;
-    private MailAddress sender;
-
-    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-    /**
-     *     returns one of these values to indicate how to attach the original message
-     *<ul>
-     *    <li>BODY : original message body is attached as plain text to the new message</li>
-     *    <li>HEADS : original message headers are attached as plain text to the new message</li>
-     *    <li>ALL : original is attached as plain text with all headers</li>
-     *    <li>MESSAGE : original message is attached as type message/rfc822, a complete mail message.</li>
-     *    <li>NONE : original is not attached</li>
-     *</ul>
+     * Returns a string describing this mailet.
      *
+     * @return a string describing this mailet
      */
-    public int getAttachmentType() {
-        if(getInitParameter("attachment") == null) {
-            return NONE;
-        } else {
-            return getTypeCode(getInitParameter("attachment"));
-        }
+    public String getMailetInfo() {
+        return "Resend Mailet";
+    }
+
+    /* ******************************************************************** */
+    /* ****************** Begin of getX and setX methods ****************** */
+    /* ******************************************************************** */
+    
+    /**
+     * @return the <CODE>static</CODE> init parameter
+    */
+    protected boolean isStatic() {
+        return isStatic;
     }
 
     /**
-     * returns one of these values to indicate how to append the original message
-     *<ul>
-     *    <li>UNALTERED : original message is the new message body</li>
-     *    <li>BODY : original message body is appended to the new message</li>
-     *    <li>HEADS : original message headers are appended to the new message</li>
-     *    <li>ALL : original is appended with all headers</li>
-     *    <li>NONE : original is not appended</li>
-     *</ul>
+     * @return the <CODE>inline</CODE> init parameter
      */
-    public int getInLineType() {
+    protected int getInLineType() throws MessagingException {
         if(getInitParameter("inline") == null) {
             return BODY;
         } else {
@@ -311,18 +270,20 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-     * Return a string describing this mailet.
-     *
-     * @return a string describing this mailet
+     * @return the <CODE>attachment</CODE> init parameter
      */
-    public String getMailetInfo() {
-        return "Resend Mailet";
+    protected int getAttachmentType() throws MessagingException {
+        if(getInitParameter("attachment") == null) {
+            return NONE;
+        } else {
+            return getTypeCode(getInitParameter("attachment"));
+        }
     }
 
     /**
-     * must return either an empty string, or a message to which the redirect can be attached/appended
+     * @return the <CODE>message</CODE> init parameter or an empty string if missing
      */
-    public String getMessage() {
+    protected String getMessage() throws MessagingException {
         if(getInitParameter("message") == null) {
             return "";
         } else {
@@ -331,25 +292,27 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-     * return true to allow thie original message to continue through the processor, false to GHOST it
+     * @return the <CODE>recipients</CODE> init parameter or SpecialAddress.SENDER
+     * or SpecialAddress.RETURN_PATH or null if missing
      */
-    public boolean getPassThrough() {
-        if(getInitParameter("passThrough") == null) {
-            return false;
-        } else {
-            return new Boolean(getInitParameter("passThrough")).booleanValue();
+    protected Collection getRecipients() throws MessagingException {
+        Collection newRecipients = new HashSet();
+        String addressList = (getInitParameter("recipients") == null)
+                                 ? getInitParameter("to")
+                                 : getInitParameter("recipients");
+        // if nothing was specified, return null meaning no change
+        if (addressList == null) {
+            return null;
         }
-    }
+        
+        MailAddress specialAddress = getSpecialAddress(addressList,
+                                        new String[] {"postmaster", "sender", "returnPath"});
+        if (specialAddress != null) {
+            newRecipients.add(specialAddress);
+            return newRecipients;
+        }
 
-    /**
-     * must return a Collection of recipient MailAddresses
-     */
-    public Collection getRecipients() {
-        Collection newRecipients           = new HashSet();
-        String addressList                 = (getInitParameter("recipients") == null)
-                                                 ? getInitParameter("to")
-                                                 : getInitParameter("recipients");
-        StringTokenizer st                 = new StringTokenizer(addressList, ",", false);
+        StringTokenizer st = new StringTokenizer(addressList, ",", false);
         while(st.hasMoreTokens()) {
             try {
                 newRecipients.add(new MailAddress(st.nextToken()));
@@ -361,85 +324,26 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-     * Returns the reply to address as a string.
-     *
-     * @return the replyto address for the mail as a string
+     * @return the <CODE>to</CODE> init parameter or SpecialAddress.SENDER
+     * or SpecialAddress.RETURN_PATH or SpecialAddress.UNALTERED or null if missing
      */
-    public MailAddress getReplyTo() {
-        String sr = getInitParameter("replyto");
-        if(sr != null) {
-            MailAddress rv;
-            if(sr.compareTo("postmaster") == 0) {
-                rv = getMailetContext().getPostmaster();
-                return rv;
-            }
-            if(sr.compareTo("sender") == 0) {
-                return null;
-            }
-            try {
-                rv = new MailAddress(sr);
-                return rv;
-            } catch(Exception e) {
-                log("Parse error in getReplyTo " + sr);
-            }
+    protected InternetAddress[] getTo() throws MessagingException {
+        String addressList = (getInitParameter("to") == null)
+                                 ? getInitParameter("recipients")
+                                 : getInitParameter("to");
+        // if nothing was specified, return null meaning no change
+        if (addressList == null) {
+            return null;
         }
-        return null;
-    }
 
-    /**
-     * returns the senders address, as a MailAddress
-     */
-    public MailAddress getSender() {
-        String sr = getInitParameter("sender");
-        if(sr != null) {
-            MailAddress rv;
-            if(sr.compareTo("postmaster") == 0) {
-                rv = getMailetContext().getPostmaster();
-                return rv;
-            }
-            if(sr.compareTo("sender") == 0) {
-                return null;
-            }
-            try {
-                rv = new MailAddress(sr);
-                return rv;
-            } catch(Exception e) {
-                log("Parse error in getSender " + sr);
-            }
+        MailAddress specialAddress = getSpecialAddress(addressList,
+                                        new String[] {"postmaster", "sender", "returnPath", "unaltered"});
+        if (specialAddress != null) {
+            InternetAddress[] iaarray = new InternetAddress[1];
+            iaarray[0] = specialAddress.toInternetAddress();
+            return iaarray;
         }
-        return null;
-    }
 
-    /**
-     * return true to reduce calls to getTo, getSender, getRecipients, getReplyTo amd getMessage
-     * where these values don't change (eg hard coded, or got at startup from the mailet config)<br>
-     * return false where any of these methods generate their results dynamically eg in response to the message being processed,
-     * or by refrence to a repository of users
-     */
-    public boolean isStatic() {
-        if(getInitParameter("static") == null) {
-            return false;
-        }
-        return new Boolean(getInitParameter("static")).booleanValue();
-    }
-
-    /**
-     * return a prefix for the message subject
-     */
-    public String getSubjectPrefix() {
-        if(getInitParameter("prefix") == null) {
-            return "";
-        } else {
-            return getInitParameter("prefix");
-        }
-    }
-
-    /**
-     * returns an array of InternetAddress 'es for the To: header
-     */
-    public InternetAddress[] getTo() {
-        String addressList        = (getInitParameter("to") == null)
-                                        ? getInitParameter("recipients") : getInitParameter("to");
         StringTokenizer rec       = new StringTokenizer(addressList, ",");
         int tokensn               = rec.countTokens();
         InternetAddress[] iaarray = new InternetAddress[tokensn];
@@ -456,10 +360,95 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-     * return true to append a description of any error to the main body part
-     * if getInlineType does not return "UNALTERED"
+     * @return the <CODE>replyto</CODE> init parameter or null if missing or == "sender"
      */
-    public boolean attachError() {
+    protected MailAddress getReplyTo() throws MessagingException {
+        String addressString = getInitParameter("replyto");
+        if(addressString != null) {
+            MailAddress specialAddress = getSpecialAddress(addressString,
+                                            new String[] {"postmaster", "sender"});
+            if (specialAddress != null) {
+                if (specialAddress == SpecialAddress.SENDER) {
+                    // means no change
+                    return null;
+                }
+                return specialAddress;
+            }
+            
+            try {
+                return new MailAddress(addressString);
+            } catch(Exception e) {
+                log("Parse error in getReplyTo: " + addressString);
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * @return the <CODE>returnPath</CODE> init parameter or SpecialAddress.NULL
+     * or SpecialAddress.SENDER or null if missing
+     */
+    protected MailAddress getReturnPath() throws MessagingException {
+        String addressString = getInitParameter("returnPath");
+        if(addressString != null) {
+            MailAddress specialAddress = getSpecialAddress(addressString,
+                                            new String[] {"postmaster", "sender", "null"});
+            if (specialAddress != null) {
+                return specialAddress;
+            }
+            
+            try {
+                return new MailAddress(addressString);
+            } catch(Exception e) {
+                log("Parse error in getReturnPath: " + addressString);
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * @return the <CODE>sender</CODE> init parameter or null if missing or == "sender"
+     */
+    protected MailAddress getSender() throws MessagingException {
+        String addressString = getInitParameter("sender");
+        if(addressString != null) {
+            MailAddress specialAddress = getSpecialAddress(addressString,
+                                            new String[] {"postmaster", "sender"});
+            if (specialAddress != null) {
+                if (specialAddress == SpecialAddress.SENDER) {
+                    // means no change: use FROM header; kept as is for compatibility
+                    return null;
+                }
+                return specialAddress;
+            }
+            
+            try {
+                return new MailAddress(addressString);
+            } catch(Exception e) {
+                log("Parse error in getSender: " + addressString);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return the <CODE>prefix</CODE> init parameter or an empty string if missing
+     */
+    protected String getSubjectPrefix() throws MessagingException {
+        if(getInitParameter("prefix") == null) {
+            return "";
+        } else {
+            return getInitParameter("prefix");
+        }
+    }
+
+    /**
+     * @return the <CODE>attachError</CODE> init parameter; false if missing
+     */
+    protected boolean attachError() throws MessagingException {
         if(getInitParameter("attachError") == null) {
             return false;
         } else {
@@ -468,193 +457,17 @@ public class Redirect extends GenericMailet {
     }
 
     /**
-      * init will setup static values for sender, recipients, message text, and reply to
-      * <br> if isStatic() returns true
-      * it calls getSender(), getReplyTo(), getMessage(), and getRecipients() and getTo()
-      *
-      */
-    public void init() throws MessagingException {
-        if (isDebug) {
-            log("Redirect init");
-        }
-        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
-        if(isStatic()) {
-            sender       = getSender();
-            replyTo      = getReplyTo();
-            messageText  = getMessage();
-            recipients   = getRecipients();
-            apparentlyTo = getTo();
-            if (isDebug) {
-                StringBuffer logBuffer =
-                    new StringBuffer(1024)
-                            .append("static, sender=")
-                            .append(sender)
-                            .append(", replyTo=")
-                            .append(replyTo)
-                            .append(", message=")
-                            .append(messageText)
-                            .append(" ");
-                log(logBuffer.toString());
-            }
-        }
-    }
-
-    /**
-     * Service does the hard work,and redirects the mail in the form specified
-     *
-     * @param mail the mail to process and redirect
-     * @throws MessagingException if a problem arising formulating the redirected mail
+     * @return the <CODE>isReply</CODE> init parameter; false if missing
      */
-    public void service(Mail mail) throws MessagingException {
-        if(!isStatic()) {
-            sender       = getSender();
-            replyTo      = getReplyTo();
-            messageText  = getMessage();
-            recipients   = getRecipients();
-            apparentlyTo = getTo();
+    protected boolean isReply() throws MessagingException {
+        if(getInitParameter("isReply") == null) {
+            return false;
         }
-
-        MimeMessage message = mail.getMessage();
-        MimeMessage reply = null;
-        //Create the message
-        if(getInLineType() != UNALTERED) {
-            if (isDebug) {
-                log("Alter message inline=:" + getInLineType());
-            }
-            reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(),
-                                                               null));
-            StringWriter sout = new StringWriter();
-            PrintWriter out   = new PrintWriter(sout, true);
-            Enumeration heads = message.getAllHeaderLines();
-            String head       = "";
-            StringBuffer headBuffer = new StringBuffer(1024);
-            while(heads.hasMoreElements()) {
-                headBuffer.append(heads.nextElement().toString()).append("\n");
-            }
-            head = headBuffer.toString();
-            boolean all = false;
-            if(messageText != null) {
-                out.println(messageText);
-            }
-            switch(getInLineType()) {
-                case ALL: //ALL:
-                    all = true;
-                case HEADS: //HEADS:
-                    out.println("Message Headers:");
-                    out.println(head);
-                    if(!all) {
-                        break;
-                    }
-                case BODY: //BODY:
-                    out.println("Message:");
-                    try {
-                        out.println(message.getContent().toString());
-                    } catch(Exception e) {
-                        out.println("body unavailable");
-                    }
-                    break;
-                default:
-                case NONE: //NONE:
-                    break;
-            }
-            MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
-            MimeBodyPart part       = new MimeBodyPart();
-            part.setText(sout.toString());
-            part.setDisposition("inline");
-            multipart.addBodyPart(part);
-            if(getAttachmentType() != NONE) {
-                part = new MimeBodyPart();
-                switch(getAttachmentType()) {
-                    case HEADS: //HEADS:
-                        part.setText(head);
-                        break;
-                    case BODY: //BODY:
-                        try {
-                            part.setText(message.getContent().toString());
-                        } catch(Exception e) {
-                            part.setText("body unavailable");
-                        }
-                        break;
-                    case ALL: //ALL:
-                        StringBuffer textBuffer =
-                            new StringBuffer(1024)
-                                .append(head)
-                                .append("\n\n")
-                                .append(message.toString());
-                        part.setText(textBuffer.toString());
-                        break;
-                    case MESSAGE: //MESSAGE:
-                        part.setContent(message, "message/rfc822");
-                        break;
-                }
-                part.setDisposition("Attachment");
-                multipart.addBodyPart(part);
-            }
-            reply.setContent(multipart);
-            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-            reply.setRecipients(Message.RecipientType.TO, apparentlyTo);
-        } else {
-            // if we need the original, create a copy of this message to redirect
-            reply = getPassThrough() ? new MimeMessage(message) : message;
-            if (isDebug) {
-                log("Message resent unaltered.");
-            }
-        }
-        //Set additional headers
-        reply.setSubject(getSubjectPrefix() + message.getSubject());
-        if(reply.getHeader(RFC2822Headers.DATE) == null) {
-            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-        }
-        
-        //
-         
-        if(replyTo != null) {
-            InternetAddress[] iart = new InternetAddress[1];
-            iart[0] = replyTo.toInternetAddress();
-            reply.setReplyTo(iart);
-        }
-        if(sender == null) {
-            reply.setHeader(RFC2822Headers.FROM, message.getHeader(RFC2822Headers.FROM, ","));
-            sender = new MailAddress(((InternetAddress)message.getFrom()[0]).getAddress());
-        } else {
-            reply.setFrom(sender.toInternetAddress());
-        }
-        //Send it off...
-        getMailetContext().sendMail(sender, recipients, reply);
-        if(!getPassThrough()) {
-            mail.setState(Mail.GHOST);
-        }
+        return new Boolean(getInitParameter("isReply")).booleanValue();
     }
-
-    /**
-     * A private method to convert types from string to int.
-     *
-     * @param param the string type
-     *
-     * @return the corresponding int enumeration
-     */
-    private int getTypeCode(String param) {
-        int code;
-        param = param.toLowerCase(Locale.US);
-        if(param.compareTo("unaltered") == 0) {
-            return UNALTERED;
-        }
-        if(param.compareTo("heads") == 0) {
-            return HEADS;
-        }
-        if(param.compareTo("body") == 0) {
-            return BODY;
-        }
-        if(param.compareTo("all") == 0) {
-            return ALL;
-        }
-        if(param.compareTo("none") == 0) {
-            return NONE;
-        }
-        if(param.compareTo("message") == 0) {
-            return MESSAGE;
-        }
-        return NONE;
-    }
+    
+    /* ******************************************************************** */
+    /* ******************* End of getX and setX methods ******************* */
+    /* ******************************************************************** */
+    
 }

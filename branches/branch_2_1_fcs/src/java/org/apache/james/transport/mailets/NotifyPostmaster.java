@@ -78,202 +78,55 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
- * Sends an error message to the sender of a message (that's typically landed in
- * the error mail repository).  You can optionally specify a sender of the error
- * message.  If you do not specify one, it will use the postmaster's address
+ * <P>Sends a notification message to the Postmaster.</P>
+ * <P>A sender of the notification message can optionally be specified.
+ * If one is not specified, the postmaster's address will be used.<BR>
+ * The "To:" header of the notification message can be set to "unaltered";
+ * if missing will be set to the postmaster.<BR>
+ * A notice text can be specified, and in such case will be inserted into the 
+ * notification inline text.<BR>
+ * If the notified message has an "error message" set, it will be inserted into the 
+ * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
+ * is set to true, such error message will be attached to the notification message.<BR>
+ * The notified messages are attached in their entirety (headers and
+ * content) and the resulting MIME part type is "message/rfc822".</P>
+ * <P>passThrough is <B>true</B>.</P>
  *
- * Sample configuration:
- * <mailet match="All" class="NotifyPostmaster">
- *   <sendingAddress>nobounce@localhost</sendingAddress>
- *   <attachStackTrace>true</attachStackTrace>
- *   <notice>Notice attached to the message (optional)</notice>
- * </mailet>
+ * <P>Sample configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="All" class="NotifyPostmaster">
+ *   &lt;sendingAddress&gt;<I>an address or postmaster or sender, default=postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
+ *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;to&gt;<I>unaltered (optional, defaults to postmaster)</I>&lt;/to&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
- * @author  Ivan Seskar <iseskar@upsideweb.com>
- * @author  Danny Angus <danny@thought.co.uk>
+ * <P>The behaviour of this mailet is equivalent to using Redirect with the following
+ * configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="All" class="Redirect">
+ *   &lt;sender&gt;<I>an address or postmaster or sender, default=postmaster</I>&lt;/sender&gt;
+ *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
+ *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
+ *   &lt;passThrough&gt;true&lt;/passThrough&gt;
+ *   &lt;to&gt;<I>unaltered or postmaster&lt</I>;/to&gt;
+ *   &lt;recipients&gt;<B>postmaster</B>&lt;/recipients&gt;
+ *   &lt;inline&gt;none&lt;/inline&gt;
+ *   &lt;attachment&gt;message&lt;/attachment&gt;
+ *   &lt;isReply&gt;true&lt;/isReply&gt;
+ *   &lt;static&gt;true&lt;/static&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
+ *
  */
-public class NotifyPostmaster extends GenericMailet {
-
-    /**
-     * The sender address for the reply message
-     */
-    MailAddress notifier = null;
-
-    /**
-     * Whether exception stack traces should be attached to the error
-     * messages
-     */
-    boolean attachStackTrace = false;
-
-    /**
-     * The text of the reply notice
-     */
-    String noticeText = null;
-
-    /**
-     * The date format object used to generate RFC 822 compliant date headers
-     */
-    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-    /**
-     * Initialize the mailet, loading all configuration parameters.
-     *
-     * @throws MessagingException
-     */
-    public void init() throws MessagingException {
-        if (getInitParameter("sendingAddress") == null) {
-            notifier = getMailetContext().getPostmaster();
-        } else {
-            notifier = new MailAddress(getInitParameter("sendingAddress"));
-        }
-        if (getInitParameter("notice") == null) {
-            noticeText = "We were unable to deliver the attached message because of an error in the mail server.";
-        } else {
-            noticeText = getInitParameter("notice");
-        }
-        try {
-            attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
-        } catch (Exception e) {
-            // Ignore exception, default to false
-        }
-    }
-
-    /**
-     * Sends a message to the postmaster with the original message as to why it failed.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while formulating the message to the sender
-     */
-    public void service(Mail mail) throws MessagingException {
-        MimeMessage message = mail.getMessage();
-        //Create the reply message
-        MimeMessage reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-
-        //Create the list of recipients in the Address[] format
-        InternetAddress[] rcptAddr = new InternetAddress[1];
-        rcptAddr[0] = getMailetContext().getPostmaster().toInternetAddress();
-        reply.setRecipients(Message.RecipientType.TO, rcptAddr);
-
-        //Set the sender...
-        reply.setFrom(notifier.toInternetAddress());
-
-        //Create the message
-        StringWriter sout = new StringWriter();
-        PrintWriter out = new PrintWriter(sout, true);
-
-        // First add the "local" notice
-        // (either from conf or generic error message)
-        out.println(noticeText);
-        // And then the message from other mailets
-        if (mail.getErrorMessage() != null) {
-            out.println();
-            out.println("Error message below:");
-            out.println(mail.getErrorMessage());
-        }
-        out.println();
-        out.println("Message details:");
-
-        if (message.getSubject() != null) {
-            out.println("  Subject: " + message.getSubject());
-        }
-        if (message.getSentDate() != null) {
-            out.println("  Sent date: " + message.getSentDate());
-        }
-        out.println("  MAIL FROM: " + mail.getSender());
-        Iterator rcptTo = mail.getRecipients().iterator();
-        out.println("  RCPT TO: " + rcptTo.next());
-        while (rcptTo.hasNext()) {
-            out.println("           " + rcptTo.next());
-        }
-        String[] addresses = null;
-        addresses = message.getHeader(RFC2822Headers.FROM);
-        if (addresses != null) {
-            out.print("  From: ");
-            for (int i = 0; i < addresses.length; i++) {
-                out.print(addresses[i] + " ");
-            }
-            out.println();
-        }
-        addresses = message.getHeader(RFC2822Headers.TO);
-        if (addresses != null) {
-            out.print("  To: ");
-            for (int i = 0; i < addresses.length; i++) {
-                out.print(addresses[i] + " ");
-            }
-            out.println();
-        }
-        addresses = message.getHeader(RFC2822Headers.CC);
-        if (addresses != null) {
-            out.print("  CC: ");
-            for (int i = 0; i < addresses.length; i++) {
-                out.print(addresses[i] + " ");
-            }
-            out.println();
-        }
-        out.println("  Size (in bytes): " + message.getSize());
-        if (message.getLineCount() >= 0) {
-            out.println("  Number of lines: " + message.getLineCount());
-        }
-
-
-        try {
-            //Create the message body
-            MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
-            MimeBodyPart part = new MimeBodyPart();
-            part.setContent(sout.toString(), "text/plain");
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-            multipart.addBodyPart(part);
-
-            //Add the original message as the second mime body part
-            part = new MimeBodyPart();
-            part.setContent(message.getContent(), message.getContentType());
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, message.getContentType());
-            multipart.addBodyPart(part);
-
-            //if set, attach the full stack trace
-            if (attachStackTrace && mail.getErrorMessage() != null) {
-                part = new MimeBodyPart();
-                part.setContent(mail.getErrorMessage(), "text/plain");
-                part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-                multipart.addBodyPart(part);
-            }
-
-            reply.setContent(multipart);
-            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-        } catch (IOException ioe) {
-            throw new MailetException("Unable to create multipart body");
-        }
-
-        //Create the list of recipients in our MailAddress format
-        Set recipients = new HashSet();
-        recipients.add(getMailetContext().getPostmaster());
-
-        //Set additional headers
-        if (reply.getHeader(RFC2822Headers.DATE)==null) {
-            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-        }
-        String subject = message.getSubject();
-        if (subject == null) {
-            subject = "";
-        }
-        if (subject.indexOf("Re:") == 0) {
-            reply.setSubject(subject);
-        } else {
-            reply.setSubject("Re:" + subject);
-        }
-        reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
-
-        //Send it off...
-        getMailetContext().sendMail(notifier, recipients, reply);
-    }
-
+public class NotifyPostmaster extends AbstractNotify {
+    
     /**
      * Return a string describing this mailet.
      *
@@ -282,5 +135,64 @@ public class NotifyPostmaster extends GenericMailet {
     public String getMailetInfo() {
         return "NotifyPostmaster Mailet";
     }
+    /* ******************************************************************** */
+    /* ****************** Begin of getX and setX methods ****************** */
+    /* ******************************************************************** */
+    
+    /**
+     * @return the postmaster address
+     */
+    protected Collection getRecipients() {
+        Collection newRecipients = new HashSet();
+        newRecipients.add(getMailetContext().getPostmaster());
+        return newRecipients;
+    }
+    
+    /**
+     * @return UNALTERED if specified or postmaster if missing
+     */
+    protected InternetAddress[] getTo() throws MessagingException {
+        String addressList = getInitParameter("to");
+        InternetAddress[] iaarray = new InternetAddress[1];
+        iaarray[0] = getMailetContext().getPostmaster().toInternetAddress();
+        if (addressList != null) {
+            MailAddress specialAddress = getSpecialAddress(addressList,
+                                            new String[] {"postmaster", "unaltered"});
+            if (specialAddress != null) {
+                iaarray[0] = specialAddress.toInternetAddress();
+            } else {
+                log("\"to\" parameter ignored, set to postmaster");
+            }
+        }
+        return iaarray;
+    }
+    
+    /**
+     * @return "Re:"
+     */
+    protected String getSubjectPrefix() {
+        return "Re:";
+    }
+    
+    /**
+     * Builds the subject of <I>newMail</I> appending the subject
+     * of <I>originalMail</I> to <I>subjectPrefix</I>, but avoiding a duplicate.
+     */
+    protected void setSubjectPrefix(Mail newMail, String subjectPrefix, Mail originalMail) throws MessagingException {
+        String subject = originalMail.getMessage().getSubject();
+        if (subject == null) {
+            subject = "";
+        }
+        if (subject.indexOf(subjectPrefix) == 0) {
+            newMail.getMessage().setSubject(subject);
+        } else {
+            newMail.getMessage().setSubject(subjectPrefix + subject);
+        }
+    }
+    
+    /* ******************************************************************** */
+    /* ******************* End of getX and setX methods ******************* */
+    /* ******************************************************************** */
+    
 }
 
