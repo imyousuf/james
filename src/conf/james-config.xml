@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.18 $
-    Committed on $Date: 2001/11/18 01:14:21 $ by: $Author: hbedi $
+    This is $Revision: 1.19 $
+    Committed on $Date: 2001/12/05 22:31:18 $ by: $Author: serge $
 -->
 <config>
 
@@ -539,14 +539,14 @@
         -->
         <!--
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
             <driver>org.gjt.mm.mysql.Driver</driver>
             <dburl>jdbc:mysql://127.0.0.1/mail</dburl>
             <user>username</user>
             <password>password</password>
         </data-source>
         <data-source name="maildb"
-                     class="org.apache.avalon.excalibur.datasource.JdbcDataSource">
+                     class="org.apache.james.util.mordred.JdbcDataSource">
         	<driver>com.inet.tds.TdsDriver</driver>
         	<dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
         	<user>sa_james</user>
