@@ -42,7 +42,7 @@ import org.bouncycastle.mail.smime.*;
  * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
  * libraries, particularly for the SMIME activity.</p>
  * <b>Requires JDK 1.4+</b>
- * @version CVS $Revision: 1.2 $ $Date: 2004/08/08 16:19:01 $
+ * @version CVS $Revision: 1.3 $ $Date: 2004/08/09 08:09:09 $
  * @since 2.2.1
  */
 public class KeyHolder {
@@ -206,19 +206,19 @@ public class KeyHolder {
             
     public static String getSignerDistinguishedName(X509Certificate certificate) {
         
-        return certificate.getSubjectX500Principal().toString();
+        return certificate.getSubjectDN().toString();
         
     }
     
     public static String getSignerCN(X509Certificate certificate) {
         
-        return extractAttribute(certificate.getSubjectX500Principal().toString(), "CN=");
+        return extractAttribute(certificate.getSubjectDN().toString(), "CN=");
         
     }
     
     public static String getSignerAddress(X509Certificate certificate) {
         
-        return extractAttribute(certificate.getSubjectX500Principal().toString(), "EMAILADDRESS=");
+        return extractAttribute(certificate.getSubjectDN().toString(), "EMAILADDRESS=");
         
     }
     
@@ -246,22 +246,22 @@ public class KeyHolder {
         return getSignerAddress(getCertificate());
     }
     
-   private static String extractAttribute(String X505DistinguishedName, String attributeName) {
+   private static String extractAttribute(String DistinguishedName, String attributeName) {
         
-        int i = X505DistinguishedName.indexOf(attributeName);
+        int i = DistinguishedName.indexOf(attributeName);
         
         if (i < 0) {
             return null;
         }
         
         i += attributeName.length();
-        int j = X505DistinguishedName.indexOf(",", i);
+        int j = DistinguishedName.indexOf(",", i);
         
         if (j - 1 <= 0) {
             return null;
         }
         
-        return X505DistinguishedName.substring(i, j).trim();
+        return DistinguishedName.substring(i, j).trim();
         
     }
     
