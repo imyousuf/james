@@ -126,7 +126,7 @@ public class MailRepository implements Store.Repository {
         Mail mc = (Mail) or.get(key);
         try {
             mc.setMessage(sr.retrieve(key));
-        } catch (MessagingException me) {
+        } catch (Exception me) {
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
         return mc;

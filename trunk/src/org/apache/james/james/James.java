@@ -17,6 +17,7 @@ import java.net.*;
 import java.io.*;
 import javax.mail.internet.*;
 import javax.mail.Session;
+import javax.mail.MessagingException;
 import java.util.*;
 
 /**
@@ -36,7 +37,6 @@ public class James implements MailServer, Block {
     private MailRepository localInbox;
     private Store.Repository mailUsers;
     private String mailboxName;
-    private static long count;
     
     public James() {
     }
@@ -52,6 +52,7 @@ public class James implements MailServer, Block {
 	public void init() throws Exception {
 
         spoolManagerCM = new SimpleComponentManager(comp);
+        spoolManagerCM.put(Interfaces.MAIL_SERVER, this);
 
         this.logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("JAMES init...", "JAMES", logger.INFO);
@@ -67,6 +68,9 @@ public class James implements MailServer, Block {
             }
         }
         serverNames.addElement("localhost");
+        for (Enumeration e = serverNames.elements(); e.hasMoreElements(); ) {
+            logger.log("Local host is: " + e.nextElement(), "JAMES", logger.INFO);
+        }
         context.put(Constants.SERVER_NAMES, serverNames);
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
@@ -121,24 +125,36 @@ public class James implements MailServer, Block {
         logger.log("JAMES ...init end", "JAMES", logger.INFO);
     }
 
-    public void sendMail(String sender, Vector recipients, MimeMessage message) {
-        try {
-            Mail mc = new Mail(getId(), sender, recipients, message);
-            sendMail(mc);
-        } catch (Exception e) {
-        }
+    public void sendMail(String sender, Vector recipients, MimeMessage message)
+    throws MessagingException {
+//FIX ME!!! we should validate here MimeMessage.
+        sendMail(new Mail(getId(), sender, recipients, message));
     }
 
-    public void sendMail(String sender, Vector recipients, InputStream msg) {
-        try {
-            Mail mc = new Mail(getId(), sender, recipients, msg);
-            sendMail(mc);
-        } catch (Exception e) {
+    public void sendMail(String sender, Vector recipients, InputStream msg)
+    throws MessagingException {
+
+            // parse headers
+        MailHeaders headers = new MailHeaders(msg);
+            // if headers do not contains minimum REQUIRED headers fields throw Exception
+        if (!headers.isValid()) {
+            throw new MessagingException("Some REQURED header field is missing. Invalid Message");
         }
+        ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
+        sendMail(new Mail(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
     }
 
-    public void sendMail(Mail mail) {
-        spool.store(mail);
+    public void sendMail(Mail mail)
+    throws MessagingException {
+        try {
+            spool.store(mail);
+        } catch (Exception e) {
+            try {
+                spool.remove(mail);
+            } catch (Exception ignored) {
+            }
+            throw new MessagingException("Exception spooling message: " + e.getMessage());
+        }
         logger.log("Mail " + mail.getName() + " pushed in spool", "JAMES", logger.INFO);
     }
 
@@ -160,11 +176,10 @@ public class James implements MailServer, Block {
     }
     
     private String getId() {
-        return "Mail" + count++;
+        return "Mail" + System.currentTimeMillis();
     }
 
     public void destroy()
     throws Exception {
     }
 }
-    
