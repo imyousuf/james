@@ -99,12 +99,18 @@ public abstract class GenericListserv extends GenericMailet {
 
                 message.setSubject(subj);
             }
+            MailAddress listservAddr = getListservAddress();
+            if (listservAddr == null) {
+                //Use the recipient
+                listservAddr = (MailAddress)mail.getRecipients().iterator().next();
+            }
+            
             if (isReplyToList()) {
-                message.setHeader("Reply-To", getListservAddress().toString());
+                message.setHeader("Reply-To", listservAddr.toString());
             }
 
             //Send the message to the list members
-            getMailetContext().sendMail(getListservAddress(), members, message);
+            getMailetContext().sendMail(listservAddr, members, message);
 
             //Kill the old message
             mail.setState(Mail.GHOST);
