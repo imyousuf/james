@@ -26,22 +26,38 @@ public class AuthState {
     private final UsersRepository repo;
     private String user;
     private String password;
+    private boolean userSet = false;
+    private boolean passwordSet = false;
+
     public AuthState(boolean requiredAuth,UsersRepository repo) {
         this.requiredAuth = requiredAuth;
         this.repo = repo;
     }
 
     public boolean isAuthenticated() {
-        if ( requiredAuth )
-            return repo.test(user,password);
-        else
+        if ( requiredAuth ) {
+            if  (userSet && passwordSet ) {
+                return repo.test(user,password);
+            } else {
+                return false;
+            }
+	} else {
             return true;
+        }
     }
+
     public void setUser(String user) {
-        this.user = user;
+        if (user != null && user.trim().length() != 0) {
+            this.user = user;
+            userSet = true;
+        }
         this.password = null;
     }
+
     public void setPassword(String password) {
-        this.password = password;
+        if (password != null && password.trim().length() != 0) {
+            this.password = password;
+            passwordSet = true;
+        }
     }
 }
