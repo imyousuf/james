@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.12 $
- * Committed on $Date: 2001/12/05 22:13:15 $ by: $Author: serge $
+ * This is $Revision: 1.13 $
+ * Committed on $Date: 2001/12/07 22:08:29 $ by: $Author: serge $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -59,11 +59,11 @@ public class SMTPHandler
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
     public final static String SENDER = "SENDER_ADDRESS";
     public final static String MESG_FAILED = "MESG_FAILED";
+    public final static String MESG_SIZE = "MESG_SIZE";
     public final static String RCPT_VECTOR = "RCPT_VECTOR";
     public final static String SMTP_ID = "SMTP_ID";
     public final static String AUTH = "AUTHENTICATED";
     public final static char[] SMTPTerminator = {'\r','\n','.','\r','\n'};
-    private final static boolean DEEP_DEBUG = true;
 
     private Socket socket;
     private DataInputStream in;
@@ -102,9 +102,7 @@ public class SMTPHandler
         // by 1024, to put it in bytes
         maxmessagesize =
             configuration.getChild( "maxmessagesize" ).getValueAsLong( 0 ) * 1024;
-        if (DEEP_DEBUG) {
-            getLogger().debug("Max message size is: " + maxmessagesize);
-        }
+        getLogger().debug("Max message size is: " + maxmessagesize);
         //how many bytes to read before updating the timer that data is being transfered
         lengthReset = configuration.getChild("lengthReset").getValueAsInteger(20000);
     }
@@ -354,6 +352,31 @@ public class SMTPHandler
             out.println("501 Usage: MAIL FROM:<sender>");
         } else {
             String sender = argument1.trim();
+            int lastChar = sender.lastIndexOf('>');
+            if (sender.length() > lastChar+1) {
+                //handle a SIZE=### command if it's sent
+                String cmdString = sender.substring(lastChar+1).trim();
+                if (cmdString.toUpperCase().startsWith("SIZE")) {
+                    try {
+                        int size = Integer.parseInt(cmdString.substring(cmdString.indexOf('=')+1));
+                        if (maxmessagesize > 0 && size > maxmessagesize) {
+                            getLogger().error("552 Message size exceeds fixed maximum message size");
+
+                            //let the client know that the size limit has been hit.
+                            out.println("552 Message size exceeds fixed maximum message size");
+                            return;
+                        } else {
+                            //put the message size in the message state so it can be used
+                            //  later to restrict messages for user quotas, etc.
+                            state.put(MESG_SIZE, new Integer(size));
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+                //cut off the extra bit in the sender string
+                sender = sender.substring(0, lastChar+1);
+            }
+
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
                 out.println("501 Syntax error in parameters or arguments");
                 getLogger().error("Error parsing sender address: " + sender
@@ -486,11 +509,9 @@ public class SMTPHandler
                 // if the message size limit has been set, we'll
                 // wrap msgIn with a SizeLimitedInputStream
                 if (maxmessagesize > 0) {
-                    if (DEEP_DEBUG) {
-                        getLogger().debug("Using SizeLimitedInputStream "
-                                  + " with max message size: "
-                                  + maxmessagesize);
-                    }
+                    getLogger().debug("Using SizeLimitedInputStream "
+                              + " with max message size: "
+                              + maxmessagesize);
                     msgIn = new SizeLimitedInputStream(msgIn, maxmessagesize);
                 }
                 //Removes the dot stuffing
