@@ -58,21 +58,61 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.Mail;
-
+import org.apache.james.util.NetMatcher;
 import javax.mail.MessagingException;
+import java.util.StringTokenizer;
 import java.util.Collection;
 
 /**
- * Checks the IP address of the sending server against a comma-
- * delimited list of IP addresses, domain names or sub-nets.
- *
- * <p>See AbstractNetworkMatcher for details on how to specify
- * entries.</p>
- *
- */
-public class RemoteAddrInNetwork extends AbstractNetworkMatcher {
-    public Collection match(Mail mail) {
-        return matchNetwork(mail.getRemoteAddr()) ? mail.getRecipients() : null;
+  * AbstractNetworkMatcher makes writing IP Address matchers easier.
+  *
+  * AbstractNetworkMatcher provides a means for checking to see whether
+  * a particular IP address or domain is within a set of subnets
+  * These subnets may be expressed in one of several formats:
+  * 
+  *     Format                          Example
+  *     explicit address                127.0.0.1
+  *     address with a wildcard         127.0.0.*
+  *     domain name                     myHost.com
+  *     domain name + prefix-length     myHost.com/24
+  *     domain name + mask              myHost.com/255.255.255.0
+  *     IP address + prefix-length      127.0.0.0/8
+  *     IP + mask                       127.0.0.0/255.0.0.0
+  *
+  * For more information, see also: RFC 1518 and RFC 1519.
+  * 
+  * @version $ID$
+  */
+public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMatcher {
+
+    /**
+     * This is a Network Matcher that should be configured to contain
+     * authorized networks
+     */
+    private NetMatcher authorizedNetworks = null;
+
+    public void init() throws MessagingException {
+        authorizedNetworks = new NetMatcher() {
+            protected void log(String s) {
+                AbstractNetworkMatcher.this.log(s);
+            }
+        };
+        authorizedNetworks.initInetNetworks(allowedNetworks());
+        log("Authorized addresses: " + authorizedNetworks.toString());
+    }
+
+    protected Collection allowedNetworks() {
+        StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
+        Collection networks = new java.util.ArrayList();
+        while (st.hasMoreTokens()) networks.add(st.nextToken());
+        return networks;
+    }
+
+    protected boolean matchNetwork(java.net.InetAddress addr) {
+        return authorizedNetworks.matchInetNetwork(addr);
+    }
+
+    protected boolean matchNetwork(String addr) {
+        return authorizedNetworks.matchInetNetwork(addr);
     }
 }
