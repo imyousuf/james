@@ -76,7 +76,6 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
-            log("Cannot resolve address: " + uhe.getMessage());
         }
         networks.trimToSize();
     }
@@ -90,12 +89,11 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
-            log("Cannot resolve address: " + uhe.getMessage());
         }
         networks.trimToSize();
     }
 
-    public boolean matchInetNetwork(final String hostIP, final boolean logging)
+    public boolean matchInetNetwork(final String hostIP)
     {
         InetAddress ip = null;
 
@@ -105,173 +103,42 @@ public class NetMatcher
         }
         catch (java.net.UnknownHostException uhe)
         {
-            log("Cannot resolve address: " + uhe.getMessage());
         }
 
         boolean sameNet = false;
 
-        for (Iterator iter = networks.iterator(); (!sameNet || logging) && iter.hasNext(); )
+        for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
         {
             InetNetwork network = (InetNetwork) iter.next();
             sameNet = network.contains(ip);
-            if (logging) log(hostIP + " is" + (sameNet ? "    " : " not") + " contained by " + "Network " + network);
         }
         return sameNet;
     }
 
-    public boolean matchInetNetwork(final InetAddress ip, final boolean logging)
+    public boolean matchInetNetwork(final InetAddress ip)
     {
         boolean sameNet = false;
 
-        for (Iterator iter = networks.iterator(); (!sameNet || logging) && iter.hasNext(); )
+        for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
         {
             InetNetwork network = (InetNetwork) iter.next();
             sameNet = network.contains(ip);
-            if (logging) log(ip + " is" + (sameNet ? "    " : " not") + " contained by " + "Network " + network);
         }
         return sameNet;
     }
 
     public NetMatcher()
     {
-        initInetNetworks(valnets);
     }
 
     public NetMatcher(final String[] nets)
     {
-        initInetNetworks(valnets);
+        initInetNetworks(nets);
     }
 
-    /* ---------------------- TEST CODE BELOW  ----------------------*/
-
-    public static void main(String[] args)
+    public NetMatcher(final Collection nets)
     {
-        if (args.length == 0) args = new String[] {
-            "127.0.0.1",
-            "192.168.1.7",
-            "192.168.1.10",
-            "mail.devtech.com",
-            "devtech.dyndns.org",
-            "cvs.apache.org",
-            "www.apache.org",
-            "nagoya.apache.org",
-            "moof.apache.org",
-            "www.php.net"
-        };
-
-        System.out.println("Initializing InetNetwork");
-        System.out.println("---------------------");
-        System.out.println();
-
-        NetMatcher matcher = new NetMatcher() {
-            protected void log(String s)
-            {
-                System.err.println(s);
-            }
-        };
-        matcher.initInetNetworks(valnets);
-        matcher.validate(args);
-        matcher.initInetNetworks(benchnets);
-        matcher.benchmark(args);
-    }
-
-    protected void log(String s) { }
-
-    private static final String[] valnets = new String[] { 
-        "127.0.0.1",
-        "192.168.0.0/16",
-        "208.*",
-        "208.185.*",
-        "208.185.179.*",
-        "208.185.179.012",
-        "208.185.179.012/0",
-        "208.000.000.000/8",
-        "208.185.000.000/16",
-        "208.185.179.000/24",
-        "208.185.179.012/32",
-        "208.185.179.012/27",
-        "208.185.179.012/8",
-        "208.185.179.012/16",
-        "208.185.179.012/24",
-        "208.185.179.012/32",
-        "208.185.179.012/27",
-        "apache.org",
-        "apache.org/255.255.255.224",
-        "apache.org/0",
-        "apache.org/8",
-        "apache.org/16",
-        "apache.org/24",
-        "apache.org/32",
-        "apache.org/27",
-        "208.185.179.12/255.255.255.224",
-        "127.0.0.1/8"
-    };
-
-    private static final String[] benchnets = new String[] { 
-        "127.0.0.1/8",
-        "192.168.0.0/16"
-    };
-
-    public void validate(final String[] args)
-    {
-        System.out.println("Validating");
-        for (int i = 0; i < args.length; i++)
-        {
-            try
-            {
-                matchInetNetwork(args[i], true);
-                System.out.println("---------------------");
-            }
-            catch (Exception e)
-            {
-                System.err.println("Cannot validate " + args[i]);
-                e.printStackTrace();
-            }
-        }
-        System.out.println();
-    }
-
-    static final long loops = 1000000;
-
-    public void benchmark(final String[] args)
-    {
-        System.out.println("Benchmarking");
-        long benchStart = System.currentTimeMillis();
-        for (int i = 0; i < args.length; i++)
-        {
-            try
-            {
-                long startTime, stopTime;
-                boolean match;
-
-                InetAddress IP = InetAddress.getByName(args[i]);
-                match = matchInetNetwork(IP, false);
-                startTime = System.currentTimeMillis();
-                for (long loop = 0; loop < loops; loop++) matchInetNetwork(IP, false);
-                stopTime = System.currentTimeMillis();
-                System.out.println("Took: " + (stopTime - startTime)*1.0/loops + "ms to " + (match ? "match " : "reject ") + IP);
-
-                String hostIP = IP.getHostAddress();
-                match = matchInetNetwork(hostIP, false);
-                startTime = System.currentTimeMillis();
-                for (long loop = 0; loop < loops; loop++) matchInetNetwork(hostIP, false);
-                stopTime = System.currentTimeMillis();
-                System.out.println("Took: " + (stopTime - startTime)*1.0/loops + "ms to " + (match ? "match " : "reject ") + hostIP);
-
-                hostIP = args[i];
-                match = matchInetNetwork(hostIP, false);
-                startTime = System.currentTimeMillis();
-                for (long loop = 0; loop < loops; loop++) matchInetNetwork(hostIP, false);
-                stopTime = System.currentTimeMillis();
-                System.out.println("Took: " + (stopTime - startTime)*1.0/loops + "ms to " + (match ? "match " : "reject ") + hostIP);
-            }
-            catch (Exception e)
-            {
-                System.err.println("Cannot validate " + args[i]);
-                e.printStackTrace();
-            }
-        }
-        System.out.println("Benchmark took " + (System.currentTimeMillis() - benchStart)*1.0/1000 + " seconds.");
+        initInetNetworks(nets);
     }
 }
 
@@ -308,7 +175,6 @@ class InetNetwork
 
     public static InetNetwork getFromString(String netspec) throws java.net.UnknownHostException
     {
-//      System.out.println("arg: " + netspec);
         if (netspec.endsWith("*")) netspec = normalizeFromAsterisk(netspec);
         else
         {
@@ -316,7 +182,6 @@ class InetNetwork
             if (iSlash == -1) netspec += "/255.255.255.255";
             else if (netspec.indexOf('.', iSlash) == -1) netspec = normalizeFromCIDR(netspec);
         }
-//      System.out.println("net: " + netspec);
 
         return new InetNetwork(InetAddress.getByName(netspec.substring(0, netspec.indexOf('/'))),
                                InetAddress.getByName(netspec.substring(netspec.indexOf('/') + 1)));
