@@ -557,6 +557,9 @@ public class NNTPHandler
             writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
+
+        command = command.toUpperCase(Locale.US);
+
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
             // Reject re-authentication
             if ( isAlreadyAuthenticated ) {
