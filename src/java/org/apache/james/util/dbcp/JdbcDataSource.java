@@ -8,27 +8,8 @@
 package org.apache.james.util.dbcp;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import java.util.Vector;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.InitialContext;
-
-//import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
-//import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
-//import org.apache.commons.pool.impl.GenericObjectPool;
-//import org.apache.commons.dbcp.ConnectionFactory;
-//import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-//import org.apache.commons.dbcp.PoolingDataSource;
-//import org.apache.commons.dbcp.PoolableConnectionFactory;
-
 
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Disposable;
@@ -36,6 +17,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * <p>
@@ -73,7 +55,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * <li><b>max_idle</b> - The maximum number of idle connections.  0 means no limit.  (default 0)</li>
  * </ul>
  *
- * @version CVS $Revision: 1.2 $
+ * @version CVS $Revision: 1.3 $
  */
 public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,

@@ -58,11 +58,10 @@
 
 package org.apache.james.transport.matchers;
 
+import java.util.Collection;
+
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import java.util.Collection;
 
 /**
  * <P>Matches mails that are sent by a null sender.</P>
@@ -70,7 +69,7 @@ import java.util.Collection;
  * &lt;mailet match=&quot;SenderIsNull&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/06/24 08:25:55 $
+ * @version CVS $Revision: 1.2 $ $Date: 2003/10/23 01:53:21 $
  * @since 2.2.0
  */
 public class SenderIsNull extends GenericMatcher {

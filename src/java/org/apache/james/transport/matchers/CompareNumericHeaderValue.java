@@ -58,17 +58,14 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import java.lang.NumberFormatException;
-
 import java.util.Collection;
 import java.util.StringTokenizer;
 
-import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
 
 /**
  * <P>Matches mails containing a header with a numeric value whose comparison with the specified value is true.
@@ -85,7 +82,7 @@ import javax.mail.internet.*;
  *    &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.3 $ $Date: 2003/07/12 06:45:18 $
+ * @version CVS $Revision: 1.4 $ $Date: 2003/10/23 01:53:21 $
  * @since 2.2.0
  */
 public class CompareNumericHeaderValue extends GenericMatcher {

@@ -60,7 +60,6 @@ package org.apache.james.transport.mailets;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Vector;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

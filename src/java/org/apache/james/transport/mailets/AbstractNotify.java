@@ -58,28 +58,18 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
-
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 /**
  * <P>Abstract mailet providing configurable notification services.<BR>
@@ -116,7 +106,7 @@ import java.util.Iterator;
  * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.10 $ $Date: 2003/10/14 16:49:17 $
+ * @version CVS $Revision: 1.11 $ $Date: 2003/10/23 01:53:20 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {

@@ -58,27 +58,13 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
-
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+
+import org.apache.mailet.MailAddress;
 
 /**
  * <P>Sends a notification message to the Postmaster.</P>
@@ -132,7 +118,7 @@ import java.util.Iterator;
  * <P><I>notice</I>, <I>sendingAddress</I> and <I>attachStackTrace</I> can be used instead of
  * <I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.21 $ $Date: 2003/07/04 16:46:12 $
+ * @version CVS $Revision: 1.22 $ $Date: 2003/10/23 01:53:20 $
  */
 public class NotifyPostmaster extends AbstractNotify {
 

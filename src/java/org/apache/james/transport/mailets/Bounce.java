@@ -58,29 +58,14 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.GenericMailet;
+import java.util.Collection;
+import java.util.HashSet;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
-
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 /**
  * <P>Generates a response to the reverse-path address.
@@ -135,7 +120,7 @@ import java.util.ArrayList;
  * <P><I>notice</I> and <I>sendingAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.9 $ $Date: 2003/07/04 16:46:12 $
+ * @version CVS $Revision: 1.10 $ $Date: 2003/10/23 01:53:20 $
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
