@@ -11,8 +11,8 @@
   enterprise mail engine solution based on currently available open protocols 
   (SMTP, POP3, IMAP, HTTP etc).
 
-  Development Status for JAMES 1.2
-  --------------------------------
+  Development Status for JAMES 1.2.1
+  ----------------------------------
   
   SMTP Server: Stable 
   POP3 Server: Beta 
@@ -26,7 +26,7 @@
        based on the Java 2 platform and the JavaMail 1.1 API.
        
     o  protocol abstraction:  unlike other mail engines, protocols are seen only
-       like "communication languages" ruling comunications between clients and
+       like "communication languages" ruling communications between clients and
        the server. Apache James is not be tied to any particular protocol but
        follow an abstracted server design (almost like JavaMail did on the
        client side)
@@ -41,7 +41,7 @@
        easy-to-use pattern allows developers to build powerful customized mail
        systems. Examples of the services a Mailet might provide include: a
        mail-to-fax or mail-to-phone transformer, a filter, a language
-       translator, a mailling list manager, etc.
+       translator, a mailing list manager, etc.
        Several Mailets are included in the JAMES distribution (see
        docs/Configuration.html).
     
@@ -62,7 +62,7 @@
   Planned Features
   ----------------
 
-    o  IMAP suppport.
+    o  IMAP support.
     
     o  IMAP server side filtering.
 
@@ -96,7 +96,22 @@
 
   Up and working...
   -----------------
-  
+
+Step 0: building. (only necessary for daily snapshots)
+
+    If you have downloaded a regular distribution, you do not need to
+    build James.  Proceed directory to Step 1.
+    
+    If you have downloaded a daily snapshot, you need to build a
+    distribution.  James uses ant (http://jakarta.apache.org/ant/) to
+    compile and package its distribution.  Once you have installed ant,
+    extracted the snapshot to your favorite folder, cd to that folder
+    and run the "dist" task by calling "ant dist".  This will create the
+    distribution in the "./dist" folder as well as create .tgz and .zip
+    copies of this folder.  This "./dist" folder is the distribution
+    folder used in Step 1 and beyond.  You may either cd to ./dist, or
+    you may copy and rename the dist folder to your new favorite folder.
+    
 Step 1: installation.
 
     Download distibution. Extract all files in your favorite folder.
@@ -108,7 +123,7 @@ Step 2: configuration.
 
 Summary (for impatient people)
    
-    M$ users shuold just run /bin/run.bat. Unix users will find run.sh
+    M$ users should just run /bin/run.bat. Unix users will find run.sh
     under the same folder. A JVM must be in the path.
     Running [run* -help] will provide a simple command line help.	
 
@@ -116,7 +131,7 @@ Summary (for impatient people)
     which includes the IANA-standard SMTP (on port 25) and POP3 (on port 110).
     These default ports can be changed in the conf.xml file. (Obviously, you
     would then need to reconfigure your clients. This may not be an option if
-    you want to recieve mail from exernal mailservers.)
+    you want to receive mail from external mailservers.)
 
     The Avalon framework will unpack the neccessay configuration files and wait
     for you to configure them. For basic use, you only need to set two items
@@ -133,7 +148,7 @@ Step 4: kickstart.
     registered.
     To register a local user open a telnet session with localhost on port 4555,
     log in as root ("root[enter]  <password-you-set-in-conf.xml>[enter]") and
-    type "help" for a list of availale commands in the "JAMES remote
+    type "help" for a list of available commands in the "JAMES remote
     administrator tool". It is really a basic set but should allow you to test
     installation.
     
@@ -141,7 +156,7 @@ Step 4: kickstart.
     @localhost with SMTP (port 25) (assuming you have not changed the default
     server names in the conf.xml file). You'll see the mail appear under
     ../var/mail/localinbox/[user].
-    Try now to retrive that mail using POP3 (port 110).
+    Try now to retrieve that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
     Action that will be taken by JAMES on incoming mail are configurated in
     the mailet pipe line (/conf/james.conf.xml). Look at it if you want to
