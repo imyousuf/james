@@ -57,6 +57,8 @@
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
@@ -91,6 +93,8 @@
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- SMTP Server -->
@@ -103,6 +107,8 @@
     <provide name="connections"
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- NNTP Server -->
@@ -114,6 +120,8 @@
              role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
     <provide name="nntp-repository"
              role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <!-- NNTP Repository -->

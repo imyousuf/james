@@ -68,7 +68,7 @@ abstract class CommandTemplate
         List args = getArgs();
         List argValues = new ArrayList();
 
-	System.out.println("CommandTemplate.process command: '"+getCommand()+"'");
+    System.out.println("CommandTemplate.process command: '"+getCommand()+"'");
         for ( Iterator iter = args.iterator(); iter.hasNext(); ) {
             System.out.println("CommandTemplate.process ARGUMENT");
             Object o =  iter.next();

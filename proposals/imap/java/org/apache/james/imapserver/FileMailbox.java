@@ -1215,7 +1215,7 @@ public class FileMailbox
             //BufferedInputStream inMsg = null;
             try {
                 path = getPath( absoluteName, owner, rootPath );
-		MimeMessageFileSource source = new MimeMessageFileSource(path + File.separator + uid + MESSAGE_EXTENSION);
+        MimeMessageFileSource source = new MimeMessageFileSource(path + File.separator + uid + MESSAGE_EXTENSION);
                 response = new MimeMessageWrapper(source);
              //   inMsg.close();
             } catch(Exception e) {
