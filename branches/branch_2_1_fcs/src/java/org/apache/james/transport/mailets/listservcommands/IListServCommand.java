@@ -90,6 +90,8 @@ import javax.mail.MessagingException;
  *
  * This allows you to customize the messages sent by these commands by editing text files and not editing the javacode.
  *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see ICommandListservManager
  */
 public interface IListServCommand {

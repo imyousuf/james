@@ -77,6 +77,9 @@ import java.io.IOException;
  * It is used by the {@link CommandListservProcessor} to inject a footer into mailing list.
  * <br />
  * <br />
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:55 $
+ * @since 2.2.0
  * @see XMLResources
  */
 public class CommandListservFooter extends GenericMailet {

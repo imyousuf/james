@@ -88,6 +88,9 @@ import java.util.Properties;
  *
  * <br />
  * <br />
+ *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see org.apache.james.transport.mailets.CommandListservManager
  */
 public abstract class BaseCommand implements IListServCommand {

@@ -90,6 +90,8 @@ import java.util.Properties;
  * <br />
  * This command basically sends the welcome message and adds the user to the mailing list.
  *
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:56 $
+ * @since 2.2.0
  * @see Subscribe
  */
 public class SubscribeConfirm extends BaseCommand {
