@@ -45,7 +45,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  *
  */
 public class RemoteManagerHandler
@@ -87,7 +87,7 @@ public class RemoteManagerHandler
     /**
      * A HashMap of (user id, passwords) for James administrators
      */
-    private HashMap admaccount = new HashMap();
+    private HashMap adminAccounts = new HashMap();
 
     /**
      * Pass the <code>ComponentManager</code> to the <code>composer</code>.
@@ -123,10 +123,9 @@ public class RemoteManagerHandler
 
         final Configuration admin = configuration.getChild( "administrator_accounts" );
         final Configuration[] accounts = admin.getChildren( "account" );
-        for ( int i = 0; i < accounts.length; i++ )
-        {
-            admaccount.put( accounts[ i ].getAttribute( "login" ),
-                            accounts[ i ].getAttribute( "password" ) );
+        for ( int i = 0; i < accounts.length; i++ ) {
+            adminAccounts.put( accounts[ i ].getAttribute( "login" ),
+                               accounts[ i ].getAttribute( "password" ) );
         }
     }
 
@@ -142,7 +141,7 @@ public class RemoteManagerHandler
         throws IOException {
 
         /*
-          if( admaccount.isEmpty() ) {
+          if( adminAccounts.isEmpty() ) {
           getLogger().warn("No Administrative account defined");
           getLogger().warn("RemoteManager failed to be handled");
           return;
@@ -184,7 +183,7 @@ public class RemoteManagerHandler
                 login = in.readLine().trim();
                 out.println("Password:");
                 password = in.readLine().trim();
-            } while (!password.equals(admaccount.get(login)) || password.length() == 0);
+            } while (!password.equals(adminAccounts.get(login)) || password.length() == 0);
 
             scheduler.resetTrigger(this.toString());
 
@@ -254,6 +253,7 @@ public class RemoteManagerHandler
             out.println("Connection timeout. Closing connection");
             socket.close();
         } catch ( final IOException ioe ) {
+            // Ignored
         }
     }
 
@@ -262,349 +262,502 @@ public class RemoteManagerHandler
      * wire in handleConnection.  It returns true if expecting additional 
      * commands, false otherwise.</p>
      *
-     * <p>TODO: Break this method into smaller methods.</p>
-     *
      * @param command the raw command string passed in over the socket
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand( String command ) {
-        if (command == null) {
+    private boolean parseCommand( String rawCommand ) {
+        if (rawCommand == null) {
             return false;
         }
-        StringTokenizer commandLine = new StringTokenizer(command.trim(), " ");
-        int arguments = commandLine.countTokens();
-        if (arguments == 0) {
-            return true;
-        } else if(arguments > 0) {
-            command = commandLine.nextToken().toUpperCase(Locale.US);
+        String command = rawCommand.trim();
+        String argument = null;
+        int breakIndex = command.indexOf(" ");
+        if (breakIndex > 0) {
+            argument = command.substring((breakIndex + 1), command.length());
+            command = command.substring(0, breakIndex);
         }
-        String argument = (String) null;
-        if(arguments > 1) {
-            argument = commandLine.nextToken();
-        }
-        String argument1 = (String) null;
-        if(arguments > 2) {
-            argument1 = commandLine.nextToken();
-        }
+        command = command.toUpperCase(Locale.US);
+        String argument1 = null;
         if (command.equals("ADDUSER")) {
-            String username = argument;
-            String passwd = argument1;
-            try {
-                if (username.equals("") || passwd.equals("")) {
-                    out.println("usage: adduser [username] [password]");
-                    return true;
-                }
-            } catch (NullPointerException e) {
-                out.println("usage: adduser [username] [password]");
-                return true;
-            }
-
-            boolean success = false;
-            if (users.contains(username)) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("User ")
-                            .append(username)
-                            .append(" already exists");
-                String response = responseBuffer.toString();
-                out.println(response);
-            }
-            else if ( inLocalUsers ) {
-                success = mailServer.addUser(username, passwd);
-            }
-            else {
-                DefaultUser user = new DefaultUser(username, "SHA");
-                user.setPassword(passwd);
-                success = users.addUser(user);
-            }
-            if ( success ) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("User ")
-                            .append(username)
-                            .append(" added");
-                String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
-            }
-            else {
-                out.println("Error adding user " + username);
-                getLogger().info("Error adding user " + username);
-            }
-            out.flush();
+            doADDUSER(argument);
         } else if (command.equals("SETPASSWORD")) {
-            if (argument == null || argument1 == null) {
-                out.println("usage: setpassword [username] [password]");
-                return true;
-            }
-            String username = argument;
-            String passwd = argument1;
-            if (username.equals("") || passwd.equals("")) {
-                out.println("usage: adduser [username] [password]");
-                return true;
-            }
-            User user = users.getUserByName(username);
-            if (user == null) {
-                out.println("No such user");
-                return true;
-            }
-            boolean success;
-            success = user.setPassword(passwd);
-            if (success) {
-                users.updateUser(user);
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("Password for ")
-                            .append(username)
-                            .append(" reset");
-                String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
-            } else {
-                out.println("Error resetting password");
-                getLogger().info("Error resetting password");
-            }
+            return doSETPASSWORD(argument);
+        } else if (command.equals("DELUSER")) {
+            return doDELUSER(argument);
+        } else if (command.equals("LISTUSERS")) {
+            return doLISTUSERS(argument);
+        } else if (command.equals("COUNTUSERS")) {
+            return doCOUNTUSERS(argument);
+        } else if (command.equals("VERIFY")) {
+            return doVERIFY(argument);
+        } else if (command.equals("HELP")) {
+            return doHELP(argument);
+        } else if (command.equals("SETALIAS")) {
+            return doSETALIAS(argument);
+        } else if (command.equals("SETFORWARDING")) {
+            return doSETFORWARDING(argument);
+        } else if (command.equals("UNSETALIAS")) {
+            return doUNSETALIAS(argument);
+        } else if (command.equals("USER")) {
+            return doUSER(argument);
+        } else if (command.equals("QUIT")) {
+            return doQUIT(argument);
+        } else if (command.equals("SHUTDOWN")) {
+            return doSHUTDOWN(argument);
+        } else {
+            return doUnknownCommand(rawCommand);
+        }
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an ADDUSER command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doADDUSER(String argument) {
+        int breakIndex = -1;
+        if ((argument == null) ||
+            (argument.equals("")) ||
+            ((breakIndex = argument.indexOf(" ")) < 0)) {
+            out.println("Usage: adduser [username] [password]");
             out.flush();
             return true;
-        } else if (command.equals("DELUSER")) {
-            String user = argument;
-            if (user.equals("")) {
-                out.println("usage: deluser [username]");
-                return true;
-            }
-            try {
-                users.removeUser(user);
-            } catch (Exception e) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(128)
-                            .append("Error deleting user ")
-                            .append(user)
-                            .append(" : ")
-                            .append(e.getMessage());
-                out.println(exceptionBuffer.toString());
-                return true;
-            }
+        }
+        String username = argument.substring(0,breakIndex);
+        String passwd = argument.substring((breakIndex + 1), argument.length());
+        if (username.equals("") || passwd.equals("")) {
+            out.println("Usage: adduser [username] [password]");
+            out.flush();
+            return true;
+        }
+
+        boolean success = false;
+        if (users.contains(username)) {
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("User ")
+                        .append(username)
+                        .append(" already exists");
+            String response = responseBuffer.toString();
+            out.println(response);
+        } else if ( inLocalUsers ) {
+            success = mailServer.addUser(username, passwd);
+        } else {
+            DefaultUser user = new DefaultUser(username, "SHA");
+            user.setPassword(passwd);
+            success = users.addUser(user);
+        }
+        if ( success ) {
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("User ")
+                        .append(username)
+                        .append(" added");
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else {
+            out.println("Error adding user " + username);
+            getLogger().info("Error adding user " + username);
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an SETPASSWORD command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doSETPASSWORD(String argument) {
+
+        int breakIndex = -1;
+        if ((argument == null) ||
+            (argument.equals("")) ||
+            ((breakIndex = argument.indexOf(" ")) < 0)) {
+            out.println("Usage: setpassword [username] [password]");
+            out.flush();
+            return true;
+        }
+        String username = argument.substring(0,breakIndex);
+        String passwd = argument.substring((breakIndex + 1), argument.length());
+
+        if (username.equals("") || passwd.equals("")) {
+            out.println("Usage: adduser [username] [password]");
+            return true;
+        }
+        User user = users.getUserByName(username);
+        if (user == null) {
+            out.println("No such user " + username);
+            return true;
+        }
+        boolean success = user.setPassword(passwd);
+        if (success) {
+            users.updateUser(user);
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Password for ")
+                        .append(username)
+                        .append(" reset");
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else {
+            out.println("Error resetting password");
+            getLogger().info("Error resetting password");
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an DELUSER command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doDELUSER(String argument) {
+        String user = argument;
+        if ((user == null) || (user.equals(""))) {
+            out.println("Usage: deluser [username]");
+            return true;
+        }
+        try {
+            users.removeUser(user);
+        } catch (Exception e) {
+            StringBuffer exceptionBuffer =
+               new StringBuffer(128)
+                       .append("Error deleting user ")
+                       .append(user)
+                       .append(" : ")
+                       .append(e.getMessage());
+            out.println(exceptionBuffer.toString());
+            return true;
+        }
+        StringBuffer responseBuffer =
+            new StringBuffer(64)
+                    .append("User ")
+                    .append(user)
+                    .append(" deleted");
+        String response = responseBuffer.toString();
+        out.println(response);
+        out.flush();
+        getLogger().info(response);
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an LISTUSERS command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doLISTUSERS(String argument) {
+        out.println("Existing accounts " + users.countUsers());
+        for (Iterator it = users.list(); it.hasNext();) {
+           out.println("user: " + (String) it.next());
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an COUNTUSERS command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doCOUNTUSERS(String argument) {
+        out.println("Existing accounts " + users.countUsers());
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an VERIFY command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doVERIFY(String argument) {
+        String user = argument;
+        if (user.equals("")) {
+            out.println("Usage: verify [username]");
+            return true;
+        }
+        if (users.contains(user)) {
             StringBuffer responseBuffer =
                 new StringBuffer(64)
                         .append("User ")
                         .append(user)
-                        .append(" deleted");
+                        .append(" exists");
+            String response = responseBuffer.toString();
+            out.println(response);
+        } else {
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("User ")
+                        .append(user)
+                        .append(" does not exist");
+            String response = responseBuffer.toString();
+            out.println(response);
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an HELP command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doHELP(String argument) {
+        out.println("Currently implemented commands:");
+        out.println("help                                    display this help");
+        out.println("listusers                               display existing accounts");
+        out.println("countusers                              display the number of existing accounts");
+        out.println("adduser [username] [password]           add a new user");
+        out.println("verify [username]                       verify if specified user exist");
+        out.println("deluser [username]                      delete existing user");
+        out.println("setpassword [username] [password]       sets a user's password");
+        out.println("setalias [username] [alias]             sets a user's alias");
+        out.println("unsetalias [username]                   removes a user's alias");
+        out.println("setforwarding [username] [emailaddress] forwards a user's email to another account");
+        out.println("user [repositoryname]                   change to another user repository");
+        out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
+        out.println("quit                                    close connection");
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an SETALIAS command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doSETALIAS(String argument) {
+        int breakIndex = -1;
+        if ((argument == null) ||
+            (argument.equals("")) ||
+            ((breakIndex = argument.indexOf(" ")) < 0)) {
+            out.println("Usage: setforwarding [username] [emailaddress]");
+            return true;
+        }
+        String username = argument.substring(0,breakIndex);
+        String alias = argument.substring((breakIndex + 1), argument.length());
+        if (username.equals("") || alias.equals("")) {
+            out.println("Usage: adduser [username] [alias]");
+            return true;
+        }
+        JamesUser user = (JamesUser) users.getUserByName(username);
+        if (user == null) {
+            out.println("No such user " + username);
+            return true;
+        }
+        JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+        if (aliasUser == null) {
+            out.println("Alias unknown to server"
+                        + " - create that user first.");
+            return true;
+        }
+
+        boolean success = user.setAlias(alias);
+        if (success) {
+            user.setAliasing(true);
+            users.updateUser(user);
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Alias for ")
+                        .append(username)
+                        .append(" set to:")
+                        .append(alias);
             String response = responseBuffer.toString();
             out.println(response);
             getLogger().info(response);
-        } else if (command.equals("LISTUSERS")) {
-            out.println("Existing accounts " + users.countUsers());
-            for (Iterator it = users.list(); it.hasNext();) {
-                out.println("user: " + (String) it.next());
-            }
-        } else if (command.equals("COUNTUSERS")) {
-            out.println("Existing accounts " + users.countUsers());
-        } else if (command.equals("VERIFY")) {
-            String user = argument;
-            if (user.equals("")) {
-                out.println("usage: verify [username]");
-                return true;
-            }
-            if (users.contains(user)) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("User ")
-                            .append(user)
-                            .append(" exists");
-                String response = responseBuffer.toString();
-                out.println(response);
-            } else {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("User ")
-                            .append(user)
-                            .append(" does not exist");
-                String response = responseBuffer.toString();
-                out.println(response);
-            }
-        } else if (command.equals("HELP")) {
-            out.println("Currently implemented commands:");
-            out.println("help                                    display this help");
-            out.println("listusers                               display existing accounts");
-            out.println("countusers                              display the number of existing accounts");
-            out.println("adduser [username] [password]           add a new user");
-            out.println("verify [username]                       verify if specified user exist");
-            out.println("deluser [username]                      delete existing user");
-            out.println("setpassword [username] [password]       sets a user's password");
-            out.println("setalias [username] [alias]             sets a user's alias");
-            out.println("unsetalias [username]                   removes a user's alias");
-            out.println("setforwarding [username] [emailaddress] forwards a user's email to another account");
-            out.println("user [repositoryname]                   change to another user repository");
-            out.println("shutdown                                kills the current JVM (convenient when James is run as a daemon)");
-            out.println("quit                                    close connection");
-            out.flush();
-        } else if (command.equals("SETALIAS")) {
-            if (argument == null || argument1 == null) {
-                out.println("usage: setalias [username] [alias]");
-                return true;
-            }
-            String username = argument;
-            String alias = argument1;
-            if (username.equals("") || alias.equals("")) {
-                out.println("usage: adduser [username] [alias]");
-                return true;
-            }
-            JamesUser user = (JamesUser) users.getUserByName(username);
-            if (user == null) {
-                out.println("No such user");
-                return true;
-            }
-            JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
-            if (aliasUser == null) {
-                out.println("Alias unknown to server"
-                            + " - create that user first.");
-                return true;
-            }
-
-            boolean success = user.setAlias(alias);
-            if (success) {
-                user.setAliasing(true);
-                users.updateUser(user);
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("Alias for ")
-                            .append(username)
-                            .append(" set to:")
-                            .append(alias);
-                String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
-            } else {
-                out.println("Error setting alias");
-                getLogger().info("Error setting alias");
-            }
-            out.flush();
-            return true;
-        } else if (command.equals("SETFORWARDING")) {
-            if (argument == null || argument1 == null) {
-                out.println("usage: setforwarding [username] [emailaddress]");
-                return true;
-            }
-            String username = argument;
-            String forward = argument1;
-            if (username.equals("") || forward.equals("")) {
-                out.println("usage: adduser [username] [emailaddress]");
-                return true;
-            }
-            // Verify user exists
-            User baseuser = users.getUserByName(username);
-            if (baseuser == null) {
-                out.println("No such user");
-                return true;
-            }
-            else if (! (baseuser instanceof JamesUser ) ) {
-                out.println("Can't set forwarding for this user type.");
-                return true;
-            }
-            JamesUser user = (JamesUser)baseuser;
-            // Verify acceptable email address
-            MailAddress forwardAddr;
-            try {
-                 forwardAddr = new MailAddress(forward);
-            } catch(ParseException pe) {
-                out.println("Parse exception with that email address: "
-                            + pe.getMessage());
-                out.println("Forwarding address not added for " + username);
-                return true;
-            }
-
-            boolean success = user.setForwardingDestination(forwardAddr);
-            if (success) {
-                user.setForwarding(true);
-                users.updateUser(user);
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("Forwarding destination for ")
-                            .append(username)
-                            .append(" set to:")
-                            .append(forwardAddr.toString());
-                String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
-            } else {
-                out.println("Error setting forwarding");
-                getLogger().info("Error setting forwarding");
-            }
-            out.flush();
-            return true;
-        } else if (command.equals("UNSETALIAS")) {
-            if (argument == null) {
-                    out.println("usage: unsetalias [username]");
-                    return true;
-            }
-            String username = argument;
-            if (username.equals("")) {
-                out.println("usage: adduser [username]");
-                return true;
-            }
-            JamesUser user = (JamesUser) users.getUserByName(username);
-            if (user == null) {
-                out.println("No such user");
-                return true;
-            }
-
-            if (user.getAliasing()){
-                user.setAliasing(false);
-                users.updateUser(user);
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("Alias for ")
-                            .append(username)
-                            .append(" unset");
-                String response = responseBuffer.toString();
-                out.println(response);
-                getLogger().info(response);
-            } else {
-                out.println("Aliasing not active for" + username);
-                getLogger().info("Aliasing not active for" + username);
-            }
-            out.flush();
-            return true;
-        } else if (command.equals("USE")) {
-            if (argument == null || argument.equals("")) {
-                out.println("usage: use [repositoryName]");
-                return true;
-            }
-            String repositoryName = argument.toLowerCase(Locale.US);
-            UsersRepository repos = usersStore.getRepository(repositoryName);
-            if ( repos == null ) {
-                out.println("no such repository");
-                return true;
-            }
-            else {
-                users = repos;
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append("Changed to repository '")
-                            .append(repositoryName)
-                            .append("'.");
-                out.println(responseBuffer.toString());
-                if ( repositoryName.equals("localusers") ) {
-                    inLocalUsers = true;
-                }
-                else {
-                    inLocalUsers = false;
-                }
-                return true;
-            }
-
-        } else if (command.equals("QUIT")) {
-            out.println("bye");
-            return false;
-        } else if (command.equals("SHUTDOWN")) {
-            out.println("shuting down, bye bye");
-            System.exit(0);
-            return false;
         } else {
-            out.println("unknown command " + command);
+            out.println("Error setting alias");
+            getLogger().info("Error setting alias");
         }
+        out.flush();
         return true;
     }
+
+    /**
+     * Handler method called upon receipt of an SETFORWARDING command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doSETFORWARDING(String argument) {
+        int breakIndex = -1;
+        if ((argument == null) ||
+            (argument.equals("")) ||
+            ((breakIndex = argument.indexOf(" ")) < 0)) {
+            out.println("Usage: setforwarding [username] [emailaddress]");
+            return true;
+        }
+        String username = argument.substring(0,breakIndex);
+        String forward = argument.substring((breakIndex + 1), argument.length());
+        if (username.equals("") || forward.equals("")) {
+           out.println("Usage: setforwarding [username] [emailaddress]");
+           return true;
+        }
+        // Verify user exists
+        User baseuser = users.getUserByName(username);
+        if (baseuser == null) {
+            out.println("No such user " + username);
+            out.flush();
+            return true;
+        } else if (! (baseuser instanceof JamesUser ) ) {
+            out.println("Can't set forwarding for this user type.");
+            out.flush();
+            return true;
+        }
+        JamesUser user = (JamesUser)baseuser;
+        // Verify acceptable email address
+        MailAddress forwardAddr;
+        try {
+             forwardAddr = new MailAddress(forward);
+        } catch(ParseException pe) {
+            out.println("Parse exception with that email address: "
+                        + pe.getMessage());
+            out.println("Forwarding address not added for " + username);
+            out.flush();
+            return true;
+        }
+
+        boolean success = user.setForwardingDestination(forwardAddr);
+        if (success) {
+            user.setForwarding(true);
+            users.updateUser(user);
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Forwarding destination for ")
+                        .append(username)
+                        .append(" set to:")
+                        .append(forwardAddr.toString());
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else {
+            out.println("Error setting forwarding");
+            getLogger().info("Error setting forwarding");
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of an UNSETALIAS command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doUNSETALIAS(String argument) {
+        if ((argument == null) || (argument.equals(""))) {
+            out.println("Usage: unsetalias [username]");
+            out.flush();
+            return true;
+        }
+        String username = argument;
+        JamesUser user = (JamesUser) users.getUserByName(username);
+        if (user == null) {
+            out.println("No such user " + username);
+        } else if (user.getAliasing()){
+            user.setAliasing(false);
+            users.updateUser(user);
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Alias for ")
+                        .append(username)
+                        .append(" unset");
+            String response = responseBuffer.toString();
+            out.println(response);
+            getLogger().info(response);
+        } else {
+            out.println("Aliasing not active for" + username);
+            getLogger().info("Aliasing not active for" + username);
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of a USER command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doUSER(String argument) {
+        if (argument == null || argument.equals("")) {
+            out.println("Usage: user [repositoryName]");
+            out.flush();
+            return true;
+        }
+        String repositoryName = argument.toLowerCase(Locale.US);
+        UsersRepository repos = usersStore.getRepository(repositoryName);
+        if ( repos == null ) {
+            out.println("No such repository: " + repositoryName);
+        } else {
+            users = repos;
+            StringBuffer responseBuffer =
+                new StringBuffer(64)
+                        .append("Changed to repository '")
+                        .append(repositoryName)
+                        .append("'.");
+            out.println(responseBuffer.toString());
+            if ( repositoryName.equals("localusers") ) {
+                inLocalUsers = true;
+            } else {
+                inLocalUsers = false;
+            }
+        }
+        out.flush();
+        return true;
+    }
+
+    /**
+     * Handler method called upon receipt of a QUIT command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doQUIT(String argument) {
+        out.println("bye");
+        out.flush();
+        return false;
+    }
+
+    /**
+     * Handler method called upon receipt of a SHUTDOWN command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the argument passed in with the command
+     */
+    private boolean doSHUTDOWN(String argument) {
+        out.println("Shutting down, bye bye");
+        out.flush();
+        System.exit(0);
+        return false;
+    }
+
+    /**
+     * Handler method called upon receipt of an unrecognized command.
+     * Returns whether further commands should be read off the wire.
+     *
+     * @param argument the unknown command
+     */
+    private boolean doUnknownCommand(String argument) {
+        out.println("Unknown command " + argument);
+        out.flush();
+        return true;
+    }
+
 }
 
