@@ -17,7 +17,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Loggable;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
-import org.apache.log.LogKit;
 import org.apache.log.Logger;
 
 /**
