@@ -55,14 +55,10 @@
  * originally written at the National Center for Supercomputing Applications,
  * University of Illinois, Urbana-Champaign.
  */
-
 package org.apache.james.util.connection;
-
 import java.net.ServerSocket;
 import java.util.HashMap;
-
-import org.apache.avalon.excalibur.thread.ThreadPool;
-
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
@@ -73,20 +69,17 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-
-
 /**
  * An implementation of ConnectionManager that supports configurable
  * idle timeouts and a configurable value for the maximum number of
  * client connections to a particular port.
  *
  */
-public class SimpleConnectionManager extends AbstractLogEnabled
+public class SimpleConnectionManager
+    extends AbstractLogEnabled
     implements ConnectionManager, Serviceable, Configurable, Disposable {
-
     /**
      * The default value for client socket idle timeouts.  The
      * Java default is 0, meaning no timeout.  That's dangerous
@@ -97,105 +90,88 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * use a timeout of 5 minutes.
      */
     private static final int DEFAULT_SOCKET_TIMEOUT = 5 * 60 * 1000;
-
     /**
      * The default value for the maximum number of allowed client
      * connections.
      */
     private static final int DEFAULT_MAX_CONNECTIONS = 30;
-
     /**
      * The map of connection name / server connections managed by this connection
      * manager.
      */
     private final HashMap connectionMap = new HashMap();
-
     /**
      * The idle timeout for the individual sockets spawed from the server socket.
      */
     protected int timeout = 0;
-
     /**
      * The maximum number of client connections allowed per server connection.
      */
     protected int maxOpenConn = 0;
-
     /**
      * The ThreadManager component that is used to provide a default thread pool.
      */
     private ThreadManager threadManager;
-
     /**
      * Whether the SimpleConnectionManager has been disposed.
      */
     private volatile boolean disposed = false;
-
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
         timeout = configuration.getChild("idle-timeout").getValueAsInteger(DEFAULT_SOCKET_TIMEOUT);
         maxOpenConn = configuration.getChild("max-connections").getValueAsInteger(DEFAULT_MAX_CONNECTIONS);
-
         if (timeout < 0) {
             StringBuffer exceptionBuffer =
-                new StringBuffer(128)
-                    .append("Specified socket timeout value of ")
-                    .append(timeout)
-                    .append(" is not a legal value.");
+                new StringBuffer(128).append("Specified socket timeout value of ").append(timeout).append(
+                    " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-
         if (maxOpenConn < 0) {
             StringBuffer exceptionBuffer =
-                new StringBuffer(128)
-                    .append("Specified maximum number of open connections of ")
-                    .append(maxOpenConn)
-                    .append(" is not a legal value.");
+                new StringBuffer(128).append("Specified maximum number of open connections of ").append(
+                    maxOpenConn).append(
+                    " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Connection timeout is "
-                             + (timeout == 0 ? "unlimited" : Long.toString(timeout)));
-            getLogger().debug("The maximum number of simultaneously open connections is "
-                             + (maxOpenConn == 0 ? "unlimited" : Integer.toString(maxOpenConn)));
+            getLogger().debug(
+                "Connection timeout is " + (timeout == 0 ? "unlimited" : Long.toString(timeout)));
+            getLogger().debug(
+                "The maximum number of simultaneously open connections is "
+                    + (maxOpenConn == 0 ? "unlimited" : Integer.toString(maxOpenConn)));
         }
     }
-
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void service(ServiceManager componentManager) 
-        throws ServiceException {
-        threadManager = (ThreadManager)componentManager.lookup( ThreadManager.ROLE );
+    public void service(ServiceManager componentManager) throws ServiceException {
+        threadManager = (ThreadManager)componentManager.lookup(ThreadManager.ROLE);
     }
-
     /**
      * Disconnects all the underlying ServerConnections
      */
     public void dispose() {
-
         disposed = true;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Starting SimpleConnectionManager dispose...");
         }
-        final String[] names = (String[])connectionMap.keySet().toArray( new String[ 0 ] );
-        for( int i = 0; i < names.length; i++ ) {
+        final String[] names = (String[])connectionMap.keySet().toArray(new String[0]);
+        for (int i = 0; i < names.length; i++) {
             try {
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Disconnecting ServerConnection " + names[i]);
                 }
-                disconnect( names[ i ], true);
-            } catch( final Exception e ) {
-                getLogger().warn( "Error disconnecting " + names[ i ], e );
+                disconnect(names[i], true);
+            } catch (final Exception e) {
+                getLogger().warn("Error disconnecting " + names[i], e);
             }
         }
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Finishing SimpleConnectionManager dispose...");
         }
     }
-
     /**
      * Start managing a connection.
      * Management involves accepting connections and farming them out to threads
@@ -208,32 +184,31 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
      * @exception Exception if an error occurs
      */
-    public void connect( String name,
-                         ServerSocket socket,
-                         ConnectionHandlerFactory handlerFactory,
-                         ThreadPool threadPool,
-                         int maxOpenConnections )
+    public void connect(
+        String name,
+        ServerSocket socket,
+        ConnectionHandlerFactory handlerFactory,
+        ThreadPool threadPool,
+        int maxOpenConnections)
         throws Exception {
-
         if (disposed) {
             throw new IllegalStateException("Connection manager has already been shutdown.");
         }
-        if( null != connectionMap.get( name ) ) {
-            throw new IllegalArgumentException( "Connection already exists with name " +
-                                                name );
+        if (null != connectionMap.get(name)) {
+            throw new IllegalArgumentException("Connection already exists with name " + name);
         }
         if (maxOpenConnections < 0) {
-            throw new IllegalArgumentException( "The maximum number of client connections per server socket cannot be less that zero.");
+            throw new IllegalArgumentException("The maximum number of client connections per server socket cannot be less that zero.");
         }
-        ServerConnection runner = new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections);
-        setupLogger( runner );
+        ServerConnection runner =
+            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections);
+        setupLogger(runner);
         if (runner instanceof Initializable) {
             ((Initializable)runner).initialize();
         }
-        connectionMap.put( name, runner );
+        connectionMap.put(name, runner);
         threadPool.execute(runner);
     }
-
     /**
      * Start managing a connection.
      * Management involves accepting connections and farming them out to threads
@@ -245,15 +220,14 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * @param threadPool the thread pool to use
      * @exception Exception if an error occurs
      */
-    public void connect( String name,
-                         ServerSocket socket,
-                         ConnectionHandlerFactory handlerFactory,
-                         ThreadPool threadPool )
+    public void connect(
+        String name,
+        ServerSocket socket,
+        ConnectionHandlerFactory handlerFactory,
+        ThreadPool threadPool)
         throws Exception {
-
         connect(name, socket, handlerFactory, threadPool, maxOpenConn);
     }
-
     /**
      * Start managing a connection.
      * This is similar to other connect method except that it uses default thread pool.
@@ -263,13 +237,10 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * @param handlerFactory the factory from which to acquire handlers
      * @exception Exception if an error occurs
      */
-    public void connect( String name,
-                         ServerSocket socket,
-                         ConnectionHandlerFactory handlerFactory )
+    public void connect(String name, ServerSocket socket, ConnectionHandlerFactory handlerFactory)
         throws Exception {
-        connect( name, socket, handlerFactory, threadManager.getDefaultThreadPool() );
+        connect(name, socket, handlerFactory, threadManager.getDefaultThreadPool());
     }
-
     /**
      * Start managing a connection.
      * This is similar to other connect method except that it uses default thread pool.
@@ -280,25 +251,23 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
      * @exception Exception if an error occurs
      */
-    public void connect( String name,
-                         ServerSocket socket,
-                         ConnectionHandlerFactory handlerFactory,
-                         int maxOpenConnections )
+    public void connect(
+        String name,
+        ServerSocket socket,
+        ConnectionHandlerFactory handlerFactory,
+        int maxOpenConnections)
         throws Exception {
-        connect( name, socket, handlerFactory, threadManager.getDefaultThreadPool(), maxOpenConnections );
+        connect(name, socket, handlerFactory, threadManager.getDefaultThreadPool(), maxOpenConnections);
     }
-
     /**
      * This shuts down all handlers and socket, waiting for each to gracefully shutdown.
      *
      * @param name the name of connection
      * @exception Exception if an error occurs
      */
-    public void disconnect( final String name )
-        throws Exception {
-        disconnect( name, false );
+    public void disconnect(final String name) throws Exception {
+        disconnect(name, false);
     }
-
     /**
      * This shuts down a connection.
      * If tearDown is true then it will forcefully the connection and try
@@ -309,19 +278,14 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * @param tearDown if true will forcefully tear down all handlers
      * @exception Exception if an error occurs
      */
-    public void disconnect( final String name, final boolean tearDown )
-        throws Exception {
-
-        ServerConnection connection = (ServerConnection)connectionMap.remove( name );
-        if( null == connection ) {
-            throw new IllegalArgumentException( "No such connection with name " +
-                                                name );
+    public void disconnect(final String name, final boolean tearDown) throws Exception {
+        ServerConnection connection = (ServerConnection)connectionMap.remove(name);
+        if (null == connection) {
+            throw new IllegalArgumentException("No such connection with name " + name);
         }
-
         // TODO: deal with tear down parameter
         connection.dispose();
     }
-
     /**
      * Returns the default maximum number of open connections supported by this
      * SimpleConnectionManager
@@ -330,5 +294,14 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      */
     public int getMaximumNumberOfOpenConnections() {
         return maxOpenConn;
+    }
+    /**
+     * NOTE this method is a placeholder required until org.apache.avalon.cornerstone.services.connection.ConnectionManager is updated
+     * @deprecated 
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, org.apache.avalon.excalibur.thread.ThreadPool)
+     */
+    public void connect(String arg0, ServerSocket arg1, ConnectionHandlerFactory arg2, org.apache.avalon.excalibur.thread.ThreadPool arg3)
+        throws Exception {
+        connect(arg0,arg1,arg2,arg3,getMaximumNumberOfOpenConnections());
     }
 }

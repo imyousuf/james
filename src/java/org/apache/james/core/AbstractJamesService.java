@@ -69,7 +69,7 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionManager;
 import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -446,7 +446,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             }
             connectionName = sb.toString();
         }
-
         if(
             (connectionLimit != null)
                 &&(connectionManager instanceof SimpleConnectionManager)) {
@@ -459,9 +458,13 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     connectionName,serverSocket,this,connectionLimit.intValue()); // default pool
             }
         } else {
+            
             if(null != threadPool) {
+                
+                //TODO remove cast when avalon updates allow us to use the correct class
                 connectionManager.connect(
-                    connectionName,serverSocket,this,threadPool);
+                    connectionName,serverSocket,this,
+                    (org.apache.avalon.excalibur.thread.ThreadPool)threadPool);
             } else {
                 connectionManager.connect(connectionName,serverSocket,this); // default pool
             }
