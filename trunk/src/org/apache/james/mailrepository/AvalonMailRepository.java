@@ -146,10 +146,13 @@ public class AvalonMailRepository
     }
 
     public void remove(String key) {
-        lock(key);
-        sr.remove(key);
-        or.remove(key);
-        unlock(key);
+        try {
+            lock( key);
+            sr.remove(key);
+            or.remove(key);
+        } finally {
+            unlock(key);
+        }
     }
 
     public Iterator list() {
