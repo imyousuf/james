@@ -6,72 +6,91 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.usersrepository;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.avalon.utils.*;
 import java.util.*;
 import java.io.*;
+//import org.apache.avalon.blocks.*;
+import org.apache.avalon.*;
+import org.apache.avalon.services.Store;
+import org.apache.avalon.util.*;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
+import org.apache.james.services.UsersRepository;
+
 
 /**
- * Implementation of a Repository to store users.
+ * Implementation of a Repository to store users on the File System.
+ *
+ * Requires a configuration element in the .conf.xml file of the form:
+ *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *              type="USERS"
+ *              model="SYNCHRONOUS"/>
+ * Requires a logger called UsersRepository.
+ * 
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class UsersFileRepository implements UsersRepository {
-
+public class UsersFileRepository implements UsersRepository, Loggable, Component, Configurable, Composer {
+    private static final String TYPE = "USERS";
+    private final static boolean        LOG        = true;
+    private final static boolean        DEBUG      = LOG && false;
+    private Logger logger;// =  LogKit.getLoggerFor("james.users-store");
+    private Store store;
     private Store.ObjectRepository or;
-    private String path;
-    private String name;
+ 
     private String destination;
-    private String type;
-    private String model;
 
+    private Lock lock;
 
-    // Methods from interface Repository ---------------------------------------------
-    public void setAttributes(String name, String destination, String type, String model) {
+    public UsersFileRepository() {
+    }
 
-        this.name = name;
-        this.destination = destination;
-        if (!this.destination.endsWith(File.separator)) {
-            this.destination += File.separator;
+    public void setLogger(final Logger a_Logger) {
+	logger = a_Logger;
+    }
+
+    public void configure(Configuration conf) throws ConfigurationException {
+
+	destination = conf.getChild("destination").getAttribute("URL");
+        if (!destination.endsWith(File.separator)) {
+           destination += File.separator;
         }
-        this.model = model;
-        this.type = type;
     }
 
-    public String getName() {
-        return name;
+
+    public void compose(ComponentManager compMgr) {
+	try {
+	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    //prepare Configurations for object and stream repositories
+	    DefaultConfiguration objConf
+		= new DefaultConfiguration("repository", "generated:UsersFileRepository.compose()");
+	    objConf.addAttribute("destinationURL", destination);
+	    objConf.addAttribute("type", "OBJECT");
+	    objConf.addAttribute("model", "SYNCHRONOUS");
+	
+	    or = (Store.ObjectRepository) store.select(objConf);
+	    lock = new Lock();
+	} catch (ComponentNotFoundException cnfe) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
+	}
     }
 
-    public String getType() {
-        return type;
-    }
 
-    public String getModel() {
-        return model;
-    }
-
-    public String getChildDestination(String childName) {
-        return destination + childName.replace ('.', File.separatorChar) + File.separator;
-    }
-
-    public Enumeration list() {
+    public Iterator list() {
         return or.list();
     }
 
-    // Methods from interface Composer -------------------------------------------------
-    public void setComponentManager(ComponentManager comp) {
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        this.or = (Store.ObjectRepository) store.getPrivateRepository(destination, Store.OBJECT, model);
-    }
-
-    // Methods from interface UsersRepository -----------------------------------------
-
+ 
     public synchronized void addUser(String name, Object attributes) {
         try {
-            or.store(name, attributes);
+            or.put(name, attributes);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught while storing user: " + e);
         }
@@ -104,7 +123,7 @@ public class UsersFileRepository implements UsersRepository {
 
     public int countUsers() {
         int count = 0;
-        for (Enumeration e = list(); e.hasMoreElements(); e.nextElement()) {
+        for (Iterator it = list(); it.hasNext(); it.next()) {
             count++;
         }
         return count;

@@ -8,25 +8,28 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.blocks.*;
-import org.apache.avalon.*;
-import org.apache.avalon.utils.*;
-import org.apache.james.Constants;
-import java.util.*;
 import java.io.*;
 import javax.naming.*;
 import javax.naming.directory.*;
+import java.util.*;
+
+import org.apache.avalon.*;
+import org.apache.avalon.blocks.*;
+//import org.apache.avalon.utils.*;
+import org.apache.james.Constants;
+import org.apache.james.services.UsersRepository;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
 
 /**
  * Implementation of a Repository to store users.
  * @version 1.0.0, 24/04/1999
  * @author  Charles Bennett
  */
-public class UsersLDAPRepository  implements UsersRepository, Configurable, Contextualizable{
+public class UsersLDAPRepository  implements UsersRepository, Loggable, Configurable, Contextualizable, Initializable{
 
 
     private ComponentManager comp;
-    private org.apache.avalon.Context context;
 
     private Logger logger;
     private String path;
@@ -55,28 +58,75 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
     private String passwordAttr;
 
 
-
-
-    // Methods from interface Repository ---------------------------------------------
-    public void setAttributes(String name, String destination, String type, String model) {
-
-        this.name = name;
-        this.destination = destination;
-        this.model = model;
-        this.type = type;
+    public void setLogger(final Logger a_Logger) {
+	logger = a_Logger;
     }
 
-   public String getName() {
-        return name;
+    public void configure(Configuration conf)
+        throws org.apache.avalon.ConfigurationException {
+
+	LDAPHost = conf.getChild("LDAPServer").getValue();
+        rootNodeDN = conf.getChild("LDAPRoot").getValue();
+        serverRDN = conf.getChild("ThisServerRDN").getValue();
+        mailAddressAttr
+	    = conf.getChild("MailAddressAttribute").getValue();
+        identAttr = conf.getChild("IdentityAttribute").getValue();
+        authType = conf.getChild("AuthenticationType").getValue();
+        principal = conf.getChild("Principal").getValue();
+        password = conf.getChild("Password").getValue();
+
+        membersAttr = conf.getChild("MembersAttribute").getValue();
+        manageGroupAttr
+	    = conf.getChild("ManageGroupAttribute").getValue().equals("TRUE");
+        groupAttr = conf.getChild("GroupAttribute").getValue();
+        managePasswordAttr = conf.getChild("ManagePasswordAttribute").getValue().equals("TRUE");
+        passwordAttr = conf.getChild("PasswordAttribute").getValue();
     }
 
-    public String getType() {
-        return type;
+    public void compose(ComponentManager compMgr) {
+        this.comp = comp;
+   }
+
+    public void contextualize(org.apache.avalon.Context context) {
+	Collection serverNames
+	    = (Collection) context.get(Constants.SERVER_NAMES);
+        usersDomain = (String) serverNames.iterator().next();
     }
 
-    public String getModel() {
-        return model;
+   public void setServerRoot() {
+        this.setBase(serverRDN +", " + rootNodeDN);
     }
+
+    public void setBase(String base) {
+        baseNodeDN = base;
+    }
+
+    public void init() throws Exception {
+        //setServerRoot();
+        rootURL = LDAPHost + "/" + rootNodeDN;
+        baseURL = LDAPHost + "/" + baseNodeDN;
+
+        logger.info("Creating initial context from " + baseURL);
+        //System.out.println("Creating initial context from " + baseURL);
+
+        Hashtable env = new Hashtable();
+        env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
+		"com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(javax.naming.Context.PROVIDER_URL, baseURL);
+
+        try {
+            ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+
+     
+	logger.info("Initial context initialised from " + baseURL);
+    }
+
+
+
     public String getChildDestination(String childName) {
 
         String destination = null;
@@ -89,8 +139,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
             if (result.hasMore()) {
                 destination = "cn=" + childName + ", " + baseNodeDN;
-                logger.log("Pre-exisisting LDAP node: " + destination,
-			   "UserManager", logger.INFO);
+                logger.info("Pre-exisisting LDAP node: " + destination);
             } else {
                 Attributes attrs = new BasicAttributes(true);
                 Attribute objclass = new BasicAttribute("objectclass");
@@ -112,8 +161,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
 
                 destination = "cn=" + childName + ", " + baseNodeDN;
-                logger.log("Created new LDAP node: " + destination,
-			   "UserManager", logger.INFO);
+                logger.info("Created new LDAP node: " + destination);
             }
         } catch (NamingException e) {
             System.out.println("Problem with child nodes " + e.getMessage());
@@ -123,9 +171,9 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
         return destination;
     }
 
-   public Enumeration list() {
+   public Iterator list() {
 
-       Vector result = new Vector();
+       List result = new ArrayList();
        String filter = mailAddressAttr + "=*";
        String[] attrIDs = {membersAttr};
 
@@ -139,85 +187,20 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 }
             }
         } catch (NamingException e) {
-            logger.log("Problem listing mailboxes. " + e ,
-		       "UserManager", logger.ERROR);
-            //System.out.println(    "Problem listing mailboxes. "  +
-	    // e.getMessage());
+            logger.error("Problem listing mailboxes. " + e );
+ 
         }
-       return result.elements();
+       return result.iterator();
     }
 
-    // Methods from Interface Configurable, Composer  ---------------------
 
-    public void setConfiguration(Configuration conf) {
-        LDAPHost = conf.getConfiguration("LDAPServer").getValue();
-        rootNodeDN = conf.getConfiguration("LDAPRoot").getValue();
-        serverRDN = conf.getConfiguration("ThisServerRDN").getValue();
-        mailAddressAttr
-	    = conf.getConfiguration("MailAddressAttribute").getValue();
-        identAttr = conf.getConfiguration("IdentityAttribute").getValue();
-        authType = conf.getConfiguration("AuthenticationType").getValue();
-        principal = conf.getConfiguration("Principal").getValue();
-        password = conf.getConfiguration("Password").getValue();
-
-        membersAttr = conf.getConfiguration("MembersAttribute").getValue();
-        manageGroupAttr
-	    = conf.getConfiguration("ManageGroupAttribute").getValue().equals("TRUE");
-        groupAttr = conf.getConfiguration("GroupAttribute").getValue();
-        managePasswordAttr = conf.getConfiguration("ManagePasswordAttribute").getValue().equals("TRUE");
-        passwordAttr = conf.getConfiguration("PasswordAttribute").getValue();
-	
-    }
-
-    public void setContext(org.apache.avalon.Context context) {
-        this.context = context;
-    }
-
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-    }
-
-    public void setServerRoot() {
-        this.setBase(serverRDN +", " + rootNodeDN);
-    }
-
-    public void setBase(String base) {
-        baseNodeDN = base;
-    }
-
-    public void init() throws Exception {
-        //setServerRoot();
-
-        logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        rootURL = LDAPHost + "/" + rootNodeDN;
-        baseURL = LDAPHost + "/" + baseNodeDN;
-
-        logger.log("Creating initial context from " + baseURL, "UserManager",
-		   logger.INFO);
-        //System.out.println("Creating initial context from " + baseURL);
-
-        Hashtable env = new Hashtable();
-        env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
-		"com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(javax.naming.Context.PROVIDER_URL, baseURL);
-
-        try {
-            ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
-        } catch (Exception e) {
-            e.getMessage();
-            e.printStackTrace();
-        }
-
-        Collection serverNames
-	    = (Collection) context.get(Constants.SERVER_NAMES);
-        usersDomain = (String) serverNames.iterator().next();
-	logger.log("Initial context initialised from " + baseURL,
-		   "UserManager", logger.INFO);
-    }
+ 
 
     // Methods from interface UsersRepository --------------------------
 
-    /** Adds userName to the MemberAttribute (specified in conf.xml) of this node.
+    /**
+     * Adds userName to the MemberAttribute (specified in conf.xml) of this
+     * node.
      * If ManageGroupAttribute (conf.xml) is TRUE then calls addGroupToUser.
      */
     public synchronized void addUser(String userName, Object attributes) {
@@ -231,7 +214,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
 
             if (members != null && members.contains(userName)) {//user already here
-                logger.log("Found " + userName + " already in mailGroup. " , "UserManager", logger.INFO);
+                logger.info("Found " + userName + " already in mailGroup. " );
                 //System.out.println("Found " + userName + " already in mailGroup. ");
 
             } else {
@@ -245,11 +228,11 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 ctx.modifyAttributes("", mods);
 
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                logger.log(userName + " added to mailGroup " + baseNodeDN , "UserManager", logger.INFO);
+                logger.info(userName + " added to mailGroup " + baseNodeDN );
                 //System.out.println(userName + " added to mailGroup " + baseNodeDN);
             }
         } catch (NamingException e) {
-             logger.log("Problem adding user " + userName + " to: " + baseNodeDN + e, "UserManager", logger.ERROR);
+             logger.error("Problem adding user " + userName + " to: " + baseNodeDN + e);
              //System.out.println("Problem adding user " + userName + " to: " + baseNodeDN);
              //System.out.println(e.getMessage());
              //e.printStackTrace();
@@ -291,7 +274,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
 
                 if (servers != null && servers.contains(baseNodeDN)) {//server already registered for user
-                    logger.log(baseNodeDN + " already in user's Groups. " , "UserManager", logger.INFO);
+                    logger.info(baseNodeDN + " already in user's Groups. " );
                     //System.out.println(baseNodeDN + " already in user's Groups. ");
 
                 } else {
@@ -303,13 +286,13 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                     rootCtx.modifyAttributes(userDN, DirContext.ADD_ATTRIBUTE, new BasicAttributes(groupAttr, baseNodeDN, true));
 
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                    logger.log(baseNodeDN + " added to user's groups " , "UserManager", logger.INFO);
+                    logger.info(baseNodeDN + " added to user's groups ");
                     //System.out.println(baseNodeDN + " added to users' groups ");
 
                 }
 
             } else {
-                logger.log("User " + userName + " not in Directory.", "UserManager", logger.INFO);
+                logger.info("User " + userName + " not in Directory.");
                 // System.out.println("User " + userName + " not in Directory.");
 
             }
@@ -318,7 +301,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
 
         } catch (NamingException e) {
-            logger.log("Problem adding group to user " + userName, "UserManager" + e, logger.ERROR);
+            logger.error("Problem adding group to user " + userName);
             //System.out.println("Problem adding group to user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -343,7 +326,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 System.out.println("UsersLDAPRepository - Null list attribute.");
 
             } else  if (!members.contains(userName)) {//user not here
-                logger.log(userName + " missing from mailGroup. " , "UserManager", logger.INFO);
+                logger.info(userName + " missing from mailGroup. ");
                 //System.out.println(userName + " missing from mailGroup. ");
 
             } else {
@@ -360,11 +343,11 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
 
                 ctx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                logger.log(userName + " removed from mailGroup. " , "UserManager", logger.INFO);
+                logger.info(userName + " removed from mailGroup. ");
                 //System.out.println(userName + " removed from mailGroup. ");
             }
         } catch (NamingException e) {
-            logger.log("Problem removing user " + userName + e, "UserManager", logger.ERROR);
+            logger.error("Problem removing user " + userName + e);
             //System.out.println("Problem removing user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -406,11 +389,11 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
                 Attribute servers = rootCtx.getAttributes(userDN, returnAttrs).get(groupAttr);
                 if (servers == null) { //should not happen
-                    logger.log("GroupAttribute missing from user: " + userName , "UserManager", logger.INFO);
+                    logger.info("GroupAttribute missing from user: " + userName);
                     // System.out.println("GroupAttribute missing from user: " + userName );
 
                 } else if (!servers.contains(baseNodeDN)) {//server not registered for user
-                    logger.log(baseNodeDN + " missing from users' Groups. " , "UserManager", logger.INFO);
+                    logger.info(baseNodeDN + " missing from users' Groups. " );
                     //System.out.println(baseNodeDN + " missing from users' Groups. ");
 
                 } else {
@@ -427,20 +410,20 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                     //rootCtx.modifyAttributes(userDN, DirContext.REPLACE_ATTRIBUTE, changes);
 
                     rootCtx.addToEnvironment(javax.naming.Context.SECURITY_AUTHENTICATION, "none");
-                    logger.log(baseNodeDN + " removed from users' groups " , "UserManager", logger.INFO);
+                    logger.info(baseNodeDN + " removed from users' groups " );
                     //System.out.println(baseNodeDN + " removed from users' groups ");
 
                 }
 
             } else {
-            logger.log("User " + userName + " not in Directory.", "UserManager", logger.INFO);
+            logger.info("User " + userName + " not in Directory.");
             //System.out.println("User " + userName + " not in Directory.");
 
             }
             rootCtx.close();
 
         } catch (NamingException e) {
-            logger.log("Problem removing user " + userName + e, "UserManager", logger.ERROR);
+            logger.error("Problem removing user " + userName + e);
             //System.out.println("Problem removing user " + userName);
             //System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -457,11 +440,11 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
             Attribute members = ctx.getAttributes("", attrIDs).get(membersAttr);
             if (members != null && members.contains(name)) {
                 found = true;
-                logger.log("Found " + name + " in mailGroup. " , "UserManager", logger.INFO);
+                logger.info("Found " + name + " in mailGroup. " );
                 //System.out.println("Found " + name + " in mailGroup. ");
             }
         } catch (NamingException e) {
-            logger.log("Problem finding user " + name + e, "UserManager", logger.ERROR);
+            logger.error("Problem finding user " + name + e);
             //System.out.println("Problem finding user " + name + " : " + e);
         }
         return found;
@@ -497,7 +480,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
             rootCtx.close();
         } catch (Exception e) {
-            logger.log("Problem finding user " + name + " for password test." +e, "UserManager", logger.ERROR);
+            logger.error("Problem finding user " + name + " for password test." +e);
             //e.getMessage();
             //e.printStackTrace();
         }
@@ -518,12 +501,12 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
 
             } catch (AuthenticationException ae) {
                 result = false;
-                logger.log("Attempt to authenticate with incorrect password for " + name + " : " + ae , "UserManager", logger.ERROR);
+                logger.error("Attempt to authenticate with incorrect password for " + name + " : " + ae );
                 //System.out.println("Attempt to authenticate with incorrect password for " + name + " : " + ae);
                 //System.out.println(ae.getMessage());
                 //ae.printStackTrace();
             } catch (Exception e) {
-              logger.log("Problem checking password for " + name + " : " + e , "UserManager", logger.ERROR);
+              logger.error("Problem checking password for " + name + " : " + e );
               //System.out.println("Problem checking password for " + name + " : " + e);
               //System.out.println(e.getMessage());
               //e.printStackTrace();
@@ -546,7 +529,7 @@ public class UsersLDAPRepository  implements UsersRepository, Configurable, Cont
                 result = 0;
             }
         } catch (NamingException e) {
-            logger.log("Problem counting users: "  + e, "UserManager", logger.INFO);
+            logger.error("Problem counting users: "  + e);
             //System.out.println("Problem counting users. ");
         }
        return result;
