@@ -58,6 +58,7 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
         comp.put(Resources.MAILET_LOADER, mailetLoader);
 
         MatchLoader matchLoader = new MatchLoader();
+        matchLoader.setConfiguration(conf.getConfiguration("matcherpackages"));
         comp.put(Resources.MATCH_LOADER, matchLoader);
 
         //A processor is a Collection of

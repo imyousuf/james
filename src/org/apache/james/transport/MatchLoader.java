@@ -16,7 +16,23 @@ import org.apache.avalon.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class MatchLoader implements Component {
+public class MatchLoader implements Component, Configurable {
+
+    private Configuration conf;
+    private Vector matcherPackages;
+
+    public void setConfiguration(Configuration conf) {
+        matcherPackages = new Vector();
+        matcherPackages.addElement("");
+        for (Enumeration e = conf.getConfigurations("matcherpackage"); e.hasMoreElements(); ) {
+            Configuration c = (Configuration) e.nextElement();
+            String packageName = c.getValue();
+            if (!packageName.endsWith(".")) {
+                packageName += ".";
+            }
+            matcherPackages.addElement(packageName);
+        }
+    }
 
     public Matcher getMatcher(String matchName, MailetContext context)
     throws MailetException {
@@ -27,18 +43,25 @@ public class MatchLoader implements Component {
                 condition = matchName.substring(i + 1);
                 matchName = matchName.substring(0, i);
             }
-            MatcherConfigImpl configImpl = new MatcherConfigImpl();
-            configImpl.setCondition(condition);
-            configImpl.setMailetContext(context);
-            //Have to make this package search list configurable - SK
-            String className = "org.apache.james.transport.matchers." + matchName;
-            Matcher matcher = (Matcher) Class.forName(className).newInstance();
-            matcher.init(configImpl);
-            return matcher;
+            for (i = 0; i < matcherPackages.size(); i++) {
+                String className = (String)matcherPackages.elementAt(i) + matchName;
+                try {
+                    MatcherConfigImpl configImpl = new MatcherConfigImpl();
+                    configImpl.setCondition(condition);
+                    configImpl.setMailetContext(context);
+
+                    Matcher matcher = (Matcher) Class.forName(className).newInstance();
+                    matcher.init(configImpl);
+                    return matcher;
+                } catch (ClassNotFoundException cnfe) {
+                    //do this so we loop through all the packages
+                }
+            }
+            throw new ClassNotFoundException("Requested matcher not found: " + matchName + ".  looked in " + matcherPackages.toString());
         } catch (MailetException me) {
             throw me;
         } catch (Throwable t) {
-            throw new MailetException("Error loading matcher", t);
+            throw new MailetException("Could not load matcher (" + matchName + ")", t);
         }
     }
 }
