@@ -355,13 +355,29 @@ public class DNSServer
         return answers;
     }
 
-    private static class MXRecordComparator
-        implements Comparator {
-
+    /* RFC 2821 section 5 requires that we sort the MX records by their
+     * preference, and introduce a randomization.  This Comparator does
+     * comparisons as normal unless the values are equal, in which case
+     * it "tosses a coin", randomly speaking.
+     *
+     * This way MX record w/preference 0 appears before MX record
+     * w/preference 1, but a bunch of MX records with the same preference
+     * would appear in different orders each time.
+     *
+     * Reminder for maintainers: the return value on a Comparator can
+     * be counter-intuitive for those who aren't used to the old C
+     * strcmp function:
+     *
+     * < 0 ==> a < b
+     * = 0 ==> a = b
+     * > 0 ==> a > b
+     */
+    private static class MXRecordComparator implements Comparator {
+        private final static Random random = new Random();
         public int compare (Object a, Object b) {
-            MXRecord ma = (MXRecord)a;
-            MXRecord mb = (MXRecord)b;
-            return ma.getPriority () - mb.getPriority ();
+            int pa = ((MXRecord)a).getPriority();
+            int pb = ((MXRecord)b).getPriority();
+            return (pa == pb) ? (512 - random.nextInt(1024)) : pa - pb;
         }
     }
 }
