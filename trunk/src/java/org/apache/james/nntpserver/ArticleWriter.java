@@ -7,16 +7,21 @@
  */
 package org.apache.james.nntpserver;
 
-import java.io.*;
+import java.io.PrintWriter;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 
-// this is used by ARTICLE, HEAD, BODY, STAT command.
-// these commands are identical except in the writing the Article header 
-// and body to the response stream
-// ARTICLE - writes header and body
-// HEAD - writes headers
-// BODY - writes body
-// STAT - does not write anything
+
+/**
+ * used by ARTICLE, HEAD, BODY, STAT command.
+ * these commands are identical except in the writing the Article header 
+ * and body to the response stream
+ * ARTICLE - writes header and body
+ * HEAD - writes headers
+ * BODY - writes body
+ * STAT - does not write anything
+ *
+ * @author  Harmeet <harmeet@kodemuse.com>
+ */
 interface ArticleWriter {
     void write(NNTPArticle article);
     class Factory {

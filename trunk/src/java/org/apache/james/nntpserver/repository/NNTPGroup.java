@@ -7,20 +7,22 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.util.*;
-import java.io.*;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
-import org.apache.avalon.excalibur.io.InvertedFileFilter;
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.james.nntpserver.NNTPException;
-import org.apache.james.nntpserver.DateSinceFileFilter;
+import java.util.Date;
+import java.util.Iterator;
 
+/** 
+ * Contract exposed by a NewsGroup
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 public interface NNTPGroup {
     String getName();
     String getDescription();
     boolean isPostAllowed();
 
-    // the current article pointer. <0 indicates invalid/unknown value
+    /** the current article pointer. 
+     * @return <0 indicates invalid/unknown value
+     */
     int getCurrentArticleNumber();
     void setCurrentArticleNumber(int articleNumber);
 

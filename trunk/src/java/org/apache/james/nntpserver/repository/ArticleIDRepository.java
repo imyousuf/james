@@ -7,26 +7,31 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.util.*;
-import java.io.*;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
-import org.apache.avalon.excalibur.io.InvertedFileFilter;
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.james.nntpserver.NNTPException;
-import org.apache.james.nntpserver.DateSinceFileFilter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+import org.apache.james.nntpserver.repository.ArticleIDRepository;
+import org.apache.james.nntpserver.repository.NNTPGroup;
+import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.util.Base64;
-
 
 /** 
  * ArticleIDRepository: contains one file for each article.
  * the file name is Base64 encoded article ID
  * The first line of the file is '# <create date of file>
  * the rest of line have <newsgroup name>=<article number>
+ * Allows fast lookup of a message by message id.
  *
- * this would allow fast lookup of a message by message id.
- * allow a process to iterate and sycnhronize messages with other NNTP Servers.
- * this may be inefficient, so could be used for sanity checks and an alternate
- * more efficient process could be used for synchronization.
+ * This class allows a process to iterate and sycnhronize messages with other NNTP Servers.
+ * This may be inefficient. It may be better to use an alternate, more 
+ * efficient process for synchronization and this class for sanity check.
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
 public class ArticleIDRepository {
     private final File root;

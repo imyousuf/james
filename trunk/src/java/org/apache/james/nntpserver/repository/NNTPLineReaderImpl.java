@@ -7,9 +7,17 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import org.apache.james.nntpserver.NNTPException;
 
+/**
+ * reads and translates client data. After this translation, 
+ * the data can be streamed into server repository.
+ * Handles Dot Stuffing.
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 public class NNTPLineReaderImpl implements NNTPLineReader {
     private final BufferedReader reader;
     public NNTPLineReaderImpl(BufferedReader reader) {

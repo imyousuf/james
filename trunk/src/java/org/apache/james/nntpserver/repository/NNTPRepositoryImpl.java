@@ -7,10 +7,17 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.avalon.excalibur.io.AndFileFilter;
+import org.apache.avalon.excalibur.io.DirectoryFileFilter;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -18,13 +25,16 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.avalon.excalibur.io.DirectoryFileFilter;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.oro.io.GlobFilenameFilter;
-import org.apache.avalon.phoenix.Block;
 
+/**
+ * NNTP Repository implementation.
+ *
+ * @author Harmeet Bedi <harmeet@kodemuse.com>
+ */
 public class NNTPRepositoryImpl extends AbstractLoggable 
     implements NNTPRepository, Contextualizable, Configurable, Initializable, Block
 {

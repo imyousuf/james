@@ -10,7 +10,6 @@ package org.apache.james.nntpserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -19,34 +18,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
-import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.excalibur.collections.ListUtils;
-import org.apache.james.Constants;
 import org.apache.james.BaseConnectionHandler;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.nntpserver.repository.NNTPLineReaderImpl;
 import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.nntpserver.repository.NNTPUtil;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 
@@ -507,7 +496,6 @@ public class NNTPHandler extends BaseConnectionHandler
     }
     private void doHDR(StringTokenizer tok) {
         // 9.5.3
-        writer.println("500 Command not recognized");
         String hdr = tok.nextToken();
         String range = tok.hasMoreTokens() ? tok.nextToken() : null;
         NNTPArticle[] article = getRange(range);

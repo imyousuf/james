@@ -7,20 +7,17 @@
  */
 package org.apache.james.nntpserver;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Writer;
 import org.apache.james.services.UsersRepository;
 
 /**
- * @version 1.0.0, 31/03/2001
- * @author  Harmeet
- *
- * implements the authentication state. Should this be moved to a more common place ??
+ * implements the authentication state. 
+ * Should this be moved to a more common place ??
  * Should there be an authenication service, that manufactures and hands to the different
- * protocol servers AuthState objects.
- */
+ * protocol servers AuthState objects ?
+ *
+ * @version 1.0.0, 31/03/2001
+ * @author  Harmeet <harmeet@kodemuse.com> 
+*/
 public class AuthState {
     private final boolean requiredAuth;
     private final UsersRepository repo;
@@ -41,7 +38,7 @@ public class AuthState {
             } else {
                 return false;
             }
-	} else {
+        } else {
             return true;
         }
     }
