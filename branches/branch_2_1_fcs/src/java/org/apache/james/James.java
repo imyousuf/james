@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35 $
+ * @version This is $Revision: 1.35.4.1 $
 
  */
 public class James
@@ -593,20 +593,61 @@ public class James
     }
 
     /**
-     * This generates a response to the Return-Path address, or the address of
-     * the message's sender if the Return-Path is not available.  Note that
-     * this is different than a mail-client's reply, which would use the
-     * Reply-To or From header.
+     * This generates a response to the Return-Path address, or the
+     * address of the message's sender if the Return-Path is not
+     * available.  Note that this is different than a mail-client's
+     * reply, which would use the Reply-To or From header.
+     *
+     * Bounced messages are attached in their entirety (headers and
+     * content) and the resulting MIME part type is "message/rfc822".
+     *
+     * The attachment to the subject of the original message (or "No
+     * Subject" if there is no subject in the original message)
+     *
+     * There are outstanding issues with this implementation revolving
+     * around handling of the return-path header.
+     *
+     * MIME layout of the bounce message:
+     *
+     * multipart (mixed)/
+     *     contentPartRoot (body) = mpContent (alternative)/
+     *           part (body) = message
+     *     part (body) = original
+     *
      */
+
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         MimeMessage orig = mail.getMessage();
+
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
+
         //If there is a Return-Path header,
-        if (orig.getHeader(RFC2822Headers.RETURN_PATH) != null) {
-            //Return the message to that address, not to the Reply-To address
-            reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(orig.getHeader(RFC2822Headers.RETURN_PATH)[0]));
+        String[] returnPathHeaders = orig.getHeader(RFC2822Headers.RETURN_PATH);
+        String returnPathHeader = null;
+        if (returnPathHeader != null) {
+            // TODO: Take a look at the JavaMail spec to see if the originating header
+            //       is guaranteed to be at position 0
+            returnPathHeader = returnPathHeaders[0];
+            if (returnPathHeader != null) {
+                returnPathHeader = returnPathHeader.trim();
+                if (returnPathHeader.equals("<>")) {
+                    if (getLogger().isInfoEnabled())
+                        getLogger().info("Processing a bounce request for a message with an empty return path.  No bounce will be sent.");
+                    return;
+                } else {
+                    if (getLogger().isInfoEnabled())
+                        getLogger().info("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnPathHeader);
+                    //Return the message to that address, not to the Reply-To address
+                    reply.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(returnPathHeader));
+                }
+            }
+        } else {
+            getLogger().warn("Mail to be bounced does not contain a Return-Path header.");
         }
+
+        reply.setSentDate(new Date());
+        reply.setHeader(RFC2822Headers.RETURN_PATH,"<>");
         //Create the list of recipients in our MailAddress format
         Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
@@ -617,24 +658,34 @@ public class James
         reply.setFrom(bouncer.toInternetAddress());
         try {
             //Create the message body
-            MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
+            MimeMultipart multipart = new MimeMultipart("mixed");
+
+            // Create the message
+            MimeMultipart mpContent = new MimeMultipart("alternative");
+            MimeBodyPart contentPartRoot = new MimeBodyPart();
+            contentPartRoot.setContent(mpContent);
+
+            multipart.addBodyPart(contentPartRoot);
+
             MimeBodyPart part = new MimeBodyPart();
-            part.setContent(message, "text/plain");
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-            multipart.addBodyPart(part);
+            part.setText(message);
+            mpContent.addBodyPart(part);
 
             //Add the original message as the second mime body part
             part = new MimeBodyPart();
-            part.setContent(orig.getContent(), orig.getContentType());
-            part.setHeader(RFC2822Headers.CONTENT_TYPE, orig.getContentType());
+            part.setContent(orig, "message/rfc822");
+            if ((orig.getSubject() != null) && (orig.getSubject().trim().length() > 0)) {
+                part.setFileName(orig.getSubject().trim());
+            } else {
+                part.setFileName("No Subject");
+            }
+            part.setDisposition(javax.mail.Part.ATTACHMENT);
             multipart.addBodyPart(part);
-            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
             reply.setContent(multipart);
-            reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             throw new MessagingException("Unable to create multipart body", ioe);
         }
+        reply.saveChanges();
         //Send it off...
         sendMail(bouncer, recipients, reply);
     }
