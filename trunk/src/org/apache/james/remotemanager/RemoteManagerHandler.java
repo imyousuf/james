@@ -74,8 +74,8 @@ public class RemoteManagerHandler
             lookup( "org.apache.cornerstone.services.scheduler.TimeScheduler" );
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
-	usersStore = (UsersStore)componentManager.
-	    lookup( "org.apache.james.services.UsersStore" );
+        usersStore = (UsersStore)componentManager.
+            lookup( "org.apache.james.services.UsersStore" );
         users = usersStore.getRepository("LocalUsers");;
     }
 
