@@ -24,7 +24,8 @@ import java.util.*;
  * message splitting the recipient list across the two messages as per
  * what the matcher returned.
  * <p>
- * The matcher can extend this forking to further separation by returning
+ * <b>[THIS PARAGRAPH NOT YET IMPLEMENTED]</b>
+ * <i>The matcher can extend this forking to further separation by returning
  * a Collection of Collection objects.  This allows a matcher to fork
  * multiple processes if there are multiple recipients that require
  * separate processing.  For example, we could write a ListservMatcher
@@ -33,7 +34,7 @@ import java.util.*;
  * listserv address (recipient) that it handles in a separate Collection
  * object.  By returning each of these Collections within a container
  * Collection object, it could indicate to the mailet container how
- * many forks to spawn.
+ * many forks to spawn.</i>
  * <p>
  * This interface defines methods to initialize a matcher, to match
  * messages, and to remove a matcher from the server. These are known
@@ -42,7 +43,7 @@ import java.util.*;
  * <li>The matcher is constructed, then initialized with the init method.</li>
  * <li>Any calls from clients to the match method are handled.</li>
  * <li>The matcher is taken out of service, then destroyed with the
- *		destroy method, then garbage collected and finalized.</li>
+ *      destroy method, then garbage collected and finalized.</li>
  * </ol>
  * In addition to the life-cycle methods, this interface provides the
  * getMatcherConfig method, which the matcher can use to get any startup
