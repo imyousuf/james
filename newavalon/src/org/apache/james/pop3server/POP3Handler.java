@@ -391,7 +391,7 @@ public class POP3Handler implements Composer, Stoppable, Configurable, Service, 
             if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
                 return false;
             }
-            List toBeRemoved = VectorUtils.subtract(backupUserMailbox, userMailbox);
+            List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
             try {
                 for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
                     MailImpl mc = (MailImpl) it.next();
