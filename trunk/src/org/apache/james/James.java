@@ -556,12 +556,8 @@ public class James
         sendMail(bouncer, recipients, reply);
     }
 
-    public Collection getLocalUsers() {
-        Vector userList = new Vector();
-        for (Iterator it = localusers.list(); it.hasNext(); ) {
-            userList.add(it.next());
-        }
-        return userList;
+    public boolean isLocalUser(String userAccout) {
+        return localusers.contains(userAccout);
     }
 
     public MailAddress getPostmaster() {
@@ -608,9 +604,9 @@ public class James
         return 2;
     }
 
-    public Collection getServerNames() {
-        Vector names = (Vector)context.get(Constants.SERVER_NAMES);
-        return (Collection)names.clone();
+    public boolean isLocalServer(String serverName) {
+        List names = (List)context.get(Constants.SERVER_NAMES);
+        return names.contains(serverName);
     }
 
     public String getServerInfo() {

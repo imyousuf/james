@@ -18,16 +18,7 @@ import java.util.*;
  */
 public class HostIsLocal extends GenericRecipientMatcher {
 
-    private Collection localhosts;
-
-    public void init() {
-        localhosts = new Vector();
-        for (Iterator i = getMailetContext().getServerNames().iterator(); i.hasNext(); ) {
-            localhosts.add(i.next().toString().toLowerCase());
-        }
-    }
-
     public boolean matchRecipient(MailAddress recipient) {
-        return localhosts.contains(recipient.getHost().toLowerCase());
+        return getMailetContext().isLocalServer(recipient.getHost().toLowerCase());
     }
 }
