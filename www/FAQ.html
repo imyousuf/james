@@ -262,6 +262,12 @@
 <a href="#14">How can I make sendmail route local mail (or all mail) through James on the same machine?</a>
                
 </li>
+               
+<li>
+                  
+<a href="#15">I am using Microsoft's SQL Type 4 JDBC Driver, why do I get a "Can't start manual transaction mode because there are cloned connections" exception?</a>
+               
+</li>
             
 </ul>
          
@@ -838,6 +844,30 @@ see):</p>
 </td>
 </tr>
 </table>
+          
+<a name="15"></a>
+          
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="I%20am%20using%20Microsoft's%20SQL%20Type%204%20JDBC%20Driver,%20why%20do%20I%20get%20a%20%22Can't%20start%20manual%20transaction%20mode%20because%20there%20are%20cloned%20connections%22%20exception?"><strong>I am using Microsoft's SQL Type 4 JDBC Driver, why do I get a "Can't start manual transaction mode because there are cloned connections" exception?</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>I am using Microsoft's SQL Type 4 JDBC Driver, why do I get the following exception?<br>java.sql.SQLException: [Microsoft][SQLServer 2000 Driver for JDBC]Can't start manual transaction mode because there are cloned connections.</p>
+
+<p>This seems to be a problem with the Microsoft Type 4 JDBC Driver and concurrent statements/transactions/resultsets on the same database conntection.</p>
+
+<p>To solve this you need to add <b>;SelectMethod=cursor</b> to the end of your dburl string. Your dburl string would then look something like this<br>&lt;dburl&gt;jdbc:microsoft:sqlserver://dbserver.host.name:1433;SelectMethod=cursor&lt;/dburl&gt;</p>
+
+<p>NOTE. some people have complained about performance when using this option, the alternative is a 3rd party JDBC driver but these are often not free.<br>Serge Sozonoff</p>
+          
+</blockquote>
+</td>
+</tr>
+</table>
+
       
 </blockquote>
 </td>
