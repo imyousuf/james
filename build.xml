@@ -385,6 +385,7 @@ Legal:
       <fileset dir="${conf.dir}">
         <include name="inet*"/>
         <include name="*.properties"/>
+        <include name="sqlResources.xml"/>
       </fileset>
     </copy>
 
