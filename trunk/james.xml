@@ -130,29 +130,35 @@
 
     <mkdir dir="${build.lib}"/>
 
-    <echo>I'm broken - cannot generate the sar file just yet.</echo>
+    <echo>
+Running the generated sar file inside the releaed Phoneix will result in an error relating to the thread package.  Changes to the thread package to support the max pool limit require excalibur-thread-1.1 wheas Phoenix used the 1.0 package.  To resolve this problem you probably will nbeeed to rebuild Phoneix with thread-1.1, and replace the 1.0 with 1.1 threads library in the phoenix distribution.
+    </echo>
 
-    <!--
+    <mkdir dir="${build.conf}"/>
+    <copy file="${conf.dir}/james-assembly.xml" toFile="${build.conf}/assembly.xml"/>
+    <copy file="${conf.dir}/james-config.xml" toFile="${build.conf}/config.xml"/>
+    <copy file="${conf.dir}/james-server.xml" toFile="${build.conf}/environment.xml"/>
+
     <jar jarfile="${build.lib}/james-new.sar"
        compress="${build.compress}"
        manifest="${src.dir}/Manifest.mf">
-      <zipfileset dir="${src.dir}/conf" prefix="SAR-INF/">
+      <zipfileset dir="${build.conf}" prefix="SAR-INF/">
         <include name="assembly.xml"/>
         <include name="config.xml"/>
         <include name="environment.xml"/>
       </zipfileset>
       <zipfileset dir="lib" prefix="SAR-INF/lib">
-        <include name="dnsjava-1.2.3.jar"/>
+        <include name="dnsjava-1.3.2.jar"/>
         <include name="jakarta-oro-2.0.1.jar"/>
         <include name="mm.mysql-2.0.14.jar"/>
         <include name="activation.jar"/>
         <include name="mail_1_3.jar"/>
         <include name="commons-net-1.0.0-dev.jar"/>
+        <include name="excalibur-datasource-1.0.jar"/>
       </zipfileset>
-      <zipfileset dir="${avalon-framework.lib}" prefix="SAR-INF/lib">
-        <include name="avalon-framework.jar"/>
-      </zipfileset>
-      <zipfileset dir="${cornerstone.home}/build/lib" prefix="SAR-INF/lib">
+      <zipfileset dir="${candidates}" prefix="SAR-INF/lib">
+        <include name="excalibur-thread-1.1.jar"/>
+        <include name="excalibur-pool-1.2.jar"/>
         <include name="cornerstone-threads-1.0.jar"/>
         <include name="cornerstone-connection-1.0.jar"/>
         <include name="cornerstone-store-1.0.jar"/>
@@ -160,27 +166,11 @@
         <include name="cornerstone-sockets-1.0.jar"/>
         <include name="cornerstone-datasources-1.0.jar"/>
       </zipfileset>
-      <zipfileset dir="${excalibur-collections.lib}" prefix="SAR-INF/lib">
-        <include name="excalibur-collections-1.0.jar"/>
-      </zipfileset>
-      <zipfileset dir="${excalibur-threadcontext.lib}" prefix="SAR-INF/lib">
-        <include name="excalibur-threadcontext-1.0.jar"/>
-      </zipfileset>
-      <zipfileset dir="${excalibur-thread.lib}" prefix="SAR-INF/lib">
-        <include name="excalibur-thread-1.1.jar"/>
-      </zipfileset>
-      <zipfileset dir="${excalibur-datasource.lib}" prefix="SAR-INF/lib">
-        <include name="excalibur-datasource-1.0.jar"/>
-      </zipfileset>
-      <zipfileset dir="${excalibur-io.lib}" prefix="SAR-INF/lib">
-        <include name="excalibur-io-1.1.jar"/>
-      </zipfileset>
       <zipfileset dir="${build.dir}/lib" prefix="SAR-INF/lib">
         <include name="james-3.0.jar"/>
         <include name="mailet.jar"/>
       </zipfileset>
     </jar>
-    -->
 
   </target>
 
@@ -190,7 +180,7 @@
 
   <target name="patch">
     <replace dir="." summary="true" defaultexcludes="yes"
-       token="org.apache.avalon.cornerstone.services.datasources."
+       token="org.apache.avalon.cornerstone.services.datasource."
        value="org.apache.avalon.cornerstone.services.datasources.">
      <include name="**/*.xinfo"/>
      <include name="**/*.xml"/>
