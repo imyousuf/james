@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.32 $
+ * This is $Revision: 1.33 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -307,8 +307,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 }
             }
             // The rest of the recipients failed for one reason or another.
-            // let the fail message handle it like a permanent exception.
-            return failMessage(mail, sfe, true);
+            // let failMessage handle it -- 5xx codes are permanent, others temporary.
+            return failMessage(mail, sfe, (('5' == sfe.getMessage().charAt(0)) ? true : false));
         } catch (MessagingException ex) {
             // We should do a better job checking this... if the failure is a general
             // connect exception, this is less descriptive than more specific SMTP command
