@@ -91,8 +91,6 @@ public class AvalonMailRepository implements SpoolRepository {
         }
     }
 
-
-
     public synchronized void store(MailImpl mc) {
         try {
             String key = mc.getName();
@@ -110,9 +108,10 @@ public class AvalonMailRepository implements SpoolRepository {
     public synchronized MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
-	    BufferedInputStream in = new BufferedInputStream(sr.retrieve(key));
+            InputStream in = new AvalonMimeMessageInputStream(sr, key);
+            //BufferedInputStream in = new BufferedInputStream(sr.retrieve(key));
             mc.setMessage(in);
-	    in.close();
+            in.close();
         } catch (Exception me) {
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }

@@ -272,6 +272,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 MailImpl mail = outgoing.retrieve(key);
                 deliver(mail, session);
                 outgoing.remove(key);
+                mail = null;
             } catch (Exception e) {
             }
         }

@@ -44,10 +44,10 @@ public class MailImpl implements Mail {
         this.recipients = recipients;
     }
 
-    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream msg)
+    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
     throws MessagingException {
         this(name, sender, recipients);
-        this.setMessage(msg);
+        this.setMessage(messageIn);
     }
 
     public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) {
@@ -115,14 +115,6 @@ public class MailImpl implements Mail {
         return lastUpdated;
     }
 
-    private void parse(InputStream messageIn) throws MessagingException {
-        if (messageIn != null) {
-            message = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null), messageIn);
-        } else {
-	    throw new MessagingException("Attempt to parse null input stream.");
-	}
-    }
-
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
             sender = new MailAddress((String) in.readObject());
@@ -143,7 +135,7 @@ public class MailImpl implements Mail {
     }
 
     public void setMessage(InputStream in) throws MessagingException {
-	parse(in);
+        this.message = new JamesMimeMessage(Session.getDefaultInstance(System.getProperties(), null), in);
     }
 
     public void setMessage(MimeMessage message) {
@@ -178,12 +170,12 @@ public class MailImpl implements Mail {
         if (message != null) {
             message.writeTo(out);
         } else {
-	    throw new MessagingException("No message set for this MailImpl.");
-	} 
+            throw new MessagingException("No message set for this MailImpl.");
+        }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        System.err.println("saving object");
+        //System.err.println("saving object");
         lastUpdated = new Date();
         out.writeObject(sender.toString());
         out.writeObject(recipients);
@@ -213,7 +205,7 @@ public class MailImpl implements Mail {
     }
 
     public void writeContentTo(OutputStream out, int lines)
-    throws IOException, MessagingException {
+            throws IOException, MessagingException {
         String line;
         BufferedReader br;
         if(message != null) {
@@ -224,7 +216,7 @@ public class MailImpl implements Mail {
                 out.write(line.getBytes());
             }
         }  else {
-	    throw new MessagingException("No message set for this MailImpl.");
-	}
+            throw new MessagingException("No message set for this MailImpl.");
+        }
     }
 }
