@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.12 $  Committed on $Date: 2003/08/28 16:42:27 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.13 $  Committed on $Date: 2003/08/30 18:52:18 $ by: $Author: noel $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -21,7 +21,7 @@ Legal:
     <property file="${user.home}/.ant.properties"/>
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
-    <property name="version" value="2.2.0a-dev"/>
+    <property name="version" value="2.2.0a10"/>
     <property name="year" value="1999-2003"/>
     <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
@@ -407,6 +407,9 @@ Legal:
             </zipfileset>
             <zipfileset dir="${conf.dir}" fullpath="conf/james-liststores.xml">
                 <include name="james-liststores.xml"/>
+            </zipfileset>
+            <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
+                <include name="james-fetchmail.xml"/>
             </zipfileset>
         </sar>
     </target>
