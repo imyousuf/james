@@ -26,6 +26,9 @@ import java.util.Vector;
 import java.util.Iterator;
 
 /**
+ * Implements a processor for mails, directing the mail down
+ * the chain of matchers/mailets.
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  * @author Steve Short <sshort@postx.com>
@@ -77,7 +80,7 @@ public class LinearProcessor
      *
      * @param spool the spool to be used by this processor
      *
-     * @exception IllegalArgumentException thrown when the spool passed in is null
+     * @throws IllegalArgumentException when the spool passed in is null
      */
     public void setSpool(SpoolRepository spool) {
         if (spool == null) {
@@ -86,12 +89,28 @@ public class LinearProcessor
         this.spool = spool;
     }
 
+    /**
+     * Initialize the component. Initialization includes
+     * allocating any resources required throughout the
+     * components lifecycle.
+     *
+     * @throws Exception if an error occurs
+     */
     public void initialize() {
         matchers = new ArrayList();
         mailets = new ArrayList();
     }
 
-    // Shutdown mailets
+    /**
+     * <p>The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.</p>
+     *
+     * <p>This implementation disposes of all the mailet instances added to the
+     * processor</p>
+     *
+     * @throws Exception if an error is encountered during shutdown
+     */
     public void dispose() {
         Iterator it = mailets.iterator();
         boolean debugEnabled = getLogger().isDebugEnabled();
@@ -105,24 +124,27 @@ public class LinearProcessor
     }
 
     /**
-     * Adds a new <code>Matcher</code> / <code>Mailet</code> pair
+     * <p>Adds a new <code>Matcher</code> / <code>Mailet</code> pair
      * to the processor.  Checks to ensure that the matcher and
      * mailet passed in are not null.  Synchronized to ensure that
-     * the matchers and mailets are kept in sync.
+     * the matchers and mailets are kept in sync.</p>
      *
-     * It is an essential part of the contract of the LinearProcessor
+     * <p>It is an essential part of the contract of the LinearProcessor
      * that a particular matcher/mailet combination be used to
      * terminate the processor chain.  This is done by calling the  
-     * closeProcessorList method.
+     * closeProcessorList method.</p>
      *
-     * Once the closeProcessorList has been called any subsequent
-     * call to the add method will result in an IllegalStateException.
+     * <p>Once the closeProcessorList has been called any subsequent
+     * call to the add method will result in an IllegalStateException.</p>
+     *
+     * <p>This method is synchronized to protect against corruption of
+     * matcher/mailets lists</p>
      *
      * @param matcher the new matcher being added
      * @param mailet the new mailet being added
      *
-     * @exception IllegalArgumentException thrown when the matcher or mailet passed in is null
-     * @exception IllegalStateException thrown when this method is called after the processor lists have been closed
+     * @throws IllegalArgumentException when the matcher or mailet passed in is null
+     * @throws IllegalStateException when this method is called after the processor lists have been closed
      */
     public synchronized void add(Matcher matcher, Mailet mailet) {
         if (matcher == null) {
@@ -139,9 +161,12 @@ public class LinearProcessor
     }
 
     /**
-     * Closes the processor matcher/mailet list.
+     * <p>Closes the processor matcher/mailet list.</p>
      *
-     * @exception IllegalStateException thrown when this method is called after the processor lists have been closed
+     * <p>This method is synchronized to protect against corruption of
+     * matcher/mailets lists</p>
+     *
+     * @throws IllegalStateException when this method is called after the processor lists have been closed
      */
     public synchronized void closeProcessorLists() {
         if (listsClosed) {
@@ -176,21 +201,21 @@ public class LinearProcessor
     }
 
     /**
-     * Processes a single mail message through the chain of matchers and mailets.
+     * <p>Processes a single mail message through the chain of matchers and mailets.</p>
      *
-     * Calls to this method before setSpool has been called with a non-null argument
-     * will result in an <code>IllegalStateException<\code>.
+     * <p>Calls to this method before setSpool has been called with a non-null argument
+     * will result in an <code>IllegalStateException</code>.</p>
      *
-     * If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
-     * method then a call to this method will result in an <code>IllegalStateException<\code>.
+     * <p>If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
+     * method then a call to this method will result in an <code>IllegalStateException</code>.
      * The end of the matcher/mailet chain must be a matcher that matches all mails and 
      * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
      * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
-     * ensures this.
+     * ensures this.</p>
      * 
      * @param mail the new mail to be processed
      *
-     * @exception IllegalStateException thrown when this method is called before the processor lists have been closed
+     * @throws IllegalStateException when this method is called before the processor lists have been closed
      *                                  or the spool has been initialized
      */
     public void service(MailImpl mail) throws MessagingException {
@@ -357,23 +382,27 @@ public class LinearProcessor
     }
 
     /**
-     * Create a unique new primary key name
+     * Create a unique new primary key name.
+     *
+     * @param mail the mail to use as the basis for the new mail name
+     * 
+     * @return a new name
      */
     private String newName(MailImpl mail) {
         StringBuffer nameBuffer =
             new StringBuffer(64)
                     .append(mail.getName())
                     .append("-!")
-                    .append(Math.abs(random.nextInt()));
+                    .append(random.nextInt(1048576));
         return nameBuffer.toString();
     }
 
 
 
     /**
-     * Checks that all objects in this class are of the form MailAddress
+     * Checks that all objects in this class are of the form MailAddress.
      *
-     * @exception MessagingException thrown when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
+     * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
     private void verifyMailAddresses(Collection col) throws MessagingException {
         MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
@@ -386,7 +415,11 @@ public class LinearProcessor
      * This is a helper method that updates the state of the mail object to
      * Mail.ERROR as well as recording the exception to the log
      *
-     * @exception MessagingException thrown always, rethrowing the passed in exception
+     * @param me the exception to be handled
+     * @param mail the mail being processed when the exception was generated
+     * @param offendersName the matcher or mailet than generated the exception
+     *
+     * @throws MessagingException thrown always, rethrowing the passed in exception
      */
     private void handleException(MessagingException me, Mail mail, String offendersName) throws MessagingException {
         System.err.println("exception! " + me);

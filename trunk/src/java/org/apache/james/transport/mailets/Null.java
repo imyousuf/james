@@ -18,7 +18,7 @@ import org.apache.mailet.Mail;
 public class Null extends GenericMailet {
 
     public void service(Mail mail) {
-        mail.setState(mail.GHOST);
+        mail.setState(Mail.GHOST);
     }
 
     public String getMailetInfo() {
