@@ -55,15 +55,15 @@ import org.apache.mailet.SpoolRepository;
  * You really want to read the JavaMail documentation if you are
  * working in here, and you will want to view the list of JavaMail
  * attributes, which are documented here:
- * 
+ *
  * http://java.sun.com/products/javamail/1.3/docs/javadocs/com/sun/mail/smtp/package-summary.html
  *
  * as well as other places.
- * 
+ *
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.37 $
+ * This is $Revision: 1.38 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -258,7 +258,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         log(exceptionBuffer.toString());
                         //Assume it is a permanent exception, or prove ourselves otherwise
                         boolean permanent = true;
-                        if ((me.getNextException() != null) && 
+                        if ((me.getNextException() != null) &&
                             (me.getNextException() instanceof java.io.IOException)) {
                             //This is more than likely a temporary failure
 
@@ -309,7 +309,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // possibilities
 
             //Unable to deliver message after numerous tries... fail accordingly
-            return failMessage(mail, ex, (('5' == ex.getMessage().charAt(0)) ? true : false));
+
+            //We check whether this is a 5xx error message, which indicates a permanent
+            //  failure (like account doesn't exist or mailbox is full or domain is
+            //  setup wrong).
+            boolean error5xx = ('5' == ex.getMessage().charAt(0));
+
+            //We fail permanently if this was a 5xx error
+            return failMessage(mail, ex, error5xx);
         }
         return true;
     }
@@ -352,7 +359,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             .append(mail.getName())
                             .append(" into outgoing after ")
                             .append(retries)
-                            .append(" retries"); 
+                            .append(" retries");
                 log(logBuffer.toString());
                 ++retries;
                 mail.setErrorMessage(retries + "");
@@ -365,7 +372,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             .append(mail.getName())
                             .append(" after ")
                             .append(retries)
-                            .append(" retries"); 
+                            .append(" retries");
                 log(logBuffer.toString());
             }
         }
@@ -569,7 +576,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     String key = outgoing.accept(delayTime);
                     try {
                         if (isDebug) {
-                            StringBuffer logMessageBuffer = 
+                            StringBuffer logMessageBuffer =
                                 new StringBuffer(128)
                                         .append(Thread.currentThread().getName())
                                         .append(" will process mail ")
