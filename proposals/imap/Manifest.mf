@@ -22,6 +22,9 @@ Avalon-Block: true
 Name: org/apache/james/pop3server/POP3Server.class
 Avalon-Block: true
 
+Name: org/apache/james/imapserver/IMAPServer.class
+Avalon-Block: true
+
 Name: org/apache/james/remotemanager/RemoteManager.class
 Avalon-Block: true
 
