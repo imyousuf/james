@@ -5,7 +5,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.135 $  Committed on $Date: 2003/08/24 13:51:12 $ by: $Author: mcconnell $
+ James build file $Revision: 1.136 $  Committed on $Date: 2003/08/24 14:03:22 $ by: $Author: mcconnell $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -49,6 +49,7 @@ Legal:
       <pathelement location="${commons-net.jar}"/>
       <pathelement location="${commons-collections.jar}"/>
       <pathelement location="${commons-dbcp.jar}"/>
+      <pathelement location="${commons-pool.jar}"/>
       <pathelement location="${jakarta-oro.jar}"/>
       <pathelement location="${avalon-framework.jar}"/>
       <pathelement location="${excalibur-threadcontext.jar}"/>
