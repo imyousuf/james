@@ -9,7 +9,6 @@ package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.RFC822DateFormat;
-import org.apache.log.Logger;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.BodyPart;
@@ -41,9 +40,6 @@ public class SimpleMessageAttributes
     private final static boolean DEBUG = true;
     private final static String MULTIPART = "MULTIPART";
     private final static String MESSAGE = "MESSAGE";
-
-    //Only available in first incarnation of object
-    private transient Logger logger;
 
     private int uid;
     private int messageSequenceNumber;
