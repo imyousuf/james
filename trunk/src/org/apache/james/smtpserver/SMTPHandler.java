@@ -115,7 +115,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
                 timeServer.resetAlarm(this.toString());
             }
             socket.close();
-            timeServer.removeAlarm("RemoteManager");
+            timeServer.removeAlarm(this.toString());
         } catch (SocketException e) {
             logger.log("Socket to " + remoteHost + " closed remotely.", "SMTP", logger.DEBUG);
         } catch (InterruptedIOException e) {
