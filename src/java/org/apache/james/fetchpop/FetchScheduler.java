@@ -1,17 +1,14 @@
-/**
- * FetchScheduler.java
- * 
- * Copyright (C) 24-Sep-2002 The Apache Software Foundation. All rights reserved.
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software License
  * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE file. 
- *
- * Danny Angus
+ * the LICENSE file.
  */
 package org.apache.james.fetchpop;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.component.ComponentException;
@@ -23,42 +20,76 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.MailServer;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.1 2002/09/24 15:36:30 danny Exp $
+ * <br>$Id: FetchScheduler.java,v 1.2 2002/09/24 22:03:12 pgoldstein Exp $
  *  @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *  
  */
 public class FetchScheduler
     extends AbstractLogEnabled
-    implements Component, Configurable, Initializable, Composable {
+    implements Component, Composable, Configurable, Initializable, Disposable {
+
+    /**
+     * Configuration object for this service
+     */
     private Configuration conf;
-    private MailServer server;
-    private DefaultComponentManager compMgr;
+
+    /**
+     * The component manager that allows access to the system services
+     */
+    private ComponentManager compMgr;
+
+    /**
+     * The scheduler service that is used to trigger fetch tasks.
+     */
+    private TimeScheduler scheduler;
+
+    /**
+     * Whether this service is enabled.
+     */
+    private volatile boolean enabled = false;
+
+    private ArrayList theFetchTaskNames = new ArrayList();
+
+    /**
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     */
+    public void compose(ComponentManager comp) throws ComponentException {
+        compMgr = comp;
+    }
+
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
     }
+
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        if (conf.getAttribute("enabled").equalsIgnoreCase("true")) {
-            TimeScheduler scheduler = (TimeScheduler) compMgr.lookup(TimeScheduler.ROLE);
+        enabled = conf.getAttributeAsBoolean("enabled", false);
+        if (enabled) {
+            scheduler = (TimeScheduler) compMgr.lookup(TimeScheduler.ROLE);
             Configuration[] fetchConfs = conf.getChildren("fetch");
             for (int i = 0; i < fetchConfs.length; i++) {
                 FetchPOP fp = new FetchPOP();
                 Configuration fetchConf = fetchConfs[i];
-                fp.configure(
-                    fetchConf,
-                    (MailServer) compMgr.lookup(MailServer.ROLE),
-                    getLogger().getChildLogger(fetchConf.getAttribute("name")));
+                String fetchTaskName = fetchConf.getAttribute("name");
+                fp.enableLogging(getLogger().getChildLogger(fetchTaskName));
+                fp.compose(compMgr);
+                fp.configure(fetchConf);
                 Integer interval = new Integer(fetchConf.getChild("interval").getValue());
                 PeriodicTimeTrigger fetchTrigger = new PeriodicTimeTrigger(0, interval.intValue());
-                scheduler.addTrigger(fetchConf.getAttribute("name"), fetchTrigger, fp);
+                scheduler.addTrigger(fetchTaskName, fetchTrigger, fp);
+                theFetchTaskNames.add(fetchTaskName);
             }
             System.out.println("Fetch POP Started ");
         } else {
@@ -66,10 +97,24 @@ public class FetchScheduler
             System.out.println("Fetch POP Disabled");
         }
     }
+
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.
+     *
+     * @throws Exception if an error is encountered during shutdown
      */
-    public void compose(ComponentManager comp) throws ComponentException {
-        compMgr = new DefaultComponentManager(comp);
+    public void dispose() {
+        if (enabled) {
+            getLogger().info( "Fetch POP dispose..." );
+            Iterator nameIterator = theFetchTaskNames.iterator();
+            while (nameIterator.hasNext()) {
+                scheduler.removeTrigger((String)nameIterator.next());
+            }
+
+            getLogger().info( "Fetch POP ...dispose end" );
+        }
     }
+
 }
