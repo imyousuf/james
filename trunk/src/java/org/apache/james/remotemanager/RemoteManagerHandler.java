@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: serge $ on $Date: 2001/10/26 04:48:50 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: serge $ on $Date: 2001/11/05 13:27:21 $
+ * $Revision: 1.5 $
  *
  */
 public class RemoteManagerHandler
@@ -223,33 +223,33 @@ public class RemoteManagerHandler
             }
             out.flush();
         } else if (command.equalsIgnoreCase("SETPASSWORD")) {
-	    if (argument == null || argument1 == null) {
+        if (argument == null || argument1 == null) {
                 out.println("usage: setpassword [username] [password]");
                 return true;
-	    }
+        }
             String username = argument;
             String passwd = argument1;
             if (username.equals("") || passwd.equals("")) {
                 out.println("usage: adduser [username] [password]");
                 return true;
-	    }
-	    User user = users.getUserByName(username);
-	    if (user == null) {
-		out.println("No such user");
-		return true;
-	    }
-	    boolean success;
-	    success = user.setPassword(passwd);
-	    if (success){
-		users.updateUser(user);
+        }
+        User user = users.getUserByName(username);
+        if (user == null) {
+        out.println("No such user");
+        return true;
+        }
+        boolean success;
+        success = user.setPassword(passwd);
+        if (success){
+        users.updateUser(user);
                 out.println("Password for " + username + " reset");
                 getLogger().info("Password for " + username + " reset");
-	    } else {
+        } else {
                 out.println("Error resetting password");
                 getLogger().info("Error resetting password");
-	    }
+        }
             out.flush();
-	    return true;
+        return true;
         } else if (command.equalsIgnoreCase("DELUSER")) {
             String user = argument;
             if (user.equals("")) {
@@ -284,130 +284,135 @@ public class RemoteManagerHandler
             }
         } else if (command.equalsIgnoreCase("HELP")) {
             out.println("Currently implemented commans:");
-            out.println("help                            display this help");
-            out.println("adduser [username] [password]   add a new user");
-            out.println("deluser [username]              delete existing user");
-            out.println("listusers                       display existing accounts");
-            out.println("countusers                      display the number of existing accounts");
-            out.println("verify [username]               verify if specified user exist");
-            out.println("quit                            close connection");
+            out.println("help                                    display this help");
+            out.println("listusers                               display existing accounts");
+            out.println("countusers                              display the number of existing accounts");
+            out.println("adduser [username] [password]           add a new user");
+            out.println("verify [username]                       verify if specified user exist");
+            out.println("deluser [username]                      delete existing user");
+            out.println("setpassword [username] [password]       sets a user's password");
+            out.println("setalias [username] [alias]             sets a user's alias");
+            out.println("unsetalias [username]                   removes a user's alias");
+            out.println("setforwarding [username] [emailaddress] forwards a user's email to another account");
+            out.println("user [repositoryname]                   change to another user repository");
+            out.println("quit                                    close connection");
             out.flush();
         } else if (command.equalsIgnoreCase("SETALIAS")) {
-	    if (argument == null || argument1 == null) {
+        if (argument == null || argument1 == null) {
                 out.println("usage: setalias [username] [alias]");
                 return true;
-	    }
+        }
             String username = argument;
             String alias = argument1;
             if (username.equals("") || alias.equals("")) {
                 out.println("usage: adduser [username] [alias]");
                 return true;
-	    }
-	    JamesUser user = (JamesUser) users.getUserByName(username);
-	    if (user == null) {
-		out.println("No such user");
-		return true;
-	    }
-	    JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
-	    if (aliasUser == null) {
-		out.println("Alias unknown to server"
+        }
+        JamesUser user = (JamesUser) users.getUserByName(username);
+        if (user == null) {
+        out.println("No such user");
+        return true;
+        }
+        JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
+        if (aliasUser == null) {
+        out.println("Alias unknown to server"
                             + " - create that user first.");
-		return true;
-	    }
+        return true;
+        }
 
-  	    boolean success;
-	    success = user.setAlias(alias);
-	    if (success){
-	        user.setAliasing(true);
-		users.updateUser(user);
+        boolean success;
+        success = user.setAlias(alias);
+        if (success){
+            user.setAliasing(true);
+        users.updateUser(user);
                 out.println("Alias for " + username + " set to:" + alias);
                 getLogger().info("Alias for " + username + " set to:" + alias);
-	    } else {
+        } else {
                 out.println("Error setting alias");
                 getLogger().info("Error setting alias");
-	    }
+        }
             out.flush();
-	    return true;
+        return true;
         } else if (command.equalsIgnoreCase("SETFORWARDING")) {
-	    if (argument == null || argument1 == null) {
+        if (argument == null || argument1 == null) {
                 out.println("usage: setforwarding [username] [emailaddress]");
                 return true;
-	    }
+        }
             String username = argument;
             String forward = argument1;
             if (username.equals("") || forward.equals("")) {
                 out.println("usage: adduser [username] [emailaddress]");
                 return true;
-	    }
-	    // Verify user exists
-	    User baseuser = users.getUserByName(username);
-	    if (baseuser == null) {
-		out.println("No such user");
-		return true;
-	    }
+        }
+        // Verify user exists
+        User baseuser = users.getUserByName(username);
+        if (baseuser == null) {
+        out.println("No such user");
+        return true;
+        }
             else if (! (baseuser instanceof JamesUser ) ) {
                 out.println("Can't set forwarding for this user type.");
                 return true;
             }
             JamesUser user = (JamesUser)baseuser;
-	    // Veriy acceptable email address
-	    MailAddress forwardAddr;
+        // Veriy acceptable email address
+        MailAddress forwardAddr;
             try {
                  forwardAddr = new MailAddress(forward);
             } catch(ParseException pe) {
-		out.println("Parse exception with that email address: "
+        out.println("Parse exception with that email address: "
                             + pe.getMessage());
-		out.println("Forwarding address not added for " + username);
-	        return true;
-	    }
+        out.println("Forwarding address not added for " + username);
+            return true;
+        }
 
-  	    boolean success;
-	    success = user.setForwardingDestination(forwardAddr);
-	    if (success){
-	        user.setForwarding(true);
-		users.updateUser(user);
+        boolean success;
+        success = user.setForwardingDestination(forwardAddr);
+        if (success){
+            user.setForwarding(true);
+        users.updateUser(user);
                 out.println("Forwarding destination for " + username
                              + " set to:" + forwardAddr.toString());
                 getLogger().info("Forwarding destination for " + username
                                  + " set to:" + forwardAddr.toString());
-	    } else {
+        } else {
                 out.println("Error setting forwarding");
                 getLogger().info("Error setting forwarding");
-	    }
+        }
             out.flush();
-	    return true;
+        return true;
         } else if (command.equalsIgnoreCase("UNSETALIAS")) {
-	    if (argument == null) {
+        if (argument == null) {
                 out.println("usage: unsetalias [username]");
                 return true;
-	    }
+        }
             String username = argument;
             if (username.equals("")) {
                 out.println("usage: adduser [username]");
                 return true;
-	    }
-	    JamesUser user = (JamesUser) users.getUserByName(username);
-	    if (user == null) {
-		out.println("No such user");
-		return true;
-	    }
+        }
+        JamesUser user = (JamesUser) users.getUserByName(username);
+        if (user == null) {
+        out.println("No such user");
+        return true;
+        }
 
-	    if (user.getAliasing()){
-	        user.setAliasing(false);
-		users.updateUser(user);
+        if (user.getAliasing()){
+            user.setAliasing(false);
+        users.updateUser(user);
                 out.println("Alias for " + username + " unset");
                 getLogger().info("Alias for " + username + " unset");
-	    } else {
+        } else {
                 out.println("Aliasing not active for" + username);
                 getLogger().info("Aliasing not active for" + username);
-	    }
+        }
             out.flush();
-	    return true;
+        return true;
         } else if (command.equalsIgnoreCase("USE")) {
-	    if (argument == null || argument.equals("")) {
+        if (argument == null || argument.equals("")) {
                 out.println("usage: use [repositoryName]");
                 return true;
-	    }
+        }
             String repositoryName = argument;
             UsersRepository repos = usersStore.getRepository(repositoryName);
             if ( repos == null ) {
