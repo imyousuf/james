@@ -91,6 +91,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.util.Base64;
+import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.InternetPrintWriter;
@@ -104,7 +105,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.50 $
+ * @version This is $Revision: 1.51 $
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -559,11 +560,15 @@ public class SMTPHandler
      * @throws IOException if an exception is generated reading in the input characters
      */
     final String readCommandLine() throws IOException {
-        String commandLine = inReader.readLine();
-        if (commandLine != null) {
-            commandLine = commandLine.trim();
+        for (;;) try {
+            String commandLine = inReader.readLine();
+            if (commandLine != null) {
+                commandLine = commandLine.trim();
+            }
+            return commandLine;
+        } catch (CRLFTerminatedReader.TerminationException te) {
+            writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
         }
-        return commandLine;
     }
 
     /**
