@@ -110,7 +110,9 @@ public class RemoteManagerHandler
             getLogger().info( "Access from " + remoteHost + "(" + remoteIP + ")" );
             out.println( "JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION );
             out.println("Please enter your login and password");
+	    out.println("Login id:");
             String login = in.readLine();
+	    out.println("Password:");
             String password = in.readLine();
 
             while (!password.equals(admaccount.get(login)) || password.length() == 0) {
