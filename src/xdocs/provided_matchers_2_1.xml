@@ -73,6 +73,21 @@ and then the String value to be matched. For example:<br/>
 </code></pre>
 </p>
 </subsection>
+<subsection name="HasMailAttributeWithValueRegex">
+<p>Description: Matches mails that have the specified Mail Attribute and 
+a MailAttribute value that matches the specified regular expression.
+All recipients are returned.</p>
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The regular
+expression must follow Perl5 syntax.</p>
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the regular expression used to match the value against. For example:<br/>
+<pre><code>
+&lt;mailet match="HasMailAttributeWithValueRegex=name, regex" class=&quot;&lt;any-class&gt;&quot;&gt;
+</code></pre>
+</p>
+</subsection>
 <subsection name="HostIs">
 <p>Description: Matches mails that are sent to email addresses on hosts that are in the configuration list.  Only 
 recipients that are on one of the hosts are returned.</p>
