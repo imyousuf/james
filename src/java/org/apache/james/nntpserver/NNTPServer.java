@@ -47,7 +47,7 @@ public class NNTPServer extends AbstractService {
         if( useTLS.equals( "TRUE" ) )
             m_serverSocketType = "ssl";
 
-        super.configure( configuration.getChild( "nntphandler" ) );
+        super.configure( configuration.getChild( "handler" ) );
         getLogger().info("configured NNTPServer to run at : "+m_port);
     }
 

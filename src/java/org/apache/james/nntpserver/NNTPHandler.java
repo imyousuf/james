@@ -63,6 +63,8 @@ import org.apache.james.services.UsersStore;
 public class NNTPHandler extends BaseConnectionHandler
     implements ConnectionHandler, Composable, Configurable, Target {
 
+    private final static boolean DEEP_DEBUG = true;
+
     // timeout controllers
     private TimeScheduler scheduler;
 
@@ -80,11 +82,6 @@ public class NNTPHandler extends BaseConnectionHandler
     private NNTPGroup group;
     private NNTPRepository repo;
 
-    public void configure( Configuration configuration ) throws ConfigurationException {
-        super.configure(configuration);
-        authRequired=configuration.getChild("authRequired").getValueAsBoolean(false);
-        authState = new AuthState(authRequired,users);
-    }
 
     public void compose( final ComponentManager componentManager )
         throws ComponentException
@@ -98,6 +95,17 @@ public class NNTPHandler extends BaseConnectionHandler
         repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");
     }
+
+
+    public void configure( Configuration configuration )
+           throws ConfigurationException {
+        super.configure(configuration);
+        authRequired =
+            configuration.getChild("authRequired").getValueAsBoolean(false);
+        getLogger().debug("Auth required state is :" + authRequired);
+        authState = new AuthState(authRequired,users);
+    }
+
 
     public void handleConnection( Socket connection ) throws IOException {
         try {
@@ -171,8 +179,12 @@ public class NNTPHandler extends BaseConnectionHandler
         final String command = tokens.nextToken();
 
         //System.out.println("allowed="+isAllowed(command)+","+authState.isAuthenticated());
-        if ( isAllowed(command) == false )
+        if (! isAllowed(command) ){
+	    if (DEEP_DEBUG) {
+		getLogger().debug("Command not allowed.");
+	    }
             return true;
+	}
         if ( command.equalsIgnoreCase("MODE") && tokens.hasMoreTokens() &&
              tokens.nextToken().equalsIgnoreCase("READER") )
             doMODEREADER();
