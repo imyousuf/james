@@ -89,7 +89,7 @@ import java.util.StringTokenizer;
  * &lt;/mailet&gt;
  * </CODE></PRE>
  *
- * <P>CVS $Id: Forward.java,v 1.6.4.5 2003/06/15 18:33:42 noel Exp $</P>
+ * <P>CVS $Id: Forward.java,v 1.6.4.6 2003/06/15 18:40:20 noel Exp $</P>
  * @version 2.2.0
  */
 public class Forward extends AbstractRedirect {
