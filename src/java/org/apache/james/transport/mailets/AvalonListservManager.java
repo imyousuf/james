@@ -21,13 +21,14 @@ import org.apache.mailet.*;
 /**
  * Adds or removes an email address to a listserv.
  *
- * Sample configuration:
- * <pre>
- * <mailet match="CommandForListserv=james@list.working-dogs.com" class="AvalonListservManager">
- *     <membersPath>file://../var/list-james</membersPath>
- * </mailet>
- * </pre>
- * @author  Serge Knystautas <sergek@lokitech.com>
+ * <p>Sample configuration:
+ * <br>&lt;mailet match="CommandForListserv=james@list.working-dogs.com" class="AvalonListservManager"&gt;
+ * <br>&lt;repositoryName&gt;name of user repository configured in UsersStore block &lt;/repositoryName&gt;
+ * <br>&lt;/mailet&gt;
+ *
+ * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
+ * @version This is $Revision: 1.2 $
+ * Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
  */
 public class AvalonListservManager extends GenericListservManager {
 

@@ -514,12 +514,13 @@ Legal:
   -->
   <target name="local-xdocs" depends="xdocs">
 
+    <mkdir dir="${docs.dir}"/>
     <delete>
       <fileset dir="${docs.dir}">
         <exclude name="api/**"/>
       </fileset>
     </delete>
-    <mkdir dir="${docs.dir}"/>
+
 
     <copy todir="${docs.dir}">
       <fileset dir="${build.docs}" />

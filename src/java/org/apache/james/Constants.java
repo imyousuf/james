@@ -12,11 +12,10 @@ package org.apache.james;
  * The Software Version, Software Name and Build Date are set by ant during
  * the build process.
  *
- * @version 1.0.0, 24/04/1999
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  *
- * This is $Revision: 1.2 $
- * Committed on $Date: 2001/05/21 09:48:57 $ by: $Author: charlesb $ 
+ * @version This is $Revision: 1.3 $
+ * Committed on $Date: 2001/06/24 13:18:36 $ by: $Author: charlesb $ 
  */
 public class Constants {
 
