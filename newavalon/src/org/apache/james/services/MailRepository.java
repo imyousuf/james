@@ -10,18 +10,16 @@ package org.apache.james.services;
 
 import org.apache.avalon.services.*;
 import java.util.Iterator;
-//import java.io.*;
-//import org.apache.mailet.*;
+
 import org.apache.james.core.*;
-//import javax.mail.internet.*;
-//import javax.mail.MessagingException;
+
 
 /**
  * Interface for a Repository to store Mails.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface MailRepository extends Store.Repository {
+public interface MailRepository extends Service {
 
     /**
      * Define a MAIL repository. MAILS are stored in the specified

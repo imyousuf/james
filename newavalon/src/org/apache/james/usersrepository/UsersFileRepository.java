@@ -37,7 +37,7 @@ public class UsersFileRepository implements UsersRepository, Component, Configur
     private static final String TYPE = "USERS";
     private final static boolean        LOG        = true;
     private final static boolean        DEBUG      = LOG && false;
-    private Logger logger =  LogKit.getLoggerFor("MailRepository");
+    private Logger logger =  LogKit.getLoggerFor("UsersStore");
     private Store store;
     private Store.ObjectRepository or;
     //  private String path;

@@ -8,14 +8,6 @@
 
 package org.apache.james.services;
 
-//import org.apache.avalon.services.*;
-//import org.apache.avalon.*;
-//import org.apache.avalon.utils.*;
-//import java.util.*;
-//import java.io.*;
-//import org.apache.mailet.Mail;
-//import javax.mail.internet.*;
-//import javax.mail.MessagingException;
 
 /**
  * Interface for a Repository for Spooling Mails.

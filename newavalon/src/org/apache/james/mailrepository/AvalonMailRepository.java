@@ -22,7 +22,7 @@ import org.apache.log.Logger;
 
 import org.apache.mailet.*;
 import org.apache.james.core.*;
-import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 
 
@@ -39,7 +39,8 @@ import org.apache.james.services.MailStore;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonMailRepository implements MailRepository, Configurable, Composer {
+public class AvalonMailRepository implements MailRepository, Component, Configurable, Composer {
+    protected Lock lock;
 
     private static final String TYPE = "MAIL";
     private final static boolean        LOG        = true;
@@ -49,11 +50,9 @@ public class AvalonMailRepository implements MailRepository, Configurable, Compo
     private Store.StreamRepository sr;
     private Store.ObjectRepository or;
     private MailStore mailstore;
-    //  private String path;
-    //   private String name;
     private String destination;
-    //  private String model;
-    private Lock lock;
+
+   
 
     public AvalonMailRepository() {
     }
@@ -98,27 +97,27 @@ public class AvalonMailRepository implements MailRepository, Configurable, Compo
     }
 
  
-    public Store.Repository getChildRepository(String childName) {
-	String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
-	//prepare Configurations for object and stream repositories
-	DefaultConfiguration childConf = new DefaultConfiguration("repository", "generated:AvalonFileRepository.getChildRepository()");
-	childConf.addAttribute("destinationURL", childDestination);
-	childConf.addAttribute("type", "MAIL");
-	childConf.addAttribute("model", "SYNCHRONOUS");
-	try {
-	    Store.Repository child = (Store.Repository) store.select(childConf);
-	    return child;
-	} catch (ComponentNotFoundException cnfe) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
-	    return null;
-	} catch (ComponentNotAccessibleException cnae) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
-	    return null;
-	} catch (Exception e) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
-	    return null;
-	}
-    }
+    //   public Store.Repository getChildRepository(String childName) {
+    //String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
+    ////prepare Configurations for object and stream repositories
+    //DefaultConfiguration childConf = new DefaultConfiguration("repository", "generated:AvalonFileRepository.getChildRepository()");
+    //childConf.addAttribute("destinationURL", childDestination);
+    //childConf.addAttribute("type", "MAIL");
+    //childConf.addAttribute("model", "SYNCHRONOUS");
+    //try {
+    //    Store.Repository child = (Store.Repository) store.select(childConf);
+    //    return child;
+    //} catch (ComponentNotFoundException cnfe) {
+    // if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
+    //    return null;
+    //} catch (ComponentNotAccessibleException cnae) {
+    //    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
+    //    return null;
+    //} catch (Exception e) {
+    //    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
+    //    return null;
+    //}
+    //}
 
     public synchronized void unlock(Object key) {
 
@@ -179,60 +178,5 @@ public class AvalonMailRepository implements MailRepository, Configurable, Compo
         return sr.list();
     }
 
-    public synchronized String accept() {
-
-        while (true) {
-            for(Iterator it = or.list(); it.hasNext(); ) {
-                Object o = it.next();
-                if (lock.lock(o)) {
-                    return o.toString();
-                }
-            }
-            try {
-                wait();
-            } catch (InterruptedException ignored) {
-            }
-        }
-    }
-
-    public synchronized String accept(long delay) {
-        while (true) {
-            long youngest = 0;
-            for (Iterator it = list(); it.hasNext(); ) {
-                String s = it.next().toString();
-                if (lock.lock(s)) {
-                    //We have a lock on this object... let's grab the message
-                    //  and see if it's a valid time.
-                    MailImpl mail = retrieve(s);
-                    if (mail.getState().equals(Mail.ERROR)) {
-                        //Test the time...
-                        long timeToProcess = delay + mail.getLastUpdated().getTime();
-                        if (System.currentTimeMillis() > timeToProcess) {
-                            //We're ready to process this again
-                            return s;
-                        } else {
-                            //We're not ready to process this.
-                            if (youngest == 0 || youngest > timeToProcess) {
-                                //Mark this as the next most likely possible mail to process
-                                youngest = timeToProcess;
-                            }
-                        }
-                    } else {
-                        //This mail is good to go... return the key
-                        return s;
-                    }
-                }
-            }
-            //We did not find any... let's wait for a certain amount of time
-            try {
-                if (youngest == 0) {
-                    wait();
-                } else {
-                    wait(youngest - System.currentTimeMillis());
-                }
-            } catch (InterruptedException ignored) {
-            }
-        }
-    }
 
 }
