@@ -90,7 +90,7 @@ import org.apache.mailet.UsersRepository;
  *       -add remove user
  *       -much more...
  *
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.29 $
  *
  */
 public class RemoteManagerHandler
@@ -577,32 +577,27 @@ public class RemoteManagerHandler
      */
     private boolean doDELUSER(String argument) {
         String user = argument;
-        if ((user == null) || (user.equals(""))) {
-            out.println("Usage: deluser [username]");
-            return true;
-        }
+        StringBuffer responseBuffer = new StringBuffer(128);
         try {
-            users.removeUser(user);
-        } catch (Exception e) {
-            StringBuffer exceptionBuffer =
-               new StringBuffer(128)
-                       .append("Error deleting user ")
-                       .append(user)
-                       .append(" : ")
-                       .append(e.getMessage());
-            out.println(exceptionBuffer.toString());
+            if ((user == null) || (user.equals(""))) {
+                responseBuffer.append("Usage: deluser [username]");
+            } else if (!users.contains(user)) {
+                responseBuffer.append("User ").append(user).append(" doesn't exist");
+            } else {
+                users.removeUser(user);
+                responseBuffer.append("User ").append(user).append(" deleted");
+            }
+        }
+        catch (Exception e) {
+            responseBuffer.append("Error deleting user ").append(user).append(" : ").append(e.getMessage());
+        }
+        finally {
+            String response = responseBuffer.toString();
+            out.println(response);
+            out.flush();
+            getLogger().info(response);
             return true;
         }
-        StringBuffer responseBuffer =
-            new StringBuffer(64)
-                    .append("User ")
-                    .append(user)
-                    .append(" deleted");
-        String response = responseBuffer.toString();
-        out.println(response);
-        out.flush();
-        getLogger().info(response);
-        return true;
     }
 
     /**
