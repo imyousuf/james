@@ -113,7 +113,7 @@ import java.lang.reflect.Array;
  * Therefore this implementation is best suited to people who wish to use the mbox format
  * for taking data out of James and into something else (IMAP server or mail list displayer)
  *
- * @version CVS $Revision: 1.1.2.2 $
+ * @version CVS $Revision: 1.1.2.3 $
  */
 
 
@@ -122,7 +122,7 @@ public class MBoxMailRepository
             implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
 
 
-    static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM d HH:mm:ss yyyy", Locale.US);
+    static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
     static final String LOCKEXT = ".lock";
     static final String WORKEXT = ".work";
     static final int LOCKSLEEPDELAY = 2000; // 2 second back off in the event of a problem with the lock file
