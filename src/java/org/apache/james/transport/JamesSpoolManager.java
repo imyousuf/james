@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.20.4.1 $
+ * @version This is $Revision: 1.20.4.2 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -335,11 +335,11 @@ public class JamesSpoolManager
                     spool.unlock(key);
                 }
                 mail = null;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 if (getLogger().isErrorEnabled()) {
                     getLogger().error("Exception in JamesSpoolManager.run "
-                                      + e.getMessage());
+                                      + e.getMessage(), e);
                 }
             }
         }

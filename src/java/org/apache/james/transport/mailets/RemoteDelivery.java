@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.33 $
+ * This is $Revision: 1.33.4.1 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -605,7 +605,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         outgoing.remove(key);
                         throw e;
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     log("Exception caught in RemoteDelivery.run(): " + e);
                 }
             }
