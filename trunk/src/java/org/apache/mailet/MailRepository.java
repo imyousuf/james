@@ -32,7 +32,7 @@ public interface MailRepository {
      *
      * @param mc the mail message to store
      */
-    void store(MailImpl mc);
+    void store(Mail mc);
 
     /**
      * List string keys of messages in repository.

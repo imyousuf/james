@@ -31,6 +31,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailStore;
 import org.apache.james.util.Lock;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailRepository;
 
 /**
@@ -232,7 +233,7 @@ public class AvalonMailRepository
      *
      * @param mc the mail message to store
      */
-    public void store(MailImpl mc) {
+    public void store(Mail mc) {
         try {
             String key = mc.getName();
             //Remember whether this key was locked
@@ -277,7 +278,7 @@ public class AvalonMailRepository
                     OutputStream out = null;
                     try {
                         out = sr.put(key);
-                        mc.writeMessageTo(out);
+                        ((MailImpl)mc).writeMessageTo(out);
                     } finally {
                         out.close();
                     }
