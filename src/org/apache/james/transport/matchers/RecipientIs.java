@@ -19,11 +19,11 @@ import javax.mail.*;
  */
 public class RecipientIs extends GenericRecipientMatcher {
 
-    private Collection recipients;
+    private Set recipients;
 
     public void init() throws javax.mail.MessagingException {
         StringTokenizer st = new StringTokenizer(getCondition(), ", \t", false);
-        recipients = new Vector();
+        recipients = new HashSet();
         while (st.hasMoreTokens()) {
             recipients.add(new MailAddress(st.nextToken()));
         }

@@ -24,7 +24,7 @@ public class Forward extends GenericMailet {
     private Collection newRecipients;
 
     public void init() throws MessagingException {
-        newRecipients = new Vector();
+        newRecipients = new HashSet();
         StringTokenizer st = new StringTokenizer(getMailetConfig().getInitParameter("forwardto"), ",", false);
         while (st.hasMoreTokens()) {
             newRecipients.add(new MailAddress(st.nextToken()));
