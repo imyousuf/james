@@ -11,7 +11,7 @@
 <body>
 
 <section name="This list">
-<p>Special thanks go to the following people for their contributions to this project.  We also appreciate documentation, feedback, and bug reports.  This is a living document that describes the key contributors to James. Last Updated April 2002.</p>
+<p>Special thanks go to the following people for their contributions to this project.  We also appreciate documentation, feedback, and bug reports.  This is a living document that describes the key contributors to James. Last Updated August 2002.</p>
 </section>
 
 <section name="Active Commiters">
@@ -21,6 +21,7 @@
 <p><b>Harmeet Bedi (harmeet at kodemuse.com) (HB)</b></p>
 <p><b>Darrell DeBoer (DD)</b></p>
 <p><b>Danny Angus (danny at autonomous.co.uk) (DA)</b><br/> Danny is CTO of <a href="http://www.autonomous.co.uk">Autonomous Software Ltd.</a> where I try not to get too distracted by open source projects.</p>
+<p><b>Peter M. Goldstein (farsight at alum.mit.edu) (PG)</b></p>
 </section>
 
 <section name="Other Contributors">
@@ -37,6 +38,7 @@
 <p><b>Eung-ju Park (colus at apache.org) (EP)</b></p>
 <p><b>Paul Hammant (Paul_Hammant at yahoo.com) (PH)</b></p>
 <p><b>Jeff Keyser (JKeyser at telocity.com) (JK)</b></p>
+<p><b>Noel Bergman (noel at devtech.com) (NjB)</b></p>
 
 </section>
 
