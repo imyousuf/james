@@ -336,7 +336,7 @@ public class AvalonMailRepository
                             .append("Exception retrieving mail: ")
                             .append(re.toString())
                             .append(", so we're deleting it... good riddance!");
-                getLogger().error(exceptionBuffer.toString());
+                getLogger().debug(exceptionBuffer.toString());
                 remove(key);
                 return null;
             }
