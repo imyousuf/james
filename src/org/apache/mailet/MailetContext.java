@@ -127,20 +127,20 @@ public interface MailetContext {
     String getServerInfo();
 
     /**
-     * Returns a Collection of the server names that are considered "local"
-     * by this mailet context.
+     * Checks if a server is serviced by mail context
      *
-     * @return a Collection of Strings of hostnames that are considered "local"
+     * @param serverName - name of server.
+     * @return true if server is local, i.e. serviced by this mail context
      */
-    Collection getServerNames();
+    boolean isLocalServer(String serverName);
 
     /**
-     * Returns a Collection of the local user accounts within this mailet
-     * context.
+     * Checks if a user account is exists in the mail context.
      *
-     * @return a Collection of Strings of usernames that are considered "local"
+     * @param userAccount - user identifier.
+     * @return true if the acount is a local account
      */
-    Collection getLocalUsers();
+    boolean isLocalUser(String userAccount);
 
     /**
      * Writes the specified message to a mailet log file, usually an event
