@@ -44,7 +44,7 @@
 
 
     For LDAP support for users, change the  <userRepository> element from:
-    <userRepository>file://../var/users/ </userRepository> to: 
+    <userRepository>file://var/users/ </userRepository> to: 
     <userRepository>ldap </userRepository>
     
     then set the parameteers for your LDAP server.  Please check docs/usingLDAP.html 
@@ -108,8 +108,8 @@
       <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
                  hostClass="org.apache.james.imapserver.JamesHost"/>
       <imapHost>
-        <recordRepository>../var/mail/folderRecords/</recordRepository>
-        <mailboxRepository>../var/mail/mailboxes/</mailboxRepository>
+        <recordRepository>var/mail/folderRecords/</recordRepository>
+        <mailboxRepository>var/mail/mailboxes/</mailboxRepository>
         <namespaces token="#">
           <privateNamespace separator=".">#mail</privateNamespace>
           <otherusersNamespace separator=".">#users</otherusersNamespace>
@@ -120,7 +120,7 @@
       <!-- The spool repository is a singular location where incoming mails are 
       temporarily stored before being processed. (ex. file://c:/james/spool/) -->
       <spoolRepository>
-        <repository destinationURL="file://../var/mail/spool/"
+        <repository destinationURL="file://var/mail/spool/"
                     type="SPOOL"
                     model="SYNCHRONOUS">
         </repository>
@@ -139,7 +139,7 @@
 
       <!-- The inbox repository is the location for users inboxes -->
       <inboxRepository>
-        <repository destinationURL="file://../var/mail/inboxes/"
+        <repository destinationURL="file://var/mail/inboxes/"
                     type="MAIL"
                     model="SYNCHRONOUS">
         </repository>
@@ -256,14 +256,14 @@
 
           <!-- Sample listserv wrapping a local avalon list of users. -->
           <mailet match="CommandForListserv=james@localhost" class="AvalonListservManager">
-            <membersPath> file://../var/users/list-james </membersPath>
+            <membersPath> file://var/users/list-james </membersPath>
           </mailet>
 
           <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
             <membersonly> false </membersonly>
             <attachmentsallowed> true </attachmentsallowed>
             <replytolist> true </replytolist>
-            <membersPath> file://../var/users/list-james </membersPath>
+            <membersPath>file://var/users/list-james</membersPath>
           </mailet>
 
           <!-- Sends remaining mails to the transport processor for either local 
@@ -278,7 +278,7 @@
         <processor name="error">
           <!-- Logs any messages to the repository specified -->
           <mailet match="All" class="ToRepository">
-            <repositoryPath> file://../var/mail/error/</repositoryPath>
+            <repositoryPath> file://var/mail/error/</repositoryPath>
             <!-- <repositoryPath> town://mail-error </repositoryPath>-->
             <passThrough> true </passThrough>
           </mailet>
@@ -321,7 +321,7 @@
           <!-- Attempt remote delivery using the specified repository for the spool,
           using delay time to retry delivery and the maximum number of retries -->
           <mailet match="All" class="RemoteDelivery">
-            <outgoing> file://../var/mail/outgoing/ </outgoing>
+            <outgoing> file://var/mail/outgoing/ </outgoing>
             <!-- <outgoing> town://mail-outgoing </outgoing>-->
             <delayTime> 21600000 </delayTime>
             <maxRetries> 5 </maxRetries>
@@ -351,7 +351,7 @@
 
           <!-- Out of the box, this will log the message to a repository -->
           <mailet match="All" class="ToRepository">
-            <repositoryPath> file://../var/mail/spam/ </repositoryPath>
+            <repositoryPath>file://var/mail/spam/</repositoryPath>
             <!-- <repositoryPath> town://spam </repositoryPath> -->
           </mailet>
         </processor>
@@ -361,7 +361,7 @@
 
   <!-- The High Level Storage block -->
   <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
-    <provide name="objectstorage" role="org.apache.cornerstone.services.Store"/> 
+    <provide name="objectstorage" role="org.apache.cornerstone.services.store.Store"/> 
 
     <configuration>
       <repositories>
@@ -373,37 +373,37 @@
             <type>MAIL</type>
           </types>
           <models>
-            <model> SYNCHRONOUS </model>
-            <model> ASYNCHRONOUS </model>
-            <model> CACHE </model>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
           </models>
         </repository>
         <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
           <protocols>
-            <protocol> file </protocol>
+            <protocol>file</protocol>
           </protocols>
           <types>
-            <type> SPOOL </type>
+            <type>SPOOL</type>
           </types>
           <models>
-            <model> SYNCHRONOUS </model>
-            <model> ASYNCHRONOUS </model>
-            <model> CACHE </model>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
           </models>
         </repository>
 
         <repository class="org.apache.james.mailrepository.TownSpoolRepository">
           <protocols>
-            <protocol> town </protocol>
+            <protocol>town</protocol>
           </protocols>
           <types>
-            <type> SPOOL </type>
-            <type> MAIL </type>
+            <type>SPOOL</type>
+            <type>MAIL</type>
           </types>
           <models>
-            <model> SYNCHRONOUS </model>
-            <model> ASYNCHRONOUS </model>
-            <model> CACHE </model>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
           </models>
         </repository>
       </repositories>
@@ -414,13 +414,13 @@
   <block class="org.apache.james.core.AvalonUsersStore" name="users-store" >
 
     <!-- Configure file based user store here, defaults should be fine -->
-    <provide name="objectstorage" role="org.apache.cornerstone.services.Store"/>
+    <provide name="objectstorage" role="org.apache.cornerstone.services.store.Store"/>
 
     <!-- We need to make template configurations for LDAP and RDBMS user stores -->
     <configuration>
       <repository name="LocalUsers"
                   class="org.apache.james.userrepository.UsersFileRepository">
-        <destination URL="file://../var/users/"/>
+        <destination URL="file://var/users/"/>
       </repository>
       
       <!-- Uncomment this to store users in an RDBMS
@@ -434,7 +434,7 @@
       
       <repository name="list-james"
                   class="org.apache.james.userrepository.UsersFileRepository">
-        <destination URL="file://../var/lists/list-james/"/>
+        <destination URL="file://var/lists/list-james/"/>
       </repository>
     </configuration>
   </block>
@@ -450,28 +450,28 @@
       <repositories>
         <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
         <protocols>
-          <protocol> file </protocol>
+          <protocol>file</protocol>
         </protocols>
         <types>
-          <type> OBJECT </type>
+          <type>OBJECT</type>
         </types>
         <models>
-          <model> SYNCHRONOUS </model>
-          <model> ASYNCHRONOUS </model>
-          <model> CACHE </model>
+          <model>SYNCHRONOUS</model>
+          <model>ASYNCHRONOUS</model>
+          <model>CACHE</model>
         </models>
       </repository>
       <repository class="org.apache.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
         <protocols>
-          <protocol> file </protocol>
+          <protocol>file</protocol>
         </protocols>
         <types>
-          <type> STREAM </type>
+          <type>STREAM</type>
         </types>
         <models>
-          <model> SYNCHRONOUS </model>
-          <model> ASYNCHRONOUS </model>
-          <model> CACHE </model>
+          <model>SYNCHRONOUS</model>
+          <model>ASYNCHRONOUS</model>
+          <model>CACHE</model>
         </models>
       </repository>
     </repositories>
