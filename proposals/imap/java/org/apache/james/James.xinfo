@@ -35,7 +35,7 @@
       <service name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" version="1.0"/>
     </dependency>
     <dependency>
-      <service name="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" version="1.0"/>
+      <service name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" version="1.0"/>
     </dependency>
 
     <dependency>
