@@ -44,8 +44,8 @@ import org.apache.mailet.*;
  * @author Matthew Pangaro <mattp@lokitech.com>
  * @author Danny Angus <danny@thought.co.uk>
  *
- * This is $Revision: 1.13 $
- * Committed on $Date: 2001/12/07 22:08:29 $ by: $Author: serge $
+ * This is $Revision: 1.13.2.1 $
+ * Committed on $Date: 2002/02/04 10:07:06 $ by: $Author: danny $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -195,14 +195,22 @@ public class SMTPHandler
         }
     }
 
-    private void resetState() {
+ private void resetState() {
+        String user = (String) state.get(AUTH);
+
         state.clear();
-        state.put(SERVER_NAME, this.helloName );
-        state.put(SERVER_TYPE, this.softwaretype );
+        state.put(SERVER_NAME, this.helloName);
+        state.put(SERVER_TYPE, this.softwaretype);
         state.put(REMOTE_NAME, remoteHost);
         state.put(REMOTE_IP, remoteIP);
         state.put(SMTP_ID, smtpID);
+        // seems that after authenticating an smtp client sends
+        // a RSET, so we need to remember that they are authenticated
+        if(user != null){
+            state.put(AUTH, user);
+        }
     }
+
 
     private boolean parseCommand(String command)
         throws Exception {
