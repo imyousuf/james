@@ -66,7 +66,7 @@ import java.util.Locale;
  * Otherwise, a processor name can be specified, and the message will
  * be sent there.
  *
- * <P>CVS $Id: LinearProcessor.java,v 1.10.4.6 2004/03/15 03:54:18 noel Exp $</P>
+ * <P>CVS $Id: LinearProcessor.java,v 1.10.4.7 2004/04/14 06:41:56 noel Exp $</P>
  * @version 2.2.0
  */
 public class LinearProcessor 
@@ -471,8 +471,16 @@ public class LinearProcessor
      * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
     private void verifyMailAddresses(Collection col) throws MessagingException {
-        MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
-        if (addresses.length != col.size()) {
+        try {
+            MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
+
+            // Why is this here?  According to the javadoc for
+            // java.util.Collection.toArray(Object[]), this should
+            // never happen.  The exception will be thrown.
+            if (addresses.length != col.size()) {
+                throw new MailetException("The recipient list contains objects other than MailAddress objects");
+            }
+        } catch (ArrayStoreException ase) {
             throw new MailetException("The recipient list contains objects other than MailAddress objects");
         }
     }
