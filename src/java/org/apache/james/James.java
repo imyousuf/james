@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.9 $
+ * @version This is $Revision: 1.35.4.10 $
 
  */
 public class James
@@ -749,8 +749,8 @@ public class James
             throw new MessagingException("Unable to create multipart body", ioe);
         }
         reply.saveChanges();
-        //Send it off...
-        sendMail(bouncer, recipients, reply);
+        //Send it off ... with null reverse-path
+        sendMail(null, recipients, reply);
     }
 
     /**
