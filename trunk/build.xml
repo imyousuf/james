@@ -44,7 +44,7 @@ All these package are in current distribution.
   <property file="${user.home}/.ant.properties"/>
 
   <property name="name" value="james"/>
-  <property name="version" value="1.2.2alpha"/>
+  <property name="version" value="1.2.2-dev"/>
   <property name="year" value="1999-2001"/>
 
   <property name="build.compiler" value="classic"/>
@@ -52,8 +52,7 @@ All these package are in current distribution.
   <property name="optimize" value="on"/>
   <property name="deprecation" value="on"/>
 
-  <property name="james.dns.server" value="MUST_SET_THIS_TO_DNS_SERVER" />
-  <property name="james.passwd" value="" />
+
 
   <!--
     these are here only for those who use jikes compiler. For other
@@ -68,6 +67,7 @@ All these package are in current distribution.
   <!-- The properties in the init section should not normally be changed -->
 
   <target name="init">
+    <tstamp/>
 
     <property name="classpath" value="./lib/avalon-framework.jar;./lib/avalon-excalibur.jar;./lib/avalon-scratchpad.jar;./lib/logkit.jar;./lib/phoenix-client.jar;./lib/cornerstone.bar;./lib/activation.jar;./lib/mail_1_2.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar;./lib/velocity-0.71.jar;./lib/jakarta-oro-2.0.1.jar"/>
 
@@ -112,7 +112,8 @@ All these package are in current distribution.
     <echo message="   block-archive  --> generates the James.bar file (default)"/>
     <echo message="   auxiliary-jars --> generates the mailet.jar"/>
     <echo message="   compile        --> compiles the source code"/>
-    <echo message="   dist           --> generates the JAMES distribution"/>
+    <echo message="   dist-lite      --> generates the JAMES distribution, unpacked"/>
+    <echo message="   dist           --> generates the JAMES distribution, packed"/>
     <echo message="   clean          --> cleans up the directory"/>
     <echo message="   docs           --> created the documentaion for James"/>
     <echo message="   javadoc        --> creates the Javadoc"/>
@@ -298,9 +299,9 @@ All these package are in current distribution.
   </target>
 
   <target name="dist" depends="dist-lite">
-    <zip zipfile="${name}-${version}.zip" basedir="${dist.dir}" includes="**"/>
-    <tar tarfile="${name}-${version}.tar" basedir="${dist.dir}" includes="**"/>
-    <gzip zipfile="${name}-${version}.tar.gz" src="${name}-${version}.tar"/>
+    <zip zipfile="${name}-${version}-${DSTAMP}.zip" basedir="${dist.dir}" includes="**"/>
+    <tar tarfile="${name}-${version}-${DSTAMP}.tar" basedir="${dist.dir}" includes="**"/>
+    <gzip zipfile="${name}-${version}-${DSTAMP}.tar.gz" src="${name}-${version}-${DSTAMP}.tar"/>
   </target>
 
   <!-- =================================================================== -->
@@ -309,9 +310,9 @@ All these package are in current distribution.
   <target name="clean" depends="init">
     <delete dir="${build.dir}"/>
     <delete dir="${dist.dir}"/>
-    <delete file="${name}-${version}.zip"/>
-    <delete file="${name}-${version}.tar"/>
-    <delete file="${name}-${version}.tar.gz"/>
+    <delete file="${name}-${version}-${DSTAMP}.zip"/>
+    <delete file="${name}-${version}-${DSTAMP}.tar"/>
+    <delete file="${name}-${version}-${DSTAMP}.tar.gz"/>
   </target>
 
   <!-- =================================================================== -->
