@@ -54,7 +54,7 @@
 
     <!-- The James block  -->
     <block class="org.apache.james.James"
-           name="JAMES" >
+           name="James" >
 
 	<!-- Specify which components will provide the services required by this block. The roles are
 	 specified in the code and the .xinfo file. The names here must match the names specified for
