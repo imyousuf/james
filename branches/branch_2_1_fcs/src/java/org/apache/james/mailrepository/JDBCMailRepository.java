@@ -110,7 +110,7 @@ import java.util.*;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.30.4.10 $ $Date: 2003/08/28 16:32:02 $
+ * @version CVS $Revision: 1.30.4.11 $ $Date: 2003/09/08 16:39:42 $
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -195,6 +195,11 @@ public class JDBCMailRepository
      * The JDBCUtil helper class
      */
     protected JDBCUtil theJDBCUtil;
+    
+    /**
+     * "Support for Mail Attributes under JDBC repositories is ready" indicator.
+     */
+    protected boolean jdbcMailAttributesReady = false;
 
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
@@ -416,10 +421,100 @@ public class JDBCMailRepository
                     getLogger().info(logBuffer.toString());
                 }
             }
+            
+            checkJdbcAttributesSupport(dbMetaData);
 
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);
             theJDBCUtil.closeJDBCConnection(conn);
+        }
+    }
+    
+    /** Checks whether support for JDBC Mail atributes is activated for this repository
+     * and if everything is consistent.
+     * Looks for both the "updateMessageAttributesSQL" and "retrieveMessageAttributesSQL"
+     * statements in sqlResources and for a table column named "message_attributes".
+     *
+     * @param dbMetaData the database metadata to be used to look up the column
+     * @throws SQLException if a fatal situation is met
+     */
+    protected void checkJdbcAttributesSupport(DatabaseMetaData dbMetaData) throws SQLException {
+        String attributesColumnName = "message_attributes";
+        boolean hasUpdateMessageAttributesSQL = false;
+        boolean hasRetrieveMessageAttributesSQL = false;
+        
+        boolean hasMessageAttributesColumn = theJDBCUtil.columnExists(dbMetaData, tableName, attributesColumnName);
+        
+        StringBuffer logBuffer = new StringBuffer(64)
+                                    .append("JdbcMailRepository '"
+                                            + repositoryName
+                                            + ", table '"
+                                            + tableName
+                                            + "': ");
+        
+        //Determine whether attributes are used and available for storing
+        //Do we have updateMessageAttributesSQL?
+        String updateMessageAttrSql =
+            sqlQueries.getSqlString("updateMessageAttributesSQL", false);
+        if (updateMessageAttrSql!=null) {
+            hasUpdateMessageAttributesSQL = true;
+        }
+        
+        //Determine whether attributes are used and retrieve them
+        //Do we have retrieveAttributesSQL?
+        String retrieveMessageAttrSql =
+            sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
+        if (retrieveMessageAttrSql!=null) {
+            hasRetrieveMessageAttributesSQL = true;
+        }
+        
+        if (hasUpdateMessageAttributesSQL && !hasRetrieveMessageAttributesSQL) {
+            logBuffer.append("JDBC Mail Attributes support was activated for update but not for retrieval"
+                             + "(found 'updateMessageAttributesSQL' but not 'retrieveMessageAttributesSQL'"
+                             + "in table '"
+                             + tableName
+                             + "').");
+            getLogger().fatalError(logBuffer.toString());
+            throw new SQLException(logBuffer.toString());
+        }
+        if (!hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {
+            logBuffer.append("JDBC Mail Attributes support was activated for retrieval but not for update"
+                             + "(found 'retrieveMessageAttributesSQL' but not 'updateMessageAttributesSQL'"
+                             + "in table '"
+                             + tableName
+                             + "'.");
+            getLogger().fatalError(logBuffer.toString());
+            throw new SQLException(logBuffer.toString());
+        }
+        if (!hasMessageAttributesColumn
+            && (hasUpdateMessageAttributesSQL || hasRetrieveMessageAttributesSQL)
+            ) {
+                logBuffer.append("JDBC Mail Attributes support was activated but column '"
+                                 + attributesColumnName
+                                 + "' is missing in table '"
+                                 + tableName
+                                 + "'.");
+                getLogger().fatalError(logBuffer.toString());
+                throw new SQLException(logBuffer.toString());
+        }
+        if (hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {
+            jdbcMailAttributesReady = true;
+            if (getLogger().isInfoEnabled()) {
+                logBuffer.append("JDBC Mail Attributes support ready.");
+                getLogger().info(logBuffer.toString());
+            }
+        } else {
+            jdbcMailAttributesReady = false;
+            logBuffer.append("JDBC Mail Attributes support not activated. "
+                             + "Missing both 'updateMessageAttributesSQL' "
+                             + "and 'retrieveMessageAttributesSQL' "
+                             + "statements for table '"
+                             + tableName
+                             + "' in sqlResources.xml. "
+                             + "Will not persist in the repository '"
+                             + repositoryName
+                             + "'.");
+            getLogger().warn(logBuffer.toString());
         }
     }
 
@@ -540,11 +635,10 @@ public class JDBCMailRepository
                     theJDBCUtil.closeJDBCStatement(localUpdateMessage);
                 }
 
-                //Determine whether attribues are used and available for storing
-                //Do we have updateMessageAttributesSQL?
-                String updateMessageAttrSql =
-                    sqlQueries.getSqlString("updateMessageAttributesSQL", false);
-                if (updateMessageAttrSql!=null && mc.hasAttributes()) {
+                //Determine whether attributes are used and available for storing
+                if (jdbcMailAttributesReady && mc.hasAttributes()) {
+                    String updateMessageAttrSql =
+                        sqlQueries.getSqlString("updateMessageAttributesSQL", false);
                     PreparedStatement updateMessageAttr = null;
                     try {
                         updateMessageAttr =
@@ -756,13 +850,12 @@ public class JDBCMailRepository
                 }
                 return null;
             }
-            //Determine whether attribues are used and retrieve them
-            //Do we have retrieveAttributesSQL?
-            String retrieveMessageAttrSql =
-                sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
+            //Determine whether attributes are used and retrieve them
             PreparedStatement retrieveMessageAttr = null;
             HashMap attributes = null;
-            if (retrieveMessageAttrSql!=null) {
+            if (jdbcMailAttributesReady) {
+                String retrieveMessageAttrSql =
+                    sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
                 ResultSet rsMessageAttr = null;
                 try {
                     retrieveMessageAttr =

@@ -68,9 +68,7 @@ import java.util.Locale;
  * take advantage of different logging capabilities/interfaces in
  * different parts of the code.</p>
  *
- * @author Noel Bergman <noel@devtech.com>
- * @author Peter M. Goldstein <farsight@alum.mit.edu>
- *
+ * @version CVS $Revision: 1.2.4.3 $ $Date: 2003/09/08 16:39:42 $
  */
 abstract public class JDBCUtil
 {
@@ -110,6 +108,50 @@ abstract public class JDBCUtil
     public boolean tableExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName)
         throws SQLException {
         ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
+        try {
+            boolean found = rsTables.next();
+            return found;
+        } finally {
+            closeJDBCResultSet(rsTables);
+        }
+    }
+
+    /**
+     * Checks database metadata to see if a column exists in a table
+     * Try UPPER, lower, and MixedCase, both on the table name and the column name, to see if the column is there.
+     *
+     * @param dbMetaData the database metadata to be used to look up this column
+     * @param tableName the table name
+     * @param columnName the column name
+     *
+     * @throws SQLException if an exception is encountered while accessing the database
+     */
+    public boolean columnExists(DatabaseMetaData dbMetaData, String tableName, String columnName)
+        throws SQLException {
+        return ( columnExistsCaseSensitive(dbMetaData, tableName, columnName) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName, columnName.toUpperCase(Locale.US)) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName, columnName.toLowerCase(Locale.US)) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toUpperCase(Locale.US)) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toLowerCase(Locale.US)) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toUpperCase(Locale.US)) ||
+                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toLowerCase(Locale.US)) );
+    }
+
+    /**
+     * Checks database metadata to see if a column exists in a table.  This method
+     * is sensitive to the case of both the provided table name and column name.
+     *
+     * @param dbMetaData the database metadata to be used to look up this column
+     * @param tableName the case sensitive table name
+     * @param columnName the case sensitive column name
+     *
+     * @throws SQLException if an exception is encountered while accessing the database
+     */
+    public boolean columnExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName, String columnName)
+        throws SQLException {
+        ResultSet rsTables = dbMetaData.getColumns(null, null, tableName, columnName);
         try {
             boolean found = rsTables.next();
             return found;
