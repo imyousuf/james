@@ -32,7 +32,7 @@ import org.apache.james.services.MailServer;
  * A class which fetches mail from a single POP account and inserts it 
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.3 2002/09/27 14:06:55 danny Exp $
+ * <br>$Id: FetchPOP.java,v 1.4 2002/10/02 06:12:02 pgoldstein Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
  * 
  */
@@ -117,13 +117,7 @@ public class FetchPOP extends AbstractLogEnabled implements Configurable, Target
     }
 
     /**
-     * Pass the <code>ComponentManager</code> to the instance.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {

@@ -53,7 +53,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.34 $
+ * @version This is $Revision: 1.35 $
 
  */
 public class James
@@ -65,11 +65,6 @@ public class James
      * The software name and version
      */
     private final static String SOFTWARE_NAME_VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
-
-    /**
-     * Whether 'deep debugging' is turned on.
-     */
-    private final static boolean DEEP_DEBUG = false;
 
     /**
      * The component manager used both internally by James and by Mailets.
@@ -178,25 +173,14 @@ public class James
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     /**
-     * Pass the Context to the component.
-     * This method is called after the setLogger()
-     * method and before any other method.
-     *
-     * @param context the context
-     * @throws ContextException if context is invalid
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context) {
         this.myContext = context;
     }
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(ComponentManager comp) {
         compMgr = new DefaultComponentManager(comp);
@@ -204,21 +188,14 @@ public class James
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) {
         this.conf = conf;
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
 
@@ -365,7 +342,7 @@ public class James
         compMgr.put( MailServer.ROLE, this);
 
         spool = mailstore.getInboundSpool();
-        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug("Got spool");
         }
 

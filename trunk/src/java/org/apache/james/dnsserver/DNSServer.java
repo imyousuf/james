@@ -53,10 +53,7 @@ public class DNSServer
     private Collection dnsServers = new Vector();
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -76,11 +73,7 @@ public class DNSServer
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize()
         throws Exception {

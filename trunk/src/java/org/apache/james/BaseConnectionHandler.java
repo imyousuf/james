@@ -26,9 +26,14 @@ import java.net.UnknownHostException;
 public class BaseConnectionHandler extends AbstractLogEnabled implements Configurable {
 
     /**
+     * The default timeout for the connection
+     */
+    private static int DEFAULT_TIMEOUT = 1800000;
+
+    /**
      * The timeout for the connection
      */
-    protected int timeout;
+    protected int timeout = DEFAULT_TIMEOUT;
 
     /**
      * The hello name for the connection
@@ -60,17 +65,16 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
 
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( 1800000 );
+        timeout = configuration.getChild( "connectiontimeout" ).getValueAsInteger( DEFAULT_TIMEOUT );
         helloName = configHelloName(configuration);
-        getLogger().info("Hello Name is: " + helloName);
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Hello Name is: " + helloName);
+        }
     }
 
     /**

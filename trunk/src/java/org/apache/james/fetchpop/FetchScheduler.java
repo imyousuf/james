@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 /**
  *  A class to instantiate and schedule a set of POP mail fetching tasks<br>
- * <br>$Id: FetchScheduler.java,v 1.2 2002/09/24 22:03:12 pgoldstein Exp $
+ * <br>$Id: FetchScheduler.java,v 1.3 2002/10/02 06:12:02 pgoldstein Exp $
  *  @author <A href="mailto:danny@apache.org">Danny Angus</a>
  *  @see org.apache.james.fetchpop.FetchPOP#configure(Configuration) FetchPOP
  *  
@@ -99,11 +99,7 @@ public class FetchScheduler
     }
 
     /**
-     * The dispose operation is called at the end of a components lifecycle.
-     * Instances of this class use this method to release and destroy any
-     * resources that they own.
-     *
-     * @throws Exception if an error is encountered during shutdown
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         if (enabled) {

@@ -42,7 +42,7 @@ import java.util.*;
  * @author Danny Angus <danny@thought.co.uk>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version This is $Revision: 1.28 $
+ * @version This is $Revision: 1.29 $
  */
 public class SMTPHandler
     extends BaseConnectionHandler
@@ -248,13 +248,7 @@ public class SMTPHandler
     private HashMap state = new HashMap();
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(final ComponentManager componentManager) throws ComponentException {
         mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
@@ -287,12 +281,7 @@ public class SMTPHandler
     }
 
     /**
-     * Handle a connection.
-     * This handler is responsible for processing connections as they occur.
-     *
-     * @param connection the connection
-     * @throws IOException if an error reading from socket occurs
-     * @throws ProtocolException if an error handling connection occurs
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection(Socket connection) throws IOException {
         try {
@@ -303,8 +292,8 @@ public class SMTPHandler
             // to be ASCII
             inReader = new BufferedReader(new InputStreamReader(in, "ASCII"));
             out = new InternetPrintWriter(socket.getOutputStream(), true);
-            remoteHost = socket.getInetAddress().getHostName();
             remoteIP = socket.getInetAddress().getHostAddress();
+            remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
             resetState();
         } catch (Exception e) {

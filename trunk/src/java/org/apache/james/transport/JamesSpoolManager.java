@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * @version This is $Revision: 1.19 $
+ * @version This is $Revision: 1.20 $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
@@ -85,13 +85,7 @@ public class JamesSpoolManager
     private ThreadManager threadManager;
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(ComponentManager comp)
         throws ComponentException {
@@ -100,10 +94,7 @@ public class JamesSpoolManager
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -111,11 +102,7 @@ public class JamesSpoolManager
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
 

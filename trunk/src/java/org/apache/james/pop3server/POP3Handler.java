@@ -59,6 +59,7 @@ public class POP3Handler
                                                         // error message
 
     // Authentication states for the POP3 interaction
+
     private final static int AUTHENTICATION_READY = 0;    // Waiting for user id
 
     private final static int AUTHENTICATION_USERSET = 1;  // User id provided, waiting for
@@ -76,27 +77,48 @@ public class POP3Handler
                                                           // to whether an email has been
                                                           // deleted from the inbox.
 
-    private MailServer mailServer;      // The internal mail server service
-    private UsersRepository users;      // The user repository for this server - used to authenticate
-                                        // users
+    /**
+     * The internal mail server service
+     */
+    private MailServer mailServer;
+
+    /**
+     * The user repository for this server - used to authenticate users.
+     */
+    private UsersRepository users;
 
     private TimeScheduler scheduler;    // The scheduler used to handle timeouts for the
                                         // POP3 interaction
 
-    private MailRepository userInbox;   // The mail server's copy of the user's inbox
+    /**
+     * The mail server's copy of the user's inbox
+     */
+    private MailRepository userInbox;
 
-    private Socket socket;         // The TCP/IP socket over which the POP3 interaction
-                                   // is occurring
+    /**
+     * The TCP/IP socket over which the POP3 interaction
+     * is occurring
+     */
+    private Socket socket;
 
-    private BufferedReader in;     // The reader associated with incoming characters.
+    /**
+     * The reader associated with incoming characters.
+     */
+    private BufferedReader in;
 
-    private PrintWriter out;       // The writer to which outgoing messages are written.
+    /**
+     * The writer to which outgoing messages are written.
+     */
+    private PrintWriter out;
 
     private OutputStream outs;     // The socket's output stream
 
     private int state;             // The current transaction state of the handler
 
-    private String user;           // The user id associated with the POP3 dialogue
+    /**
+     * The user id associated with the POP3 dialogue
+     */
+    private String user;
 
     private Vector userMailbox = new Vector();   // A dynamic list representing the set of
                                                  // emails in the user's inbox at any given time
@@ -111,13 +133,7 @@ public class POP3Handler
                                              // 20 seconds.
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -131,10 +147,7 @@ public class POP3Handler
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration configuration)
             throws ConfigurationException {
@@ -144,12 +157,7 @@ public class POP3Handler
     }
 
     /**
-     * Handle a connection.
-     * This handler is responsible for processing connections as they occur.
-     *
-     * @param connection the connection
-     * @throws IOException if an error reading from socket occurs
-     * @throws ProtocolException if an error handling connection occurs
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection( Socket connection )
             throws IOException {
@@ -162,8 +170,8 @@ public class POP3Handler
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outs = socket.getOutputStream();
             out = new InternetPrintWriter(outs, true);
-            remoteHost = socket.getInetAddress().getHostName ();
             remoteIP = socket.getInetAddress().getHostAddress ();
+            remoteHost = socket.getInetAddress().getHostName ();
         } catch (Exception e) {
             if (getLogger().isErrorEnabled()) {
                 StringBuffer exceptionBuffer =
@@ -207,7 +215,18 @@ public class POP3Handler
                 scheduler.resetTrigger(this.toString());
             }
             scheduler.removeTrigger(this.toString());
-            getLogger().info("Connection closed");
+            if (getLogger().isInfoEnabled()) {
+                StringBuffer logBuffer =
+                    new StringBuffer(128)
+                        .append("Connection for ")
+                        .append(user)
+                        .append(" from ")
+                        .append(remoteHost)
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(") closed.");
+                getLogger().info(logBuffer.toString());
+            }
         } catch (Exception e) {
             out.println(ERR_RESPONSE + " Error closing connection.");
             out.flush();
@@ -277,17 +296,17 @@ public class POP3Handler
      * to parse the raw command string to determine exactly which handler should
      * be called.  It returns true if expecting additional commands, false otherwise.
      *
-     * @param commandRaw the raw command string passed in over the socket
+     * @param rawCommand the raw command string passed in over the socket
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand(String commandRaw) {
-        if (commandRaw == null) {
+    private boolean parseCommand(String rawCommand) {
+        if (rawCommand == null) {
             return false;
         }
         boolean returnValue = true;
-        String command = commandRaw.trim();
-        commandRaw = command;
+        String command = rawCommand.trim();
+        rawCommand = command;
         StringTokenizer commandLine = new StringTokenizer(command, " ");
         int arguments = commandLine.countTokens();
         if (arguments == 0) {
@@ -298,7 +317,7 @@ public class POP3Handler
         if (getLogger().isDebugEnabled()) {
             // Don't display password in logger
             if (!command.equals("PASS")) {
-                getLogger().debug("Command received: " + commandRaw);
+                getLogger().debug("Command received: " + rawCommand);
             } else {
                 getLogger().debug("Command received: PASS <password omitted>");
             }

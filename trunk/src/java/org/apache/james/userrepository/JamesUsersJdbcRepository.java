@@ -100,6 +100,14 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
         setUserForStatement(user, userUpdate, true);
     }
 
+    /**
+     * Sets the data for the prepared statement to match the information
+     * in the user object.
+     *
+     * @param user the user whose data is to be stored in the PreparedStatement.
+     * @param stmt the PreparedStatement to be modified.
+     * @param userNameLast whether the user id is the last or the first column
+     */
     private void setUserForStatement(User user, PreparedStatement stmt,
                                      boolean userNameLast) throws SQLException {
         // Determine column offsets to use, based on username column pos.

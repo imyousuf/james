@@ -145,12 +145,7 @@ public class JDBCMailRepository
     protected JDBCUtil theJDBCUtil;
 
     /**
-     * Pass the Context to the component.
-     * This method is called after the setLogger()
-     * method and before any other method.
-     *
-     * @param context the context
-     * @throws ContextException if context is invalid
+     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context)
             throws ContextException {
@@ -158,13 +153,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -183,10 +172,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
         if (getLogger().isDebugEnabled()) {

@@ -47,24 +47,17 @@ public class SMTPServer extends AbstractService implements Component {
     protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory(SMTPHandler.class);
     }
+
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose(final ComponentManager componentManager) throws ComponentException {
         super.compose(componentManager);
         mailetcontext = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
     }
+
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
         enabled = configuration.getAttributeAsBoolean("enabled", true);
@@ -88,12 +81,9 @@ public class SMTPServer extends AbstractService implements Component {
             mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
         }
     }
+
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
         if (enabled) {
@@ -115,12 +105,9 @@ public class SMTPServer extends AbstractService implements Component {
             System.out.println("SMTP Server Disabled");
         }
     }
+
     /**
-     * The dispose operation is called at the end of a components lifecycle.
-     * Instances of this class use this method to release and destroy any
-     * resources that they own.
-     *
-     * @throws Exception if an error is encountered during shutdown
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         if (enabled) {

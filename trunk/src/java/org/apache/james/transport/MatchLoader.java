@@ -33,10 +33,7 @@ public class MatchLoader implements Component, Configurable {
     private Vector matcherPackages;
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
         matcherPackages = new Vector();

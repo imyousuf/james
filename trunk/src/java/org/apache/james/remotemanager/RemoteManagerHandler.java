@@ -45,7 +45,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  *
  */
 public class RemoteManagerHandler
@@ -171,13 +171,7 @@ public class RemoteManagerHandler
     private HashMap adminAccounts = new HashMap();
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -192,10 +186,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -211,12 +202,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Handle a connection.
-     * This handler is responsible for processing connections as they occur.
-     *
-     * @param connection the connection
-     * @throws IOException if an error reading from socket occurs
-     * @throws ProtocolException if an error handling connection occurs
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
     public void handleConnection( final Socket connection )
         throws IOException {
@@ -224,8 +210,8 @@ public class RemoteManagerHandler
         final PeriodicTimeTrigger trigger = new PeriodicTimeTrigger( timeout, -1 );
         scheduler.addTrigger( this.toString(), trigger, this );
         socket = connection;
-        String remoteHost = socket.getInetAddress().getHostName();
         String remoteIP = socket.getInetAddress().getHostAddress();
+        String remoteHost = socket.getInetAddress().getHostName();
 
         try {
             in = new BufferedReader(new InputStreamReader( socket.getInputStream() ));

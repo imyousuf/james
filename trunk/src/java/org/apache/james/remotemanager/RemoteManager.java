@@ -30,16 +30,12 @@ import java.net.UnknownHostException;
 public class RemoteManager
     extends AbstractService implements Component {
 
-    protected ConnectionHandlerFactory createFactory()
-    {
+    protected ConnectionHandlerFactory createFactory() {
         return new DefaultHandlerFactory( RemoteManagerHandler.class );
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -68,11 +64,7 @@ public class RemoteManager
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
         getLogger().info( "RemoteManager init..." );
@@ -90,11 +82,7 @@ public class RemoteManager
     }
 
     /**
-     * The dispose operation is called at the end of a components lifecycle.
-     * Instances of this class use this method to release and destroy any
-     * resources that they own.
-     *
-     * @throws Exception if an error is encountered during shutdown
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose()
     {
