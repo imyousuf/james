@@ -100,7 +100,7 @@ import java.util.*;
  *
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.2 $ $Date: 2003/07/06 11:53:55 $
+ * @version CVS $Revision: 1.1.2.3 $ $Date: 2003/10/19 20:22:50 $
  * @since 2.2.0
  */
 public class CommandListservProcessor extends GenericMailet {
@@ -217,15 +217,13 @@ public class CommandListservProcessor extends GenericMailet {
         //initialize resources
         try {
             initializeResources();
+            //init user repos
+            initUsersRepository();
+            //init regexp
+            initRegExp();
         } catch (Exception e) {
             throw new MessagingException(e.getMessage(), e);
         }
-
-        //init user repos
-        initUsersRepository();
-
-        //init regexp
-        initRegExp();
     }
 
     /**
@@ -450,22 +448,19 @@ public class CommandListservProcessor extends GenericMailet {
     /**
      * Fetch the repository of users
      */
-    protected void initUsersRepository() {
+    protected void initUsersRepository() throws Exception {
         ComponentManager compMgr = (ComponentManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
-            String repName = getInitParameter("repositoryName");
+        UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+        String repName = getInitParameter("repositoryName");
 
-            usersRepository = usersStore.getRepository(repName);
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+        usersRepository = usersStore.getRepository(repName);
+        if (usersRepository == null) throw new Exception("Invalid user repository: " + repName);
     }
 
     /**
      * init the regexp
      */
-    protected void initRegExp() {
+    protected void initRegExp() throws Exception {
         StringBuffer regExp = new StringBuffer();
         if (autoBracket) {
             regExp.append("\\[");
@@ -480,11 +475,8 @@ public class CommandListservProcessor extends GenericMailet {
             regExp.append("|");
         }
         regExp.append("re:");
-        try {
-            pattern = new Perl5Compiler().compile(regExp.toString(), Perl5Compiler.CASE_INSENSITIVE_MASK);
-        } catch (MalformedPatternException e) {
-            throw new IllegalStateException("unable to parse regexp: " + e.getMessage());
-        }
+
+        pattern = new Perl5Compiler().compile(regExp.toString(), Perl5Compiler.CASE_INSENSITIVE_MASK);
     }
 
     protected String normalizeSubject(String subject, String prefix) {
