@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 
 /**
  * @author Harmeet <hbedi@apache.org>
+ * note this file uses sun's internal API. This does not exist in JDK 1.4.
  */
 public class NNTPClient {
     public static void main(String[] args) throws Exception {
