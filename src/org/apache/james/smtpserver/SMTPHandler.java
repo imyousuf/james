@@ -26,15 +26,15 @@ import javax.mail.internet.*;
  */
 public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServer.Bell {
 
-	public static String SERVER_NAME = "SERVER_NAME";
-	public static String POSTMASTER = "POSTMASTER";
-	public static String SERVER_TYPE = "SERVER_TYPE";
-	public static String REMOTE_NAME = "REMOTE_NAME";
-	public static String REMOTE_IP = "REMOTE_IP";
-	public static String NAME_GIVEN = "NAME_GIVEN";
-	public static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
-    public static String SENDER = "SENDER_ADDRESS";
-    public static String RCPT_VECTOR = "RCPT_VECTOR";
+	public final static String SERVER_NAME = "SERVER_NAME";
+	public final static String POSTMASTER = "POSTMASTER";
+	public final static String SERVER_TYPE = "SERVER_TYPE";
+	public final static String REMOTE_NAME = "REMOTE_NAME";
+	public final static String REMOTE_IP = "REMOTE_IP";
+	public final static String NAME_GIVEN = "NAME_GIVEN";
+	public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE";
+    public final static String SENDER = "SENDER_ADDRESS";
+    public final static String RCPT_VECTOR = "RCPT_VECTOR";
     
     private Socket socket;
     private BufferedReader in;
@@ -55,7 +55,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
     private String servername;
     private String postmaster;
-    private String softwaretype;
+    private String softwaretype = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
     
     private Hashtable state;
 
@@ -75,7 +75,6 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
 
         servername = conf.getConfiguration("servername", "localhost").getValue();
         postmaster = conf.getConfiguration("postmaster", "postmaster@" + servername).getValue();
-        softwaretype = "Apache James SMTP v @@version@@";
     }
 
     public void parseRequest(Socket socket) {
@@ -106,7 +105,7 @@ public class SMTPHandler implements Composer, Configurable, Stoppable, TimeServe
             // Format is:  Sat,  24 Jan 1998 13:16:09 -0500
 
             timeServer.setAlarm(this.toString(), this, conf.getConfiguration("connectiontimeout", "120000").getValueAsLong());
-            out.println("220 " + this.servername + " SMTP server (" + this.softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
+            out.println("220 " + this.servername + " SMTP Server (" + softwaretype + ") ready " + RFC822DateFormat.toString(new Date()));
 
             while  (parseCommand(in.readLine())) {
                 timeServer.resetAlarm(this.toString());

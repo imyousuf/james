@@ -87,7 +87,7 @@ public class RemoteManager implements Block, SocketServer.SocketHandler, TimeSer
             r_out = s.getOutputStream();
             out = new PrintWriter(r_out, true);
             logger.log("Access from " + remoteHost + "(" + remoteIP + ")", "RemoteManager", logger.INFO);
-            out.println("James Remote mailbox administration tool");
+            out.println(Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION);
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();

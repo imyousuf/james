@@ -95,6 +95,7 @@
                 <channel name="RemoteManager"   logwriter="admin"/>
                 <channel name="POP3Server"      logwriter="popfile"/>
                 <channel name="SMTPServer"      logwriter="smtpfile"/>
+                <channel name="JAMES"           logwriter="jamesfile"/>
                 <channel name="Mail Servlet"    logwriter="jamesfile"/>
             </channels>
             <logwriters>

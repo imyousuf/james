@@ -33,7 +33,7 @@ com.sun.xml.parser.Parser is the defauld one and the only one tested :(.
 <project default="package" basedir=".">
 
   <property name="name" value="JAMES"/>
-  <property name="version" value="2.0-dev"/>
+  <property name="version" value="2.1-dev"/>
   <property name="year" value="1999-2000"/>
 
   <property name="build.compiler" value="classic"/>
@@ -41,8 +41,6 @@ com.sun.xml.parser.Parser is the defauld one and the only one tested :(.
   <property name="optimize" value="on"/>
   <property name="deprecation" value="off"/>
   <property name="classpath" value="Avalon.jar"/>
-  <property name="pop3.file" value="org/apache/james/pop3server/POP3Handler.java"/>
-  <property name="smtp.file" value="org/apache/james/smtpserver/SMTPHandler.java"/>
 
   <property name="src.dir" value="./src"/>
   <property name="dtd.dir" value="./dtd"/>
@@ -109,10 +107,6 @@ com.sun.xml.parser.Parser is the defauld one and the only one tested :(.
 
     <!-- copy src files -->
     <copydir src="${src.dir}" dest="${build.src}"/>
-    
-    <!-- substitute tokens as needed -->
-    <replace file="${build.src}/${pop3.file}" token="@@version@@" value="${version}"/>
-    <replace file="${build.src}/${smtp.file}" token="@@version@@" value="${version}"/>
   </target>
 
   <!-- =================================================================== -->
