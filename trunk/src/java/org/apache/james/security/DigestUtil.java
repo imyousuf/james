@@ -16,17 +16,19 @@ import java.util.Locale;
 
 
 /**
- * Class to compute and verify digests of files and strings
+ * Computes and verifies digests of files and strings
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/07 23:35:05 $
- * $Revision: 1.4 $
+ * Last changed by: $Author: pgoldstein $ on $Date: 2002/08/15 21:15:51 $
+ * $Revision: 1.5 $
  */
 public class DigestUtil {
 
     /**
-     * Command line interface. Use -help for arguments
+     * Command line interface. Use -help for arguments.
+     *
+     * @param args the arguments passed in on the command line
      */
     public static void main(String[] args) {
 
@@ -68,7 +70,7 @@ public class DigestUtil {
     }
 
     /**
-     * For CLI only
+     * Print the command line usage string.
      */
     public static void printUsage() {
         System.out.println("Usage: " 
@@ -79,10 +81,10 @@ public class DigestUtil {
 
     /**
      * Calculate digest of given file with given algorithm.
-     * Writes digest to file named filename.algorithm
+     * Writes digest to file named filename.algorithm .
      *
      * @param filename the String name of the file to be hashed
-     * @param algorithm the algorithm to be used
+     * @param algorithm the algorithm to be used to compute the digest
      */
     public static void digestFile(String filename, String algorithm) {
         byte[] b = new byte[65536];
@@ -120,11 +122,13 @@ public class DigestUtil {
 
     /**
      * Calculate digest of given String using given algorithm.
-     * Encode digest in MIME-like base64
+     * Encode digest in MIME-like base64.
      *
      * @param pass the String to be hashed
      * @param algorithm the algorithm to be used
      * @return String Base-64 encoding of digest
+     *
+     * @throws NoSuchAlgorithmException if the algorithm passed in cannot be found
      */
     public static String digestString(String pass, String algorithm )
             throws NoSuchAlgorithmException  {
@@ -145,4 +149,9 @@ public class DigestUtil {
             throw new RuntimeException("Fatal error: " + me);
         }
     }
+
+    /**
+     * Private constructor to prevent instantiation of the class
+     */
+    private DigestUtil() {}
 }
