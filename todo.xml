@@ -17,19 +17,30 @@
 -->
 
   <actions priority="high">
-    <action context="code">
-      Make James stoppable (elegantly)
+    <action context="docs">
+      Port project to Jakarta
+    </action>
+    <action context="docs">
+      Write all documentation.
     </action>
     <action context="code">
-      Add support for DRAC login/relay allowing
-     (Status?? - CB)
+      Allow RemoteManager to change passwords of users (change attribute)
+      <suggester>sanjeev ankem sanjeev_a@rediffmail.com</suggester>
+    </action>
+    <action context="code">
+      Let RemoteDelivery send all messages to a single remote server (like a gateway)
+    </action>
+    <action context="code">
+      Improve exception management in RemoteDelivery mailet.
+    </action>
+    <action context="code">
+      Add support for regex inside most matchers and thereby consolidate a few of them.
     </action>
   </actions>
 
   <actions priority="medium">
     <action context="code">
-      Write an NNTP server
-      <work>lots</work>
+      Make James stoppable (elegantly)
     </action>
     <action context="code">
       Get IMAP server to alpha standard, ie basic interoperation with e-mail clients.
@@ -45,6 +56,7 @@
     </action>
     <action context="code">
       Make James reconfigurable/contextualizable/composable.
+      (What does this mean?? New Avalon thing? - SK)
     </action>
     <action context="code">
       Reinject error/spam mails incorrecty handled.
@@ -57,33 +69,25 @@
       Store RemoteManger password securely.
     </action>
     <action context="code">
-      Improve exception management in RemoteDelivery mailet.
-      (Status?? - CB)
-    </action>
-    <action context="code">
       Add support for better mailet router/processing (maybe like RequestDispatcher) - Use Stage/Pipline pattern
       <work>some</work>
     </action>
     <action context="code">
-       Add support for deployable message processing apps using Camelot pattern
+      Add support for deployable message processing apps using Camelot pattern
       <work>lots</work>
     </action>
-
-    <action context="code">
-      Add integration with MAPS and RBL and ORBS spam relay detection systems.
-      (Status - isn't this done?? - CB)
-    </action>
-
-    <action context="code">
-      Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
-    </action>
-
-     <action context="docs">
-       Write all documentation.
-     </action>
    </actions>
 
   <actions priority="low">
+    <action context="code">
+      Write an NNTP server
+      <work>lots</work>
+    </action>
+    <action context="code">
+      Add support for DRAC login/relay allowing
+     (Status?? - CB)
+     (Nothing started - SK)
+    </action>
     <action context="code">
       Review threadpooling - is it dynamic?
     </action>
