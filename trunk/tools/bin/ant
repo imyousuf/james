@@ -63,10 +63,11 @@ if [ -z "$ANT_HOME" ] ; then
   
   ANT_HOME=`dirname "$PRG"`/..
 
+  # need to restore position BEFORE we can cd with a ".."
+  cd $saveddir
+
   # make it fully qualified
   ANT_HOME=`cd "$ANT_HOME" && pwd`
-
-  cd $saveddir
 fi
 
 # set ANT_LIB location
