@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- ==========================================================================
 
- James build file $Revision: 1.116.2.19 $  Committed on $Date: 2003/10/21 01:31:20 $ by: $Author: noel $
+ James build file $Revision: 1.116.2.20 $  Committed on $Date: 2003/10/23 19:00:45 $ by: $Author: noel $
 
 Authors:
  James Project <james-dev@jakarta.apache.org>
@@ -21,7 +21,7 @@ Legal:
     <property file="${user.home}/.ant.properties"/>
     <property name="name" value="james"/>
     <property name="Name" value="James"/>
-    <property name="version" value="2.2.0-dev"/>
+    <property name="version" value="2.2.0a15"/>
     <property name="year" value="1999-2003"/>
     <!-- There should be no need to override default compiler but need to change
     javac task to run without this -->
