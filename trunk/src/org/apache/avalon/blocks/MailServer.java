@@ -34,4 +34,6 @@ public interface MailServer {
     public MailRepository getUserInbox(String userName);
 
     public String getId();
+
+    public boolean addUser(String userName, String password);
 }

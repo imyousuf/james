@@ -42,6 +42,7 @@ public class James implements MailServer, Block, MailetContext {
     private Store store;
     private SpoolRepository spool;
     private MailRepository localInbox;
+    private UsersRepository users;
     private Collection serverNames;
     private static long count;
     private String helloName;
@@ -143,6 +144,7 @@ public class James implements MailServer, Block, MailetContext {
         }
         comp.put(Constants.USERS_MANAGER, userManager);
         logger.log("Users Manager Opened", "JamesSystem", logger.INFO);
+        users = (UsersRepository) userManager.getUserRepository("LocalUsers");
 
         POP3Server pop3Server = new POP3Server();
         try {
@@ -363,4 +365,22 @@ public class James implements MailServer, Block, MailetContext {
         t.printStackTrace(); //DEBUG
         logger.log(message + ": " + t.getMessage(), "Mailets", logger.INFO);
     }
+
+    /**
+     * Adds a user to this mail server. Currently just adds user to a
+     * UsersRepository.
+     * <p> As we move to IMAP support this will also create mailboxes and
+     * access control lists.
+     *
+     * @param userName String representing user name, that is the portion of
+     * an email address before the '@<domain>'.
+     * @param password String plaintext password
+     * @returns boolean true if user added succesfully, else false.
+     */
+  
+    public boolean addUser(String userName, String password) {
+	users.addUser(userName, password);
+	return true;
+    }
+
 }
