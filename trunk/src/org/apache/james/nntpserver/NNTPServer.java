@@ -54,6 +54,6 @@ public class NNTPServer extends AbstractService {
     public void init() throws Exception {
         //System.out.println(getClass().getName()+": init");
         super.init();
-        System.out.println("Started NNTP Server");
+        System.out.println("Started NNTP Server "+m_connectionName);
     }
 }

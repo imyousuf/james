@@ -63,7 +63,7 @@ public class IMAPServer
         getLogger().info( "IMAPListener using " + m_serverSocketType + " on port " + m_port );
         super.init();
         getLogger().info("IMAPServer ...init end");
-        System.out.println("Started IMAP Server");
+        System.out.println("Started IMAP Server "+m_connectionName);
     }
 }
     
