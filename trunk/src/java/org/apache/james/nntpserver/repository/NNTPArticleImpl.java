@@ -7,6 +7,7 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.IOUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,13 +64,17 @@ class NNTPArticleImpl implements NNTPArticle {
      * @see org.apache.james.nntpsever.repository.NNTPArticle#getUniqueID()
      */
     public String getUniqueID() {
+        FileInputStream fin = null;
         try {
-            FileInputStream fin = new FileInputStream(articleFile);
+            fin = new FileInputStream(articleFile);
             InternetHeaders headers = new InternetHeaders(fin);
             String[] idheader = headers.getHeader("Message-Id");
-            fin.close();
             return ( idheader.length > 0 ) ? idheader[0] : null;
-        } catch(Exception ex) { throw new NNTPException(ex); }
+        } catch(Exception ex) { 
+            throw new NNTPException(ex); 
+        } finally {
+            IOUtil.shutdownStream(fin);
+        }
     }
 
     /**
