@@ -25,7 +25,7 @@ Last Updated 17 May 2001.</p>
 <section name="Medium Priority">
 <p>Enable multiple domains/ virtual hosting</p>
 <p>Rewrite SMTP and POP3 handlers to use streams not MimeMessage objects</p>
-<p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway, relay or 'smart' host) </p>
+<p>Let RemoteDelivery send all messages to a single remote server (acting like a gateway, relay or 'smart' host) <b>Done in CVS</b></p>
 <p>Improve exception management in RemoteDelivery mailet and general notices of why delivery failures occur.</p>
 <p>Add support for regex inside most matchers and thereby consolidate a few of them.</p>
 <p>Write more documentation. </p>
