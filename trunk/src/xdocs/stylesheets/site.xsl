@@ -13,7 +13,7 @@
 -->
 
 
-<!-- $Id: site.xsl,v 1.2 2002/11/21 15:10:45 danny Exp $ -->
+<!-- $Id: site.xsl,v 1.3 2003/01/27 08:32:41 danny Exp $ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -49,7 +49,7 @@
     <html>
     <head>
     <xsl:apply-templates select="meta"/>
-    <title>Apache Jakarta James - <xsl:value-of select="properties/title"/> - <xsl:value-of select="$project/title"/></title>
+    <title>Apache James - <xsl:value-of select="properties/title"/> - <xsl:value-of select="$project/title"/></title>
     <xsl:for-each select="properties/author">
       <xsl:variable name="name">
         <xsl:value-of select="."/>
@@ -75,10 +75,10 @@
       <xsl:comment>PAGE HEADER</xsl:comment>
       <tr><td colspan="2">
 
-        <xsl:comment>JAKARTA LOGO</xsl:comment>
-        <a href="http://jakarta.apache.org/">
-          <img src="http://jakarta.apache.org/images/jakarta-logo.gif"
-             align="left" alt="The Jakarta Project" border="0"/>
+        <xsl:comment>ASF LOGO</xsl:comment>
+        <a href="http://www.apache.org/">
+          <img src="http://www.apache.org/images/asf_logo_wide.gif"
+             align="left" alt="The ASF" border="0"/>
         </a>
         <xsl:if test="$project/logo">
           <xsl:variable name="alt">
@@ -130,7 +130,7 @@
       <xsl:comment>PAGE FOOTER</xsl:comment>
       <tr><td colspan="2">
         <div align="center"><font color="{$body-link}" size="-1"><em>
-        Copyright &#169; 1999-2002, Apache Software Foundation
+        Copyright &#169; 1999-2003, Apache Software Foundation
         </em></font></div>
       </td></tr>
 
@@ -158,7 +158,7 @@
                 <xsl:value-of select="@href"/>
             </xsl:when>
             <xsl:when test="starts-with(@href, '/site')">
-                <xsl:text>http://jakarta.apache.org</xsl:text><xsl:value-of select="@href"/>
+                <xsl:text>http://james.apache.org</xsl:text><xsl:value-of select="@href"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="$relative-path"/><xsl:value-of select="@href"/>
