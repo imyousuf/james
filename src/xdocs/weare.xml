@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>Who We Are</title>
+  <author email="danny@thought.co.uk">Danny Angus</author>
+ </properties>
+
+<body>
+
+<section name="This list">
+<p>This is a living document that describes the key contributors to James. Last Updated February 2002.</p>
+</section>
+
+<section name="Active Commiters">
+
+<p><b>Danny Angus (danny at thought.co.uk)</b><br/> Danny is CTO of <a href="www.thought.co.uk">Thought Interactive Ltd.</a> where I try not to get too distracted by open source projects.
+
+</section>
+
+<section name="Other Contributors">
+
+</section>
+
+
+
+</body>
+</document>
+
