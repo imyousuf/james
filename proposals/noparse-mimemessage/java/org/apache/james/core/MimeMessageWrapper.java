@@ -21,11 +21,6 @@ public class MimeMessageWrapper extends MimeMessage {
      */
     boolean modified = false;
 
-/*
-    public MimeMessageWrapper(InputStream in) {
-        this(new MimeMessageInputStreamSource(in));
-    }
-*/
     public MimeMessageWrapper(MimeMessageSource source) {
         super(javax.mail.Session.getDefaultInstance(System.getProperties(), null));
         this.source = source;
@@ -44,6 +39,8 @@ public class MimeMessageWrapper extends MimeMessage {
             //Another thread has already loaded this message
             return;
         }
+        System.err.println("parsing " + this);
+        new Throwable().printStackTrace();
         try {
             InputStream in = source.getInputStream();
             message = new MimeMessage(session, in);
@@ -62,20 +59,55 @@ public class MimeMessageWrapper extends MimeMessage {
     }
 
     /**
-     * Methods that should be rewritten for optimization purposes
+     * Rewritten for optimization purposes
      */
     public void writeTo(OutputStream os) throws IOException, MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (message == null || !modified) {
+            //We do not want to instantiate the message... just read from source
+            //  and write to this outputstream
+            byte[] block = new byte[1024];
+            int read = 0;
+            InputStream in = source.getInputStream();
+            while ((read = in.read(block)) > 0) {
+                os.write(block, 0, read);
+            }
+            in.close();
+        } else {
+            message.writeTo(os);
         }
-        message.writeTo(os);
     }
 
+    /**
+     * Could be rewritten for optimization purposes at some point
+     */
     public void writeTo(OutputStream os, String[] ignoreList) throws IOException, MessagingException {
-        if (message == null) {
-            loadMessage();
+        if (message == null || !modified) {
+            //We do not want to instantiate the message... just read from source
+            //  and write to this outputstream
+
+            //First handle the headers
+            InputStream in = source.getInputStream();
+            InternetHeaders headers = new InternetHeaders(in);
+            PrintStream pos = new PrintStream(os);
+            for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
+                String header = (String)e.nextElement();
+                pos.print(header);
+                pos.print("\r\n");
+                //System.err.println(header);
+            }
+            pos.print("\r\n");
+            //System.err.println();
+            pos.flush();
+            byte[] block = new byte[1024];
+            int read = 0;
+            while ((read = in.read(block)) > 0) {
+                os.write(block, 0, read);
+                //System.err.write(block, 0, read);
+            }
+            in.close();
+        } else {
+            message.writeTo(os, ignoreList);
         }
-        message.writeTo(os, ignoreList);
     }
 
 
