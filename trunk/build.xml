@@ -165,7 +165,7 @@ All theese package are in current distribution.
     <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
 
     <chmod dir="${dist.dir}" perm="go-rwx" />
-    <chmod file="${dist.bin}/run.sh" perm="u+x"/>
+    <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
     <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
     <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
 

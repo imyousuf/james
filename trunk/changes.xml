@@ -6,7 +6,7 @@
   <devs>
     <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
-    <person name="Charles Bennett" email="???" id="CB"/>
+    <person name="Charles Benett" email="charles@benett1.demon.co.uk" id="CB"/>
   </devs>
 
 <release version="1.2" date="16-Oct-2000">
@@ -32,7 +32,7 @@
     Fixed some bugs in POP3 server
   </action>
   <action dev="CB" type="update">
-    Added full TOP support in POP3
+    Added full TLS support in POP3 (POP3S)
   </action>
   <action dev="SK" type="update">
     Fixed sorting of MX records so it attempts delivery in correct order
