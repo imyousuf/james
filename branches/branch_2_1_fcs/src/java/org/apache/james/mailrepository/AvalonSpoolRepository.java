@@ -189,7 +189,8 @@ public class AvalonSpoolRepository
                 if (youngest == 0) {
                     wait();
                 } else {
-                    wait(youngest - System.currentTimeMillis());
+                    long duration = youngest - System.currentTimeMillis();
+                    wait(duration <= 0 ? 1 : duration);
                 }
             } catch (InterruptedException ex) {
                 throw ex;
