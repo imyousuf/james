@@ -153,11 +153,15 @@ public class MailAddress implements java.io.Serializable {
      * Return the host part.
      *
      * @return  a <code>String</code> object representing the host part
-     *          of this email address.
-     * @throws  AddressException    if the parse failed
+     *          of this email address. If the host is of the dotNum form
+     *          (e.g. [yyy.yyy.yyy.yyy]) then strip the braces first.
      */
     public String getHost() {
-        return host;
+        if (!(host.startsWith("[") && host.endsWith("]"))) {
+            return host;
+        } else {
+            return host.substring(1, host.length() -1);
+        }
     }
 
     /**
@@ -325,6 +329,11 @@ public class MailAddress implements java.io.Serializable {
 
     private String parseDotNum(String address) throws ParseException {
         StringBuffer resultSB = new StringBuffer();
+        //we were passed the string with pos pointing the the [ char.
+        // take the first char ([), put it in the result buffer and increment pos
+        resultSB.append(address.charAt(pos));
+        pos++;
+
         //<dotnum> ::= <snum> "." <snum> "." <snum> "." <snum>
         for (int octet = 0; octet < 4; octet++) {
             //<snum> ::= one, two, or three digits representing a decimal
