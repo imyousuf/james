@@ -61,6 +61,15 @@ public class SMTPServer
     public void initialize() throws Exception {
         getLogger().info("SMTPServer init...");
         super.initialize();
+        StringBuffer logBuffer =
+            new StringBuffer(128)
+                .append("SMTPServer using ")
+                .append(m_serverSocketType)
+                .append(" on port ")
+                .append(m_port)
+                .append(" at ")
+                .append(m_bindTo);
+        getLogger().info( logBuffer.toString() );
         getLogger().info("SMTPServer ...init end");
         System.out.println("Started SMTP Server "+m_connectionName);
     }
