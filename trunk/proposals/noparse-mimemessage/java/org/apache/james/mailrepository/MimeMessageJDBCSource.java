@@ -32,6 +32,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     StreamRepository sr = null;
 
     String retrieveMessageBodySQL = null;
+    String retrieveMessageBodySizeSQL = null;
 
     /**
      * Construct a MimeMessageSource based on a JDBC repository, a key, and a
@@ -50,6 +51,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         this.sr = sr;
 
         retrieveMessageBodySQL = repository.sqlQueries.getProperty("retrieveMessageBodySQL");
+        retrieveMessageBodySizeSQL = repository.sqlQueries.getProperty("retrieveMessageBodySizeSQL");
     }
 
     /**
@@ -73,11 +75,66 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             }
 
             byte[] headers = rsRetrieveMessageStream.getBytes(1);
+            rsRetrieveMessageStream.close();
+            retrieveMessageStream.close();
+            conn.close();
+
             InputStream in = new ByteArrayInputStream(headers);
-            if (sr != null) {
-                in = new SequenceInputStream(in, sr.get(key));
+            try {
+                if (sr != null) {
+                    in = new SequenceInputStream(in, sr.get(key));
+                }
+            } catch (Exception e) {
+                //ignore this... either sr is null, or the file does not exist
+                // or something else
             }
             return in;
+        } catch (SQLException sqle) {
+            throw new IOException(sqle.toString());
+        }
+    }
+
+    /**
+     * Runs a custom SQL statement to check the size of the message body
+     */
+    public synchronized long getSize() throws IOException {
+        if (retrieveMessageBodySizeSQL == null) {
+            //There was no SQL statement for this repository... figure it out the hard way
+            return super.getSize();
+        }
+
+        try {
+            Connection conn = repository.getConnection();
+
+            PreparedStatement retrieveMessageSize = conn.prepareStatement(retrieveMessageBodySizeSQL);
+            retrieveMessageSize.setString(1, key);
+            retrieveMessageSize.setString(2, repository.repositoryName);
+            ResultSet rsRetrieveMessageSize = retrieveMessageSize.executeQuery();
+
+            if (!rsRetrieveMessageSize.next()) {
+                throw new IOException("Could not find message");
+            }
+
+            long size = rsRetrieveMessageSize.getLong(1);
+            rsRetrieveMessageSize.close();
+            retrieveMessageSize.close();
+            conn.close();
+
+            try {
+                if (sr != null) {
+                    InputStream in = sr.get(key);
+                    int len = 0;
+                    byte[] block = new byte[1024];
+                    while ((len = in.read(block)) > -1) {
+                        size += len;
+                    }
+                    in.close();
+                }
+            } catch (Exception e) {
+                //ignore this... either sr is null, or the file does not exist
+                // or something else
+            }
+            return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
         }
