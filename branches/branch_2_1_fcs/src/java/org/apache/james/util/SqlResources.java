@@ -337,7 +337,7 @@ public class SqlResources
     {
         String sql = getSqlString(name);
 
-        if ( sql == null ) {
+        if (sql == null && required) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(64)
                         .append("Required SQL resource: '")
