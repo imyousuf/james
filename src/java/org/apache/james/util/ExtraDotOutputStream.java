@@ -14,8 +14,6 @@ import java.io.OutputStream;
 /**
  * Adds extra dot if dot occurs in message body at beginning of line (according to RFC1939)
  * Compare also org.apache.james.smtpserver.SMTPInputStream
- *
- * @author Stephan Schiessling <s@rapi.com>
  */
 public class ExtraDotOutputStream extends FilterOutputStream {
 
@@ -43,20 +41,29 @@ public class ExtraDotOutputStream extends FilterOutputStream {
      */
     public void write(int b) throws IOException {
         out.write(b);
-        if (b == '.') {
-            if (countLast0A0D > 1) {
-                // add extra dot
-                out.write('.');
-            }
-            countLast0A0D = 0;
-        } else {
-            if (b == '\r' || b == '\n') {
-                countLast0A0D++;
-            } else {
+
+        switch (b) {
+            case '.':
+                if (countLast0A0D == 2) {
+                    // add extra dot
+                    out.write('.');
+                }
                 countLast0A0D = 0;
-            }
+                break;
+            case '\r':
+                countLast0A0D = 1;
+                break;
+            case '\n':
+                if (countLast0A0D == 1) {
+                    countLast0A0D = 2;
+                } else {
+                    countLast0A0D = 0;
+                }
+                break;
+            default:
+                // we're  no longer at the start of a line
+                countLast0A0D = 0;
+                break;
         }
     }
-
 }
-
