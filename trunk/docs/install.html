@@ -8,13 +8,9 @@
 </head>
 
 <body BGCOLOR="#FFFFFF">
-
 <h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
 WIDTH="609"></h2>
-
-<h1 align="center">Java Apache Mail Enterprise Server</h1>
-
-<h3 align="center">a.k.a. Apache JAMES </h3><br>
+<h1 align="center">Installation</h1>
 
 <h4 align="center">JAMES documentation is under construction.<br>
         Everything you can find outside this page <br> is to be considered obsolete.  </h4>
@@ -50,7 +46,7 @@ WIDTH="609"></h2>
     has loaded JAMES and every other needed Block (see /logs/avalon.log) and is 
     now waiting for a socket request.
      
-    Since at beginning James is empty, it will not have any local user registered.
+    At first run James will not have any local user set so it will only relay mail to remote servers.
     To add a local inbox open a telnet session with localhost on port 4555, log in
     as root ("root[enter] root[enter]" see in config) and type "help" for a list of availale
     command in the "JAMES remote administrator tool". It is really a basic set but 
@@ -62,13 +58,13 @@ WIDTH="609"></h2>
     Try now to retrive that mail using POP3 (port 110).
     Trace out JAMES actions in /logs/*info.log.
     Action that will be taken by JAMES on incoming mail are configurated in the servlet
-    pipe line (/conf/avalon.conf.xml). Look at it if you want to understand what's appening.</p>
+    pipe line (/conf/avalon.conf.xml). Look there if you want to understand what's appening.</p>
   
 </blockquote>    
 <p>  Good luck :)</p>
-
 <p align="center"><font SIZE="-1">Copyright (c) 1997-98 <a HREF="http://java.apache.org">The
 Java Apache Project</a>.<br>
 All rights reserved.</font></p>
+
 </body>
 </html>
