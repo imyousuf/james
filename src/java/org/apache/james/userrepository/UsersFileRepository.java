@@ -37,7 +37,7 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version CVS $Revision: 1.9 $
+ * @version CVS $Revision: 1.10 $
  *
  */
 public class UsersFileRepository
@@ -46,26 +46,22 @@ public class UsersFileRepository
  
     /**
      * Whether 'deep debugging' is turned on.
-     *
-     * TODO: Shouldn't this be false by default?
      */
-    protected static boolean DEEP_DEBUG = true;
+    protected static boolean DEEP_DEBUG = false;
 
     /** @deprecated what was this for? */
     private static final String TYPE = "USERS";
 
     private Store store;
     private ObjectRepository or;
+
+    /**
+     * The destination URL used to define the repository.
+     */
     private String destination;
 
     /**
-     * Pass the <code>ComponentManager</code> to the <code>composer</code>.
-     * The instance uses the specified <code>ComponentManager</code> to 
-     * acquire the components it needs for execution.
-     *
-     * @param componentManager The <code>ComponentManager</code> which this
-     *                <code>Composable</code> uses.
-     * @throws ComponentException if an error occurs
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
     public void compose( final ComponentManager componentManager )
         throws ComponentException {
@@ -81,10 +77,7 @@ public class UsersFileRepository
     }
 
     /**
-     * Pass the <code>Configuration</code> to the instance.
-     *
-     * @param configuration the class configurations.
-     * @throws ConfigurationException if an error occurs
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
         throws ConfigurationException {
@@ -97,11 +90,7 @@ public class UsersFileRepository
     }
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize()
         throws Exception {
@@ -133,10 +122,23 @@ public class UsersFileRepository
         }
     }
 
+    /**
+     * List users in repository.
+     *
+     * @return Iterator over a collection of Strings, each being one user in the repository.
+     */
     public Iterator list() {
         return or.list();
     }
 
+    /**
+     * Update the repository with the specified user object. A user object
+     * with this username must already exist.
+     *
+     * @param user the user to be added.
+     *
+     * @return true if successful.
+     */
     public synchronized boolean addUser(User user) {
         String username = user.getUserName();
         if (contains(username)) {
@@ -150,7 +152,7 @@ public class UsersFileRepository
         return true;
     }
 
-    public synchronized void addUser(String name, Object attributes) {
+    public void addUser(String name, Object attributes) {
         if (attributes instanceof String) {
             User newbie = new DefaultUser(name, "SHA");
             newbie.setPassword( (String) attributes);
@@ -177,11 +179,8 @@ public class UsersFileRepository
 
     public User getUserByNameCaseInsensitive(String name) {
         String realName = getRealName(name);
-        // TODO: This clause is in violation of the contract for the
-        //       interface - class should return false if the user
-        //       doesn't exist
         if (realName == null ) {
-            throw new RuntimeException("No such user");
+            return null;
         }
         return getUserByName(realName);
     }
@@ -197,15 +196,15 @@ public class UsersFileRepository
         return null;
     }
 
-    public Object getAttributes(String name) {       
+    public Object getAttributes(String name) {
         throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
     }
 
     public boolean updateUser(User user) {
-    String username = user.getUserName();
-    if (!contains(username)) {
-        return false;
-    }
+        String username = user.getUserName();
+        if (!contains(username)) {
+            return false;
+        }
         try {
             or.put(username, user);
         } catch (Exception e) {

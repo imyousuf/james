@@ -16,7 +16,7 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 public class DefaultJamesUser 
@@ -54,11 +54,7 @@ public class DefaultJamesUser
 
 
     /**
-     * Initialize the component. Initialization includes
-     * allocating any resources required throughout the
-     * components lifecycle.
-     *
-     * @throws Exception if an error occurs
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() {
         forwarding = false;
