@@ -8,7 +8,70 @@
 
 <body>
 <section name="Writing a Custom Matcher">
-<p></p>
+<p>Implementing a custom matcher is generally a simple task, most of whose complexity 
+lies in coding the actual work to be done by the matcher.  This is largely due to the 
+simplicity of the Matcher interface and the fact that a couple of abstract Matcher template
+classes are provided in the Mailet package.  These two classes, GenericMatcher and 
+GenericRecipientMatcher, greatly simplfy the task of Matcher authoring.</p>
+<p>As discussed elsewhere in this manual, the Matcher interface does not simply match 
+or not match a particular message.  Rather, it returns some subset of the original message
+recipients as a result of the match(Mail) method.  This leads to the two different abstract
+Matcher implementations.</p>
+<p>The first, GenericMatcher, is intended for matchers where recipient evaluation is not 
+necessary.  Basically, you should subclass this implementation if your matcher is going to 
+return all or none of the recipients.</p>
+<p>When subclassing this class, there are four methods that potentially need to be 
+overridden.  These are getMatcherInfo(), init(), match(Mail), and destroy().  More on these 
+anon.</p>
+<p>The second implementation, GenericRecipientMatcher, is intended for those matchers where 
+each recipient is evaluated individually.  It is a subclass of GenericMatcher, and inherits 
+most of its behavior from that class.  The only major difference is that subclasses are 
+expected to override matchRecipient(MailAddress) rather than match(Mail).</p>
+<subsection name="Configuration">
+<p>Matchers are passed a single String as part of their configuration.  Interpretation of this 
+list is left entirely to the body of the Matcher.  This String value is available in 
+the body of the Matcher through use of the getCondition() method of the 
+GenericMatcher class.  This method returns the String value passed to the Matcher, and returns 
+null if no value is set.  The method getCondition() is available inside the init(), destroy(), match(Mail), 
+and matchRecipient(MailAddress) methods.</p>
+</subsection>
+<subsection name="Logging">
+<p>There is a simple logging mechanism provided by the Mailet API.  It does not support 
+logging levels, so any log filtering will have to be implemented in the Matcher code.  
+Logging is done by calling one of the two logging methods on GenericMatcher/GenericRecipientMatcher - log(String) 
+or log(String,Throwable).  Logging is available inside the init(), destroy(), match(Mail), 
+and matchRecipient(MailAddress) methods.</p>
+<p>The value of getMatcherInfo() for the Matcher is prepended to the log entries for that 
+Matcher.  So it may be desirable for you to override this method so you can distinguish Matcher
+log entries by Matcher.</p>
+</subsection>
+<subsection name="Initialization">
+<p>As part of the Matcher lifecycle, a Matcher is guaranteed to be initialized immediately after 
+being instantiated.  This happens once and only once for each Matcher instance.  The 
+Initialization phase is where configuration parsing and per-Matcher resource creation generally 
+take place.  Depending on your Matcher, it may or may not be necessary to do any initialization 
+of the Matcher.  Initialization logic is implemented by overriding the init() method of 
+GenericMatcher/GenericRecipientMatcher.</p>
+</subsection>
+<subsection name="Matching">
+<p>It is the matching phase where the Matcher's work is done.  The exact form of this phase largely 
+depends on which Matcher superclass is subclassed.</p>
+<p>If GenericMatcher is being subclassed, it is the match(Mail) that is implemented.  As described 
+above, this method returns a Collection of MailAddresses that is a subset of the original 
+recipients for the Mail object.</p>
+<p>If it is a purely recipient-filtering Matcher, then the GenericRecipientMatcher should be
+subclassed.  In this case, developers must provide an implementation of the 
+matchRecipient(MailAddress) method.  This method returns true if the recipient matches,
+and false otherwise.</p>
+</subsection>
+<subsection name="Destruction">
+<p>As part of the Matcher lifecycle, a Matcher is guaranteed to be destroyed when the container 
+cleans up the Matcher.  This happens once and only once for each Matcher instance.  The 
+Destruction phase is where per-Matcher resource release generally takes place.  Depending 
+on your Matcher, it may or may not be necessary to do any destruction 
+of the Matcher.  Destruction logic is implemented by overriding the destroy() method of 
+GenericMatcher/GenericRecipientMatcher.</p>
+</subsection>
 </section>
 </body>
 </document>
