@@ -27,11 +27,11 @@ import javax.mail.internet.*;
 import org.bouncycastle.mail.smime.*;
 
 /* the following 3 imports are needed if support for both jdk 1.3 and jdk 1.4+ is needed */
-//import java.security.cert.X509Certificate;  // needed if jdk 1.3+, not needed if jdk 1.4+
-//import org.bouncycastle.jce.*;              // needed for jdk 1.3
-//import org.bouncycastle.jce.cert.*;         // needed for jdk 1.3
+import java.security.cert.X509Certificate;  // needed if jdk 1.3+, not needed if jdk 1.4+
+import org.bouncycastle.jce.*;              // needed for jdk 1.3
+import org.bouncycastle.jce.cert.*;         // needed for jdk 1.3
 /* the following import should be used instead of the 3 above if no support for jdk 1.3 is needed, but only for jdk 1.4+ */
-import java.security.cert.*;
+//import java.security.cert.*;
 
 import org.bouncycastle.mail.smime.*;
 
@@ -42,7 +42,7 @@ import org.bouncycastle.mail.smime.*;
  * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
  * libraries, particularly for the SMIME activity.</p>
  * <b>Requires JDK 1.4+</b>
- * @version CVS $Revision: 1.1.2.1 $ $Date: 2004/08/05 12:30:48 $
+ * @version CVS $Revision: 1.1.2.2 $ $Date: 2004/08/08 16:16:35 $
  * @since 2.2.1
  */
 public class KeyHolder {
