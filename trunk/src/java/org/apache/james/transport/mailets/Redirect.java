@@ -388,24 +388,27 @@ public class Redirect extends GenericMailet {
 /**
 * returns the senders address, as a MailAddress
 */
-    public MailAddress getSender(){
-        String sr = getInitParameter("sender");
-        MailAddress rv;
-        if(sr.compareTo("postmaster")==0){
-            rv = getMailetContext().getPostmaster();
-            return rv;
-        }
-        if((sr.compareTo("sender")==0) || (sr==null)){
-            return null;
-        }
-        try{
-            rv = new MailAddress(sr);
-            return rv;
-        }catch(Exception e){
-            log("Parse error in getSender "+sr);
-        }
-        return null;
-    }
+     public MailAddress getSender(){
+         String sr = getInitParameter("sender");
+        if(sr != null){
+            MailAddress rv;
+            if(sr.compareTo("postmaster")==0){
+                rv = getMailetContext().getPostmaster();
+                return rv;
+            }
+            if(sr.compareTo("sender")==0){
+                return null;
+            }
+            try{
+                rv = new MailAddress(sr);
+                return rv;
+            }catch(Exception e){
+                log("Parse error in getSender "+sr);
+            }
+         }
+         return null;
+     }
+
 /**
 * returns one of these values to indicate how to append the original message
 *<ul>
@@ -465,25 +468,27 @@ public class Redirect extends GenericMailet {
 /**
 * return the reply to address as a string
 */
-    public MailAddress getReplyTo(){
-        String sr = getInitParameter("replyto");
+public MailAddress getReplyTo(){
+         String sr = getInitParameter("replyto");
+        if(sr != null){
+            MailAddress rv;
+            if(sr.compareTo("postmaster")==0){
+                rv = getMailetContext().getPostmaster();
+                return rv;
+            }
+            if(sr.compareTo("sender")==0){
+                return null;
+            }
+            try{
+                rv = new MailAddress(sr);
+                return rv;
+            }catch(Exception e){
+                log("Parse error in getReplyTo "+sr);
+            }
+         }
+         return null;
+     }
 
-        MailAddress rv;
-        if(sr.compareTo("postmaster")==0){
-            rv = getMailetContext().getPostmaster();
-            return rv;
-        }
-        if((sr.compareTo("sender")==0) || (sr == null)){
-            return null;
-        }
-        try{
-            rv = new MailAddress(sr);
-            return rv;
-        }catch(Exception e){
-            log("Parse error in getReplyTo "+sr);
-        }
-        return null;
-    }
 
 /**
 * return a prefix for the message subject
