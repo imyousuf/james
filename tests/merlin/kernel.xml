@@ -1,16 +1,11 @@
 
 <kernel>
 
-   <!-- 
-   The kernel can contain the following declarations:
-   1. a system descriptor
-   2. a logging descriptor
-   3. a logging catagories descriptor that establishes logging priority
-      for the kernel messages
-   4. an engine descriptor
-   -->
-
    <system host="localhost"/>
+
+   <!--
+   To log to a file, change "default" to "kernel".
+   -->
 
    <logging target="default" priority="WARN">
       <category name="/sys/logger" priority="WARN"/>
@@ -22,8 +17,6 @@
    <categories>
       <category name="/sys" priority="INFO"/>
    </categories>
-
-   <engine/>
 
    <!--
    Declaration of a Merlin kernel that references the James block defition.  
