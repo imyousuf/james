@@ -118,12 +118,10 @@ abstract class CommandTemplate
         else {
             try {
                 return session.getImapHost().getMailbox( session.getCurrentUser(), mailboxName );
-            }
-            catch ( MailboxException me ) {
+            } catch ( MailboxException me ) {
                 if ( me.isRemote() ) {
                     session.noResponse( "[REFERRAL " + me.getRemoteServer() + "]" + SP + "Remote mailbox" );
-                }
-                else {
+                } else {
                     session.noResponse( command, "Unknown mailbox" );
                     getLogger().info( "MailboxException in method getBox for user: "
                                       + session.getCurrentUser() + " mailboxName: " + mailboxName + " was "
