@@ -46,7 +46,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.8 $ $Date: 2002/06/20 22:04:14 $
+ * @version CVS $Revision: 1.9 $ $Date: 2002/06/21 06:58:24 $
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
  * @since 4.0
@@ -418,6 +418,13 @@ public class JdbcDataSource extends AbstractLogEnabled
             return entry;
         } catch(SQLException sqle) {
             //Shouldn't ever happen, but it did, just return null.
+            // Exception from DriverManager.getConnection() - log it, and return null
+            StringWriter sout = new StringWriter();
+            PrintWriter pout = new PrintWriter(sout, true);
+            pout.println("Error creating connection: ");
+            sqle.printStackTrace(pout);
+            getLogger().error(sout.toString());
+             return null;
             return null;
         } finally {
             synchronized(this) {
