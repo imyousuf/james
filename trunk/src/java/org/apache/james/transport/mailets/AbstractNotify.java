@@ -102,20 +102,21 @@ import java.util.Iterator;
  * <P>Sample configuration common to all notification mailet subclasses:</P>
  * <PRE><CODE>
  * &lt;mailet match="All" class="<I>a notification mailet</I>">
- *   &lt;sendingAddress&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sendingAddress&gt;
- *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
- *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;sender&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sender&gt;
+ *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
+ *   &lt;message&gt;<I>notice attached to the original message text (optional)</I>&lt;/message&gt;
  *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
  *   &lt;inline&gt;<I>see {@link Redirect}, default=none</I>&lt;/inline&gt;
  *   &lt;attachment&gt;<I>see {@link Redirect}, default=message</I>&lt;/attachment&gt;
  *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
  *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
+ *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
  * &lt;/mailet&gt;
  * </CODE></PRE>
- * <I>message</I> and <I>attachError</I> can be used instead of
- * <I>notice and </I> and <I>attachStackTrace</I>.
+ * <P><I>notice</I>, <I>senderAddress</I> and <I>attachStackTrace</I> can be used instead of
+ * <I><I>message</I>, <I>sender</I> and <I>attachError</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.6 $ $Date: 2003/06/25 22:00:37 $
+ * @version CVS $Revision: 1.7 $ $Date: 2003/06/27 14:25:46 $
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -158,7 +159,8 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>notice</CODE> init parameter, or the <CODE>message</CODE> init parameter if missing,
+     * @return the <CODE>notice</CODE> init parameter,
+     * or the <CODE>message</CODE> init parameter if missing,
      * or a default string if both are missing
      */
     protected String getMessage() {
@@ -238,27 +240,52 @@ public abstract class AbstractNotify extends AbstractRedirect {
         return sout.toString();
     }
 
+    // All subclasses of AbstractNotify are expected to establish their own recipients
+    abstract protected Collection getRecipients() throws MessagingException;
+
     /**
-     * @return the value of the <CODE>sendingAddress</CODE> init parameter if not null,
-     * the postmaster address otherwise
+     * @return null
+     */
+    protected InternetAddress[] getTo() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return <CODE>SpecialAddress.NULL</CODE>, that will remove the "ReplyTo:" header
+     */
+    protected MailAddress getReplyTo() throws MessagingException {
+        return SpecialAddress.NULL;
+    }
+
+    /**
+     * @return null
+     */
+    protected MailAddress getReturnPath() throws MessagingException {
+        return null;
+    }
+
+    /**
+     * @return the value of the <CODE>sendingAddress</CODE> init parameter,
+     * or the value of the <CODE>sender</CODE> init parameter if missing,
+     * or the postmaster address if both are missing
      */
     protected MailAddress getSender() throws MessagingException {
         if (getInitParameter("sendingAddress") == null) {
-            return getMailetContext().getPostmaster();
+            if (getInitParameter("sender") == null) {
+                return getMailetContext().getPostmaster();
+            } else {
+                return new MailAddress(getInitParameter("sender"));
+            }
         } else {
             return new MailAddress(getInitParameter("sendingAddress"));
         }
     }
 
     /**
-     * @return the <CODE>prefix</CODE> init parameter or an empty string if missing
+     * @return null
      */
-    protected String getSubjectPrefix() throws MessagingException {
-        if(getInitParameter("prefix") == null) {
-            return "";
-        } else {
-            return getInitParameter("prefix");
-        }
+    protected String getSubject() throws MessagingException {
+        return null;
     }
 
     /**
