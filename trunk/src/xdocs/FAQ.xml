@@ -26,6 +26,7 @@
 <li><a href="#8">Where do I stick classes and jars?</a></li>
 <li><a href="#9">How do I upgrade to a newer version of James?</a></li>
 <li><a href="#10">How do I run James as an NT/2k/XP service?</a></li>
+<li><a href="#11">Why isn't my mailet making changes to a MimeMessage?</a></li>
 </ul>
 </p>
 
@@ -191,6 +192,14 @@ see):</p>
   </source>
   <p>By copying the 2 above .bat files and the JavaService.exe (follow the download link  at http://www.alexandriasc.com/software/JavaService/index.html) to the <james>\bin folder, I am able to install and uninstall the JamesMailServer NT service!
   <br />Taken from http://www.mail-archive.com/james-user@jakarta.apache.org/msg01389.html by Steve Belt
+  </p>
+  </subsection>
+
+  <a name="11"></a>
+  <subsection name="Why isn't my mailet making changes to a MimeMessage?">
+  <p>Check the JavaMail docs... I don't think I would have designed it this way, but per the API, when you call MimeMessage.setContent(blah), you have to call saveChanges() to apply your changes.  James tries to automatically call this method so you don't have to, but in certain cases you'll still have to call saveChanges().
+  <br />
+  Serge Knystautas
   </p>
   </subsection>
 
