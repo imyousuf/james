@@ -29,7 +29,7 @@
     SMTP AUTH support
   </action>
   <action dev="SK" type="update">
-    Support null senders, i.e., MAIL RCPT: <>.
+    Support null senders, i.e., MAIL RCPT: &lt;&gt;.
   </action>
   <action dev="DD,SK" type="update">
     Converted Town mail and user repositories to straight JDBC ones, using Excalibur connection pooling and configurable SQL statements per DB.
@@ -72,6 +72,9 @@
   </action>
   <action dev="MP" type="update">
     Patch to support username@[yyy.yyy.yyy.yyy] addresses
+  </action>
+  <action dev="GB" type="update">
+    Patch to fix size calculation from headers
   </action>
 </release>
 
