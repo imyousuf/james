@@ -56,47 +56,62 @@
  * University of Illinois, Urbana-Champaign.
  */
 
-package org.apache.james.services;
+package org.apache.james.dnsserver;
 
-import java.util.Collection;
-import java.util.Iterator;
+import org.apache.mailet.MailetContext;
+import java.net.InetAddress;
+import org.xbill.DNS.ARecord;
+import org.xbill.DNS.Record;
 
 /**
- * Provides abstraction for DNS resolutions. The interface is Mail specific.
- * It may be a good idea to make the interface more generic or expose 
- * commonly needed DNS methods.
- *
- * @author  Harmeet <harmeet@kodemuse.com>
+ * A holder of data generated in the DNSServer and needed in 
+ * RemoteDelivery.  Especially needed for multihomed hosts.
  */
-public interface DNSServer {
+public class SMTPHostAddressesImpl implements MailetContext.SMTPHostAddresses
+{
+    public static final int SMTP_PORT = 25;
+    protected String hostName;
+    protected InetAddress[] ipAddresses;
 
     /**
-     * The component role used by components implementing this service
+     * @param aRecords array of addresses for the host
+     * @param hostName name of host
      */
-    String ROLE = "org.apache.james.services.DNSServer";
+    public SMTPHostAddressesImpl (Record[] aRecords, String hostName) {
+        this.hostName = hostName;
+        if (aRecords == null){
+            ipAddresses = new InetAddress[0];
+        } else {
+            ipAddresses = new InetAddress[aRecords.length];
+            for (int i = 0; i < ipAddresses.length; i++){
+                ipAddresses[i] = ((ARecord)aRecords[i]).getAddress();
+            }
+        }
+    }
+    
+    /**
+     *  @return the hostName of the SMTP server (from the MX record lookup)
+     */
+    public String getHostname() {
+        return hostName;
+    }
+    
+    /**
+     * @return an array with the ip addresses of the hostname. An array is
+     * used because a host can have multiple homes (addresses)
+     */
+    public InetAddress[] getAddresses() {
+        return ipAddresses;
+    }
+
 
     /**
-     * <p>Get a priority-sorted collection of DNS MX records for a given hostname</p>
-     *
-     * <p>TODO: Change this to a list, as not all collections are sortable</p>
-     *
-     * @param hostname the hostname to check
-     * @return collection of strings representing MX record values. 
+     * @param address for which we need the port to use in SMTP connection
+     * @return the port number to use for the given address (this will usually be 25 for SMTP)
      */
-    Collection findMXRecords(String hostname);
-
-
-    /**
-     * Performs DNS lookups as needed to find servers which should or might
-     * support SMTP.  Returns one SMTPHostAddresses for each such host
-     * discovered by DNS.  If no host is found for domainName, the Iterator
-     * returned will be empty and the first call to hasNext() will return
-     * false.
-     * @param domainName the String domain for which SMTP host addresses are
-     * sought.
-     * @return an Enumeration in which the Objects returned by next()
-     * are instances of SMTPHostAddresses.
-     */
-    Iterator getSMTPHostAddresses(String domainName);
+    public int getPort(InetAddress address) {
+        //this implementation will always return 25
+        return SMTP_PORT;
+    }
     
 }

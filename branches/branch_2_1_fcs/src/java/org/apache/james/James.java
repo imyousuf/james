@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.11 $
+ * @version This is $Revision: 1.35.4.12 $
 
  */
 public class James
@@ -945,4 +945,28 @@ public class James
         success = localusers.addUser(user);
         return success;
     }
+
+   /**
+    * Performs DNS lookups as needed to find servers which should or might
+    * support SMTP.
+    * Returns one SMTPHostAddresses for each such host discovered
+    * by DNS.  If no host is found for domainName, the Iterator
+    * returned will be empty and the first call to hasNext() will return
+    * false.
+    * @param domainName the String domain for which SMTP host addresses are
+    * sought.
+    * @return an Iterator in which the Objects returned by next()
+    * are instances of SMTPHostAddresses.
+    */
+    public Iterator getSMTPHostAddresses(String domainName) {
+        DNSServer dnsServer = null;
+        try {
+            dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
+        } catch ( final ComponentException cme ) {
+            getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
+            throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
+        }
+        return dnsServer.getSMTPHostAddresses(domainName);
+    }
+    
 }
