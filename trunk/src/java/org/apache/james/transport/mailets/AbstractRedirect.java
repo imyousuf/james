@@ -162,7 +162,7 @@ import org.apache.mailet.MailAddress;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * <P>CVS $Id: AbstractRedirect.java,v 1.8 2003/06/16 03:35:07 noel Exp $</P>
+ * <P>CVS $Id: AbstractRedirect.java,v 1.9 2003/06/19 16:10:33 vincenzo Exp $</P>
  * @version 2.2.0
  * @since 2.2.0
  */
@@ -479,16 +479,54 @@ public abstract class AbstractRedirect extends GenericMailet {
     /**
      * Gets the <CODE>to</CODE> property,
      * built dynamically using the original Mail object.
+     * Its outcome will be the the value the <I>TO:</I> header will be set to,
+     * that could be different from the real recipient (see {@link #getRecipients}).
      * Is a "getX(Mail)" method.
+     * <P>The logic is the following, based on {@link #getTo()}:</P>
+     * <UL>
+     *      <LI>
+     *          If <CODE>getTo()</CODE> returns null it returns null, meaning no change.
+     *      </LI>
+     *      <LI>
+     *          If <CODE>getTo()</CODE> returns <CODE>SpecialAddress.SENDER</CODE>
+     *          it returns the <I>sender</I>;
+     *          if the <I>sender</I> is null it returns the <I>Return-Path:</I> header;
+     *          if the <I>Return-Path:</I> header does not exist or == <CODE>SpecialAddress.NULL</CODE> ("<>") it returns "<>".
+     *      </LI>
+     *      <LI>
+     *          If <CODE>getTo()</CODE> returns <CODE>SpecialAddress.UNALTERED</CODE>
+     *          it returns the original <I>TO:</I>.
+     *      </LI>
+     *      <LI>
+     *          If <CODE>getTo()</CODE> returns <CODE>SpecialAddress.RETURN_PATH</CODE>
+     *          it returns the contents of the <I>Return-Path:</I> header;
+     *          if the <I>Return-Path:</I> header is <CODE>SpecialAddress.NULL</CODE> it throws a <CODE>MessagingException</CODE>;
+     *          if the <I>Return-Path:</I> header does not exist it returns the <I>sender</I>;
+     *          if the <I>sender</I> is null it returns "<>".
+     *      </LI>
+     * </UL>
      *
-     * @return {@link #getTo()}, replacing <CODE>SpecialAddress.SENDER</CODE> and <CODE>SpecialAddress.UNALTERED</CODE> if applicable
+     * @return {@link #getTo()}, replacing <CODE>SpecialAddress.SENDER</CODE>,
+     * <CODE>SpecialAddress.SENDER</CODE> and <CODE>SpecialAddress.UNALTERED</CODE> if applicable
      */
     protected InternetAddress[] getTo(Mail originalMail) throws MessagingException {
         InternetAddress[] apparentlyTo = (isStatic()) ? this.apparentlyTo : getTo();
         if (apparentlyTo != null && apparentlyTo.length == 1) {
             if (apparentlyTo[0].equals(SpecialAddress.SENDER.toInternetAddress())) {
-                apparentlyTo = new InternetAddress[1];
-                apparentlyTo[0] = originalMail.getSender().toInternetAddress();
+                MailAddress mailAddress = originalMail.getSender();
+                if (mailAddress == null) {
+                    mailAddress = getExistingReturnPath(originalMail);
+                    if (mailAddress == SpecialAddress.NULL) {
+                        mailAddress = null;
+                    }
+                }
+                if (mailAddress == null) {
+                    // set to <>
+                    apparentlyTo = new InternetAddress[0];
+                } else {
+                    apparentlyTo = new InternetAddress[1];
+                    apparentlyTo[0] = mailAddress.toInternetAddress();
+                }
             } else if (apparentlyTo[0].equals(SpecialAddress.UNALTERED.toInternetAddress())) {
                 apparentlyTo = (InternetAddress[]) originalMail.getMessage().getRecipients(Message.RecipientType.TO);
             } else if (apparentlyTo[0].equals(SpecialAddress.RETURN_PATH.toInternetAddress())) {
@@ -498,8 +536,13 @@ public abstract class AbstractRedirect extends GenericMailet {
                     throw new MessagingException("NULL return path found getting recipients");
                 }
                 if (mailAddress == null) {
-                    apparentlyTo[0] = originalMail.getSender().toInternetAddress();
+                    mailAddress = originalMail.getSender();
+                }
+                if (mailAddress == null) {
+                    // set to <>
+                    apparentlyTo = new InternetAddress[0];
                 } else {
+                    apparentlyTo = new InternetAddress[1];
                     apparentlyTo[0] = mailAddress.toInternetAddress();
                 }
             }
