@@ -69,7 +69,7 @@ import javax.mail.MessagingException;
  * Sample configuration:
  * &lt;mailet match="All" class="RemoveAllMailAttributes"/&gt;
  *
- * @version CVS $Revision: 1.1 $ $Date: 2003/07/15 10:44:48 $
+ * @version CVS $Revision: 1.1.2.1 $ $Date: 2003/07/15 10:50:24 $
  * @since 2.2.0
  */
 public class RemoveAllMailAttributes extends GenericMailet {
