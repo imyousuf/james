@@ -90,6 +90,8 @@ All these package are in current distribution.
   <property name="src.dir" value="src"/>
   <property name="java.dir" value="${src.dir}/java"/>
   <property name="conf.dir" value="${src.dir}/conf"/>
+  <property name="scripts.dir" value="${src.dir}/script"/>
+  <property name="sql.dir" value="${src.dir}/sql"/>
   <property name="proposal.base" value="proposals"/>
   <property name="proposal.dir" value="${proposal.base}/v1.3"/>
   <property name="java.proposal.dir" value="${proposal.dir}/java"/>
@@ -388,16 +390,19 @@ All these package are in current distribution.
       </fileset>
     </copy>
 
-    <copy file="res/run.bat" tofile="${dist.dir}/bin/run.bat"/>
-    <copy file="res/run.sh" tofile="${dist.dir}/bin/run.sh"/>
-    <copy file="res/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
+    <copy file="${scripts.dir}/run.bat" tofile="${dist.dir}/bin/run.bat"/>
+    <copy file="${scripts.dir}/run.sh" tofile="${dist.dir}/bin/run.sh"/>
+    <copy file="${conf.dir}/avalonTestKeys" tofile="${dist.dir}/conf/avalonTestKeys"/>
     <chmod dir="${dist.dir}" perm="go-rwx" />
     <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
     <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
     <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
 
-    <copy todir="${dist.dir}/var">
-      <fileset dir="res"/>
+    <copy todir="${dist.dir}/conf">
+      <fileset dir="${conf.dir}">
+        <include name="inet*"/>
+        <include name="maildatabase*"/>
+      </fileset>
     </copy>
 
     <copy file="README" tofile="${dist.dir}/README"/>
@@ -422,6 +427,13 @@ All these package are in current distribution.
     <delete file="${name}-${version}-${DSTAMP}.tar"/>
     <delete file="${name}-${version}-${DSTAMP}.tar.gz"/>
   </target>
+
+  <!-- Cleans absolutely everything up -->
+  <target name="real-clean" depends="clean">
+    <delete dir="${docs.dir}" />
+    <delete dir="${dist.base}" />
+  </target>
+
 
   <!-- =================================================================== -->
   <!-- Documentation                                                       -->
@@ -516,7 +528,7 @@ All these package are in current distribution.
 
     <delete>
       <fileset dir="${docs.dir}">
-        <exclude name="framework/api/**"/>
+        <exclude name="api/**"/>
       </fileset>
     </delete>
     <mkdir dir="${docs.dir}"/>
