@@ -19,31 +19,33 @@
 	<person name="Samuel Sadek" email="Samuel.Sadek@kpmg.co.uk" id="SS"/>
 	<person name="Stephan Schiessling" email="s@rapi.com" id="SS2"/>
 	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
+	<person name="Paul Hammant" email="Paul_Hammant@yahoo.com" id="PH" />
+	<person name="Jeff Keyser" email="JKeyser@telocity.com" id="JK" />
   </devs>
 
 <release version="2.0a3" date="20-April-2002">
-  <action dev="SK" type="update">
+  <action dev="SK" type="code">
     FileRepository should no longer produce 0-byte files.  It checks that the source is different than the target, or confirm it is in memory before saving to disk.
   </action>
   <action dev="SK" type="update">
     Removed check that connection is not closed before returning it.  The pooler is already confirming the connection was open before putting it in the pool, so this was a big unnecessary performance drain.
   </action>
   <action dev="SK" type="update">
-    Fixed the delay in the mail spool repository as it wasn't rechecking correctly after it emptied the spool.
+    Fixed the delay in the JDBC mail spool repository as it wasn't rechecking correctly after it emptied the spool.
   </action>
-  <action dev="" type="update">
+  <action dev="SS2" type="code">
     Added dot-stuffing in POP3 message delivery to fix problems with Netscape and other mail clients and to comply with RFC.
   </action>
-  <action dev="" type="update">
+  <action dev="JK" type="code">
     Fixed bounce method to use the Return-Path header if there is one.
   </action>
   <action dev="SK" type="update">
     Improved handling of delivery error messages when the remote server returns a specific 5XY complaint.
   </action>
-  <action dev="SK" type="update">
+  <action dev="SK" type="code">
     Better diagnosing of temporary vs. permanent delivery exceptions, most notably "Could not connect to host.." is a temporary exception.
   </action>
-  <action dev="SK" type="update">
+  <action dev="SK" type="code">
     Remote SMTP delivery now sets the remote hostname using the servername configuration setting (uses the first one).
   </action>
   <action dev="SK" type="update">
@@ -52,23 +54,47 @@
   <action dev="SK" type="update">
     Support in "IsSenderInFakeDomain" to handle null senders properly (was producing a false positive in this case).
   </action>
-  <action dev="" type="update">
+  <action dev="PH" type="update">
     Added releaseConnection method to BaseConnectionHandler as per Paul H's bug report.
   </action>
-  <action dev="" type="update">
+  <action dev="SK" type="update">
     Reordered 250 SMTP responses to fix Mac client issue per Giles Chanot's bug report.
   </action>
 </release>
 
-<release version="2.0a2">
-  <action dev="EP" type="update">
-    Used getAsBooleanValue in various configuration methods to make code more readable.
+<release version="2.0a2" date="1-Dec-2001">
+  <action dev="*" type="update">
+    Moved to Avalon snapshot of November 2001
   </action>
-  <action dev="SS2" type="update">
-    Added POP3 dot-stuffing so messages with dots can be retrieved.
+  <action dev="DA" type="update">
+    Fixed POP3 message size bug that prevented retrieval
+  </action>
+  <action dev="SK" type="code">
+    Added Mordred database connection pooling.  It is the marriage of Town's db pooling code and Excalibur's configuration.
   </action>
   <action dev="SK" type="update">
-    Fixed JDBC spool to not sleep before processing messages.
+    Changed MailImpl.getSize() to getMessageSize() and from int to long.
+  </action>
+  <action dev="SK" type="docs">
+    Small updates to documentation
+  </action>
+  <action dev="SK" type="code">
+    Added JDBCListserv, straight JDBC implementation of old TownListserv that extends GenericListserv
+  </action>
+  <action dev="SK" type="update">
+    Patched bug in GenericListserv for when subject was null
+  </action>
+  <action dev="SK" type="update">
+    Got mailets/matchers to load from something besides james.bar
+  </action>
+  <action dev="SK" type="code">
+    Added scheduler notification during SMTP DATA reception and POP3 RETR sending so the connection handler doesn't time out connection while data is being transfered.
+  </action>
+  <action dev="SK" type="code">
+    Support &lt;gatewayPort&gt; setting on RemoteDelivery to send all messages to a non-port 25 SMTP server.  Only makes sense when &lt;gateway&gt; is also set.
+  </action>
+  <action dev="EP" type="update">
+    Used getAsBooleanValue in various configuration methods to make code more readable.
   </action>
   <action dev="SS" type="update">
   	Added support for Oracle database for mail and spool JDBC repositories.
