@@ -11,8 +11,11 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
-import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.component.DefaultComponentManager;
@@ -23,20 +26,18 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLoggable;
-import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.avalon.phoenix.Block;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
 import org.apache.mailet.*;
-import org.apache.avalon.phoenix.Block;
-import org.apache.avalon.phoenix.BlockContext;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.4 $
- * Committed on $Date: 2001/09/11 04:34:20 $ by: $Author: serge $
+ * This is $Revision: 1.5 $
+ * Committed on $Date: 2001/09/20 01:11:06 $ by: $Author: donaldp $
  */
 public class JamesSpoolManager
     extends AbstractLoggable
@@ -52,8 +53,8 @@ public class JamesSpoolManager
     private MailetContext mailetcontext;
     private HashMap processors;
     private int threads;
-    protected BlockContext           blockContext;
     private ThreadPool workerPool;
+    private ThreadManager threadManager;
 
     public void configure(Configuration conf) throws ConfigurationException {
         this.conf = conf;
@@ -62,24 +63,25 @@ public class JamesSpoolManager
 
     public void contextualize(Context context) {
         this.context = new DefaultContext( context );
-        this.blockContext = (BlockContext)context;
     }
 
-    public void compose(ComponentManager comp) {
+    public void compose(ComponentManager comp) 
+        throws ComponentException {
+        threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
         compMgr = new DefaultComponentManager(comp);
     }
 
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        workerPool = blockContext.getThreadPool( "default" );
+        workerPool = threadManager.getThreadPool( "default" );
         MailStore mailstore
-          = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+            = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
         spool = mailstore.getInboundSpool();
         if (DEEP_DEBUG) getLogger().debug("Got spool");
 
         mailetcontext
-          = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
+            = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
         MailetLoader mailetLoader = new MailetLoader();
         MatchLoader matchLoader = new MatchLoader();
         try {
@@ -116,7 +118,7 @@ public class JamesSpoolManager
                     Matcher matcher = matchLoader.getMatcher("All",
                                                              mailetcontext);
                     Mailet mailet = mailetLoader.getMailet("PostmasterAlias",
-                                                          mailetcontext, null);
+                                                           mailetcontext, null);
                     processor.add(matcher, mailet);
                 }
 
@@ -138,18 +140,18 @@ public class JamesSpoolManager
                     } catch (MessagingException ex) {
                         // **** Do better job printing out exception
                         getLogger().error( "Unable to init matcher "
-                                   + matcherName + ": " + ex.toString(), ex );
+                                           + matcherName + ": " + ex.toString(), ex );
                         throw ex;
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName,
-                                                         mailetcontext, c);
+                                                        mailetcontext, c);
                         getLogger().info("Mailet " + mailetClassName
                                          + " instantiated");
                     } catch (MessagingException ex) {
                         // **** Do better job printing out exception
                         getLogger().error("Unable to init mailet "
-                                   + mailetClassName + ": " + ex.getMessage());
+                                          + mailetClassName + ": " + ex.getMessage());
                         throw ex;
                     }
                     //Add this pair to the proces
@@ -163,7 +165,7 @@ public class JamesSpoolManager
                 //   it will always be ghosted
                 Matcher matcher = matchLoader.getMatcher("All", mailetcontext);
                 Mailet mailet
-                         = mailetLoader.getMailet("Null", mailetcontext, null);
+                    = mailetLoader.getMailet("Null", mailetcontext, null);
                 processor.add(matcher, mailet);
 
                 getLogger().info("processor " + processorName
