@@ -1,0 +1,236 @@
+/*****************************************************************************
+ * Copyright (C) The Apache Software Foundation. All rights reserved.        *
+ * ------------------------------------------------------------------------- *
+ * This software is published under the terms of the Apache Software License *
+ * version 1.1, a copy of which has been included  with this distribution in *
+ * the LICENSE file.                                                         *
+ *****************************************************************************/
+
+package org.apache.james.mailrepository;
+
+import java.io.*;
+import java.util.*;
+import javax.mail.internet.*;
+import javax.mail.MessagingException;
+
+import org.apache.avalon.*;
+//import org.apache.avalon.blocks.*;
+import org.apache.avalon.services.*;
+import org.apache.avalon.util.*;
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+
+import org.apache.mailet.*;
+import org.apache.james.core.*;
+import org.apache.james.services.SpoolRepository;
+
+
+
+/**
+ * Implementation of a MailRepository on a FileSystem.
+ *
+ * Requires a configuration element in the .conf.xml file of the form:
+ *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *              type="MAIL"
+ *              model="SYNCHRONOUS"/>
+ * Requires a logger called MailRepository.
+ * 
+ * @version 1.0.0, 24/04/1999
+ * @author  Federico Barbieri <scoobie@pop.systemy.it>
+ * @author Charles Benett <charles@benett1.demon.co.uk>
+ */
+public class AvalonMailRepository implements SpoolRepository, Configurable, Composer {
+
+    private static final String TYPE = "MAIL";
+    private final static boolean        LOG        = true;
+    private final static boolean        DEBUG      = LOG && false;
+    private Logger logger =  LogKit.getLoggerFor("MailRepository");
+    private Store store;
+    private Store.StreamRepository sr;
+    private Store.ObjectRepository or;
+    //  private String path;
+    //   private String name;
+    private String destination;
+    //  private String model;
+    private Lock lock;
+
+    public AvalonMailRepository() {
+    }
+
+    public void configure(Configuration conf) throws ConfigurationException {
+	destination = conf.getAttribute("destinationURL");
+	String checkType = conf.getAttribute("type");
+	if (checkType != TYPE) {
+	    logger.warn("Attempt to configure AvalonMailRepository as "
+			+ checkType);
+	    throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
+	}
+	// ignore model
+    }
+
+    public void compose(ComponentManager compMgr) {
+	try {
+	    store = (Store) compMgr.lookup("org.apache.avalon.services.Store");
+	    //prepare Configurations for object and stream repositories
+	    DefaultConfiguration objConf
+		= new DefaultConfiguration("repository");
+	    objConf.addAttribute("destinationURL", destination);
+	    objConf.addAttribute("type", "OBJECT");
+	    objConf.addAttribute("model", "SYNCHRONOUS");
+	    DefaultConfiguration strConf
+		= new DefaultConfiguration("repository");
+	    strConf.addAttribute("destinationURL", destination);
+	    strConf.addAttribute("type", "STREAM");
+	    strConf.addAttribute("model", "SYNCHRONOUS");
+	    
+	    sr = (Store.StreamRepository) store.select(strConf);
+	    or = (Store.ObjectRepository) store.select(objConf);
+	    lock = new Lock();
+	} catch (ComponentNotFoundException cnfe) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
+	} catch (ComponentNotAccessibleException cnae) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
+	} catch (Exception e) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
+	}
+    }
+
+ 
+    public Store.Repository getChildRepository(String childName) {
+	String childDestination =  destination + childName.replace ('.', File.separatorChar) + File.separator;
+	//prepare Configurations for object and stream repositories
+	DefaultConfiguration childConf = new DefaultConfiguration("repository");
+	childConf.addAttribute("destinationURL", childDestination);
+	childConf.addAttribute("type", "MAIL");
+	childConf.addAttribute("model", "SYNCHRONOUS");
+	try {
+	    Store.Repository child = (Store.Repository) store.select(childConf);
+	    return child;
+	} catch (ComponentNotFoundException cnfe) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
+	    return null;
+	} catch (ComponentNotAccessibleException cnae) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
+	    return null;
+	} catch (Exception e) {
+	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
+	    return null;
+	}
+    }
+
+    public synchronized void unlock(Object key) {
+
+        if (lock.unlock(key)) {
+            notifyAll();
+        } else {
+            throw new LockException("Your thread do not own the lock of record " + key);
+        }
+    }
+
+    public synchronized void lock(Object key) {
+
+        if (lock.lock(key)) {
+            notifyAll();
+        } else {
+            throw new LockException("Record " + key + " already locked by another thread");
+        }
+    }
+
+
+
+    public synchronized void store(MailImpl mc) {
+        try {
+            String key = mc.getName();
+            OutputStream out = sr.put(key);
+            mc.writeMessageTo(out);
+            out.close();
+            or.put(key, mc);
+            notifyAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Exception caught while storing Message Container: " + e);
+        }
+    }
+
+    public synchronized MailImpl retrieve(String key) {
+        MailImpl mc = (MailImpl) or.get(key);
+        try {
+            mc.setMessage(sr.get(key));
+        } catch (Exception me) {
+            throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+        }
+        return mc;
+    }
+
+    public synchronized void remove(MailImpl mail) {
+        remove(mail.getName());
+    }
+
+    public synchronized void remove(String key) {
+        lock(key);
+        sr.remove(key);
+        or.remove(key);
+        unlock(key);
+    }
+
+    public Iterator list() {
+        return sr.list();
+    }
+
+    public synchronized String accept() {
+
+        while (true) {
+            for(Iterator it = or.list(); it.hasNext(); ) {
+                Object o = it.next();
+                if (lock.lock(o)) {
+                    return o.toString();
+                }
+            }
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public synchronized String accept(long delay) {
+        while (true) {
+            long youngest = 0;
+            for (Iterator it = list(); it.hasNext(); ) {
+                String s = it.next().toString();
+                if (lock.lock(s)) {
+                    //We have a lock on this object... let's grab the message
+                    //  and see if it's a valid time.
+                    MailImpl mail = retrieve(s);
+                    if (mail.getState().equals(Mail.ERROR)) {
+                        //Test the time...
+                        long timeToProcess = delay + mail.getLastUpdated().getTime();
+                        if (System.currentTimeMillis() > timeToProcess) {
+                            //We're ready to process this again
+                            return s;
+                        } else {
+                            //We're not ready to process this.
+                            if (youngest == 0 || youngest > timeToProcess) {
+                                //Mark this as the next most likely possible mail to process
+                                youngest = timeToProcess;
+                            }
+                        }
+                    } else {
+                        //This mail is good to go... return the key
+                        return s;
+                    }
+                }
+            }
+            //We did not find any... let's wait for a certain amount of time
+            try {
+                if (youngest == 0) {
+                    wait();
+                } else {
+                    wait(youngest - System.currentTimeMillis());
+                }
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+}
