@@ -8,11 +8,10 @@
 
 package org.apache.james.core;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import javax.mail.internet.*;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
+import java.io.*;
+import java.util.Enumeration;
 
 /**
  * This interface defines a container for mail headers. Each header must use

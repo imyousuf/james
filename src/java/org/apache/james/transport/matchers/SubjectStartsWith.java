@@ -7,10 +7,12 @@
  */
 package org.apache.james.transport.matchers;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
 
 /**
  *

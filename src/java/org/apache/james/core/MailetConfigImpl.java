@@ -7,14 +7,12 @@
  */
 package org.apache.james.core;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.mailet.*;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MailetContext;
+
+import java.util.Iterator;
 
 /**
  *

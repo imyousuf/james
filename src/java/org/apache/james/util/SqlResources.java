@@ -7,30 +7,18 @@
  */
 package org.apache.james.util;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.oro.text.perl.MalformedPerl5PatternException;
+import org.apache.oro.text.perl.Perl5Util;
+import org.w3c.dom.*;
 
-/** Jdbc and utilities */
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
-import java.io.*;
-
-/** W3C DOM classes **/
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Attr;
-
-/** Parser classes **/
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-/** ORO regex classes */
-import org.apache.oro.text.perl.Perl5Util;
-import org.apache.oro.text.perl.MalformedPerl5PatternException;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

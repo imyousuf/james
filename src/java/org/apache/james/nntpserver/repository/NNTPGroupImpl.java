@@ -7,15 +7,16 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.avalon.excalibur.io.AndFileFilter;
+import org.apache.avalon.excalibur.io.ExtensionFileFilter;
+import org.apache.avalon.excalibur.io.InvertedFileFilter;
+import org.apache.james.nntpserver.DateSinceFileFilter;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
-import org.apache.avalon.excalibur.io.InvertedFileFilter;
-import org.apache.james.nntpserver.DateSinceFileFilter;
 
 /**
  * Group is represented by a directory.

@@ -7,12 +7,11 @@
  */
 package org.apache.james.userrepository;
 
-import java.io.Serializable;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import org.apache.james.security.DigestUtil;
 import org.apache.james.services.User;
+
+import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Implementation of User Interface. Instances of this class do not allow
@@ -20,8 +19,8 @@ import org.apache.james.services.User;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:35 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
+ * $Revision: 1.2 $
  */
 
 public class DefaultUser implements User, Serializable {

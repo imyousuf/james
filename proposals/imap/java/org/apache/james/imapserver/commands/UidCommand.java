@@ -7,7 +7,10 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.imapserver.*;
+import org.apache.james.imapserver.CommandFetch;
+import org.apache.james.imapserver.CommandStore;
+import org.apache.james.imapserver.ImapRequest;
+import org.apache.james.imapserver.ImapSession;
 
 import java.util.StringTokenizer;
 

@@ -7,10 +7,15 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
+
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 //import com.workingdogs.town.*;
 
 /**

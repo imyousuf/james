@@ -7,19 +7,18 @@
  */
 package org.apache.james.util.mordred;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Vector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
-//Notice how cornerstone is dependent on Excalibur
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Vector;
 
 /**
  * <p>This is a <b>reliable</b> DataSource implementation, based on the pooling
@@ -42,7 +41,7 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
  * </pre>
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
- * @version CVS $Revision: 1.3 $ $Date: 2002/01/17 06:09:02 $
+ * @version CVS $Revision: 1.4 $ $Date: 2002/01/18 02:48:40 $
  * @since 4.0
  */
 public class JdbcDataSource

@@ -7,11 +7,10 @@
  */
 package org.apache.mailet;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * Wrap a MimeMessage with routing information (from SMTP) such

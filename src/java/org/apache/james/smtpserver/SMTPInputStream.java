@@ -7,7 +7,9 @@
  */
 package org.apache.james.smtpserver;
 
-import java.io.*;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Removes the dot-stuffing happing during the SMTP DATA transport

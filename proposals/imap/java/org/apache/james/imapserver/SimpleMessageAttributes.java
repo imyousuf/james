@@ -7,18 +7,16 @@
  */
 package org.apache.james.imapserver;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.BodyPart;
-import javax.mail.Header;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.*;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.util.RFC822DateFormat;
 import org.apache.log.Logger;
-import org.apache.mailet.*;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.BodyPart;
+import javax.mail.MessagingException;
+import javax.mail.internet.*;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Attributes of a Message in IMAP4rev1 style. Message

@@ -7,8 +7,8 @@
  */
 package org.apache.james.smtpserver;
 
-import java.io.*;
-import org.apache.james.smtpserver.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 /** This class wraps an underlying input stream, limiting the allowable size
   * of an incoming MimeMessage. The size limit is configured in the conf file,

@@ -7,14 +7,14 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.CascadingRuntimeException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.imapserver.CommandFetch;
 import org.apache.james.imapserver.CommandStore;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A factory for ImapCommand instances, provided based on the command name.

@@ -7,7 +7,8 @@
  */
 package org.apache.james.transport.mailets.debug;
 
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
 
 /**
  * A simple in memory counter.  Designed to count messages sent to this recipient

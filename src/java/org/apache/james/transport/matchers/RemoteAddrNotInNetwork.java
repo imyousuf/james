@@ -7,10 +7,16 @@
  */
 package org.apache.james.transport.matchers;
 
-import java.net.*;
-import java.util.*;
-import javax.mail.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * Checks the IP address of the sending server against a comma-

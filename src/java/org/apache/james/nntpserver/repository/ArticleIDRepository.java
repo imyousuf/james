@@ -7,15 +7,15 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.james.util.Base64;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Properties;
-import org.apache.james.util.Base64;
 
 /** 
  * ArticleIDRepository: contains one file for each article.

@@ -7,8 +7,11 @@
  */
 package org.apache.james.transport.mailets.debug;
 
-import javax.mail.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
+
+import javax.mail.MessagingException;
 
 /**
  * Debugging purpose Mailet. Just throws an exception.

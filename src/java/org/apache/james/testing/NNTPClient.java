@@ -7,12 +7,12 @@
  */
 package org.apache.james.testing;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import sun.net.nntp.*;
 import org.apache.avalon.excalibur.io.IOUtil;
-import java.io.*;
+import sun.net.nntp.NewsgroupInfo;
+import sun.net.nntp.NntpClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * @author Harmeet <hbedi@apache.org>

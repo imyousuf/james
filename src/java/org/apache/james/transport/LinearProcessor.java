@@ -7,16 +7,20 @@
  */
 package org.apache.james.transport;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.*;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.*;
-import org.apache.james.core.*;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.*;
+
+import javax.mail.MessagingException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.Vector;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>

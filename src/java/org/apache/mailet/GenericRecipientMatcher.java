@@ -7,8 +7,10 @@
  */
 package org.apache.mailet;
 
-import java.util.*;
-import javax.mail.*;
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * GenericMatcher makes writing recipient based matchers easier. It provides

@@ -7,9 +7,14 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.*;
-import java.util.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+
 import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * Receive  a Mail from JamesSpoolManager and takes care of delivery

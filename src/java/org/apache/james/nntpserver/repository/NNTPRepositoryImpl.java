@@ -7,14 +7,6 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import org.apache.avalon.excalibur.io.AndFileFilter;
 import org.apache.avalon.excalibur.io.DirectoryFileFilter;
 import org.apache.avalon.framework.activity.Initializable;
@@ -29,6 +21,15 @@ import org.apache.avalon.phoenix.Block;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.oro.io.GlobFilenameFilter;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * NNTP Repository implementation.

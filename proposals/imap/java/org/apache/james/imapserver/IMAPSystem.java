@@ -7,13 +7,12 @@
  */
 package org.apache.james.imapserver;
 
-import java.util.Iterator;
-import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.james.AuthenticationException;
+
+import java.util.Iterator;
 
 /**
  * An IMAP4rev1 messaging system, possible containing multiple Hosts. There

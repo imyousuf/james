@@ -7,9 +7,10 @@
  */
 package org.apache.james.util.mordred;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.*;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Insert the type's description here.

@@ -7,8 +7,10 @@
  */
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.*;
-import java.util.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+
+import java.util.Collection;
 
 /**
  * Does a DNS lookup (MX and A/CNAME records) on the sender's domain.  If

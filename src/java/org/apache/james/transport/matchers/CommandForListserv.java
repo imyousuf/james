@@ -7,10 +7,10 @@
  */
 package org.apache.james.transport.matchers;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericRecipientMatcher;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.MessagingException;
 
 /**
  * Returns positive if the recipient is a command for a listserv.  For example,

@@ -7,8 +7,8 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.util.Iterator;
 import java.util.Date;
+import java.util.Iterator;
 
 /**
  * Abstraction of entire NNTP Repository.

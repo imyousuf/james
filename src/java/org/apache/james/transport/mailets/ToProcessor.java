@@ -7,8 +7,11 @@
  */
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.*;
-import javax.mail.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
+
+import javax.mail.MessagingException;
 
 /**
  * No idea what this class is for..... seems to send processor of a message to

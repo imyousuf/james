@@ -7,9 +7,7 @@
  */
 package org.apache.james.userrepository;
 
-import java.io.Serializable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.james.services.User;
 import org.apache.james.services.JamesUser;
 import org.apache.mailet.MailAddress;
 
@@ -18,8 +16,8 @@ import org.apache.mailet.MailAddress;
  *
  * @author Charles Benett <charles@benett1.demon.co.uk>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:35 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:39 $
+ * $Revision: 1.2 $
  */
 
 public class DefaultJamesUser 

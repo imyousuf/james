@@ -7,13 +7,8 @@
  */
 package org.apache.james.userrepository;
 
-import java.io.*;
-import java.util.*;
-import javax.naming.*;
-import javax.naming.directory.*;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -25,6 +20,12 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
+
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
 
 /**
  * Implementation of a Repository to store users.

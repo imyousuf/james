@@ -7,10 +7,12 @@
  */
 package org.apache.james.transport.mailets.debug;
 
-import java.io.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 
 /**
  * Debugging purpose Mailet.  Sends the message to System.err

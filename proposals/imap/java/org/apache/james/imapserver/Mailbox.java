@@ -7,16 +7,16 @@
  */
 package org.apache.james.imapserver;
 
-import java.util.List;
-import java.util.Map;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.james.AccessControlException;
 import org.apache.james.AuthorizationException;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.mailet.Mail;
+
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeMessage;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for objects representing an IMAP4rev1 mailbox (folder). Contains

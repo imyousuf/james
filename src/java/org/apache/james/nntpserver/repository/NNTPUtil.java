@@ -7,8 +7,6 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import java.io.File;
-import java.io.PrintStream;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -18,6 +16,9 @@ import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 import org.apache.james.nntpserver.NNTPException;
+
+import java.io.File;
+import java.io.PrintStream;
 
 /**
  * Helper fuctions. 

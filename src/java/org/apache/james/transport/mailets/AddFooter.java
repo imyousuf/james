@@ -7,13 +7,16 @@
  */
 package org.apache.james.transport.mailets;
 
-import java.io.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import org.apache.james.*;
-import org.apache.james.transport.*;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimePart;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  * This mailet will attach text to the end of the message (like a footer).  Right

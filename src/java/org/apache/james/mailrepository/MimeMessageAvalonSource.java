@@ -7,10 +7,11 @@
  */
 package org.apache.james.mailrepository;
 
-import java.io.IOException;
-import java.io.InputStream;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.MimeMessageSource;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MimeMessageAvalonSource extends MimeMessageSource {
 

@@ -7,31 +7,31 @@
  */
 package org.apache.james.remotemanager;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.internet.ParseException;
-import org.apache.avalon.framework.component.Component;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
+import org.apache.avalon.cornerstone.services.scheduler.Target;
+import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.james.Constants;
 import org.apache.james.BaseConnectionHandler;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.User;
-import org.apache.james.services.JamesUser;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
-import org.apache.mailet.MailAddress;
+import org.apache.james.Constants;
+import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultUser;
+import org.apache.mailet.MailAddress;
+
+import javax.mail.internet.ParseException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/17 06:09:01 $
- * $Revision: 1.8 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:37 $
+ * $Revision: 1.9 $
  *
  */
 public class RemoteManagerHandler

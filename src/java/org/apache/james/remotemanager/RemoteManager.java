@@ -7,13 +7,14 @@
  */
 package org.apache.james.remotemanager;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.cornerstone.services.connection.AbstractService;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.DefaultHandlerFactory;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Provides a really rude network interface to administer James.

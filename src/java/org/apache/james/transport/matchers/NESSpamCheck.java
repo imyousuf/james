@@ -7,11 +7,16 @@
  */
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.*;
-import org.apache.oro.text.regex.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
 
 /**
  * This is based on a sample filter.cfg for a Netscape Mail Server to stop

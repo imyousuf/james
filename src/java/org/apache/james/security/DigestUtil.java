@@ -7,15 +7,11 @@
  */
 package org.apache.james.security;
 
-import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeUtility;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 /**
@@ -23,8 +19,8 @@ import javax.mail.internet.MimeUtility;
  *
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: charlesb $ on $Date: 2001/06/11 09:29:30 $
- * $Revision: 1.1 $
+ * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:37 $
+ * $Revision: 1.2 $
  */
 public class DigestUtil {
 

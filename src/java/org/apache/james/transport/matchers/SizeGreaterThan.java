@@ -7,10 +7,14 @@
  */
 package org.apache.james.transport.matchers;
 
-import org.apache.mailet.*;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+
+import javax.mail.Header;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
+import java.util.Enumeration;
 
 /**
  * Checks whether the message (entire message, not just content) is greater

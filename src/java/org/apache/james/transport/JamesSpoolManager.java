@@ -7,10 +7,6 @@
  */
 package org.apache.james.transport;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.mail.MessagingException;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
@@ -27,17 +23,20 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.phoenix.Block;
-import org.apache.james.*;
-import org.apache.james.core.*;
-import org.apache.james.services.*;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.*;
+
+import javax.mail.MessagingException;
+import java.util.HashMap;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  *
- * This is $Revision: 1.7 $
- * Committed on $Date: 2002/01/17 06:09:02 $ by: $Author: darrell $
+ * This is $Revision: 1.8 $
+ * Committed on $Date: 2002/01/18 02:48:37 $ by: $Author: darrell $
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled

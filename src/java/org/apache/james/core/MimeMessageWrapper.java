@@ -7,12 +7,14 @@
  */
 package org.apache.james.core;
 
-import java.io.*;
-import java.text.ParseException;
-import java.util.*;
-import javax.activation.*;
+import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.*;
+import java.io.*;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage

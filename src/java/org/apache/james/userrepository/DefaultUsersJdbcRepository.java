@@ -8,7 +8,10 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.services.User;
-import java.sql.*;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 /**

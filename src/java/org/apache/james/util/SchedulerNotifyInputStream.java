@@ -8,8 +8,10 @@
 
 package org.apache.james.util;
 
-import java.io.*;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This will reset the scheduler each time a certain amount of data has
