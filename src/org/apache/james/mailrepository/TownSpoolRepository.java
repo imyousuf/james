@@ -98,7 +98,7 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         }
     }
 
-    public synchronized void store(MailImpl mc) {
+    public void store(MailImpl mc) {
         try {
             //System.err.println("storing " + mc.getName());
             String key = mc.getName();
@@ -133,7 +133,6 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             mail.setValue("remote_addr", mc.getRemoteAddr());
             mail.setValue("last_updated", mc.getLastUpdated());
             MimeMessage messageBody = mc.getMessage();
-            //System.err.println("town/local/class ?: " + mail.toBeSavedWithUpdate() + "/" + !inserted + "/" + (messageBody instanceof JamesMimeMessage));
 
             boolean saveInRecord = false;
             if (messageBody instanceof JamesMimeMessage) {
@@ -157,6 +156,9 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
 
 
                             //  Let's copy the record from here to there
+
+
+                            //Once we do this, we'll no longer mark to saveInRecord
                         }
 
                     }
@@ -176,7 +178,6 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
             if (mail.toBeSavedWithUpdate() && messageBody instanceof JamesMimeMessage
                     && !((JamesMimeMessage)messageBody).isModified()) {
                 //Do nothing... the message wasn't changed.
-                //System.err.println("Not saving message (" + toString() + "... wasn't changed");
             } else {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
                 if (messageBody != null) {
@@ -185,14 +186,16 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
                 mail.setValue("message_body", bout.toByteArray());
             }
             mail.save();
-            notifyAll();
+            synchronized (this) {
+                notifyAll();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Exception caught while storing mail Container: " + e);
         }
     }
 
-    public synchronized MailImpl retrieve(String key) {
+    public MailImpl retrieve(String key) {
         try {
             //System.err.println("retrieving " + key);
             //TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
@@ -228,19 +231,14 @@ public class TownSpoolRepository implements SpoolRepository, Configurable {
         }
     }
 
-    public synchronized void remove(MailImpl mail) {
+    public void remove(MailImpl mail) {
         remove(mail.getName());
     }
 
-    public synchronized void remove(String key) {
+    public void remove(String key) {
         //System.err.println("removing " + key);
         lock(key);
         try {
-            /*
-            new ExecuteStatement(ConnDefinition.getInstance(conndefinition),
-                    "DELETE FROM " + tableName + " WHERE message_name='" + key
-                    + "' and repository_name='" + repositoryName + "'");
-            */
             TableDataSet messages = new TableDataSet(ConnDefinition.getInstance(conndefinition), tableName);
             messages.setWhere("message_name='" + key + "' and repository_name='" + repositoryName + "'");
             Record message = messages.getRecord(0);
