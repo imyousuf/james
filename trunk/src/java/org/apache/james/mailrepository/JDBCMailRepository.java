@@ -132,18 +132,25 @@ public class JDBCMailRepository
         }
 
         // Build SqlParameters and get datasource name from URL parameters
-        switch ( urlParams.size() ) {
-        case 3:
-            repositoryName = (String)urlParams.get(2);
-        case 2:
-            tableName = (String)urlParams.get(1);
-        case 1:
-            datasourceName = (String)urlParams.get(0);
-            break;
-        default:
+        if (urlParams.size() == 0) {
             throw new ConfigurationException
-                ("Malformed destinationURL - Must be of the format \"" +
-                 "db://<data-source>[/<table>[/<repositoryName>]]\".");
+                ("Malformed destinationURL - Must be of the format '" +
+                 "db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed " + conf.getAttribute("destinationURL"));
+        }
+        if (urlParams.size() >= 1) {
+            datasourceName = (String)urlParams.get(0);
+        }
+        if (urlParams.size() >= 2) {
+            tableName = (String)urlParams.get(1);
+        }
+        if (urlParams.size() >= 3) {
+            repositoryName = "";
+            for (int i = 2; i < urlParams.size(); i++) {
+                if (i >= 3) {
+                    repositoryName += '/';
+                }
+                repositoryName += (String)urlParams.get(i);
+            }
         }
 
         getLogger().debug("Parsed URL: table = '" + tableName +
@@ -153,7 +160,7 @@ public class JDBCMailRepository
         sqlFileName = conf.getChild("sqlFile").getValue();
         if (!sqlFileName.startsWith("file://")) {
             throw new ConfigurationException
-                ("Malformed sqlFile - Must be of the format \"file://<filename>\".");
+                ("Malformed sqlFile - Must be of the format 'file://<filename>'.");
         }
     }
 
@@ -248,8 +255,8 @@ public class JDBCMailRepository
                 createStatement.execute();
                 createStatement.close();
 
-                getLogger().info("JdbcMailRepository: Created table \'" +
-                                 tableName + "\'.");
+                getLogger().info("JdbcMailRepository: Created table '" +
+                                 tableName + "'.");
             }
 
         } finally {
