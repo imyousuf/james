@@ -44,8 +44,8 @@ import org.apache.james.userrepository.DefaultUser;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: danny $ on $Date: 2001/11/30 11:20:16 $
- * $Revision: 1.6 $
+ * Last changed by: $Author: danny $ on $Date: 2002/01/09 21:35:50 $
+ * $Revision: 1.7 $
  *
  */
 public class RemoteManagerHandler
@@ -130,9 +130,9 @@ public class RemoteManagerHandler
                     getLogger().info( message );
                 }
                 out.println("Login id:");
-                login = in.readLine();
+                login = in.readLine().trim();
                 out.println("Password:");
-                password = in.readLine();
+                password = in.readLine().trim();
             } while (!password.equals(admaccount.get(login)) || password.length() == 0);
 
             scheduler.resetTrigger(this.toString());
