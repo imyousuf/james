@@ -80,7 +80,7 @@ All theese package are in current distribution.
     <echo message=""/>
     <echo message=" available targets are:"/>
     <echo message=""/>
-    <echo message="   package  --> generates the James.jar file (default)"/>
+    <echo message="   package  --> generates the mailet.jar and James.jar file (default)"/>
     <echo message="   compile  --> compiles the source code"/>
     <echo message="   dist     --> generates the JAMES distribution"/>
     <echo message="   clean    --> cleans up the directory"/>
@@ -130,7 +130,8 @@ All theese package are in current distribution.
   <!-- Creates the class package                                           -->
   <!-- =================================================================== -->
   <target name="package" depends="compile">
-    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**"/>
+    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/**,conf/**" excludes="org/apache/mailet/**"/>
+    <jar jarfile="${build.dir}/mailet.jar" basedir="${build.dest}" manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
   <!-- =================================================================== -->
@@ -158,6 +159,7 @@ All theese package are in current distribution.
     <copyfile src="./lib/xerces_1_1_1.jar" dest="${dist.dir}/lib/xerces_1_1_1.jar"/>
     <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
     <copyfile src="./lib/town.jar" dest="${dist.dir}/lib/town.jar"/>
+    <copyfile src="${build.dir}/mailet.jar" dest="${dist.dir}/lib/mailet.jar"/>
 
     <copyfile src="./res/run.bat" dest="${dist.dir}/bin/run.bat"/>
     <copyfile src="./res/run.sh" dest="${dist.dir}/bin/run.sh"/>
