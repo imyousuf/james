@@ -36,7 +36,7 @@ import java.util.*;
 
 /**
  * The NNTP protocol is defined by RFC 977.
- * This implementation is based on IETF draft 15, posted on 15th July '2002
+ * This implementation is based on IETF draft 15, posted on 15th July '2002.
  * URL: http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-15.txt
  *
  * Common NNTP extensions are in RFC 2980.
@@ -68,7 +68,7 @@ public class NNTPHandler extends BaseConnectionHandler
     public void compose( final ComponentManager componentManager )
         throws ComponentException
     {
-        //System.out.println(getClass().getName()+": compose - "+authRequired);
+        //System.out.println(getClass().getName()+ ": compose - " + authRequired);
         auth = (AuthService)componentManager.
             lookup( "org.apache.james.nntpserver.AuthService" );
         scheduler = (TimeScheduler)componentManager.
@@ -85,7 +85,7 @@ public class NNTPHandler extends BaseConnectionHandler
                     public String readLine() throws IOException {
                         String s = super.readLine();
                         if ( DEBUG_PROTOCOL ) 
-                            logger.debug("C: "+s);
+                            logger.debug("C: " + s);
                         return s;
                     }
                 };
@@ -98,7 +98,7 @@ public class NNTPHandler extends BaseConnectionHandler
                     public void println(String s) {
                         super.println(s);
                         if ( DEBUG_PROTOCOL )
-                            logger.debug("S: "+s);
+                            logger.debug("S: " + s);
                     }
                 };
             logger.info( "Connection from " + socket.getInetAddress());
@@ -111,17 +111,27 @@ public class NNTPHandler extends BaseConnectionHandler
             scheduler.addTrigger( this.toString(), trigger, this );
 
             // section 7.1
-            if ( repo.isReadOnly() )
-                writer.println("201 "+helloName+" NNTP Service Ready, posting prohibited");
-            else
-                writer.println("200 "+helloName+" NNTP Service Ready, posting permitted");
+            if ( repo.isReadOnly() ) {
+                StringBuffer respBuffer =
+                    new StringBuffer(128)
+                        .append("201 ")
+                        .append(helloName)
+                        .append(" NNTP Service Ready, posting prohibited");
+                writer.println(respBuffer.toString());
+            }
+            else {
+                StringBuffer respBuffer =
+                    new StringBuffer(128)
+                            .append("200 ")
+                            .append(helloName)
+                            .append(" NNTP Service Ready, posting permitted");
+                writer.println(respBuffer.toString());
+            }
 
-            while (parseCommand(reader.readLine()))
+            while (parseCommand(reader.readLine())) {
                 scheduler.resetTrigger(this.toString());
+            }
 
-            reader.close();
-            writer.close();
-            socket.close();
             scheduler.removeTrigger(this.toString());
             logger.info("Connection closed");
         } catch (Exception e) {
@@ -129,7 +139,26 @@ public class NNTPHandler extends BaseConnectionHandler
             //writer.println("502 Error closing connection.");
             //writer.flush();
             logger.error( "Exception during connection:" + e.getMessage(), e );
-            try { socket.close();   } catch (IOException ioe) {  }
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException ioe) {
+                logger.warn("NNTPHandler: Unexpected exception occurred while closing reader: " + ioe);
+            }
+
+            if (writer != null) {
+                writer.close();
+            }
+
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException ioe) {
+                logger.warn("NNTPHandler: Unexpected exception occurred while closing socket: " + ioe);
+            }
         }
     }
 
@@ -142,86 +171,88 @@ public class NNTPHandler extends BaseConnectionHandler
     }
 
     private boolean parseCommand(String commandRaw) {
-        if (commandRaw == null)
+        if (commandRaw == null) {
             return false;
-        getLogger().info("Command received: " + commandRaw);
-        //System.out.println("NNTPHandler> "+commandRaw);
+        }
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("Command received: " + commandRaw);
+        }
 
         StringTokenizer tokens = new StringTokenizer(commandRaw);
         if (!tokens.hasMoreTokens())
             return false;
-        final String command = tokens.nextToken();
+        final String command = tokens.nextToken().toUpperCase(Locale.US);
 
         if (!auth.isAuthorized(command) ) {
             writer.println("502 User is not authenticated");
             getLogger().debug("Command not allowed.");
             return true;
         }
-        if ( command.equalsIgnoreCase("MODE") && tokens.hasMoreTokens() &&
-             tokens.nextToken().equalsIgnoreCase("READER") )
+        if ( command.equals("MODE") && tokens.hasMoreTokens() &&
+             tokens.nextToken().toUpperCase(Locale.US).equals("READER") )
             doMODEREADER();
-        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() &&
-                  tokens.nextToken().equalsIgnoreCase("EXTENSIONS") )
+        else if ( command.equals("LIST") && tokens.hasMoreTokens() &&
+                  tokens.nextToken().toUpperCase(Locale.US).equals("EXTENSIONS") )
             doLISTEXTENSIONS();
-        else if ( command.equalsIgnoreCase("LIST") && tokens.hasMoreTokens() &&
-                  tokens.nextToken().equalsIgnoreCase("OVERVIEW.FMT") )
+        else if ( command.equals("LIST") && tokens.hasMoreTokens() &&
+                  tokens.nextToken().toUpperCase(Locale.US).equals("OVERVIEW.FMT") )
             doLISTOVERVIEWFMT();
-        else if ( command.equalsIgnoreCase("GROUP") )
+        else if ( command.equals("GROUP") )
             doGROUP(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("LAST") )
+        else if ( command.equals("LAST") )
             doLAST();
-        else if ( command.equalsIgnoreCase("ARTICLE") )
+        else if ( command.equals("ARTICLE") )
             doARTICLE(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("HEAD") )
+        else if ( command.equals("HEAD") )
             doHEAD(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("BODY") )
+        else if ( command.equals("BODY") )
             doBODY(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("STAT") )
+        else if ( command.equals("STAT") )
             doSTAT(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("POST") )
+        else if ( command.equals("POST") )
             doPOST();
-        else if ( command.equalsIgnoreCase("IHAVE") )
+        else if ( command.equals("IHAVE") )
             doIHAVE(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("LIST") )
+        else if ( command.equals("LIST") )
             doLIST(tokens);
-        else if ( command.equalsIgnoreCase("QUIT") )
+        else if ( command.equals("QUIT") )
             doQUIT();
-        else if ( command.equalsIgnoreCase("DATE") )
+        else if ( command.equals("DATE") )
             doDATE();
-        else if ( command.equalsIgnoreCase("HELP") )
+        else if ( command.equals("HELP") )
             doHELP();
-        else if ( command.equalsIgnoreCase("NEWGROUPS") )
+        else if ( command.equals("NEWGROUPS") )
             doNEWGROUPS(tokens);
-        else if ( command.equalsIgnoreCase("NEWNEWS") )
+        else if ( command.equals("NEWNEWS") )
             doNEWNEWS(tokens);
-        else if ( command.equalsIgnoreCase("LISTGROUP") )
+        else if ( command.equals("LISTGROUP") )
             doLISTGROUP(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("OVER") )
+        else if ( command.equals("OVER") )
             doOVER(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("XOVER") )
+        else if ( command.equals("XOVER") )
             doXOVER(tokens.hasMoreTokens()?tokens.nextToken():null);
-        else if ( command.equalsIgnoreCase("PAT") )
+        else if ( command.equals("PAT") )
             doPAT();
-        else if ( command.equalsIgnoreCase("HDR") )
+        else if ( command.equals("HDR") )
             doHDR(tokens);
-        else if ( command.equalsIgnoreCase("XHDR") )
+        else if ( command.equals("XHDR") )
             doXHDR(tokens);
-        else if ( command.equalsIgnoreCase("AUTHINFO") )
+        else if ( command.equals("AUTHINFO") )
             doAUTHINFO(tokens);
         else
             writer.println("501 Syntax error");
-        return (command.equalsIgnoreCase("QUIT") == false);
+        return (command.equals("QUIT") == false);
     }
 
     // implements only the originnal AUTHINFO
     // for simple and generic AUTHINFO, 501 is sent back. This is as
     // per article 3.1.3 of RFC 2980
     private void doAUTHINFO(StringTokenizer tok) {
-        String command = tok.nextToken();
-        if ( command.equalsIgnoreCase("USER") ) {
+        String command = tok.nextToken().toUpperCase(Locale.US);
+        if ( command.equals("USER") ) {
             auth.setUser(tok.nextToken());
             writer.println("381 More authentication information required");
-        } else if ( command.equalsIgnoreCase("PASS") ) {
+        } else if ( command.equals("PASS") ) {
             auth.setPassword(tok.nextToken());
             if ( auth.isAuthenticated() )
                 writer.println("281 Authentication accepted");
@@ -234,8 +265,14 @@ public class NNTPHandler extends BaseConnectionHandler
         // see section 11.4
         writer.println("230 list of new articles by message-id follows");
         Iterator iter = repo.getArticlesSince(getDateFrom(tok));
-        while ( iter.hasNext() )
-            writer.println("<"+((NNTPArticle)iter.next()).getUniqueID()+">");
+        while ( iter.hasNext() ) {
+            StringBuffer iterBuffer =
+                new StringBuffer(64)
+                    .append("<")
+                    .append(((NNTPArticle)iter.next()).getUniqueID())
+                    .append(">");
+            writer.println(iterBuffer.toString());
+        }
         writer.println(".");
     }
     private void doNEWGROUPS(StringTokenizer tok) {
@@ -251,10 +288,16 @@ public class NNTPHandler extends BaseConnectionHandler
         Iterator iter = repo.getGroupsSince(getDateFrom(tok));
         while ( iter.hasNext() ) {
             NNTPGroup group = (NNTPGroup)iter.next();
-            writer.println(group.getName()+" "+
-                           group.getLastArticleNumber()+" "+
-                           group.getFirstArticleNumber()+" " +
-                           (group.isPostAllowed()?"y":"n"));
+            StringBuffer iterBuffer =
+                new StringBuffer(128)
+                    .append(group.getName())
+                    .append(" ")
+                    .append(group.getLastArticleNumber())
+                    .append(" ")
+                    .append(group.getFirstArticleNumber())
+                    .append(" ")
+                    .append((group.isPostAllowed()?"y":"n"));
+            writer.println(iterBuffer.toString());
         }
         writer.println(".");
     }
@@ -268,15 +311,25 @@ public class NNTPHandler extends BaseConnectionHandler
         boolean  utc = ( tok.hasMoreTokens() );
         Date d = new Date();
         try {
-            StringBuffer dateStringBuffer = new StringBuffer(date);
-            dateStringBuffer.append(" ");
-            dateStringBuffer.append(time);
+            StringBuffer dateStringBuffer =
+                new StringBuffer(64)
+                    .append(date)
+                    .append(" ")
+                    .append(time);
             Date dt = DF_RFC977.parse(dateStringBuffer.toString());
             if ( utc )
                 dt = new Date(dt.getTime()+UTC_OFFSET);
             return dt;
         } catch ( ParseException pe ) {
-            throw new NNTPException("date extraction failed: "+date+","+time+","+utc);
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                    .append("date extraction failed: ")
+                    .append(date)
+                    .append(",")
+                    .append(time)
+                    .append(",")
+                    .append(utc);
+            throw new NNTPException(exceptionBuffer.toString());
         }
     }
 
@@ -290,6 +343,7 @@ public class NNTPHandler extends BaseConnectionHandler
 
     // Date format for the DATE keyword - see 11.1.1
     public static final SimplifiedDateFormat DF_RFC2980 = new RFC2980DateFormat();
+
     public static final long UTC_OFFSET = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
     private void doDATE() {
         //Calendar c = Calendar.getInstance();
@@ -306,19 +360,19 @@ public class NNTPHandler extends BaseConnectionHandler
         String wildmat = "*";
         LISTGroup output = LISTGroup.Factory.ACTIVE(writer);
         if ( tok.hasMoreTokens() ) {
-            String param = tok.nextToken();
+            String param = tok.nextToken().toUpperCase(Locale.US);
             // list of variations not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
             String[] notSupported = { "ACTIVE.TIMES", "DISTRIBUTIONS", "DISTRIB.PATS" };
             for ( int i = 0 ; i < notSupported.length ; i++ ) {
-                if ( param.equalsIgnoreCase("ACTIVE.TIMES") ) {
+                if ( param.equals("ACTIVE.TIMES") ) {
                     writer.println("503 program error, function not performed");
                     return;
                 }
             }
-            if ( param.equalsIgnoreCase("NEWSGROUPS") )
+            if ( param.equals("NEWSGROUPS") )
                 output = LISTGroup.Factory.NEWSGROUPS(writer);
             else
-                check(param,param.equalsIgnoreCase("ACTIVE"));
+                check(param,param.equals("ACTIVE"));
             if ( tok.hasMoreTokens() )
                 wildmat = tok.nextToken();
         }
@@ -372,8 +426,14 @@ public class NNTPHandler extends BaseConnectionHandler
             article = repo.getArticleFromID(param);
             if ( article == null )
                 writer.println("430 no such article");
-            else
-                writer.println("220 0 "+param+" article retrieved and follows");
+            else {
+                StringBuffer respBuffer =
+                    new StringBuffer(64)
+                            .append("220 0 ")
+                            .append(param)
+                            .append(" article retrieved and follows");
+                writer.println(respBuffer.toString());
+            }
         }
         else {
             if ( group == null )
@@ -389,9 +449,16 @@ public class NNTPHandler extends BaseConnectionHandler
                     article = group.getArticle(Integer.parseInt(param));
                 if ( article == null )
                     writer.println("423 no such article number in this group");
-                else
-                    writer.println("220 "+article.getArticleNumber()+" "+
-                                   article.getUniqueID()+" article retrieved and follows");
+                else {
+                    StringBuffer respBuffer =
+                        new StringBuffer(128)
+                                .append("220 ")
+                                .append(article.getArticleNumber())
+                                .append(" ")
+                                .append(article.getUniqueID())
+                                .append(" article retrieved and follows");
+                    writer.println(respBuffer.toString());
+                }
             }
         }
         if ( article != null )
@@ -408,7 +475,13 @@ public class NNTPHandler extends BaseConnectionHandler
         else {
             NNTPArticle article = group.getCurrentArticle();
             group.setCurrentArticleNumber(group.getCurrentArticleNumber()+1);
-            writer.println("223 "+article.getArticleNumber()+" "+article.getUniqueID());
+            StringBuffer respBuffer =
+                new StringBuffer(64)
+                        .append("223 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(article.getUniqueID());
+            writer.println(respBuffer.toString());
         }
     }
     private void doLAST() {
@@ -422,7 +495,13 @@ public class NNTPHandler extends BaseConnectionHandler
         else {
             NNTPArticle article = group.getCurrentArticle();
             group.setCurrentArticleNumber(group.getCurrentArticleNumber()-1);
-            writer.println("223 "+article.getArticleNumber()+" "+article.getUniqueID());
+            StringBuffer respBuffer =
+                new StringBuffer(64)
+                        .append("223 ")
+                        .append(article.getArticleNumber())
+                        .append(" ")
+                        .append(article.getUniqueID());
+            writer.println(respBuffer.toString());
         }
     }
     private void doGROUP(String groupName) {
@@ -439,10 +518,18 @@ public class NNTPHandler extends BaseConnectionHandler
             int articleCount = group.getNumberOfArticles();
             int lowWaterMark = group.getFirstArticleNumber();
             int highWaterMark = group.getLastArticleNumber();
-            writer.println("211 "+articleCount+" "+
-                           lowWaterMark+" "+
-                           highWaterMark+" "+
-                           group.getName()+" group selected");
+            StringBuffer respBuffer =
+                new StringBuffer(128)
+                        .append("211 ")
+                        .append(articleCount)
+                        .append(" ")
+                        .append(lowWaterMark)
+                        .append(" ")
+                        .append(highWaterMark)
+                        .append(" ")
+                        .append(group.getName())
+                        .append(" group selected");
+            writer.println(respBuffer.toString());
         }
     }
     private void doLISTEXTENSIONS() {
@@ -515,7 +602,12 @@ public class NNTPHandler extends BaseConnectionHandler
                 String val = article[i].getHeader(hdr);
                 if ( val == null )
                     val = "";
-                writer.println(article[i].getArticleNumber()+" "+val);
+                StringBuffer hdrBuffer =
+                    new StringBuffer(128)
+                            .append(article[i].getArticleNumber())
+                            .append(" ")
+                            .append(val);
+                writer.println(hdrBuffer.toString());
             }
             writer.println(".");
         }
