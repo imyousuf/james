@@ -15,7 +15,7 @@ are preceded by a CHECKME! or CONFIRM? comment in the left margin.
 For production use you will probably need to make more extensive changes, see
 http://jakarta.apache.org/james/configuration_v2_0.html
 
-$Revision: 1.35 $ Committed on $Date: 2002/10/08 22:40:33 $ by: $Author: pgoldstein $-->
+$Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldstein $-->
 
 <config>
    <James>
@@ -343,9 +343,9 @@ $Revision: 1.35 $ Committed on $Date: 2002/10/08 22:40:33 $ by: $Author: pgoldst
       <!-- make this true to disallow posting to all newsgroups-->
       <readOnly>false</readOnly>
 
-      <rootPath>file:///var/nntp/groups</rootPath>
-      <tempPath>file:///var/nntp/temp</tempPath>
-      <articleIDPath>file:///var/nntp/articleid</articleIDPath>
+      <rootPath>file://var/nntp/groups</rootPath>
+      <tempPath>file://var/nntp/temp</tempPath>
+      <articleIDPath>file://var/nntp/articleid</articleIDPath>
       <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
 
       <!-- these additional news groups would be created and exposed-->
@@ -358,7 +358,7 @@ $Revision: 1.35 $ Committed on $Date: 2002/10/08 22:40:33 $ by: $Author: pgoldst
 
       <spool>
          <configuration>
-            <spoolPath>file:///var/nntp/spool</spoolPath>
+            <spoolPath>file://var/nntp/spool</spoolPath>
             <!-- number of threads that process spooler related tasks -->
             <threadCount>1</threadCount>
             <!-- the spool thread(s) should idle for some time, if it has nothing to do  -->
