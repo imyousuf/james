@@ -52,20 +52,22 @@ import org.apache.avalon.phoenix.BlockContext;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
+ *
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2001/06/21 16:04:50 $ by: $Author: charlesb $ 
  */
 public class James
     extends AbstractLoggable
-    implements Block, Contextualizable, Composable, Configurable, Initializable, 
-    MailServer, MailetContext {
+    implements Block, Contextualizable, Composable, Configurable,
+               Initializable, MailServer, MailetContext {
 
-    public final static String VERSION = "James 1.2.2 Alpha";
+    public final static String VERSION = "James 1.2.2 Alpha"; // FIX!
 
     private DefaultComponentManager compMgr; //Components shared
     private DefaultContext context;
     private Configuration conf;
 
     private Logger mailetLogger = null;
-    //private ThreadPool workerPool;
     private MailStore mailstore;
     private UsersStore usersStore;
     private SpoolRepository spool;
@@ -102,10 +104,10 @@ public class James
     }
 
     /**
-     * Override compose method of AbstractBlock to create new ComponentManager object
+     * Override compose method of AbstractBlock to create new
+     * ComponentManager object
      */
     public void compose(ComponentManager comp) {
-        //throws ConfigurationException {
         compMgr = new DefaultComponentManager(comp);
         mailboxes = new HashMap(31);
     }
@@ -114,17 +116,19 @@ public class James
 
         getLogger().info("JAMES init...");
 
-        //TODO: This should retrieve a more specific named thread pool from BlockContext
-        //that is set up in server.xml
-        //workerPool = blockContext.getThreadPool( "default" );
+        // TODO: This should retrieve a more specific named thread pool from
+        // BlockContext that is set up in server.xml
+        // workerPool = blockContext.getThreadPool( "default" );
         try {
-            mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+            mailstore = (MailStore) compMgr.lookup(
+                                    "org.apache.james.services.MailStore");
         } catch (Exception e) {
             getLogger().warn("Can't get Store: " + e);
         }
         getLogger().debug("Using MailStore: " + mailstore.toString());
         try {
-            usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+            usersStore = (UsersStore) compMgr.lookup(
+                                      "org.apache.james.services.UsersStore");
         } catch (Exception e) {
             getLogger().warn("Can't get Store: " + e);
         }
@@ -372,7 +376,6 @@ public class James
                 = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
             mboxConf.setAttribute("destinationURL", destination);
             mboxConf.setAttribute("type", "MAIL");
-            mboxConf.setAttribute("model", "SYNCHRONOUS");
             try {
                 userInbox = (MailRepository) mailstore.select(mboxConf);
                 mailboxes.put(userName, userInbox);
