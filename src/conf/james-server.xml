@@ -142,14 +142,4 @@
     </targets>
   </logs>
 
-  <policy>
-    <grant code-base="file:${app.home}${/}blocks${/}*">
-      <permission class="java.security.AllPermission" />
-    </grant>
-
-    <grant code-base="file:${app.home}${/}lib${/}*">
-      <permission class="java.security.AllPermission" />
-    </grant>
-  </policy>
-
 </server>
