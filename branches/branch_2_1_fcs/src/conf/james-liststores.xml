@@ -1,0 +1,5 @@
+      <!-- Mailing list repositories  -->
+
+      <repository name="list-announce" class="org.apache.james.userrepository.UsersFileRepository">
+         <destination URL="file://var/lists/list-announce/"/>
+      </repository>
