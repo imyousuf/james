@@ -18,8 +18,8 @@ import java.io.InputStreamReader;
  * Simple Base64 string decoding function
  * @author Jason Borden <jborden@javasense.com>
  *
- * This is $Revision: 1.3 $
- * Committed on $Date: 2002/01/18 02:48:39 $ by: $Author: darrell $ 
+ * This is $Revision: 1.4 $
+ * Committed on $Date: 2002/08/12 06:19:01 $ by: $Author: pgoldstein $ 
  */
 
 public class Base64 {
@@ -33,23 +33,30 @@ public class Base64 {
     }
 
     public static String decodeAsString(String b64string) throws Exception {
-        return  decode(b64string).readLine().trim();
+        if (b64string == null) {
+            return b64string;
+        }
+        String returnString = decode(b64string).readLine();
+        if (returnString == null) {
+            return returnString;
+        }
+        return returnString.trim();
     }
 
     public static ByteArrayOutputStream encode(String plaintext)
             throws Exception {
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	byte[] in = plaintext.getBytes();
-	ByteArrayOutputStream inStream = new ByteArrayOutputStream();
-	inStream.write(in, 0, in.length);
-	// pad
-	if ((in.length % 3 ) == 1){
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] in = plaintext.getBytes();
+        ByteArrayOutputStream inStream = new ByteArrayOutputStream();
+        inStream.write(in, 0, in.length);
+        // pad
+        if ((in.length % 3 ) == 1){
             inStream.write(0);
             inStream.write(0);
-	} else if((in.length % 3 ) == 2){
+        } else if((in.length % 3 ) == 2){
             inStream.write(0);
-	}
-	inStream.writeTo( MimeUtility.encode(out, "base64")  );
+        }
+        inStream.writeTo( MimeUtility.encode(out, "base64")  );
         return out;
     }
 

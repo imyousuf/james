@@ -41,8 +41,8 @@ import java.util.*;
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
 
- * This is $Revision: 1.20 $
- * Committed on $Date: 2002/08/10 17:24:02 $ by: $Author: pgoldstein $
+ * This is $Revision: 1.21 $
+ * Committed on $Date: 2002/08/12 06:19:01 $ by: $Author: pgoldstein $
 
  */
 public class SMTPHandler
@@ -489,7 +489,7 @@ public class SMTPHandler
             }
             argument = argument.toUpperCase(Locale.US);
             if (argument.equals("PLAIN")) {
-                String userpass, user, pass;
+                String userpass = null, user = null, pass = null;
                 StringTokenizer authTokenizer;
                 if (argument1 == null) {
                     responseString = "334 OK. Continue authentication";
@@ -500,11 +500,26 @@ public class SMTPHandler
                 } else {
                     userpass = argument1.trim();
                 }
-                authTokenizer = new StringTokenizer(Base64.decodeAsString(userpass), "\0");
-                user = authTokenizer.nextToken();
-                pass = authTokenizer.nextToken();
+                try {
+                    if (userpass != null) {
+                        userpass = Base64.decodeAsString(userpass);
+                    }
+                    if (userpass != null) {
+                        authTokenizer = new StringTokenizer(userpass, "\0");
+                        user = authTokenizer.nextToken();
+                        pass = authTokenizer.nextToken();
+                    }
+                }
+                catch (Exception e) {
+                    // Ignored - this exception in parsing will be dealt
+                    // with in the if clause below
+                }
                 // Authenticate user
-                if (users.test(user, pass)) {
+                if ((user == null) || (pass == null)) {
+                    responseString = "501 Could not decode parameters for AUTH PLAIN";
+                    out.println(responseString);
+                    out.flush();
+                } else if (users.test(user, pass)) {
                     state.put(AUTH, user);
                     responseString = "235 Authentication Successful";
                     out.println(responseString);
@@ -517,7 +532,7 @@ public class SMTPHandler
                 logResponseString(responseString);
                 return;
             } else if (argument.equals("LOGIN")) {
-                String user, pass;
+                String user = null, pass = null;
                 if (argument1 == null) {
                     responseString = "334 VXNlcm5hbWU6"; // base64 encoded "Username:"
                     out.println(responseString);
@@ -527,14 +542,34 @@ public class SMTPHandler
                 } else {
                     user = argument1.trim();
                 }
-                user = Base64.decodeAsString(user);
+                if (user != null) {
+                    try {
+                        user = Base64.decodeAsString(user);
+                    } catch (Exception e) {
+                        // Ignored - this parse error will be
+                        // addressed in the if clause below
+                        user = null;
+                    }
+                }
                 responseString = "334 UGFzc3dvcmQ6"; // base64 encoded "Password:"
                 out.println(responseString);
                 out.flush();
                 logResponseString(responseString);
-                pass = Base64.decodeAsString(in.readLine().trim());
+                pass = in.readLine().trim();
+                if (pass != null) {
+                    try {
+                        pass = Base64.decodeAsString(pass);
+                    } catch (Exception e) {
+                        // Ignored - this parse error will be
+                        // addressed in the if clause below
+                        pass = null;
+                    }
+                }
                 // Authenticate user
-                if (users.test(user, pass)) {
+                if ((user == null) || (pass == null)) {
+                    responseString = "501 Could not decode parameters for AUTH LOGIN";
+                    out.println(responseString);
+                } else if (users.test(user, pass)) {
                     state.put(AUTH, user);
                     responseString = "235 Authentication Successful";
                     out.println(responseString);
