@@ -86,6 +86,9 @@ public class LocalDelivery extends GenericMailet {
 
         protected void updateHeaders() throws MessagingException {
             if (getMessageID() == null) super.updateHeaders();
+            else {
+                modified = false;
+            }
         }
     }
 
@@ -137,4 +140,3 @@ public class LocalDelivery extends GenericMailet {
         return "Local Delivery Mailet";
     }
 }
-
