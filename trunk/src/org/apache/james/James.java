@@ -171,7 +171,7 @@ public class James implements MailServer, Block, MailetContext {
             logger.log("Exception in UsersLDAPRepository init: " + e.getMessage(), "JamesSystem", logger.ERROR);
             throw e;
 	    }
-	
+
 	} else {
 	    try {
 		this.users = (UsersRepository) store.getPrivateRepository(usersRepository, UsersRepository.USER, Store.ASYNCHRONOUS);
@@ -256,7 +256,7 @@ public class James implements MailServer, Block, MailetContext {
 
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         Address addresses[] = message.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress((InternetAddress)addresses[i]));
@@ -371,7 +371,7 @@ public class James implements MailServer, Block, MailetContext {
         //Create the reply message
         MimeMessage reply = (MimeMessage) orig.reply(false);
         //Create the list of recipients in our MailAddress format
-        Collection recipients = new Vector();
+        Collection recipients = new HashSet();
         Address addresses[] = reply.getAllRecipients();
         for (int i = 0; i < addresses.length; i++) {
             recipients.add(new MailAddress((InternetAddress)addresses[i]));
@@ -415,7 +415,7 @@ public class James implements MailServer, Block, MailetContext {
     }
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message) {
-        Vector recipients = new Vector();
+        Collection recipients = new HashSet();
         recipients.add(recipient);
         MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
         getUserInbox(recipient.getUser()).store(mailImpl);
