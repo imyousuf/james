@@ -9,29 +9,25 @@
  </devs>
 
  <actions priority="high">
-  <action context="design">
-    Beta test interface and implementation of Mailet and Matcher.
+  <action context="code">
+    Upgrade to Avalon 3.0
   </action>
   <action context="code">
-    Improve exception management in RemoteDelivery mailet.
-  </action>
-  <action context="code">
-    Add more match class to allow fine tuning of mailet processor pipe, e.g.,
-    RemoteHostIs, RemoteIPIs, RelayLimit (count # of Received: headers
-    to prevent looping relays), ValidSenderDomain (DNS lookup on sender's domain)
-  </action>
-  <action context="code">
-    Set JAMES to not allow relaying by default using appropriate mailets.
-  </action>
-  <action context="design">
-    Make the DNS service an Avalon block (?)
+    Add support for DRAC login/relay allowing
   </action>
  </actions>
 
  <actions priority="medium">
   <action context="code">
-    Add full support of "TOP" command in POP3Handler.
+    Improve exception management in RemoteDelivery mailet.
   </action>
+  <action context="code">
+    Add support for better mailet router/processing (maybe like RequestDispatcher)
+  </action>
+  <action context="code">
+    Add integration with MAPS and RBL and ORBS spam relay detection systems.
+  </action>
+
   <action context="code">
     Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
   </action>
