@@ -5,7 +5,7 @@ echo "James Build System"
 echo "-------------------"
 
 export CP=$CLASSPATH
-CLASSPATH=phoenix-bin/lib/xerces-2.0.1.jar:phoenix-bin/lib/xml-apis.jar
+CLASSPATH=phoenix-bin/lib/xercesImpl-2.0.2.jar:phoenix-bin/lib/xml-apis.jar
 
 ## Setup the Anakia stuff
 if [ -d ../jakarta-site2/lib ] ; then
