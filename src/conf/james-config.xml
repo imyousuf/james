@@ -13,8 +13,8 @@
     CONFIRM? comment in the left
     margin.
 
-    This is $Revision: 1.20 $
-    Committed on $Date: 2002/03/10 22:20:04 $ by: $Author: serge $
+    This is $Revision: 1.21 $
+    Committed on $Date: 2002/03/11 14:35:40 $ by: $Author: serge $
 -->
 <config>
 
@@ -186,8 +186,12 @@
           <mailet match="All" class="RemoteDelivery">
             <outgoing> file://var/mail/outgoing/ </outgoing>
             <!-- <outgoing> db://conf/mail-outgoing.properties </outgoing> -->
+            <!-- Number of milliseconds between delivery attempts -->
             <delayTime> 21600000 </delayTime>
+            <!-- Number of failed attempts before returning to the sender -->
             <maxRetries> 5 </maxRetries>
+            <!-- The number of threads that should be trying to deliver outgoing messages -->
+            <deliveryThreads> 1 </deliveryThreads>
           </mailet>
         </processor>
 
