@@ -119,7 +119,7 @@ import org.apache.mailet.MailAddress;
  *
  * as well as other places.
  *
- * This is $Revision: 1.33.4.11 $
+ * @version CVS $Revision: 1.33.4.12 $ $Date: 2003/06/18 15:50:33 $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -810,7 +810,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         throw e;
                     }
                 } catch (Throwable e) {
-                    if (!destroyed) log("Exception caught in RemoteDelivery.run(): " + e);
+                    if (!destroyed) log("Exception caught in RemoteDelivery.run()", e);
                 }
             }
         } finally {
