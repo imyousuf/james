@@ -7,9 +7,9 @@ Preamble:
 ----------------------------------------------------------------------
 To the Board of the Apache Software Foundation.
 
-We, the commiters of the Jakarta sub-project jakarta-james have held a
+We, the committers of the Jakarta sub-project jakarta-james have held a
 vote and agreed to apply to you for elevation of our sub-project to
-the staus of a top-level Apache project.
+the status of a top-level Apache project.
 
 This document outlines details of our project, our community, and our
 reasons for wanting to take this step.
@@ -21,7 +21,7 @@ Introduction to James:
 James is a 100% Java mail and news server.
 
 James provides highly configurable SMTP mail transport and local
-delivery into POP3 or IMAP accounts, utilising file system or database
+delivery into POP3 or IMAP accounts, utilizing file system or database
 storage configurable on a per-repository basis.
 
 The jakarta-james sub-project hosts the Apache Mailet API specification
@@ -30,11 +30,11 @@ processing of mail and news messages.
 
 James implements the Mailet API, and as such is itself a platform for
 Mailet applications. Applications providing custom mail
-processing, such as listservers, or providing gateways into other
-systems, messaging systems such as NNTP, SMS or proprietery messaging,
+processing, such as list servers, or providing gateways into other
+systems, messaging systems such as NNTP, SMS or proprietary messaging,
 or insertion into non-standard storage media.
 
-James itself provides a number of mailets performing condifgurable 
+James itself provides a number of mailets performing configurable 
 standard MTA services, such as aliasing and forwarding.
 
 ----------------------------------------------------------------------
@@ -44,11 +44,11 @@ Reasons for our application:
 ----------------------------------------------------------------------
 Some believe that Jakarta is becoming too big to function as a single
 project, that community and culture become diluted as you descend the
-heirarchy and that one solution is for mature projects leave the nest.
+hierarchy and that one solution is for mature projects leave the nest.
 
 Of course other projects are free to make their own choices but as
 James consists primarily of the server which is an end-user product we
-feel that top level project status, emphasisng its function rather
+feel that top level project status, emphasizing its function rather
 than its platform, would suit James well.
 
 The proposals discussed and being discussed on reorg & community 
@@ -56,7 +56,7 @@ include the notion of federated projects. We would like to think that
 we wouldn't be leaving Jakarta, just growing up.
 
 We also know that James would continue to rely on Jakarta for code,
-insight and knowekdge, but we don't need to be a Jakarta sub-project
+insight and knowledge, but we don't need to be a Jakarta sub-project
 to benefit from that.
 
 ----------------------------------------------------------------------
@@ -64,16 +64,16 @@ to benefit from that.
 ----------------------------------------------------------------------
 This proposal is more about management than web-site and mail
 addresses.  We don't expect that james.apache.org will bring many
-direct benefits, but we do think that normalising our relationship
+direct benefits, but we do think that normalizing our relationship
 with Jakarta by becoming a peer rather than a child, and taking
 official control of all the issues we currently inherit and
 "interpret" from Jakarta would benefit James.
 
 James has a small yet mature self-sustaining community, we seldom seek 
-recourse to the Jakarta PMC, and equally seldom are we scrutinised by 
+recourse to the Jakarta PMC, and equally seldom are we scrutinized by 
 them. We are perhaps not the most active project, and some of us may 
 feel that this sometimes causes James to be disregarded. Likewise, 
-apart from Avalon (iteslf now a top-level project), we have few direct
+apart from Avalon (itself now a top-level project), we have few direct
 ties with other Jakarta projects.
 
 ----------------------------------------------------------------------
@@ -97,11 +97,11 @@ to the (HTTP) servlets group at Sun to provide mail handling.  They
 rejected the proposal for technical reasons.
 
 Serge Knystautas later donated a Java SMTP server implementation that
-became the original codebase for JAMES.  The mailet API was heavily
-discussed and finalized, the original code was massively refactored
+became the original code base for JAMES.  The mailet API was heavily
+discussed and finalized, the original code was massively re-factored
 and improved, and a POP3 implementation was added.
 
-JAMES was later refactored to use the new Avalon codebase.  JAMES also
+JAMES was later re-factored to use the new Avalon code base.  JAMES also
 received a donation of an NNTP implementation.  JAMES has slowly added
 new mailets, improved reliability and scalability, SMTP AUTH,
 FetchPOP, and other feature enhancements since then.
@@ -118,12 +118,12 @@ increasing fault tolerance across the board.
 2/ To promote the Mailet API as a standard API (providing portability
 to mail specific code) to all Java projects involved with processing
 email both OS and commercial, this will involve further isolating the
-Mailet API from any dependance on James or James' dependancies. And to
+Mailet API from any dependence on James or James' dependencies. And to
 continually support, refine and enhance the Mailet API in response to
 feedback from Mailet API users and Mailet developers.
 
 3/ To build on James' Mailet packages in order to provide more, and
-more sophisticated, behaviours which would be available to any
+more sophisticated, behaviors which would be available to any
 application implementing the Mailet API. 
 
 These plans include:
@@ -139,25 +139,25 @@ such as sendmail.
 Our Community:
 ----------------------------------------------------------------------
 The James community is small, but focused and self-sustaining, 
-comprised of six active commiters, and six currently inactive. 
-Only one of the active commiters, Serge Knystautas, has been 
+comprised of six active committers, and six currently inactive. 
+Only one of the active committers, Serge Knystautas, has been 
 associated with the project since it started, and the continued 
-success of James is no longer dependant on his continued 
+success of James is no longer dependent on his continued 
 participation.
 
 Our developer community includes a number of Avalon contributers and 
-commiters, and a number of people who are working with or on James in 
+committers, and a number of people who are working with or on James in 
 a commercial setting.
 
 Our user base is hard to quantify, but includes a wide cross section 
 of different classes of users, from individuals through small
 enterprises looking for big enterprise mail functionality, commercial 
 users adapting James or using James to provide bespoke services
-through to students using James in their coursework.
+through to students using James in their course work.
 
 We believe that this represents a healthy interest in James, and the 
 fact that James continues to be of interest to so many groups inspite 
-of the existence of email server software with much higer profiles,
+of the existence of email server software with much higher profiles,
 sendmail, Microsoft Exchange etc, is perhaps better proof of its worth
 than is its market share in comparison with those goliaths.
 
@@ -166,9 +166,9 @@ than is its market share in comparison with those goliaths.
 Conclusion
 ----------------------------------------------------------------------
 We believe, as we hope we have shown, that James is a mature and
-worthwile candidate for inclusion as a top level Apache project, and 
+worthwhile candidate for inclusion as a top level Apache project, and 
 hereby take the opportunity of presenting our proposal for 
 consideration by the Board of Directors.
 
-On behalf of The James commiters,
+On behalf of The James committers,
 Danny Angus
