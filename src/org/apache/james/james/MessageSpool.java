@@ -6,7 +6,7 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.smtpserver;
+package org.apache.james.james;
 
 import java.io.*;
 import java.util.*;

@@ -20,7 +20,7 @@ import java.util.Date;
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class POP3Server implements SocketHandler, Block {
+public class POP3Server implements SocketServer.SocketHandler, Block {
 
     private ComponentManager comp;
     private Configuration conf;
@@ -48,6 +48,8 @@ public class POP3Server implements SocketHandler, Block {
         logger.log("Public Repository MailUsers opened", "POP3Server", logger.INFO);
         pop3CM = new SimpleComponentManager(comp);
         pop3CM.put("mailUsers", mailUsers);
+        SocketServer socketServer = (SocketServer) comp.getComponent(Interfaces.SOCKET_SERVER);
+        socketServer.openListener("POP3Listener", SocketServer.DEFAULT, conf.getConfiguration("port", "110").getValueAsInt(), this);
         logger.log("POP3Server ...init end", "POP3Server", logger.INFO);
     }
 

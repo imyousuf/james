@@ -11,35 +11,35 @@ package org.apache.james.smtpserver;
 import java.io.*;
 
 /**
- * This class provides a hasReachedEnd() method to keep trak of "/r/n". If
- * al least one "/r/n" has been read the method returns true.
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SMTPInputStream extends FilterInputStream {
+public class SMTPInputStream extends InputStream {
     
-    private static final String EOM = "\r\n.\r\n";
+    private InputStream in;
+    
+    private static final char[] EOM = {'\r','\n','.','\r','\n'};
+    
     private int match;
     
-    public SMTPInputStream(InputStream in) {
-        super(in);
+    public SMTPInputStream (InputStream in) {
+        super();
+        this.in = new BufferedInputStream(in);
+        match = 0;
     }
     
     public int read()
     throws IOException {
-        int read = super.read();
-        if ((byte) read == EOM.charAt(match)) {
+        if (match == 5) return -1;
+        char next = (char) in.read();
+        if (next == EOM[match]) {
             match++;
-        } else if ((byte) read == EOM.charAt(0)) {
+        } else if (next == EOM[0]) {
             match = 1;
         } else {
             match = 0;
         }
-        return read;
-    }
-    
-    public boolean hasReachedEnd() {
-        return match == 5;
+        return (int) next;
     }
 }
     

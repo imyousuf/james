@@ -1,21 +1,15 @@
 <?xml version="1.0"?>
 <avalon>
     <blocks>
-
 <!--   !!!!!!!!!! Begin copy and paste !!!!!!!!!!  -->
     
-<!-- JAMES POP3 server Acceptor and ProtocolHandler Blocks -->
+<!-- JAMES POP3 server Blocks -->
 
-        <block class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor"
-               serverName="James-POP3Server"
-               implementedInterface="org.apache.avalon.blocks.Acceptor">
-            <port>110</port>
-        </block>
-        
         <block class="org.apache.james.pop3server.POP3Server"
-               serverName="James-POP3Server"
-               implementedInterface="org.apache.avalon.blocks.SocketHandler">
+               serverName="James"
+               implementedInterface="">
 
+            <port>110</port>
             <pop3handler>
                 <servername> maggie </servername>
                 <postmaster> admin@localhost </postmaster>
@@ -23,23 +17,27 @@
             </pop3handler>
         </block>
 
-<!-- JAMES SMTP server Acceptor and ProtocolHandler Blocks -->
+<!-- JAMES SMTP server Blocks -->
 
-        <block class="org.apache.avalon.blocks.serversocket.ServerSocketAcceptor"
-               serverName="James-SMTPServer"
-               implementedInterface="org.apache.avalon.blocks.Acceptor">
-            <port>25</port>
-        </block>
-        
         <block class="org.apache.james.smtpserver.SMTPServer"
-               serverName="James-SMTPServer"
-               implementedInterface="org.apache.avalon.blocks.SocketHandler">
+               serverName="James"
+               implementedInterface="">
 
+            <port>25</port>
             <smtphandler>
                 <servername> maggie </servername>
                 <postmaster> admin@localhost </postmaster>
                 <connectiontimeout> 120000 </connectiontimeout>
             </smtphandler>
+        </block>
+
+<!-- JAMES MailServer Implementation -->
+
+        <block class="org.apache.james.james.James"
+               serverName="James"
+               implementedInterface="org.apache.avalon.blocks.MailServer">
+
+            <servername> maggie </servername>
             <spoolmanagerthreads>
                 1
             </spoolmanagerthreads>
@@ -51,37 +49,27 @@
             <spoolmanager>
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
+                <localhost> maggie.galaxus </localhost>
                 <deliverserver>212.216.176.34</deliverserver>
             </spoolmanager>
         </block>
+<!-- Block to manage JAMES users accounts -->
 
-<!-- Acceptor and ProtocolHandler to manage JAMES users accounts -->
-
-        <block class="org.apache.avalon.blocks.serversocket.AutenticatedServerSocketAcceptor"
-               serverName="James-RemoteManager"
-               implementedInterface="org.apache.avalon.blocks.Acceptor">
-            <port>4554</port>
-            <IPFiltering>
-                <Allowed> 192.168.1.3 </Allowed>
-                <Allowed> 127.0.0.1   </Allowed>
-            </IPFiltering>
-        </block>
-    
         <block class="org.apache.james.remotemanager.RemoteManager"
-               serverName="James-RemoteManager"
-               implementedInterface="org.apache.avalon.blocks.SocketHandler">
-           <AdministratorAccounts>
+               serverName="James"
+               implementedInterface="">
+            <port>4555</port>
+            <AdministratorAccounts>
                 <Account login="root" password="pippo"/>
                 <Account login="scoobie" password="pippo"/>
-           </AdministratorAccounts>
-           <connectiontimeout> 120000 </connectiontimeout>
+            </AdministratorAccounts>
+            <connectiontimeout> 30000 </connectiontimeout>
         </block>
 
 <!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
 
-<!--  !!!!!!!!!! Add theese lines into the Logger configuration !!!!!!!!!!  -->
-        <block class=[ignore]
-               serverName=[ignore]
+        <block class="[...]"
+               serverName="all"
                implementedInterface="org.apache.avalon.blocks.Logger">
             <channels>
                 <channel name="RemoteManager"   logwriter="admin"/>
@@ -112,10 +100,9 @@
                 </writer>
             </logwriters>
         </block>
-
-<!--  !!!!!!!!!! Add theese lines into the Store configuration !!!!!!!!!!  -->
-        <block class=[ignore]
-               serverName=[ignore]
+                
+        <block class="[...]"
+               serverName="all"
                implementedInterface="org.apache.avalon.blocks.Store">
             <repositoriesDefinition>
                 <repository type="MESSAGE_CONTAINER" model="SYNCHRONOUS, ASYNCHRONOUS"
@@ -131,6 +118,5 @@
                 </repository>
             </publicrepositories>
         </block>
-
     </blocks>
 </avalon>
