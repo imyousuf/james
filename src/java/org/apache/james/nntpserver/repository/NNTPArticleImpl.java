@@ -25,19 +25,26 @@ class NNTPArticleImpl implements NNTPArticle {
     private final File articleFile;
 
     /**
+     * The newsgroup containing this article.
+     */
+    private final NNTPGroup group;
+
+    /**
      * The sole constructor for this class.
      *
+     * @param group the news group containing this article
      * @param f the file that stores the article data
      */
-    NNTPArticleImpl(File f) {
+    NNTPArticleImpl(NNTPGroup group, File f) {
         articleFile = f;
+        this.group = group;
     }
 
     /**
      * @see org.apache.james.nntpsever.repository.NNTPArticle#getGroup()
      */
     public NNTPGroup getGroup() {
-        return new NNTPGroupImpl(articleFile.getParentFile());
+        return group;
     }
 
     /**

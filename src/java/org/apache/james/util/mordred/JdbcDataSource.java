@@ -48,7 +48,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  *
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
- * @version CVS $Revision: 1.16 $
+ * @version CVS $Revision: 1.17 $
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
@@ -209,11 +209,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     }
 
     /**
-     * Configure and set up DB connection.  Here we set the connection information needed to create
-     * the Connection objects.
-     *
-     * @param configuration The Configuration object needed to describe the connection.
-     * @throws ConfigurationException
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration)
                    throws ConfigurationException {

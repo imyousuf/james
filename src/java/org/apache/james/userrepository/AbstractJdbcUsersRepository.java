@@ -21,7 +21,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.james.context.AvalonContextConstants;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.services.User;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
@@ -243,30 +243,15 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
         try{
             DatabaseMetaData dbMetaData = conn.getMetaData();
 
-            // Initialise the sql strings.
-            String fileName = m_sqlFileName.substring("file://".length());
-            if (!(fileName.startsWith("/"))) {
-                String baseDirectory = "";
-                try {
-                    File applicationHome =
-                        (File)context.get(AvalonContextConstants.APPLICATION_HOME);
-                    baseDirectory = applicationHome.toString();
-                } catch (ContextException ce) {
-                    getLogger().fatalError("Encountered exception when resolving application home in Avalon context.", ce);
-                    throw ce;
-                } catch (ClassCastException cce) {
-                    getLogger().fatalError("Application home object stored in Avalon context was not of type java.io.File.", cce);
-                    throw cce;
-                }
-                StringBuffer fileNameBuffer =
-                    new StringBuffer(128)
-                            .append(baseDirectory)
-                            .append(File.separator)
-                            .append(fileName);
-                fileName = fileNameBuffer.toString();
+            File sqlFile = null;
+
+            try {
+                sqlFile = AvalonContextUtilities.getFile(context, m_sqlFileName);
+            } catch (Exception e) {
+                getLogger().fatalError(e.getMessage(), e);
+                throw e;
             }
-            File sqlFile = (new File(fileName)).getCanonicalFile();
-            
+
             if (getLogger().isDebugEnabled()) {
                 logBuffer =
                     new StringBuffer(256)
@@ -337,8 +322,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractUsersRepositor
                             .append(tableName)
                             .append("\'.");
                 getLogger().info(logBuffer.toString());
-            }
-            else {
+            } else {
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Using table: " + tableName);
                 }

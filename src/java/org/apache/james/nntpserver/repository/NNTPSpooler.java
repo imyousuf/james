@@ -7,7 +7,6 @@
  */
 package org.apache.james.nntpserver.repository;
 
-import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -17,6 +16,7 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.Lock;
 
 import javax.mail.internet.MimeMessage;
@@ -50,6 +50,16 @@ class NNTPSpooler extends AbstractLogEnabled
     private File spoolPath;
 
     /**
+     * The String form of the spool directory.
+     */
+    private String spoolPathString;
+
+    /**
+     * The time the spooler threads sleep between processing
+     */
+    private int threadIdleTime = 0;
+
+    /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context) 
@@ -61,16 +71,35 @@ class NNTPSpooler extends AbstractLogEnabled
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( Configuration configuration ) throws ConfigurationException {
-        spoolPath = NNTPUtil.getDirectory(context, configuration, "spoolPath");
         int threadCount = configuration.getChild("threadCount").getValueAsInteger(1);
-        int threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(1000);
-        //String tgName=configuration.getChild("threadGroupName").getValue("NNTPSpooler");
+        threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(1000);
+        spoolPathString = configuration.getChild("spoolPath").getValue();
         worker = new SpoolerRunnable[threadCount];
+    }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
+        //System.out.println(getClass().getName()+": init");
+
+        try {
+            spoolPath = AvalonContextUtilities.getFile(context, spoolPathString);
+        } catch (Exception e) {
+            getLogger().fatalError(e.getMessage(), e);
+            throw e;
+        }
+
         for ( int i = 0 ; i < worker.length ; i++ ) {
             worker[i] = new SpoolerRunnable(threadIdleTime,spoolPath);
             if ( worker[i] instanceof LogEnabled ) {
                 ((LogEnabled)worker[i]).enableLogging(getLogger());
             }
+        }
+
+        // TODO: Replace this with a standard Avalon thread pool
+        for ( int i = 0 ; i < worker.length ; i++ ) {
+            new Thread(worker[i],"NNTPSpool-"+i).start();
         }
     }
 
@@ -107,17 +136,6 @@ class NNTPSpooler extends AbstractLogEnabled
             spoolPath.mkdirs();
         }
         return spoolPath;
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        //System.out.println(getClass().getName()+": init");
-        // TODO: Replace this with a standard Avalon thread pool
-        for ( int i = 0 ; i < worker.length ; i++ ) {
-            new Thread(worker[i],"NNTPSpool-"+i).start();
-        }
     }
 
     /**
@@ -206,34 +224,34 @@ class NNTPSpooler extends AbstractLogEnabled
          *
          * @param f the spool file being processed
          */
-        private void process(File f) throws Exception {
+        private void process(File spoolFile) throws Exception {
             StringBuffer logBuffer =
                 new StringBuffer(160)
                         .append("process: ")
-                        .append(f.getAbsolutePath())
+                        .append(spoolFile.getAbsolutePath())
                         .append(",")
-                        .append(f.getCanonicalPath());
+                        .append(spoolFile.getCanonicalPath());
             getLogger().debug(logBuffer.toString());
             final MimeMessage msg;
             String articleID;
             // TODO: Why is this a block?
-            {   // get the message for copying to destination groups.
-                FileInputStream fin = new FileInputStream(f);
+            {   // Get the message for copying to destination groups.
+                FileInputStream fin = new FileInputStream(spoolFile);
                 msg = new MimeMessage(null,fin);
                 fin.close();
 
                 // ensure no duplicates exist.
                 String[] idheader = msg.getHeader("Message-Id");
-                articleID = (idheader!=null && idheader.length>0?idheader[0]:null);
-                if ( articleIDRepo.isExists(articleID) ) {
+                articleID = ((idheader != null && (idheader.length > 0))? idheader[0] : null);
+                if ((articleID != null) && ( articleIDRepo.isExists(articleID))) {
                     getLogger().debug("Message already exists: "+articleID);
-                    f.delete();
+                    spoolFile.delete();
                     return;
                 }
                 if ( articleID == null ) {
                     articleID = articleIDRepo.generateArticleID();
                     msg.setHeader("Message-Id", articleID);
-                    FileOutputStream fout = new FileOutputStream(f);
+                    FileOutputStream fout = new FileOutputStream(spoolFile);
                     msg.writeTo(fout);
                     fout.close();
                 }
@@ -245,34 +263,18 @@ class NNTPSpooler extends AbstractLogEnabled
                 getLogger().debug("Copying message to group: "+headers[i]);
                 NNTPGroup group = repo.getGroup(headers[i]);
                 if ( group == null ) {
-                    getLogger().debug("Group not found: "+headers[i]);
+                    getLogger().error("Couldn't add article with article ID " + articleID + " to group " + headers[i] + " - group not found.");
                     continue;
                 }
-                int artNum = group.getLastArticleNumber();
 
-                // TODO: Encapsulate this in the NNTP group.
-                File root = (File)group.getPath();
-                File articleFile = null;
-                // this ensures that different threads do not create articles with
-                // same number
-                while( true ) {
-                    articleFile = new File(root,(artNum+1)+"");
-                    if (articleFile.createNewFile()) {
-                        break;
-                    }
-                }
-                getLogger().debug("Copying message to: "+articleFile.getAbsolutePath());
-                prop.setProperty(group.getName(),articleFile.getName());
-                FileInputStream fin = new FileInputStream(f);
-                FileOutputStream fout = new FileOutputStream(articleFile);
-                IOUtil.copy(fin,fout);
-                fin.close();
-                fout.close();
+                FileInputStream newsStream = new FileInputStream(spoolFile);
+                NNTPArticle article = group.addArticle(newsStream);
+                prop.setProperty(group.getName(),article.getArticleNumber() + "");
             }
             articleIDRepo.addArticle(articleID,prop);
-            boolean delSuccess = f.delete();
+            boolean delSuccess = spoolFile.delete();
             if ( delSuccess == false ) {
-                getLogger().error("Could not delete file: "+f.getAbsolutePath());
+                getLogger().error("Could not delete file: " + spoolFile.getAbsolutePath());
             }
         }
     } // class SpoolerRunnable

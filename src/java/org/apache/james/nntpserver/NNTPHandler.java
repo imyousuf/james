@@ -487,7 +487,7 @@ public class NNTPHandler extends BaseConnectionHandler
 
         // see section 9.4.1
         String wildmat = "*";
-        LISTGroup output = null;
+        boolean isListNewsgroups = false;
 
         String extension = argument;
         if (argument != null) {
@@ -499,36 +499,44 @@ public class NNTPHandler extends BaseConnectionHandler
             extension = extension.toUpperCase(Locale.US);
         }
 
-        if ((extension == null) || (extension.equals("ACTIVE"))) {
-            output = LISTGroup.Factory.ACTIVE(writer);
-        } else if (extension.equals("NEWSGROUPS") ) {
-            output = LISTGroup.Factory.NEWSGROUPS(writer);
-        } else if (extension.equals("EXTENSIONS") ) {
-            doLISTEXTENSIONS();
-            return;
-        } else if (extension.equals("OVERVIEW.FMT") ) {
-            doLISTOVERVIEWFMT();
-            return;
-        } else if (extension.equals("ACTIVE.TIMES") ) {
-            // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-            writer.println("503 program error, function not performed");
-            return;
-        } else if (extension.equals("DISTRIBUTIONS") ) {
-            // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-            writer.println("503 program error, function not performed");
-            return;
-        } else if (extension.equals("DISTRIB.PATS") ) {
-            // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-            writer.println("503 program error, function not performed");
-            return;
-        } else {
-            writer.println("501 Syntax error");
-            return;
+        if (extension != null) {
+            if (extension.equals("ACTIVE")) {
+                isListNewsgroups = false;
+            } else if (extension.equals("NEWSGROUPS") ) {
+                isListNewsgroups = true;
+            } else if (extension.equals("EXTENSIONS") ) {
+                doLISTEXTENSIONS();
+                return;
+            } else if (extension.equals("OVERVIEW.FMT") ) {
+                doLISTOVERVIEWFMT();
+                return;
+            } else if (extension.equals("ACTIVE.TIMES") ) {
+                // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
+                writer.println("503 program error, function not performed");
+                return;
+            } else if (extension.equals("DISTRIBUTIONS") ) {
+                // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
+                writer.println("503 program error, function not performed");
+                return;
+            } else if (extension.equals("DISTRIB.PATS") ) {
+                // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
+                writer.println("503 program error, function not performed");
+                return;
+            } else {
+                writer.println("501 Syntax error");
+                return;
+            }
         }
+
         Iterator iter = repo.getMatchedGroups(wildmat);
         writer.println("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
-            output.show((NNTPGroup)iter.next());
+            NNTPGroup theGroup = (NNTPGroup)iter.next();
+            if (isListNewsgroups) {
+                writer.println(theGroup.getListNewsgroupsFormat());
+            } else {
+                writer.println(theGroup.getListFormat());
+            }
         }
         writer.println(".");
     }
