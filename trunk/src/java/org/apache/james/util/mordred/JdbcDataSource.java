@@ -46,7 +46,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.9 $ $Date: 2002/06/21 06:58:24 $
+ * @version CVS $Revision: 1.10 $ $Date: 2002/06/21 08:26:36 $
  * @author <a href="mailto:serge@apache.org">Serge Knystautas</a>
  * @author <a href="mailto:danny@apache.org">Danny Angus</a>
  * @since 4.0
@@ -424,7 +424,7 @@ public class JdbcDataSource extends AbstractLogEnabled
             pout.println("Error creating connection: ");
             sqle.printStackTrace(pout);
             getLogger().error(sout.toString());
-             return null;
+
             return null;
         } finally {
             synchronized(this) {
