@@ -18,7 +18,10 @@
 <p><b>Find out how to use James with sendmail</b><br/>We've added a HOW TO document explaining how to configure sendmail to route all mail through James, read it <a href="james_and_sendmail.html">Here</a>.</p>
 </subsection>
 <subsection name="releases">
-<p><b>Latest: james-2.1a1-2002-09-19</b><br/> In the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a> This build represents changes over the previous milestone by presenting mailet developers with an easier installation process it should only be considered for evaluation, and should not be considered stable. It represents a snapshot of the most recent changes</p>
+<p><b>Latest: james-2.1a1 (2002-11-13)</b>
+<br/> Found in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a>
+<br/><br/>This build is a release candidate for James 2.1.  It includes all code and configuration changes expected to be included in that release.  Some additional documentation not packaged in this build will be included in the final release.
+<br/><br/>Evaluation and testing of this release candidate with feedback provided on the <a href="mailto:james-user@jakarta.apache.org">james-user</a> and <a href="mailto:james-dev@jakarta.apache.org">james-dev</a> mailing lists is strongly encouraged.</p>
 <p><b>Stable: v2.0a3</b><br/>This version displays improved stability and a number of bug fixes over v2.0a2 and is the recommended stable version
 <br/><a href="http://jakarta.apache.org/builds/jakarta-james/release/v2.0a3">Binary and Source distributions of v2.0a3</a></p>
 <p><b>Get your hands on the latest versions..</b><br/>We put significant milestones, and potential release candidates in the <a href="http://jakarta.apache.org/builds/jakarta-james/latest">download area.</a><br/>Whilst the quality of these versions cannot be guaranteed they may contain important bug fixes and cool new features.<br/></p>
