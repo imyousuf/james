@@ -12,7 +12,7 @@
 <p>This is a living document that records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 <section name="Version 2.2.0">
-<p>Expected release March 2003</p>
+<p>Expected release June 2003</p>
 <li>[JW] (code) JavaMail tuning in RemoteDelivery</li>
 <li>[SS4] (update) Upgrade to DnsJava 1.3.2</li>
 <li>[SS4] (code) DNS service can auto-discover DNS servers</li>
@@ -21,13 +21,23 @@
 </section>
 
 <section name="Version 2.1.3">
-<p>Expected release March 2003</p>
+<p>Expected release May 12 2003</p>
 <li>[NjB] (code) Fixed stream handling in MimeMessageWrapper to address a JavaMail issue introduced in v2.1.2</li>
 <li>[NjB] (code) Fixes to AddFooter for text/html parts</li>
 <li>[MI,PG,NjB] (code) Fixes to AddFooter for MimeMultipart messages</li>
 <li>[NjB] (code) Changed ExtraDotOutputStream to enforce RFC 2821 #2.3.7</li>
 <li>[NjB] (code) Corrected allowable characters for localpart of address</li>
 <li>[NjB] (update) Removed generated files from source distributions</li>
+<li>[PG]  (code) Corrrected handling of NNTP messages to avoid character encoding issues</li>
+<li>[NjB] (code) James.getId bug - courtesy of Sid Stuart</li>
+<li>[KS}  (code) Added NNTP linecounting support</li>
+<li>[HJ]  (code) Fixed bug 18726 (optional socket factory to specify outgoing bind address)</li>
+<li>[NjB] (code) Fixed bug 19418 (changed notify/wait code in spooler)</li>
+<li>[NjB] (code) Fixed bug 18307</li>
+<li>[NjB] (code) Fixed bug with non-InternetAddress addresses  - courtesy of Steen Jansdal</li>
+<li>[NjB] (code) Fixed bug in NotifySender with complex MIME messages</li>
+<li>[SK, NjB] (code) Added Delivered-To header in LocalDelivery</li>
+<li>[NjB] (code) Fixed Bug 15428 - check for valid user before attempting removal</li>
 </section>
 
 <section name="Version 2.1.2">
