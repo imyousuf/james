@@ -22,7 +22,7 @@ This directory contains some libraries required to build and run the container s
     <name>Ant is a Java based build tool</name>
     <desc>In theory it is kind of like make without makes wrinkles.  Ant is part of the Jakarta Project</desc>
   </library>
-  
+
   <library>
     <filename>Avalon.jar</filename>
     <url>http://java.apache.org/framework/</url>
@@ -30,7 +30,7 @@ This directory contains some libraries required to build and run the container s
     <name>Java Apache Server Framework</name>
     <desc>The Avalon project is an effort to create, design, develop and maintain a common framework for server applications written using the Java language. This framework will not be a standalone product, but will allow existing and yet to be created server applications to fit into a common platform and to share code, design and human resources.</desc>
   </library>
-  
+
   <library>
     <filename>AvalonAware.jar</filename>
     <url>http://java.apache.org/framework/</url>
@@ -38,7 +38,7 @@ This directory contains some libraries required to build and run the container s
     <name>Java Apache Server Framework support library</name>
     <desc>A support library for the Avalon infrastructure</desc>
   </library>
-  
+
   <library>
     <filename>dnsjava.jar</filename>
     <url>http://www.xbill.org/dnsjava/</url>
@@ -46,7 +46,7 @@ This directory contains some libraries required to build and run the container s
     <name>dnsjava</name>
     <desc>dnsjava is an implementation of DNS in Java.  Great thanks to Brian Wellington <bwelling@xbill.org> for his contributions</desc>
   </library>
-  
+
   <library>
     <filename>Loader.jar</filename>
     <url>http://java.apache.org/framework/</url>
@@ -54,15 +54,15 @@ This directory contains some libraries required to build and run the container s
     <name>Java Apache Server Framework support library</name>
     <desc>The bootstrap loader for the Avalon framework</desc>
   </library>
-  
+
   <library>
-    <filename>mail_1_1_3.jar</filename>
+    <filename>mail_1_2.jar</filename>
     <url>http://java.sun.com/products/javamail/</url>
-    <version>1.1.3</version>
+    <version>1.2</version>
     <name>JavaMail</name>
-    <desc>Client and message parsing libraries from JavaSoft.  Looking forward to using 1.2 to support DSN.</desc>
+    <desc>Client and message parsing libraries from JavaSoft.  Includes all service providers.</desc>
   </library>
-  
+
   <library>
     <filename>town.jar</filename>
     <url>http://www.working-dogs.com/town/</url>
@@ -70,7 +70,7 @@ This directory contains some libraries required to build and run the container s
     <name>Town Database Library</name>
     <desc>Town is a Java library to simply access to a database.</desc>
   </library>
-  
+
   <library>
     <filename>xerces.jar</filename>
     <url>http://xml.apache.org/xerces-j/index.html</url>
@@ -85,15 +85,15 @@ This directory contains some libraries required to build and run the container s
 
 
 -----------------------
- jndi.jar  
+ jndi.jar
 -----------------------
  The Java Naming and Directory Interface (JNDI) API
- 
- Unified interface to multiple naming and directory 
+
+ Unified interface to multiple naming and directory
  services in the enterprise.
 
  OpenEJB provides an IntraVM naming service for
- looking up beans, resources, and variables in the 
+ looking up beans, resources, and variables in the
  container system.
 
  More info at:
@@ -105,12 +105,12 @@ This directory contains some libraries required to build and run the container s
  jta1.0.1.jar
 -----------------------
  The Java Transaction API (JTA)
- 
- Standard JavaTM interfaces between a transaction 
- manager and the parties involved in a distributed 
+
+ Standard JavaTM interfaces between a transaction
+ manager and the parties involved in a distributed
  transaction system.
 
- OpenEJB uses the JTA per requirement of the EJB 
+ OpenEJB uses the JTA per requirement of the EJB
  specification.
 
  More info at:
@@ -121,7 +121,7 @@ This directory contains some libraries required to build and run the container s
 -----------------------
  postgresql-6.3.jar
 -----------------------
- 
+
  Not currently used.
 
 -
@@ -130,7 +130,7 @@ This directory contains some libraries required to build and run the container s
 -----------------------
  tyrex-0.9.jar
 -----------------------
- 
+
  Not currently used.
 
  More info at:
@@ -142,10 +142,10 @@ This directory contains some libraries required to build and run the container s
  xerces.jar
 -----------------------
  The Xerces-J XML parser for Java
- 
+
  Xerces is part of the Apache XML Project.
 
- OpenEJB uses Xerces to parse the XML 
+ OpenEJB uses Xerces to parse the XML
  configuration file.  Data from the file
  is used to construct and initialize the
  container system.
@@ -158,7 +158,7 @@ This directory contains some libraries required to build and run the container s
 -----------------------
  xslp.jar
 -----------------------
- 
+
  Not currently used.
 
 -
@@ -168,5 +168,5 @@ Dev mailing list : openejb-dev@exolab.org
 CVS mailing list : openejb-cvs@exolab.org
          Website : www.OpenEJB.org
 ================================================================
-$Id: readme.xml,v 1.1 2000/12/05 02:19:32 serge Exp $
+$Id: readme.xml,v 1.2 2000/12/11 05:44:59 serge Exp $
 
