@@ -51,6 +51,10 @@ import javax.mail.internet.ParseException;
  * @author Serge Knystautas <sergek@lokitech.com>
  */
 public class MailAddress implements java.io.Serializable {
+	//We hardcode the serialVersionUID so that from James 1.2 on,
+	//  MailAddress will be deserializable (so your mail doesn't get lost)
+	public static final long serialVersionUID = 2779163542539434916L;
+
     private final static char[] SPECIAL =
             {'<', '>', '(', ')', '[', ']', '\\', '.', ',', ';', ':', '@', '\"'};
 
