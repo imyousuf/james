@@ -130,9 +130,9 @@
         )
     </sql>
     <sql name="createTable" db="mssql">
-        CREATE TABLE [dbo].[${table}] (
-        	[message_name] [varchar] (200) NOT NULL PRIMARY KEY,
-        	[repository_name] [varchar] (200) NOT NULL PRIMARY KEY,
+        CREATE TABLE [${table}] (
+        	[message_name] [varchar] (200) NOT NULL,
+        	[repository_name] [varchar] (200) NOT NULL,
         	[message_state] [varchar] (30) NOT NULL ,
         	[error_message] [varchar] (1000) NULL ,
         	[sender] [varchar] (200) NULL ,
@@ -141,7 +141,14 @@
         	[remote_addr] [varchar] (20) NOT NULL ,
         	[message_body] [image] NOT NULL ,
         	[last_updated] [datetime] NOT NULL
-        ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+        )
+		ALTER TABLE [${table}] WITH NOCHECK ADD
+			CONSTRAINT [PK_${table}] PRIMARY KEY
+			(
+				[message_name],
+				[repository_name]
+			)
+
     </sql>
 </sqlDefs>
 
