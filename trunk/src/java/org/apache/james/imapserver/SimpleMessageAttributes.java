@@ -260,7 +260,7 @@ public class SimpleMessageAttributes
             getLogger().info("This part contains an embedded message of subtype: " + secondaryType);
             getLogger().info("Uses java class: " + part.getClass().getName());
             if (secondaryType.equalsIgnoreCase("RFC822")) {
-                try {
+                //try {
 
                     /*
                     MimeMessageWrapper message = new MimeMessageWrapper(part.getInputStream());
@@ -278,10 +278,10 @@ public class SimpleMessageAttributes
                     parts = new SimpleMessageAttributes[1];
                     parts[0] = msgAttrs;
                     */
-                } catch (Exception e) {
-                    getLogger().error("Error interpreting a message/rfc822: " + e);
-                    e.printStackTrace();
-                }
+                //} catch (Exception e) {
+                //getLogger().error("Error interpreting a message/rfc822: " + e);
+                //e.printStackTrace();
+                //}
             } else {
                 getLogger().info("Unknown subtype of message encountered.");
             }
