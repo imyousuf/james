@@ -48,7 +48,7 @@ All these package are in current distribution.
   <property name="year" value="1999-2001"/>
 
   <property name="build.compiler" value="classic"/>
-  <property name="debug" value="off"/>
+  <property name="debug" value="on"/>
   <property name="optimize" value="on"/>
   <property name="deprecation" value="on"/>
 
@@ -255,6 +255,7 @@ All these package are in current distribution.
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/bin"/>
 
+    <delete dir="${dist.dir}/apps/${name}"/>
     <copy file="${build.lib}/${name}.sar" todir="${dist.dir}/apps"/>
 
     <copy todir="${dist.dir}/bin">
@@ -353,6 +354,3 @@ All these package are in current distribution.
     </copy>
   </target>
 </project>
-
-
-<!-- End of file -->
