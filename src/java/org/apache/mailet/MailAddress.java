@@ -139,7 +139,7 @@ public class MailAddress implements java.io.Serializable {
             }
 
             //find @
-            if (address.charAt(pos) != '@') {
+            if (pos >= address.length() || address.charAt(pos) != '@') {
                 throw new ParseException("Did not find @ between local-part and domain at position " + (pos + 1));
             }
             pos++;
