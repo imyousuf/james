@@ -12,9 +12,9 @@ import javax.mail.*;
 import org.apache.mailet.*;
 import org.apache.james.core.*;
 import org.apache.avalon.Component;
-import org.apache.avalon.Configurable;
-import org.apache.avalon.Configuration;
-import org.apache.avalon.ConfigurationException;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
 
 
 /**
@@ -29,8 +29,10 @@ public class MatchLoader implements Component, Configurable {
     public void configure(Configuration conf) throws ConfigurationException {
         matcherPackages = new Vector();
         matcherPackages.addElement("");
-        for (Iterator it = conf.getChildren("matcherpackage"); it.hasNext(); ) {
-            Configuration c = (Configuration) it.next();
+        final Configuration[] pkgConfs = conf.getChildren( "matcherpackage" );
+        for ( int i = 0; i < pkgConfs.length; i++ )
+        {
+            Configuration c = pkgConfs[i];
             String packageName = c.getValue();
             if (!packageName.endsWith(".")) {
                 packageName += ".";

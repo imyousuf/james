@@ -7,7 +7,11 @@ package org.apache.james.userrepository;
 import java.io.*;
 import java.util.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.Loggable;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Component;
 import org.apache.log.LogKit;
 import org.apache.log.Logger;
 

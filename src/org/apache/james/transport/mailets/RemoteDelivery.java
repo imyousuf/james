@@ -12,7 +12,10 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentNotFoundException;
+import org.apache.avalon.ComponentNotAccessibleException;
+import org.apache.avalon.configuration.DefaultConfiguration;
 //import org.apache.avalon.services.Store;
 
 import org.apache.james.*;

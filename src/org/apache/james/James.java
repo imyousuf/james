@@ -8,6 +8,19 @@
 
 package org.apache.james;
 
+import org.apache.avalon.Component;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentManagerException;
+import org.apache.avalon.Composer;
+import org.apache.avalon.Context;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.DefaultComponentManager;
+import org.apache.avalon.DefaultContext;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.configuration.DefaultConfiguration;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -15,9 +28,8 @@ import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
-import org.apache.avalon.*;
-import org.apache.avalon.Contextualizable;
 import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Contextualizable;
 import org.apache.avalon.util.thread.ThreadPool;
 import org.apache.james.core.*;
 import org.apache.james.dnsserver.*;
@@ -144,11 +156,15 @@ public class James
         if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
             serverNames.add(hostName);
         }
-        for (Iterator it = conf.getChildren("servernames.servername"); it.hasNext(); ) {
-            serverNames.add(((Configuration) it.next()).getValue());
+
+        final Configuration[] serverNameConfs = 
+            conf.getChild( "servernames" ).getChildren( "servername" );
+        for ( int i = 0; i < serverNameConfs.length; i++ )
+        {
+            serverNames.add( serverNameConfs[i].getValue() );
         }
         if (serverNames.isEmpty()) {
-            throw new ConfigurationException ("Fatal configuration error: no servernames specified!");
+            throw new ConfigurationException( "Fatal configuration error: no servernames specified!");
         }
         
         for (Iterator i = serverNames.iterator(); i.hasNext(); ) {
@@ -293,21 +309,21 @@ public class James
             smtpServer = new SMTPServer();
             try {
                 setupLogger( smtpServer, "SMTPServer" );
-                smtpServer.configure(conf.getChild("smtpServer"));
-                smtpServer.contextualize(context);
-                smtpServer.compose(compMgr);
+                smtpServer.contextualize( context );
+                smtpServer.compose( compMgr );
+                smtpServer.configure( conf.getChild("smtpServer") );
+                smtpServer.init();
             } catch (Exception e) {
-                getLogger().error("Exception in SMTPServer init: " + e.getMessage());
+                getLogger().error( "Exception in SMTPServer init: " + e.getMessage(), e );
                 throw e;
             }
 
             dnsServer = new DNSServer();
             try {
                 setupLogger( dnsServer, "DnsServer" );
-                dnsServer.configure(conf.getChild("dnsServer"));
-                dnsServer.compose(compMgr);
+                dnsServer.configure( conf.getChild("dnsServer") );
             } catch (Exception e) {
-                getLogger().error("Exception in DNSServer init: " + e.getMessage());
+                getLogger().error( "Exception in DNSServer init: " + e.getMessage(), e );
                 throw e;
             }
             compMgr.put("DNS_SERVER", dnsServer);
@@ -480,8 +496,8 @@ public class James
         DNSServer dnsServer = null;
         try {
             dnsServer = (DNSServer) compMgr.lookup("DNS_SERVER");
-        } catch (CascadingException ex) {
-            getLogger().error("Fatal configuration error - DNS Servers lost!");
+        } catch ( final ComponentManagerException cme ) {
+            getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
         return dnsServer.findMXRecords(host);

@@ -11,7 +11,10 @@ package org.apache.james.transport.mailets;
 
 import java.util.*;
 
-import org.apache.avalon.*;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.ComponentNotFoundException;
+import org.apache.avalon.ComponentNotAccessibleException;
+import org.apache.avalon.configuration.DefaultConfiguration;
 //import org.apache.avalon.services.Store;
 
 import org.apache.james.*;

@@ -11,7 +11,18 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
-import org.apache.avalon.*;
+import org.apache.avalon.AbstractLoggable;
+import org.apache.avalon.Contextualizable;
+import org.apache.avalon.Context;
+import org.apache.avalon.DefaultContext;
+import org.apache.avalon.Composer;
+import org.apache.avalon.ComponentManager;
+import org.apache.avalon.DefaultComponentManager;
+import org.apache.avalon.configuration.Configurable;
+import org.apache.avalon.configuration.Configuration;
+import org.apache.avalon.configuration.ConfigurationException;
+import org.apache.avalon.Initializable;
+import org.apache.avalon.Stoppable;
 import org.apache.james.*;
 import org.apache.james.core.*;
 import org.apache.james.services.*;
@@ -65,8 +76,10 @@ public class JamesSpoolManager
         //A processor is a Collection of
         processors = new HashMap();
 
-        for (Iterator it = conf.getChildren("processor"); it.hasNext(); ) {
-            Configuration processorConf = (Configuration) it.next();
+        final Configuration[] processorConfs = conf.getChildren( "processor" );
+        for ( int i = 0; i < processorConfs.length; i++ )
+        {
+            Configuration processorConf = processorConfs[i];
             String processorName = processorConf.getAttribute("name");
             try {
                 LinearProcessor processor = new LinearProcessor();
@@ -83,8 +96,10 @@ public class JamesSpoolManager
                     processor.add(matcher, mailet);
                 }
 
-                for (Iterator mailetConfs = processorConf.getChildren("mailet"); mailetConfs.hasNext(); ) {
-                    Configuration c = (Configuration) mailetConfs.next();
+                final Configuration[] mailetConfs = processorConf.getChildren( "mailet" );
+                for ( int j = 0; j < mailetConfs.length; j++ )
+                {
+                    Configuration c = mailetConfs[j];
                     String mailetClassName = c.getAttribute("class");
                     String matcherName = c.getAttribute("match");
                     Mailet mailet = null;
