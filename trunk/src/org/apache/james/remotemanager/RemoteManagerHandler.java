@@ -1,11 +1,10 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.remotemanager;
 
 import org.apache.james.Constants;
@@ -104,23 +103,24 @@ public class RemoteManagerHandler
         try {
             in = new BufferedReader(new InputStreamReader( socket.getInputStream() ));
             out = new PrintWriter( socket.getOutputStream(), true);
-            getLogger().info("Access from " + remoteHost + "(" + remoteIP + ")");
-            out.println("JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION);
+            getLogger().info( "Access from " + remoteHost + "(" + remoteIP + ")" );
+            out.println( "JAMES RemoteAdministration Tool " + Constants.SOFTWARE_VERSION );
             out.println("Please enter your login and password");
             String login = in.readLine();
             String password = in.readLine();
 
             while (!password.equals(admaccount.get(login)) || password.length() == 0) {
                 scheduler.resetTrigger(this.toString());
-                out.println("Login failed for " + login);
-                getLogger().info("Login for " + login + " failed");
+                final String message = "Login failed for " + login;
+                out.println( message );
+                getLogger().info( message );
                 login = in.readLine();
                 password = in.readLine();
             }
 
             scheduler.resetTrigger(this.toString());
 
-            out.println("Welcome " + login + ". HELP for a list of commands");
+            out.println( "Welcome " + login + ". HELP for a list of commands" );
             getLogger().info("Login for " + login + " succesful");
 
             while (parseCommand(in.readLine())) {
@@ -132,7 +132,8 @@ public class RemoteManagerHandler
         } catch ( final IOException e ) {
             out.println("Error. Closing connection");
             out.flush();
-            getLogger().error("Exception during connection from " + remoteHost + " (" + remoteIP + ")");
+            getLogger().error( "Exception during connection from " + remoteHost + 
+                               " (" + remoteIP + ")");
         }
 
         scheduler.removeTrigger(this.toString());

@@ -1,15 +1,17 @@
-/*****************************************************************************
- * Copyright (C) The Apache Software Foundation. All rights reserved.        *
- * ------------------------------------------------------------------------- *
- * This software is published under the terms of the Apache Software License *
- * version 1.1, a copy of which has been included  with this distribution in *
- * the LICENSE file.                                                         *
- *****************************************************************************/
-
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE file.
+ */
 package org.apache.james.util;
 
-import java.util.*;
-import java.text.*;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * I suppose I could access some of the special messages within Sun's implementation of the JavaMail
@@ -24,8 +26,9 @@ public class RFC822DateFormat {
     private static DecimalFormat tz;
 
     /**
-     * SimpleDateFormat will handle most of this for us, but the timezone won't match, so we do that
-     * manually
+     * SimpleDateFormat will handle most of this for us, but the 
+     * timezone won't match, so we do that manually
+     *
      * @return java.lang.String
      * @param d Date
      */
@@ -56,10 +59,4 @@ public class RFC822DateFormat {
 
         return sb.toString();
     }
-
 }
-
-
-
-/*--- formatting done in "Sun Java Convention" style on 07-11-1999 ---*/
-
