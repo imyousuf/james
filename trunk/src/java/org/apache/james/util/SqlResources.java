@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
  * This class allows SQL strings to be customised to particular
  * database products, by detecting product information from the
  * jdbc DatabaseMetaData object.
- * 
+ *
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class SqlResources
@@ -49,14 +49,14 @@ public class SqlResources
 
     /**
      * Configures a DbResources object to provide SQL statements from a file.
-     * 
+     *
      * SQL statements returned may be specific to the particular type
      * and version of the connected database, as well as the database driver.
-     * 
+     *
      * Parameters encoded as $(parameter} in the input file are
      * replace by values from the parameters Map, if the named parameter exists.
      * Parameter values may also be specified in the resourceSection element.
-     * 
+     *
      * @param sqlFile    the input file containing the string definitions
      * @param sqlDefsSection
      *                   the xml element containing the strings to be used
@@ -75,7 +75,7 @@ public class SqlResources
 
         // First process the database matcher, to determine the
         //  sql statements to use.
-        Element dbMatcherElement = 
+        Element dbMatcherElement =
             (Element)(sqlDoc.getElementsByTagName("dbMatchers").item(0));
         String dbProduct = null;
         if ( dbMatcherElement != null ) {
@@ -108,7 +108,7 @@ public class SqlResources
         // and use supplied parameters as overrides.
         Map parameters = new HashMap();
         // First read from the <params> element, if it exists.
-        Element parametersElement = 
+        Element parametersElement =
             (Element)(sectionElement.getElementsByTagName("parameters").item(0));
         if ( parametersElement != null ) {
             NamedNodeMap params = parametersElement.getAttributes();
@@ -124,7 +124,7 @@ public class SqlResources
         parameters.putAll(configParameters);
 
         // 2 maps - one for storing default statements,
-        // the other for statements with a "db" attribute matching this 
+        // the other for statements with a "db" attribute matching this
         // connection.
         Map defaultSqlStatements = new HashMap();
         Map dbProductSqlStatements = new HashMap();
@@ -186,7 +186,7 @@ public class SqlResources
      * Compares the DatabaseProductName value for a jdbc Connection
      * against a set of regular expressions defined in XML.
      * The first successful match defines the name of the database product
-     * connected to. This value is then used to choose the specific SQL 
+     * connected to. This value is then used to choose the specific SQL
      * expressions to use.
      *
      * @param conn the JDBC connection being tested
@@ -195,13 +195,13 @@ public class SqlResources
      * @return the type of database to which James is connected
      *
      */
-    private String matchDbConnection(Connection conn, 
+    private String matchDbConnection(Connection conn,
                                      Element dbMatchersElement)
         throws MalformedPerl5PatternException, SQLException
     {
         String dbProductName = conn.getMetaData().getDatabaseProductName();
-    
-        NodeList dbMatchers = 
+
+        NodeList dbMatchers =
             dbMatchersElement.getElementsByTagName("dbMatcher");
         for ( int i = 0; i < dbMatchers.getLength(); i++ ) {
             // Get the values for this matcher element.
@@ -229,7 +229,7 @@ public class SqlResources
      * @param replace the string to replace with
      * @return the substituted string
      */
-    private String substituteSubString( String input, 
+    private String substituteSubString( String input,
                                         String find,
                                         String replace )
     {
@@ -254,7 +254,7 @@ public class SqlResources
     /**
      * Returns a named SQL string for the specified connection,
      * replacing parameters with the values set.
-     * 
+     *
      * @param name   the name of the SQL resource required.
      * @return the requested resource
      */
@@ -266,7 +266,7 @@ public class SqlResources
     /**
      * Returns a named SQL string for the specified connection,
      * replacing parameters with the values set.
-     * 
+     *
      * @param name     the name of the SQL resource required.
      * @param required true if the resource is required
      * @return the requested resource

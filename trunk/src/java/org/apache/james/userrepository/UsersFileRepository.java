@@ -37,13 +37,13 @@ import java.util.Iterator;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author  <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version CVS $Revision: 1.11 $
+ * @version CVS $Revision: 1.12 $
  *
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
     implements UsersRepository, Component, Configurable, Composable, Initializable {
- 
+
     /**
      * Whether 'deep debugging' is turned on.
      */
@@ -159,7 +159,7 @@ public class UsersFileRepository
             addUser(newbie);
         }
         else {
-            throw new RuntimeException("Improper use of deprecated method" 
+            throw new RuntimeException("Improper use of deprecated method"
                                        + " - use addUser(User user)");
         }
     }

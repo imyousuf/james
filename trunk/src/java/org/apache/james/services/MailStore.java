@@ -17,15 +17,15 @@ import org.apache.mailet.SpoolRepository;
  *  <br>&lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *  <br>            type="MAIL"&gt;
  *  <br>&lt;/repository&gt;
- * <p>This configuration, including any included child elements, is used to 
+ * <p>This configuration, including any included child elements, is used to
  * configure the returned component.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.7 $
+ * @version This is $Revision: 1.8 $
  */
-public interface MailStore 
+public interface MailStore
     extends Store {
 
     /**
@@ -41,4 +41,4 @@ public interface MailStore
     SpoolRepository getInboundSpool();
 
 }
- 
+

@@ -21,8 +21,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.BlockContext;
 /**
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
- * 
- * $Id: Loader.java,v 1.1 2003/01/08 16:53:58 danny Exp $
+ *
+ * $Id: Loader.java,v 1.2 2003/01/12 22:38:32 serge Exp $
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
@@ -52,7 +52,7 @@ public class Loader implements Contextualizable {
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
-  
+
     protected void getPackages(Configuration conf, String packageType)
         throws ConfigurationException {
         packages = new Vector();

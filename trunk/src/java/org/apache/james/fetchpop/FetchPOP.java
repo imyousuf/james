@@ -27,12 +27,12 @@ import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.james.services.MailServer;
 /**
  *
- * A class which fetches mail from a single POP account and inserts it 
+ * A class which fetches mail from a single POP account and inserts it
  * into the incoming spool<br>
  *
- * <br>$Id: FetchPOP.java,v 1.5 2002/10/30 12:45:11 danny Exp $
+ * <br>$Id: FetchPOP.java,v 1.6 2003/01/12 22:38:30 serge Exp $
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
- * 
+ *
  */
 public class FetchPOP extends AbstractLogEnabled implements Configurable, Target {
     /**

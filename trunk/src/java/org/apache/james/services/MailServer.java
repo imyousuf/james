@@ -23,7 +23,7 @@ import org.apache.mailet.MailRepository;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.13 $
+ * @version This is $Revision: 1.14 $
  */
 public interface MailServer
 {
@@ -73,14 +73,14 @@ public interface MailServer
      */
     void sendMail(Mail mail)
         throws MessagingException;
-        
+
     /**
      * Pass a MimeMessage to this MailServer for processing
      * @param message the message
      * @throws MessagingException
      */
     void sendMail(MimeMessage message)
-        throws MessagingException;        
+        throws MessagingException;
 
     /**
      * Retrieve the primary mailbox for userName. For POP3 style stores this

@@ -64,7 +64,7 @@ public class RFC2822Headers  {
     public final static String MESSAGE_ID = "Message-ID";
 
     /**
-     * A common variation on the name of the RFC 2822 header that 
+     * A common variation on the name of the RFC 2822 header that
      * stores the message id.  This is needed for certain filters and
      * processing of incoming mail.
      */

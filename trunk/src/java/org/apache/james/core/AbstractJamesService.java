@@ -168,11 +168,11 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         Configuration handlerConfiguration = conf.getChild("handler");
 
-        // Send the handler subconfiguration to the super class.  This 
+        // Send the handler subconfiguration to the super class.  This
         // ensures that the handler config is passed to the handlers.
         //
         // TODO: This should be rationalized.  The handler element of the
-        //       server configuration doesn't really make a whole lot of 
+        //       server configuration doesn't really make a whole lot of
         //       sense.  We should modify the config to get rid of it.
         //       Keeping it for now to maintain backwards compatibility.
         super.configure(handlerConfiguration);

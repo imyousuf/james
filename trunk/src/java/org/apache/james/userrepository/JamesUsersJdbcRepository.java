@@ -17,20 +17,20 @@ import java.sql.SQLException;
 /**
  * A Jdbc-backed UserRepository which handles User instances
  * of the <CODE>DefaultJamesUser</CODE> class, or any superclass.
- * 
+ *
  * @author Darrell DeBoer <dd@bigdaz.com>
  */
 public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
     /**
      * Reads properties for a User from an open ResultSet.
-     * 
+     *
      * @param rsUsers A ResultSet with a User record in the current row.
      * @return A User instance
      * @throws SQLException
      *                   if an exception occurs reading from the ResultSet
      */
-    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException 
+    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException
     {
         // Get the column values
         String username = rsUsers.getString(1);
@@ -69,17 +69,17 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * Set parameters of a PreparedStatement object with 
+     * Set parameters of a PreparedStatement object with
      * property values from a User instance.
-     * 
+     *
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userInsert a PreparedStatement initialised with SQL taken from the "insert" SQL definition.
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected void setUserForInsertStatement(User user, 
-                                             PreparedStatement userInsert) 
+    protected void setUserForInsertStatement(User user,
+                                             PreparedStatement userInsert)
         throws SQLException {
         setUserForStatement(user, userInsert, false);
     }
@@ -87,15 +87,15 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
     /**
      * Set parameters of a PreparedStatement object with
      * property values from a User instance.
-     * 
+     *
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userUpdate a PreparedStatement initialised with SQL taken from the "update" SQL definition.
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected void setUserForUpdateStatement(User user, 
-                                             PreparedStatement userUpdate) 
+    protected void setUserForUpdateStatement(User user,
+                                             PreparedStatement userUpdate)
         throws SQLException {
         setUserForStatement(user, userUpdate, true);
     }
@@ -128,11 +128,11 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository
             jamesUser = new DefaultJamesUser(aUser.getUserName(),
                                              aUser.getHashedPassword(),
                                              aUser.getHashAlgorithm());
-        } 
+        }
         // Can't handle any other implementations.
         else {
-            throw new RuntimeException("An unknown implementation of User was " + 
-                                       "found. This implementation cannot be " + 
+            throw new RuntimeException("An unknown implementation of User was " +
+                                       "found. This implementation cannot be " +
                                        "persisted to a UsersJDBCRepsitory.");
         }
 

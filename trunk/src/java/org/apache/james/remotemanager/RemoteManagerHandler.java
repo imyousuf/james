@@ -44,7 +44,7 @@ import org.apache.mailet.UsersRepository;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  * @author Peter M. Goldstein <farsight@alum.mit.edu>
  *
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  *
  */
 public class RemoteManagerHandler
@@ -148,7 +148,7 @@ public class RemoteManagerHandler
     private PrintWriter out;
 
     /**
-     * The thread executing this handler 
+     * The thread executing this handler
      */
     private Thread handlerThread;
 
@@ -363,8 +363,8 @@ public class RemoteManagerHandler
     }
 
     /**
-     * <p>This method parses and processes RemoteManager commands read off the 
-     * wire in handleConnection.  It returns true if expecting additional 
+     * <p>This method parses and processes RemoteManager commands read off the
+     * wire in handleConnection.  It returns true if expecting additional
      * commands, false otherwise.</p>
      *
      * @param command the raw command string passed in over the socket
@@ -895,7 +895,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * This method logs at a "DEBUG" level the response string that 
+     * This method logs at a "DEBUG" level the response string that
      * was sent to the RemoteManager client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
@@ -922,7 +922,7 @@ public class RemoteManagerHandler
     }
 
     /**
-     * Write a response string.  The response is also logged. 
+     * Write a response string.  The response is also logged.
      * Used for multi-line responses.
      *
      * @param responseString the response string sent to the client

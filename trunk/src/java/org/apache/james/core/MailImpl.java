@@ -410,7 +410,7 @@ public class MailImpl implements Disposable, Mail {
             reply);
     }
     /**
-     * Writes the content of the message, up to a total number of lines, out to 
+     * Writes the content of the message, up to a total number of lines, out to
      * an OutputStream.
      *
      * @param out the OutputStream to which to write the content

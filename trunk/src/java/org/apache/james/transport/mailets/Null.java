@@ -18,7 +18,7 @@ import org.apache.mailet.Mail;
 public class Null extends GenericMailet {
 
     /**
-     * Set this mail to GHOST state, indicating that no further processing 
+     * Set this mail to GHOST state, indicating that no further processing
      * should take place.
      *
      * @param mail the mail to process

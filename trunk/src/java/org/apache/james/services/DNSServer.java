@@ -11,7 +11,7 @@ import java.util.Collection;
 
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
- * It may be a good idea to make the interface more generic or expose 
+ * It may be a good idea to make the interface more generic or expose
  * commonly needed DNS methods.
  *
  * @author  Harmeet <harmeet@kodemuse.com>
@@ -29,7 +29,7 @@ public interface DNSServer {
      * <p>TODO: Change this to a list, as not all collections are sortable</p>
      *
      * @param hostname the hostname to check
-     * @return collection of strings representing MX record values. 
+     * @return collection of strings representing MX record values.
      */
     Collection findMXRecords(String hostname);
 }

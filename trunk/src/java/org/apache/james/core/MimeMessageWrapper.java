@@ -73,7 +73,7 @@ public class MimeMessageWrapper
     RFC822DateFormat mailDateFormat = new RFC822DateFormat();
 
     /**
-     * A constructor that instantiates a MimeMessageWrapper based on 
+     * A constructor that instantiates a MimeMessageWrapper based on
      * a MimeMessageSource
      *
      * @param source the MimeMessageSource
@@ -95,7 +95,7 @@ public class MimeMessageWrapper
     /**
      * Load the message headers from the internal source.
      *
-     * @throws MessagingException if an error is encountered while 
+     * @throws MessagingException if an error is encountered while
      *                            loading the headers
      */
     private synchronized void loadHeaders() throws MessagingException {
@@ -116,7 +116,7 @@ public class MimeMessageWrapper
     /**
      * Load the complete MimeMessage from the internal source.
      *
-     * @throws MessagingException if an error is encountered while 
+     * @throws MessagingException if an error is encountered while
      *                            loading the message
      */
     private synchronized void loadMessage() throws MessagingException {
@@ -190,7 +190,7 @@ public class MimeMessageWrapper
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
 
-            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
             //       allow simultaneous read/writes would be a substantial improvement
             byte[] block = new byte[1024];
             int read = 0;
@@ -233,7 +233,7 @@ public class MimeMessageWrapper
                 pos.println(header);
             }
             pos.println();
-            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
             //       allow simultaneous read/writes would be a substantial improvement
             byte[] block = new byte[1024];
             int read = 0;
@@ -649,7 +649,7 @@ public class MimeMessageWrapper
             loadMessage();
         }
         InputStream in = getContentStream();
-        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
         //       allow simultaneous read/writes would be a substantial improvement
         byte block[] = new byte[1024];
         int len = 0;

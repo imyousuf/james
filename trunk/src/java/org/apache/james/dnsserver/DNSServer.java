@@ -188,7 +188,7 @@ public class DNSServer
     /**
      * Looks up DNS records of the specified type for the specified name.
      *
-     * This method is a public wrapper for the private implementation 
+     * This method is a public wrapper for the private implementation
      * method
      *
      * @param name the name of the host to be looked up

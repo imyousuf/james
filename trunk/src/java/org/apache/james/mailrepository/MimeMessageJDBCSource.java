@@ -82,8 +82,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     }
 
     /**
-     * Returns a unique String ID that represents the location from where 
-     * this source is loaded.  This will be used to identify where the data 
+     * Returns a unique String ID that represents the location from where
+     * this source is loaded.  This will be used to identify where the data
      * is, primarily to avoid situations where this data would get overwritten.
      *
      * @return the String ID
@@ -198,7 +198,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                     // Ignored - no access to logger at this point in the code
                 }
             }
-            
+
             return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());

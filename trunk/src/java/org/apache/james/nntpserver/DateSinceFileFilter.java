@@ -18,7 +18,7 @@ import java.io.FilenameFilter;
 public class DateSinceFileFilter implements FilenameFilter {
 
     /**
-     * The date that serves as the lower bound of the region of 
+     * The date that serves as the lower bound of the region of
      * interest
      */
     private final long m_date;
@@ -27,7 +27,7 @@ public class DateSinceFileFilter implements FilenameFilter {
      * Creates a new FileFilter that returns all Files that
      * have been modified since the date specified.
      *
-     * @param date the date that serves as the lower bound of the region of 
+     * @param date the date that serves as the lower bound of the region of
      * interest
      */
     public DateSinceFileFilter( long date ) {

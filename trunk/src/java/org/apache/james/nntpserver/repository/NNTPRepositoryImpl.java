@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-public class NNTPRepositoryImpl extends AbstractLogEnabled 
+public class NNTPRepositoryImpl extends AbstractLogEnabled
     implements NNTPRepository, Contextualizable, Configurable, Initializable
 {
     /**
@@ -378,7 +378,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      *
      * TODO: This method doesn't properly implement the Avalon lifecycle.
      */
-    private NNTPSpooler createSpooler() 
+    private NNTPSpooler createSpooler()
             throws ConfigurationException {
         String className = "org.apache.james.nntpserver.repository.NNTPSpooler";
         Configuration spoolerConfiguration = configuration.getChild("spool");

@@ -95,7 +95,7 @@ public class JDBCMailRepository
 
     /**
      * A lock used to control access to repository elements, locking access
-     * based on the key 
+     * based on the key
      */
     private Lock lock;
 
@@ -455,7 +455,7 @@ public class JDBCMailRepository
             ResultSet rsExists = null;
             boolean exists = false;
             try {
-                checkMessageExists = 
+                checkMessageExists =
                     conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
                 checkMessageExists.setString(1, mc.getName());
                 checkMessageExists.setString(2, repositoryName);
@@ -527,10 +527,10 @@ public class JDBCMailRepository
                                 //Store the body in the stream repository
                                 bodyOut = sr.put(mc.getName());
                             }
-        
+
                             //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
                             MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
-        
+
                             //Store the headers in the database
                             ByteArrayInputStream headerInputStream =
                                 new ByteArrayInputStream(headerOut.toByteArray());
@@ -572,7 +572,7 @@ public class JDBCMailRepository
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
                     MimeMessage messageBody = mc.getMessage();
-    
+
                     ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
                     OutputStream bodyOut = null;
                     try {
@@ -584,7 +584,7 @@ public class JDBCMailRepository
                             //Store the body in the file system.
                             bodyOut = sr.put(mc.getName());
                         }
-        
+
                         //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
                         MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
 
@@ -791,7 +791,7 @@ public class JDBCMailRepository
         // TODO: Figure out whether other instance variables should be part of
         // the equals equation
         JDBCMailRepository repository = (JDBCMailRepository)obj;
-        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) && 
+        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) &&
                 ((repository.repositoryName == repositoryName) || ((repository.repositoryName != null) && repository.repositoryName.equals(repositoryName)));
     }
 
@@ -813,7 +813,7 @@ public class JDBCMailRepository
 
     /**
      * Closes output streams used to update message
-     * 
+     *
      * @headerStream the stream containing header information - potentially the same
      *               as the body stream
      * @bodyStream the stream containing body information

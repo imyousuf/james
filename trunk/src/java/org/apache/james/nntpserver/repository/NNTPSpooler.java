@@ -31,7 +31,7 @@ import java.util.Properties;
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>
  */
-class NNTPSpooler extends AbstractLogEnabled 
+class NNTPSpooler extends AbstractLogEnabled
         implements Contextualizable, Configurable, Initializable {
 
     /**
@@ -62,7 +62,7 @@ class NNTPSpooler extends AbstractLogEnabled
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
-    public void contextualize(final Context context) 
+    public void contextualize(final Context context)
             throws ContextException {
         this.context = context;
     }

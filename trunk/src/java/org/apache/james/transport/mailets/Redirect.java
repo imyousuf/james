@@ -551,9 +551,9 @@ public class Redirect extends GenericMailet {
         if(reply.getHeader(RFC2822Headers.DATE) == null) {
             reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
-        
+
         //
-         
+
         if(replyTo != null) {
             InternetAddress[] iart = new InternetAddress[1];
             iart[0] = replyTo.toInternetAddress();

@@ -52,7 +52,7 @@ import org.apache.mailet.SpoolRepository;
  *
  * Note that the 'onerror' attribute is not yet supported.
  */
-public class LinearProcessor 
+public class LinearProcessor
     extends AbstractLogEnabled
     implements Initializable, Disposable {
 
@@ -133,7 +133,7 @@ public class LinearProcessor
      *
      * <p>It is an essential part of the contract of the LinearProcessor
      * that a particular matcher/mailet combination be used to
-     * terminate the processor chain.  This is done by calling the  
+     * terminate the processor chain.  This is done by calling the
      * closeProcessorList method.</p>
      *
      * <p>Once the closeProcessorList has been called any subsequent
@@ -179,12 +179,12 @@ public class LinearProcessor
                 public Collection match(Mail mail) {
                     return mail.getRecipients();
                 }
-            
+
                 public String getMatcherInfo() {
                     return TERMINATING_MATCHER_NAME;
                 }
             };
-        Mailet terminatingMailet = 
+        Mailet terminatingMailet =
             new GenericMailet() {
                 public void service(Mail mail) {
                     if (!(Mail.ERROR.equals(mail.getState()))) {
@@ -200,11 +200,11 @@ public class LinearProcessor
                     }
                     mail.setState(Mail.GHOST);
                 }
-            
+
                 public String getMailetInfo() {
                     return getMailetName();
                 }
-            
+
                 public String getMailetName() {
                     return TERMINATING_MAILET_NAME;
                 }
@@ -221,11 +221,11 @@ public class LinearProcessor
      *
      * <p>If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
      * method then a call to this method will result in an <code>IllegalStateException</code>.
-     * The end of the matcher/mailet chain must be a matcher that matches all mails and 
-     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
+     * The end of the matcher/mailet chain must be a matcher that matches all mails and
+     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that
      * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
      * ensures this.</p>
-     * 
+     *
      * @param mail the new mail to be processed
      *
      * @throws IllegalStateException when this method is called before the processor lists have been closed
@@ -252,7 +252,7 @@ public class LinearProcessor
         //  It is a List of Mail objects at each array spot as multiple Mail
         //  objects could be at the same stage.
         //
-        //  Note that every Mail object in this array will either be the 
+        //  Note that every Mail object in this array will either be the
         //  original Mail object passed in, or a result of this method's
         //  (and hence this thread's) processing.
 
@@ -282,8 +282,8 @@ public class LinearProcessor
             //  Please note that the presence of the terminating mailet at the end
             //  of the chain is critical to the proper operation
             //  of the LinearProcessor code.  If this mailet is not placed
-            //  at the end of the chain with a terminating matcher, there is a 
-            //  potential for configuration or implementation errors to 
+            //  at the end of the chain with a terminating matcher, there is a
+            //  potential for configuration or implementation errors to
             //  lead to mails trapped in the spool.  This matcher/mailet
             //  combination is added when the closeProcessorList method
             //  is called.
@@ -380,8 +380,8 @@ public class LinearProcessor
                     mail = null;
                     continue;
                 }
-                // This was just set to another state requiring further processing... 
-                // Store this back in the spool and it will get picked up and 
+                // This was just set to another state requiring further processing...
+                // Store this back in the spool and it will get picked up and
                 // run in that processor
                 spool.store(mail);
                 mail = null;
@@ -399,7 +399,7 @@ public class LinearProcessor
      * Create a unique new primary key name.
      *
      * @param mail the mail to use as the basis for the new mail name
-     * 
+     *
      * @return a new name
      */
     private String newName(Mail mail) {

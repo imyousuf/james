@@ -33,7 +33,7 @@ public class AvalonSpoolRepository
 
     /**
      * <p>Returns the key for an arbitrarily selected mail deposited in this Repository.
-     * Usage: SpoolManager calls accept() to see if there are any unprocessed 
+     * Usage: SpoolManager calls accept() to see if there are any unprocessed
      * mails in the spool repository.</p>
      *
      * <p>Synchronized to ensure thread safe access to the underlying spool.</p>
@@ -48,7 +48,7 @@ public class AvalonSpoolRepository
             try {
                 for(Iterator it = list(); it.hasNext(); ) {
 
-                    String s = it.next().toString();                    
+                    String s = it.next().toString();
                     if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
                         StringBuffer logBuffer =
                             new StringBuffer(64)

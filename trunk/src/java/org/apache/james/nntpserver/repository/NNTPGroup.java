@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 
-/** 
+/**
  * Contract exposed by a NewsGroup
  *
  * @author Harmeet Bedi <harmeet@kodemuse.com>

@@ -25,7 +25,7 @@ import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
  *     scheduler = (TimeScheduler) compMgr.lookup(TimeScheduler.ROLE);
  *
  * and changing AbstractJamesService.getWatchdogFactory to look
- * something like: 
+ * something like:
  *
  *     protected WatchdogFactory getWatchdogFactory() {
  *        WatchdogFactory theWatchdogFactory = null;

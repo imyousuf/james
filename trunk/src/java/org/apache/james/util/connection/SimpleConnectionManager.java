@@ -29,7 +29,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**
  * An implementation of ConnectionManager that supports configurable
- * idle timeouts and a configurable value for the maximum number of 
+ * idle timeouts and a configurable value for the maximum number of
  * client connections to a particular port.
  *
  * @author Andrei Ivanov
@@ -60,7 +60,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
      * manager.
      */
     private final HashMap connectionMap = new HashMap();
-  
+
     /**
      * The idle timeout for the individual sockets spawed from the server socket.
      */
@@ -95,7 +95,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
                     .append(timeout)
                     .append(" is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
-        } 
+        }
 
         if (maxOpenConn < 0) {
             StringBuffer exceptionBuffer =
@@ -104,12 +104,12 @@ public class SimpleConnectionManager extends AbstractLogEnabled
                     .append(maxOpenConn)
                     .append(" is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
-        } 
+        }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Connection timeout is " 
+            getLogger().debug("Connection timeout is "
                              + (timeout == 0 ? "unlimited" : Long.toString(timeout)));
-            getLogger().debug("The maximum number of simultaneously open connections is " 
+            getLogger().debug("The maximum number of simultaneously open connections is "
                              + (maxOpenConn == 0 ? "unlimited" : Integer.toString(maxOpenConn)));
         }
     }
@@ -117,7 +117,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
     /**
      * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
-    public void compose(ComponentManager componentManager) 
+    public void compose(ComponentManager componentManager)
         throws ComponentException {
         threadManager = (ThreadManager)componentManager.lookup( ThreadManager.ROLE );
     }
@@ -145,7 +145,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
             getLogger().debug("Finishing SimpleConnectionManager dispose...");
         }
     }
-  
+
     /**
      * Start managing a connection.
      * Management involves accepting connections and farming them out to threads
@@ -248,7 +248,7 @@ public class SimpleConnectionManager extends AbstractLogEnabled
         throws Exception {
         disconnect( name, false );
     }
-  
+
     /**
      * This shuts down a connection.
      * If tearDown is true then it will forcefully the connection and try

@@ -19,7 +19,7 @@ import org.apache.mailet.UsersRepository;
 
 /**
  * MailingListServer capability.
- * 
+ *
  * <p>Requires a configuration element in the config.xml file of the form:
  * <br>  &lt;mailet match="RecipientIs=LIST-ADDRESS" class="AvalonListserv"&gt;
  * <br>    &lt;repositoryName&gt;LIST-NAME&lt;/repositoryName&gt;
@@ -50,7 +50,7 @@ import org.apache.mailet.UsersRepository;
  * "[PREFIX] ", if false, the prefix will be used literally.
  *
  * @author  <a href="sergek@lokitech.com">Serge Knystautas </a>
- * @version This is $Revision: 1.9 $
+ * @version This is $Revision: 1.10 $
  */
 public class AvalonListserv extends GenericListserv {
 

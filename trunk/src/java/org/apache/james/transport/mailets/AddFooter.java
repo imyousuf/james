@@ -126,7 +126,7 @@ public class AddFooter extends GenericMailet {
      *
      * @param part the MimePart to attach
      *
-     * @throws MessagingException 
+     * @throws MessagingException
      * @throws IOException
      */
     protected void addToText(MimePart part) throws MessagingException, IOException {
@@ -143,7 +143,7 @@ public class AddFooter extends GenericMailet {
      *
      * @param part the MimePart to attach
      *
-     * @throws MessagingException 
+     * @throws MessagingException
      * @throws IOException
      */
     protected void addToHTML(MimePart part) throws MessagingException, IOException {
@@ -157,7 +157,7 @@ public class AddFooter extends GenericMailet {
      *
      * @param part the MimePart to attach
      *
-     * @throws MessagingException 
+     * @throws MessagingException
      * @throws IOException
      */
     protected void attachFooter(MimePart part) throws MessagingException, IOException {

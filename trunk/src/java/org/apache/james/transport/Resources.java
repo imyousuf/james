@@ -19,7 +19,7 @@ public class Resources {
     //public static final String SERVER_NAMES = "SERVER_NAMES";
 
     /**
-     * Don't know what this is supposed to be. 
+     * Don't know what this is supposed to be.
      *
      * @deprecated this is unused
      */
@@ -29,21 +29,21 @@ public class Resources {
     //public static final String POSTMASTER = "POSTMASTER";
 
     /**
-     * Don't know what this is supposed to be. 
+     * Don't know what this is supposed to be.
      *
      * @deprecated this is unused
      */
     public static final String MAIL_SERVER = "MAIL_SERVER";
 
     /**
-     * Don't know what this is supposed to be. 
+     * Don't know what this is supposed to be.
      *
      * @deprecated this is unused
      */
     public static final String TRANSPORT = "TRANSPORT";
 
     /**
-     * Don't know what this is supposed to be. 
+     * Don't know what this is supposed to be.
      *
      * @deprecated this is unused
      */

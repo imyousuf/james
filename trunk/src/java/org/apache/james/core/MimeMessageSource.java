@@ -19,8 +19,8 @@ import java.io.InputStream;
  */
 public abstract class MimeMessageSource {
     /**
-     * Returns a unique String ID that represents the location from where 
-     * this file is loaded.  This will be used to identify where the data 
+     * Returns a unique String ID that represents the location from where
+     * this file is loaded.  This will be used to identify where the data
      * is, primarily to avoid situations where this data would get overwritten.
      *
      * @return the String ID

@@ -9,7 +9,7 @@ package org.apache.james.nntpserver;
 
 /**
  * Exception Wrapper, like javax.servlet.ServletException.
- * Purpose is to catch and wrap exceptions into unchecked NNTP specific. 
+ * Purpose is to catch and wrap exceptions into unchecked NNTP specific.
  * Protocol handler catches the exception and returns error info to client.
  * Error Information is obtained by calling 'getMessage'
  *

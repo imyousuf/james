@@ -17,7 +17,7 @@ package org.apache.james.context;
  * look up context values directly, using String keys.  This
  * class stores the String keys that are used by James to
  * look up context values.
- * 
+ *
  * The lifetime of this class is expected to be limited.  At some
  * point in the near future the Avalon folks will make a decision
  * about how exactly to define, describe, and publish context
@@ -35,7 +35,7 @@ public class AvalonContextConstants {
 
     /**
      * The context key associated with the home directory of the application
-     * being run.  The object returned on a 
+     * being run.  The object returned on a
      * context.get(AvalonContextConstants.APPLICATION_HOME) should be of
      * type <code>java.io.File</code> and should be the home directory
      * for the application (in our case, James)

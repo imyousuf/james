@@ -1,19 +1,19 @@
 /**
  * Constants.java
- * 
+ *
  * Copyright (C) 07-Jan-2003 The Apache Software Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software License
  * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE file. 
+ * the LICENSE file.
  *
  * Danny Angus
  */
 package org.apache.mailet;
 /**
  * @author <A href="mailto:danny@apache.org">Danny Angus</a>
- * 
- * $Id: MailetContextConstants.java,v 1.1 2003/01/07 11:06:35 danny Exp $
+ *
+ * $Id: MailetContextConstants.java,v 1.2 2003/01/12 22:38:35 serge Exp $
  */
 public interface MailetContextConstants {
     /**
