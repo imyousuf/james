@@ -44,8 +44,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * Last changed by: $Author: darrell $ on $Date: 2002/01/18 02:48:37 $
- * $Revision: 1.9 $
+ * Last changed by: $Author: serge $ on $Date: 2002/04/17 04:23:36 $
+ * $Revision: 1.10 $
  *
  */
 public class RemoteManagerHandler
@@ -144,8 +144,9 @@ public class RemoteManagerHandler
                 while (parseCommand(in.readLine())) {
                     scheduler.resetTrigger(this.toString());
                 }
-            }
-            catch (Throwable thr) {
+            } catch (IOException ioe) {
+                //We can cleanly ignore this as it's probably a socket timeout
+            } catch (Throwable thr) {
                 System.out.println("Exception: " + thr.getMessage());
                 thr.printStackTrace();
             }
