@@ -19,8 +19,20 @@ import org.apache.james.transport.*;
 
 /**
  * Routes a given email address to a list of members, based on simple
- * listserv settings
+ * listserv settings.
  *
+ * Sample configuration in avalon.conf.xml:
+ * <pre>
+ * <servlet match="RecipientIs=test@glissando.lokitech.com" class="MiniListserv">
+ *     <listservaddress>test@glissando.lokitech.com</listservaddress> <!--this will likely be removed shortly-->
+ *     <subject>Test</subject>
+ *     <membersonly>true</membersonly>
+ *     <attachmentsallowed>false</attachmentsallowed>
+ *     <replytolist>true</replytolist>
+ *     <member>sergek@lokitech.com</member>
+ *     <member>sknystautas@yahoo.com</member>
+ * </servlet>
+ * </pre>
  * @author  Serge Knystautas <sergek@lokitech.com>
  */
 public class MiniListserv extends GenericListserv {
