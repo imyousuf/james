@@ -205,7 +205,7 @@
                     class="org.apache.james.MailRepository"/>
                 <repository type="USER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
-                    class="org.apache.james.usermanager.UsersRepository"/>
+                    class="org.apache.james.usermanager.UsersFSRepository"/>
             </repositoriesDefinition>
             <publicrepositories help="When an application needs a Repository for
                     its personal use it can just ask for a private Repository which will
