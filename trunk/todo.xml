@@ -13,7 +13,7 @@
     Beta test interface and implementation of Mailet and Matcher.
   </action>
   <action context="code">
-    Improve exception management in RemoteDerivery mailet.
+    Improve exception management in RemoteDelivery mailet.
   </action>
   <action context="code">
     Add more match class to allow fine tuning of mailet processor pipe, e.g.,

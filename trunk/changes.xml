@@ -8,6 +8,11 @@
     <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
   </devs>
 
+<release version="1.1" date="">
+  <action dev="" type="code">
+
+  </action>
+
 <release version="1.0" date="26-Feb-2000">
   <action dev="SKFB" type="code">
     Added DNS stuff to remote delivery.
