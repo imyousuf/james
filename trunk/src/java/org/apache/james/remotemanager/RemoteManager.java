@@ -38,7 +38,7 @@ public class RemoteManager
     public void configure( final Configuration configuration )
         throws ConfigurationException {
 
-        m_port = configuration.getChild( "port" ).getValueAsInteger( 4554 );
+        m_port = configuration.getChild( "port" ).getValueAsInteger( 4555 );
 
         try
         {
@@ -68,7 +68,9 @@ public class RemoteManager
                     .append("RemoteManager using ")
                     .append(m_serverSocketType)
                     .append(" on port ")
-                    .append(m_port);
+                    .append(m_port)
+                    .append(" at ")
+                    .append(m_bindTo);
         getLogger().info(infoBuffer.toString());
         super.initialize();
         getLogger().info("RemoteManager ...init end");
