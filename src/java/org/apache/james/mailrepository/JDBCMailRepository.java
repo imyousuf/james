@@ -630,13 +630,16 @@ public class JDBCMailRepository
                 System.err.println("ran the query " + key);
             }
             if (!rsMessage.next()) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(64)
-                            .append("Did not find a record ")
-                            .append(key)
-                            .append(" in ")
-                            .append(repositoryName);
-                throw new RuntimeException(exceptionBuffer.toString());
+                if (getLogger().isDebugEnabled()) {
+                    StringBuffer debugBuffer =
+                        new StringBuffer(64)
+                                .append("Did not find a record ")
+                                .append(key)
+                                .append(" in ")
+                                .append(repositoryName);
+                    getLogger().debug(debugBuffer.toString());
+                }
+                return null;
             }
             MailImpl mc = new MailImpl();
             mc.setName(key);
