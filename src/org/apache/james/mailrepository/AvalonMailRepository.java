@@ -8,24 +8,24 @@
 
 package org.apache.james.mailrepository;
 
+
+
+
 import java.io.*;
 import java.util.*;
-import javax.mail.internet.*;
 import javax.mail.MessagingException;
-
+import javax.mail.internet.*;
 import org.apache.avalon.*;
+import org.apache.avalon.configuration.DefaultConfiguration;
 import org.apache.avalon.util.Lock;
 import org.apache.avalon.util.LockException;
 import org.apache.cornerstone.services.Store;
-
-import org.apache.log.LogKit;
-import org.apache.log.Logger;
-
-import org.apache.mailet.*;
 import org.apache.james.core.*;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
-
+import org.apache.log.LogKit;
+import org.apache.log.Logger;
+import org.apache.mailet.*;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -40,12 +40,12 @@ import org.apache.james.services.MailStore;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author Charles Benett <charles@benett1.demon.co.uk>
  */
-public class AvalonMailRepository implements MailRepository, Component, Configurable, Composer {
+public class AvalonMailRepository 
+    extends AbstractLoggable
+    implements MailRepository, Component, Configurable, Composer {
     protected Lock lock;
 
     private static final String TYPE = "MAIL";
-    private final static boolean        LOG        = true;
-    private final static boolean        DEBUG      = LOG && false;
     private Logger logger =  LogKit.getLoggerFor("james.MailRepository");
     private Store store;
     private Store.StreamRepository sr;
@@ -53,51 +53,41 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
     private MailStore mailstore;
     private String destination;
 
-   
-
-    public AvalonMailRepository() {
-    }
-
     public void configure(Configuration conf) throws ConfigurationException {
-	destination = conf.getAttribute("destinationURL");
-	String checkType = conf.getAttribute("type");
-	if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-	    logger.warn("Attempt to configure AvalonMailRepository as "
-			+ checkType);
-	    throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
-	}
-	// ignore model
+        destination = conf.getAttribute("destinationURL");
+        String checkType = conf.getAttribute("type");
+        if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
+            logger.warn("Attempt to configure AvalonMailRepository as "
+                        + checkType);
+            throw new ConfigurationException("Attempt to configure AvalonMailRepository as " + checkType);
+        }
+        // ignore model
     }
 
-    public void compose(ComponentManager compMgr) {
-	try {
-	    store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
-	    //prepare Configurations for object and stream repositories
-	    DefaultConfiguration objConf
-		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-	    objConf.addAttribute("destinationURL", destination);
-	    objConf.addAttribute("type", "OBJECT");
-	    objConf.addAttribute("model", "SYNCHRONOUS");
-	    DefaultConfiguration strConf
-		= new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
-	    strConf.addAttribute("destinationURL", destination);
-	    strConf.addAttribute("type", "STREAM");
-	    strConf.addAttribute("model", "SYNCHRONOUS");
-	    
-	    sr = (Store.StreamRepository) store.select(strConf);
-	    or = (Store.ObjectRepository) store.select(objConf);
-	    lock = new Lock();
-	} catch (ComponentNotFoundException cnfe) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnfe.getMessage());
-	} catch (ComponentNotAccessibleException cnae) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + cnae.getMessage());
-	} catch (Exception e) {
-	    if (LOG) logger.error("Failed to retrieve Store component:" + e.getMessage());
-	}
+    public void compose(ComponentManager compMgr) 
+        throws ComponentManagerException {
+        try {
+            store = (Store) compMgr.lookup("org.apache.cornerstone.services.Store");
+            //prepare Configurations for object and stream repositories
+            DefaultConfiguration objConf
+                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
+            objConf.addAttribute("destinationURL", destination);
+            objConf.addAttribute("type", "OBJECT");
+            objConf.addAttribute("model", "SYNCHRONOUS");
+            DefaultConfiguration strConf
+                = new DefaultConfiguration("repository", "generated:AvalonFileRepository.compose()");
+            strConf.addAttribute("destinationURL", destination);
+            strConf.addAttribute("type", "STREAM");
+            strConf.addAttribute("model", "SYNCHRONOUS");
+            
+            sr = (Store.StreamRepository) store.select(strConf);
+            or = (Store.ObjectRepository) store.select(objConf);
+            lock = new Lock();
+        } catch (Exception e) {
+            logger.error( "Failed to retrieve Store component:" + e.getMessage() );
+            throw new ComponentManagerException( "Failed to retrieve store component", e );
+        }
     }
-
- 
-
 
     public synchronized void unlock(Object key) {
 
@@ -136,9 +126,9 @@ public class AvalonMailRepository implements MailRepository, Component, Configur
     public MailImpl retrieve(String key) {
         MailImpl mc = (MailImpl) or.get(key);
         try {
-	    InputStream in = new FileMimeMessageInputStream(sr, key);
+            InputStream in = new FileMimeMessageInputStream(sr, key);
             mc.setMessage(in);
-	    in.close();
+            in.close();
         } catch (Exception me) {
             throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
         }
