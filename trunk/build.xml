@@ -34,7 +34,7 @@ All these package are in current distribution.
 
 =========================================================================== -->
 
-<project default="block-archive" basedir=".">
+<project default="sar" basedir=".">
 
   <!--
     Give user a chance to override without editing this file
@@ -48,7 +48,7 @@ All these package are in current distribution.
   <property name="build.compiler" value="classic"/>
   <property name="debug" value="off"/>
   <property name="optimize" value="on"/>
-  <property name="deprecation" value="on"/>
+  <property name="deprecation" value="off"/>
 
   <!-- The properties in the init section should not normally be changed
 -->
@@ -63,8 +63,8 @@ All these package are in current distribution.
     <property name="build.dir" value="./build"/>
     <property name="build.src" value="${build.dir}/src"/>
     <property name="build.classes" value="${build.dir}/classes"/>
-        <property name="build.docs" value="${build.dir}/docs"/>
-        <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
+    <property name="build.docs" value="${build.dir}/docs"/>
+    <property name="build.mailetdocs" value="${build.dir}/mailetdocs"/>
     <property name="build.javadocs" value="${build.dir}/javadocs"/>
     <property name="build.lib" value="${build.dir}/lib"/>
 
@@ -80,7 +80,7 @@ All these package are in current distribution.
     <property name="docs.src" value="./xdocs"/>
     <property name="docs.dest" value="./docs"/>
 
-</target>
+  </target>
 
   <!-- =================================================================== -->
   <!-- Help on usage                                                       -->
@@ -133,10 +133,7 @@ All these package are in current distribution.
     <mkdir dir="${build.lib}"/>
 
     <!-- copy src files -->
-    <copy todir="${build.src}">
-      <fileset dir="${src.dir}" excludes="**/CVS/**,*.xml"/>
-    </copy>
-
+    <copy file="${src.dir}/${constants.file}" tofile="${build.src}/${constants.file}"/>
     <copy file="${lib.dir}/cornerstone.bar" tofile="${build.lib}/cornerstone.bar"/>
 
     <!-- substitute tokens as needed -->
@@ -147,13 +144,18 @@ All these package are in current distribution.
   <!-- Compiles the source directory                                       -->
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src">
-    <javac srcdir="${build.src}" destdir="${build.classes}" classpath="${classpath}"
+    <javac srcdir="${src.dir}" 
+           destdir="${build.classes}" 
+           classpath="${classpath}"
            debug="${debug}"
            optimize="${optimize}"
-           deprecation="${deprecation}"/>
+           deprecation="${deprecation}">
+      <src path="${build.src}" />
+      <exclude name="${constants.file}" />
+    </javac>
 
     <copy todir="${build.classes}">
-      <fileset dir="${build.src}">
+      <fileset dir="${src.dir}">
         <include name="**/*.properties"/>
         <include name="**/*.xinfo"/>
       </fileset>
@@ -168,10 +170,8 @@ All these package are in current distribution.
 
     <jar jarfile="${build.dir}/${name}.bar"
          basedir="${build.classes}"
-         manifest="${build.src}/Manifest.mf">
-
+         manifest="${src.dir}/Manifest.mf">
        <include name="org/**"/>
-
     </jar>
 
     <copy file="${build.dir}/${name}.bar" tofile="${build.lib}/${name}.bar"/>
@@ -183,7 +183,7 @@ All these package are in current distribution.
   <!-- =================================================================== -->
   <target name="auxiliary-jars" depends="compile">
     <jar jarfile="${build.dir}/mailet.jar" basedir="${build.classes}"
-         manifest="${build.src}/Manifest.mf" includes="org/apache/mailet/**"/>
+         manifest="${src.dir}/Manifest.mf" includes="org/apache/mailet/**"/>
   </target>
 
 
@@ -198,6 +198,13 @@ All these package are in current distribution.
 
       <fileset dir="${build.lib}/" prefix="blocks/">
         <include name="*.bar"/>
+      </fileset>
+
+      <fileset dir="${lib.dir}/" prefix="lib/">
+        <include name="dnsjava.jar"/>
+        <include name="town.jar"/>
+        <include name="activation.jar"/>
+        <include name="mail_1_2.jar"/>
       </fileset>
 
       <fileset dir="${conf.dir}" fullpath="conf/assembly.xml">
