@@ -34,7 +34,7 @@ Last Updated 15 January 2001 (as of release 1.2.1).</p>
 </section>
 
 <section name="Low Priority">
-<p>Write an NNTP server</p>
+<p>Tie in the NNTP Repository with POP/SMTP/IMAP repository structure.</p>
 <p>Add support for DRAC login/relay allowing</p>
 <p>Review threadpooling - is it dynamic?</p>
 </section>
