@@ -8,8 +8,8 @@
 package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.AccessControlException;
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.commands.ImapCommand;
 import org.apache.james.services.UsersRepository;
 

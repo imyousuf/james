@@ -10,7 +10,7 @@ package org.apache.james.imapserver;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.context.Contextualizable;
-import org.apache.james.AuthenticationException;
+import org.apache.james.imapserver.AuthenticationException;
 
 import java.util.Iterator;
 

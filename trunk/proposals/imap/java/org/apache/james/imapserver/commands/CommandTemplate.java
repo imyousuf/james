@@ -8,7 +8,7 @@
 package org.apache.james.imapserver.commands;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.AccessControlException;
+import org.apache.james.imapserver.AccessControlException;
 import org.apache.james.util.Assert;
 import org.apache.james.imapserver.*;
 

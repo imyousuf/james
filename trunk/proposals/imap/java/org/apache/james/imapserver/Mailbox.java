@@ -9,8 +9,8 @@ package org.apache.james.imapserver;
 
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.AccessControlException;
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.core.MimeMessageWrapper;
 
 import javax.mail.internet.InternetHeaders;

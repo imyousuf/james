@@ -7,8 +7,8 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.AccessControlException;
-import org.apache.james.AuthorizationException;
+import org.apache.james.imapserver.AccessControlException;
+import org.apache.james.imapserver.AuthorizationException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;

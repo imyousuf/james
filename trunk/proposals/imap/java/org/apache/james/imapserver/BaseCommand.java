@@ -8,7 +8,7 @@
 package org.apache.james.imapserver;
 
 import org.apache.james.BaseConnectionHandler;
-import org.apache.james.AccessControlException;
+import org.apache.james.imapserver.AccessControlException;
 
 import java.util.*;
 //import org.apache.james.core.EnhancedMimeMessage;

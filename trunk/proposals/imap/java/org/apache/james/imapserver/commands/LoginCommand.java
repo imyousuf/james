@@ -7,7 +7,7 @@
  */
 package org.apache.james.imapserver.commands;
 
-import org.apache.james.AuthenticationException;
+import org.apache.james.imapserver.AuthenticationException;
 import org.apache.james.imapserver.ImapRequest;
 import org.apache.james.imapserver.ImapSession;
 import org.apache.james.imapserver.ImapSessionState;
