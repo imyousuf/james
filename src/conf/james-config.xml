@@ -13,15 +13,18 @@ In case the defaults do not suit you, the items you are most likely to need to c
 are preceded by a CHECKME! or CONFIRM? comment in the left margin.
 
 For production use you will probably need to make more extensive changes, see
-http://jakarta.apache.org/james/configuration_v2_0.html
+http://jakarta.apache.org/james/configuration_v2_1.html
 
-$Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldstein $-->
+$Revision: 1.37 $ Committed on $Date: 2002/11/04 03:39:39 $ by: $Author: pgoldstein $-->
 
 <config>
    <James>
 
 <!-- CHECKME! Set this to the right email address for error reports -->
-      <postmaster> Postmaster@localhost </postmaster>
+      <!-- This is the postmaster email address for this mail server. -->
+      <!-- If this is set to a non-local email address, the mail server -->
+      <!-- will still function, but will generate a warning on startup. -->
+      <postmaster>Postmaster@localhost</postmaster>
 
 <!-- CONFIRM? -->
       <!-- servernames identifies the DNS namespace served by this instance of James.
@@ -39,6 +42,7 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
 
       <!-- Set whether user names are case sensitive or case insensitive -->
       <!-- Set whether to enable local aliases -->
+      <!-- Set whether to enable forwarding -->
       <usernames ignoreCase="true" enableAliases="true" enableForwarding="true"/>
 
       <!-- The inbox repository is the location for users inboxes -->
@@ -63,14 +67,14 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
    <!-- above. fetchpop is disabled by default.                                  -->
    
     <fetchpop enabled="false">
-        <!-- you can have as many fetch tasks as you want to        -->
+        <!-- You can have as many fetch tasks as you want to        -->
         <!-- but each must have a unique name to identify itself by -->
         <fetch name="mydomain.com">
             <!-- host name or IP address -->
             <host>mail.mydomain.com</host>
-            <!-- acount login username -->
+            <!-- Account login username -->
             <user>username</user>
-            <!-- account login password -->
+            <!-- Account login password -->
             <password>pass</password>
             <!-- Interval to check this account in milliseconds, 600000 is every ten minutes -->
             <interval>600000</interval>
@@ -79,11 +83,12 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
     
     
    <!-- The James Spool Manager block  -->
+   <!-- -->
    <spoolmanager>
-      <!-- number of spool threads -->
+      <!-- Number of spool threads -->
       <threads> 10 </threads>
 
-      <!-- Set the packages from which to load mailets and matches -->
+      <!-- Set the Java packages from which to load mailets and matchers -->
       <mailetpackages>
          <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
       </mailetpackages>
@@ -99,7 +104,7 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
             <processor> spam </processor>
          </mailet> -->
 
-         <!-- Important check to avoid race conditions -->
+         <!-- Important check to avoid looping -->
          <mailet match="RelayLimit=30" class="Null"/>
 
          <!-- Check for delivery from a known spam server -->
@@ -223,11 +228,20 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
       </processor>
    </spoolmanager>
 
-<!-- CONFIRM? Enter ip address of your DNS server, one per element -->
+   <!-- DNS Server Block -->
+   <!-- -->
+   <!-- Specifies DNS Server information for use by various components inside -->
+   <!-- James. -->
+   <!-- -->
+   <!-- Information includes a list of DNS Servers to be used by James.  These are -->
+   <!-- specified by the server elements, each of which is a child element of the -->
+   <!-- servers element.  Each server element is the IP address of a single DNS server. -->
+   <!-- The servers element can have multiple server children.  -->
    <dnsserver>
       <servers>
+        <!-- CONFIRM? Enter ip address of your DNS server, one IP address per server -->
+        <!-- element.  The default configuration assumes a DNS server on the localhost. -->
          <server>127.0.0.1</server>
-         <!--<server> put extra dns server address here </server>-->
       </servers>
       <authoritative>false</authoritative>
    </dnsserver>
@@ -513,7 +527,7 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
                 <!-- Maximum concurrent connections james may open to this database-->
                 <!-- If you see "SQLException: Giving up... no connections available." in your
                 log files or bounced mail increase this value
-            <max>10</max>
+            <max>20</max>
          </data-source>-->
 
          <!--<data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource">
@@ -524,7 +538,7 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
                 <!-- Maximum concurrent connections james may open to this database-->
                 <!-- If you see "SQLException: Giving up... no connections available." in your
                 log files or bounced mail increase this value
-            <max>10</max>
+            <max>20</max>
          </data-source>-->
 
       </data-sources>
@@ -581,8 +595,9 @@ $Revision: 1.36 $ Committed on $Date: 2002/10/26 18:36:31 $ by: $Author: pgoldst
    <!-- If no value is specified, the value defaults to 5 minutes, 300000 milliseconds -->
    <!-- A value of 0 means that client sockets will not timeout. -->
    <!-- -->
-   <!-- The max-connections parameter specifies the maximum number of client connections -->
-   <!-- that this connection manager will allow per managed server socket. -->
+   <!-- The max-connections parameter specifies the default maximum number of client -->
+   <!-- connections that this connection manager will allow per managed server socket. -->
+   <!-- This value can be overridden by each individual service. -->
    <!-- If no value is specified, the value defaults to 30. -->
    <!-- A value of 0 means that there is no limit imposed by the connection manager, although -->
    <!-- resource limitations imposed by other components (i.e. max # of threads) may -->
