@@ -9,38 +9,25 @@ package org.apache.james.transport;
 
 import java.util.*;
 import org.apache.java.lang.*;
-import org.apache.james.transport.match.*;
+import org.apache.mail.*;
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
  */
-public class MatchLoader implements Component, Composer, Contextualizable {
+public class MatchLoader implements Component {
 
-    private ComponentManager comp;
-    private Context context;
-    private Hashtable matchs;
-    
-    public MatchLoader() {
-        matchs = new Hashtable();
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public void setComponentManager(ComponentManager comp) {
-        this.comp = comp;
-    }
-
-    public Match getMatch(String matchName)
+    public Matcher getMatch(String matchName, MailetContext context)
     throws Exception {
-        Match res = (Match) matchs.get(matchName);
-        if (res != null) return res;
-        String className = "org.apache.james.transport.match." + matchName;
-        res = (Match) Class.forName(className).newInstance();
-        res.setContext(context);
-        res.setComponentManager(comp);
-        matchs.put(matchName, res);
+        String condition = (String) null;
+        int i = matchName.indexOf('=');
+        if (i != -1) {
+            condition = matchName.substring(i + 1);
+            matchName = matchName.substring(0, i);
+        }
+        String className = "org.apache.james.transport.matchers." + matchName;
+        AbstractMatcher res = (AbstractMatcher) Class.forName(className).newInstance();
+        res.setMailetContext(context);
+        res.init(condition);
         return res;
     }
 }

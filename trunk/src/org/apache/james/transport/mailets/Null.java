@@ -6,24 +6,24 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.servlet;
+package org.apache.james.transport.mailets;
 
 import org.apache.mail.*;
+import org.apache.james.transport.*;
 
 /**
  * Simpliest MailServlet which destroy any incoming messages.
  *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class Null extends GenericMailServlet {
+public class Null extends AbstractMailet {
 
-    public Mail service(Mail mail) {
-        log("Destroing mail " + mail.getName());
-        return (Mail) null;
+    public void service(Mail mail) {
+        mail.setState(mail.GHOST);
     }
     
     public String getServletInfo() {
-        return "Null Mail Servlet";
+        return "Null Mailet";
     }
 }
     

@@ -6,25 +6,24 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.mail.servlet;
+package org.apache.james.transport.matchers;
 
-import org.apache.java.lang.*;
 import org.apache.mail.*;
-
+import org.apache.james.transport.*;
 /**
- * Draft of a MailServlet inteface.
- *
  * @version 1.0.0, 24/04/1999
- * @author  Federico Barbieri   <scoobie@pop.systemy.it>
- * @author  Stefano Mazzocchi   <stefano@apache.org>
- * @author  Pierpaolo Fumagalli <pier@apache.org>
- * @author  Serge Knystautas    <sergek@lokitech.com>
+ * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public interface MailServlet extends Configurable, Service {
-
-    public Mail service(Mail mail) throws Exception;
+public class All extends AbstractMatcher {
     
-    public String getServletInfo();
-}
+    private Mail[] res = {(Mail) null, (Mail) null};
+    
+    public void init(String condition) {
+    }
 
+    public Mail[] match(Mail mail) {
+        res[0] = mail;
+        return res;
+    }
+}
     

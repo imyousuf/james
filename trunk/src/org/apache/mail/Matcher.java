@@ -6,26 +6,22 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.match;
+package org.apache.mail;
 
+import org.apache.mail.*;
 import java.util.*;
-import org.apache.mail.Mail;
+import org.apache.java.lang.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class UserIs extends AbstractMatch {
+public interface Matcher {
     
-    public Vector match(Mail mail, String condition) {
-        Vector matchingRecipients = new Vector();
-        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
-            String rec = (String) e.nextElement();
-            if (condition.indexOf(Mail.getUser(rec)) != -1) {
-                matchingRecipients.addElement(rec);
-            }
-        }
-        return matchingRecipients;
-    }
+    public void init(String condition);
+    
+    public Mail[] match(Mail mail);
+
+    public MailetContext getContext();
 }
     

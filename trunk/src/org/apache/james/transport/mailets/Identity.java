@@ -6,26 +6,23 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.match;
+package org.apache.james.transport.mailets;
 
-import java.util.*;
-import org.apache.mail.Mail;
+import org.apache.mail.*;
+import org.apache.james.transport.*;
 
 /**
- * @version 1.0.0, 24/04/1999
+ * Opposite of Null Servlet. It let any incoming mail untouched. Used only for 
+ * debugging.
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class RecipientIs extends AbstractMatch {
+public class Identity extends AbstractMailet {
+
+    public void service(Mail mail) {
+    }
     
-    public Vector match(Mail mail, String condition) {
-        Vector matchingRecipients = new Vector();
-        for (Enumeration e = mail.getRecipients().elements(); e.hasMoreElements(); ) {
-            String rec = (String) e.nextElement();
-            if (condition.indexOf(rec) != -1) {
-                matchingRecipients.addElement(rec);
-            }
-        }
-        return matchingRecipients;
+    public String getServletInfo() {
+        return "Identity Mailet";
     }
 }
     

@@ -6,24 +6,30 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.match;
+package org.apache.james.transport;
 
+import org.apache.mail.*;
 import java.util.*;
-import org.apache.mail.Mail;
+import org.apache.java.lang.*;
 
 /**
  * @version 1.0.0, 24/04/1999
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class SenderIs extends AbstractMatch {
+public abstract class AbstractMatcher implements Matcher {
     
-    public Vector match(Mail mail, String condition) {
-        String sender = mail.getSender();
-        if (condition.indexOf(sender) != -1) {
-            return mail.getRecipients();
-        } else {
-            return new Vector();
-        }
+    private MailetContext context;
+
+    public abstract void init(String condition);
+    
+    public abstract Mail[] match(Mail mail);
+    
+    public MailetContext getContext() {
+        return context;
+    }
+    
+    public void setMailetContext(MailetContext context) {
+        this.context = context;
     }
 }
     

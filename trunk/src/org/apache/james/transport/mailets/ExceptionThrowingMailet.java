@@ -6,18 +6,25 @@
  * the LICENSE file.                                                         *
  *****************************************************************************/
 
-package org.apache.james.transport.match;
+package org.apache.james.transport.mailets;
 
-import org.apache.mail.Mail;
-import java.util.*;
+import org.apache.mail.*;
+import org.apache.james.transport.*;
+
 /**
- * @version 1.0.0, 24/04/1999
+ * Debugging purpose Mailet. Just throws an exception.
+ *
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  */
-public class All extends AbstractMatch {
+public class ExceptionThrowingMailet extends AbstractMailet {
 
-    public Vector match(Mail mail, String condition) {
-        return mail.getRecipients();
+    public void service(Mail mail) 
+    throws Exception {
+        throw new Exception("General protection fault");
+    }
+    
+    public String getServletInfo() {
+        return "ExceptionThrowingMailet Mailet";
     }
 }
     
