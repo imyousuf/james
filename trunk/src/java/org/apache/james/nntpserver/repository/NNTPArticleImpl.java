@@ -7,7 +7,11 @@
  */
 package org.apache.james.nntpserver.repository;
 
+import org.apache.james.nntpserver.NNTPException;
 import org.apache.avalon.excalibur.io.IOUtil;
+
+import javax.mail.internet.InternetHeaders;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,9 +19,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.mail.internet.InternetHeaders;
-
-import org.apache.james.nntpserver.NNTPException;
 
 /**
  * Please see NNTPArticle for comments
@@ -47,21 +48,21 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getGroup()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getGroup()
      */
     public NNTPGroup getGroup() {
         return group;
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getArticleNumber()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getArticleNumber()
      */
     public int getArticleNumber() {
         return Integer.parseInt(articleFile.getName());
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getUniqueID()
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getUniqueID()
      */
     public String getUniqueID() {
         FileInputStream fin = null;
@@ -78,7 +79,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeArticle(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeArticle(PrintWriter)
      */
     public void writeArticle(PrintWriter prt) {
         BufferedReader reader = null;
@@ -106,7 +107,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeHead(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeHead(PrintWriter)
      */
     public void writeHead(PrintWriter prt) {
         try {
@@ -115,6 +116,8 @@ class NNTPArticleImpl implements NNTPArticle {
             while ( ( line = reader.readLine() ) != null ) {
                 if ( line.trim().length() == 0 )
                     break;
+                if ( line.startsWith(".") )
+                    prt.print(".");
                 prt.println(line);
             }
             reader.close();
@@ -122,7 +125,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeBody(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeBody(PrintWriter)
      */
     public void writeBody(PrintWriter prt) {
         try {
@@ -130,9 +133,11 @@ class NNTPArticleImpl implements NNTPArticle {
             String line = null;
             boolean startWriting = false;
             while ( ( line = reader.readLine() ) != null ) {
-                if ( startWriting )
+                if ( startWriting ) {
+                    if ( line.startsWith(".") )
+                        prt.print(".");
                     prt.println(line);
-                else
+                } else
                     startWriting = ( line.trim().length() == 0 );
             }
             reader.close();
@@ -140,7 +145,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#writeOverview(PrintWriter)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#writeOverview(PrintWriter)
      */
     public void writeOverview(PrintWriter prt) {
         try {
@@ -153,6 +158,7 @@ class NNTPArticleImpl implements NNTPArticle {
             String msgId = hdr.getHeader("Message-Id",null);
             String references = hdr.getHeader("References",null);
             long byteCount = articleFile.length();
+            // TODO: Address the line count issue.
             long lineCount = -1;
             StringBuffer line=new StringBuffer(256)
                 .append(getArticleNumber())      .append("\t")
@@ -168,7 +174,7 @@ class NNTPArticleImpl implements NNTPArticle {
     }
 
     /**
-     * @see org.apache.james.nntpsever.repository.NNTPArticle#getHeader(String)
+     * @see org.apache.james.nntpserver.repository.NNTPArticle#getHeader(String)
      */
     public String getHeader(String header) {
         try {
