@@ -24,7 +24,8 @@ public class UserManager implements Component, Configurable, Composer, Service, 
     private Configuration conf;
     private ComponentManager comp;
     private Logger logger;
-    private Store.ObjectRepository users;
+    private Store store;
+    private UsersRepository rootRepository;
 
     public UserManager() {
     }
@@ -43,31 +44,17 @@ public class UserManager implements Component, Configurable, Composer, Service, 
 
 	public void init() throws Exception {
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
-        String userRepositoryPath = conf.getConfiguration("repository", "file://../users/").getValue();
-        Store store = (Store) comp.getComponent(Interfaces.STORE);
-        users = (Store.ObjectRepository) store.getPrivateRepository(userRepositoryPath, Store.OBJECT, Store.ASYNCHRONOUS);
+        String rootPath = conf.getConfiguration("rootPath", "file://../users/").getValue();
+        store = (Store) comp.getComponent(Interfaces.STORE);
+        rootRepository = (UsersRepository) store.getPrivateRepository(rootPath, UsersRepository.USER, Store.ASYNCHRONOUS);
     }
     
-    public Enumeration list() {
-      return users.list();  
-    }
-    
-    public void remove(String login) {
-        users.remove(login);
-    }
-    
-    public void addUser(String login, String password) {
-        users.store(login, password);
+    public UsersRepository getUserRepository(String name) {
+        String path = rootRepository.getChildDestination(name);
+        logger.log("Opening user repositoy " + name + " in " + path, "JAMES", logger.INFO);
+        return (UsersRepository) store.getPrivateRepository(path, UsersRepository.USER, Store.ASYNCHRONOUS);
     }
 
-    public boolean test(String login, String password) {
-        return users.test(login, password);
-    }
-    
-    public boolean containsKey(String login) {
-        return users.containsKey(login);
-    }
-    
     public void destroy() {
     }
 }
