@@ -104,7 +104,7 @@ import java.util.*;
  * @author Serge
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
- * @version This is $Revision: 1.35.4.7 $
+ * @version This is $Revision: 1.35.4.8 $
 
  */
 public class James
@@ -333,7 +333,7 @@ public class James
 
 
         // Get postmaster
-        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster");
+        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster").toLowerCase(Locale.US);
         // if there is no @domain part, then add the first one from the
         // list of supported domains that isn't localhost.  If that
         // doesn't work, use the hostname, even if it is localhost.
