@@ -110,7 +110,7 @@ echo "Using JAVA_HOME:      $JAVA_HOME"
 # like placing jaxp/jaas/xml-parser jars in ext dir
 # thus breaking Phoenix
 #
-JVM_OPTS="-server -Djava.ext.dirs=$PHOENIX_HOME/lib"
+JVM_OPTS="-Djava.ext.dirs=$PHOENIX_HOME/lib"
 
 if [ "$PHOENIX_SECURE" != "false" ] ; then
   # Make phoenix run with security manager enabled
