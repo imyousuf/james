@@ -2,7 +2,7 @@
 
 <!-- ==========================================================================
 
- James build file $Revision: 1.83 $  Committed on $Date: 2001/09/30 17:58:13 $ by: $Author: danny $
+ James build file $Revision: 1.84 $  Committed on $Date: 2001/10/10 13:45:46 $ by: $Author: danny $
 
 Authors:
  Federico Barbieri <scoobie@systemy.it>
@@ -400,8 +400,8 @@ Legal:
 
     <chmod dir="${dist.dir}" perm="go-rwx" />
     <chmod file="${dist.dir}/bin/run.sh" perm="u+x"/>
-    <fixcrlf srcdir="${dist.dir}" cr="add" includes="**/*.bat" />
-    <fixcrlf srcdir="${dist.dir}" cr="remove" includes="**/*.sh" />
+    <fixcrlf srcdir="${dist.dir}" eol="crlf" includes="**/*.bat" />
+    <fixcrlf srcdir="${dist.dir}" eol="lf" includes="**/*.sh" />
   </target>
 
 
@@ -666,8 +666,8 @@ Legal:
       </fileset>
     </copy>
 
-    <fixcrlf srcdir="${src.dist.dir}" includes="build.sh" cr="remove"/>
-    <fixcrlf srcdir="${src.dist.dir}" includes="build.bat" cr="add"/>
+    <fixcrlf srcdir="${src.dist.dir}" includes="build.sh" eol="lf"/>
+    <fixcrlf srcdir="${src.dist.dir}" includes="build.bat" eol="crlf"/>
 
     <chmod perm="+x">
       <fileset dir="${src.dist.dir}">
@@ -675,7 +675,7 @@ Legal:
       </fileset>
     </chmod>
 
-    <fixcrlf srcdir="${src.dist.src}/java" includes="**/*.java" cr="remove"/>
+    <fixcrlf srcdir="${src.dist.src}/java" includes="**/*.java" eol="lf"/>
 
     <chmod dir="${src.dist.dir}" perm="go-rwx" />
 
