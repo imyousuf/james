@@ -58,35 +58,77 @@
 
 package org.apache.james.transport.mailets;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.StringTokenizer;
-
-import javax.mail.MessagingException;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.StringTokenizer;
+
 /**
- * Replaces incoming recipients with those specified.
+ * Replaces incoming recipients with those specified, and resends the message unaltered.
+ *
+ * <P>Sample configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="All" class="Forward">
+ *   &lt;forwardto&gt;<I>comma delimited list of email addresses</I>&lt;/forwardto&gt;
+ *   &lt;passThrough&gt;<I>true or false, default=false</I>&lt;/passThrough&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
+ *
+ * <P>The behaviour of this mailet is equivalent to using Redirect with the following
+ * configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="All" class="Redirect">
+ *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
+ *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
+ *   &lt;inline&gt;unaltered&lt;/inline&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
  *
  */
-public class Forward extends GenericMailet {
-
-    private Collection newRecipients;
+public class Forward extends AbstractRedirect {
 
     /**
-     * Initialize the mailet
+     * Return a string describing this mailet.
+     *
+     * @return a string describing this mailet
      */
-    public void init() throws MessagingException {
-        newRecipients = new HashSet();
-        StringTokenizer st = new StringTokenizer(getMailetConfig().getInitParameter("forwardto"), ",", false);
-        while (st.hasMoreTokens()) {
-            newRecipients.add(new MailAddress(st.nextToken()));
+    public String getMailetInfo() {
+        return "Forward Mailet";
+    }
+    
+    /* ******************************************************************** */
+    /* ****************** Begin of getX and setX methods ****************** */
+    /* ******************************************************************** */
+    
+    /**
+     * @return the <CODE>recipients</CODE> init parameter or null if missing
+     */
+    protected Collection getRecipients() throws MessagingException {
+        Collection newRecipients = new HashSet();
+        String addressList = getInitParameter("forwardto");
+        // if nothing was specified, return null meaning no change
+        if (addressList == null) {
+            return null;
         }
+        StringTokenizer st = new StringTokenizer(addressList, ",", false);
+        while(st.hasMoreTokens()) {
+            try {
+                newRecipients.add(new MailAddress(st.nextToken()));
+            } catch(Exception e) {
+                log("add recipient failed in getRecipients");
+            }
+        }
+        return newRecipients;
     }
 
+    /* ******************************************************************** */
+    /* ******************* End of getX and setX methods ******************* */
+    /* ******************************************************************** */
+    
     /**
      * Forwards a mail to a particular recipient.
      *
@@ -103,7 +145,7 @@ public class Forward extends GenericMailet {
            // Although this can be viewed as a configuration error, the
            // consequences of such a mis-configuration are severe enough
            // to warrant protecting against the infinite loop.
-           getMailetContext().sendMail(mail.getSender(), newRecipients, mail.getMessage());
+           super.service(mail);
        }
        else {
            StringBuffer logBuffer = new StringBuffer(256)
@@ -119,13 +161,5 @@ public class Forward extends GenericMailet {
        }
     }
 
-    /**
-     * Return a string describing this mailet.
-     *
-     * @return a string describing this mailet
-     */
-    public String getMailetInfo() {
-        return "Forward Mailet";
-    }
 }
 

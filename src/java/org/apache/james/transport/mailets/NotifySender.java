@@ -58,13 +58,12 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
 
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -72,202 +71,60 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
- * Sends an error message to the sender of a message (that's typically landed in
- * the error mail repository).  You can optionally specify a sender of the error
- * message.  If you do not specify one, it will use the postmaster's address
+ * <P>Sends a notification message to the sender of a message.</P>
+ * <P>A sender of the notification message can optionally be specified.
+ * If one is not specified, the postmaster's address will be used.<BR>
+ * The "To:" header of the notification message can be set to "unaltered";
+ * if missing will be set to the sender of the notified message.<BR>
+ * A notice text can be specified, and in such case will be inserted into the 
+ * notification inline text.<BR>
+ * If the notified message has an "error message" set, it will be inserted into the 
+ * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
+ * is set to true, such error message will be attached to the notification message.<BR>
+ * The notified messages are attached in their entirety (headers and
+ * content) and the resulting MIME part type is "message/rfc822".</P>
+ * <P>passThrough is <B>true</B>.</P>
  *
- * Sample configuration:
+ * <P>Sample configuration:</P>
+ * <PRE><CODE>
  * &lt;mailet match="All" class="NotifySender">
- *   &lt;sendingAddress&gt;nobounce@localhost&lt;/sendingAddress&gt;
- *   &lt;attachStackTrace&gt;true&lt;/attachStackTrace&gt;
- *   &lt;notice&gt;Notice attached to the message (optional)&lt;/notice&gt;
+ *   &lt;sendingAddress&gt;<I>an address or postmaster</I>&lt;/sendingAddress&gt;
+ *   &lt;attachStackTrace&gt;<I>true or false, default=false</I>&lt;/attachStackTrace&gt;
+ *   &lt;notice&gt;<I>notice attached to the message (optional)</I>&lt;/notice&gt;
+ *   &lt;to&gt;<I>unaltered (optional, defaults to sender)</I>&lt;/to&gt;
  * &lt;/mailet&gt;
+ * </CODE></PRE>
+ *
+ * <P>The behaviour of this mailet is equivalent to using Redirect with the following
+ * configuration:</P>
+ * <PRE><CODE>
+ * &lt;mailet match="All" class="Redirect">
+ *   &lt;sender&gt;<I>an address or postmaster</I>&lt;/sender&gt;
+ *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
+ *   &lt;message&gt;<I><B>dynamically built</B></I>&lt;/message&gt;
+ *   &lt;passThrough&gt;true&lt;/passThrough&gt;
+ *   &lt;to&gt;<I>unaltered or sender&lt</I>;/to&gt;
+ *   &lt;recipients&gt;<B>sender</B>&lt;/recipients&gt;
+ *   &lt;inline&gt;none&lt;/inline&gt;
+ *   &lt;attachment&gt;message&lt;/attachment&gt;
+ *   &lt;isReply&gt;true&lt;/isReply&gt;
+ *   &lt;static&gt;true&lt;/static&gt;
+ * &lt;/mailet&gt;
+ * </CODE></PRE>
  *
  */
-public class NotifySender extends GenericMailet {
-
-    /**
-     * The sender address for the reply message
-     */
-    MailAddress notifier = null;
-
-    /**
-     * Whether exception stack traces should be attached to the error
-     * messages
-     */
-    boolean attachStackTrace = false;
-
-    /**
-     * The text of the reply notice
-     */
-    String noticeText = null;
-
-    /**
-     * The date format object used to generate RFC 822 compliant date headers
-     */
-    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-    /**
-     * Initialize the mailet, loading all configuration parameters.
-     *
-     * @throws MessagingException
-     */
-    public void init() throws MessagingException {
-        if (getInitParameter("sendingAddress") == null) {
-            notifier = getMailetContext().getPostmaster();
-        } else {
-            notifier = new MailAddress(getInitParameter("sendingAddress"));
-        }
-        if (getInitParameter("notice") == null) {
-            noticeText = "We were unable to deliver the attached message because of an error in the mail server.";
-        } else {
-            noticeText = getInitParameter("notice");
-        }
-        try {
-            attachStackTrace = new Boolean(getInitParameter("attachStackTrace")).booleanValue();
-        } catch (Exception e) {
-            // Ignore exception, default to false
-        }
-    }
-
-    /**
-     * Sends a message back to the sender with the message as to why it failed.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while formulating the message to the sender
-     */
-    public void service(Mail mail) throws MessagingException {
-        MimeMessage message = mail.getMessage();
-        //Create the reply message
-        MimeMessage reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-
-        //Create the list of recipients in the Address[] format
-        InternetAddress[] rcptAddr = new InternetAddress[1];
-        rcptAddr[0] = mail.getSender().toInternetAddress();
-        reply.setRecipients(Message.RecipientType.TO, rcptAddr);
-
-        //Set the sender...
-        reply.setFrom(notifier.toInternetAddress());
-
-        //Create the message
-        StringWriter sout = new StringWriter();
-        PrintWriter out = new PrintWriter(sout, true);
-
-        // First add the "local" notice
-        // (either from conf or generic error message)
-        out.println(noticeText);
-        // And then the message from other mailets
-        if (mail.getErrorMessage() != null) {
-            out.println();
-            out.println("Error message below:");
-            out.println(mail.getErrorMessage());
-        }
-        out.println();
-        out.println("Message details:");
-
-        if (message.getSubject() != null) {
-            out.println("  Subject: " + message.getSubject());
-        }
-        if (message.getSentDate() != null) {
-            out.println("  Sent date: " + message.getSentDate());
-        }
-        String[] rcpts = null;
-        rcpts = message.getHeader(RFC2822Headers.TO);
-        if (rcpts != null) {
-            out.print("  To: ");
-            for (int i = 0; i < rcpts.length; i++) {
-                out.print(rcpts[i] + " ");
-            }
-            out.println();
-        }
-        rcpts = message.getHeader(RFC2822Headers.CC);
-        if (rcpts != null) {
-            out.print("  CC: ");
-            for (int i = 0; i < rcpts.length; i++) {
-                out.print(rcpts[i] + " ");
-            }
-            out.println();
-        }
-        out.println("  Size (in bytes): " + message.getSize());
-        if (message.getLineCount() >= 0) {
-            out.println("  Number of lines: " + message.getLineCount());
-        }
-
-        try {
-            //Create the message body
-            MimeMultipart multipart = new MimeMultipart("mixed");
-
-            // Create the message
-            MimeMultipart mpContent = new MimeMultipart("alternative");
-            MimeBodyPart contentPartRoot = new MimeBodyPart();
-            contentPartRoot.setContent(mpContent);
-
-            multipart.addBodyPart(contentPartRoot);
-
-            MimeBodyPart part = new MimeBodyPart();
-            part.setText(sout.toString());
-            mpContent.addBodyPart(part);
-
-            //Add the original message as the second mime body part
-            part = new MimeBodyPart();
-            part.setContent(message, "message/rfc822");
-            if ((message.getSubject() != null) && (message.getSubject().trim().length() > 0)) {
-                part.setFileName(message.getSubject().trim());
-            } else {
-                part.setFileName("No Subject");
-            }
-            part.setDisposition(javax.mail.Part.ATTACHMENT);
-            multipart.addBodyPart(part);
-
-            //if set, attach the full stack trace
-            if (attachStackTrace && mail.getErrorMessage() != null) {
-                part = new MimeBodyPart();
-                part.setContent(mail.getErrorMessage(), "text/plain");
-                part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
-                part.setFileName("Reasons");
-                part.setDisposition(javax.mail.Part.ATTACHMENT);
-                multipart.addBodyPart(part);
-            }
-
-            reply.setContent(multipart);
-        } catch (Exception ioe) {
-            throw new MessagingException("Unable to create multipart body", ioe);
-        }
-
-        //Create the list of recipients in our MailAddress format
-        Set recipients = new HashSet();
-        recipients.add(mail.getSender());
-
-        //Set additional headers
-        if (reply.getHeader(RFC2822Headers.DATE)==null){
-            reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-        }
-        String subject = message.getSubject();
-        if (subject == null) {
-            subject = "";
-        }
-        reply.setSubject(subject);
-
-        if (message.getMessageID() != null) {
-            reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
-        }
-
-        reply.saveChanges();
-
-        //Send it off...
-        getMailetContext().sendMail(notifier, recipients, reply);
-    }
-
+public class NotifySender extends AbstractNotify {
+    
     /**
      * Return a string describing this mailet.
      *
@@ -276,5 +133,42 @@ public class NotifySender extends GenericMailet {
     public String getMailetInfo() {
         return "NotifySender Mailet";
     }
+    
+    /* ******************************************************************** */
+    /* ****************** Begin of getX and setX methods ****************** */
+    /* ******************************************************************** */
+    
+    /**
+     * @return SENDER, indicating the sender of the current mail
+     */
+    protected Collection getRecipients() {
+        Collection newRecipients = new HashSet();
+        newRecipients.add(SpecialAddress.SENDER);
+        return newRecipients;
+    }
+    
+    /**
+     * @return UNALTERED if specified or SENDER if missing
+     */
+    protected InternetAddress[] getTo() throws MessagingException {
+        String addressList = getInitParameter("to");
+        InternetAddress[] iaarray = new InternetAddress[1];
+        iaarray[0] = SpecialAddress.SENDER.toInternetAddress();
+        if (addressList != null) {
+            MailAddress specialAddress = getSpecialAddress(addressList,
+                                            new String[] {"sender", "unaltered"});
+            if (specialAddress != null) {
+                iaarray[0] = specialAddress.toInternetAddress();
+            } else {
+                log("\"to\" parameter ignored, set to sender");
+            }
+        }
+        return iaarray;
+    }
+    
+    /* ******************************************************************** */
+    /* ******************* End of getX and setX methods ******************* */
+    /* ******************************************************************** */
+    
 }
 
