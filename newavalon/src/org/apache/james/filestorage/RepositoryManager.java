@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 /**
+ * DO NOT USE - only here to deal with classloader problems, use avalon version
  *
  * @author <a href="mailto:fede@apache.org">Federico Barbieri</a>
  */

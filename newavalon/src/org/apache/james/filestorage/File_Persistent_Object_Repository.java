@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.apache.avalon.services.Store;
 
 /**
+ * DO NOT USE - only here to deal with classloader problems, use avalon version
  * This is a simple implementation of persistent object store using
  * object serialization on the file system.
  *
