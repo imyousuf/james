@@ -45,8 +45,8 @@ import java.util.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@pop.systemy.it>
  *
- * This is $Revision: 1.17 $
- * Committed on $Date: 2002/04/17 16:19:45 $ by: $Author: serge $
+ * This is $Revision: 1.18 $
+ * Committed on $Date: 2002/04/17 16:22:58 $ by: $Author: serge $
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -153,7 +153,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 targetServers = getMailetContext().getMailServers(host);
                 if (targetServers.size() == 0) {
                     log("No mail server found for: " + host);
-                    return failMessage(mail, new MessagingException("There are no DNS entries for the hostname " + host + ".  I cannot determine where to send this message."), true);
+                    return failMessage(mail, new MessagingException("There are no DNS entries for the hostname " + host + ".  I cannot determine where to send this message."), false);
                 }
             } else {
                 targetServers = new Vector();
