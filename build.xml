@@ -33,14 +33,14 @@ All theese package are in current distribution.
 <project default="package" basedir=".">
   <target name="init">
 	<property name="name" value="JAMES"/>
-	<property name="version" value="1.1b1"/>
+	<property name="version" value="1.2"/>
 	<property name="year" value="1999-2000"/>
 
 	<property name="build.compiler" value="classic"/>
 	<property name="debug" value="off"/>
 	<property name="optimize" value="on"/>
 	<property name="deprecation" value="off"/>
-	<property name="classpath" value="./lib/AvalonAware.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces_1_1_1.jar;./lib/dnsjava.jar;./lib/town.jar"/>
+	<property name="classpath" value="./lib/AvalonAware.jar;./lib/activation.jar;./lib/mail_1_1_3.jar;./lib/xerces.jar;./lib/dnsjava.jar;./lib/town.jar"/>
 
 	<property name="src.dir" value="./src"/>
 	<property name="dtd.dir" value="./dtd"/>
@@ -156,7 +156,7 @@ All theese package are in current distribution.
     <copyfile src="./lib/Loader.jar" dest="${dist.dir}/bin/Loader.jar"/>
     <copyfile src="./lib/activation.jar" dest="${dist.dir}/lib/activation.jar"/>
     <copyfile src="./lib/mail_1_1_3.jar" dest="${dist.dir}/lib/mail_1_1_3.jar"/>
-    <copyfile src="./lib/xerces_1_1_1.jar" dest="${dist.dir}/lib/xerces_1_1_1.jar"/>
+    <copyfile src="./lib/xerces.jar" dest="${dist.dir}/lib/xerces.jar"/>
     <copyfile src="./lib/dnsjava.jar" dest="${dist.dir}/lib/dnsjava.jar"/>
     <copyfile src="./lib/town.jar" dest="${dist.dir}/lib/town.jar"/>
     <copyfile src="${build.dir}/mailet.jar" dest="${dist.dir}/lib/mailet.jar"/>
