@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <avalon>
-    <blocks>
+    <ignoreWarning>
+        true
+    </ignoreWarning>
 
+    <blocks>
 <!--   !!!!!!!!!! Begin copy and paste !!!!!!!!!!  -->
     
 <!-- JAMES POP3 server Acceptor and ProtocolHandler Blocks -->
@@ -49,6 +52,7 @@
             <spoolmanager>
                 <localhost> localhost </localhost>
                 <localhost> maggie </localhost>
+                <localhost> maggie.galaxus </localhost>
             </spoolmanager>
         </block>
 
@@ -75,14 +79,33 @@
 
 <!--  !!!!!!!!!! End copy and paste !!!!!!!!!!  -->
 
-<!--  !!!!!!!!!! Add theese lines into the Logger configuration !!!!!!!!!!  -->
-        <block class=[ignore]
-               serverName=[ignore]
+        <block class="org.apache.avalon.blocks.threadmanager.ThreadPool"
+               serverName="all"
+               implementedInterface="org.apache.avalon.blocks.ThreadManager">
+    
+            <levelcontroller>
+                org.apache.java.recycle.GaussianController
+            </levelcontroller>
+            <capacity>
+                64
+            </capacity>
+        </block>
+    
+        <block class="org.apache.avalon.blocks.omero.Omero"
+               serverName="all"
                implementedInterface="org.apache.avalon.blocks.Logger">
+            <timestamp>
+                <granularity> 0 </granularity>
+                <format> yyyy.MM.dd hh:mm:ss SSS </format>
+            </timestamp>
             <channels>
+                <channel name="default"         logwriter="stdout"/>
+                <channel name="system"          logwriter="infofile"/>
+                <channel name="MasterStore"     logwriter="infofile"/>
                 <channel name="RemoteManager"   logwriter="admin"/>
                 <channel name="POP3Server"      logwriter="popfile"/>
                 <channel name="SMTPServer"      logwriter="smtpfile"/>
+                <channel name="ThreadManager"   logwriter="infofile"/>
             </channels>
             <logwriters>
                 <writer name="smtpfile" class="org.apache.avalon.blocks.omero.FileWriter">
@@ -106,14 +129,31 @@
                     <buffersize>2048</buffersize>
                     <sleep>5000</sleep>
                 </writer>
+                <writer name="stdout" class="org.apache.avalon.blocks.omero.StdoutWriter">
+                    <destination>
+                        stdout://
+                    </destination>
+                </writer>
+                <writer name="infofile" class="org.apache.avalon.blocks.omero.FileWriter">
+                    <destination>
+                        file://./logs/info.log
+                    </destination>
+                    <buffersize>2048</buffersize>
+                    <sleep>500</sleep>
+                </writer>
             </logwriters>
         </block>
-
-<!--  !!!!!!!!!! Add theese lines into the Store configuration !!!!!!!!!!  -->
-        <block class=[ignore]
-               serverName=[ignore]
+                
+        <block class="org.apache.avalon.blocks.masterstore.MasterStore"
+               serverName="all"
                implementedInterface="org.apache.avalon.blocks.Store">
             <repositoriesDefinition>
+                <repository type="OBJECT" model="SYNCHRONOUS, ASYNCHRONOUS" 
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.PersistentStore"/>
+                <repository type="STREAM" model="SYNCHRONOUS, ASYNCHRONOUS"
+                    destination="file://"
+                    class="org.apache.avalon.blocks.masterstore.StreamStore"/>
                 <repository type="MESSAGE_CONTAINER" model="SYNCHRONOUS, ASYNCHRONOUS"
                     destination="file://"
                     class="org.apache.james.MessageContainerRepository"/>
@@ -127,6 +167,5 @@
                 </repository>
             </publicrepositories>
         </block>
-
     </blocks>
 </avalon>

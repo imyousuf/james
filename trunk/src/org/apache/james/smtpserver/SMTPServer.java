@@ -50,9 +50,8 @@ public class SMTPServer implements SocketHandler, Block {
         this.threadManager = (ThreadManager) comp.getComponent(Interfaces.THREAD_MANAGER);
         this.store = (Store) comp.getComponent(Interfaces.STORE);
 
-        String serverName = conf.getConfiguration("smtphandler.servername", "SERVERNAME-NOTFOUND").getValue();
-        IdProvider idp = new IdProvider(serverName);
-        smtpServerCM.put("idprovider", idp);
+        String serverName = conf.getConfiguration("smtphandler.servername", "SERVERNAME-NOT-FOUND").getValue();
+        smtpServerCM.put("idprovider", new IdProvider(serverName));
 
         try {
             this.localInbox = (Store.Repository) store.getPublicRepository("localInbox");

@@ -18,7 +18,7 @@ import java.io.*;
  */
 public class SMTPInputStream extends FilterInputStream {
     
-    private static String EOM = "\r\n.\r\n";
+    private static final String EOM = "\r\n.\r\n";
     private int match;
     
     public SMTPInputStream(InputStream in) {

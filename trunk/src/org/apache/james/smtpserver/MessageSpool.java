@@ -47,14 +47,15 @@ public class MessageSpool implements Component, Composer, Configurable, Service 
         logger = (Logger) comp.getComponent(Interfaces.LOGGER);
         logger.log("Mail Spool init....", "SMTPServer", logger.INFO);
         store = (Store) comp.getComponent(Interfaces.STORE);
+        String privateRepository = conf.getConfiguration("spoolRepository", ".").getValue();
         try {
-            sr = (Store.StreamRepository) store.getPrivateRepository(Store.STREAM, Store.ASYNCHRONOUS);
+            sr = (Store.StreamRepository) store.getPrivateRepository(privateRepository, Store.STREAM, Store.ASYNCHRONOUS);
         } catch (Exception e) {
             logger.log("Exception in Stream Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
         }
         try {
-            or = (Store.ObjectRepository) store.getPrivateRepository(Store.OBJECT, Store.ASYNCHRONOUS);
+            or = (Store.ObjectRepository) store.getPrivateRepository(privateRepository, Store.OBJECT, Store.ASYNCHRONOUS);
         } catch (Exception e) {
             logger.log("Exception in Persistent Store init: " + e.getMessage(), "SMTPServer", logger.ERROR);
             throw e;
@@ -67,8 +68,7 @@ public class MessageSpool implements Component, Composer, Configurable, Service 
 
         while (true) {
             logger.log("looking for unprocessed mail", "SMTPServer", logger.DEBUG);
-            Enumeration e = or.list();
-            while(e.hasMoreElements()) {
+            for(Enumeration e = or.list(); e.hasMoreElements(); ) {
                 Object o = e.nextElement();
                 if (lock.lock(o)) {
                     return o.toString();

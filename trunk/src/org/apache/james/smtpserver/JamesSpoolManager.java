@@ -18,7 +18,6 @@ import org.apache.james.*;
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
- * @version 0.9
  */ 
 public class JamesSpoolManager implements Component, Composer, Configurable, Stoppable, Service {
 
@@ -52,7 +51,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         this.unknownRecipients = new Vector();
         try {
             this.localAgent = new LocalAgent();
-            this.localAgent.setConfiguration(conf.getConfiguration("localAgent"));
+            this.localAgent.setConfiguration(conf);
             this.localAgent.setComponentManager(comp);
         } catch (Exception e) {
             logger.log("JamesSpoolManager: Exception in localAgent: " + e.getMessage(), "SMTPServer", logger.ERROR);
@@ -60,7 +59,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
         
         try {
             this.remoteAgent = new RemoteAgent();
-            this.remoteAgent.setConfiguration(conf.getConfiguration("remoteAgent"));
+            this.remoteAgent.setConfiguration(conf);
             this.remoteAgent.setComponentManager(comp);
         } catch (Exception e) {
             logger.log("JamesSpoolManager: Exception in remoteAgent: " + e.getMessage(), "SMTPServer", logger.ERROR);
@@ -100,8 +99,7 @@ public class JamesSpoolManager implements Component, Composer, Configurable, Sto
                 mc.getBodyInputStream().close();
                 spool.remove(key);
             } catch (Exception e) {
-                logger.log("exception in run JamesSpoolManager " + e.getMessage(), "SMTPServer", logger.ERROR);
-                e.printStackTrace();
+                logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "SMTPServer", logger.ERROR);
             }
         }
     }
