@@ -133,6 +133,7 @@ Legal:
             <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
             <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
             <test name="org.apache.james.imapserver.TestCompound"/>
+            <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
         </junit>
     </target>
 
@@ -171,12 +172,20 @@ Legal:
             <test name="org.apache.james.imapserver.TestOtherCommandsInSelectedState"/>
             <test name="org.apache.james.imapserver.TestSelectedCommandsInSelectedState"/>
             <test name="org.apache.james.imapserver.TestCompound"/>
+            <test name="org.apache.james.imapserver.TestConcurrentSessions"/>
         </junit>
     </target>
     
     <target name="build-and-test">
         <ant antfile="proposals/imap2/build.xml" target="main"/>
         <antcall target="unit-tests"/>
+    </target>
+    
+    <target name="copytests">
+        <mkdir dir="${build.dir}/tests"/>
+        <copy todir="${build.dir}/tests">
+            <fileset dir="${test.dir}" includes="**/*.test"/>
+        </copy>
     </target>
 </project>
 

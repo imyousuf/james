@@ -70,7 +70,7 @@ import org.apache.james.imapserver.store.MailboxException;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class ExpungeCommand extends SelectedStateCommand
 {
@@ -91,7 +91,6 @@ class ExpungeCommand extends SelectedStateCommand
 
         ImapMailbox mailbox = session.getSelected();
         mailbox.expunge();
-        System.out.println("here");
 
         session.unsolicitedResponses( response );
         response.commandComplete( this );

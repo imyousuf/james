@@ -69,7 +69,7 @@ import java.util.List;
  *
  * @author  Darrell DeBoer <darrell@apache.org>
  *
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class FileProtocolSessionBuilder
 {
@@ -78,6 +78,7 @@ public class FileProtocolSessionBuilder
     private static final String OPEN_UNORDERED_BLOCK_TAG = "SUB {";
     private static final String CLOSE_UNORDERED_BLOCK_TAG = "}";
     private static final String COMMENT_TAG = "#";
+    private static final String SESSION_TAG = "SESSION:";
 
     /**
      * Builds a ProtocolSession by reading lines from the test file
@@ -122,9 +123,10 @@ public class FileProtocolSessionBuilder
                                              String fileName )
             throws Exception
     {
+        int sessionNumber = -1;
         BufferedReader reader = new BufferedReader( new InputStreamReader( is ) );
         String next;
-        int lineNumber = 1;
+        int lineNumber = -1;
         while ( ( next = reader.readLine() ) != null ) {
             String location = fileName + ":" + lineNumber;
             if ( next.startsWith( CLIENT_TAG ) ) {
@@ -132,14 +134,14 @@ public class FileProtocolSessionBuilder
                 if ( next.length() > 3 ) {
                     clientMsg = next.substring( 3 );
                 }
-                session.CL( clientMsg );
+                session.CL( sessionNumber, clientMsg );
             }
             else if ( next.startsWith( SERVER_TAG ) ) {
                 String serverMsg = "";
                 if ( next.length() > 3 ) {
                     serverMsg = next.substring( 3 );
                 }
-                session.SL( serverMsg, location );
+                session.SL( sessionNumber, serverMsg, location );
             }
             else if ( next.startsWith( OPEN_UNORDERED_BLOCK_TAG ) ) {
                 List unorderedLines = new ArrayList( 5 );
@@ -155,11 +157,18 @@ public class FileProtocolSessionBuilder
                     lineNumber++;
                 }
 
-                session.SUB( unorderedLines, location );
+                session.SUB( sessionNumber, unorderedLines, location );
             }
             else if ( next.startsWith( COMMENT_TAG )
                     || next.trim().length() == 0 ) {
                 // ignore these lines.
+            }
+            else if ( next.startsWith(SESSION_TAG)) {
+                String number = next.substring(SESSION_TAG.length()).trim();
+                if (number.length() == 0) {
+                    throw new Exception("No session number specified");
+                }
+                sessionNumber = Integer.parseInt(number);
             }
             else {
                 String prefix = next;

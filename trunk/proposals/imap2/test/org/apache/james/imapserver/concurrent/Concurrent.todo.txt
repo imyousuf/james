@@ -1,0 +1,54 @@
+Simple tests:
+1 Send FETCH response when another session performs a STORE against a message
+    (concurrent/FetchResponse.test)
+2 Send EXISTS and RECENT responses when a message is added
+    (concurrent/ExistsResponse.test) - still need RECENT
+3 Expunge response when another session performs a EXPUNGE against the mailbox
+
+
+
+From RFC2180
+3. Deletion/Renaming of a multi-accessed mailbox
+### Need to pick one of these 3...
+3.1. The server MAY fail the DELETE/RENAME command of a multi-accessed
+     mailbox
+
+3.3. The server MAY allow the DELETE/RENAME of a multi-accessed
+     mailbox, but disconnect all other clients who have the mailbox
+     accessed by sending a untagged BYE response.
+
+3.4. The server MAY allow the RENAME of a multi-accessed mailbox by
+     simply changing the name attribute on the mailbox.
+
+-----------------------------------------------------------------------
+4.1. Fetching of expunged messages
+
+4.1.2 The server MAY allow the EXPUNGE of a multi-accessed mailbox,
+      and on subsequent FETCH commands return FETCH responses only for
+      non-expunged messages and a tagged NO.
+
+             C2: B001 FETCH 3:5 ENVELOPE
+             S2: * 3 FETCH ENVELOPE . . . (ENVELOPE info returned)
+             S2: B001 NO Some of the requested messages no longer exist
+### Return what you can, and send a "no": i like this.
+-0---------------------------------------------------------------------
+
+4.2. Storing of expunged messages
+
+4.2.1 If the ".SILENT" suffix is used, and the STORE completed
+      successfully for all the non-expunged messages, the server SHOULD
+      return a tagged OK.
+
+4.2.2. If the ".SILENT" suffix is not used, and only expunged messages
+       are referenced, the server SHOULD return only a tagged NO.
+
+4.2.3. If the ".SILENT" suffix is not used, and a mixture of expunged
+       and non-expunged messages are referenced, the server MAY set the
+       flags and return a FETCH response for the non-expunged messages
+       along with a tagged NO.
+### Update what you can, and return "NO"
+
+4.2.4. If the ".SILENT" suffix is not used, and a mixture of expunged
+       and non-expunged messages are referenced, the server MAY return
+       an untagged NO and not set any flags.
+### Don't update anything, and return "NO"

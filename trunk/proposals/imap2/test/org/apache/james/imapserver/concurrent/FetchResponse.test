@@ -1,0 +1,65 @@
+# Tests that updates made by one session trigger a fetch response
+# in a concurrent session on the same mailbox
+
+# TODO: Check sending of fetch responses when using other selected state commands.
+#            eg FETCH, STORE, COPY...
+SESSION: 1
+C: 1a CREATE multibox
+S: 1a OK CREATE completed.
+
+C: 1b STATUS multibox (MESSAGES)
+S: \* STATUS multibox \(MESSAGES 0\)
+S: 1b OK STATUS completed
+
+C: 1c APPEND multibox (\Deleted) {310+}
+C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
+C: From: Fred Foobar <foobar@Blurdybloop.COM>
+C: Subject: afternoon meeting
+C: To: mooch@owatagu.siam.edu
+C: Message-Id: <B27397-0100000@Blurdybloop.COM>
+C: MIME-Version: 1.0
+C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+C:
+C: Hello Joe, do you think we can meet at 3:30 tomorrow?
+C:
+S: 1c OK APPEND completed
+
+C: 1d SELECT multibox
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
+S: \* 1 EXISTS
+S: \* \d+ RECENT
+S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: 1d OK \[READ-WRITE\] SELECT completed
+
+SESSION: 2
+C: 2a SELECT multibox
+S: \* FLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)
+S: \* 1 EXISTS
+S: \* \d+ RECENT
+S: \* OK \[UIDVALIDITY \d+\]
+S: \* OK \[UNSEEN 1\] Message 1 is the first unseen
+S: \* OK \[PERMANENTFLAGS \(\\Answered \\Deleted \\Draft \\Flagged \\Seen\)\]
+S: 2a OK \[READ-WRITE\] SELECT completed
+
+SESSION: 1
+C: 1e STORE 1 FLAGS (\Deleted)
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: 1e OK STORE completed
+
+# On NOOP, we get the Fetch Response from the Session1 update.
+SESSION: 2
+C: 2b NOOP
+S: \* 1 FETCH \(FLAGS \(\\Deleted\)\)
+S: 2b OK NOOP completed
+
+C: 2c CLOSE
+S: 2c OK CLOSE completed
+
+SESSION: 1
+C: 1f CLOSE
+S: 1f OK CLOSE completed
+
+C: 1g DELETE multibox
+S: 1g OK DELETE completed
