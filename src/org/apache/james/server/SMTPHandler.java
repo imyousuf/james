@@ -63,14 +63,12 @@ public class SMTPHandler implements ProtocolHandler {
             r_out = socket.getOutputStream();
             out = new PrintWriter(r_out, true);
 
-            // [Fede] I've commented this 'couse I'ant got any DNS ...
-
-            /*
-             * remoteHost = socket.getInetAddress ().getHostName ();
-             * remoteIP = socket.getInetAddress ().getHostAddress ();
-             */
-            remoteHost = "maggie";
-            remoteIP = "192.168.1.3";
+            remoteHost = socket.getInetAddress ().getHostName ();
+            remoteIP = socket.getInetAddress ().getHostAddress ();
+            
+            System.out.println("remote host: " + remoteHost);
+            System.out.println("remote ip: " + remoteIP);
+            
             socketID = remoteHost + "." + ++scount;
 
             logger.log("Connection from " + remoteHost + " (" + remoteIP + ") on socket " + socketID, logger.INFO_LEVEL);
@@ -243,7 +241,7 @@ public class SMTPHandler implements ProtocolHandler {
                     }
 
                     state.put("remote.ip", remoteIP);
-                    server.getSpool().addMessage(msg, AddressVectorToArray(recipients));
+                    server.getSpool().addMessage(msg, state);
                 }
             } catch (MessagingException me) {
                 me.printStackTrace();
@@ -459,7 +457,7 @@ public class SMTPHandler implements ProtocolHandler {
 
             String line;
 
-            while ((line = in.readLine()) != null &&!handleCommand(line)) {}
+            while ((line = in.readLine()) != null && !handleCommand(line)) {}
 
             socket.close();
         } catch (SocketException e) {

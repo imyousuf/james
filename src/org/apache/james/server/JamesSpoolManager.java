@@ -33,6 +33,7 @@ public class JamesSpoolManager implements Runnable, Configurable {
     throws Exception {
         this.props = props;
         this.server = server;
+        this.spool = server.getSpool();
 
         // Establish the mail context (really, this could be this class, but for now this is fine.
         context = new JamesMailContext(server);
@@ -40,24 +41,6 @@ public class JamesSpoolManager implements Runnable, Configurable {
         // Load the servlets
         loadServlets();
 
-        if (props.getProperty("spool_classname") == null) {
-
-            // System.out.println ("Message spool not properly specified in conf file.");
-
-            throw new RuntimeException("Message spool not properly specified in conf file.");
-        } else {
-            try {
-                spool = (MessageSpool) Class.forName(props.getProperty("spool_classname")).newInstance();
-
-                spool.init(server, server.getBranchProperties(props, "spool."));
-            } catch (ClassNotFoundException cnfe) {
-                throw new RuntimeException("Message spool class was not found.  Please check your classpath and\nconf file and restart.");
-            } catch (InstantiationException ie) {
-                throw new RuntimeException("Could not instantiate message spool class.  Please check the implementation\nof the message spool.");
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException("Security restrictions prevented use of the message spool class.");
-            }
-        }
     }
 
     /**
@@ -314,14 +297,6 @@ public class JamesSpoolManager implements Runnable, Configurable {
 
     /**
      * This method was created in VisualAge.
-     * @return org.apache.james.MessageSpool
-     */
-    public MessageSpool getSpool() {
-        return spool;
-    }
-
-    /**
-     * This method was created in VisualAge.
      */
     protected void loadServlets() {
 
@@ -518,96 +493,65 @@ public class JamesSpoolManager implements Runnable, Configurable {
      */
     public void run() {
 
-        // Every 30 seconds, unless set in the configuration
+        while(true) {
 
-        long delay = 30000;
+            Object key = spool.accept();
+    
+            MessageContainer mc = (MessageContainer) spool.retrive(key);
+    
+            MimeMessage message = mc.getMimeMessage();
+            DeliveryState state = mc.getDeliveryState();
 
-        try {
-            delay = Long.parseLong(props.getProperty("spool_check.delay"));
-        } catch (Exception e) {}
-
-        while (true) {
-            if (spool.hasMessages()) {
-
-                // Process a message!!!
-
-                MimeMessage message = spool.checkoutMessage();
-
-                // It is possible that a competing threads was able to retrieve the only message
-                // in the queue before we checked it out.
-
-                if (message == null) {
-                    continue;
-                } 
-
-                DeliveryState state = spool.getDeliveryState(message);
-
-                System.out.println("We have a message of state " + state.getStateText());
-
-                switch (state.getState()) {
-
+            System.out.println("We have a message of state " + state.getStateText());
+    
+            switch (state.getState()) {
+    
                 case DeliveryState.NOT_PROCESSED: 
                     process(preprocessors, message, state);
-
                     if (state.getState() == DeliveryState.NOT_PROCESSED) {
                         state.setState(DeliveryState.PRE_PROCESSED);
                     } 
-
                     break;
-
+    
                 case DeliveryState.PRE_PROCESSED: 
                     process(processors, message, state);
-
                     if (state.getState() == DeliveryState.PRE_PROCESSED) {
                         state.setState(DeliveryState.PROCESSED);
                     } 
-
                     break;
-
+    
                 case DeliveryState.PROCESSED: 
                     process(postprocessors, message, state);
-
                     if (state.getState() == DeliveryState.PROCESSED) {
                         state.setState(DeliveryState.POST_PROCESSED);
                     } 
-
                     break;
-
+    
                 case DeliveryState.POST_PROCESSED: 
-
+    
                     // attempt to send the message
-
                     deliverMessage(message, state);
-
                     break;
-
+    
                 case DeliveryState.FAILED_DELIVERY: 
                     process(failureprocessors, message, state);
-
                     if (state.getState() == DeliveryState.FAILED_DELIVERY) {
                         state.setState(DeliveryState.FAILURE_PROCESSED);
                     } 
-
                     break;
-                }
-
-                // if the message has completed it's duties
-
-                if (state.getState() == DeliveryState.ABORT || state.getState() == DeliveryState.FAILURE_PROCESSED || state.getState() == DeliveryState.DELIVERED) {
-                    spool.removeMessage(message);
-                } else {
-                    spool.checkinMessage(message, state);
-                }
+            }
+    
+            // if the message has completed it's duties
+            if (state.getState() == DeliveryState.ABORT || state.getState() == DeliveryState.FAILURE_PROCESSED || state.getState() == DeliveryState.DELIVERED) {
+                spool.remove(key);
             } else {
-                System.out.println("no message..." + new Date());
-
-                try {
-                    Thread.currentThread().sleep(delay);
-                } catch (InterruptedException ie) {}
+                mc.setMimeMessage(message);
+                mc.setDeliveryState(state);
+                spool.store(key, mc);
+                spool.free(key);
             }
         }
     }
-
 }
 
 

@@ -18,7 +18,7 @@ import javax.mail.internet.*;
  * @author Serge Knystautas <sergek@lokitech.com>
  * @version 0.9
  */
-public class ServerMimeMessage extends MimeMessage {
+public class ServerMimeMessage extends MimeMessage implements Serializable {
 
     /**
      * ServerMimeMessage constructor comment.
