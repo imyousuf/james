@@ -1,10 +1,10 @@
-
 Jakarta-James Proposal for adoption as an Apache top-level project
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
 Preamble:
 ----------------------------------------------------------------------
+
 To the Board of the Apache Software Foundation.
 
 We, the committers of the Jakarta sub-project jakarta-james have held a
@@ -18,7 +18,10 @@ reasons for wanting to take this step.
 Introduction to James:
 ----------------------------------------------------------------------
 
-James is a 100% Java mail and news server.
+James is a 100% Java mail and news server, evolving into a complete
+electronic messaging solution that integrates the range of IETF
+protocols, such as SMTP, POP3, IMAP, NNTP, and XXMP with unified user
+account management and open storage mechanisms.
 
 James provides highly configurable SMTP mail transport and local
 delivery into POP3 or IMAP accounts, utilizing file system or database
@@ -26,7 +29,7 @@ storage configurable on a per-repository basis.
 
 The jakarta-james sub-project hosts the Apache Mailet API specification
 The Mailet API is a Java API providing a framework for the conditional
-processing of mail and news messages.
+processing of electronic messages.
 
 James implements the Mailet API, and as such is itself a platform for
 Mailet applications. Applications providing custom mail
@@ -42,39 +45,37 @@ Reasons for our application:
 ----------------------------------------------------------------------
         General:
 ----------------------------------------------------------------------
-Some believe that Jakarta is becoming too big to function as a single
-project, that community and culture become diluted as you descend the
-hierarchy and that one solution is for mature projects leave the nest.
 
-Of course other projects are free to make their own choices but as
-James consists primarily of the server which is an end-user product we
-feel that top level project status, emphasizing its function rather
-than its platform, would suit James well.
+James is a mature, self-determining project that is able to govern
+itself under the auspices of the ASF Board in accordance with ASF
+bylaws and guidelines.
 
-The proposals discussed and being discussed on reorg & community 
-include the notion of federated projects. We would like to think that 
-we wouldn't be leaving Jakarta, just growing up.
+As James consists primarily of the server which is an end-user product
+we feel that top level project status, emphasisng its function rather
+than its platform, would suit James well.  Top level project status
+would also facilitate the ability to offer the Mailet API as an
+separate specification, of which James would represent only a
+reference implementation.
 
-We also know that James would continue to rely on Jakarta for code,
-insight and knowledge, but we don't need to be a Jakarta sub-project
-to benefit from that.
+James would continue to work closely with the Avalon Project, and is
+establishing ties with the Cocoon and BSF projects to integrate some
+of their technologies within James.
 
 ----------------------------------------------------------------------
         Project Management:
 ----------------------------------------------------------------------
-This proposal is more about management than web-site and mail
-addresses.  We don't expect that james.apache.org will bring many
-direct benefits, but we do think that normalizing our relationship
-with Jakarta by becoming a peer rather than a child, and taking
-official control of all the issues we currently inherit and
-"interpret" from Jakarta would benefit James.
 
 James has a small yet mature self-sustaining community, we seldom seek 
-recourse to the Jakarta PMC, and equally seldom are we scrutinized by 
+recourse to the Jakarta PMC, and equally seldom are we scrutinised by 
 them. We are perhaps not the most active project, and some of us may 
 feel that this sometimes causes James to be disregarded. Likewise, 
-apart from Avalon (itself now a top-level project), we have few direct
-ties with other Jakarta projects.
+apart from Avalon, we have few direct ties with other jakarta projects.
+
+We believe think that normalizing our relationship with the ASF Board
+by becoming a direct subordinate rather than a distant step-child, and
+taking official control of all the issues we currently inherit and
+"interpret" from Jakarta would benefit James.
+
 
 ----------------------------------------------------------------------
         Profile:
@@ -109,7 +110,7 @@ FetchPOP, and other feature enhancements since then.
 ----------------------------------------------------------------------
 	Future:
 ----------------------------------------------------------------------
-Our vision of the future for James contains four main foci,
+Our vision of the future for James contains five main foci,
 
 1/ To continually improve the performance and functionality of the
 core messaging services. Currently focusing on making IMAP stable and
@@ -126,9 +127,12 @@ feedback from Mailet API users and Mailet developers.
 more sophisticated, behaviors which would be available to any
 application implementing the Mailet API. 
 
-4/ Provide a common repository abstraction to all of James' protocol
-servers (SMTP, POP3, NNTP and IMAP) and support standard repository
+4/ Provide a common message repository abstraction to all of James' protocol
+servers (e.g, SMTP, POP3, NNTP and IMAP) and support standard repository
 data formats like maildir and mbox to ease migration to James.
+
+5/ Provide a common user repository abstraction to all of James' protocol
+servers.
 
 These plans include:
 - Providing functionality capable of reproducing services provided by
