@@ -8,31 +8,31 @@
 
 package org.apache.james.transport;
 
+import java.io.*;
 import java.util.*;
+import javax.mail.*;
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.mailrepository.*;
 import org.apache.mailet.*;
-import javax.mail.*;
-import javax.mail.internet.*;
 
 /**
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Federico Barbieri <scoobie@systemy.it>
+ *
+ *  SAMPLE CONFIGURATION
+ *  <processor name="try" onerror="return,log">
+ *      <mailet match="RecipientIsLocal" class="LocalDelivery">
+ *      </mailet>
+ *      <mailet match="All" class="RemoteDelivery">
+ *          <delayTime>21600000</delayTime>
+ *          <maxRetries>5</maxRetries>
+ *      </mailet>
+ *  </processor>
  */
-
-/*      SAMPLE CONFIGURATION
-    <processor name="try" class="org.apache.james.transport.LinearProcessor">
-        <mailet match="RecipientIsLocal" class="LocalDelivery">
-        </mailet>
-        <mailet match="All" class="RemoteDelivery">
-            <delayTime>21600000</delayTime>
-            <maxRetries>5</maxRetries>
-        </mailet>
-    </processor>
-*/
 public class LinearProcessor {
 
     private List mailets;
@@ -57,7 +57,7 @@ public class LinearProcessor {
         mailets.add(mailet);
     }
 
-    public void service(MailImpl mail) throws MailetException, MessagingException {
+    public void service(MailImpl mail) throws MessagingException {
         logger.log("Processing mail " + mail.getName(), "Processor", logger.INFO);
         unprocessed.setSize(mailets.size() + 2);
         unprocessed.add(0, mail);
@@ -74,18 +74,8 @@ public class LinearProcessor {
                         rcpts = new Vector();
                     }
                     verifyMailAddresses(rcpts);
-                } catch (MailetException ex) {
-                    ex.printStackTrace();/*DEBUG*/
-                    next.setState(Mail.ERROR);
-                    next.setErrorMessage("Exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + ex.getMessage());
-                    logger.log("exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + ex.getMessage(), "Processor", logger.ERROR);
-                    throw ex;
                 } catch (MessagingException me) {
-                    me.printStackTrace();/*DEBUG*/
-                    next.setState(Mail.ERROR);
-                    next.setErrorMessage("Exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + me.getMessage());
-                    logger.log("exception calling " + matcher.getMatcherConfig().getMatcherName() + ": " + me.getMessage(), "Processor", logger.ERROR);
-                    throw me;
+                    handleException(me, next, matcher.getMatcherConfig().getMatcherName());
                 }
                 //Split the recipients
                 Collection notRcpts = new Vector();
@@ -106,7 +96,6 @@ public class LinearProcessor {
                 } else {
                     //This old method of key creation might create
                     //duplicates in certain circumtances
-                    //MailImpl notNext = mail.duplicate(next.getName() + "!");
                     MailImpl notNext = (MailImpl)mail.duplicate(newName(next));
                     next.setRecipients(rcpts);
                     notNext.setRecipients(notRcpts);
@@ -130,18 +119,8 @@ public class LinearProcessor {
                 try {
                     mailet.service(next);
                     verifyMailAddresses(mail.getRecipients());
-                } catch (MailetException ex) {
-                    ex.printStackTrace();/*DEBUG*/
-                    next.setState(Mail.ERROR);
-                    next.setErrorMessage("Exception calling " + mailet.getMailetConfig().getMailetName() + ": " + ex.getMessage());
-                    logger.log("exception calling " + mailet.getMailetConfig().getMailetName() + ": " + ex.getMessage(), "Processor", logger.ERROR);
-                    throw ex;
                 } catch (MessagingException me) {
-                    me.printStackTrace();/*DEBUG*/
-                    next.setState(Mail.ERROR);
-                    next.setErrorMessage("Exception calling " + mailet.getMailetConfig().getMailetName() + ": " + me.getMessage());
-                    logger.log("exception calling " + mailet.getMailetConfig().getMailetName() + ": " + me.getMessage(), "Processor", logger.ERROR);
-                    throw me;
+                    handleException(me, next, mailet.getMailetConfig().getMailetName());
                 }
                 if (isEmpty(next)) {
                     unprocessed.set(i + 1, null);
@@ -205,10 +184,29 @@ public class LinearProcessor {
     /**
      * Checks that all objects in this class are of the form MailAddress
      */
-    private void verifyMailAddresses(Collection col) throws MailetException {
+    private void verifyMailAddresses(Collection col) throws MessagingException {
         MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
         if (addresses.length != col.size()) {
             throw new MailetException("The recipient list contains objects other than MailAddress objects");
         }
+    }
+
+    private void handleException(MessagingException me, Mail mail, String offendersName) throws MessagingException {
+        mail.setState(Mail.ERROR);
+        StringWriter sout = new StringWriter();
+        PrintWriter out = new PrintWriter(sout, true);
+        out.println("Exception calling " + offendersName + ": " + me.getMessage());
+        Exception e = me;
+        while (e != null) {
+            e.printStackTrace(out);
+            if (e instanceof MessagingException) {
+                e = ((MessagingException)e).getNextException();
+            } else {
+                e = null;
+            }
+        }
+        mail.setErrorMessage(sout.toString());
+        logger.log(sout.toString(), "Processor", logger.ERROR);
+        throw me;
     }
 }

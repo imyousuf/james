@@ -10,11 +10,13 @@ package org.apache.james.transport;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.mail.MessagingException;
 import org.apache.avalon.*;
 import org.apache.avalon.blocks.*;
 import org.apache.avalon.utils.*;
 import org.apache.james.*;
 import org.apache.james.core.*;
+import org.apache.james.mailrepository.*;
 import org.apache.mailet.*;
 
 /**
@@ -28,8 +30,6 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
     private SimpleContext context;
     private SpoolRepository spool;
     private Logger logger;
-    //private Mailet rootMailet;
-    //private Mailet errorMailet;
     private MailetContext mailetcontext;
 
     private HashMap processors;
@@ -81,32 +81,34 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                     Matcher matcher = null;
                     try {
                         matcher = matchLoader.getMatcher(matcherName, mailetcontext);
-                        //mailetMatchs.add(match);
                         //The matcher itself should log that it's been inited.
                         logger.log("Matcher " + matcherName + " instantiated", "Processor", logger.INFO);
-                    } catch (MailetException ex) {
+                    } catch (MessagingException ex) {
+                        // **** Do better job printing out exception
                         logger.log("Unable to init matcher " + matcherName + ": " + ex.toString(), "Processor", logger.ERROR);
-        //                ex.printStackTrace();/*DEBUG*/
                         throw ex;
                     }
                     try {
                         mailet = mailetLoader.getMailet(mailetClassName, mailetcontext, c);
-                        //mailets.add(mailet);
                         logger.log("Mailet " + mailetClassName + " instantiated", "Processor", logger.INFO);
-                    } catch (MailetException ex) {
+                    } catch (MessagingException ex) {
+                        // **** Do better job printing out exception
                         logger.log("Unable to init mailet " + mailetClassName + ": " + ex.getMessage(), "Processor", logger.ERROR);
-        //                ex.printStackTrace();/*DEBUG*/
                         throw ex;
                     }
+                    //Add this pair to the proces
                     processor.add(matcher, mailet);
                 }
+
                 //Loop through all mailets within processor initializing them
 
                 //Add a Null mailet with All matcher to the processor
-                Mailet mailet = mailetLoader.getMailet("Null", mailetcontext, null);
+                //  this is so if a message gets to the end of a processor, it will always be
+                //  ghosted
                 Matcher matcher = matchLoader.getMatcher("All", mailetcontext);
+                Mailet mailet = mailetLoader.getMailet("Null", mailetcontext, null);
+                processor.add(matcher, mailet);
 
-                //context.put(processorName, processor);
                 logger.log("processor " + processorName + " instantiated", "Processor", logger.INFO);
             } catch (Exception ex) {
                 logger.log("Unable to init processor " + processorName + ": " + ex.getMessage(), "Processor", logger.ERROR);
@@ -128,25 +130,11 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                 String key = spool.accept();
                 MailImpl mail = spool.retrieve(key);
                 logger.log("==== Begin processing mail " + mail.getName() + " ====", "Processor", logger.INFO);
-                //try {
-                    process(mail);
-                /*
-                } catch (Exception ex) {
-                    mail.setState(Mail.ERROR);
-                    mail.setErrorMessage("Exception in rootMailet service: " + ex.getMessage());
-                    logger.log("Exception in root service (" + mail.getName() + "): " + ex.getMessage(), "Processor", logger.ERROR);
-                }
-                if (mail.getState() != mail.GHOST) {
-                    try {
-                        errorMailet.service(mail);
-                    } catch (Exception ex) {
-                    logger.log("Exception in errorMailet service (" + mail.getName() + "): " + ex.getMessage(), "Processor", logger.ERROR);
-                    }
-                }
-                */
+                process(mail);
                 spool.remove(key);
                 logger.log("==== Removed from spool mail " + mail.getName() + " ====", "Processor", logger.INFO);
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.log("Exception in JamesSpoolManager.run " + e.getMessage(), "Processor", logger.ERROR);
             }
         }
@@ -165,7 +153,17 @@ public class JamesSpoolManager implements org.apache.avalon.Component, Composer,
                     throw new MailetException("Unable to find processor " + processorName);
                 }
                 processor.service(mail);
+            } catch (MessagingException me) {
+                if (processorName.equals("error")) {
+                    //We got an error on the error processor... just kill the message
+                    mail.setState(Mail.GHOST);
+                } else {
+                    //We got an error... send it through the error process
+                    mail.setState("error");
+                }
             } catch (Exception e) {
+                //This is a strange error message we probably want to prevent...
+                System.err.println("Exception in processor <" + processorName + ">");
                 e.printStackTrace();
                 if (processorName.equals("error")) {
                     //We got an error on the error processor... just kill the message
