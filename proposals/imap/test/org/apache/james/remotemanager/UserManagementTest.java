@@ -30,7 +30,7 @@ public class UserManagementTest
 
     public void addUser() throws Exception
     {
-        addUser( _userName, _password );
+          addUser( _userName, _password );
     }
 
     protected void addUser( String userName, String password )
@@ -40,6 +40,13 @@ public class UserManagementTest
         SL( "User " + userName + " added" );
         executeTests();
     }
+
+    /*protected void addExistingUser( String userName, String password )  
+        throws Exception{
+        CL( "adduser " + userName + " " + password );
+        SL( "user " + userName + " already exist" );
+        executeTests();
+    }*/
 
     public void deleteUser() throws Exception
     {

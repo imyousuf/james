@@ -15,16 +15,20 @@ C: a01 SUBSCRIBE test1.subfolder1
 S: a01 OK SUBSCRIBE completed
 
 C: a01 LSUB "" "*"
+SUB: 1
 S: * LSUB (\Unmarked) "." test
 S: * LSUB (\Unmarked) "." test.subfolder
 S: * LSUB (\Unmarked) "." test1.subfolder1
+SUB: 1
 S: a01 OK LSUB completed
 
 // LIST All subscribed
 C: a01 LSUB "" "*"
+SUB: 1
 S: * LSUB (\Unmarked) "." test
 S: * LSUB (\Unmarked) "." test.subfolder
 S: * LSUB (\Unmarked) "." test1.subfolder1
+SUB: 1
 S: a01 OK LSUB completed
 
 // LIST A subset of subscribed

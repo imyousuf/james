@@ -16,7 +16,7 @@ public interface IMAPTest
 
     public String USER = "imapuser";
     public String PASSWORD = "password";
-    public String FROM_ADDRESS = "sender@somewhere";
+    public String FROM_ADDRESS = "sender@localhost";
     public String TO_ADDRESS = USER + "@" + HOST;
     
 }
