@@ -71,8 +71,8 @@
 
             <dnsServer>
                 <servers>
-                    <server>216.181.1.2</server>
-                    <server>216.181.2.2</server>
+                    <server></server>
+                    <server></server>
                 </servers>
                 <authoritative>false</authoritative>
             </dnsServer>
