@@ -13,11 +13,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.text.ParseException;
 
 /**
- * A utility class to allow creation of RFC822 date strings from Dates<br>
+ * A utility class to allow creation of RFC822 date strings from Dates 
  * and dates from RFC822 strings<br>
- * It provides for conversion between timezones<br>
+ * It provides for conversion between timezones, 
  * And easy manipulation of RFC822 dates<br>
  * example - current timestamp: String nowdate = new RFC822Date().toString()<br>
  * example - convert into java.util.Date: Date usedate = new RFC822Date("3 Oct 2001 08:32:44 -0000").getDate()<br>
@@ -28,6 +29,8 @@ import java.util.TimeZone;
 public class RFC822Date {
     private static DateFormat df;
     private static SimpleDateFormat dx;
+    private static SimpleDateFormat dy;
+    private static SimpleDateFormat dz;
     private static DecimalFormat tz;
     private TimeZone defaultTZ;
     private Date d;
@@ -35,11 +38,13 @@ public class RFC822Date {
     static {
         df = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss", Locale.US);
         dx = new SimpleDateFormat("EE, d MMM yyyy HH:mm:ss zzzzz", Locale.US);
+        dy = new SimpleDateFormat("EE d MMM yyyy HH:mm:ss zzzzz", Locale.US);
+	  	dz = new SimpleDateFormat("d MMM yyyy HH:mm:ss zzzzz", Locale.US);
 	  	tz = new DecimalFormat("00"); 
 	  }   
    
    /**
-	* creates a current timestamp <br>
+	* creates a current timestamp 
 	* using this machines system timezone<br>
 	* 
 	*/
@@ -49,7 +54,7 @@ public RFC822Date(){
     }
     
    /**
-	* creates object using date supplied <br>
+	* creates object using date supplied 
 	* and this machines system timezone<br>
 	* @param da java.util.Date, A date object
 	*/
@@ -59,7 +64,7 @@ public RFC822Date(){
     }
     
    /**
-	* creates object using date supplied<br>
+	* creates object using date supplied 
 	* and the timezone string supplied<br>
 	* useTZ can be either an abbreviation such as "PST",
 	* a full name such as "America/Los_Angeles",<br> 
@@ -77,23 +82,23 @@ public RFC822Date(){
 
 	/**
 	* creates object from 
-	* RFC822 date string supplied<br>
+	* RFC822 date string supplied 
 	* and the system default time zone <br>
 	* In practice it converts RFC822 date string to the local timezone<br>
-	* @param rfcdate java.lang.String, date in RFC822 format "3 Oct 2001 08:32:44 -0000"
+	* @param rfcdate java.lang.String - date in RFC822 format "3 Oct 2001 08:32:44 -0000"
 	*/
-	public RFC822Date(String rfcdate){
+	public RFC822Date(String rfcdate) {
 		setDate(rfcdate);
 		defaultTZ = TimeZone.getDefault();
 	}
 	/**
 	* creates object from 
-	* RFC822 date string supplied<br>
+	* RFC822 date string supplied 
 	* using the supplied time zone string<br>
-	* @param rfcdate java.lang.String, date in RFC822 format
-	* @param useTZ java.lang.String, timezone string
+	* @param rfcdate java.lang.String - date in RFC822 format
+	* @param useTZ java.lang.String - timezone string *doesn't support Z style or UT*
 	*/	
-	public RFC822Date(String rfcdate, String useTZ){
+	public RFC822Date(String rfcdate, String useTZ)  {
 		setDate(rfcdate);
 		defaultTZ = TimeZone.getTimeZone(useTZ);
 	}	
@@ -102,11 +107,30 @@ public RFC822Date(){
     	d = da;
     }
     
-    public void setDate(String rfcdate){
+ /**
+ * The following styles of rfc date strings can be parsed<br>
+ *	Wed, 3 Oct 2001 06:42:27 GMT+02:10<br>
+ *	Wed 3 Oct 2001 06:42:27 PST <br>
+ *	3 October 2001 06:42:27 +0100  <br>  
+ * the military style timezones, ZM, ZA, etc cannot (yet) <br>
+ * @param rfcdate java.lang.String - date in RFC822 format
+ */
+    public void setDate(String rfcdate)  {
+    	String exceptions;
+    	int exceptionoff;
 		try{
 			d= dx.parse(rfcdate);
-		}catch(Exception  e){
-			System.out.println("date error" + e);
+		}catch(ParseException  e){
+			try{
+				d= dz.parse(rfcdate);
+			}catch(ParseException  f){
+				try{
+					d= dy.parse(rfcdate);
+				}catch(ParseException  g){
+					d = new Date();
+				}
+			}
+			
 		}
     	
     }
@@ -122,7 +146,7 @@ public RFC822Date(){
 
 	/**
      * returns the java.util.Date object this RFC822Date represents.
-     * @return java.util.Date
+     * @return java.util.Date - the java.util.Date object this RFC822Date represents.
      */
     public Date getDate(){
     	return d;
@@ -131,7 +155,7 @@ public RFC822Date(){
     /**
      * returns the date as a string formated for RFC822 compliance
      * ,accounting for timezone and daylight saving.
-     * @return java.lang.String
+     * @return java.lang.String - date as a string formated for RFC822 compliance
      * 
      */
     public  String toString() {
