@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
  * @author  Matthew Pangaro <mattp@lokitech.com>
  * @author  <a href="mailto:donaldp@apache.org">Peter Donald</a>
  */
-public class SMTPServer 
+public class SMTPServer
     extends AbstractService {
 
     protected ConnectionHandlerFactory createFactory()
@@ -36,22 +36,24 @@ public class SMTPServer
 
         m_port = configuration.getChild( "port" ).getValueAsInteger( 25 );
 
-        try 
-        { 
+        try
+        {
             final String bindAddress = configuration.getChild( "bind" ).getValue( null );
             if( null != bindAddress )
             {
-                m_bindTo = InetAddress.getByName( bindAddress ); 
+                m_bindTo = InetAddress.getByName( bindAddress );
             }
         }
-        catch( final UnknownHostException unhe ) 
+        catch( final UnknownHostException unhe )
         {
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
-        final String useTLS = configuration.getChild("useTLS").getValue( "" );
-        if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
- 
+        final boolean useTLS = configuration.getChild("useTLS").getValueAsBoolean( false );
+        if( useTLS ) {
+            m_serverSocketType = "ssl";
+        }
+
        super.configure( configuration.getChild( "handler" ) );
     }
 
@@ -62,4 +64,4 @@ public class SMTPServer
         System.out.println("Started SMTP Server "+m_connectionName);
     }
 }
-    
+

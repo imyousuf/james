@@ -18,9 +18,13 @@
 	<person name="Jason Borden" email="jborden@javasense.com" id="JB"/>
 	<person name="Samuel Sadek" email="Samuel.Sadek@kpmg.co.uk" id="SS"/>
 	<person name="Stephan Schiessling" email="s@rapi.com" id="SS2"/>
+	<person name="Eung-ju Park" email="colus@apache.org" id="EP"/>
   </devs>
 
 <release version="snap">
+  <action dev="EP" type="update">
+    Used getAsBooleanValue in various configuration methods to make code more readable.
+  </action>
   <action dev="SS2" type="update">
     Added POP3 dot-stuffing so messages with dots can be retrieved.
   </action>

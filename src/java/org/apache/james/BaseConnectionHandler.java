@@ -36,15 +36,10 @@ public class BaseConnectionHandler extends AbstractLogEnabled implements Configu
         } catch  (UnknownHostException ue) {
             hostName = "localhost";
         }
-        
+
         Configuration helloConf = configuration.getChild("helloName");
-        String autodetect = null;
-        try {
-            autodetect = helloConf.getAttribute("autodetect");
-        } catch(ConfigurationException ex) {
-            autodetect = "TRUE";
-        }
-        if ("TRUE".equals(autodetect))
+        boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
+        if (autodetect)
             helloName = hostName;
         else
             helloName = helloConf.getValue("localhost");

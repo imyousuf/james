@@ -55,8 +55,8 @@ import java.util.*;
  * @author <a href="mailto:charles@benett1.demon.co.uk">Charles Benett</a>
  *
 
- * This is $Revision: 1.18 $
- * Committed on $Date: 2002/02/04 15:34:11 $ by: $Author: danny $
+ * This is $Revision: 1.19 $
+ * Committed on $Date: 2002/02/27 05:05:53 $ by: $Author: serge $
 
  */
 public class James
@@ -144,7 +144,7 @@ public class James
         // Get the domains and hosts served by this instance
         serverNames = new Vector();
         Configuration serverConf = conf.getChild("servernames");
-        if (serverConf.getAttribute("autodetect").equals("TRUE") && (!hostName.equals("localhost"))) {
+        if (serverConf.getAttributeAsBoolean("autodetect") && (!hostName.equals("localhost"))) {
             serverNames.add(hostName.toLowerCase());
         }
 
@@ -169,21 +169,9 @@ public class James
         context.put( Constants.POSTMASTER, postmaster );
 
         Configuration userNamesConf = conf.getChild("usernames");
-        if (userNamesConf.getAttribute("ignoreCase").equals("TRUE")) {
-            ignoreCase = true;
-        } else {
-            ignoreCase = false;
-        }
-        if (userNamesConf.getAttribute("enableAliases").equals("TRUE")) {
-            enableAliases = true;
-        } else {
-            enableAliases = false;
-        }
-        if (userNamesConf.getAttribute("enableForwarding").equals("TRUE")) {
-            enableForwarding = true;
-        } else {
-            enableForwarding = false;
-        }
+        ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
+        enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
+        enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
 
         //Get localusers
         try {

@@ -26,7 +26,7 @@ import java.net.UnknownHostException;
  * @author  Federico Barbieri <scoobie@pop.systemy.it>
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
  */
-public class RemoteManager 
+public class RemoteManager
     extends AbstractService {
 
     protected ConnectionHandlerFactory createFactory()
@@ -39,21 +39,23 @@ public class RemoteManager
 
         m_port = configuration.getChild( "port" ).getValueAsInteger( 4554 );
 
-        try 
-        { 
+        try
+        {
             final String bindAddress = configuration.getChild( "bind" ).getValue( null );
             if( null != bindAddress )
             {
-                m_bindTo = InetAddress.getByName( bindAddress ); 
+                m_bindTo = InetAddress.getByName( bindAddress );
             }
         }
-        catch( final UnknownHostException unhe ) 
+        catch( final UnknownHostException unhe )
         {
             throw new ConfigurationException( "Malformed bind parameter", unhe );
         }
 
-        final String useTLS = configuration.getChild( "useTLS" ).getValue( "" );
-        if( useTLS.equals( "TRUE" ) ) m_serverSocketType = "ssl";
+        final boolean useTLS = configuration.getChild( "useTLS" ).getValueAsBoolean( false );
+        if( useTLS ) {
+            m_serverSocketType = "ssl";
+        }
 
         super.configure( configuration.getChild( "handler" ) );
     }
