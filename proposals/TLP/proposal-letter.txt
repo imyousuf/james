@@ -1,0 +1,77 @@
+Jakarta-James Proposal for adoption as an Apache top-level project
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Preamble:
+----------------------------------------------------------------------
+To the Board of the Apache Software Foundation.
+
+We, the commiters of the Jakarta sub-project jakarta-james have held a
+vote and agreed to apply to you for elevation of our sub-project to
+the staus of a top-level Apache project.
+
+This document outlines details of our project, our community, and our
+reasons for wanting to take this step.
+
+----------------------------------------------------------------------
+Introduction to James:
+----------------------------------------------------------------------
+        What is James:
+----------------------------------------------------------------------
+James is a 100% java Mail and news server.
+
+James provides highly configurable SMTP mail transport and local 
+delivery into POP3 or IMAP accounts, utilising file system or database
+storage configurable on a per-repository basis.
+
+The jakarta-james sub-project hosts the Apache Mailet API specification
+The Mailet API is a Java API providing a framework for the conditional
+processing of mail and news messages.
+
+James implements the Mailet API, and as such is itself a platform for
+Mailet applications. Applications providing bespoke/custom mail
+processing, such as listservers, or providing gateways into other
+systems, messaging systems such as NNTP, SMS or proprietery messaging,
+or insertion into non-standard storage media.
+
+James itself provides a number of mailets performing condifgurable 
+standard MTA services, such as aliasing and forwarding.
+
+
+----------------------------------------------------------------------
+        History:
+----------------------------------------------------------------------
+### TODO: SERGE you must know most of the history..? ###
+----------------------------------------------------------------------
+	Future:
+----------------------------------------------------------------------
+Our vision of the future for James contains three main foci,
+
+1/ To continually improve the performance and functionality of the
+core services. Currently focusing on making IMAP stable and
+increasing fault tolerance across the board.
+
+2/ To promote the Mailet API as a standard API (providing portability 
+to mail specific code) to all Java projects involved with processing
+email both OS and commercial, this will involve further isolating the 
+Mailet API from any dependance on James or James' dependancies. And to
+continually support, refine and enhance the Mailet API in response to 
+feedback from Mailet API users and Mailet developers.
+
+3/ To build on James' Mailet packages in order to provide more, and 
+more sophisticated, behaviours which would be available to any
+application implementing the Mailet API.
+----------------------------------------------------------------------
+Our Community:
+        Developers:
+        Users:
+
+Reasons for our application:
+        Apache:
+        Project Management:
+        Profile:
+        Sub-Projects:
+                Mailet API:
+                Mailet Applications:
+
+
