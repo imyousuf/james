@@ -47,7 +47,7 @@ public class AvalonMailRepository
     implements MailRepository, Component, Configurable, Composable, Initializable {
 
     private Lock lock;
-    protected static boolean DEEP_DEBUG = false;
+    protected final static boolean DEEP_DEBUG = false;
     private static final String TYPE = "MAIL";
     private Store store;
     private StreamRepository sr;
@@ -175,9 +175,26 @@ public class AvalonMailRepository
                 if (!keys.contains(key)) {
                     keys.add(key);
                 }
-                OutputStream out = sr.put(key);
-                mc.writeMessageTo(out);
-                out.close();
+                boolean saveStream = true;
+
+                if (mc.getMessage() instanceof MimeMessageWrapper) {
+                    MimeMessageWrapper wrapper = (MimeMessageWrapper) mc.getMessage();
+                    System.out.println("Retrieving from: " + wrapper.getSourceId());
+                    System.out.println("Saving to:       " + destination + "/" + mc.getName());
+                    System.out.println("Modified: " + wrapper.isModified());
+                    if (wrapper.getSourceId().equals(destination + "/" + mc.getName()) && !wrapper.isModified()) {
+                        //We're trying to save to the same place, and it's not modified... we shouldn't save.
+                        //More importantly, if we try to save, we will create a 0-byte file since we're
+                        //retrying to retrieve from a file we'll be overwriting.
+                        saveStream = false;
+                    }
+                }
+                if (saveStream) {
+                    OutputStream out = sr.put(key);
+                    mc.writeMessageTo(out);
+                    out.close();
+                }
+                //Always save the header information
                 or.put(key, mc);
             } finally {
                 if (!wasLocked) {
@@ -186,7 +203,7 @@ public class AvalonMailRepository
                 }
             }
 
-            if(DEEP_DEBUG) {
+            if (DEEP_DEBUG) {
                 getLogger().debug("Mail " + key + " stored." );
             }
 
@@ -201,7 +218,7 @@ public class AvalonMailRepository
     }
 
     public MailImpl retrieve(String key) {
-        if(DEEP_DEBUG) {
+        if (DEEP_DEBUG) {
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
@@ -213,7 +230,7 @@ public class AvalonMailRepository
                 remove(key);
                 return null;
             }
-            MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, key);
+            MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, destination, key);
             mc.setMessage(new MimeMessageWrapper(source));
 
             return mc;

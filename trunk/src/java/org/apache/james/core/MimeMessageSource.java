@@ -11,9 +11,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A source of a MimeMessage.
+ * This defines a reusable datasource that can supply an input stream with
+ * MimeMessage data.  This allows a MimeMessageWrapper or other classes to
+ * grab the underlying data.
+ *
+ * @see MimeMessageWrapper
  */
 public abstract class MimeMessageSource {
+    /**
+     * Returns a unique String ID that represents where this file is loaded
+     * from.  This will be used to identify where the data is, primarily to
+     * avoid situations where this data would get overwritten.
+     */
+    public abstract String getSourceId();
+
     /**
      * Return an input stream to the data
      */

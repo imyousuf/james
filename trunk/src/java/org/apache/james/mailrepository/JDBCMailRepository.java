@@ -60,8 +60,11 @@ import java.util.*;
 public class JDBCMailRepository
     extends AbstractLogEnabled
     implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
-    protected Context context;
 
+    private static final boolean DEEP_DEBUG = false;
+
+
+    protected Context context;
     private Lock lock;
 
     // Configuration elements
@@ -429,16 +432,24 @@ public class JDBCMailRepository
     }
 
     public MailImpl retrieve(String key) {
-        //System.err.println("retrieving " + key);
+        if (DEEP_DEBUG) {
+            System.err.println("retrieving " + key);
+        }
         Connection conn = null;
         try {
             conn = datasource.getConnection();
+            if (DEEP_DEBUG) {
+                System.err.println("got a conn " + key);
+            }
 
             PreparedStatement retrieveMessage =
                 conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
             retrieveMessage.setString(1, key);
             retrieveMessage.setString(2, repositoryName);
             ResultSet rsMessage = retrieveMessage.executeQuery();
+            if (DEEP_DEBUG) {
+                System.err.println("ran the query " + key);
+            }
             if (!rsMessage.next()) {
                 throw new RuntimeException("Did not find a record " + key + " in " + repositoryName);
             }

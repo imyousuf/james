@@ -17,11 +17,17 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
 
     //Define how to get to the data
     StreamRepository sr = null;
+    String repositoryName = null;
     String key = null;
 
-    public MimeMessageAvalonSource(StreamRepository sr, String key) {
+    public MimeMessageAvalonSource(StreamRepository sr, String repositoryName, String key) {
         this.sr = sr;
+        this.repositoryName = repositoryName;
         this.key = key;
+    }
+
+    public String getSourceId() {
+        return repositoryName + "/" + key;
     }
 
     public InputStream getInputStream() throws IOException {

@@ -56,6 +56,10 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
     }
 
+    public String getSourceId() {
+        return repository.repositoryName + "/" + key;
+    }
+
     /**
      * Return the input stream to the database field and then the file stream.  This should
      * be smart enough to work even if the file does not exist.  This is to support
@@ -63,20 +67,30 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      */
     public synchronized InputStream getInputStream() throws IOException {
         try {
+            new Throwable().printStackTrace();
             Connection conn = repository.getConnection();
 
-            PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
-            retrieveMessageStream.setString(1, key);
-            retrieveMessageStream.setString(2, repository.repositoryName);
-            ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
+            byte[] headers = null;
 
-            if (!rsRetrieveMessageStream.next()) {
-                throw new IOException("Could not find message");
+            for (int i = 0; i < 10; i++) {
+                long start = System.currentTimeMillis();
+                System.err.println("starting");
+                PreparedStatement retrieveMessageStream = conn.prepareStatement(retrieveMessageBodySQL);
+                retrieveMessageStream.setString(1, key);
+                retrieveMessageStream.setString(2, repository.repositoryName);
+                ResultSet rsRetrieveMessageStream = retrieveMessageStream.executeQuery();
+
+                if (!rsRetrieveMessageStream.next()) {
+                    throw new IOException("Could not find message");
+                }
+
+                headers = rsRetrieveMessageStream.getBytes(1);
+                rsRetrieveMessageStream.close();
+                retrieveMessageStream.close();
+                System.err.println("stopping");
+                System.err.println(System.currentTimeMillis() - start);
             }
 
-            byte[] headers = rsRetrieveMessageStream.getBytes(1);
-            rsRetrieveMessageStream.close();
-            retrieveMessageStream.close();
             conn.close();
 
             InputStream in = new ByteArrayInputStream(headers);
@@ -100,6 +114,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     public synchronized long getMessageSize() throws IOException {
         if (retrieveMessageBodySizeSQL == null) {
             //There was no SQL statement for this repository... figure it out the hard way
+            System.err.println("no SQL statement to find size");
             return super.getMessageSize();
         }
 
