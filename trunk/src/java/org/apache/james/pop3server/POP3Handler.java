@@ -1036,6 +1036,8 @@ public class POP3Handler
     private void doQUIT(String command,String argument,String argument1) {
         String responseString = null;
         if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
+            responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
+            writeLoggedFlushedResponse(responseString);
             return;
         }
         List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
