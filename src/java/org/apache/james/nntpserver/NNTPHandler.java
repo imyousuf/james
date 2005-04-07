@@ -1053,7 +1053,7 @@ public class NNTPHandler
         if (article != null) {
             writer.flush();
             article.writeBody(new ExtraDotOutputStream(outs));
-            writeLoggedFlushedResponse(".");
+            writeLoggedFlushedResponse("\r\n.");
         }
     }
 
@@ -1189,7 +1189,8 @@ public class NNTPHandler
         if (article != null) {
             writer.flush();
             article.writeArticle(new ExtraDotOutputStream(outs));
-            writeLoggedFlushedResponse(".");
+            // see jira JAMES-311 for an explanation of the "\r\n"
+            writeLoggedFlushedResponse("\r\n.");
         }
     }
 
