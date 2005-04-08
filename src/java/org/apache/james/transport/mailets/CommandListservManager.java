@@ -85,7 +85,7 @@ import java.util.*;
  * &lt;listName&gt;-&lt;commandName&gt;-&lt;optCommandParam&gt;@domain
  * </pre>
  *
- * @version CVS $Revision: 1.1.2.4 $ $Date: 2004/03/30 02:15:24 $
+ * @version CVS $Revision: 1.1.2.4 $ $Date$
  * @since 2.2.0
  */
 public class CommandListservManager extends GenericMailet implements ICommandListservManager {
@@ -305,7 +305,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      */
     protected String getCommandName(MailAddress mailAddress) {
         String user = mailAddress.getUser();
-        int index = user.indexOf('-');
+        int index = user.indexOf('-', listName.length());
         String commandName = user.substring(++index);
         return commandName;
     }
