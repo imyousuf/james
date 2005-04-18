@@ -17,9 +17,9 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.util.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
