@@ -64,7 +64,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision: 1.55 $
+ * @version This is $Revision$
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -642,7 +642,9 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            if (authRequired) {
+//            if (authRequired) {
+            // always announcing AUTH capability to the client
+            if (true) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -657,7 +659,9 @@ public class SMTPHandler
                           .append(remoteIP)
                           .append("])");
             responseString = clearResponseBuffer();
-            if (authRequired) {
+//            if (authRequired) {
+            // always announcing AUTH capability to the client
+            if (true) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -688,7 +692,9 @@ public class SMTPHandler
                 responseString = "250-SIZE " + maxMessageSize;
                 writeLoggedResponse(responseString);
             }
-            if (authRequired) {
+//            if (authRequired) {
+            // always announcing AUTH capability to the client
+            if (true) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -703,7 +709,9 @@ public class SMTPHandler
                            .append(remoteIP)
                            .append("])");
             responseString = clearResponseBuffer();
-            if (authRequired) {
+//            if (authRequired) {
+            // always announcing AUTH capability to the client
+            if (true) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
