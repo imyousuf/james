@@ -21,7 +21,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
-<!-- $Revision: 1.40.2.26 $ Committed on $Date: 2004/06/16 02:42:08 $ by: $Author: noel $ -->
+<!-- $Revision$ Committed on $Date$ by: $Author$ -->
 
 <config>
    <James>
@@ -931,8 +931,9 @@
    <!-- connections that this connection manager will allow per managed server socket. -->
    <!-- This value can be overridden by each individual service. -->
    <!-- If no value is specified, the value defaults to 30. -->
-   <!-- A value of 0 means that there is no limit imposed by the connection manager, although -->
-   <!-- resource limitations imposed by other components (i.e. max # of threads) may -->
+   <!-- A value of 0 creates a maximum of 1 connection due to the use of the HardResourceLimiting -->
+   <!-- thread pool by the ServerConnection class. -->
+   <!-- Resource limitations imposed by other components (i.e. max # of threads) may -->
    <!-- serve to limit the number of open connections. -->
    <!-- -->
    <connections>
