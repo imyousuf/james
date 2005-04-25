@@ -619,9 +619,7 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-//            if (authRequired) {
-            // always announcing AUTH capability to the client
-            if (true) {
+            if (authRequired) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -636,9 +634,7 @@ public class SMTPHandler
                           .append(remoteIP)
                           .append("])");
             responseString = clearResponseBuffer();
-//            if (authRequired) {
-            // always announcing AUTH capability to the client
-            if (true) {
+            if (authRequired) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
@@ -669,9 +665,7 @@ public class SMTPHandler
                 responseString = "250-SIZE " + maxMessageSize;
                 writeLoggedResponse(responseString);
             }
-//            if (authRequired) {
-            // always announcing AUTH capability to the client
-            if (true) {
+            if (authRequired) {
                 //This is necessary because we're going to do a multiline response
                 responseBuffer.append("250-");
             } else {
@@ -686,9 +680,7 @@ public class SMTPHandler
                            .append(remoteIP)
                            .append("])");
             responseString = clearResponseBuffer();
-//            if (authRequired) {
-            // always announcing AUTH capability to the client
-            if (true) {
+            if (authRequired) {
                 writeLoggedResponse(responseString);
                 responseString = "250-AUTH LOGIN PLAIN";
                 writeLoggedResponse(responseString);
