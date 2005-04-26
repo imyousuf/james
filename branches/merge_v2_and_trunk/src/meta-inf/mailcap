@@ -1,0 +1,2 @@
+report/*;                         ; x-java-content-handler=org.apache.james.util.mail.handlers.multipart_report
+message/disposition-notification; ; x-java-content-handler=org.apache.james.util.mail.handlers.message_disposition_notification
