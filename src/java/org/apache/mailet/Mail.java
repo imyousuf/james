@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -16,7 +16,6 @@
  ***********************************************************************/
 
 package org.apache.mailet;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
@@ -37,7 +36,6 @@ public interface Mail extends Serializable, Cloneable {
     String DEFAULT = "root";
     String ERROR = "error";
     String TRANSPORT = "transport";
-
     /**
      * Returns the MimeMessage stored in this message
      *
@@ -45,70 +43,66 @@ public interface Mail extends Serializable, Cloneable {
      * @throws MessagingException - an error occured while loading this object
      */
     MimeMessage getMessage() throws MessagingException;
-
     /**
      * Returns a Collection of MailAddress objects that are recipients of this message
      *
      * @return a Collection of MailAddress objects that are recipients of this message
      */
     Collection getRecipients();
-
+    /**
+     * Method setRecipients.
+     * @param recipients a Collection of MailAddress Objects representing the recipients of this message
+     * @since Mailet API v3.0-unstable
+     */
+    void setRecipients(Collection recipients);
     /**
      * The sender of the message, as specified by the MAIL FROM header, or internally defined
      *
      * @return a MailAddress of the sender of this message
      */
     MailAddress getSender();
-
     /**
      * The current state of the message, such as GHOST, ERROR, or DEFAULT
      *
      * @return the state of this message
      */
     String getState();
-
     /**
      * The remote hostname of the server that connected to send this message
      *
      * @return a String of the hostname of the server that connected to send this message
      */
     String getRemoteHost();
-
     /**
      * The remote ip address of the server that connected to send this message
      *
      * @return a String of the ip address of the server that connected to send this message
      */
     String getRemoteAddr();
-
     /**
      * The error message, if any, associated with this message.  Not sure why this is needed.
      *
      * @return a String of a descriptive error message
      */
     String getErrorMessage();
-
     /**
      * Sets the error message associated with this message.  Not sure why this is needed.
      *
      * @param msg - a descriptive error message
      */
     void setErrorMessage(String msg);
-
     /**
      * Sets the MimeMessage associated with this message via the object.
      *
      * @param message - the new MimeMessage that this Mail object will wrap
      */
     void setMessage(MimeMessage message);
-
     /**
      * Sets the state of this message.
      *
      * @param state - the new state of this message
      */
     void setState(String state);
-
     /**
      * Returns the Mail session attribute with the given name, or null
      * if there is no attribute by that name.
@@ -117,8 +111,9 @@ public interface Mail extends Serializable, Cloneable {
      * A list of currently set attributes can be retrieved using getAttributeNames.
      * <p>
      * The attribute is returned as a java.lang.Object or some subclass. Attribute
-     * names should follow the same convention as package names. The Java Mailet API
-     * specification reserves names matching java.*, javax.*, and sun.*
+     * names should follow the same convention as package names. The Mailet API
+     * specification reserves names matching <I>org.apache.james.*</I>
+     * and <I>org.apache.mailet.*</I>.
      *
      * @param name - a String specifying the name of the attribute
      * @return an Object containing the value of the attribute, or null if no attribute
@@ -126,7 +121,6 @@ public interface Mail extends Serializable, Cloneable {
      * @since Mailet API v2.1
      */
     Serializable getAttribute(String name);
-
     /**
      * Returns an Iterator containing the attribute names currently available within
      * this Mail instance.  Use the getAttribute(java.lang.String) method with an
@@ -136,13 +130,11 @@ public interface Mail extends Serializable, Cloneable {
      * @since Mailet API v2.1
      */
     Iterator getAttributeNames();
-
     /**
      * @return true if this Mail instance has any attributes set.
      * @since Mailet API v2.1
      **/
     boolean hasAttributes();
-    
     /**
      * Removes the attribute with the given name from this Mail instance. After
      * removal, subsequent calls to getAttribute(java.lang.String) to retrieve
@@ -155,13 +147,11 @@ public interface Mail extends Serializable, Cloneable {
      * @since Mailet API v2.1
      */
     Serializable removeAttribute(String name);
-
     /**
      * Removes all the attributes associated with this Mail instance.  
      * @since Mailet API v2.1
      **/
     void removeAllAttributes();
-    
     /**
      * Binds an object to a given attribute name in this Mail instance. If the name
      * specified is already used for an attribute, this method will remove the old
