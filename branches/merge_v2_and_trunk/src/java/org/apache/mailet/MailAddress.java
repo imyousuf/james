@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -25,7 +25,7 @@ import javax.mail.internet.ParseException;
  * A representation of an email address.
  * <p>This class encapsulates functionalities to access to different
  * parts of an email address without dealing with its parsing.</p>
- * 
+ *
  * <p>A MailAddress is an address specified in the MAIL FROM and
  * RCPT TO commands in SMTP sessions.  These are either passed by
  * an external server to the mailet-compliant SMTP server, or they
@@ -33,14 +33,14 @@ import javax.mail.internet.ParseException;
  * send to another (external) SMTP server.  Mailets and matchers
  * use the MailAddress for the purpose of evaluating the sender
  * and recipient(s) of a message.</p>
- * 
+ *
  * <p>MailAddress parses an email address as defined in RFC 821
  * (SMTP) p. 30 and 31 where addresses are defined in BNF convention.
  * As the mailet API does not support the aged "SMTP-relayed mail"
  * addressing protocol, this leaves all addresses to be a <mailbox>,
  * as per the spec.  The MailAddress's "user" is the <local-part> of
  * the <mailbox> and "host" is the <domain> of the mailbox.</p>
- * 
+ *
  * <p>This class is a good way to validate email addresses as there are
  * some valid addresses which would fail with a simpler approach
  * to parsing address.  It also removes parsing burden from
@@ -50,7 +50,7 @@ import javax.mail.internet.ParseException;
  * lokitech.com is the host).  This means all current parsing to date
  * is incorrect as we just find the first @ and use that to separate
  * user from host.</p>
- * 
+ *
  * <p>This parses an address as per the BNF specification for <mailbox>
  * from RFC 821 on page 30 and 31, section 4.1.2. COMMAND SYNTAX.
  * http://www.freesoft.org/CIE/RFC/821/15.htm</p>
@@ -185,7 +185,7 @@ public class MailAddress implements java.io.Serializable {
     }
 
     public String toString() {
-        StringBuffer addressBuffer = 
+        StringBuffer addressBuffer =
             new StringBuffer(128)
                     .append(user)
                     .append("@")
@@ -426,8 +426,8 @@ public class MailAddress implements java.io.Serializable {
                 break;
             }
             char ch = address.charAt(pos);
-            if ((ch >= '0' && ch <= '9') || 
-                (ch >= 'a' && ch <= 'z') || 
+            if ((ch >= '0' && ch <= '9') ||
+                (ch >= 'a' && ch <= 'z') ||
                 (ch >= 'A' && ch <= 'Z') ||
                 (ch == '-')) {
                 resultSB.append(ch);
