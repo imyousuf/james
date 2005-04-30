@@ -18,11 +18,6 @@
 package org.apache.james;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.ComponentException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -32,12 +27,16 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.context.DefaultContext;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultJamesUser;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -69,8 +68,7 @@ import java.util.*;
  */
 public class James
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable, JamesMBean,
-               Initializable, MailServer, MailetContext, Component {
+    implements Contextualizable, Serviceable, Configurable, JamesMBean, Initializable, MailServer, MailetContext {
 
     /**
      * The software name and version
@@ -80,7 +78,7 @@ public class James
     /**
      * The component manager used both internally by James and by Mailets.
      */
-    private DefaultComponentManager compMgr; //Components shared
+    private DefaultServiceManager compMgr; //Components shared
 
     /**
      * TODO: Investigate what this is supposed to do.  Looks like it
@@ -191,10 +189,10 @@ public class James
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp) {
-        compMgr = new DefaultComponentManager(comp);
+    public void service(ServiceManager comp) {
+        compMgr = new DefaultServiceManager(comp);
         mailboxes = new HashMap(31);
     }
 
@@ -362,6 +360,10 @@ public class James
         // For AVALON aware mailets and matchers, we put the Component object as
         // an attribute
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
+
+        //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
+        File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
+        attributes.put("confDir", configDir.getCanonicalPath());
 
         System.out.println(SOFTWARE_NAME_VERSION);
         getLogger().info("JAMES ...init end");
@@ -570,7 +572,7 @@ public class James
         DNSServer dnsServer = null;
         try {
             dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
-        } catch ( final ComponentException cme ) {
+        } catch ( final ServiceException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
