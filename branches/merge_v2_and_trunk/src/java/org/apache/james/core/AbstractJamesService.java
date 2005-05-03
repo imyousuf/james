@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.Serviceable;
 
-import org.apache.avalon.excalibur.thread.ThreadPool;
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
