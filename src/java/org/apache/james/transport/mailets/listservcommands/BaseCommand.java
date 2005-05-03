@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -21,7 +21,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.transport.mailets.ICommandListservManager;
-import org.apache.james.util.RFC2822Headers;
+import org.apache.mailets.RFC2822Headers;
 import org.apache.james.util.XMLResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

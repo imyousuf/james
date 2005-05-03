@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -42,8 +42,8 @@ import javax.activation.MailcapCommandMap;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.james.Constants;
 import org.apache.james.util.mail.MimeMultipartReport;
 

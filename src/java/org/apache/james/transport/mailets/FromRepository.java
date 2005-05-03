@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -24,7 +24,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
-import org.apache.james.util.RFC2822Headers;
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
