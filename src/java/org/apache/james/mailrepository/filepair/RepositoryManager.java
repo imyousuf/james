@@ -191,7 +191,7 @@ public class RepositoryManager
                     }
 
                     if (reply instanceof Composable) {
-                        final String error = "no implementation in place to support Coposable";
+                        final String error = "no implementation in place to support Composable";
                         getLogger().error( error );
                         throw new IllegalArgumentException( error );
                     }
