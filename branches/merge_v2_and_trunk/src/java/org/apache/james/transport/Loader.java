@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -28,13 +28,12 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.component.Component;
 
 /**
  *
  * $Id$
  */
-public class Loader implements Contextualizable, Component {
+public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
     protected String baseDirectory = null;
     protected Logger logger;

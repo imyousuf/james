@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -21,17 +21,16 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 //import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
-import org.apache.avalon.framework.component.DefaultComponentManager;
-import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
@@ -53,8 +52,7 @@ import java.util.Iterator;
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Composable, Configurable, Initializable,
-               Runnable, Disposable, Component, Contextualizable {
+    implements Serviceable, Configurable, Initializable, Runnable, Disposable, Contextualizable {
 
     private Context context;
     /**
@@ -65,7 +63,7 @@ public class JamesSpoolManager
     /**
      * System component manager
      */
-    private DefaultComponentManager compMgr;
+    private DefaultServiceManager compMgr;
 
     /**
      * The configuration object used by this spool manager.
@@ -119,12 +117,11 @@ public class JamesSpoolManager
     private Collection spoolThreads;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(ComponentManager comp)
-        throws ComponentException {
-        // threadManager = (ThreadManager)comp.lookup( ThreadManager.ROLE );
-        compMgr = new DefaultComponentManager(comp);
+    public void service(ServiceManager comp) throws ServiceException {
+        threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
+        compMgr = new DefaultServiceManager(comp);
     }
 
     /**
