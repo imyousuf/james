@@ -35,9 +35,9 @@ import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.RFC977DateFormat;
-import org.apache.james.util.RFC2980DateFormat;
-import org.apache.james.util.SimplifiedDateFormat;
+import org.apache.mailet.dates.RFC977DateFormat;
+import org.apache.mailet.dates.RFC2980DateFormat;
+import org.apache.mailet.dates.SimplifiedDateFormat;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 
