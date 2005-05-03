@@ -48,7 +48,7 @@
       <!-- In most cases this will be necessary. -->
       <!-- By default, the servername 'localhost' is specified. This can be removed, if required. -->
       <!-- -->
-      <!-- Warning: If you are using fetchpop it is important to include the -->
+      <!-- Warning: If you are using fetchmail it is important to include the -->
       <!-- fetched domains in the server name list to prevent looping.       -->
       <servernames autodetect="true" autodetectIP="true">
 <!-- CONFIRM? -->
@@ -97,26 +97,6 @@
       </inboxRepository>
       -->
    </James>
-
-   <!-- Fetch pop block, fetches mail from POP3 servers and inserts it into the incoming spool -->
-   <!-- Warning: It is important to prevent mail from looping by setting the  -->
-   <!-- fetched domains in the <servernames> section of the <James> block     -->
-   <!-- above. This block is disabled by default.                             -->
-   <!-- FetchPOP is being deprecated in favor of FetchMail                    -->
-    <fetchpop enabled="false">
-        <!-- You can have as many fetch tasks as you want, but each must have a -->
-        <!-- unique name by which it identified -->
-        <fetch name="mydomain.com">
-            <!-- Host name or IP address -->
-            <host>mail.mydomain.com</host>
-            <!-- Account login username -->
-            <user>username</user>
-            <!-- Account login password -->
-            <password>pass</password>
-            <!-- How frequently this account is checked - in milliseconds. 600000 is every ten minutes -->
-            <interval>600000</interval>
-        </fetch>
-    </fetchpop>
 
     <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
     <!-- service that pulls messages from other sources, and inserts them into the -->
