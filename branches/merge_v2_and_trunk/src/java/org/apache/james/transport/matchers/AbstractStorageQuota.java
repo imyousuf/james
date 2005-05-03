@@ -67,12 +67,12 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         try {
             mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
         } catch (ServiceException e) {
-            log("Exception in getting the MailServer: " + e.getMessage() + e.getRole());
+            log("Exception in getting the MailServer: " + e.getMessage() + e.getKey());
         }        
         try {
             usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
         } catch (ServiceException e) {
-            log("Exception in getting the UsersStore: " + e.getMessage() + e.getRole());
+            log("Exception in getting the UsersStore: " + e.getMessage() + e.getKey());
         }        
         localusers = (UsersRepository)usersStore.getRepository("LocalUsers");
     }
