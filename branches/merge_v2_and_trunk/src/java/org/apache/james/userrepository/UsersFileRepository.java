@@ -20,17 +20,16 @@ package org.apache.james.userrepository;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.services.User;
-import org.apache.james.services.UsersRepository;
+import org.apache.mailet.User;
+import org.apache.mailet.UsersRepository;
 
 import java.io.File;
 import java.util.Iterator;
@@ -39,9 +38,9 @@ import java.util.Iterator;
  * Implementation of a Repository to store users on the File System.
  *
  * Requires a configuration element in the .conf.xml file of the form:
- *  <repository destinationURL="file://path-to-root-dir-for-repository"
+ *  &lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *              type="USERS"
- *              model="SYNCHRONOUS"/>
+ *              model="SYNCHRONOUS"/&gt;
  * Requires a logger called UsersRepository.
  *
  *
@@ -50,7 +49,7 @@ import java.util.Iterator;
  */
 public class UsersFileRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Component, Configurable, Composable, Initializable {
+    implements UsersRepository, Configurable, Serviceable, Initializable {
  
     /**
      * Whether 'deep debugging' is turned on.
@@ -69,10 +68,10 @@ public class UsersFileRepository
     private String destination;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
+    public void service( final ServiceManager componentManager )
+        throws ServiceException {
 
         try {
             store = (Store)componentManager.
@@ -80,7 +79,7 @@ public class UsersFileRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );
-            throw new ComponentException( message, e );
+            throw new ServiceException ("", message, e );
         }
     }
 
@@ -167,7 +166,7 @@ public class UsersFileRepository
             addUser(newbie);
         }
         else {
-            throw new RuntimeException("Improper use of deprecated method" 
+            throw new RuntimeException("Improper use of deprecated method"
                                        + " - use addUser(User user)");
         }
     }
@@ -239,6 +238,8 @@ public class UsersFileRepository
         return false;
     }
 
+    /**
+     */
     public boolean test(String name, Object attributes) {
         try {
             return attributes.equals(or.get(name));
