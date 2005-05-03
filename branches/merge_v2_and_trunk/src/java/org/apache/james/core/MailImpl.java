@@ -19,7 +19,7 @@ package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Disposable;
 
-import org.apache.james.util.RFC2822Headers;
+import org.apache.james.mailet.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

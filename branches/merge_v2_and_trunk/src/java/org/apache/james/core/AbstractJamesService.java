@@ -21,9 +21,11 @@ import java.io.*;
 import java.net.*;
 
 import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.component.*;
 import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.activity.*;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
 
 import org.apache.avalon.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
@@ -45,8 +47,7 @@ import org.apache.james.util.watchdog.WatchdogFactory;
  *
  */
 public abstract class AbstractJamesService extends AbstractHandlerFactory
-    implements Component, Composable, Configurable,
-               Disposable, Initializable, ConnectionHandlerFactory {
+    implements Serviceable, Configurable, Disposable, Initializable, ConnectionHandlerFactory {
 
     /**
      * The default value for the connection timeout.
@@ -142,7 +143,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * The component manager used by this service.
      */
-    private ComponentManager compMgr;
+    private ServiceManager compMgr;
 
     /**
      * Whether this service is enabled.
@@ -150,12 +151,18 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     private volatile boolean enabled;
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * Flag holding the disposed state of the component.
      */
-    public void compose(ComponentManager comp) throws ComponentException {
-        super.compose(comp);
-        compMgr = comp;
-        connectionManager = (JamesConnectionManager) compMgr.lookup(JamesConnectionManager.ROLE);
+    private boolean m_disposed = false;
+
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager comp) throws ServiceException {
+        super.service( comp );
+        compMgr               = comp;
+        connectionManager =
+            (JamesConnectionManager)compMgr.lookup(JamesConnectionManager.ROLE);
     }
 
     /**
@@ -376,12 +383,29 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         if (!isEnabled()) {
             return;
         }
-        StringBuffer infoBuffer =
-            new StringBuffer(64)
-                    .append(getServiceType())
-                    .append(" dispose... ")
-                    .append(connectionName);
-        getLogger().debug(infoBuffer.toString());
+
+        if( m_disposed )
+        {
+            if( getLogger().isWarnEnabled() )
+            {
+                getLogger().warn( "ignoring disposal request - already disposed" );
+            }
+            return;
+        }
+
+        if( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "disposal" );
+        }
+
+        m_disposed = true;
+        if( getLogger().isDebugEnabled() )
+        {
+            StringBuffer infoBuffer =
+               new StringBuffer(64).append(getServiceType()).append(
+                   " dispose... ").append(connectionName);
+            getLogger().debug(infoBuffer.toString());
+        }
 
         try {
             connectionManager.disconnect(connectionName, true);
