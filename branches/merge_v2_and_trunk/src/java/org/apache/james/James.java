@@ -31,6 +31,8 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+
+import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.*;
@@ -332,7 +334,7 @@ public class James
             throw e;
         }
         //}
-        compMgr.put( UsersRepository.ROLE, (Component)localusers);
+        compMgr.put( UsersRepository.ROLE, localusers);
         getLogger().info("Local users repository opened");
 
         Configuration inboxConf = conf.getChild("inboxRepository");
