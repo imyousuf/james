@@ -257,14 +257,12 @@ public class SimpleConnectionManager
     }
     /**
      * NOTE this method is a placeholder required until org.apache.avalon.cornerstone.services.connection.ConnectionManager is updated
-     * NOTE/SJM placeholder not required is using 2.X
      * @deprecated 
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, ThreadPool)
      */
-    /*
-    public void connect(String arg0, ServerSocket arg1, ConnectionHandlerFactory arg2, ThreadPool arg3)
+
+    public void connect(String arg0, ServerSocket arg1, ConnectionHandlerFactory arg2, org.apache.avalon.excalibur.thread.ThreadPool arg3)
         throws Exception {
         connect(arg0,arg1,arg2,arg3,getMaximumNumberOfOpenConnections());
     }
-    */
 }
