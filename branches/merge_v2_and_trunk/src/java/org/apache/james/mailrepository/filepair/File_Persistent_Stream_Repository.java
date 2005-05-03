@@ -15,13 +15,6 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software License
- * version 1.1, a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
 package org.apache.james.mailrepository.filepair;
 
 import java.io.BufferedOutputStream;
@@ -75,7 +68,7 @@ public class File_Persistent_Stream_Repository
                 final ArrayList list = new ArrayList();
                 list.add( o );
                 list.add( stream );
-                m_inputs.put( key, stream );
+                m_inputs.put( key, list );
             }
 
             return stream;
@@ -112,7 +105,7 @@ public class File_Persistent_Stream_Repository
                 final ArrayList list = new ArrayList();
                 list.add( o );
                 list.add( stream );
-                m_outputs.put( key, stream );
+                m_outputs.put( key, list );
             }
 
             return stream;
