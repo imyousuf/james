@@ -78,4 +78,37 @@ public interface JamesConnectionManager extends ConnectionManager
                   int maxOpenConnections )
         throws Exception;
 
+    /**
+     * Start managing a connection.
+     * Management involves accepting connections and farming them out to threads
+     * from pool to be handled.
+     *
+     * @param name the name of connection
+     * @param socket the ServerSocket from which to
+     * @param handlerFactory the factory from which to acquire handlers
+     * @param threadPool the thread pool to use
+     * @exception Exception if an error occurs
+     */
+    void connect( String name,
+                  ServerSocket socket,
+                  ConnectionHandlerFactory handlerFactory,
+                  ThreadPool threadPool )
+        throws Exception;
+    
+    /**
+     * Start managing a connection.
+     * Management involves accepting connections and farming them out to threads
+     * from pool to be handled.
+     *
+     * @param name the name of connection
+     * @param socket the ServerSocket from which to
+     * @param handlerFactory the factory from which to acquire handlers
+     * @exception Exception if an error occurs
+     */
+    void connect( String name,
+                  ServerSocket socket,
+                  ConnectionHandlerFactory handlerFactory )
+        throws Exception;
+    
+
 }
