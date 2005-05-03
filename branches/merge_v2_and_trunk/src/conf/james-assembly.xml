@@ -102,13 +102,6 @@
   <!-- NNTP Repository -->
   <block name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
 
-  <!-- FetchPOP Service -->
-  <block name="fetchpop" class="org.apache.james.fetchpop.FetchScheduler" >
-    <provide name="scheduler"
-             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
-    <provide name="James" role="org.apache.james.services.MailServer"/>      
-  </block>
-
   <!-- FetchMail Service -->
   <block name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" >
     <provide name="scheduler"
