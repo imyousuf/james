@@ -17,7 +17,7 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;

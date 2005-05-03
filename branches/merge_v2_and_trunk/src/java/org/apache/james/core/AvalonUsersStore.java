@@ -41,7 +41,7 @@ import java.util.Iterator;
  */
 public class AvalonUsersStore
     extends AbstractLogEnabled
-    implements Contextualizable, Servicable, Configurable, Initializable, UsersStore {
+    implements Contextualizable, Serviceable, Configurable, Initializable, UsersStore {
 
     /**
      * A mapping of respository identifiers to actual repositories

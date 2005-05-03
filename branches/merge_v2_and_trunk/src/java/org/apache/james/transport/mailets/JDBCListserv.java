@@ -17,7 +17,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasource.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.james.Constants;
