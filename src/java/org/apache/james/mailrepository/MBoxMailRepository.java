@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -45,16 +45,12 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.ContextException;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
@@ -105,7 +101,7 @@ import java.lang.reflect.Array;
 
 public class MBoxMailRepository
         extends AbstractLogEnabled
-            implements MailRepository, Component, Contextualizable, Composable, Configurable, Initializable {
+            implements MailRepository, Serviceable, Configurable, Initializable {
 
 
     static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
@@ -125,11 +121,6 @@ public class MBoxMailRepository
      * Whether 'deep debugging' is turned on.
      */
     private static final boolean DEEP_DEBUG = true;
-
-    /**
-     * The Avalon context used by the instance
-     */
-    private Context context;
 
     /**
      * The internal list of the emails
@@ -490,14 +481,6 @@ public class MBoxMailRepository
 
 
     /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(org.apache.avalon.framework.context.Context)
-     */
-    public void contextualize(final Context context)
-            throws ContextException {
-        this.context = context;
-    }
-
-    /**
      * Store the given email in the current mbox file
      * @param mc The mail to store
      */
@@ -786,7 +769,11 @@ public class MBoxMailRepository
     }
 
 
-    public void compose(ComponentManager componentManager) throws ComponentException {
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager )
+     */
+    public void service( final ServiceManager componentManager )
+            throws ServiceException {
     }
 
     /**

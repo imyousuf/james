@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,8 +17,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -123,13 +123,13 @@ public class AvalonListserv extends GenericListserv {
             // Ignore any exceptions, default to true
         }
 
-        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
             UsersStore usersStore = (UsersStore)compMgr.lookup("org.apache.james.services.UsersStore");
             String repName = getInitParameter("repositoryName");
 
             members = (UsersRepository)usersStore.getRepository( repName );
-        } catch (ComponentException cnfe) {
+        } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
