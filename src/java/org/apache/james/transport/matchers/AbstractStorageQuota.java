@@ -18,8 +18,9 @@
 package org.apache.james.transport.matchers;
 
 import java.util.Iterator;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
@@ -62,15 +63,15 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */
     public void init() throws MessagingException {
         super.init();
-        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
             mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
-        } catch (ComponentException e) {
+        } catch (ServiceException e) {
             log("Exception in getting the MailServer: " + e.getMessage() + e.getRole());
         }        
         try {
             usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
-        } catch (ComponentException e) {
+        } catch (ServiceException e) {
             log("Exception in getting the UsersStore: " + e.getMessage() + e.getRole());
         }        
         localusers = (UsersRepository)usersStore.getRepository("LocalUsers");
