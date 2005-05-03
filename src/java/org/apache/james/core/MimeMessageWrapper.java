@@ -47,8 +47,8 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.RFC2822Headers;
-import org.apache.james.util.RFC822DateFormat;
+import org.apache.james.mailet.RFC2822Headers;
+import org.apache.james.mailet.dates.RFC822DateFormat;
 
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.excalibur.io.IOUtil;

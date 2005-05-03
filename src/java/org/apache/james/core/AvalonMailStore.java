@@ -18,10 +18,10 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.component.Composable;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -44,7 +44,7 @@ import java.util.HashMap;
  */
 public class AvalonMailStore
     extends AbstractLogEnabled
-    implements Contextualizable, Composable, Configurable, Initializable, MailStore {
+    implements Contextualizable, Serviceable, Configurable, Initializable, MailStore {
 
     // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";
@@ -75,7 +75,7 @@ public class AvalonMailStore
     /**
      * The Avalon component manager used by the instance
      */
-    protected ComponentManager       componentManager;
+    protected ServiceManager       m_Manager;
 
     private SpoolRepository inboundSpool;
 
@@ -88,13 +88,14 @@ public class AvalonMailStore
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Servicable#service(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException
+    public void service( final ServiceManager manager )
+        throws ServiceException
     {
-        this.componentManager = componentManager;
+        this.m_manager = manager;
     }
+
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -206,16 +207,16 @@ public class AvalonMailStore
      *
      * @return the selected repository
      *
-     * @throws ComponentException if any error occurs while parsing the 
+     * @throws ServiceException if any error occurs while parsing the 
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
-    public synchronized Component select(Object hint) throws ComponentException {
+    public synchronized Object select(Object hint) throws ServiceException {
         Configuration repConf = null;
         try {
             repConf = (Configuration) hint;
         } catch (ClassCastException cce) {
-            throw new ComponentException(
+            throw new ServiceException("",
                 "hint is of the wrong type. Must be a Configuration", cce);
         }
         String destination = null;
@@ -224,12 +225,12 @@ public class AvalonMailStore
             destination = repConf.getAttribute("destinationURL");
             int idx = destination.indexOf(':');
             if ( idx == -1 )
-                throw new ComponentException(
+                throw new ServiceException("",
                     "destination is malformed. Must be a valid URL: "
                     + destination);
             protocol = destination.substring(0,idx);
         } catch (ConfigurationException ce) {
-            throw new ComponentException(
+            throw new ServiceException("",
                 "Malformed configuration has no destinationURL attribute", ce);
         }
 
@@ -249,7 +250,7 @@ public class AvalonMailStore
                                 .append(reply.getClass());
                     getLogger().debug(logBuffer.toString());
                 }
-                return (Component)reply;
+                return reply;
             } else {
                 String key = protocol + type;
                 String repClass = (String) classes.get( key );
@@ -290,8 +291,13 @@ public class AvalonMailStore
                     if (reply instanceof Contextualizable) {
                         ((Contextualizable) reply).contextualize(context);
                     }
+                    if (reply instanceof Serviceable) {
+                        ((Serviceable) reply).service( m_Manager );
+                    }
                     if (reply instanceof Composable) {
-                        ((Composable) reply).compose( componentManager );
+                        final String error = "no implementation in place to support Coposable";
+                        getLogger().error( error );
+                        throw new IllegalArgumentException( error );
                     }
                     if (reply instanceof Configurable) {
                         ((Configurable) reply).configure(config);
@@ -309,19 +315,19 @@ public class AvalonMailStore
                                 .append(repClass);
                         getLogger().info(logBuffer.toString());
                     }
-                    return (Component)reply;
+                    return reply;
                 } catch (Exception e) {
                     if (getLogger().isWarnEnabled()) {
                         getLogger().warn( "Exception while creating repository:" +
                                           e.getMessage(), e );
                     }
                     throw new
-                        ComponentException("Cannot find or init repository",
+                        ServiceException("", "Cannot find or init repository",
                                            e);
                 }
             }
         } catch( final ConfigurationException ce ) {
-            throw new ComponentException( "Malformed configuration", ce );
+            throw new ServiceException("", "Malformed configuration", ce );
         }
     }
 
@@ -363,11 +369,11 @@ public class AvalonMailStore
      *
      * @return whether the mail store has a repository corresponding to this hint
      */
-    public boolean hasComponent( Object hint ) {
-        Component comp = null;
+    public boolean isSelectable( Object hint ) {
+        Object comp = null;
         try {
             comp = select(hint);
-        } catch(ComponentException ex) {
+        } catch(ServiceException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Exception AvalonMailStore.hasComponent-" + ex.toString());
             }
@@ -419,5 +425,5 @@ public class AvalonMailStore
      *
      * @param component The Component we are releasing.
      */
-    public void release(Component component) {}
+    public void release(Object component) {}
 }
