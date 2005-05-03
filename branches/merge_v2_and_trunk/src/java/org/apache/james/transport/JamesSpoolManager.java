@@ -99,7 +99,7 @@ public class JamesSpoolManager
     /**
      * The ThreadManager from which the thread pool is obtained.
      */
-    private ThreadManager threadManager;
+    // private ThreadManager threadManager;
 
     /**
      * Number of active threads
@@ -120,7 +120,7 @@ public class JamesSpoolManager
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
-        threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
+        // threadManager = (ThreadManager) comp.lookup(ThreadManager.ROLE);
         compMgr = new DefaultServiceManager(comp);
     }
 
