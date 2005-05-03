@@ -15,6 +15,13 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
 package org.apache.james.mailrepository.filepair;
 
 import java.io.InputStream;
@@ -22,7 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
-import org.apache.avalon.excalibur.io.ClassLoaderObjectInputStream;
+import org.apache.james.util.io.ClassLoaderObjectInputStream;
 
 /**
  * This is a simple implementation of persistent object store using

@@ -15,6 +15,13 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
+/*
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
+ *
+ * This software is published under the terms of the Apache Software License
+ * version 1.1, a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
 package org.apache.james.mailrepository.filepair;
 
 import java.io.File;
@@ -27,18 +34,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.avalon.cornerstone.services.store.Repository;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
+import org.apache.james.util.io.ExtensionFileFilter;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.phoenix.BlockContext;
 
 /**
  * This an abstract class implementing functionality for creating a file-store.
@@ -65,14 +72,19 @@ public abstract class AbstractFileRepository
     protected File m_baseDirectory;
 
     protected ServiceManager m_serviceManager;
-    protected BlockContext m_context;
 
     protected abstract String getExtensionDecorator();
 
-    public void contextualize( final Context context )
+    public void contextualize( final Context context ) throws ContextException
     {
-        final BlockContext blockContext = (BlockContext) context;
-        m_baseDirectory = blockContext.getBaseDirectory();
+        try
+        {
+            m_baseDirectory = (File) context.get( "urn:avalon:home" );
+        }
+        catch( ContextException ce )
+        {
+            m_baseDirectory = (File) context.get( "app.home" );
+        }
     }
 
     public void service( final ServiceManager serviceManager )
@@ -136,6 +148,7 @@ public abstract class AbstractFileRepository
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
 
