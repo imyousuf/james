@@ -99,7 +99,7 @@ public class JamesSpoolManager
     /**
      * The ThreadManager from which the thread pool is obtained.
      */
-    // private ThreadManager threadManager;
+    private ThreadManager threadManager;
 
     /**
      * Number of active threads

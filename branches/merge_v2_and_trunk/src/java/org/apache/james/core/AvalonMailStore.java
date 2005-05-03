@@ -75,7 +75,7 @@ public class AvalonMailStore
     /**
      * The Avalon component manager used by the instance
      */
-    protected ServiceManager       m_Manager;
+    protected ServiceManager       m_manager;
 
     private SpoolRepository inboundSpool;
 
@@ -292,7 +292,7 @@ public class AvalonMailStore
                         ((Contextualizable) reply).contextualize(context);
                     }
                     if (reply instanceof Serviceable) {
-                        ((Serviceable) reply).service( m_Manager );
+                        ((Serviceable) reply).service( m_manager );
                     }
                     if (reply instanceof Composable) {
                         final String error = "no implementation in place to support Coposable";
