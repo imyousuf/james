@@ -364,7 +364,7 @@ public class James
         attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
 
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
+        java.io.File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
         attributes.put("confDir", configDir.getCanonicalPath());
 
         System.out.println(SOFTWARE_NAME_VERSION);
@@ -916,7 +916,7 @@ public class James
         DNSServer dnsServer = null;
         try {
             dnsServer = (DNSServer) compMgr.lookup( DNSServer.ROLE );
-        } catch ( final ComponentException cme ) {
+        } catch ( final ServiceException cme ) {
             getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
             throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
         }
