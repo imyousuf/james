@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -23,15 +23,12 @@ import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
@@ -48,7 +45,7 @@ import java.net.UnknownHostException;
  * NNTP Server
  *
  */
-public class NNTPServer extends AbstractJamesService implements Component, NNTPServerMBean {
+public class NNTPServer extends AbstractJamesService implements NNTPServerMBean {
 
     /**
      * Whether authentication is required to access this NNTP server
@@ -87,15 +84,15 @@ public class NNTPServer extends AbstractJamesService implements Component, NNTPS
         = new NNTPHandlerConfigurationDataImpl();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose( final ComponentManager componentManager )
-        throws ComponentException {
-        super.compose(componentManager);
+    public void service( final ServiceManager componentManager )
+        throws ServiceException {
+        super.service(componentManager);
         UsersStore usersStore = (UsersStore)componentManager.lookup(UsersStore.ROLE);
         userRepository = usersStore.getRepository("LocalUsers");
         if (userRepository == null) {
-            throw new ComponentException("The user repository could not be found.");
+            throw new ServiceException("","The user repository could not be found.");
         }
 
         repo = (NNTPRepository)componentManager
