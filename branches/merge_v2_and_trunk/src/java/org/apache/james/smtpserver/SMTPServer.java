@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -23,15 +23,12 @@ import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.component.Component;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
@@ -126,17 +123,17 @@ public class SMTPServer extends AbstractJamesService implements Component, SMTPS
         = new SMTPHandlerConfigurationDataImpl();
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
-    public void compose(final ComponentManager componentManager) throws ComponentException {
-        super.compose(componentManager);
-        mailetcontext = (MailetContext) componentManager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) componentManager.lookup("org.apache.james.services.MailServer");
+    public void service( final ServiceManager manager ) throws ServiceException {
+        super.service( manager );
+        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
+        mailServer = (MailServer) manager.lookup("org.apache.james.services.MailServer");
         UsersStore usersStore =
-            (UsersStore) componentManager.lookup("org.apache.james.services.UsersStore");
+            (UsersStore) manager.lookup("org.apache.james.services.UsersStore");
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
-            throw new ComponentException("The user repository could not be found.");
+            throw new ServiceException("","The user repository could not be found.");
         }
     }
 
