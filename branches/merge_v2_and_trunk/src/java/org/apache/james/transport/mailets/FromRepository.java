@@ -17,8 +17,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentException;
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
@@ -78,7 +78,7 @@ public class FromRepository extends GenericMailet {
             // Ignore exception, default to false
         }
 
-        ComponentManager compMgr = (ComponentManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
             MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
             DefaultConfiguration mailConf
@@ -86,7 +86,7 @@ public class FromRepository extends GenericMailet {
             mailConf.setAttribute("destinationURL", repositoryPath);
             mailConf.setAttribute("type", "MAIL");
             repository = (MailRepository) mailstore.select(mailConf);
-        } catch (ComponentException cnfe) {
+        } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());

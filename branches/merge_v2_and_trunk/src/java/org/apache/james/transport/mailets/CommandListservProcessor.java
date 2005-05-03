@@ -17,7 +17,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.james.Constants;
 import org.apache.james.services.UsersRepository;
@@ -404,7 +404,7 @@ public class CommandListservProcessor extends GenericMailet {
      * Fetch the repository of users
      */
     protected void initUsersRepository() throws Exception {
-        ComponentManager compMgr = (ComponentManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
         String repName = getInitParameter("repositoryName");
 

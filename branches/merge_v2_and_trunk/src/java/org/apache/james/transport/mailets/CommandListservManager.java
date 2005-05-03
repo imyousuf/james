@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,7 +17,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.Constants;
@@ -322,7 +322,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * Fetch the repository of users
      */
     protected void initUsersRepository() {
-        ComponentManager compMgr = (ComponentManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
             UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
             String repName = getInitParameter("repositoryName");
