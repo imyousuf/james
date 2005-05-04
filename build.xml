@@ -488,7 +488,7 @@ Legal:
         </lib>
         <lib dir="lib">
           <include name="dnsjava-1.6.2.jar"/>
-          <include name="jakarta-oro-2.0.1.jar"/>
+          <include name="jakarta-oro-2.0.8.jar"/>
           <include name="mm.mysql-2.0.14.jar"/>
           <include name="mm.mysql.LICENCE"/>
           <include name="avalon-framework-4.1.3.jar"/>
@@ -585,7 +585,8 @@ Legal:
       <delete file="${dist.binary.dir}/${name}-binary-${version}.tar"/>
     </target>
 
-    <target name="dist-bin-common" depends="dist-lite,xdocs,javadocs">
+    <!-- target name="dist-bin-common" depends="dist-lite,xdocs,javadocs" -->
+    <target name="dist-bin-common" depends="dist-lite">
       <echo message ="Building binary distributions"/>
       <property name="dist.binary.dir" value="${dist.dir}/downloads/bin"/>
       <mkdir dir="${dist.binary.dir}"/>
