@@ -1,6 +1,0 @@
-C: abcd CAPABILITY
-S: * CAPABILITY IMAP4rev1
-S: abcd OK CAPABILITY completed
-
-C: abcd CAPABILITY extra stuff
-S: abcd BAD Extra token found: Command should be <tag> CAPABILITY
