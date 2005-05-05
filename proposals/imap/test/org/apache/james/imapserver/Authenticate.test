@@ -1,8 +1,0 @@
-C: abcd AUTHENTICATE KERBEROS_V4
-S: abcd NO AUTHENTICATE Unsupported authentication mechanism
-
-C: abcd AUTHENTICATE
-S: abcd BAD Missing argument <auth-type>: Command should be <tag> AUTHENTICATE <auth-type>
-
-C: abcd AUTHENTICATE KERBEROS_V4 extra
-S: abcd BAD Extra token found: Command should be <tag> AUTHENTICATE <auth-type>
