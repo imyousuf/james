@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<!--
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+-->
+<h3 align = left><a href="index.html">Up to Index</a></h3>
+<h1 align="center">Status of the IMAP Server</h1>
+<h4 align="center">JAMES 1.2</h4>
+
+<h3>Summary</h3>
+<blockquote>
+    <p>This document explains the status of the IMAP server portion of James, ie what functionality has been implemented  or tested and what needs to be done.</p>
+</blockquote>
+
+
+<h3>Objectives for JAMES IMAP server</h3>
+<b>Primary objectives:</b>
+<ul>
+  <li>Basic IMAPv4rev1 compliance      -  RFC2060</li>
+  <li>AccessControlLists               -  RFC2086</li>
+  <li>multiple Namespaces              -  RFC2342</li>
+  <li>Single server</li>
+  <li>Filesystem based mail storage.</li>
+  <li>Filesystem based user storage.</li>
+</ul>
+<b>Secondary objectives:</b>
+<ul>
+  <li>Mail quotas                      - RFC</li>
+  <li>LDAP based user storage</li>
+  <li>Multiple servers                 - RFCs</li>
+  <li>RDBMS based mail storage.</li>
+  <li>more funky IMAP stuff</li>
+</ul>
+
+<h3>Status</h3>
+<b>RFC2060 (Core IMAP) commands</b>
+<table cols=7>
+  <tr>
+    <th>Command</th>
+    <th>Implemented</th>
+    <th>Tested - telnet</th>
+    <th>Tested - Pine</th>
+    <th>Tested - Netscape Messenger</th>
+    <th>Tested - Microsoft Outlook</th>
+    <th>Comments</th>
+  </tr>
+  <tr>
+    <th colspan ="7">RFC2060 (Core IMAP) commands</th>
+  </tr>
+  <tr align=center>
+    <td>CAPABILITY</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td></td>
+    <td>update as functionality added</td>
+  </tr>
+  <tr align=center>
+    <td>NOOP</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>LOGOUT</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>AUTHENTICATE</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>No authentication methods other than plaintext password login supported</td>
+  </tr>
+  <tr align=center>
+    <td>LOGIN</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>SELECT</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td>OK</td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>EXAMINE</td>
+    <td>Yes</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>CREATE</td>
+    <td>Yes</td>
+    <td></td>
+    <td></td>
+    <td>OK</td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>DELETE</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>JamesHost needs to implement this</td>
+  </tr>
+  <tr align=center>
+    <td>RENAME</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>JamesHost needs to implement this</td>
+  </tr>
+  <tr align=center>
+    <td>SUBSCRIBE</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>Need to design user object to hold subscriptions</td>
+  </tr>
+  <tr align=center>
+    <td>UNSUBSCRIBE</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>see SUBSCRIBE</td>
+  </tr>
+  <tr align=center>
+    <td>LIST</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>unsure</td>
+  </tr>
+  <tr align=center>
+    <td>LSUB</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>see SUBSCRIBE and LIST</td>
+  </tr>
+  <tr align=center>
+    <td>STATUS</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>unsure</td>
+  </tr>
+  <tr align=center>
+    <td>APPEND</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>not started</td>
+  </tr>
+  <tr align=center>
+    <td>CHECK</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>CLOSE</td>
+    <td>Yes</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>EXPUNGE</td>
+    <td>Yes</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>SEARCH</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>not started</td>
+  </tr>
+  <tr align=center>
+    <td>FETCH</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>see table below</td>
+  </tr>
+  <tr align=center>
+    <td>STORE</td>
+    <td>Yes</td>
+     <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>COPY</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>not started</td>
+  </tr>
+  <tr align=center>
+    <td>UID</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>UID FETCH (partial) and UID STORE only</td>
+  </tr>
+  <tr>
+    <th colspan =7>Fetch command arguments</th>
+  </tr>
+  <tr>
+    <th>Arguments</th>
+    <th>Implemented</th>
+    <th>Tested - telnet</th>
+    <th>Tested - Pine</th>
+    <th>Tested - Netscape Messenger</th>
+    <th>Tested - Microsoft Outlook</th>
+    <th>Comments</th>
+  </tr>
+  <tr align=center >
+    <td>ALL</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>BODY</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>1-part, multipart and embedded rfc822 messages where constituents are of type Text/Plain. Line count is not right.</td>
+  </tr>
+  <tr align=center>
+    <td>BODY[] & BODY.PEEK[]</td>
+    <td>yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>BODY[section] & BODY.PEEK[section]</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>TEXT, HEADER, HEADER.FIELDS & HEADER.FIELDS.NOT done - but HEADER.FIELDS buggy on Netscape. MIME, numbered sections, subsections and octet-partial-fetches not started</td>
+  </tr>
+  <tr align=center>
+    <td>BODYSTRUCTURE</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>See body</td>
+  </tr>
+  <tr align=center>
+    <td>ENVELOPE</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td>No</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>FAST</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>FLAGS</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>FULL</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>INTERNALDATE</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>Format is not right</td>
+  </tr>
+  <tr align=center>
+    <td>RFC822</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>RFC822.HEADER</td>
+    <td>no</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>RFC822.SIZE</td>
+    <td>Partial</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>giving content size not message size</td>
+  </tr>
+  <tr align=center>
+    <td>RFC822.TEXT</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>UID</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <th colspan =7>RFC2086 (Access Control Lists) commands</th>
+  </tr>
+  <tr>
+    <th>Command</th>
+    <th>Implemented</th>
+    <th>Tested - telnet</th>
+    <th>Tested - Pine</th>
+    <th>Tested - Netscape Messenger</th>
+    <th>Tested - Microsoft Outlook</th>
+    <th>Comments</th>
+  </tr>
+  <tr align=center>
+    <td>SETACL</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>DELETEACL</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>GETACL</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>LISTRIGHTS</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr align=center>
+    <td>MYRIGHTS</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr
+  <tr>
+    <th colspan =7>RFC2342 (Namespaces) commands</th>
+  </tr>
+  <tr>
+    <th>Command</th>
+    <th>Implemented</th>
+    <th>Tested - telnet</th>
+    <th>Tested - Pine</th>
+    <th>Tested - Netscape Messenger</th>
+    <th>Tested - Microsoft Outlook</th>
+    <th>Comments</th>
+  </tr>
+  <tr align=center>
+    <td>NAMESPACE</td>
+    <td>Yes</td>
+    <td>OK</td>
+    <td></td>
+    <td>OK</td>
+    <td></td>
+    <td>Currently only providing a private mailbox namesapce and an other users mailbox namespace. Shared mailboxes and newsgroup access tbd</td>
+  </tr>
+</table>
+<h3 align = left><a href="index.html">Up to Index</a></h3>
+<p align="center"><font SIZE="-1">Copyright (c) 1997-2000 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>
