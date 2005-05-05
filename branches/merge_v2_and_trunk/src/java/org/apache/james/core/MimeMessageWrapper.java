@@ -104,9 +104,23 @@ public class MimeMessageWrapper
     }
 
     private synchronized MailHeaders loadHeaders(InputStream is) throws MessagingException {
+
+        /* InternetHeaders can be a bit awkward to work with due to
+         * its own internal handling of header order.  This hack may
+         * not always be necessary, but for now we are trying to
+         * ensure that there is a Return-Path header, even if just a
+         * placeholder, so that later, e.g., in LocalDelivery, when we
+         * call setHeader, it will remove any other Return-Path
+         * headers, and ensure that ours is on the top. addHeader
+         * handles header order, but not setHeader. This may change in
+         * future JavaMail.  But if there are other Return-Path header
+         * values, let's drop our placeholder. */
+
         headers = new MailHeaders(new ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": placeholder").getBytes()));
         headers.setHeader(RFC2822Headers.RETURN_PATH, null);
         headers.load(is);
+        String[] returnPathHeaders = headers.getHeader(RFC2822Headers.RETURN_PATH);
+        if (returnPathHeaders.length > 1) headers.setHeader(RFC2822Headers.RETURN_PATH, returnPathHeaders[1]);
         return headers;
     }
 
