@@ -17,11 +17,10 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.james.util.io.AndFileFilter;
-import org.apache.james.util.io.InvertedFileFilter;
-
-import org.apache.james.util.io.ExtensionFileFilter;
-import org.apache.james.util.io.IOUtil;
+import org.apache.avalon.excalibur.io.AndFileFilter;
+import org.apache.avalon.excalibur.io.ExtensionFileFilter;
+import org.apache.avalon.excalibur.io.InvertedFileFilter;
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 
@@ -240,8 +239,39 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             IOUtil.copy(newsStream,fout);
             fout.flush();
         } finally {
-            IOUtil.shutdownStream(fout);
+            try {
+                if (fout != null) {
+                    fout.close();
+                }
+            } catch (IOException ioe) {
+                // Ignore this exception so we don't
+                // trash any "real" exceptions
+            }
         }
         return new NNTPArticleImpl(this, articleFile);
     }
+
+//     public NNTPArticle getArticleFromID(String id) {
+//         if ( id == null )
+//             return null;
+//         int idx = id.indexOf('@');
+//         if ( idx != -1 )
+//             id = id.substring(0,idx);
+//         File f = new File(root,id + ".id");
+//         if ( f.exists() == false )
+//             return null;
+//         try {
+//             FileInputStream fin = new FileInputStream(f);
+//             int count = fin.available();
+//             byte[] ba = new byte[count];
+//             fin.read(ba);
+//             fin.close();
+//             String str = new String(ba);
+//             int num = Integer.parseInt(str);
+//             return getArticle(num);
+//         } catch(IOException ioe) {
+//             throw new NNTPException("could not fectch article: "+id,ioe);
+//         }
+//     }
+
 }

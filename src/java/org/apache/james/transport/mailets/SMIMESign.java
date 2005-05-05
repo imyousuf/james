@@ -52,7 +52,7 @@ import org.bouncycastle.mail.smime.*;
  * <li>&lt;explanationText&gt;. There is a default explanation string template in English,
  * displaying also all the headers of the original message (see {@link #getExplanationText}).</li>
  * </ul>
- * @version CVS $Revision: 1.1 $ $Date: 2004/08/05 12:22:38 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.1
  */
 public class SMIMESign extends SMIMEAbstractSign {

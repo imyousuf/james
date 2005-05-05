@@ -18,7 +18,7 @@
 package org.apache.james.smtpserver;
 
 import org.apache.james.services.MailServer;
-import org.apache.mailet.UsersRepository;
+import org.apache.james.services.UsersRepository;
 
 /**
  * Provides a number of server-wide constant values to the

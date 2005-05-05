@@ -23,7 +23,7 @@ import java.io.Reader;
  * 
  * Simple class to allow a cast from a java.io.Reader to a java.io.InputStream
  * 
- * $Id: ReaderInputStream.java,v 1.6 2004/02/11 18:02:06 sbrewin Exp $
+ * $Id$
  * 
  */
 public class ReaderInputStream extends InputStream {

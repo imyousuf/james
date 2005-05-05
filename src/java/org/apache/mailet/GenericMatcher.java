@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -26,7 +26,7 @@ import java.util.Collection;
  * the lifecycle methods init and destroy and of the methods in the MatcherConfig
  * interface. GenericMatcher also implements the log method, declared in the
  * MatcherContext interface.</p>
- *
+ * 
  * <p>To write a generic matcher, you need only override the abstract match method.</p>
  *
  * @version 1.0.0, 24/04/1999
@@ -45,7 +45,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
     /**
      * <p>Returns a String containing the value of the named initialization
      * parameter, or null if the parameter does not exist.</p>
-     *
+     * 
      * <p>This method is supplied for convenience. It gets the value of the
      * named parameter from the matcher's MatcherConfig object.</p>
      *
@@ -135,7 +135,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * @param msg - a String specifying the message to be written to the log file
      */
     public void log(String message) {
-        StringBuffer logBuffer =
+        StringBuffer logBuffer = 
             new StringBuffer(256)
                     .append(getMatcherName())
                     .append(": ")
@@ -151,7 +151,7 @@ public abstract class GenericMatcher implements Matcher, MatcherConfig {
      * @param t - the java.lang.Throwable error or exception
      */
     public void log(String message, Throwable t) {
-        StringBuffer logBuffer =
+        StringBuffer logBuffer = 
             new StringBuffer(256)
                     .append(getMatcherName())
                     .append(": ")

@@ -18,13 +18,12 @@
 package org.apache.james.services;
 
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.User;
 
 /**
  * Interface for objects representing users of an email/ messaging system.
  *
  *
- * @version $Revision: 1.11 $
+ * @version $Revision$
  */
 
 public interface JamesUser extends User {
@@ -45,7 +44,7 @@ public interface JamesUser extends User {
      */
     void setForwarding(boolean forward);
 
-    /**
+    /** 
      * Return true if mail for this user should be forwarded
      */
     boolean getForwarding();

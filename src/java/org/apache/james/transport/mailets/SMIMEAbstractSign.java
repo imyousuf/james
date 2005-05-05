@@ -79,7 +79,7 @@ import java.util.*;
  * see for example {@link SMIMESign}.
  * The default is to not have any explanation text.</li>
  * </ul>
- * @version CVS $Revision: 1.4 $ $Date: 2004/08/21 15:01:03 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.1
  */
 public abstract class SMIMEAbstractSign extends GenericMailet {

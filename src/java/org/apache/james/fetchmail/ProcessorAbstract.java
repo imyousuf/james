@@ -26,7 +26,7 @@ import javax.mail.Session;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.UsersRepository;
+import org.apache.james.services.UsersRepository;
 
 /**
  * <p>Class <code>ProcessorAbstract</code> is an abstract class that
@@ -82,6 +82,17 @@ abstract public class ProcessorAbstract
     {
         return getConfiguration().getDefaultDomainName();
     }
+    
+    /**
+     * Returns the defaultLocalPart.
+     * 
+     * @return String
+     */
+    protected String getDefaultLocalPart()
+    {
+        // TODO Consider making this configurable
+        return "FETCHMAIL-SERVICE";
+    }    
     
     /**
      * Returns the message ids. of messages for which processing has been

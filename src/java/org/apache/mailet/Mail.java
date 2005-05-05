@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -21,7 +21,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Date;
+
 /**
  * Wrap a MimeMessage with routing information (from SMTP) such
  * as SMTP specified recipients, sender, and ip address and hostname
@@ -29,7 +29,7 @@ import java.util.Date;
  * which processor in the mailet container it is currently running.
  * Special processor names are "root" and "error".
  *
- * @version CVS $Revision: 1.11 $ $Date: 2004/01/30 02:22:18 $
+ * @version CVS $Revision$ $Date$
  */
 public interface Mail extends Serializable, Cloneable {
     String GHOST = "ghost";
@@ -52,6 +52,7 @@ public interface Mail extends Serializable, Cloneable {
     /**
      * Method setRecipients.
      * @param recipients a Collection of MailAddress Objects representing the recipients of this message
+     * @since Mailet API v3.0-unstable
      */
     void setRecipients(Collection recipients);
     /**
@@ -103,27 +104,6 @@ public interface Mail extends Serializable, Cloneable {
      */
     void setState(String state);
     /**
-     * Method getUID.
-     * Mainly used to log the progress of mails through processing the string returned need only be unique to this installation of the system.
-     * @return a String Unique Identifier in this system.
-     */
-    String getName();
-    /**
-     * Method setName. Set the internal unique identifier of this Mail which need only be unique to this installation of the system.
-     * @param name the UID
-     */
-    void setName(String name);
-    /**
-     * Method setLastUpdated. Used to set the internal timestamp of the Mail during processing.
-     * @param date
-     */
-    void setLastUpdated(Date date);
-    /**
-     * Method getLastUpdated.
-     * @return Date. timestamp of the last action which changed this Mail
-     */
-    Date getLastUpdated();
-    /**
      * Returns the Mail session attribute with the given name, or null
      * if there is no attribute by that name.
      * An attribute allows a mailet to give this Mail instance additional information
@@ -131,12 +111,14 @@ public interface Mail extends Serializable, Cloneable {
      * A list of currently set attributes can be retrieved using getAttributeNames.
      * <p>
      * The attribute is returned as a java.lang.Object or some subclass. Attribute
-     * names should follow the same convention as package names. The Java Mailet API
-     * specification reserves names matching java.*, javax.*, and sun.*
+     * names should follow the same convention as package names. The Mailet API
+     * specification reserves names matching <I>org.apache.james.*</I>
+     * and <I>org.apache.mailet.*</I>.
      *
      * @param name - a String specifying the name of the attribute
      * @return an Object containing the value of the attribute, or null if no attribute
      *      exists matching the given name
+     * @since Mailet API v2.1
      */
     Serializable getAttribute(String name);
     /**
@@ -145,10 +127,12 @@ public interface Mail extends Serializable, Cloneable {
      * attribute name to get the value of an attribute.
      *
      * @return an Iterator of attribute names
+     * @since Mailet API v2.1
      */
     Iterator getAttributeNames();
     /**
      * @return true if this Mail instance has any attributes set.
+     * @since Mailet API v2.1
      **/
     boolean hasAttributes();
     /**
@@ -160,10 +144,12 @@ public interface Mail extends Serializable, Cloneable {
      * @return previous attribute value associated with specified name, or null
      * if there was no mapping for name (null can also mean that null
      * was bound to the name)
+     * @since Mailet API v2.1
      */
     Serializable removeAttribute(String name);
     /**
      * Removes all the attributes associated with this Mail instance.  
+     * @since Mailet API v2.1
      **/
     void removeAllAttributes();
     /**
@@ -173,13 +159,15 @@ public interface Mail extends Serializable, Cloneable {
      * As instances of Mail is Serializable, it is necessary that the attributes being
      * Serializable as well
      * <p>
-     * Attribute names should follow the same convention as package names. The Java
-     * Mailet API specification reserves names matching java.*, javax.*, and sun.*.
+     * Attribute names should follow the same convention as package names.
+     * The Mailet API specification reserves names matching <I>org.apache.james.*</I>
+     * and <I>org.apache.mailet.*</I>.
      *
      * @param name - a String specifying the name of the attribute
      * @param object - a Serializable Object representing the attribute to be bound
      * @return the object previously bound to the name, null if the name was
      * not bound (null can also mean that null was bound to the name)
+     * @since Mailet API v2.1
      */
     Serializable setAttribute(String name, Serializable object);
 }

@@ -18,7 +18,7 @@
 package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
-import org.apache.mailet.User;
+import org.apache.james.services.User;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
  * the the user name to be reset.
  *
  *
- * @version CVS $Revision: 1.12 $
+ * @version CVS $Revision$
  */
 
 public class DefaultUser implements User, Serializable {
@@ -73,7 +73,7 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     *  Method to verify passwords.
+     *  Method to verify passwords. 
      *
      * @param pass the String that is claimed to be the password for this user
      * @return true if the hash of pass with the current algorithm matches

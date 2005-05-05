@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -86,6 +86,7 @@ public class CharTerminatedInputStream
      *
      * @return the byte read off the stream
      * @throws IOException if an IOException is encountered while reading off the stream
+     * @throws ProtocolException if the underlying stream returns -1 before the terminator is seen.
      */
     public int read() throws IOException {
         if (endFound) {
@@ -96,9 +97,8 @@ public class CharTerminatedInputStream
             //We have no data... read in a record
             int b = in.read();
             if (b == -1) {
-                //End of stream reached
-                endFound = true;
-                return -1;
+                //End of stream reached without seeing the terminator
+                throw new java.net.ProtocolException("pre-mature end of data");
             }
             if (b != match[0]) {
                 //this char is not the first char of the match

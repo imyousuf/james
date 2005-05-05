@@ -17,24 +17,19 @@
 
 package org.apache.james.security;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeUtility;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeUtility;
 
 
 /**
  * Computes and verifies digests of files and strings
  *
  *
- * @version $Revision: 1.12 $
+ * @version $Revision$
  */
 public class DigestUtil {
 
@@ -47,12 +42,12 @@ public class DigestUtil {
 
         String alg = "SHA";
         boolean file = false;
-
+    
         if (args.length == 0 || args.length > 4) {
             printUsage();
             return;
         }
-
+    
         for (int i = 0; i < args.length; i++) {
             String currArg = args[i].toLowerCase(Locale.US);
             if (currArg.equals("-help")
@@ -67,7 +62,7 @@ public class DigestUtil {
                 file = true;
             }
         }
-
+    
         if (file) {
             digestFile(args[args.length - 1], alg);
             return ;
@@ -86,7 +81,7 @@ public class DigestUtil {
      * Print the command line usage string.
      */
     public static void printUsage() {
-        System.out.println("Usage: "
+        System.out.println("Usage: " 
                            + "java org.apache.james.security.DigestUtil"
                            + " [-alg algorithm]"
                            + " [-file] filename|string");

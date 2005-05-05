@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,7 +17,7 @@
 
 package org.apache.james.util.watchdog;
 
-import org.apache.excalibur.thread.ThreadPool ;
+import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
@@ -110,17 +110,10 @@ public class InaccurateTimeoutWatchdog
      * the timer when it next awakens.
      */
     public void reset() {
-        if (watchdogThread != null) 
-        {
-            if( getLogger().isDebugEnabled() )
-            {
-                getLogger().debug("Calling reset() " + watchdogThread.getName());
-            }
+        if (watchdogThread != null) {
+            getLogger().debug("Calling reset() " + watchdogThread.getName());
         } else {
-            if( getLogger().isDebugEnabled() )
-            {
-                getLogger().debug("Calling reset() for inactive watchdog");
-            }
+            getLogger().debug("Calling reset() for inactive watchdog");
         }
         isReset = true;
     }
@@ -170,7 +163,7 @@ public class InaccurateTimeoutWatchdog
                         } else {
                             getLogger().debug("Watchdog has time to sleep " + timeToSleep);
                         }
-                        if (timeToSleep < 0) {
+                        if (timeToSleep <= 0) {
                             try {
                                 synchronized (this) {
                                     if ((isChecking) && (triggerTarget != null)) {

@@ -17,10 +17,12 @@
 
 package org.apache.james.transport.matchers;
 
-import java.util.Collection;
-
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+
+import java.util.Collection;
+import java.util.StringTokenizer;
 
 /**
  * <P>Matches mails that are sent by an SMTP authenticated user.</P>
@@ -29,7 +31,7 @@ import org.apache.mailet.Mail;
  * &lt;mailet match=&quot;SMTPAuthSuccessful&quot; class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.4 $ $Date: 2004/01/30 02:22:14 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 public class SMTPAuthSuccessful extends GenericMatcher {

@@ -23,7 +23,7 @@ import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Disposable;
@@ -31,12 +31,11 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.mailet.Datasource;
 
 
 /**
  * <p>
- * This is a reliable DataSource implementation, based on the pooling logic written for <a
+ * This is a <b>reliable</b> DataSource implementation, based on the pooling logic written for <a
  * href="http://share.whichever.com/">Town</a> and the configuration found in Avalon's excalibur
  * code.
  * </p>
@@ -57,17 +56,17 @@ import org.apache.mailet.Datasource;
  * </pre>
  * </p>
  *
- * @version CVS $Revision: 1.25 $
+ * @version CVS $Revision$
  * @since 4.0
  */
 public class JdbcDataSource extends AbstractLogEnabled
     implements Configurable,
                Runnable,
                Disposable,
-               DataSourceComponent,
-               Datasource {
+               DataSourceComponent {
     // The limit that an active connection can be running
     public static final long ACTIVE_CONN_TIME_LIMIT = 60000; // (one minute)
+    public static final long ACTIVE_CONN_HARD_TIME_LIMIT = 2*ACTIVE_CONN_TIME_LIMIT;
     // How long before you kill off a connection due to inactivity
     public static final long CONN_IDLE_LIMIT        = 600000; // (10 minutes)
     private static final boolean DEEP_DEBUG         = false;
@@ -93,7 +92,7 @@ public class JdbcDataSource extends AbstractLogEnabled
     // Maximum number of connections to have open at any point
     private int maxConn                             = 0;
     // collection of connection objects
-    private Vector pool;
+    private ArrayList pool;
     // Thread that checks for dead/aged connections and removes them from pool
     private Thread reaper;
     // Flag to indicate whether reaper thread should run
@@ -130,7 +129,7 @@ public class JdbcDataSource extends AbstractLogEnabled
         for(int attempts = 1; attempts <= 100; attempts++) {
             synchronized(pool) {
                 for(int i = 0; i < pool.size(); i++) {
-                    PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
+                    PoolConnEntry entry = (PoolConnEntry)pool.get(i);
                     //Set the appropriate flags to make this connection
                     //marked as in use
                     try {
@@ -154,58 +153,58 @@ public class JdbcDataSource extends AbstractLogEnabled
                     }
                     //we were unable to get a lock on this entry.. so continue through list
                 } //loop through existing connections
-            }
-            //If we have 0, create another
-            if(DEEP_DEBUG) {
-                System.out.println(pool.size());
-            }
-            try {
-                if(pool.size() == 0) {
-                    //create a connection
-                    PoolConnEntry entry = createConn();
-                    if(entry != null) {
-                        if(DEEP_DEBUG) {
-                            StringBuffer deepDebugBuffer =
-                                new StringBuffer(128)
-                                        .append((new java.util.Date()).toString())
-                                        .append(" returning new connection (")
-                                        .append(count)
-                                        .append(")");
-                            System.out.println(deepDebugBuffer.toString());
-                        }
-                        return entry;
-                    }
-                    //looks like a connection was already created
-                } else {
-                    //Since we didn't find one, and we have < max connections, then consider whether
-                    //  we create another
-                    //if we've hit the 3rd attempt without getting a connection,
-                    //  let's create another to anticipate a slow down
-                    if((attempts == 2) && (pool.size() < maxConn || maxConn == 0)) {
+                //If we have 0, create another
+                if(DEEP_DEBUG) {
+                    System.out.println(pool.size());
+                }
+                try {
+                    if(pool.size() == 0) {
+                        //create a connection
                         PoolConnEntry entry = createConn();
                         if(entry != null) {
                             if(DEEP_DEBUG) {
                                 StringBuffer deepDebugBuffer =
-                                    new StringBuffer(32)
+                                    new StringBuffer(128)
+                                            .append((new java.util.Date()).toString())
                                             .append(" returning new connection (")
                                             .append(count)
                                             .append(")");
                                 System.out.println(deepDebugBuffer.toString());
                             }
                             return entry;
-                        } else {
-                            attempts = 1;
+                        }
+                        //looks like a connection was already created
+                    } else {
+                        //Since we didn't find one, and we have < max connections, then consider whether
+                        //  we create another
+                        //if we've hit the 3rd attempt without getting a connection,
+                        //  let's create another to anticipate a slow down
+                        if((attempts == 2) && (pool.size() < maxConn || maxConn == 0)) {
+                            PoolConnEntry entry = createConn();
+                            if(entry != null) {
+                                if(DEEP_DEBUG) {
+                                    StringBuffer deepDebugBuffer =
+                                        new StringBuffer(32)
+                                                .append(" returning new connection (")
+                                                .append(count)
+                                                .append(")");
+                                    System.out.println(deepDebugBuffer.toString());
+                                }
+                                return entry;
+                            } else {
+                                attempts = 1;
+                            }
                         }
                     }
-                }
-            } catch(SQLException sqle) {
-                //Ignore... error creating the connection
-                StringWriter sout = new StringWriter();
-                PrintWriter pout  = new PrintWriter(sout, true);
-                pout.println("Error creating connection: ");
-                sqle.printStackTrace(pout);
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error(sout.toString());
+                } catch(SQLException sqle) {
+                    //Ignore... error creating the connection
+                    StringWriter sout = new StringWriter();
+                    PrintWriter pout  = new PrintWriter(sout, true);
+                    pout.println("Error creating connection: ");
+                    sqle.printStackTrace(pout);
+                    if (getLogger().isErrorEnabled()) {
+                        getLogger().error(sout.toString());
+                    }
                 }
             }
             //otherwise sleep 50ms 10 times, then create a connection
@@ -272,7 +271,7 @@ public class JdbcDataSource extends AbstractLogEnabled
                 //We don't show the password
                 getLogger().debug("max connections = " + maxConn);
             }
-            pool         = new Vector();
+            pool         = new ArrayList();
             reaperActive = true;
             reaper       = new Thread(this);
             reaper.setDaemon(true);
@@ -310,10 +309,10 @@ public class JdbcDataSource extends AbstractLogEnabled
      *
      * @deprecated This was left over code from Town... but not exposed in Avalon.
      */
-    public synchronized void killAllConnections() {
+    public void killAllConnections() {
         //Just remove the references to all the connections... this will cause them to get
         // finalized before very long. (not an instant shutdown, but that's ok).
-        pool.clear();
+        synchronized (pool) { pool.clear(); }
     }
 
     /**
@@ -360,7 +359,6 @@ public class JdbcDataSource extends AbstractLogEnabled
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("----> Could not find connection to kill!!!");
             }
-            new Throwable().printStackTrace();
             return;
         }
     }
@@ -391,42 +389,60 @@ public class JdbcDataSource extends AbstractLogEnabled
     public void run() {
         try {
             while(reaperActive) {
-                for(int i = 0; i < pool.size(); i++) try {
-                    PoolConnEntry entry = (PoolConnEntry)pool.elementAt(i);
-                    long age            = System.currentTimeMillis() - entry.getLastActivity();
-                    synchronized(entry) {
-                        if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
-                           (age > ACTIVE_CONN_TIME_LIMIT)) {
-                            StringBuffer logBuffer =
-                                new StringBuffer(128)
-                                        .append(" ***** connection ")
-                                        .append(entry.getId())
-                                        .append(" is way too old: ")
-                                        .append(age)
-                                        .append(" > ")
-                                        .append(ACTIVE_CONN_TIME_LIMIT);
-                            getLogger().info(logBuffer.toString());
-                            // This connection is way too old...
-                            // kill it no matter what
-                            finalizeEntry(entry);
-                            continue;
-                        }
-                        if((entry.getStatus() == PoolConnEntry.AVAILABLE) &&
-                           (age > CONN_IDLE_LIMIT)) {
-                            //We've got a connection that's too old... kill it
-                            finalizeEntry(entry);
-                            continue;
+                synchronized(pool) {
+                    for(int i = 0; i < pool.size(); i++) try {
+                        PoolConnEntry entry = (PoolConnEntry)pool.get(i);
+                        long age            = System.currentTimeMillis() - entry.getLastActivity();
+                        synchronized(entry) {
+                            if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
+                               (age > ACTIVE_CONN_HARD_TIME_LIMIT)) {
+                                StringBuffer logBuffer =
+                                    new StringBuffer(128)
+                                            .append(" ***** connection ")
+                                            .append(entry.getId())
+                                            .append(" is way too old: ")
+                                            .append(age)
+                                            .append(" > ")
+                                            .append(ACTIVE_CONN_HARD_TIME_LIMIT)
+                                            .append(" and will be closed.");
+                                getLogger().info(logBuffer.toString());
+                                // This connection is way too old...
+                                // kill it no matter what
+                                finalizeEntry(entry);
+                                continue;
+                            }
+                            if((entry.getStatus() == PoolConnEntry.ACTIVE) &&
+                               (age > ACTIVE_CONN_TIME_LIMIT)) {
+                                StringBuffer logBuffer =
+                                    new StringBuffer(128)
+                                            .append(" ***** connection ")
+                                            .append(entry.getId())
+                                            .append(" is way too old: ")
+                                            .append(age)
+                                            .append(" > ")
+                                            .append(ACTIVE_CONN_TIME_LIMIT);
+                                getLogger().info(logBuffer.toString());
+                                // This connection is way too old...
+                                // just log it for now.
+                                continue;
+                            }
+                            if((entry.getStatus() == PoolConnEntry.AVAILABLE) &&
+                               (age > CONN_IDLE_LIMIT)) {
+                                //We've got a connection that's too old... kill it
+                                finalizeEntry(entry);
+                                continue;
+                            }
                         }
                     }
-                }
-                catch (Throwable ex)
-                {
-                    StringWriter sout = new StringWriter();
-                    PrintWriter pout = new PrintWriter(sout, true);
-                    pout.println("Reaper Error: ");
-                    ex.printStackTrace(pout);
-                    if (getLogger().isErrorEnabled()) {
-                        getLogger().error(sout.toString());
+                    catch (Throwable ex)
+                    {
+                        StringWriter sout = new StringWriter();
+                        PrintWriter pout = new PrintWriter(sout, true);
+                        pout.println("Reaper Error: ");
+                        ex.printStackTrace(pout);
+                        if (getLogger().isErrorEnabled()) {
+                            getLogger().error(sout.toString());
+                        }
                     }
                 }
                 try {
@@ -463,7 +479,7 @@ public class JdbcDataSource extends AbstractLogEnabled
      */
     private PoolConnEntry createConn() throws SQLException {
         PoolConnEntry entry = null;
-        synchronized(this) {
+        synchronized(pool) {
             if(connCreationsInProgress > 0) {
                 //We are already creating one in another place
                 return null;
@@ -494,33 +510,31 @@ public class JdbcDataSource extends AbstractLogEnabled
                 }
                 return null;
             }
-        }
-        try {
-            entry = new PoolConnEntry(this,
-                                      java.sql.DriverManager.getConnection(jdbcURL, jdbcUsername,
-                                                                           jdbcPassword),
-                                      ++connectionCount);
-            if (getLogger().isDebugEnabled())
-            {
-                getLogger().debug("Opening connection " + entry);
-            }
-            entry.lock();
-            pool.addElement(entry);
-            return entry;
-        } catch(SQLException sqle) {
-            //Shouldn't ever happen, but it did, just return null.
-            // Exception from DriverManager.getConnection() - log it, and return null
-            StringWriter sout = new StringWriter();
-            PrintWriter pout = new PrintWriter(sout, true);
-            pout.println("Error creating connection: ");
-            sqle.printStackTrace(pout);
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error(sout.toString());
-            }
-            return null;
-        } finally {
-            synchronized(this) {
-                connCreationsInProgress--;
+            try {
+                entry = new PoolConnEntry(this,
+                                          java.sql.DriverManager.getConnection(jdbcURL, jdbcUsername,
+                                                                               jdbcPassword),
+                                          ++connectionCount);
+                if (getLogger().isDebugEnabled())
+                {
+                    getLogger().debug("Opening connection " + entry);
+                }
+                entry.lock();
+                pool.add(entry);
+                return entry;
+            } catch(SQLException sqle) {
+                //Shouldn't ever happen, but it did, just return null.
+                // Exception from DriverManager.getConnection() - log it, and return null
+                StringWriter sout = new StringWriter();
+                PrintWriter pout = new PrintWriter(sout, true);
+                pout.println("Error creating connection: ");
+                sqle.printStackTrace(pout);
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error(sout.toString());
+                }
+                return null;
+            } finally {
+                    connCreationsInProgress--;
             }
         }
     }
@@ -530,11 +544,13 @@ public class JdbcDataSource extends AbstractLogEnabled
      *
      * @param entry entry
      */
-    private synchronized void finalizeEntry(PoolConnEntry entry) {
-        try {
-            entry.finalize();
-        } catch(Exception fe) {
+    private void finalizeEntry(PoolConnEntry entry) {
+        synchronized(pool) {
+            try {
+                entry.finalize();
+            } catch(Exception fe) {
+            }
+            pool.remove(entry);
         }
-        pool.removeElement(entry);
     }
 }

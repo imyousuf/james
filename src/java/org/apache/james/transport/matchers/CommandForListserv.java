@@ -37,9 +37,9 @@ public class CommandForListserv extends GenericRecipientMatcher {
     }
 
     public boolean matchRecipient(MailAddress recipient) {
-        if (recipient.getHost().equalsIgnoreCase(listservAddress.getHost())) {
-            if (recipient.getUser().equalsIgnoreCase(listservAddress.getUser() + "-on")
-                || recipient.getUser().equalsIgnoreCase(listservAddress.getUser() + "-off")) {
+        if (recipient.getHost().equals(listservAddress.getHost())) {
+            if (recipient.getUser().equals(listservAddress.getUser() + "-on")
+                || recipient.getUser().equals(listservAddress.getUser() + "-off")) {
                 return true;
             }
         }

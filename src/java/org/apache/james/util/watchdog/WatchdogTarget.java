@@ -17,6 +17,7 @@
 
 package org.apache.james.util.watchdog;
 
+import org.apache.avalon.cornerstone.services.scheduler.Target;
 
 /**
  * This interface represents an action to be triggered by a watchdog process.

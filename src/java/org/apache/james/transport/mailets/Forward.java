@@ -17,13 +17,14 @@
 
 package org.apache.james.transport.mailets;
 
-import java.util.Collection;
-import java.util.HashSet;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-
-import org.apache.mailet.MailAddress;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * <P>Replaces incoming recipients with those specified, and resends the message unaltered.</P>
@@ -53,7 +54,7 @@ import org.apache.mailet.MailAddress;
  * <P><I>forwardto</I> can be used instead of
  * <I>forwardTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.22 $ $Date: 2004/01/30 02:22:11 $
+ * @version CVS $Revision$ $Date$
  */
 public class Forward extends AbstractRedirect {
 

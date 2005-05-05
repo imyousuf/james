@@ -17,23 +17,18 @@
 
 package org.apache.james.util;
 
+import org.apache.oro.text.perl.MalformedPerl5PatternException;
+import org.apache.oro.text.perl.Perl5Util;
+import org.w3c.dom.*;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.oro.text.perl.MalformedPerl5PatternException;
-import org.apache.oro.text.perl.Perl5Util;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
 
 
 /**
@@ -42,7 +37,7 @@ import org.w3c.dom.NodeList;
  * This class allows SQL strings to be customised to particular
  * database products, by detecting product information from the
  * jdbc DatabaseMetaData object.
- *
+ * 
  */
 public class SqlResources
 {
@@ -50,6 +45,11 @@ public class SqlResources
      * A map of statement types to SQL statements
      */
     private Map m_sql = new HashMap();
+
+    /**
+     * A map of engine specific options
+     */
+    private Map m_dbOptions = new HashMap();
 
     /**
      * A set of all used String values
@@ -63,14 +63,14 @@ public class SqlResources
 
     /**
      * Configures a DbResources object to provide SQL statements from a file.
-     *
+     * 
      * SQL statements returned may be specific to the particular type
      * and version of the connected database, as well as the database driver.
-     *
+     * 
      * Parameters encoded as $(parameter} in the input file are
      * replace by values from the parameters Map, if the named parameter exists.
      * Parameter values may also be specified in the resourceSection element.
-     *
+     * 
      * @param sqlFile    the input file containing the string definitions
      * @param sqlDefsSection
      *                   the xml element containing the strings to be used
@@ -89,7 +89,7 @@ public class SqlResources
 
         // First process the database matcher, to determine the
         //  sql statements to use.
-        Element dbMatcherElement =
+        Element dbMatcherElement = 
             (Element)(sqlDoc.getElementsByTagName("dbMatchers").item(0));
         String dbProduct = null;
         if ( dbMatcherElement != null ) {
@@ -97,6 +97,19 @@ public class SqlResources
             m_perl5Util = null;     // release the PERL matcher!
         }
 
+        // Now get the options valid for the database product used.
+        Element dbOptionsElement = 
+            (Element)(sqlDoc.getElementsByTagName("dbOptions").item(0));
+        if ( dbOptionsElement != null ) {
+            // First populate the map with default values 
+            populateDbOptions("", dbOptionsElement, m_dbOptions);
+            // Now update the map with specific product values
+            if ( dbProduct != null ) {
+                populateDbOptions(dbProduct, dbOptionsElement, m_dbOptions);
+            }
+        }
+
+        
         // Now get the section defining sql for the repository required.
         NodeList sections = sqlDoc.getElementsByTagName("sqlDefs");
         int sectionsCount = sections.getLength();
@@ -123,7 +136,7 @@ public class SqlResources
         // and use supplied parameters as overrides.
         Map parameters = new HashMap();
         // First read from the <params> element, if it exists.
-        Element parametersElement =
+        Element parametersElement = 
             (Element)(sectionElement.getElementsByTagName("parameters").item(0));
         if ( parametersElement != null ) {
             NamedNodeMap params = parametersElement.getAttributes();
@@ -139,7 +152,7 @@ public class SqlResources
         parameters.putAll(configParameters);
 
         // 2 maps - one for storing default statements,
-        // the other for statements with a "db" attribute matching this
+        // the other for statements with a "db" attribute matching this 
         // connection.
         Map defaultSqlStatements = new HashMap();
         Map dbProductSqlStatements = new HashMap();
@@ -210,7 +223,7 @@ public class SqlResources
      * Compares the DatabaseProductName value for a jdbc Connection
      * against a set of regular expressions defined in XML.
      * The first successful match defines the name of the database product
-     * connected to. This value is then used to choose the specific SQL
+     * connected to. This value is then used to choose the specific SQL 
      * expressions to use.
      *
      * @param conn the JDBC connection being tested
@@ -219,13 +232,13 @@ public class SqlResources
      * @return the type of database to which James is connected
      *
      */
-    private String matchDbConnection(Connection conn,
+    private String matchDbConnection(Connection conn, 
                                      Element dbMatchersElement)
         throws MalformedPerl5PatternException, SQLException
     {
         String dbProductName = conn.getMetaData().getDatabaseProductName();
-
-        NodeList dbMatchers =
+    
+        NodeList dbMatchers = 
             dbMatchersElement.getElementsByTagName("dbMatcher");
         for ( int i = 0; i < dbMatchers.getLength(); i++ ) {
             // Get the values for this matcher element.
@@ -247,13 +260,39 @@ public class SqlResources
     }
 
     /**
+     * Gets all the name/value pair db option couples related to the dbProduct,
+     * and put them into the dbOptionsMap.
+     *
+     * @param dbProduct the db product used
+     * @param dbOptionsElement the XML element containing the options
+     * @param dbOptionsMap the <CODE>Map</CODE> to populate
+     *
+     */
+    private void populateDbOptions(String dbProduct, Element dbOptionsElement, Map dbOptionsMap)
+    {
+        NodeList dbOptions = 
+            dbOptionsElement.getElementsByTagName("dbOption");
+        for ( int i = 0; i < dbOptions.getLength(); i++ ) {
+            // Get the values for this option element.
+            Element dbOption = (Element)dbOptions.item(i);
+            // Check is this element is pertinent to the dbProduct
+            // Notice that a missing attribute returns "", good for defaults
+            if (!dbProduct.equalsIgnoreCase(dbOption.getAttribute("db"))) {
+                continue;
+            }
+            // Put into the map
+            dbOptionsMap.put(dbOption.getAttribute("name"), dbOption.getAttribute("value"));
+        }
+    }
+
+    /**
      * Replace substrings of one string with another string and return altered string.
      * @param input input string
      * @param find the string to replace
      * @param replace the string to replace with
      * @return the substituted string
      */
-    private String substituteSubString( String input,
+    private String substituteSubString( String input, 
                                         String find,
                                         String replace )
     {
@@ -278,7 +317,7 @@ public class SqlResources
     /**
      * Returns a named SQL string for the specified connection,
      * replacing parameters with the values set.
-     *
+     * 
      * @param name   the name of the SQL resource required.
      * @return the requested resource
      */
@@ -290,7 +329,7 @@ public class SqlResources
     /**
      * Returns a named SQL string for the specified connection,
      * replacing parameters with the values set.
-     *
+     * 
      * @param name     the name of the SQL resource required.
      * @param required true if the resource is required
      * @return the requested resource
@@ -311,4 +350,16 @@ public class SqlResources
         }
         return sql;
     }
+    
+    /**
+     * Returns the dbOption string value set for the specified dbOption name.
+     * 
+     * @param name the name of the dbOption required.
+     * @return the requested dbOption value
+     */
+    public String getDbOption(String name)
+    {
+        return (String)m_dbOptions.get(name);
+    }
+
 }

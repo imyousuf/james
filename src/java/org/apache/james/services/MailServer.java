@@ -17,21 +17,19 @@
 
 package org.apache.james.services;
 
-import java.io.InputStream;
-import java.util.Collection;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailRepository;
+import java.io.InputStream;
+import java.util.Collection;
 
 /**
  * The interface for Phoenix blocks to the James MailServer
  *
  *
- * @version This is $Revision: 1.18 $
+ * @version This is $Revision$
  */
 public interface MailServer
 {
@@ -81,14 +79,14 @@ public interface MailServer
      */
     void sendMail(Mail mail)
         throws MessagingException;
-
+        
     /**
      * Pass a MimeMessage to this MailServer for processing
      * @param message the message
      * @throws MessagingException
      */
     void sendMail(MimeMessage message)
-        throws MessagingException;
+        throws MessagingException;        
 
     /**
      * Retrieve the primary mailbox for userName. For POP3 style stores this

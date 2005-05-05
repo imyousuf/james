@@ -29,7 +29,7 @@ import java.util.Collection;
 /**
  * Checks whether this message has an attachment
  *
- * @version CVS $Revision: 1.7 $ $Date: 2004/01/30 02:22:13 $
+ * @version CVS $Revision$ $Date$
  */
 public class HasAttachment extends GenericMatcher {
 

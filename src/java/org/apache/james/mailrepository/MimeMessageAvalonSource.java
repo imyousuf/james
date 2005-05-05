@@ -26,7 +26,7 @@ import java.io.InputStream;
 public class MimeMessageAvalonSource extends MimeMessageSource {
 
     //Define how to get to the data
-
+    
     /**
      * The stream repository used by this data source.
      */
@@ -52,8 +52,8 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
     }
 
     /**
-     * Returns a unique String ID that represents the location from where
-     * this source is loaded.  This will be used to identify where the data
+     * Returns a unique String ID that represents the location from where 
+     * this source is loaded.  This will be used to identify where the data 
      * is, primarily to avoid situations where this data would get overwritten.
      *
      * @return the String ID

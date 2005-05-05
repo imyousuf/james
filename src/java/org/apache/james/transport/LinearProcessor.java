@@ -17,31 +17,24 @@
 
 package org.apache.james.transport;
 
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.core.MailImpl;
+import org.apache.james.core.MailetConfigImpl;
+import org.apache.james.services.SpoolRepository;
+import org.apache.mailet.*;
+
+import javax.mail.MessagingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
-
-import javax.mail.MessagingException;
-
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailImpl;
-import org.apache.james.core.MailetConfigImpl;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.GenericMatcher;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MailetException;
-import org.apache.mailet.Matcher;
-import org.apache.mailet.SpoolRepository;
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Implements a processor for mails, directing the mail down
@@ -59,10 +52,24 @@ import org.apache.mailet.SpoolRepository;
  *
  * Note that the 'onerror' attribute is not yet supported.
  *
- * <P>CVS $Id: LinearProcessor.java,v 1.22 2004/01/30 02:22:11 noel Exp $</P>
+ * As of James v2.2.0a5, 'onerror' functionality is implemented, but
+ * it is implemented on the &lt;mailet&gt; tag.  The specification is:
+ *
+ *   &lt;mailet match="..." class="..."
+ *       [onMatchException="{noMatch|matchAll|error|&lt;aProcessorName&gt;}"] 
+ *       [onMailetException="{ignore|error|&lt;aProcessorName&gt;}"]&gt;
+ *
+ * noMatch:   no addresses are considered to match
+ * matchAll:  all addresses are considered to match
+ * error:     as before, send the message to the ERROR processor
+ *
+ * Otherwise, a processor name can be specified, and the message will
+ * be sent there.
+ *
+ * <P>CVS $Id$</P>
  * @version 2.2.0
  */
-public class LinearProcessor
+public class LinearProcessor 
     extends AbstractLogEnabled
     implements Initializable, Disposable {
 
@@ -143,7 +150,7 @@ public class LinearProcessor
      *
      * <p>It is an essential part of the contract of the LinearProcessor
      * that a particular matcher/mailet combination be used to
-     * terminate the processor chain.  This is done by calling the
+     * terminate the processor chain.  This is done by calling the  
      * closeProcessorList method.</p>
      *
      * <p>Once the closeProcessorList has been called any subsequent
@@ -189,12 +196,12 @@ public class LinearProcessor
                 public Collection match(Mail mail) {
                     return mail.getRecipients();
                 }
-
+            
                 public String getMatcherInfo() {
                     return TERMINATING_MATCHER_NAME;
                 }
             };
-        Mailet terminatingMailet =
+        Mailet terminatingMailet = 
             new GenericMailet() {
                 public void service(Mail mail) {
                     if (!(Mail.ERROR.equals(mail.getState()))) {
@@ -210,11 +217,11 @@ public class LinearProcessor
                     }
                     mail.setState(Mail.GHOST);
                 }
-
+            
                 public String getMailetInfo() {
                     return getMailetName();
                 }
-
+            
                 public String getMailetName() {
                     return TERMINATING_MAILET_NAME;
                 }
@@ -231,17 +238,17 @@ public class LinearProcessor
      *
      * <p>If the matcher/mailet lists have not been closed by a call to the closeProcessorLists
      * method then a call to this method will result in an <code>IllegalStateException</code>.
-     * The end of the matcher/mailet chain must be a matcher that matches all mails and
-     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that
+     * The end of the matcher/mailet chain must be a matcher that matches all mails and 
+     * a mailet that sets every mail to GHOST status.  This is necessary to ensure that 
      * mails are removed from the spool in an orderly fashion.  The closeProcessorLists method
      * ensures this.</p>
-     *
+     * 
      * @param mail the new mail to be processed
      *
      * @throws IllegalStateException when this method is called before the processor lists have been closed
      *                                  or the spool has been initialized
      */
-    public void service(Mail mail) throws MessagingException {
+    public void service(MailImpl mail) throws MessagingException {
         if (spool == null) {
             throw new IllegalStateException("Attempt to service mail before the spool has been set to a non-null value");
         }
@@ -262,7 +269,7 @@ public class LinearProcessor
         //  It is a List of Mail objects at each array spot as multiple Mail
         //  objects could be at the same stage.
         //
-        //  Note that every Mail object in this array will either be the
+        //  Note that every Mail object in this array will either be the 
         //  original Mail object passed in, or a result of this method's
         //  (and hence this thread's) processing.
 
@@ -292,8 +299,8 @@ public class LinearProcessor
             //  Please note that the presence of the terminating mailet at the end
             //  of the chain is critical to the proper operation
             //  of the LinearProcessor code.  If this mailet is not placed
-            //  at the end of the chain with a terminating matcher, there is a
-            //  potential for configuration or implementation errors to
+            //  at the end of the chain with a terminating matcher, there is a 
+            //  potential for configuration or implementation errors to 
             //  lead to mails trapped in the spool.  This matcher/mailet
             //  combination is added when the closeProcessorList method
             //  is called.
@@ -334,7 +341,7 @@ public class LinearProcessor
             try {
                 recipients = matcher.match(mail);
                 if (recipients == null) {
-                    //In case the matcher returned null, create an empty Vector
+                    //In case the matcher returned null, create an empty Collection
                     recipients = new ArrayList(0);
                 } else if (recipients != mail.getRecipients()) {
                     //Make sure all the objects are MailAddress objects
@@ -359,6 +366,7 @@ public class LinearProcessor
                     handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException);
                 }
             }
+
             // Split the recipients into two pools.  notRecipients will contain the
             // recipients on the message that the matcher did not return.
             Collection notRecipients;
@@ -378,7 +386,7 @@ public class LinearProcessor
                 // There are a mix of recipients and not recipients.
                 // We need to clone this message, put the notRecipients on the clone
                 // and store it in the next spot
-                Mail notMail = ((MailImpl)mail).duplicate(newName(mail));
+                MailImpl notMail = (MailImpl)mail.duplicate(newName(mail));
                 notMail.setRecipients(notRecipients);
                 unprocessed[i + 1].add(notMail);
                 //We have to set the reduce possible recipients on the old message
@@ -424,8 +432,8 @@ public class LinearProcessor
                     mail = null;
                     continue;
                 }
-                // This was just set to another state requiring further processing...
-                // Store this back in the spool and it will get picked up and
+                // This was just set to another state requiring further processing... 
+                // Store this back in the spool and it will get picked up and 
                 // run in that processor
                 spool.store(mail);
                 mail = null;
@@ -443,10 +451,10 @@ public class LinearProcessor
      * Create a unique new primary key name.
      *
      * @param mail the mail to use as the basis for the new mail name
-     *
+     * 
      * @return a new name
      */
-    private String newName(Mail mail) {
+    private String newName(MailImpl mail) {
         StringBuffer nameBuffer =
             new StringBuffer(64)
                     .append(mail.getName())
@@ -463,8 +471,16 @@ public class LinearProcessor
      * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
     private void verifyMailAddresses(Collection col) throws MessagingException {
-        MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
-        if (addresses.length != col.size()) {
+        try {
+            MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
+
+            // Why is this here?  According to the javadoc for
+            // java.util.Collection.toArray(Object[]), this should
+            // never happen.  The exception will be thrown.
+            if (addresses.length != col.size()) {
+                throw new MailetException("The recipient list contains objects other than MailAddress objects");
+            }
+        } catch (ArrayStoreException ase) {
             throw new MailetException("The recipient list contains objects other than MailAddress objects");
         }
     }

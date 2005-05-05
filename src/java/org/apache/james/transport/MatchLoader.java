@@ -86,5 +86,4 @@ public class MatchLoader extends Loader implements Configurable {
             throw new MailetException(exceptionBuffer.toString(), e);
         }
     }
-
 }

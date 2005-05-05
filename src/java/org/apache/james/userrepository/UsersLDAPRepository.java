@@ -17,28 +17,9 @@
 
 package org.apache.james.userrepository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.AuthenticationException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.component.ComponentManager;
+import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -46,23 +27,30 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
-import org.apache.mailet.User;
-import org.apache.mailet.UsersRepository;
+import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
+
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
 
 /**
  * Implementation of a Repository to store users.
  *
  * This clas is a dummy for the proposal!
  *
- * @version This is $Revision: 1.19 $
+ * @version This is $Revision$
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Serviceable, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Composable, Configurable, Contextualizable, Initializable{
 
-    private ServiceManager comp;
+    private ComponentManager comp;
 
     private Logger logger;
     private String path;
@@ -101,9 +89,9 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
      */
-    public void service(ServiceManager compMgr) {
+    public void compose(ComponentManager compMgr) {
         this.comp = compMgr;
     }
 
@@ -167,10 +155,8 @@ public class UsersLDAPRepository
         try {
             ctx = new InitialDirContext(env); // Could throw a NamingExcpetion
         } catch (Exception e) {
-            e.getMessage();
-            e.printStackTrace();
+            getLogger().error("Exception creating InitialDirContext: ", e);
         }
-
 
         getLogger().info("Initial context initialized from " + baseURL);
     }
@@ -226,8 +212,7 @@ public class UsersLDAPRepository
                 getLogger().info("Created new LDAP node: " + destination);
             }
         } catch (NamingException e) {
-            System.out.println("Problem with child nodes " + e.getMessage());
-            e.printStackTrace();
+            getLogger().error("Problem with child nodes " + e.getMessage(), e);
         }
 
         return destination;
@@ -607,10 +592,7 @@ public class UsersLDAPRepository
         return found;
     }
 
-    /**
-     * @deprecated
-     * @see org.apache.mailet.UsersRepository#test(java.lang.String, java.lang.Object)
-     */
+
     public boolean test(String name, Object attributes) {
         boolean result = false;
         boolean foundFlag = false;
@@ -622,7 +604,7 @@ public class UsersLDAPRepository
             SearchControls ctls = new SearchControls();
             ctls.setReturningAttributes(returnAttrs);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            StringBuffer filterBuffer =
+            StringBuffer filterBuffer = 
                 new StringBuffer(128)
                         .append(mailAddressAttr)
                         .append("=")
@@ -638,7 +620,7 @@ public class UsersLDAPRepository
 
             try {
                 rootCtx = new InitialDirContext(env);
-
+    
                 NamingEnumeration enum  = rootCtx.search("", filter, ctls);
                 if (enum.hasMore()) { // ie User is in Directory
                     SearchResult sr = (SearchResult)enum.next();
@@ -661,7 +643,7 @@ public class UsersLDAPRepository
                         .append("Problem finding user ")
                         .append(name)
                         .append(" for password test.")
-                        .append(e);
+                        .append(e); 
             getLogger().error(exceptionBuffer.toString());
             //e.getMessage();
             //e.printStackTrace();
@@ -688,7 +670,7 @@ public class UsersLDAPRepository
                             .append("Attempt to authenticate with incorrect password for ")
                             .append(name)
                             .append(" : ")
-                            .append(ae);
+                            .append(ae); 
                 getLogger().error(exceptionBuffer.toString());
                 //System.out.println(exceptionBuffer.toString());
                 //System.out.println(ae.getMessage());
@@ -699,7 +681,7 @@ public class UsersLDAPRepository
                             .append("Problem checking password for ")
                             .append(name)
                             .append(" : ")
-                            .append(e);
+                            .append(e); 
                 getLogger().error(exceptionBuffer.toString());
                 //System.out.println(exceptionBuffer.toString());
                 //System.out.println(e.getMessage());

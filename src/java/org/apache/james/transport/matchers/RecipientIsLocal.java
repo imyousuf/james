@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -20,6 +20,7 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.GenericRecipientMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
+import java.util.Locale;
 
 /**
  * @version 1.0.0, 24/04/1999

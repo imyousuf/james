@@ -17,17 +17,7 @@
 
 package org.apache.james.nntpserver.repository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.mail.internet.MimeMessage;
-
-import org.apache.james.util.io.IOUtil;
+import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -39,6 +29,16 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.Lock;
+
+import javax.mail.internet.MimeMessage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Processes entries and sends to appropriate groups.

@@ -17,10 +17,10 @@
 
 package org.apache.james.transport.mailets;
 
-import javax.mail.MessagingException;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
+import javax.mail.MessagingException;
 
 /**
  * This mailet sets removes all attributes set on the Mail instance
@@ -28,7 +28,7 @@ import org.apache.mailet.Mail;
  * Sample configuration:
  * &lt;mailet match="All" class="RemoveAllMailAttributes"/&gt;
  *
- * @version CVS $Revision: 1.3 $ $Date: 2004/01/30 02:22:12 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 public class RemoveAllMailAttributes extends GenericMailet {

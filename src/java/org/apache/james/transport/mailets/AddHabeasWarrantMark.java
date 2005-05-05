@@ -25,7 +25,7 @@ import org.apache.mailet.Mail ;
  * This matcher adds the Hebeas Warrant Mark to a message.
  * For details see: http://www.hebeas.com
  *
- * Usage: &lt;mailet match="&lt;suitable-matcher&gt;" class="AddHabeasWarrantMark" /&gt;
+ * Usage: <mailet match="<suitable-matcher>" class="AddHabeasWarrantMark" />
  *
  * NOTE: Although this mailet is covered by the Apache Software License,
  * the Habeas Warrant Mark is copyright.  A separate license from Habeas
@@ -33,7 +33,7 @@ import org.apache.mailet.Mail ;
  * e-mail messages.  Each James Administrator is responsible for
  * ensuring that James is configured to attach the Habeas Warrant Mark
  * only to e-mail covered by a suitable license received from Habeas.
- *
+ * 
  * Because the Habeas Warrant Mark is copyright material, I have asked
  * for and received the following explicit statement from Habeas:
  *
@@ -44,7 +44,7 @@ import org.apache.mailet.Mail ;
  * Subject: RE: Habeas and Apache James
  *
  * Dear Noel,
- *
+ * 
  * > FURTHERMORE, if James is to be capable of sending Habeas SWE, I need
  * > to write a Mailet that attaches the headers.  As with any MTA, it
  * > would be up to the administrator to properly configure James and make
@@ -53,18 +53,18 @@ import org.apache.mailet.Mail ;
  * > Mailet, especially since it attaches the Habeas Warrant Mark.  For my
  * > own protection, please show me why such authorization is unnecessary,
  * > send me a digitally signed e-mail, or FAX a signed authorization
- *
- * You do not yourself need the authorization to build the functionality
- * into the [mailet];  what one needs authorization, in the form of a
+ * 
+ * You do not yourself need the authorization to build the functionality 
+ * into the [mailet];  what one needs authorization, in the form of a 
  * license, for, is to use the mark *in headers*, in outgoing email.
- * However, please let me know if you would like something more
+ * However, please let me know if you would like something more 
  * formal, and I can try to have something faxed to you.
- *
+ * 
  * > The Mailet docs would reference the Habeas website, and inform
  * > administrators that in order to USE the mailet, they need to ensure
  * > that they have whatever licenses are required from you as appropriate
  * > to your licensing terms.
- *
+ * 
  * That's absolutely perfect!
  * -----------------------------------
  *

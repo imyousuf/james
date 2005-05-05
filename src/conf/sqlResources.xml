@@ -22,7 +22,56 @@
     <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
     <dbMatcher db="sapdb" databaseProductName="sap.*"/>
     <dbMatcher db="hypersonic" databaseProductName="HypersonicSQL"/>
+    <dbMatcher db="db2" databaseProductName="db2.*"/>
+    <dbMatcher db="ingres" databaseProductName="ingres.*"/>
 </dbMatchers>
+
+<!--
+    With the following section it is possible to associate several name/value pairs
+        of options to a database product, identified by the "db" XML attribute name.
+    
+    An element without a "db" attribute, if used for an option name, will become a default value for such option.
+    Each option may have a "default default", i.e. a default that applies if no element with an empty
+        "db" attribute (default element) exists as said above;
+        such default default must be documented for such option below.
+    
+    The order of the XML elements is meaningless.
+    
+    Here only "getBody" and "getAttributes" option names are set, but others could be used in the future.
+    Option names:
+        "getBody" - a string (case insensitive) telling which JDBC ResultSet method will be used to
+            get the message body field for a database product.
+            The default default value is "useBytes"..
+            Values (case insensitive):
+                "useBytes"  - use getBytes(int).
+                "useBlob"   - use getBlob(int).
+        "getAttributes" - a string (case insensitive) telling which JDBC ResultSet method will be used to
+            get the message attributes field for a database product.
+           The default default value is "useBytes"..
+            Values (case insensitive):
+                "useBytes"  - use getBytes(int).
+                "useBlob"   - use getBlob(int).
+-->
+<dbOptions>
+    <dbOption name="getBody" value="useBytes"/>
+    <dbOption name="getAttributes" value="useBytes"/>
+    <dbOption db="mssql" name="getBody" value="useBytes"/>
+    <dbOption db="mssql" name="getAttributes" value="useBytes"/>
+    <dbOption db="oracle" name="getBody" value="useBlob"/>
+    <dbOption db="oracle" name="getAttributes" value="useBlob"/>
+    <dbOption db="mysql" name="getBody" value="useBytes"/>
+    <dbOption db="mysql" name="getAttributes" value="useBytes"/>
+    <dbOption db="postgresql" name="getBody" value="useBytes"/>
+    <dbOption db="postgresql" name="getAttributes" value="useBytes"/>
+    <dbOption db="sapdb" name="getBody" value="useBytes"/>
+    <dbOption db="sapdb" name="getAttributes" value="useBytes"/>
+    <dbOption db="hypersonic" name="getBody" value="useBytes"/>
+    <dbOption db="hypersonic" name="getAttributes" value="useBytes"/>
+    <dbOption db="db2" name="getBody" value="useBlob"/>
+    <dbOption db="db2" name="getAttributes" value="useBlob"/>
+    <dbOption db="ingres" name="getBody" value="useBytes"/>
+    <dbOption db="ingres" name="getAttributes" value="useBytes"/>
+</dbOptions>
 
 <!-- SQL statements to use for various components. -->
 <!-- -->
@@ -195,6 +244,9 @@
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="ingres">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -253,20 +305,19 @@
     </sql>
     <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
-        message_name varchar2(200) NOT NULL ,
-        repository_name varchar2(255) NOT NULL ,
-        message_state varchar2(30) NOT NULL ,
-        error_message varchar2(200) NULL ,
-        sender varchar2(255) ,
-        recipients varchar2(1000) NOT NULL ,
-        remote_host varchar2(100) NOT NULL ,
-        remote_addr varchar2(20) NOT NULL ,
-        message_body long raw NOT NULL ,
-        message_attributes long raw NULL ,
-        last_updated date NOT NULL ,
-        PRIMARY KEY (repository_name, message_name)
+            message_name varchar2(200) NOT NULL ,
+            repository_name varchar2(255) NOT NULL ,
+            message_state varchar2(30) NOT NULL ,
+            error_message varchar2(200) NULL ,
+            sender varchar2(255) ,
+            recipients varchar2(1000) NOT NULL ,
+            remote_host varchar2(100) NOT NULL ,
+            remote_addr varchar2(20) NOT NULL ,
+            message_body blob NOT NULL ,
+            message_attributes blob NULL ,
+            last_updated date NOT NULL ,
+            PRIMARY KEY (repository_name, message_name)
         )
-        TABLESPACE system
     </sql>
     <sql name="createTable" db="postgresql">
         CREATE TABLE ${table} (
@@ -298,6 +349,37 @@
             message_attributes long byte NULL ,
             last_updated date NOT NULL,
             PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+            message_name varchar(200) NOT NULL ,
+            repository_name varchar(255) NOT NULL ,
+            message_state varchar(30) NOT NULL ,
+            error_message varchar(200) ,
+            sender varchar(255) ,
+            recipients varchar(1000) NOT NULL ,
+            remote_host varchar(100) NOT NULL ,
+            remote_addr varchar(20) NOT NULL ,
+            message_body blob NOT NULL ,
+            message_attributes blob ,
+            last_updated timestamp NOT NULL ,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="ingres">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) ,
+            sender varchar (255) ,
+            recipients LONG VARCHAR NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body LONG BYTE NOT NULL ,
+            message_attributes LONG BYTE ,
+            last_updated DATE NOT NULL
         )
     </sql>
 </sqlDefs>
@@ -341,12 +423,15 @@
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="ingres">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to delete a message stored in this repository. -->
     <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
 
     <!-- Statements used to list all messages stored in this repository. -->
-    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated, error_message FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
 
     <!-- Statements used to create the table associated with this class. -->
     <sql name="createTable" db="hypersonic">
@@ -399,18 +484,18 @@
     </sql>
     <sql name="createTable" db="oracle">
         CREATE TABLE ${table} (
-        message_name varchar2(200) NOT NULL ,
-        repository_name varchar2(255) NOT NULL ,
-        message_state varchar2(30) NOT NULL ,
-        error_message varchar2(200) NULL ,
-        sender varchar2(255) NULL ,
-        recipients varchar2(1000) NOT NULL ,
-        remote_host varchar2(255) NOT NULL ,
-        remote_addr varchar2(20) NOT NULL ,
-        message_body long raw NOT NULL ,
-        message_attributes long raw NULL ,
-        last_updated date NOT NULL ,
-        PRIMARY KEY (message_name, repository_name)
+            message_name varchar2(200) NOT NULL ,
+            repository_name varchar2(255) NOT NULL ,
+            message_state varchar2(30) NOT NULL ,
+            error_message varchar2(200) NULL ,
+            sender varchar2(255) NULL ,
+            recipients varchar2(1000) NOT NULL ,
+            remote_host varchar2(255) NOT NULL ,
+            remote_addr varchar2(20) NOT NULL ,
+            message_body blob NOT NULL ,
+            message_attributes blob NULL ,
+            last_updated date NOT NULL ,
+            PRIMARY KEY (message_name, repository_name)
         )
     </sql>
     <sql name="createTable" db="postgresql">
@@ -445,6 +530,38 @@
             PRIMARY KEY (message_name, repository_name)
         )
     </sql>
+    <sql name="createTable" db="db2">
+        CREATE TABLE ${table} (
+            message_name varchar(200) NOT NULL ,
+            repository_name varchar(255) NOT NULL ,
+            message_state varchar(30) NOT NULL ,
+            error_message varchar(200) ,
+            sender varchar(255) ,
+            recipients varchar(1000) NOT NULL ,
+            remote_host varchar(100) NOT NULL ,
+            remote_addr varchar(20) NOT NULL ,
+            message_body blob NOT NULL ,
+            message_attributes blob ,
+            last_updated timestamp NOT NULL ,
+            PRIMARY KEY (repository_name, message_name)        
+        )
+    </sql>
+    <sql name="createTable" db="ingres">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) ,
+            sender varchar (255) ,
+            recipients LONG VARCHAR NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body LONG BYTE NOT NULL ,
+            message_attributes LONG BYTE ,
+            last_updated DATE NOT NULL
+        )
+    </sql>
 </sqlDefs>
 
 </sqlResources>
+

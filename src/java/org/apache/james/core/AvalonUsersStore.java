@@ -17,9 +17,6 @@
 
 package org.apache.james.core;
 
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -32,8 +29,11 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.mailet.UsersRepository;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Provides a registry of user repositories.
@@ -124,7 +124,7 @@ public class AvalonUsersStore
                 ((Serviceable) rep).service( manager );
             }
             if (rep instanceof Composable) {
-                final String error = "no implementation in place to support Coposable";
+                final String error = "no implementation in place to support Composable";
                 getLogger().error( error );
                 throw new IllegalArgumentException( error );
             }
@@ -136,7 +136,7 @@ public class AvalonUsersStore
             }
             repositories.put(repName, rep);
             if (getLogger().isInfoEnabled()) {
-                StringBuffer logBuffer =
+                StringBuffer logBuffer = 
                     new StringBuffer(64)
                             .append("UsersRepository ")
                             .append(repName)
@@ -148,7 +148,7 @@ public class AvalonUsersStore
     }
 
 
-    /**
+    /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
@@ -164,7 +164,7 @@ public class AvalonUsersStore
         return response;
     }
 
-    /**
+    /** 
      * Yield an <code>Iterator</code> over the set of repository
      * names managed internally by this store.
      *

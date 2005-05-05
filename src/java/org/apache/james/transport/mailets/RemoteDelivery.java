@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
@@ -45,18 +46,33 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.Constants;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
+import org.apache.mailet.MailetContext;
 import org.apache.mailet.GenericMailet;
+import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetContextConstants;
-import org.apache.mailet.SpoolRepository;
+
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.MatchResult;
+
 
 /**
  * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
  * the message to remote hosts. If for some reason mail can't be delivered
- * store it in the "outgoing" Repository and set an Alarm. After "delayTime" the
+ * store it in the "outgoing" Repository and set an Alarm. After the next "delayTime" the
  * Alarm will wake the servlet that will try to send it again. After "maxRetries"
- * the mail will be considered underiverable and will be returned to sender.
+ * the mail will be considered undeliverable and will be returned to sender.
  *
  * TO DO (in priority):
  * 1. Support a gateway (a single server where all mail will be delivered) (DONE)
@@ -72,9 +88,105 @@ import org.apache.mailet.SpoolRepository;
  *
  * as well as other places.
  *
- * @version CVS $Revision: 1.52 $ $Date: 2004/01/30 02:22:12 $
+ * @version CVS $Revision$ $Date$
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
+
+    private static final long DEFAULT_DELAY_TIME = 21600000; // default is 6*60*60*1000 millis (6 hours)
+    private static final String PATTERN_STRING =
+        "\\s*([0-9]*\\s*[\\*])?\\s*([0-9]+)\\s*([a-z,A-Z]*)\\s*";//pattern to match
+                                                                 //[attempts*]delay[units]
+                                            
+    private static Pattern PATTERN = null; //the compiled pattern of the above String
+    private static final HashMap MULTIPLIERS = new HashMap (10); //holds allowed units for delaytime together with
+                                                                //the factor to turn it into the equivalent time in msec
+
+    /*
+     * Static initializer.<p>
+     * Compiles pattern for processing delaytime entries.<p>
+     * Initializes MULTIPLIERS with the supported unit quantifiers
+     */
+    static {
+        try {
+            Perl5Compiler compiler = new Perl5Compiler(); 
+            PATTERN = compiler.compile(PATTERN_STRING, Perl5Compiler.READ_ONLY_MASK);
+        } catch(MalformedPatternException mpe) {
+            //this should not happen as the pattern string is hardcoded.
+            System.err.println ("Malformed pattern: " + PATTERN_STRING);
+            mpe.printStackTrace (System.err);
+        }
+        //add allowed units and their respective multiplier
+        MULTIPLIERS.put ("msec", new Integer (1));
+        MULTIPLIERS.put ("msecs", new Integer (1));
+        MULTIPLIERS.put ("sec",  new Integer (1000));
+        MULTIPLIERS.put ("secs",  new Integer (1000));
+        MULTIPLIERS.put ("minute", new Integer (1000*60));
+        MULTIPLIERS.put ("minutes", new Integer (1000*60));
+        MULTIPLIERS.put ("hour", new Integer (1000*60*60));
+        MULTIPLIERS.put ("hours", new Integer (1000*60*60));
+        MULTIPLIERS.put ("day", new Integer (1000*60*60*24));
+        MULTIPLIERS.put ("days", new Integer (1000*60*60*24));
+    }
+    
+    /**
+     * This filter is used in the accept call to the spool.
+     * It will select the next mail ready for processing according to the mails
+     * retrycount and lastUpdated time
+     **/
+    private class MultipleDelayFilter implements SpoolRepository.AcceptFilter
+    {
+        /**
+         * holds the time to wait for the youngest mail to get ready for processing
+         **/
+        long youngest = 0;
+
+        /**
+         * Uses the getNextDelay to determine if a mail is ready for processing based on the delivered parameters
+         * errorMessage (which holds the retrycount), lastUpdated and state
+         * @param key the name/key of the message
+         * @param state the mails state
+         * @param lastUpdated the mail was last written to the spool at this time.
+         * @param errorMessage actually holds the retrycount as a string (see failMessage below)
+         **/
+        public boolean accept (String key, String state, long lastUpdated, String errorMessage) {
+            if (state.equals(Mail.ERROR)) {
+                //Test the time...
+                int retries = Integer.parseInt(errorMessage);
+                long delay = getNextDelay (retries);
+                long timeToProcess = delay + lastUpdated;
+
+                
+                if (System.currentTimeMillis() > timeToProcess) {
+                    //We're ready to process this again
+                    return true;
+                } else {
+                    //We're not ready to process this.
+                    if (youngest == 0 || youngest > timeToProcess) {
+                        //Mark this as the next most likely possible mail to process
+                        youngest = timeToProcess;
+                    }
+                    return false;
+                }
+            } else {
+                //This mail is good to go... return the key
+                return true;
+            }
+        }
+
+        /**
+         * @return the optimal time the SpoolRepository.accept(AcceptFilter) method should wait before
+         * trying to find a mail ready for processing again.
+         **/
+        public long getWaitTime () {
+            if (youngest == 0) {
+                return 0;
+            } else {
+                long duration = youngest - System.currentTimeMillis();
+                youngest = 0; //get ready for next run
+                return duration <= 0 ? 1 : duration;
+            }
+        }
+    }
 
     /**
      * Controls certain log messages
@@ -82,30 +194,44 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private boolean isDebug = false;
 
     private SpoolRepository outgoing; // The spool of outgoing mail
-    private long delayTime = 21600000; // default is 6*60*60*1000 millis (6 hours)
+    private long[] delayTimes; //holds expanded delayTimes
     private int maxRetries = 5; // default number of retries
     private long smtpTimeout = 600000;  //default number of ms to timeout on smtp delivery
     private boolean sendPartial = false; // If false then ANY address errors will cause the transmission to fail
     private int connectionTimeout = 60000;  // The amount of time JavaMail will wait before giving up on a socket connect()
     private int deliveryThreadCount = 1; // default number of delivery threads
     private Collection gatewayServer = null; // the server(s) to send all email to
-    private String gatewayPort = null;  // the default port of gateway server(s)
     private String bindAddress = null; // JavaMail delivery socket binds to this local address. If null the JavaMail default will be used.
     private boolean isBindUsed = false; // true, if the bind configuration
                                         // parameter is supplied, RemoteDeliverySocketFactory
                                         // will be used in this case
     private Collection deliveryThreads = new Vector();
-
+    private MailServer mailServer;
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
+    private String bounceProcessor = null; // the processor for creating Bounces
 
+    private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
+    private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
+    
     /**
      * Initialize the mailet
      */
     public void init() throws MessagingException {
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
+        ArrayList delay_times_list = new ArrayList();
         try {
             if (getInitParameter("delayTime") != null) {
-                delayTime = Long.parseLong(getInitParameter("delayTime"));
+                delayTimeMatcher = new Perl5Matcher();
+                String delay_times = getInitParameter("delayTime");
+                //split on comma's
+                StringTokenizer st = new StringTokenizer (delay_times,",");
+                while (st.hasMoreTokens()) {
+                    String delay_time = st.nextToken();
+                    delay_times_list.add (new Delay(delay_time));
+                }
+            } else {
+                //use default delayTime.
+                delay_times_list.add (new Delay());
             }
         } catch (Exception e) {
             log("Invalid delayTime setting: " + getInitParameter("delayTime"));
@@ -114,6 +240,27 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (getInitParameter("maxRetries") != null) {
                 maxRetries = Integer.parseInt(getInitParameter("maxRetries"));
             }
+            //check consistency with delay_times_list attempts
+            int total_attempts = calcTotalAttempts (delay_times_list);
+            if (total_attempts > maxRetries) {
+                log("Total number of delayTime attempts exceeds maxRetries specified. Increasing maxRetries from "+maxRetries+" to "+total_attempts);
+                maxRetries = total_attempts;
+            } else {
+                int extra = maxRetries - total_attempts;
+                if (extra != 0) {
+                    log("maxRetries is larger than total number of attempts specified. Increasing last delayTime with "+extra+" attempts ");
+
+                    if (delay_times_list.size() != 0) { 
+                        Delay delay = (Delay)delay_times_list.get (delay_times_list.size()-1); //last Delay
+                        delay.setAttempts (delay.getAttempts()+extra);
+                        log("Delay of "+delay.getDelayTime()+" msecs is now attempted: "+delay.getAttempts()+" times");
+                    } else {
+                        log ("NO, delaytimes cannot continue");
+                    }
+                }
+            }
+            delayTimes = expandDelays (delay_times_list);
+            
         } catch (Exception e) {
             log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
         }
@@ -134,8 +281,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         sendPartial = (getInitParameter("sendpartial") == null) ? false : new Boolean(getInitParameter("sendpartial")).booleanValue();
 
+        bounceProcessor = getInitParameter("bounceProcessor");
+
         String gateway = getInitParameter("gateway");
-        gatewayPort = getInitParameter("gatewayPort");
+        String gatewayPort = getInitParameter("gatewayPort");
 
         if (gateway != null) {
             gatewayServer = new ArrayList();
@@ -152,7 +301,26 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         }
 
-        outgoing = getMailetContext().getMailSpool(getInitParameter("outgoing"));
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        String outgoingPath = getInitParameter("outgoing");
+        if (outgoingPath == null) {
+            outgoingPath = "file:///../var/mail/outgoing";
+        }
+
+        try {
+            // Instantiate the a MailRepository for outgoing mails
+            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+
+            DefaultConfiguration spoolConf
+                = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");
+            spoolConf.setAttribute("destinationURL", outgoingPath);
+            spoolConf.setAttribute("type", "SPOOL");
+            outgoing = (SpoolRepository) mailstore.select(spoolConf);
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve Store component:" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve Store component:" + e.getMessage());
+        }
 
         //Start up a number of threads
         try {
@@ -186,11 +354,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * throw an exception.
      *
      * Creation date: (2/24/00 11:25:00 PM)
-     * @param mail org.apache.mailet.Mail
+     * @param mail org.apache.james.core.MailImpl
      * @param session javax.mail.Session
      * @return boolean Whether the delivery was successful and the message can be deleted
      */
-    private boolean deliver(Mail mail, Session session) {
+    private boolean deliver(MailImpl mail, Session session) {
         try {
             if (isDebug) {
                 log("Attempting to deliver " + mail.getName());
@@ -213,14 +381,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             //Figure out which servers to try to send to.  This collection
             //  will hold all the possible target servers
-            Collection targetServers = null;
+            Iterator targetServers = null;
             if (gatewayServer == null) {
                 MailAddress rcpt = (MailAddress) recipients.iterator().next();
                 String host = rcpt.getHost();
 
                 //Lookup the possible targets
-                targetServers = getMailetContext().getMailServers(host);
-                if (targetServers.size() == 0) {
+                targetServers = getMailetContext().getSMTPHostAddresses(host);
+                if (!targetServers.hasNext()) {
                     log("No mail server found for: " + host);
                     StringBuffer exceptionBuffer =
                         new StringBuffer(128)
@@ -230,25 +398,25 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     return failMessage(mail, new MessagingException(exceptionBuffer.toString()), false);
                 }
             } else {
-                targetServers = gatewayServer;
+                targetServers = getGatewaySMTPHostAddresses(gatewayServer);
             }
 
             MessagingException lastError = null;
 
-            Iterator i = targetServers.iterator();
-            while ( i.hasNext()) {
+            while ( targetServers.hasNext()) {
                 try {
-                    String outgoingMailServer = i.next().toString ();
+                    HostAddress outgoingMailServer = (HostAddress) targetServers.next();
                     StringBuffer logMessageBuffer =
                         new StringBuffer(256)
                         .append("Attempting delivery of ")
                         .append(mail.getName())
                         .append(" to host ")
-                        .append(outgoingMailServer)
+                        .append(outgoingMailServer.getHostName())
+                        .append(" at ")
+                        .append(outgoingMailServer.getHost())
                         .append(" to addresses ")
                         .append(Arrays.asList(addr));
                     log(logMessageBuffer.toString());
-                    URLName urlname = new URLName("smtp://" + outgoingMailServer);
 
                     Properties props = session.getProperties();
                     if (mail.getSender() == null) {
@@ -266,7 +434,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
                     Transport transport = null;
                     try {
-                        transport = session.getTransport(urlname);
+                        transport = session.getTransport(outgoingMailServer);
                         try {
                             transport.connect();
                         } catch (MessagingException me) {
@@ -289,7 +457,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                       .append("Mail (")
                                       .append(mail.getName())
                                       .append(") sent successfully to ")
-                                      .append(outgoingMailServer);
+                                      .append(outgoingMailServer.getHostName())
+                                      .append(" at ")
+                                      .append(outgoingMailServer.getHost());
                     log(logMessageBuffer.toString());
                     return true;
                 } catch (SendFailedException sfe) {
@@ -450,12 +620,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     /**
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
-     * @param mail org.apache.mailet.Mail
-     * @param ex javax.mail.MessagingException
+     * @param mail org.apache.james.core.MailImpl
+     * @param exception javax.mail.MessagingException
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
-    private boolean failMessage(Mail mail, MessagingException ex, boolean permanent) {
+    private boolean failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         if (permanent) {
@@ -502,11 +672,27 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 log(logBuffer.toString());
             }
         }
-        bounce(mail, ex);
+        if (bounceProcessor != null) {
+            // do the new DSN bounce
+            // setting attributes for DSN mailet
+            mail.setAttribute("delivery-error", ex);
+            mail.setState(bounceProcessor);
+            // re-insert the mail into the spool for getting it passed to the dsn-processor
+            MailetContext mc = getMailetContext();
+            try {
+                mc.sendMail(mail);
+            } catch (MessagingException e) {
+                // we shouldn't get an exception, because the mail was already processed
+                log("Exception re-inserting failed mail: ", e);
+            }
+        } else {
+            // do an old style bounce
+            bounce(mail, ex);
+        }
         return true;
     }
 
-    private void bounce(Mail mail, MessagingException ex) {
+    private void bounce(MailImpl mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
@@ -573,7 +759,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      *
      * @param mail org.apache.mailet.Mail
      */
-    public void service(Mail mail) throws AddressException {
+    public void service(Mail genericmail) throws MessagingException{
+        MailImpl mail = (MailImpl)genericmail;
 
         // Do I want to give the internal key, or the message's Message ID
         if (isDebug) {
@@ -668,7 +855,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * fix.
          */
         long stop = System.currentTimeMillis() + 60000;
-        while ((getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME) == null)
+        while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
                && stop > System.currentTimeMillis()) {
             try {
                 Thread.sleep(1000);
@@ -688,11 +875,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         //Set the hostname we'll use as this server
-        if (getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(MailetContextConstants.HELLO_NAME));
+        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
+            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(Constants.HELLO_NAME));
         }
         else {
-            Collection servernames = (Collection) getMailetContext().getAttribute(MailetContextConstants.SERVER_NAMES);
+            Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
             if ((servernames != null) && (servernames.size() > 0)) {
                 props.put("mail.smtp.localhost", (String) servernames.iterator().next());
             }
@@ -711,7 +898,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             while (!Thread.currentThread().interrupted() && !destroyed) {
                 try {
-                    String key = outgoing.accept(delayTime);
+                    MailImpl mail = (MailImpl)outgoing.accept(delayFilter);
+                    String key = mail.getName();
                     try {
                         if (isDebug) {
                             StringBuffer logMessageBuffer =
@@ -720,12 +908,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                         .append(" will process mail ")
                                         .append(key);
                             log(logMessageBuffer.toString());
-                        }
-                        Mail mail = outgoing.retrieve(key);
-                        // Retrieve can return null if the mail is no longer on the outgoing spool.
-                        // In this case we simply continue to the next key
-                        if (mail == null) {
-                            continue;
                         }
                         if (deliver(mail, session)) {
                             //Message was successfully delivered/fully failed... delete it
@@ -750,5 +932,222 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // Restore the thread state to non-interrupted.
             Thread.currentThread().interrupted();
         }
+    }
+
+    /**
+     * @param list holding Delay objects
+     * @return the total attempts for all delays
+     **/
+    private int calcTotalAttempts (ArrayList list) {
+        int sum = 0;
+        Iterator i = list.iterator();
+        while (i.hasNext()) {
+            Delay delay = (Delay)i.next();
+            sum += delay.getAttempts();
+        }
+        return sum;
+    }
+    
+    /**
+     * This method expands an ArrayList containing Delay objects into an array holding the
+     * only delaytime in the order.<p>
+     * So if the list has 2 Delay objects the first having attempts=2 and delaytime 4000
+     * the second having attempts=1 and delaytime=300000 will be expanded into this array:<p>
+     * long[0] = 4000<p>
+     * long[1] = 4000<p>
+     * long[2] = 300000<p>
+     * @param list the list to expand
+     * @return the expanded list
+     **/
+    private long[] expandDelays (ArrayList list) {
+        long[] delays = new long [calcTotalAttempts(list)];
+        Iterator i = list.iterator();
+        int idx = 0;
+        while (i.hasNext()) {
+            Delay delay = (Delay)i.next();
+            for (int j=0; j<delay.getAttempts(); j++) {
+                delays[idx++]= delay.getDelayTime();
+            }            
+        }
+        return delays;
+    }
+    
+    /**
+     * This method returns, given a retry-count, the next delay time to use.
+     * @param retry_count the current retry_count.
+     * @return the next delay time to use, given the retry count
+     **/
+    private long getNextDelay (int retry_count) {
+        return delayTimes[retry_count-1];
+    }
+
+    /**
+     * This class is used to hold a delay time and its corresponding number
+     * of retries.
+     **/
+    private class Delay {
+        private int attempts = 1;
+        private long delayTime = DEFAULT_DELAY_TIME;
+        
+            
+        /**
+         * This constructor expects Strings of the form "[attempt\*]delaytime[unit]". <p>
+         * The optional attempt is the number of tries this delay should be used (default = 1)
+         * The unit if present must be one of (msec,sec,minute,hour,day) (default = msec)
+         * The constructor multiplies the delaytime by the relevant multiplier for the unit,
+         * so the delayTime instance variable is always in msec.
+         * @param init_string the string to initialize this Delay object from
+         **/
+        public Delay (String init_string) throws MessagingException
+        {
+            String unit = "msec"; //default unit
+            if (delayTimeMatcher.matches (init_string, PATTERN)) {
+                MatchResult res = delayTimeMatcher.getMatch ();
+                //the capturing groups will now hold
+                //at 1:  attempts * (if present)
+                //at 2:  delaytime
+                //at 3:  unit (if present)
+                
+                if (res.group(1) != null && !res.group(1).equals ("")) {
+                    //we have an attempt *
+                    String attempt_match = res.group(1);
+                    //strip the * and whitespace
+                    attempt_match = attempt_match.substring (0,attempt_match.length()-1).trim();
+                    attempts = Integer.parseInt (attempt_match);
+                }
+                
+                delayTime = Long.parseLong (res.group(2));
+                
+                if (!res.group(3).equals ("")) {
+                    //we have a unit
+                    unit = res.group(3).toLowerCase();
+                }
+            } else {
+                throw new MessagingException(init_string+" does not match "+PATTERN_STRING);
+            }
+            if (MULTIPLIERS.get (unit)!=null) {
+                int multiplier = ((Integer)MULTIPLIERS.get (unit)).intValue();
+                delayTime *= multiplier;
+            } else {
+                throw new MessagingException("Unknown unit: "+unit);
+            }
+        }
+
+        /**
+         * This constructor makes a default Delay object, ie. attempts=1 and delayTime=DEFAULT_DELAY_TIME
+         **/
+        public Delay () {
+        }
+
+        /**
+         * @return the delayTime for this Delay
+         **/
+        public long getDelayTime () {
+            return delayTime;
+        }
+
+        /**
+         * @return the number attempts this Delay should be used.
+         **/
+        public int getAttempts () {
+            return attempts;
+        }
+        
+        /**
+         * Set the number attempts this Delay should be used.
+         **/
+        public void setAttempts (int value) {
+            attempts = value;
+        }
+        
+        /**
+         * Pretty prints this Delay 
+         **/
+        public String toString () {
+            StringBuffer buf = new StringBuffer(15);
+            buf.append (getAttempts ());
+            buf.append ('*');
+            buf.append (getDelayTime());
+            buf.append ("msec");
+            return buf.toString();
+        }
+    }
+    
+    /*
+     * Returns an Iterator over org.apache.mailet.HostAddress, a
+     * specialized subclass of javax.mail.URLName, which provides
+     * location information for servers that are specified as mail
+     * handlers for the given hostname.  If no host is found, the
+     * Iterator returned will be empty and the first call to hasNext()
+     * will return false.  The Iterator is a nested iterator: the outer
+     * iteration is over each gateway, and the inner iteration is over
+     * potentially multiple A records for each gateway.
+     *
+     * @see org.apache.james.DNSServer#getSMTPHostAddresses(String)
+     * @since v2.2.0a16-unstable
+     * @param gatewayServers - Collection of host[:port] Strings
+     * @return an Iterator over HostAddress instances, sorted by priority
+     */
+    private Iterator getGatewaySMTPHostAddresses(final Collection gatewayServers) {
+        return new Iterator() {
+            private Iterator gateways = gatewayServers.iterator();
+            private Iterator addresses = null;
+
+            public boolean hasNext() {
+                /* Make sure that when next() is called, that we can
+                 * provide a HostAddress.  This means that we need to
+                 * have an inner iterator, and verify that it has
+                 * addresses.  We could, for example, run into a
+                 * situation where the next gateway didn't have any
+                 * valid addresses.
+                 */
+                if ((addresses == null || !addresses.hasNext()) && gateways.hasNext()) do {
+                    String server = (String) gateways.next();
+                    String port = "25";
+
+                    int idx = server.indexOf(':'); 
+                    if ( idx > 0) { 
+                        port = server.substring(idx+1); 
+                        server = server.substring(0,idx);
+                    }
+
+                    final String nextGateway = server;
+                    final String nextGatewayPort = port;
+                    try {
+                        final InetAddress[] ips = org.apache.james.dnsserver.DNSServer.getAllByName(nextGateway);
+                        addresses = new Iterator() {
+                            private InetAddress[] ipAddresses = ips;
+                            int i = 0;
+
+                            public boolean hasNext() {
+                                return i < ipAddresses.length;
+                            }
+
+                            public Object next() {
+                                return new org.apache.mailet.HostAddress(nextGateway, "smtp://" + (ipAddresses[i++]).getHostAddress() + ":" + nextGatewayPort);
+                            }
+
+                            public void remove() {
+                                throw new UnsupportedOperationException ("remove not supported by this iterator");
+                            }
+                        };
+                    }
+                    catch (java.net.UnknownHostException uhe) {
+                        log("Unknown gateway host: " + uhe.getMessage().trim());
+                        log("This could be a DNS server error or configuration error.");
+                    }
+                } while (!addresses.hasNext() && gateways.hasNext());
+
+                return addresses != null && addresses.hasNext();
+            }
+
+            public Object next() {
+                return (addresses != null) ? addresses.next() : null;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException ("remove not supported by this iterator");
+            }
+        };
     }
 }

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,14 +17,29 @@
 
 package org.apache.james.transport.mailets;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetException;
+
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
  * <P>Generates a response to the reverse-path address.
@@ -79,7 +94,7 @@ import org.apache.mailet.MailAddress;
  * <P><I>notice</I> and <I>sendingAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.11 $ $Date: 2004/01/30 02:22:11 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 public class Bounce extends AbstractNotify {
@@ -154,20 +169,18 @@ public class Bounce extends AbstractNotify {
      * @throws MessagingException if a problem arises formulating the redirected mail
      */
     public void service(Mail originalMail) throws MessagingException {
-        MailAddress returnAddress = getExistingReturnPath(originalMail);
-        if (returnAddress == SpecialAddress.NULL) {
+        if (originalMail.getSender() == null) {
             if (isDebug)
                 log("Processing a bounce request for a message with an empty reverse-path.  No bounce will be sent.");
             if(!getPassThrough(originalMail)) {
                 originalMail.setState(Mail.GHOST);
             }
             return;
-        } else if (returnAddress == null) {
-            log("WARNING: Mail to be bounced does not contain a reverse-path.");
-        } else {
-            if (isDebug)
-                log("Processing a bounce request for a message with a return path header.  The bounce will be sent to " + returnAddress);
         }
+
+        if (isDebug)
+            log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + originalMail.getSender().toString());
+
         super.service(originalMail);
     }
 

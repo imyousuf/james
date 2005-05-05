@@ -46,7 +46,7 @@ public class AvalonContextUtilities {
      *
      * @param context the Avalon context
      * @param fileURL an appropriately formatted URL describing a file on
-     *                the filesystem on which the server is running.  The
+     *                the filesystem on which the server is running.  The 
      *                URL is evaluated as a location relative to the
      *                application home, unless it begins with a slash.  In
      *                the latter case the file location is evaluated relative

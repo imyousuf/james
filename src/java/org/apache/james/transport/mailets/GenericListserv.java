@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,18 +17,18 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.IOException;
-import java.util.Collection;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
-import org.apache.mailet.RFC2822Headers;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Vector;
 
 /**
  * An abstract implementation of a listserv.  The underlying implementation must define
@@ -155,7 +155,7 @@ public abstract class GenericListserv extends GenericMailet {
 
         return subject.toString();
     }
-
+    
     /**
      * Processes the message.  Assumes it is the only recipient of this forked message.
      */

@@ -17,7 +17,7 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.mailet.User;
+import org.apache.james.services.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,15 +25,15 @@ import java.sql.SQLException;
 
 /**
  * A very lightweight UserRepository, which persists a list
- * of user names in a database. Password information is not
+ * of user names in a database. Password information is not 
  * persisted.
- *
+ * 
  */
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
     /**
      * Reads properties for a User from an open ResultSet.
-     *
+     * 
      * @param rsUsers A ResultSet with a User record in the current row.
      * @return A User instance
      * @throws SQLException
@@ -47,7 +47,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * Set parameters of a PreparedStatement object with
+     * Set parameters of a PreparedStatement object with 
      * property values from a User instance.
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
@@ -55,8 +55,8 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected void setUserForInsertStatement(User user,
-                                             PreparedStatement userInsert)
+    protected void setUserForInsertStatement(User user, 
+                                             PreparedStatement userInsert) 
         throws SQLException {
         userInsert.setString(1, user.getUserName());
     }
@@ -64,15 +64,15 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
     /**
      * Set parameters of a PreparedStatement object with
      * property values from a User instance.
-     *
+     * 
      * @param user       a User instance, which should be an implementation class which
      *                   is handled by this Repostory implementation.
      * @param userUpdate a PreparedStatement initialised with SQL taken from the "update" SQL definition.
      * @throws SQLException
      *                   if an exception occurs while setting parameter values.
      */
-    protected void setUserForUpdateStatement(User user,
-                                             PreparedStatement userUpdate)
+    protected void setUserForUpdateStatement(User user, 
+                                             PreparedStatement userUpdate) 
         throws SQLException {
         throw new UnsupportedOperationException("Can't update a List User - " +
                                                 "only has a single attribute.");

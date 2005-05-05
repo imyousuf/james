@@ -17,6 +17,34 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.ArrayList;
+
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import org.apache.james.core.MailImpl;
+
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+
+
 /**
  * <P>A mailet providing configurable redirection services.</P>
  * <P>Can produce listserver, forward and notify behaviour, with the original
@@ -236,7 +264,7 @@ package org.apache.james.transport.mailets;
  * unless some other mailet has previously modified something (a header for instance) that could force the resent
  * message follow a different path so that it does not return here unchanged.</B></P>
  *
- * @version CVS $Revision: 1.8 $ $Date: 2004/01/30 02:22:12 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 

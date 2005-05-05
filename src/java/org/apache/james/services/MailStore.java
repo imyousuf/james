@@ -18,7 +18,6 @@
 package org.apache.james.services;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.mailet.SpoolRepository;
 
 /**
  * Interface for an object which provides MailRepositories or SpoolRepositories
@@ -27,13 +26,13 @@ import org.apache.mailet.SpoolRepository;
  *  <br>&lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *  <br>            type="MAIL"&gt;
  *  <br>&lt;/repository&gt;
- * <p>This configuration, including any included child elements, is used to
+ * <p>This configuration, including any included child elements, is used to 
  * configure the returned component.
  *
  *
- * @version This is $Revision: 1.12 $
+ * @version This is $Revision$
  */
-public interface MailStore
+public interface MailStore 
     extends Store {
 
     /**
@@ -49,4 +48,4 @@ public interface MailStore
     SpoolRepository getInboundSpool();
 
 }
-
+ 

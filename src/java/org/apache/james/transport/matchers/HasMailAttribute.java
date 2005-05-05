@@ -32,7 +32,7 @@ import javax.mail.MessagingException;
  * &lt;mailet match="HasMailAttribute=whatever" class=&quot;&lt;any-class&gt;&quot;&gt;
  * </CODE></PRE>
  *
- * @version CVS $Revision: 1.3 $ $Date: 2004/01/30 02:22:13 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  **/
 public class HasMailAttribute extends GenericMatcher 

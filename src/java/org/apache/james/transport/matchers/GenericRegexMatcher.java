@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,17 +17,17 @@
 
 package org.apache.james.transport.matchers;
 
-import java.util.Collection;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
+import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
 
 /**
  * This is a generic matcher that uses regular expressions.  If any of
@@ -38,22 +38,18 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * could subclass match(), and call it as necessary during message
  * processing (e.g., if a file of expressions changed). 
  *
- * @author  Serge Knystautas <sergek@lokitech.com>
- * @author  Noel J. Bergman <noel@devtech.com>
  * @
  */
 
 abstract public class GenericRegexMatcher extends GenericMatcher {
-    protected Perl5Matcher matcher;
     protected Object[][] patterns;
 
     public void compile(Object[][] patterns) throws MalformedPatternException {
         // compile a bunch of regular expressions
         this.patterns = patterns;
-        matcher = new Perl5Matcher();
         for (int i = 0; i < patterns.length; i++) {
             String pattern = (String)patterns[i][1];
-            patterns[i][1] = new Perl5Compiler().compile(pattern);
+            patterns[i][1] = new Perl5Compiler().compile(pattern, Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
         }
     }
 
@@ -61,6 +57,7 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
 
     public Collection match(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
+        Perl5Matcher matcher = new Perl5Matcher();
 
         //Loop through all the patterns
         if (patterns != null) for (int i = 0; i < patterns.length; i++) {
@@ -73,8 +70,10 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
             //Loop through the header values
             if (headers != null) for (int j = 0; j < headers.length; j++) {
                 if (matcher.matches(headers[j], pattern)) {
+                    // log("Match: " + headerName + "[" + j + "]: " + headers[j]);
                     return mail.getRecipients();
                 }
+                //log("       " + headerName + "[" + j + "]: " + headers[j]);
             }
         }
         return null;

@@ -20,7 +20,7 @@ package org.apache.james.security;
 /**
  * Contains some SMIME related mail attribute names of general use.
  *
- * @version CVS $Revision: 1.1 $ $Date: 2004/08/05 12:22:38 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.1
  */
 public interface SMIMEAttributeNames {

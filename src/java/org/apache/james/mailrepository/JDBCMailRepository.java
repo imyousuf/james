@@ -17,30 +17,6 @@
 
 package org.apache.james.mailrepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import javax.mail.internet.MimeMessage;
-
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
@@ -60,12 +36,23 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailRepository;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.sql.*;
+import java.util.*;
 
 /**
  * Implementation of a MailRepository on a database.
@@ -81,7 +68,7 @@ import org.apache.mailet.MailRepository;
  *
  * <p>Requires a logger called MailRepository.
  *
- * @version CVS $Revision: 1.48 $ $Date: 2004/01/30 02:22:09 $
+ * @version CVS $Revision$ $Date$
  */
 public class JDBCMailRepository
     extends AbstractLogEnabled
@@ -104,7 +91,7 @@ public class JDBCMailRepository
 
     /**
      * A lock used to control access to repository elements, locking access
-     * based on the key
+     * based on the key 
      */
     private Lock lock;
 
@@ -166,7 +153,7 @@ public class JDBCMailRepository
      * The JDBCUtil helper class
      */
     protected JDBCUtil theJDBCUtil;
-
+    
     /**
      * "Support for Mail Attributes under JDBC repositories is ready" indicator.
      */
@@ -301,7 +288,6 @@ public class JDBCMailRepository
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
-            e.printStackTrace();
             throw new ConfigurationException(message, e);
         }
     }
@@ -392,7 +378,7 @@ public class JDBCMailRepository
                     getLogger().info(logBuffer.toString());
                 }
             }
-
+            
             checkJdbcAttributesSupport(dbMetaData);
 
         } finally {
@@ -400,7 +386,7 @@ public class JDBCMailRepository
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-
+    
     /** Checks whether support for JDBC Mail atributes is activated for this repository
      * and if everything is consistent.
      * Looks for both the "updateMessageAttributesSQL" and "retrieveMessageAttributesSQL"
@@ -546,7 +532,7 @@ public class JDBCMailRepository
      * Store this message to the database.  Optionally stores the message
      * body to the filesystem and only writes the headers to the database.
      */
-    public void store(Mail mc) {
+    public void store(MailImpl mc) throws MessagingException {
         Connection conn = null;
         try {
             conn = datasource.getConnection();
@@ -560,7 +546,7 @@ public class JDBCMailRepository
             ResultSet rsExists = null;
             boolean exists = false;
             try {
-                checkMessageExists =
+                checkMessageExists = 
                     conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
                 checkMessageExists.setString(1, mc.getName());
                 checkMessageExists.setString(2, repositoryName);
@@ -668,10 +654,10 @@ public class JDBCMailRepository
                                 //Store the body in the stream repository
                                 bodyOut = sr.put(mc.getName());
                             }
-
+        
                             //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
                             MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
-
+        
                             //Store the headers in the database
                             ByteArrayInputStream headerInputStream =
                                 new ByteArrayInputStream(headerOut.toByteArray());
@@ -715,7 +701,7 @@ public class JDBCMailRepository
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
                     MimeMessage messageBody = mc.getMessage();
-
+    
                     ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
                     OutputStream bodyOut = null;
                     try {
@@ -727,7 +713,7 @@ public class JDBCMailRepository
                             //Store the body in the file system.
                             bodyOut = sr.put(mc.getName());
                         }
-
+        
                         //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
                         MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
 
@@ -774,8 +760,7 @@ public class JDBCMailRepository
                 notify();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Exception caught while storing mail Container: " + e);
+            throw new MessagingException("Exception caught while storing mail Container: " + e);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
         }
@@ -788,7 +773,7 @@ public class JDBCMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public Mail retrieve(String key) {
+    public MailImpl retrieve(String key) throws MessagingException {
         if (DEEP_DEBUG) {
             System.err.println("retrieving " + key);
         }
@@ -838,7 +823,14 @@ public class JDBCMailRepository
                     
                     if (rsMessageAttr.next()) {
                         try {
-                            byte[] serialized_attr = rsMessageAttr.getBytes(1);
+                            byte[] serialized_attr = null;
+                            String getAttributesOption = sqlQueries.getDbOption("getAttributes");
+                            if (getAttributesOption != null && getAttributesOption.equalsIgnoreCase("useBlob")) {
+                                Blob b = rsMessageAttr.getBlob(1);
+                                serialized_attr = b.getBytes(1, (int)b.length());
+                            } else {
+                                serialized_attr = rsMessageAttr.getBytes(1);
+                            }
                             // this check is for better backwards compatibility
                             if (serialized_attr != null) {
                                 ByteArrayInputStream bais = new ByteArrayInputStream(serialized_attr);
@@ -869,14 +861,13 @@ public class JDBCMailRepository
                         }
                     }
                 } catch (SQLException sqle) {
-                    synchronized (System.err) {
-                        System.err.println("Error retrieving message");
-                        System.err.println(sqle.getMessage());
-                        System.err.println(sqle.getErrorCode());
-                        System.err.println(sqle.getSQLState());
-                        System.err.println(sqle.getNextException());
-                        sqle.printStackTrace();
-                    }
+                    StringBuffer errorBuffer =  new StringBuffer(256)
+                                                .append("Error retrieving message")
+                                                .append(sqle.getMessage())
+                                                .append(sqle.getErrorCode())
+                                                .append(sqle.getSQLState())
+                                                .append(sqle.getNextException());
+                    getLogger().error(errorBuffer.toString());
                 } finally {
                     theJDBCUtil.closeJDBCResultSet(rsMessageAttr);
                     theJDBCUtil.closeJDBCStatement(retrieveMessageAttr);
@@ -909,18 +900,16 @@ public class JDBCMailRepository
             mc.setMessage(message);
             return mc;
         } catch (SQLException sqle) {
-            synchronized (System.err) {
-                System.err.println("Error retrieving message");
-                System.err.println(sqle.getMessage());
-                System.err.println(sqle.getErrorCode());
-                System.err.println(sqle.getSQLState());
-                System.err.println(sqle.getNextException());
-                sqle.printStackTrace();
-            }
-            throw new RuntimeException("Exception while retrieving mail: " + sqle.getMessage());
+            StringBuffer errorBuffer =  new StringBuffer(256)
+                                        .append("Error retrieving message")
+                                        .append(sqle.getMessage())
+                                        .append(sqle.getErrorCode())
+                                        .append(sqle.getSQLState())
+                                        .append(sqle.getNextException());
+            getLogger().error(errorBuffer.toString());
+            throw new MessagingException("Exception while retrieving mail: " + sqle.getMessage());
         } catch (Exception me) {
-            me.printStackTrace();
-            throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+            throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsMessage);
             theJDBCUtil.closeJDBCStatement(retrieveMessage);
@@ -933,8 +922,21 @@ public class JDBCMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(Mail mail) {
+    public void remove(MailImpl mail) throws MessagingException {
         remove(mail.getName());
+    }
+
+    /**
+     * Removes a Collection of mails from the repository
+     * @param mails The Collection of <code>MailImpl</code>'s to delete
+     * @throws MessagingException
+     * @since 2.2.0
+     */
+    public void remove(Collection mails) throws MessagingException {
+        Iterator delList = mails.iterator();
+        while (delList.hasNext()) {
+            remove((MailImpl)delList.next());
+        }
     }
 
     /**
@@ -942,7 +944,7 @@ public class JDBCMailRepository
      *
      * @param key the key of the message to be removed from the repository
      */
-    public void remove(String key) {
+    public void remove(String key) throws MessagingException {
         //System.err.println("removing " + key);
         if (lock(key)) {
             Connection conn = null;
@@ -959,7 +961,7 @@ public class JDBCMailRepository
                     sr.remove(key);
                 }
             } catch (Exception me) {
-                throw new RuntimeException("Exception while removing mail: " + me.getMessage());
+                throw new MessagingException("Exception while removing mail: " + me.getMessage());
             } finally {
                 theJDBCUtil.closeJDBCStatement(removeMessage);
                 theJDBCUtil.closeJDBCConnection(conn);
@@ -973,7 +975,7 @@ public class JDBCMailRepository
      *
      * @return an Iterator of the message keys
      */
-    public Iterator list() {
+    public Iterator list() throws MessagingException {
         //System.err.println("listing messages");
         Connection conn = null;
         PreparedStatement listMessages = null;
@@ -991,8 +993,7 @@ public class JDBCMailRepository
             }
             return messageList.iterator();
         } catch (Exception me) {
-            me.printStackTrace();
-            throw new RuntimeException("Exception while listing mail: " + me.getMessage());
+            throw new MessagingException("Exception while listing mail: " + me.getMessage());
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsListMessages);
             theJDBCUtil.closeJDBCStatement(listMessages);
@@ -1020,11 +1021,10 @@ public class JDBCMailRepository
         // TODO: Figure out whether other instance variables should be part of
         // the equals equation
         JDBCMailRepository repository = (JDBCMailRepository)obj;
-        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) &&
+        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) && 
                 ((repository.repositoryName == repositoryName) || ((repository.repositoryName != null) && repository.repositoryName.equals(repositoryName)));
     }
 
-    
     /**
      * Provide a hash code that is consistent with equals for this class
      *
@@ -1060,10 +1060,10 @@ public class JDBCMailRepository
 
     /**
      * Closes output streams used to update message
-     *
-     * @headerStream the stream containing header information - potentially the same
+     * 
+     * @param headerStream the stream containing header information - potentially the same
      *               as the body stream
-     * @bodyStream the stream containing body information
+     * @param bodyStream the stream containing body information
      */
     private void closeOutputStreams(OutputStream headerStream, OutputStream bodyStream) {
         try {

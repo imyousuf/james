@@ -47,7 +47,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.SqlResources;
-import org.apache.mailet.User;
+import org.apache.james.services.User;
 
 /**
  * An abstract base class for creating UserRepository implementations

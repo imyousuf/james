@@ -39,7 +39,7 @@ import java.io.FilenameFilter;
  * @author  Federico Barbieri <fede@apache.org>
  * @author Serge Knystautas <sergek@lokitech.com>
  * @author Peter Donald
- * @version CVS $Revision: 1.1 $ $Date: 2004/07/18 05:58:33 $
+ * @version CVS $Revision$ $Date$
  * @since 4.0
  */
 public class ExtensionFileFilter

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 1999-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,29 +17,18 @@
 
 package org.apache.james.pop3server;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
-import javax.mail.MessagingException;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.commons.collections.ListUtils;
+import org.apache.avalon.excalibur.collections.ListUtils;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
@@ -47,7 +36,11 @@ import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailRepository;
+
+import javax.mail.MessagingException;
+import java.io.*;
+import java.net.Socket;
+import java.util.*;
 
 /**
  * The handler class for POP3 connections.
@@ -391,17 +384,24 @@ public class POP3Handler
     private void stat() {
         userMailbox = new ArrayList();
         userMailbox.add(DELETED);
-        for (Iterator it = userInbox.list(); it.hasNext(); ) {
-            String key = (String) it.next();
-            Mail mc = userInbox.retrieve(key);
-            // Retrieve can return null if the mail is no longer in the store.
-            // In this case we simply continue to the next key
-            if (mc == null) {
-                continue;
+        try {
+            for (Iterator it = userInbox.list(); it.hasNext(); ) {
+                String key = (String) it.next();
+                Mail mc = userInbox.retrieve(key);
+                // Retrieve can return null if the mail is no longer in the store.
+                // In this case we simply continue to the next key
+                if (mc == null) {
+                    continue;
+                }
+                userMailbox.add(mc);
             }
-            userMailbox.add(mc);
+        } catch(MessagingException e) {
+            // In the event of an exception being thrown there may or may not be anything in userMailbox
+            getLogger().error("Unable to STAT mail box ", e);
         }
-        backupUserMailbox = (ArrayList) userMailbox.clone();
+        finally {
+            backupUserMailbox = (ArrayList) userMailbox.clone();
+        }
     }
 
     /**
@@ -498,8 +498,8 @@ public class POP3Handler
      * Reads in the user id.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUSER(String command,String argument,String argument1) {
         String responseString = null;
@@ -518,8 +518,8 @@ public class POP3Handler
      * Reads in and validates the password.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doPASS(String command,String argument,String argument1) {
         String responseString = null;
@@ -553,8 +553,8 @@ public class POP3Handler
      * aggregate size.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doSTAT(String command,String argument,String argument1) {
         String responseString = null;
@@ -595,8 +595,8 @@ public class POP3Handler
      * a single message.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doLIST(String command,String argument,String argument1) {
         String responseString = null;
@@ -624,6 +624,7 @@ public class POP3Handler
                     count = 0;
                     for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
                         MailImpl mc = (MailImpl) i.next();
+
                         if (mc != DELETED) {
                             responseBuffer =
                                 new StringBuffer(16)
@@ -660,11 +661,11 @@ public class POP3Handler
                                     .append(ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
-                                    .append(") does not exist.");
+                                    .append(") already deleted.");
                         responseString = responseBuffer.toString();
                         writeLoggedFlushedResponse(responseString);
                     }
-                } catch (ArrayIndexOutOfBoundsException npe) {
+                } catch (IndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
                                 .append(ERR_RESPONSE)
@@ -698,8 +699,8 @@ public class POP3Handler
      * Returns a listing of message ids to the client.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUIDL(String command,String argument,String argument1) {
         String responseString = null;
@@ -742,11 +743,11 @@ public class POP3Handler
                                     .append(ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
-                                    .append(") does not exist.");
+                                    .append(") already deleted.");
                         responseString = responseBuffer.toString();
                         writeLoggedFlushedResponse(responseString);
                     }
-                } catch (ArrayIndexOutOfBoundsException npe) {
+                } catch (IndexOutOfBoundsException npe) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
                                 .append(ERR_RESPONSE)
@@ -776,8 +777,8 @@ public class POP3Handler
      * Calls stat() to reset the mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doRSET(String command,String argument,String argument1) {
         String responseString = null;
@@ -796,8 +797,8 @@ public class POP3Handler
      * mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doDELE(String command,String argument,String argument1) {
         String responseString = null;
@@ -818,14 +819,14 @@ public class POP3Handler
                                 .append(ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
-                                .append(") does not exist.");
+                                .append(") already deleted.");
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                 } else {
                     userMailbox.set(num, DELETED);
-                    writeLoggedFlushedResponse(OK_RESPONSE + " Message removed");
+                    writeLoggedFlushedResponse(OK_RESPONSE + " Message deleted");
                 }
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
@@ -846,8 +847,8 @@ public class POP3Handler
      * Like all good NOOPs, does nothing much.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doNOOP(String command,String argument,String argument1) {
         String responseString = null;
@@ -866,8 +867,8 @@ public class POP3Handler
      * mailbox.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doRETR(String command,String argument,String argument1) {
         String responseString = null;
@@ -902,7 +903,7 @@ public class POP3Handler
                                 .append(ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
-                                .append(") deleted.");
+                                .append(") already deleted.");
                     responseString = responseBuffer.toString();
                     writeLoggedFlushedResponse(responseString);
                 }
@@ -912,7 +913,7 @@ public class POP3Handler
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
                 writeLoggedFlushedResponse(responseString);
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer responseBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
@@ -937,8 +938,8 @@ public class POP3Handler
      *  TOP [mail message number] [number of lines to return]
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doTOP(String command,String argument,String argument1) {
         String responseString = null;
@@ -987,7 +988,7 @@ public class POP3Handler
             } catch (MessagingException me) {
                 responseString = ERR_RESPONSE + " Error while retrieving message.";
                 writeLoggedFlushedResponse(responseString);
-            } catch (ArrayIndexOutOfBoundsException iob) {
+            } catch (IndexOutOfBoundsException iob) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(64)
                             .append(ERR_RESPONSE)
@@ -1008,8 +1009,8 @@ public class POP3Handler
      * This method handles cleanup of the POP3Handler state.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doQUIT(String command,String argument,String argument1) {
         String responseString = null;
@@ -1020,10 +1021,11 @@ public class POP3Handler
         }
         List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
         try {
-            for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
-                MailImpl mc = (MailImpl) it.next();
-                userInbox.remove(mc.getName());
-            }
+            userInbox.remove(toBeRemoved);
+            // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
+            //    MailImpl mc = (MailImpl) it.next();
+            //    userInbox.remove(mc.getName());
+            //}
             responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
             writeLoggedFlushedResponse(responseString);
         } catch (Exception ex) {
@@ -1038,8 +1040,8 @@ public class POP3Handler
      * Returns an error response and logs the command.
      *
      * @param command the command parsed by the parseCommand method
-     * @argument the first argument parsed by the parseCommand method
-     * @argument1 the second argument parsed by the parseCommand method
+     * @param argument the first argument parsed by the parseCommand method
+     * @param argument1 the second argument parsed by the parseCommand method
      */
     private void doUnknownCmd(String command,String argument,String argument1) {
         writeLoggedFlushedResponse(ERR_RESPONSE);
@@ -1099,4 +1101,6 @@ public class POP3Handler
         }
 
     }
+
 }
+

@@ -17,22 +17,6 @@
 
 package org.apache.james.core;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.SequenceInputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Vector;
-
 import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Flags;
@@ -40,17 +24,34 @@ import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.mail.internet.NewsAddress;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.SequenceInputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
 
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.excalibur.io.IOUtil;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -83,13 +84,13 @@ public class MimeMessageWrapper
     RFC822DateFormat mailDateFormat = new RFC822DateFormat();
 
     /**
-     * A constructor that instantiates a MimeMessageWrapper based on
+     * A constructor that instantiates a MimeMessageWrapper based on 
      * a MimeMessageSource
      *
      * @param source the MimeMessageSource
      */
     public MimeMessageWrapper(MimeMessageSource source) {
-        super(javax.mail.Session.getDefaultInstance(System.getProperties(), null));
+        super(Session.getDefaultInstance(System.getProperties(), null));
         this.source = source;
     }
 
@@ -102,10 +103,31 @@ public class MimeMessageWrapper
         return source.getSourceId();
     }
 
+    private synchronized MailHeaders loadHeaders(InputStream is) throws MessagingException {
+
+        /* InternetHeaders can be a bit awkward to work with due to
+         * its own internal handling of header order.  This hack may
+         * not always be necessary, but for now we are trying to
+         * ensure that there is a Return-Path header, even if just a
+         * placeholder, so that later, e.g., in LocalDelivery, when we
+         * call setHeader, it will remove any other Return-Path
+         * headers, and ensure that ours is on the top. addHeader
+         * handles header order, but not setHeader. This may change in
+         * future JavaMail.  But if there are other Return-Path header
+         * values, let's drop our placeholder. */
+
+        headers = new MailHeaders(new ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": placeholder").getBytes()));
+        headers.setHeader(RFC2822Headers.RETURN_PATH, null);
+        headers.load(is);
+        String[] returnPathHeaders = headers.getHeader(RFC2822Headers.RETURN_PATH);
+        if (returnPathHeaders.length > 1) headers.setHeader(RFC2822Headers.RETURN_PATH, returnPathHeaders[1]);
+        return headers;
+    }
+
     /**
      * Load the message headers from the internal source.
      *
-     * @throws MessagingException if an error is encountered while
+     * @throws MessagingException if an error is encountered while 
      *                            loading the headers
      */
     private synchronized void loadHeaders() throws MessagingException {
@@ -115,10 +137,12 @@ public class MimeMessageWrapper
         }
         try {
             InputStream in = source.getInputStream();
-            headers = new MailHeaders(in);
-            in.close();
+            try {
+                headers = loadHeaders(in);
+            } finally {
+                IOUtil.shutdownStream(in);
+            }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
         }
     }
@@ -126,7 +150,7 @@ public class MimeMessageWrapper
     /**
      * Load the complete MimeMessage from the internal source.
      *
-     * @throws MessagingException if an error is encountered while
+     * @throws MessagingException if an error is encountered while 
      *                            loading the message
      */
     private synchronized void loadMessage() throws MessagingException {
@@ -134,19 +158,20 @@ public class MimeMessageWrapper
             //Another thread has already loaded this message
             return;
         }
+        InputStream in = null;
         try {
-            InputStream in = source.getInputStream();
-            headers = new MailHeaders(in);
+            in = source.getInputStream();
+            headers = loadHeaders(in);
 
             ByteArrayInputStream headersIn
                     = new ByteArrayInputStream(headers.toByteArray());
             in = new SequenceInputStream(headersIn, in);
 
             message = new MimeMessage(session, in);
-            in.close();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
+        } finally {
+            IOUtil.shutdownStream(in);
         }
     }
 
@@ -168,11 +193,11 @@ public class MimeMessageWrapper
      */
     private String getHeaderName(Message.RecipientType recipienttype) throws MessagingException {
         String s;
-        if (recipienttype == javax.mail.Message.RecipientType.TO) {
+        if (recipienttype == Message.RecipientType.TO) {
             s = RFC2822Headers.TO;
-        } else if (recipienttype == javax.mail.Message.RecipientType.CC) {
+        } else if (recipienttype == Message.RecipientType.CC) {
             s = RFC2822Headers.CC;
-        } else if (recipienttype == javax.mail.Message.RecipientType.BCC) {
+        } else if (recipienttype == Message.RecipientType.BCC) {
             s = RFC2822Headers.BCC;
         } else if (recipienttype == RecipientType.NEWSGROUPS) {
             s = "Newsgroups";
@@ -197,21 +222,16 @@ public class MimeMessageWrapper
      */
     public void writeTo(OutputStream os) throws IOException, MessagingException {
         if (message == null || !isModified()) {
-            //We do not want to instantiate the message... just read from source
-            //  and write to this outputstream
-
-            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
-            //       allow simultaneous read/writes would be a substantial improvement
-            byte[] block = new byte[1024];
-            int read = 0;
+            // We do not want to instantiate the message... just read from source
+            // and write to this outputstream
             InputStream in = source.getInputStream();
-            while ((read = in.read(block)) > 0) {
-                os.write(block, 0, read);
+            try {
+                copyStream(in, os);
+            } finally {
+                IOUtil.shutdownStream(in);
             }
-            in.close();
         } else {
-            message.saveChanges();
-            message.writeTo(os);
+            writeTo(os, os);
         }
     }
 
@@ -236,21 +256,19 @@ public class MimeMessageWrapper
 
             //First handle the headers
             InputStream in = source.getInputStream();
-            InternetHeaders headers = new InternetHeaders(in);
-            PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
-            for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
-                String header = (String)e.nextElement();
-                pos.println(header);
+            try {
+                InternetHeaders headers = new InternetHeaders(in);
+                PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
+                for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
+                    String header = (String)e.nextElement();
+                    pos.println(header);
+                }
+                pos.println();
+                pos.flush();
+                copyStream(in, bodyOs);
+            } finally {
+                IOUtil.shutdownStream(in);
             }
-            pos.println();
-            // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
-            //       allow simultaneous read/writes would be a substantial improvement
-            byte[] block = new byte[1024];
-            int read = 0;
-            while ((read = in.read(block)) > 0) {
-                bodyOs.write(block, 0, read);
-            }
-            in.close();
         } else {
             writeTo(message, headerOs, bodyOs, ignoreList);
         }
@@ -273,31 +291,104 @@ public class MimeMessageWrapper
             MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
             wrapper.writeTo(headerOs, bodyOs, ignoreList);
         } else {
-            message.saveChanges();
+            if(message.getMessageID() == null) {
+                message.saveChanges();
+            }
 
             //Write the headers (minus ignored ones)
             Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
-            PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
+            PrintWriter hos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
             while (headers.hasMoreElements()) {
-                pos.println((String)headers.nextElement());
+                hos.println((String)headers.nextElement());
+            }
+            // Print header/data separator
+            hos.println();
+            hos.flush();
+
+            InputStream bis = null;
+            OutputStream bos = null;
+            // Write the body to the output stream
+
+            /*
+            try {
+                bis = message.getRawInputStream();
+                bos = bodyOs;
+            } catch(javax.mail.MessagingException me) {
+                // we may get a "No content" exception
+                // if that happens, try it the hard way
+
+                // Why, you ask?  In JavaMail v1.3, when you initially
+                // create a message using MimeMessage APIs, there is no
+                // raw content available.  getInputStream() works, but
+                // getRawInputStream() throws an exception.
+
+                bos = MimeUtility.encode(bodyOs, message.getEncoding());
+                bis = message.getInputStream();
+            }
+            */
+
+            try {
+                // Get the message as a stream.  This will encode
+                // objects as necessary, and we have some input from
+                // decoding an re-encoding the stream.  I'd prefer the
+                // raw stream, but see 
+                bos = MimeUtility.encode(bodyOs, message.getEncoding());
+                bis = message.getInputStream();
+            } catch(javax.activation.UnsupportedDataTypeException udte) {
+                /* If we get an UnsupportedDataTypeException try using
+                 * the raw input stream as a "best attempt" at rendering
+                 * a message.
+                 *
+                 * WARNING: JavaMail v1.3 getRawInputStream() returns
+                 * INVALID (unchanged) content for a changed message.
+                 * getInputStream() works properly, but in this case
+                 * has failed due to a missing DataHandler.
+                 *
+                 * MimeMessage.getRawInputStream() may throw a "no
+                 * content" MessagingException.  In JavaMail v1.3, when
+                 * you initially create a message using MimeMessage
+                 * APIs, there is no raw content available.
+                 * getInputStream() works, but getRawInputStream()
+                 * throws an exception.  If we catch that exception,
+                 * throw the UDTE.  It should mean that someone has
+                 * locally constructed a message part for which JavaMail
+                 * doesn't have a DataHandler.
+                */
+
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException _) {
+                    throw udte;
+                }
+            }
+            catch(javax.mail.MessagingException me) {
+                /* This could be another kind of MessagingException
+                 * thrown by MimeMessage.getInputStream(), such as a
+                 * javax.mail.internet.ParseException.
+                 *
+                 * The ParseException is precisely one of the reasons
+                 * why the getRawInputStream() method exists, so that we
+                 * can continue to stream the content, even if we cannot
+                 * handle it.  Again, if we get an exception, we throw
+                 * the one that caused us to call getRawInputStream().
+                 */
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException _) {
+                    throw me;
+                }
             }
 
-            //Write the message without any headers
-
-            //Get a list of all headers
-            Vector headerNames = new Vector();
-            Enumeration allHeaders = message.getAllHeaders();
-            while (allHeaders.hasMoreElements()) {
-                Header header = (Header)allHeaders.nextElement();
-                headerNames.add(header.getName());
+            try {
+                copyStream(bis, bos);
             }
-            String headerNamesArray[] = (String[])headerNames.toArray(new String[0]);
-
-            //Write message to bodyOs, ignoring all headers (without writing any headers)
-            message.writeTo(bodyOs, headerNamesArray);
+            finally {
+                IOUtil.shutdownStream(bis);             
+            }
         }
     }
-
 
     /**
      * Various reader methods
@@ -451,15 +542,15 @@ public class MimeMessageWrapper
         try {
             LineNumberReader counter = new LineNumberReader(new InputStreamReader(in, getEncoding()));
             //Read through all the data
-            char[] block = new char[1024];
+            char[] block = new char[4096];
             while (counter.read(block) > -1) {
                 //Just keep reading
             }
-            in.close();
             return counter.getLineNumber();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             return -1;
+        } finally {
+            IOUtil.shutdownStream(in);
         }
     }
 
@@ -659,14 +750,25 @@ public class MimeMessageWrapper
             loadMessage();
         }
         InputStream in = getContentStream();
-        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
-        //       allow simultaneous read/writes would be a substantial improvement
-        byte block[] = new byte[1024];
-        int len = 0;
-        while ((len = in.read(block)) > -1) {
-            outs.write(block, 0, len);
+        try {
+            copyStream(in, outs);
+        } finally {
+            IOUtil.shutdownStream(in);
         }
-        in.close();
+    }
+
+    /**
+     * Convenience method to copy streams
+     */
+    private static void copyStream(InputStream in, OutputStream out) throws IOException {
+        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+        //       allow simultaneous read/writes would be a substantial improvement
+        byte[] block = new byte[1024];
+        int read = 0;
+        while ((read = in.read(block)) > -1) {
+            out.write(block, 0, read);
+        }
+        out.flush();
     }
 
     /*
@@ -941,5 +1043,4 @@ public class MimeMessageWrapper
             ((Disposable)source).dispose();
         }
     }
-
 }

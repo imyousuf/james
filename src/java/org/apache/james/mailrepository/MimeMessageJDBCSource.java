@@ -17,18 +17,20 @@
 
 package org.apache.james.mailrepository;
 
+import org.apache.avalon.cornerstone.services.store.StreamRepository;
+import org.apache.james.core.MimeMessageSource;
+import org.apache.james.util.JDBCUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.james.core.MimeMessageSource;
-import org.apache.james.util.JDBCUtil;
+import java.sql.Statement;
 
 /**
  * This class points to a specific message in a repository.  This will return an
@@ -93,8 +95,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     }
 
     /**
-     * Returns a unique String ID that represents the location from where
-     * this source is loaded.  This will be used to identify where the data
+     * Returns a unique String ID that represents the location from where 
+     * this source is loaded.  This will be used to identify where the data 
      * is, primarily to avoid situations where this data would get overwritten.
      *
      * @return the String ID
@@ -136,7 +138,13 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                 throw new IOException("Could not find message");
             }
 
-            headers = rsRetrieveMessageStream.getBytes(1);
+            String getBodyOption = repository.sqlQueries.getDbOption("getBody");
+            if (getBodyOption != null && getBodyOption.equalsIgnoreCase("useBlob")) {
+                Blob b = rsRetrieveMessageStream.getBlob(1);
+                headers = b.getBytes(1, (int)b.length());
+            } else {
+                headers = rsRetrieveMessageStream.getBytes(1);
+            }
             if (DEEP_DEBUG) {
                 System.err.println("stopping");
                 System.err.println(System.currentTimeMillis() - start);
@@ -214,7 +222,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                     // Ignored - no access to logger at this point in the code
                 }
             }
-
+            
             return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());

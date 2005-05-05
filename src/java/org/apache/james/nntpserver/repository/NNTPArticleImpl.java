@@ -17,18 +17,17 @@
 
 package org.apache.james.nntpserver.repository;
 
+import org.apache.james.core.MailHeaders;
+import org.apache.james.nntpserver.NNTPException;
+import org.apache.avalon.excalibur.io.IOUtil;
+
+import javax.mail.internet.InternetHeaders;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import javax.mail.internet.InternetHeaders;
-
-import org.apache.james.util.io.IOUtil;
-import org.apache.james.core.MailHeaders;
-import org.apache.james.nntpserver.NNTPException;
 
 /** 
  * Please see NNTPArticle for comments
@@ -79,6 +78,7 @@ class NNTPArticleImpl implements NNTPArticle {
             fin = new FileInputStream(articleFile);
             InternetHeaders headers = new InternetHeaders(fin);
             String[] idheader = headers.getHeader("Message-Id");
+            fin.close();
             return ( idheader.length > 0 ) ? idheader[0] : null;
         } catch(Exception ex) {
             throw new NNTPException(ex);

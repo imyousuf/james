@@ -63,7 +63,7 @@ public class InSpammerBlacklist extends GenericMatcher {
             sb.append(network);
 
             //Try to look it up
-            InetAddress.getByName(sb.toString());
+            org.apache.james.dnsserver.DNSServer.getByName(sb.toString());
 
             //If we got here, that's bad... it means the host
             //  was found in the blacklist

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,13 +17,6 @@
 
 package org.apache.james.mailrepository;
 
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
@@ -38,10 +31,12 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.services.MailStore;
+import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailRepository;
+
+import java.io.OutputStream;
+import java.util.*;
+import javax.mail.MessagingException;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -69,9 +64,10 @@ public class AvalonMailRepository
     private Store store;
     private StreamRepository sr;
     private ObjectRepository or;
-    private MailStore mailstore;
     private String destination;
     private Set keys;
+    private boolean fifo;
+    private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager )
@@ -99,6 +95,8 @@ public class AvalonMailRepository
             }
             throw new ConfigurationException(exceptionString);
         }
+        fifo = conf.getAttributeAsBoolean("FIFO", false);
+        cacheKeys = conf.getAttributeAsBoolean("CACHEKEYS", true);
         // ignore model
     }
 
@@ -128,7 +126,7 @@ public class AvalonMailRepository
             sr = (StreamRepository) store.select(streamConfiguration);
             or = (ObjectRepository) store.select(objectConfiguration);
             lock = new Lock();
-            keys = Collections.synchronizedSet(new HashSet());
+            if (cacheKeys) keys = Collections.synchronizedSet(new HashSet());
 
 
             //Finds non-matching pairs and deletes the extra files
@@ -155,11 +153,13 @@ public class AvalonMailRepository
                 remove(key);
             }
 
-            //Next get a list from the object repository
-            //  and use that for the list of keys
-            keys.clear();
-            for (Iterator i = or.list(); i.hasNext(); ) {
-                keys.add(i.next());
+            if (keys != null) {
+                // Next get a list from the object repository
+                // and use that for the list of keys
+                keys.clear();
+                for (Iterator i = or.list(); i.hasNext(); ) {
+                    keys.add(i.next());
+                }
             }
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
@@ -240,7 +240,7 @@ public class AvalonMailRepository
      *
      * @param mc the mail message to store
      */
-    public void store(Mail mc) {
+    public void store(MailImpl mc) throws MessagingException {
         try {
             String key = mc.getName();
             //Remember whether this key was locked
@@ -251,7 +251,7 @@ public class AvalonMailRepository
                 lock.lock(key);
             }
             try {
-                if (!keys.contains(key)) {
+                if (keys != null && !keys.contains(key)) {
                     keys.add(key);
                 }
                 boolean saveStream = true;
@@ -285,7 +285,7 @@ public class AvalonMailRepository
                     OutputStream out = null;
                     try {
                         out = sr.put(key);
-                        ((MailImpl)mc).writeMessageTo(out);
+                        mc.writeMessageTo(out);
                     } finally {
                         if (out != null) out.close();
                     }
@@ -314,8 +314,7 @@ public class AvalonMailRepository
             }
         } catch (Exception e) {
             getLogger().error("Exception storing mail: " + e);
-            e.printStackTrace();
-            throw new RuntimeException("Exception caught while storing Message Container: " + e);
+            throw new MessagingException("Exception caught while storing Message Container: " + e);
         }
     }
 
@@ -326,21 +325,21 @@ public class AvalonMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public Mail retrieve(String key) {
+    public MailImpl retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
-            Mail mc = null;
+            MailImpl mc = null;
             try {
-                mc = (Mail) or.get(key);
+                mc = (MailImpl) or.get(key);
             } catch (RuntimeException re) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
                             .append("Exception retrieving mail: ")
                             .append(re.toString())
                             .append(", so we're deleting it... good riddance!");
-                getLogger().error(exceptionBuffer.toString());
+                getLogger().debug(exceptionBuffer.toString());
                 remove(key);
                 return null;
             }
@@ -350,7 +349,7 @@ public class AvalonMailRepository
             return mc;
         } catch (Exception me) {
             getLogger().error("Exception retrieving mail: " + me);
-            throw new RuntimeException("Exception while retrieving mail: " + me.getMessage());
+            throw new MessagingException("Exception while retrieving mail: " + me.getMessage());
         }
     }
 
@@ -359,8 +358,22 @@ public class AvalonMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(Mail mail) {
+    public void remove(MailImpl mail) throws MessagingException {
         remove(mail.getName());
+    }
+
+
+    /**
+     * Removes a Collection of mails from the repository
+     * @param mails The Collection of <code>MailImpl</code>'s to delete
+     * @throws MessagingException
+     * @since 2.2.0
+     */
+    public void remove(Collection mails) throws MessagingException {
+        Iterator delList = mails.iterator();
+        while (delList.hasNext()) {
+            remove((MailImpl)delList.next());
+        }
     }
 
     /**
@@ -368,10 +381,10 @@ public class AvalonMailRepository
      *
      * @param key the key of the message to be removed from the repository
      */
-    public void remove(String key) {
+    public void remove(String key) throws MessagingException {
         if (lock(key)) {
             try {
-                keys.remove(key);
+                if (keys != null) keys.remove(key);
                 sr.remove(key);
                 or.remove(key);
             } finally {
@@ -383,7 +396,7 @@ public class AvalonMailRepository
                         .append("Cannot lock ")
                         .append(key)
                         .append(" to remove it");
-            throw new RuntimeException(exceptionBuffer.toString());
+            throw new MessagingException(exceptionBuffer.toString());
         }
     }
 
@@ -394,12 +407,18 @@ public class AvalonMailRepository
      *
      */
     public Iterator list() {
-        // Fix ConcurrentModificationException by cloning
+        // Fix ConcurrentModificationException by cloning 
         // the keyset before getting an iterator
-        final Collection clone;
-        synchronized(keys) {
-            clone = new java.util.ArrayList(keys);
+        final ArrayList clone;
+        if (keys != null) synchronized(keys) {
+            clone = new ArrayList(keys);
+        } else {
+            clone = new ArrayList();
+            for (Iterator i = or.list(); i.hasNext(); ) {
+                clone.add(i.next());
+            }
         }
+        if (fifo) Collections.sort(clone); // Keys is a HashSet; impose FIFO for apps that need it
         return clone.iterator();
     }
 }

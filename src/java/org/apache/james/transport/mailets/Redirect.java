@@ -17,12 +17,29 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.ArrayList;
 
+
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
+import org.apache.james.core.MailImpl;
+
+import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -260,7 +277,7 @@ import org.apache.mailet.MailAddress;
  * <P><I>replyto</I> can be used instead of
  * <I>replyTo</I>; such name is kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.38 $ $Date: 2004/01/30 02:22:12 $
+ * @version CVS $Revision$ $Date$
  */
 
 public class Redirect extends AbstractRedirect {

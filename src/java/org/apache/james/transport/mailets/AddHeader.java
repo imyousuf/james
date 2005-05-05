@@ -17,20 +17,21 @@
 
 package org.apache.james.transport.mailets;
 
-import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage ;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
+import org.apache.james.core.MailImpl ;
+import org.apache.mailet.GenericMailet ;
+import org.apache.mailet.Mail ;
 
 /**
  * Adds a specified header and value to the message.
  *
  * Sample configuration:
  *
- * &lt;mailet match="All" class="AddHeader"&gt;
- *   &lt;name&gt;X-MailetHeader&lt;/name&gt;
- *   &lt;value&gt;TheHeaderValue&lt;/value&gt;
- * &lt;/mailet&gt;
+ * <mailet match="All" class="AddHeader">
+ *   <name>X-MailetHeader</name>
+ *   <value>TheHeaderValue</value>
+ * </mailet>
  *
  * @version 1.0.0, 2002-09-11
  */

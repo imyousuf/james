@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,24 +17,23 @@
 
 package org.apache.james.transport.mailets;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Vector;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
-
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
 import org.apache.james.util.JDBCUtil;
-import org.apache.mailet.Datasource;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+import java.sql.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Vector;
 
 /**
  * Rewrites recipient addresses based on a database table.  The connection
@@ -50,7 +49,7 @@ import org.apache.mailet.MailetException;
  */
 public class JDBCAlias extends GenericMailet {
 
-    protected Datasource datasource;
+    protected DataSourceComponent datasource;
     protected String query = null;
 
     // The JDBCUtil helper class
@@ -80,7 +79,12 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-            datasource = getMailetContext().getDatasource(datasourceName);
+            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+            // Get the DataSourceSelector service
+            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
+            // Get the data-source required.
+            datasource = (DataSourceComponent)datasources.select(datasourceName);
+
             conn = datasource.getConnection();
 
             // Check if the required table exists. If not, complain.

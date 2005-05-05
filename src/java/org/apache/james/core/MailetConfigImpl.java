@@ -27,7 +27,7 @@ import java.util.Iterator;
 /**
  * Implements the configuration object for a Mailet.
  *
- * @version CVS $Revision: 1.11 $ $Date: 2004/01/30 02:22:08 $
+ * @version CVS $Revision$ $Date$
  */
 public class MailetConfigImpl implements MailetConfig {
 
@@ -67,7 +67,7 @@ public class MailetConfigImpl implements MailetConfig {
         try {
             String result = null;
 
-            final Configuration[] values = configuration.getChildren(name);
+            final Configuration[] values = configuration.getChildren( name );
             for ( int i = 0; i < values.length; i++ ) {
                 if (result == null) {
                     result = "";
@@ -78,7 +78,6 @@ public class MailetConfigImpl implements MailetConfig {
                 result += conf.getValue();
             }
             return result;
-            //return params.getProperty(name);
         } catch (ConfigurationException ce) {
             throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
         }

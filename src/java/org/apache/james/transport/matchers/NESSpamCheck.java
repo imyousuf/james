@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,10 +17,11 @@
 
 package org.apache.james.transport.matchers;
 
-import javax.mail.MessagingException;
-
 import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
+
+import javax.mail.MessagingException;
 
 /**
  * This is based on a sample filter.cfg for a Netscape Mail Server to stop

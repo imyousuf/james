@@ -30,9 +30,9 @@ import java.util.Collection;
  *
  * Usage: Place this matcher
  *
- * &lt;mailet match="HasHabeasWarrantMark" class="ToProcessor"&gt;
- *     &lt;processor&gt; transport &lt;/processor&gt;
- * &lt;/mailet&gt;
+ * <mailet match="HasHabeasWarrantMark" class="ToProcessor">
+ *     <processor> transport </processor>
+ * </mailet>
  *
  * in the root processs before the DNSRBL block lists (the InSpammerBlacklist matcher).
  *
@@ -46,7 +46,7 @@ import java.util.Collection;
  * Subject: RE: Habeas and Apache James
  *
  * Dear Noel,
- *
+ * 
  * > I guess that since your Warrant Mark is copyright, I should ask for
  * > something from you to explicitly authorize that Hebeas will permit
  * > this code to be included and distributed as part of Apache James
@@ -54,9 +54,9 @@ import java.util.Collection;
  * > of the Habeas Warrant Mark for filtering is not restricted, but I
  * > would like something to confirm that, so that Apache will be happy.
  *
- * I can hereby confirm to you that there is no license necessary in
- * order to use the Habeas mark for filtering.  That said, however, we
- * do insist that it not ever be used as a basis for rejecting email which
+ * I can hereby confirm to you that there is no license necessary in 
+ * order to use the Habeas mark for filtering.  That said, however, we 
+ * do insist that it not ever be used as a basis for rejecting email which 
  * bears the Habeas mark.
  * -----------------------------------
  *
@@ -66,15 +66,15 @@ public class HasHabeasWarrantMark extends GenericMatcher
 {
     public static final String[][] warrantMark =
     {
-        { "X-Habeas-SWE-1", "winter into spring" },
-        { "X-Habeas-SWE-2", "brightly anticipated" },
-        { "X-Habeas-SWE-3", "like Habeas SWE (tm)" },
-        { "X-Habeas-SWE-4", "Copyright 2002 Habeas (tm)" },
-        { "X-Habeas-SWE-5", "Sender Warranted Email (SWE) (tm). The sender of this" },
-        { "X-Habeas-SWE-6", "email in exchange for a license for this Habeas" },
-        { "X-Habeas-SWE-7", "warrant mark warrants that this is a Habeas Compliant" },
-        { "X-Habeas-SWE-8", "Message (HCM) and not spam. Please report use of this" },
-        { "X-Habeas-SWE-9", "mark in spam to <http://www.habeas.com/report/>." },
+        { "X-Habeas-SWE-1", "winter into spring" }, 
+        { "X-Habeas-SWE-2", "brightly anticipated" }, 
+        { "X-Habeas-SWE-3", "like Habeas SWE (tm)" }, 
+        { "X-Habeas-SWE-4", "Copyright 2002 Habeas (tm)" }, 
+        { "X-Habeas-SWE-5", "Sender Warranted Email (SWE) (tm). The sender of this" }, 
+        { "X-Habeas-SWE-6", "email in exchange for a license for this Habeas" }, 
+        { "X-Habeas-SWE-7", "warrant mark warrants that this is a Habeas Compliant" }, 
+        { "X-Habeas-SWE-8", "Message (HCM) and not spam. Please report use of this" }, 
+        { "X-Habeas-SWE-9", "mark in spam to <http://www.habeas.com/report/>." }, 
     };
 
     public Collection match(Mail mail) throws MessagingException

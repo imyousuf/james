@@ -54,7 +54,7 @@ public class BytesReadResetInputStream extends InputStream {
      * @param lengthReset the number of bytes to be read in between trigger resets
      */
     public BytesReadResetInputStream(InputStream in,
-                                     Watchdog watchdog,
+                                     Watchdog watchdog, 
                                      int lengthReset) {
         this.in = in;
         this.watchdog = watchdog;

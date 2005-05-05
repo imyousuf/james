@@ -17,21 +17,21 @@
 
 package org.apache.james.transport.mailets;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Vector;
-
-import javax.mail.MessagingException;
-
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
+//import com.workingdogs.town.*;
+
 /**
  * Rewrites recipient addresses to make sure email for the postmaster is
  * always handled.  This mailet is silently inserted at the top of the root
- * spool processor.  All recipients mapped to postmaster@&lt;servernames&gt; are
+ * spool processor.  All recipients mapped to postmaster@<servernames> are
  * changed to the postmaster account as specified in the server conf.
  *
  */

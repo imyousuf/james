@@ -17,17 +17,44 @@
 
 package org.apache.james.nntpserver;
 
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.james.core.MailHeaders;
+import org.apache.james.nntpserver.repository.NNTPArticle;
+import org.apache.james.nntpserver.repository.NNTPGroup;
+import org.apache.james.nntpserver.repository.NNTPRepository;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
+import org.apache.james.util.CharTerminatedInputStream;
+import org.apache.james.util.DotStuffingInputStream;
+import org.apache.james.util.ExtraDotOutputStream;
+import org.apache.james.util.InternetPrintWriter;
+import org.apache.mailet.dates.RFC977DateFormat;
+import org.apache.mailet.dates.RFC2980DateFormat;
+import org.apache.mailet.dates.SimplifiedDateFormat;
+import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.util.watchdog.WatchdogTarget;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.SequenceInputStream;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,25 +63,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
-
 import javax.mail.MessagingException;
-
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailHeaders;
-import org.apache.james.nntpserver.repository.NNTPArticle;
-import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.util.CharTerminatedInputStream;
-import org.apache.james.util.DotStuffingInputStream;
-import org.apache.james.util.ExtraDotOutputStream;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
-import org.apache.mailet.dates.RFC2980DateFormat;
-import org.apache.mailet.dates.RFC977DateFormat;
-import org.apache.mailet.dates.SimplifiedDateFormat;
 
 /**
  * The NNTP protocol is defined by RFC 977.
@@ -684,7 +693,6 @@ public class NNTPHandler
      * an argument.
      *
      * @param argument the argument passed in with the NEWNEWS command.
-     *                 see RFC 977 #3.8, RFC 2980 #4.5.
      *                 Should be a wildmat followed by a date.
      */
     private void doNEWNEWS(String argument) {

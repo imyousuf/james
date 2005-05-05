@@ -62,11 +62,11 @@ public class NetMatcher
 
         try
         {
-            ip = InetAddress.getByName(hostIP);
+            ip = org.apache.james.dnsserver.DNSServer.getByName(hostIP);
         }
         catch (java.net.UnknownHostException uhe)
         {
-            log("Cannot resolve address: " + uhe.getMessage());
+            log("Cannot resolve address for " + hostIP + ": " + uhe.getMessage());
         }
 
         boolean sameNet = false;
@@ -110,8 +110,9 @@ public class NetMatcher
     }
 
     protected void log(String s) { }
+}
 
-static class InetNetwork
+class InetNetwork
 {
     /*
      * Implements network masking, and is compatible with RFC 1518 and
@@ -129,7 +130,7 @@ static class InetNetwork
 
     public boolean contains(final String name) throws java.net.UnknownHostException
     {
-        return network.equals(maskIP(InetAddress.getByName(name), netmask));
+        return network.equals(maskIP(org.apache.james.dnsserver.DNSServer.getByName(name), netmask));
     }
 
     public boolean contains(final InetAddress ip)
@@ -163,8 +164,8 @@ static class InetNetwork
             else if (netspec.indexOf('.', iSlash) == -1) netspec = normalizeFromCIDR(netspec);
         }
 
-        return new InetNetwork(InetAddress.getByName(netspec.substring(0, netspec.indexOf('/'))),
-                               InetAddress.getByName(netspec.substring(netspec.indexOf('/') + 1)));
+        return new InetNetwork(org.apache.james.dnsserver.DNSServer.getByName(netspec.substring(0, netspec.indexOf('/'))),
+                               org.apache.james.dnsserver.DNSServer.getByName(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
     public static InetAddress maskIP(final byte[] ip, final byte[] mask)
@@ -260,5 +261,4 @@ static class InetNetwork
         }
         return addr;
     }
-}
 }

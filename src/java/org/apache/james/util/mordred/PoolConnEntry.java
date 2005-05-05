@@ -19,13 +19,7 @@ package org.apache.james.util.mordred;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Map;
 
 /**
@@ -341,7 +335,7 @@ public class PoolConnEntry implements java.sql.Connection{
         connection.setTypeMap( map );
     }
 
-    /* JDBC_3_ANT_KEY 
+    /* JDBC_3_ANT_KEY
     public final void setHoldability(int holdability)
         throws SQLException
     {
@@ -424,6 +418,6 @@ public class PoolConnEntry implements java.sql.Connection{
     {
         throw new SQLException("This is not a Jdbc 3.0 Compliant Connection");
     }
-     JDBC_3_ANT_KEY */
+    JDBC_3_ANT_KEY */
 
 }

@@ -17,9 +17,10 @@
 
 package org.apache.james.userrepository;
 
+import org.apache.avalon.framework.component.Component;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.mailet.User;
-import org.apache.mailet.UsersRepository;
+import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,13 +28,13 @@ import java.util.List;
 
 /**
  * A partial implementation of a Repository to store users.
- * <p>This implements common functionality found in different UsersRespository
+ * <p>This implements common functionality found in different UsersRespository 
  * implementations, and makes it easier to create new User repositories.</p>
  *
  */
 public abstract class AbstractUsersRepository
     extends AbstractLogEnabled
-    implements UsersRepository {
+    implements UsersRepository, Component {
 
     //
     // Core Abstract methods - override these for a functional UserRepository.
@@ -126,7 +127,7 @@ public abstract class AbstractUsersRepository
         if ( containsCaseInsensitive(username) ) {
             return false;
         }
-
+        
         doAddUser(user);
         return true;
     }
@@ -144,7 +145,7 @@ public abstract class AbstractUsersRepository
             newbie.setPassword( (String) attributes );
             addUser(newbie);
         } else {
-            throw new RuntimeException("Improper use of deprecated method"
+            throw new RuntimeException("Improper use of deprecated method" 
                                        + " - use addUser(User user)");
         }
     }

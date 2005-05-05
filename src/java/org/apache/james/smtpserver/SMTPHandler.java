@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 1999-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,31 +17,6 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.SequenceInputStream;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.StringTokenizer;
-
-import javax.mail.MessagingException;
-
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
@@ -49,22 +24,25 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.util.Base64;
-import org.apache.james.util.CRLFTerminatedReader;
-import org.apache.james.util.CharTerminatedInputStream;
-import org.apache.james.util.DotStuffingInputStream;
-import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.util.*;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
+import org.apache.mailet.MailAddress;
+import javax.mail.MessagingException;
+import java.io.*;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.*;
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  *
- * @version This is $Revision$
+ * @version CVS $Revision$ $Date$
  */
 public class SMTPHandler
     extends AbstractLogEnabled
@@ -329,7 +307,8 @@ public class SMTPHandler
             // An ASCII encoding can be used because all transmissions other
             // that those in the DATA command are guaranteed
             // to be ASCII
-            inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
+            // inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
+            inReader = new CRLFTerminatedReader(in, "ASCII");
             remoteIP = socket.getInetAddress().getHostAddress();
             remoteHost = socket.getInetAddress().getHostName();
             smtpID = random.nextInt(1024) + "";
@@ -384,7 +363,7 @@ public class SMTPHandler
             theWatchdog.stop();
             getLogger().debug("Closing socket.");
         } catch (SocketException se) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
@@ -392,10 +371,10 @@ public class SMTPHandler
                         .append(" (")
                         .append(remoteIP)
                         .append(") closed remotely.");
-                getLogger().debug(errorBuffer.toString(), se );
+                getLogger().error(errorBuffer.toString(), se );
             }
         } catch ( InterruptedIOException iioe ) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(64)
                         .append("Socket to ")
@@ -403,10 +382,10 @@ public class SMTPHandler
                         .append(" (")
                         .append(remoteIP)
                         .append(") timeout.");
-                getLogger().debug( errorBuffer.toString(), iioe );
+                getLogger().error( errorBuffer.toString(), iioe );
             }
         } catch ( IOException ioe ) {
-            if (getLogger().isDebugEnabled()) {
+            if (getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer =
                     new StringBuffer(256)
                             .append("Exception handling socket to ")
@@ -415,11 +394,11 @@ public class SMTPHandler
                             .append(remoteIP)
                             .append(") : ")
                             .append(ioe.getMessage());
-                getLogger().debug( errorBuffer.toString(), ioe );
+                getLogger().error( errorBuffer.toString(), ioe );
             }
         } catch (Exception e) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug( "Exception opening socket: "
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error( "Exception opening socket: "
                                    + e.getMessage(), e );
             }
         } finally {
@@ -752,6 +731,14 @@ public class SMTPHandler
     /**
      * Carries out the Plain AUTH SASL exchange.
      *
+     * According to RFC 2595 the client must send: [authorize-id] \0 authenticate-id \0 password.
+     * 
+     * >>> AUTH PLAIN dGVzdAB0ZXN0QHdpei5leGFtcGxlLmNvbQB0RXN0NDI=
+     * Decoded: test\000test@wiz.example.com\000tEst42
+     *
+     * >>> AUTH PLAIN dGVzdAB0ZXN0AHRFc3Q0Mg==
+     * Decoded: test\000test\000tEst42
+     *
      * @param initialResponse the initial response line passed in with the AUTH command
      */
     private void doPlainAuth(String initialResponse)
@@ -769,9 +756,46 @@ public class SMTPHandler
                 userpass = Base64.decodeAsString(userpass);
             }
             if (userpass != null) {
+                /*  See: RFC 2595, Section 6
+                    The mechanism consists of a single message from the client to the
+                    server.  The client sends the authorization identity (identity to
+                    login as), followed by a US-ASCII NUL character, followed by the
+                    authentication identity (identity whose password will be used),
+                    followed by a US-ASCII NUL character, followed by the clear-text
+                    password.  The client may leave the authorization identity empty to
+                    indicate that it is the same as the authentication identity.
+
+                    The server will verify the authentication identity and password with
+                    the system authentication database and verify that the authentication
+                    credentials permit the client to login as the authorization identity.
+                    If both steps succeed, the user is logged in.
+                */
                 StringTokenizer authTokenizer = new StringTokenizer(userpass, "\0");
-                user = authTokenizer.nextToken();
-                pass = authTokenizer.nextToken();
+                String authorize_id = authTokenizer.nextToken();  // Authorization Identity
+                user = authTokenizer.nextToken();                 // Authentication Identity
+                try {
+                    pass = authTokenizer.nextToken();             // Password
+                }
+                catch (java.util.NoSuchElementException _) {
+                    // If we got here, this is what happened.  RFC 2595
+                    // says that "the client may leave the authorization
+                    // identity empty to indicate that it is the same as
+                    // the authentication identity."  As noted above,
+                    // that would be represented as a decoded string of
+                    // the form: "\0authenticate-id\0password".  The
+                    // first call to nextToken will skip the empty
+                    // authorize-id, and give us the authenticate-id,
+                    // which we would store as the authorize-id.  The
+                    // second call will give us the password, which we
+                    // think is the authenticate-id (user).  Then when
+                    // we ask for the password, there are no more
+                    // elements, leading to the exception we just
+                    // caught.  So we need to move the user to the
+                    // password, and the authorize_id to the user.
+                    pass = user;
+                    user = authorize_id;
+                }
+
                 authTokenizer = null;
             }
         }
@@ -988,7 +1012,7 @@ public class SMTPHandler
      * Handles the SIZE MAIL option.
      *
      * @param mailOptionValue the option string passed in with the SIZE option
-     * @returns true if further options should be processed, false otherwise
+     * @return true if further options should be processed, false otherwise
      */
     private boolean doMailSize(String mailOptionValue) {
         int size = 0;
@@ -1323,28 +1347,16 @@ public class SMTPHandler
         if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
             headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
         }
-        // Determine the Return-Path
-        String returnPath = headers.getHeader(RFC2822Headers.RETURN_PATH, "\r\n");
-        headers.removeHeader(RFC2822Headers.RETURN_PATH);
+        // RFC 2821 says that we cannot examine the message to see if
+        // Return-Path headers are present.  If there is one, our
+        // Received: header may precede it, but the Return-Path header
+        // should be removed when making final delivery.
+     // headers.removeHeader(RFC2822Headers.RETURN_PATH);
         StringBuffer headerLineBuffer = new StringBuffer(512);
-        if (returnPath == null) {
-            if (state.get(SENDER) == null) {
-                returnPath = "<>";
-            } else {
-                headerLineBuffer.append("<")
-                                .append(state.get(SENDER))
-                                .append(">");
-                returnPath = headerLineBuffer.toString();
-                headerLineBuffer.delete(0, headerLineBuffer.length());
-            }
-        }
-        // We will rebuild the header object to put Return-Path and our
-        // Received header at the top
+        // We will rebuild the header object to put our Received header at the top
         Enumeration headerLines = headers.getAllHeaderLines();
         MailHeaders newHeaders = new MailHeaders();
-        // Put the Return-Path first
-        newHeaders.addHeaderLine(RFC2822Headers.RETURN_PATH + ": " + returnPath);
-        // Put our Received header next
+        // Put our Received header first
         headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
                         .append(remoteHost)
                         .append(" ([")
@@ -1424,20 +1436,12 @@ public class SMTPHandler
             if (theRecipients != null) {
                 recipientString = theRecipients.toString();
             }
-            if (getLogger().isDebugEnabled()) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                        .append("Successfully spooled mail )")
-                        .append(mail.getName())
-                        .append(" from ")
-                        .append(mail.getSender())
-                        .append(" for ")
-                        .append(recipientString);
-                getLogger().debug(debugBuffer.toString());
-            } else if (getLogger().isInfoEnabled()) {
+            if (getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                     new StringBuffer(256)
-                        .append("Successfully spooled mail from ")
+                        .append("Successfully spooled mail ")
+                        .append(mail.getName())
+                        .append(" from ")
                         .append(mail.getSender())
                         .append(" for ")
                         .append(recipientString);

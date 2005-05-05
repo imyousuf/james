@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 1999-2004 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -19,23 +19,21 @@ package org.apache.james.services;
 
 import java.util.Iterator;
 
-import org.apache.mailet.UsersRepository;
-
 /**
  * Interface for Phoenix blocks to access a store of Users. A UserStore
  * contains one or more UserRepositories. Multiple UserRepositories may or may
- * not have overlapping membership.
+ * not have overlapping membership. 
  *
  * @version 1.0.0, 24/04/1999
  */
-public interface UsersStore
+public interface UsersStore 
 {
     /**
      * The component role used by components implementing this service
      */
     String ROLE = "org.apache.james.services.UsersStore";
 
-    /**
+    /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
@@ -45,7 +43,7 @@ public interface UsersStore
      */
     UsersRepository getRepository( String name );
 
-    /**
+    /** 
      * Yield an <code>Iterator</code> over the set of repository
      * names managed internally by this store.
      *

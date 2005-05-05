@@ -42,7 +42,7 @@ import org.bouncycastle.mail.smime.*;
  * <p>It has the role of being a simpler intermediate to the crypto libraries.
  * Uses specifically the <a href="http://www.bouncycastle.org/">Legion of the Bouncy Castle</a>
  * libraries, particularly for the SMIME activity.</p>
- * @version CVS $Revision: 1.4 $ $Date: 2004/08/21 15:01:03 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.1
  */
 public class KeyHolder {

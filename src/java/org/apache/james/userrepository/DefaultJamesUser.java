@@ -25,10 +25,10 @@ import org.apache.mailet.MailAddress;
  * Implementation of User Interface.
  *
  *
- * @version $Revision: 1.11 $
+ * @version $Revision$
  */
 
-public class DefaultJamesUser
+public class DefaultJamesUser 
         extends DefaultUser
         implements JamesUser, Initializable {
 
@@ -92,7 +92,7 @@ public class DefaultJamesUser
         return forwarding;
     }
 
-
+    
     /**
      * Set the destination address to which mail to this user
      * will be forwarded.

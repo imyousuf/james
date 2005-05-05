@@ -17,7 +17,6 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.james.util.io.IOUtil;
 import org.apache.james.util.Base64;
 
 import java.io.File;
@@ -28,7 +27,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
-/**
+/** 
  * ArticleIDRepository: contains one file for each article.
  * the file name is Base64 encoded article ID
  * The first line of the file is '# <create date of file>
@@ -36,7 +35,7 @@ import java.util.Properties;
  * Allows fast lookup of a message by message id.
  *
  * This class allows a process to iterate and synchronize messages with other NNTP Servers.
- * This may be inefficient. It may be better to use an alternate, more
+ * This may be inefficient. It may be better to use an alternate, more 
  * efficient process for synchronization and this class for sanity check.
  *
  */
@@ -97,7 +96,9 @@ public class ArticleIDRepository {
             fout = new FileOutputStream(getFileFromID(articleID));
             prop.store(fout,new Date().toString());
         } finally {
-            IOUtil.shutdownStream(fout);
+            if (fout != null) {
+                fout.close();
+            }
         }
     }
 
@@ -112,11 +113,27 @@ public class ArticleIDRepository {
     File getFileFromID(String articleID) {
         String b64Id;
         try {
-            b64Id = Base64.encodeAsString(articleID);
+            b64Id = removeCRLF(Base64.encodeAsString(articleID));
         } catch (Exception e) {
             throw new RuntimeException("This shouldn't happen: " + e);
         }
         return new File(root, b64Id);
+    }
+
+    /**
+     * the base64 encode from javax.mail.internet.MimeUtility adds line
+     * feeds to the encoded stream.  This removes them, since we will
+     * use the String as a filename.
+     */
+    private static String removeCRLF(String str) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c != '\r' && c != '\n') {
+                buffer.append(c);
+            }
+        }
+        return buffer.toString();
     }
 
     /**
@@ -151,7 +168,9 @@ public class ArticleIDRepository {
             fin = new FileInputStream(f);
             prop.load(fin);
         } finally {
-            IOUtil.shutdownStream(fin);
+            if (fin != null) {
+                fin.close();
+            }
         }
         Enumeration enum = prop.keys();
         NNTPArticle article = null;

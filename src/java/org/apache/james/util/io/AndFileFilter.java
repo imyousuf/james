@@ -39,7 +39,7 @@ import java.io.FilenameFilter;
  * </pre>
  *
  * @author <a href="mailto:dev@avalon.apache.org">Avalon Development Team</a>
- * @version $Revision: 1.1 $ $Date: 2004/07/09 03:28:47 $
+ * @version $Revision$ $Date$
  * @since 4.0
  */
 public class AndFileFilter

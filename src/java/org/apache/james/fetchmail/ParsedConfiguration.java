@@ -30,7 +30,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.UsersRepository;
+import org.apache.james.services.UsersRepository;
 
 /**
  * <p>Parses and validates an 

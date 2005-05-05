@@ -31,9 +31,9 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
-import org.apache.mailet.MailRepository;
-import org.apache.mailet.SpoolRepository;
+import org.apache.james.services.SpoolRepository;
 
 import java.util.HashMap;
 
@@ -95,6 +95,7 @@ public class AvalonMailStore
     {
         this.m_manager = manager;
     }
+
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -196,11 +197,11 @@ public class AvalonMailStore
      * This method accept a Configuration object as hint and return the
      * corresponding MailRepository.
      * The Configuration must be in the form of:
-     * &lt;repository destinationURL="[URL of this mail repository]"
+     * <repository destinationURL="[URL of this mail repository]"
      *             type="[repository type ex. OBJECT or STREAM or MAIL etc.]"
-     *             model="[repository model ex. PERSISTENT or CACHE etc.]"&gt;
+     *             model="[repository model ex. PERSISTENT or CACHE etc.]">
      *   [addition configuration]
-     * &lt;/repository&gt;
+     * </repository>
      *
      * @param hint the Configuration object used to look up the repository
      *
@@ -294,7 +295,7 @@ public class AvalonMailStore
                         ((Serviceable) reply).service( m_manager );
                     }
                     if (reply instanceof Composable) {
-                        final String error = "no implementation in place to support Coposable";
+                        final String error = "no implementation in place to support Composable";
                         getLogger().error( error );
                         throw new IllegalArgumentException( error );
                     }
@@ -320,9 +321,8 @@ public class AvalonMailStore
                         getLogger().warn( "Exception while creating repository:" +
                                           e.getMessage(), e );
                     }
-                    e.printStackTrace();
                     throw new
-                        ServiceException("","Cannot find or init repository",
+                        ServiceException("", "Cannot find or init repository",
                                            e);
                 }
             }

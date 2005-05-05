@@ -35,7 +35,7 @@ import org.apache.avalon.framework.service.Serviceable;
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
  *
- * $Id: FetchScheduler.java,v 1.11 2004/02/19 10:12:35 hilmer Exp $
+ * $Id$
  *
  *  @see org.apache.james.fetchmail.FetchMailOriginal#configure(Configuration) FetchMailOriginal
  *  
@@ -138,7 +138,7 @@ public class FetchScheduler
             getLogger().info("FetchMail ...dispose end");
         }
     }
-
+    
     /**
      * Describes whether this service is enabled by configuration.
      *

@@ -17,20 +17,11 @@
 
 package org.apache.james.core;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.io.OptionalDataException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.HashMap;
+import org.apache.avalon.framework.activity.Disposable;
+
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -38,11 +29,14 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
-
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.HashMap;
 
 /**
  * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
@@ -54,7 +48,7 @@ import org.apache.mailet.RFC2822Headers;
  * messages stored in file repositories <I>with</I> attributes by James version > 2.2.0a8
  * will be processed by previous versions, ignoring the attributes.</P>
  *
- * @version CVS $Revision: 1.28 $ $Date: 2004/01/30 02:22:07 $
+ * @version CVS $Revision$ $Date$
  */
 public class MailImpl implements Disposable, Mail {
     /**
@@ -170,18 +164,53 @@ public class MailImpl implements Disposable, Mail {
      */
     public MailImpl(MimeMessage message) throws MessagingException {
         this();
-        Address[] addresses;
-        addresses = message.getFrom();
-        MailAddress sender = new MailAddress(new InternetAddress(addresses[0].toString()));
-        Collection recipients = new ArrayList();
-        addresses = message.getRecipients(MimeMessage.RecipientType.TO);
-        for (int i = 0; i < addresses.length; i++) {
-            recipients.add(new MailAddress(new InternetAddress(addresses[i].toString())));
+        MailAddress sender = getReturnPath(message);
+        Collection recipients = null;
+        Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
+        if (addresses != null) {
+            recipients = new ArrayList();
+            for (int i = 0; i < addresses.length; i++) {
+                try {
+                    recipients.add(new MailAddress(new InternetAddress(addresses[i].toString(), false)));
+                } catch (ParseException pe) {
+                    // RFC 2822 section 3.4 allows To: fields without <>
+                    // Let's give this one more try with <>.
+                    try {
+                        recipients.add(new MailAddress("<" + new InternetAddress(addresses[i].toString()).toString() + ">"));
+                    } catch (ParseException _) {
+                        throw new MessagingException("Could not parse address: " + addresses[i].toString() + " from " + message.getHeader(RFC2822Headers.TO, ", "), pe);
+                    }
+                }
+            }
         }
         this.name = message.toString();
         this.sender = sender;
         this.recipients = recipients;
         this.setMessage(message);
+    }
+    /**
+     * Gets the MailAddress corresponding to the existing "Return-Path" of
+     * <I>message</I>.
+     * If missing or empty returns <CODE>null</CODE>,
+     */
+    private MailAddress getReturnPath(MimeMessage message) throws MessagingException {
+        MailAddress mailAddress = null;
+        String[] returnPathHeaders = message.getHeader(RFC2822Headers.RETURN_PATH);
+        String returnPathHeader = null;
+        if (returnPathHeaders != null) {
+            returnPathHeader = returnPathHeaders[0];
+            if (returnPathHeader != null) {
+                returnPathHeader = returnPathHeader.trim();
+                if (!returnPathHeader.equals("<>")) {
+                    try {
+                        mailAddress = new MailAddress(new InternetAddress(returnPathHeader, false));
+                    } catch (ParseException pe) {
+                        throw new MessagingException("Could not parse address: " + returnPathHeader + " from " + message.getHeader(RFC2822Headers.RETURN_PATH, ", "), pe);
+                    }
+                }
+            }
+        }
+        return mailAddress;
     }
     /**
      * Duplicate the MailImpl.
@@ -433,7 +462,7 @@ public class MailImpl implements Disposable, Mail {
             reply);
     }
     /**
-     * Writes the content of the message, up to a total number of lines, out to
+     * Writes the content of the message, up to a total number of lines, out to 
      * an OutputStream.
      *
      * @param out the OutputStream to which to write the content
@@ -528,7 +557,6 @@ public class MailImpl implements Disposable, Mail {
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
-
         try {
             MimeMessage wrapper = getMessage();
             if (wrapper instanceof Disposable) {
@@ -545,6 +573,7 @@ public class MailImpl implements Disposable, Mail {
      * Note: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
      * @return Serializable of the entire attributes collection
+     * @since 2.2.0
      **/
     public HashMap getAttributesRaw ()
     {
@@ -557,6 +586,7 @@ public class MailImpl implements Disposable, Mail {
      * Note: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
      * @return Serializable of the entire attributes collection
+     * @since 2.2.0
      **/
     public void setAttributesRaw (HashMap attr)
     {
@@ -565,36 +595,42 @@ public class MailImpl implements Disposable, Mail {
 
     /**
      * @see org.apache.mailet.Mail#getAttribute(String)
+     * @since 2.2.0
      */
     public Serializable getAttribute(String key) {
         return (Serializable)attributes.get(key);
     }
     /**
      * @see org.apache.mailet.Mail#setAttribute(String,Serializable)
+     * @since 2.2.0
      */
     public Serializable setAttribute(String key, Serializable object) {
         return (Serializable)attributes.put(key, object);
     }
     /**
      * @see org.apache.mailet.Mail#removeAttribute(String)
+     * @since 2.2.0
      */
     public Serializable removeAttribute(String key) {
         return (Serializable)attributes.remove(key);
     }
     /**
      * @see org.apache.mailet.Mail#removeAllAttributes()
+     * @since 2.2.0
      */
     public void removeAllAttributes() {
         attributes.clear();
     }
     /**
      * @see org.apache.mailet.Mail#getAttributeNames()
+     * @since 2.2.0
      */
     public Iterator getAttributeNames() {
         return attributes.keySet().iterator();
     }
     /**
      * @see org.apache.mailet.Mail#hasAttributes()
+     * @since 2.2.0
      */
     public boolean hasAttributes() {
         return !attributes.isEmpty();

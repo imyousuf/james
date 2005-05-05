@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -31,7 +31,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
- * $Id: Loader.java,v 1.11 2004/07/09 03:37:43 mcconnell Exp $
+ * $Id$
  */
 public class Loader implements Contextualizable {
     protected ClassLoader mailetClassLoader = null;
@@ -49,21 +49,14 @@ public class Loader implements Contextualizable {
      */
     public void contextualize(final Context context) throws ContextException 
     {
-        try
+        try 
         {
-            baseDirectory = ((File)context.get( "urn:avalon:home") ).getCanonicalPath();
-        }
-        catch( Throwable ie )
+            baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
+        } 
+        catch (Throwable e) 
         {
-            try 
-            {
-                baseDirectory = ((File)context.get( "app.home") ).getCanonicalPath();
-            }
-            catch (Throwable e ) 
-            {
-                logger.error( "can't get base directory for mailet loader" );
-                throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
-            }
+            logger.error( "can't get base directory for mailet loader" );
+            throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
         }
     }
 

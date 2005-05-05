@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -19,29 +19,33 @@ package org.apache.james.transport.mailets;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.ArrayList;
+
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.ParseException;
+import javax.mail.internet.AddressException;
 
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
+
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
 
 
 /**
@@ -120,7 +124,7 @@ import org.apache.mailet.dates.RFC822DateFormat;
  * <P>Supports by default the <CODE>passThrough</CODE> init parameter (false if missing).
  * Subclasses can override this behaviour overriding {@link #getPassThrough()}.</P>
  *
- * @version CVS $Revision: 1.22 $ $Date: 2004/01/30 02:22:11 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 
@@ -702,15 +706,10 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected void setReversePath(Mail newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
         if(reversePath != null) {
-            String reversePathString;
             if (reversePath == SpecialAddress.NULL) {
                 reversePath = null;
-                reversePathString = "";
-            } else {
-                reversePathString = reversePath.toString();
             }
             ((MailImpl) newMail).setSender(reversePath);
-            newMail.getMessage().setHeader(RFC2822Headers.RETURN_PATH, "<" + reversePathString + ">");
             if (isDebug) {
                 log("reversePath set to: " + reversePath);
             }
@@ -1177,6 +1176,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * <I>mail</I>.
      * If empty returns <CODE>SpecialAddress.NULL</CODE>,
      * if missing return <CODE>null</CODE>.
+     * @deprecated The Return-Path header is no longer available until local delivery.
      */
     protected MailAddress getExistingReturnPath(Mail mail) throws MessagingException {
         MailAddress mailAddress = null;

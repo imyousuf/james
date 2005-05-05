@@ -34,7 +34,7 @@ import javax.mail.MessagingException;
  *   &lt;name&gt;attribute_name2&lt;/name&gt;
  * &lt;/mailet&gt;
  *
- * @version CVS $Revision: 1.2 $ $Date: 2004/01/30 02:22:12 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 public class RemoveMailAttribute extends GenericMailet {

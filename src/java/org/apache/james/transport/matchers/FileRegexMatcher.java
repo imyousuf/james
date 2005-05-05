@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,14 +17,13 @@
 
 package org.apache.james.transport.matchers;
 
-import javax.mail.MessagingException;
-
 import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.mailet.RFC2822Headers;
+import javax.mail.MessagingException;
 
 /**
  * Initializes RegexMatcher with regular expressions from a file.
  *
- * @author  Noel J. Bergman <noel@devtech.com>
  */
 public class FileRegexMatcher extends GenericRegexMatcher {
     public void init() throws MessagingException {

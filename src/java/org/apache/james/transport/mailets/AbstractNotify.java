@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,18 +17,28 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Iterator;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.MailetException;
+
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * <P>Abstract mailet providing configurable notification services.<BR>
@@ -65,7 +75,7 @@ import org.apache.mailet.RFC2822Headers;
  * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
  * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
  *
- * @version CVS $Revision: 1.12 $ $Date: 2004/01/30 02:22:11 $
+ * @version CVS $Revision$ $Date$
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
@@ -274,7 +284,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
         if (subject == null) {
             subject = "";
         }
-        if (subject.indexOf(subjectPrefix) == 0) {
+        if (subjectPrefix==null || subject.indexOf(subjectPrefix) == 0) {
             newMail.getMessage().setSubject(subject);
         } else {
             newMail.getMessage().setSubject(subjectPrefix + subject);

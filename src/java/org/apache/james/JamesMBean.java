@@ -30,8 +30,9 @@ public interface JamesMBean {
      *
      * @phoenix:mx-operation
      * @phoenix:mx-description Add a new user
-     * @param userName the name of the user being added
-     * @param password the password of the user being added
+     *
+     * @param userName The name of the user being added
+     * @param password The password of the user being added
      */
     boolean addUser(String userName, String password);
 }

@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 /**
  * Simple Base64 string decoding function
  *
- * @version This is $Revision: 1.9 $
+ * @version This is $Revision$
  */
 
 public class Base64 {

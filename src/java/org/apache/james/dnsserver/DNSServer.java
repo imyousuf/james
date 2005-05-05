@@ -18,6 +18,7 @@
 package org.apache.james.dnsserver;
 
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -27,8 +28,10 @@ import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.FindServer;
+import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.MXRecord;
+import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
@@ -48,7 +51,7 @@ import java.util.*;
  */
 public class DNSServer
     extends AbstractLogEnabled
-    implements Configurable, Initializable,
+    implements Configurable, Initializable, Disposable,
     org.apache.james.services.DNSServer, DNSServerMBean {
 
     /**
@@ -66,7 +69,7 @@ public class DNSServer
     /**
      * Whether the DNS response is required to be authoritative
      */
-    private byte dnsCredibility;
+    private int dnsCredibility;
 
     /**
      * The DNS servers to be used by this service
@@ -147,6 +150,7 @@ public class DNSServer
 
         try {
             resolver = new ExtendedResolver( serversArray );
+            Lookup.setDefaultResolver(resolver);
         } catch (UnknownHostException uhe) {
             getLogger().fatalError("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
             throw uhe;
@@ -206,7 +210,7 @@ public class DNSServer
                             .append(".");
                 getLogger().info(logBuffer.toString());
                 try {
-                    InetAddress.getByName(hostname);
+                    getByName(hostname);
                     servers.add(hostname);
                 } catch (UnknownHostException uhe) {
                     // The original domain name is not a valid host,
@@ -348,4 +352,258 @@ public class DNSServer
             return (pa == pb) ? (512 - random.nextInt(1024)) : pa - pb;
         }
     }
+
+    /*
+     * Returns an Iterator over org.apache.mailet.HostAddress, a
+     * specialized subclass of javax.mail.URLName, which provides
+     * location information for servers that are specified as mail
+     * handlers for the given hostname.  This is done using MX records,
+     * and the HostAddress instances are returned sorted by MX priority.
+     * If no host is found for domainName, the Iterator returned will be
+     * empty and the first call to hasNext() will return false.  The
+     * Iterator is a nested iterator: the outer iteration is over the
+     * results of the MX record lookup, and the inner iteration is over
+     * potentially multiple A records for each MX record.  DNS lookups
+     * are deferred until actually needed.
+     *
+     * @since v2.2.0a16-unstable
+     * @param domainName - the domain for which to find mail servers
+     * @return an Iterator over HostAddress instances, sorted by priority
+     */
+    public Iterator getSMTPHostAddresses(final String domainName) {
+        return new Iterator() {
+            private Iterator mxHosts = findMXRecords(domainName).iterator();
+            private Iterator addresses = null;
+
+            public boolean hasNext() {
+                /* Make sure that when next() is called, that we can
+                 * provide a HostAddress.  This means that we need to
+                 * have an inner iterator, and verify that it has
+                 * addresses.  We could, for example, run into a
+                 * situation where the next mxHost didn't have any valid
+                 * addresses.
+                 */
+                if ((addresses == null || !addresses.hasNext()) && mxHosts.hasNext()) do {
+                    final String nextHostname = (String)mxHosts.next();
+                    InetAddress[] addrs = null;
+                    try {
+                        addrs = getAllByName(nextHostname);
+                    } catch (UnknownHostException uhe) {
+                        // this should never happen, since we just got
+                        // this host from mxHosts, which should have
+                        // already done this check.
+                        StringBuffer logBuffer = new StringBuffer(128)
+                                                 .append("Couldn't resolve IP address for discovered host ")
+                                                 .append(nextHostname)
+                                                 .append(".");
+                        getLogger().error(logBuffer.toString());
+                    }
+                    final InetAddress[] ipAddresses = addrs;
+
+                    addresses = new Iterator() {
+                        int i = 0;
+
+                        public boolean hasNext() {
+                            return ipAddresses != null && i < ipAddresses.length;
+                        }
+
+                        public Object next() {
+                            return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ipAddresses[i++].getHostAddress());
+                        }
+
+                        public void remove() {
+                            throw new UnsupportedOperationException ("remove not supported by this iterator");
+                        }
+                    };
+                } while (!addresses.hasNext() && mxHosts.hasNext());
+
+                return addresses != null && addresses.hasNext();
+            }
+
+            public Object next() {
+                return addresses != null ? addresses.next() : null;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException ("remove not supported by this iterator");
+            }
+        };
+    }
+
+    /* java.net.InetAddress.get[All]ByName(String) allows an IP literal
+     * to be passed, and will recognize it even with a trailing '.'.
+     * However, org.xbill.DNS.Address does not recognize an IP literal
+     * with a trailing '.' character.  The problem is that when we
+     * lookup an MX record for some domains, we may find an IP address,
+     * which will have had the trailing '.' appended by the time we get
+     * it back from dnsjava.  An MX record is not allowed to have an IP
+     * address as the right-hand-side, but there are still plenty of
+     * such records on the Internet.  Since java.net.InetAddress can
+     * handle them, for the time being we've decided to support them.
+     *
+     * These methods are NOT intended for use outside of James, and are
+     * NOT declared by the org.apache.james.services.DNSServer.  This is
+     * currently a stopgap measure to be revisited for the next release.
+     */
+
+    private static String allowIPLiteral(String host) {
+        if ((host.charAt(host.length() - 1) == '.')) {
+            String possible_ip_literal = host.substring(0, host.length() - 1);
+            if (org.xbill.DNS.Address.isDottedQuad(possible_ip_literal)) {
+                host = possible_ip_literal;
+            }
+        }
+        return host;
+    }
+
+    /**
+     * @see java.net.InetAddress#getByName(String)
+     */
+    public static InetAddress getByName(String host) throws UnknownHostException {
+        return org.xbill.DNS.Address.getByName(allowIPLiteral(host));
+    }
+
+    /**
+     * @see java.net.InetAddress#getByAllName(String)
+     */
+    public static InetAddress[] getAllByName(String host) throws UnknownHostException {
+        return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));
+    }
+
+    /**
+     * A way to get mail hosts to try.  If any MX hosts are found for the
+     * domain name with which this is constructed, then these MX hostnames
+     * are returned in priority sorted order, lowest priority numbers coming
+     * first.  And, whenever multiple hosts have the same priority then these
+     * are returned in a randomized order within that priority group, as
+     * specified in RFC 2821, Section 5.
+     *
+     * If no MX hosts are found for the domain name, then a DNS search is
+     * performed for an A record.  If an A record is found then domainName itself
+     * will be returned by the Iterator, and it will be the only object in
+     * the Iterator.  If however no A record is found (in addition to no MX
+     * record) then the Iterator constructed will be empty; the first call to
+     * its hasNext() will return false.
+     *
+     * This behavior attempts to satisfy the requirements of RFC 2821, Section 5.
+     * @since v2.2.0a16-unstable
+     */
+
+    /**** THIS CODE IS BROKEN AND UNUSED ****/
+
+    /* this code was used in getSMTPHostAddresses as:
+       private Iterator mxHosts = new MxSorter(domainName);
+
+       This class effectively replaces findMXRecords.  If
+       it is to be kept, it should replace the body of that
+       method.  The fixes would be to either implement a
+       more robust DNS lookup, or to replace the Type.A
+       lookup with InetAddress.getByName(), which is what
+       findMXRecords uses.  */
+
+    private class MxSorter implements Iterator {
+        private int priorListPriority = Integer.MIN_VALUE;
+        private ArrayList equiPriorityList = new ArrayList();
+        private Record[] mxRecords;
+        private Random rnd = new Random ();
+
+        /* The implementation of this class attempts to achieve efficiency by
+         * performing no more sorting of the rawMxRecords than necessary. In the
+         * large majority of cases the first attempt, made by a client of this class
+         * to connect to an SMTP server for a given domain, will succeed. As such,
+         * in most cases only one call will be made to this Iterator's
+         * next(), and in that majority of cases there will have been no need
+         * to sort the array of MX Records.  This implementation would, however, be
+         * relatively inefficient in the case where all hosts fail, when every
+         * Object is called out of a long Iterator.
+         */
+
+        private MxSorter(String domainName) {
+            mxRecords =  lookup(domainName, Type.MX);
+            if (mxRecords == null || mxRecords.length == 0) {
+                //no MX records were found, so try to use the domainName
+                Record[] aRecords = lookup(domainName, Type.A);
+                if(aRecords != null && aRecords.length > 0) {
+                    equiPriorityList.add(domainName);
+                }
+            }
+        }
+
+        /**
+         * Sets presentPriorityList to contain all hosts
+         * which have the least priority greater than pastPriority.
+         * When this is called, both (rawMxRecords.length > 0) and
+         * (presentPriorityList.size() == 0), by contract.
+         * In the case where this is called repeatedly, so that priorListPriority
+         * has already become the highest of the priorities in the rawMxRecords,
+         * then this returns without having added any elements to
+         * presentPriorityList; presentPriorityList.size remains zero.
+         */
+        private void createPriorityList(){
+            int leastPriorityFound = Integer.MAX_VALUE;
+            /* We loop once through the rawMxRecords, finding the lowest priority
+             * greater than priorListPriority, and collecting all the hostnames
+             * with that priority into equiPriorityList.
+             */
+            for (int i = 0; i < mxRecords.length; i++) {
+                MXRecord thisRecord = (MXRecord)mxRecords[i];
+                int thisRecordPriority = thisRecord.getPriority();
+                if (thisRecordPriority > priorListPriority) {
+                    if (thisRecordPriority < leastPriorityFound) {
+                        equiPriorityList.clear();
+                        leastPriorityFound = thisRecordPriority;
+                        equiPriorityList.add(thisRecord.getTarget().toString());
+                    } else if (thisRecordPriority == leastPriorityFound) {
+                        equiPriorityList.add(thisRecord.getTarget().toString());
+                    }
+                }
+            }
+            priorListPriority = leastPriorityFound;
+        }
+
+        public boolean hasNext(){
+            if (equiPriorityList.size() > 0){
+                return true;
+            }else if (mxRecords != null && mxRecords.length > 0){
+                createPriorityList();
+                return equiPriorityList.size() > 0;
+            } else{
+                return false;
+            }
+        }
+
+        public Object next(){
+            if (hasNext()){
+                /* this randomization is done to comply with RFC-2821 */
+                /* Note: java.util.Random.nextInt(limit) is about twice as fast as (int)(Math.random()*limit) */
+                int getIndex = rnd.nextInt(equiPriorityList.size());
+                Object returnElement = equiPriorityList.get(getIndex);
+                equiPriorityList.remove(getIndex);
+                return returnElement;
+            }else{
+                throw new NoSuchElementException();
+            }
+        }
+
+        public void remove () {
+            throw new UnsupportedOperationException ("remove not supported by this iterator");
+        }
+    }
+
+    
+    /**
+     * The dispose operation is called at the end of a components lifecycle.
+     * Instances of this class use this method to release and destroy any
+     * resources that they own.
+     *
+     * This implementation shuts down org.xbill.DNS.Cache
+     *
+     * @throws Exception if an error is encountered during shutdown
+     */
+    public void dispose()
+    {
+        //setting the clean interval to a negative value, will terminate
+        //the Cache cleaner thread.
+        cache.setCleanInterval (-1);
+    } 
 }
