@@ -799,57 +799,55 @@
       <!-- To allow James to use a database you must configure the database connection here. -->
       <!-- If you are not using a database, you can leave this section unchanged. -->
       <!-- These connections are referred to by name in URLs elsewhere in the config file. -->
-      <data-sources>
-         <!--
-              James has previously used an in-house connection pool, Mordred.
-              Mordred is being deprecated in favor of Jakarta Commons DBCP.
-              To use DBCP:    org.apache.james.util.dbcp.JdbcDataSource
-              To use Mordred: org.apache.james.util.mordred.JdbcDataSource
+      <!--
+           James has previously used an in-house connection pool, Mordred.
+           Mordred is being deprecated in favor of Jakarta Commons DBCP.
+           To use DBCP:    org.apache.james.util.dbcp.JdbcDataSource
+           To use Mordred: org.apache.james.util.mordred.JdbcDataSource
 
-              Change it back, of course, to use Mordred.
+           Change it back, of course, to use Mordred.
 
-              NOTE: DBCP is configured to recover from a database server outage.
-                    This, alone, may be reason for you to give it a try.
-         -->
-         <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
-         <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
-         <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
+           NOTE: DBCP is configured to recover from a database server outage.
+                 This, alone, may be reason for you to give it a try.
+      -->
+      <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
+      <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
+      <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
 
-         <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
+      <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
 
-         <!-- Example, connecting to a MySQL database called "mail" on localhost-->
-         <!-- -->
-         <!-- The max value is the maximum number of concurrent connections James will -->
-         <!-- open to this database-->
-         <!-- If you see "SQLException: Giving up... no connections available." in your -->
-         <!-- log files or bounced mail you should increase this value -->
-         <!--
-         <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
-            <driver>org.gjt.mm.mysql.Driver</driver>
-            <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
-            <user>username</user>
-            <password>password</password>
-            <max>20</max>
-         </data-source>
-         -->
+      <!-- Example, connecting to a MySQL database called "mail" on localhost-->
+      <!-- -->
+      <!-- The max value is the maximum number of concurrent connections James will -->
+      <!-- open to this database-->
+      <!-- If you see "SQLException: Giving up... no connections available." in your -->
+      <!-- log files or bounced mail you should increase this value -->
+      <!--
+      <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
+         <driver>org.gjt.mm.mysql.Driver</driver>
+         <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
+         <user>username</user>
+         <password>password</password>
+         <max>20</max>
+      </data-source>
+      -->
 
-         <!-- Example, connecting to a Microsoft MSSQL database called "mail" on localhost-->
-         <!-- -->
-         <!-- The max value is the maximum number of concurrent connections James will -->
-         <!-- open to this database-->
-         <!-- If you see "SQLException: Giving up... no connections available." in your -->
-         <!-- log files or bounced mail you should increase this value -->
-         <!--
-         <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
-            <driver>com.inet.tds.TdsDriver</driver>
-            <dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
-            <user>sa_james</user>
-            <password>blahblah</password>
-            <max>20</max>
-         </data-source>
-         -->
+      <!-- Example, connecting to a Microsoft MSSQL database called "mail" on localhost-->
+      <!-- -->
+      <!-- The max value is the maximum number of concurrent connections James will -->
+      <!-- open to this database-->
+      <!-- If you see "SQLException: Giving up... no connections available." in your -->
+      <!-- log files or bounced mail you should increase this value -->
+      <!--
+      <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
+         <driver>com.inet.tds.TdsDriver</driver>
+         <dburl>jdbc:inetdae7:127.0.0.1?database=James</dburl>
+         <user>sa_james</user>
+         <password>blahblah</password>
+         <max>20</max>
+      </data-source>
+      -->
 
-      </data-sources>
    </database-connections>
 
    <!-- Configuration for Cornerstone Services -->
@@ -944,14 +942,17 @@
          <factory name="plain" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory"/>
          <!--
          <factory name="ssl" class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
-            <keystore>
-               <file>conf/keystore</file>
-               <password>secret</password>
-               <type>JKS</type>
-               <protocol>TLS</protocol>
-               <algorithm>SunX509</algorithm>
-               <authenticate-client>false</authenticate-client>
-            </keystore>
+            <ssl-factory>
+               <keystore>
+                  <file>conf/keystore</file>
+                  <password>secret</password>
+                  <key-password>keysecret</key-password>
+                  <type>JKS</type>
+                  <protocol>TLS</protocol>
+                  <algorithm>SunX509</algorithm>
+                  <authenticate-client>false</authenticate-client>
+               </keystore>
+            </ssl-factory>
          </factory>
          -->
       </server-sockets>
