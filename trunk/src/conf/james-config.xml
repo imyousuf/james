@@ -141,6 +141,24 @@
          <!-- Important check to avoid looping -->
          <mailet match="RelayLimit=30" class="Null"/>
 
+         <!-- "not spam" bayesian analysis feeder. -->
+         <!--
+         <mailet match="RecipientIs=not.spam@xxx.yyy" class="BayesianAnalysisFeeder">
+            <repositoryPath> db://maildb </repositoryPath>
+            <feedType>ham</feedType>
+            <maxSize>200000</maxSize>
+         </mailet>
+         -->
+     
+         <!-- "spam" bayesian analysis feeder. -->
+         <!--
+         <mailet match="RecipientIs=spam@xxx.yyy" class="BayesianAnalysisFeeder">
+            <repositoryPath> db://maildb </repositoryPath>
+            <feedType>spam</feedType>
+            <maxSize>200000</maxSize>
+         </mailet>
+         -->
+
          <!--
          <mailet match="All" class="XMLVirtualUserTable">
             <!- 1:1 mapping ->
@@ -211,6 +229,26 @@
          <mailet match="RecipientIs=badboy@badhost" class="Null"/>
          -->
 
+         <!-- Anti spam bayesian analysis -->
+         <!--
+         <mailet match="All" class="BayesianAnalysis" onMailetException="ignore">
+            <repositoryPath>db://maildb</repositoryPath>
+        <maxSize>200000</maxSize>
+            <headerName>X-MessageIsSpamProbability</headerName>
+            <ignoreLocalSender>true</ignoreLocalSender>
+         </mailet>
+     
+         <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.90" class="AddHeader" onMatchException="noMatch">
+            <name>X-MessageIsSpam</name>
+            <value>true</value>
+         </mailet>
+
+         <mailet match="CompareNumericHeaderValue=X-MessageIsSpamProbability > 0.99" class="ToProcessor" onMatchException="noMatch">
+            <processor> spam </processor>
+            <notice>Spam not accepted</notice>
+         </mailet>
+         -->
+     
          <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
             <processor> transport </processor>
