@@ -234,12 +234,20 @@ public class MailImpl implements Disposable, Mail {
             newMail.setRemoteHost(remoteHost);
             newMail.setRemoteAddr(remoteAddr);
             newMail.setLastUpdated(lastUpdated);
-            newMail.setAttributesRaw((HashMap) attributes.clone());
+            try {
+                newMail.setAttributesRaw((HashMap) cloneSerializableObject(attributes));
+            } catch (IOException e) {
+                // should never happen for in memory streams
+                newMail.setAttributesRaw(new HashMap());
+            } catch (ClassNotFoundException e) {
+                // should never happen as we just serialized it
+                newMail.setAttributesRaw(new HashMap());
+            }
             return newMail;
         } catch (MessagingException me) {
             // Ignored.  Return null in the case of an error.
         }
-        return (Mail) null;
+        return null;
     }
     /**
      * Get the error message associated with this MailImpl.
@@ -634,5 +642,26 @@ public class MailImpl implements Disposable, Mail {
      */
     public boolean hasAttributes() {
         return !attributes.isEmpty();
+    }
+
+
+    /**
+     * This methods provide cloning for serializable objects.
+     * Mail Attributes are Serializable but not Clonable so we need a deep copy
+     *
+     * @param input Object to be cloned
+     * @return the cloned Object
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private static Object cloneSerializableObject(Object o) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(b);
+        out.writeObject(o);
+        out.close();
+        ByteArrayInputStream bi=new ByteArrayInputStream(b.toByteArray());
+        ObjectInputStream in = new ObjectInputStream(bi);
+        Object no = in.readObject();
+        return no;
     }
 }
