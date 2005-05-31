@@ -471,7 +471,7 @@ public class BayesianAnalyzer {
             if (Character.isLetter(ch)
             || ch == '-'
             || ch == '$'
-            || ch == '€'
+            || ch == '\u20AC' // the EURO symbol
             || ch == '!'
             || ch == '\''
             ) {
