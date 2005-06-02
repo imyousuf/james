@@ -18,18 +18,17 @@
 package org.apache.james.util;
 
 import java.io.InputStream;
-import java.io.BufferedReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
  * A Reader for use with SMTP or other protocols in which lines
- * must end with CRLF.  Extends BufferedReader and overrides its 
- * readLine() method.  The BufferedReader readLine() method cannot
+ * must end with CRLF.  Extends Reader and overrides its 
+ * readLine() method.  The Reader readLine() method cannot
  * serve for SMTP because it ends lines with either CR or LF alone. 
  */
-public class CRLFTerminatedReader extends BufferedReader {
+public class CRLFTerminatedReader extends Reader {
 
     public class TerminationException extends IOException {
         private int where;
@@ -56,9 +55,14 @@ public class CRLFTerminatedReader extends BufferedReader {
      * @throws UnsupportedEncodingException if the named charset
      * is not supported
      */
-    public CRLFTerminatedReader(InputStream in, String charsetName)
-            throws UnsupportedEncodingException {
-        super(new InputStreamReader(in, charsetName));
+    InputStream in;
+
+    public CRLFTerminatedReader(InputStream in) {
+    this.in = in;
+    }
+
+    public CRLFTerminatedReader(InputStream in, String enc) throws UnsupportedEncodingException {
+        this(in);
     }
 
     private StringBuffer lineBuffer = new StringBuffer();
@@ -132,4 +136,23 @@ public class CRLFTerminatedReader extends BufferedReader {
             }
         }//while
     }//method readLine()
+
+    public int read() throws IOException {
+    return in.read();
+    }
+
+    public boolean ready() throws IOException {
+    return in.available() > 0;
+    }
+
+    public int read(char cbuf[], int  off, int  len) throws IOException {
+    byte [] temp = new byte[len];
+    int result = in.read(temp, 0, len);
+    for (int i=0;i<result;i++) cbuf[i] = (char) temp[i];
+    return result;
+    }
+
+    public void close() throws IOException {
+    in.close();
+    }
 }
