@@ -338,7 +338,8 @@ public class SMTPHandler
         try {
             // hardcode which DNS RBL for the moment
             org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + "sbl-xbl.spamhaus.org");
-        return true;
+            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + "dul.dnsbl.sorbs.net");
+            return true;
         } catch (java.net.UnknownHostException uhe) {
             // if it is unknown, it isn't blocked
         }
