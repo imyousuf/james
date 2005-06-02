@@ -106,7 +106,7 @@ public class POP3Handler
     /**
      * The reader associated with incoming characters.
      */
-    private BufferedReader in;
+    private CRLFTerminatedReader in;
 
     /**
      * The writer to which outgoing messages are written.

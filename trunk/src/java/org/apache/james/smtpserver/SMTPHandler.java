@@ -24,20 +24,42 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.util.*;
+import org.apache.james.util.Base64;
+import org.apache.james.util.CRLFTerminatedReader;
+import org.apache.james.util.CharTerminatedInputStream;
+import org.apache.james.util.DotStuffingInputStream;
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
+import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
-import org.apache.mailet.MailAddress;
+
 import javax.mail.MessagingException;
-import java.io.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.SequenceInputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.StringTokenizer;
+
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
@@ -181,7 +203,7 @@ public class SMTPHandler
     /**
      * A Reader wrapper for the incoming stream of bytes coming from the socket.
      */
-    private BufferedReader inReader;
+    private CRLFTerminatedReader inReader;
 
     /**
      * The remote host name obtained by lookup on the socket.
@@ -204,9 +226,14 @@ public class SMTPHandler
     private boolean authRequired;
 
     /**
-     * whether or not authorization is required for this connection
+     * whether or not this connection can relay without authentication
      */
     private boolean relayingAllowed;
+
+    /**
+     * TEMPORARY: is the sending address blocklisted
+     */
+    private boolean blocklisted;
 
     /**
      * The id associated with this particular SMTP interaction.
@@ -293,6 +320,31 @@ public class SMTPHandler
         }
     }
 
+    /*
+     * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
+     * This checks a DNSRBL.  If the remote IP is listed, the sender will only be
+     * permitted to send e-mail to postmaster (RFC 2821) or abuse (RFC 2142), unless
+     * authenticated.
+     */
+
+    private boolean checkDNSRBL(Socket conn) {
+        String ip = conn.getInetAddress().getHostAddress();
+        StringBuffer sb = new StringBuffer();
+        StringTokenizer st = new StringTokenizer(ip, " .", false);
+        while (st.hasMoreTokens()) {
+            sb.insert(0, st.nextToken() + ".");
+        }
+        String reversedOctets = sb.toString();
+        try {
+            // hardcode which DNS RBL for the moment
+            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + "sbl-xbl.spamhaus.org");
+        return true;
+        } catch (java.net.UnknownHostException uhe) {
+            // if it is unknown, it isn't blocked
+        }
+        return false;
+    }
+
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
@@ -314,6 +366,7 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
+            blocklisted = checkDNSRBL(connection);
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
@@ -621,13 +674,8 @@ public class SMTPHandler
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            if (authRequired) {
-                //This is necessary because we're going to do a multiline response
-                responseBuffer.append("250-");
-            } else {
-                responseBuffer.append("250 ");
-            }
-            responseBuffer.append(theConfigData.getHelloName())
+            responseBuffer.append("250 ")
+                          .append(theConfigData.getHelloName())
                           .append(" Hello ")
                           .append(argument)
                           .append(" (")
@@ -636,12 +684,6 @@ public class SMTPHandler
                           .append(remoteIP)
                           .append("])");
             responseString = clearResponseBuffer();
-            if (authRequired) {
-                writeLoggedResponse(responseString);
-                responseString = "250-AUTH LOGIN PLAIN";
-                writeLoggedResponse(responseString);
-                responseString = "250 AUTH=LOGIN PLAIN";
-            }
             writeLoggedFlushedResponse(responseString);
         }
     }
@@ -656,39 +698,49 @@ public class SMTPHandler
     private void doEHLO(String argument) {
         String responseString = null;
         if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_EHLO;
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_EHLO;
             writeLoggedFlushedResponse(responseString);
         } else {
             resetState();
             state.put(CURRENT_HELO_MODE, COMMAND_EHLO);
+
+            ArrayList esmtpextensions = new ArrayList();
+
+            esmtpextensions.add(new StringBuffer(theConfigData.getHelloName())
+                .append(" Hello ")
+                .append(argument)
+                .append(" (")
+                .append(remoteHost)
+                .append(" [")
+                .append(remoteIP)
+                .append("])").toString());
+
             // Extension defined in RFC 1870
             long maxMessageSize = theConfigData.getMaxMessageSize();
             if (maxMessageSize > 0) {
-                responseString = "250-SIZE " + maxMessageSize;
-                writeLoggedResponse(responseString);
+                esmtpextensions.add("SIZE " + maxMessageSize);
             }
+
             if (authRequired) {
-                //This is necessary because we're going to do a multiline response
-                responseBuffer.append("250-");
-            } else {
-                responseBuffer.append("250 ");
+                esmtpextensions.add("AUTH LOGIN PLAIN");
+                esmtpextensions.add("AUTH=LOGIN PLAIN");
             }
-            responseBuffer.append(theConfigData.getHelloName())
-                           .append(" Hello ")
-                           .append(argument)
-                           .append(" (")
-                           .append(remoteHost)
-                           .append(" [")
-                           .append(remoteIP)
-                           .append("])");
-            responseString = clearResponseBuffer();
-            if (authRequired) {
-                writeLoggedResponse(responseString);
-                responseString = "250-AUTH LOGIN PLAIN";
-                writeLoggedResponse(responseString);
-                responseString = "250 AUTH=LOGIN PLAIN";
+
+            esmtpextensions.add("PIPELINING");
+            esmtpextensions.add("ENHANCEDSTATUSCODES");
+
+            // Iterator i = esmtpextensions.iterator();
+            for (int i = 0; i < esmtpextensions.size(); i++) {
+                if (i == esmtpextensions.size() - 1) {
+                    responseBuffer.append("250 ");
+                responseBuffer.append((String) esmtpextensions.get(i));
+                writeLoggedFlushedResponse(clearResponseBuffer());
+                } else {
+                    responseBuffer.append("250-");
+                responseBuffer.append((String) esmtpextensions.get(i));
+                writeLoggedResponse(clearResponseBuffer());
+                }
             }
-            writeLoggedFlushedResponse(responseString);
         }
     }
 
@@ -702,11 +754,11 @@ public class SMTPHandler
             throws Exception {
         String responseString = null;
         if (getUser() != null) {
-            responseString = "503 User has previously authenticated. "
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
                         + " Further authentication is not required!";
             writeLoggedFlushedResponse(responseString);
         } else if (argument == null) {
-            responseString = "501 Usage: AUTH (authentication type) <challenge>";
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>";
             writeLoggedFlushedResponse(responseString);
         } else {
             String initialResponse = null;
@@ -911,11 +963,11 @@ public class SMTPHandler
             argument = argument.substring(0, colonIndex);
         }
         if (state.containsKey(SENDER)) {
-            responseString = "503 Sender already specified";
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
             writeLoggedFlushedResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {
-            responseString = "501 Usage: MAIL FROM:<sender>";
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: MAIL FROM:<sender>";
             writeLoggedFlushedResponse(responseString);
         } else {
             sender = sender.trim();
@@ -932,7 +984,7 @@ public class SMTPHandler
                 StringTokenizer optionTokenizer = new StringTokenizer(mailOptionString, " ");
                 while (optionTokenizer.hasMoreElements()) {
                     String mailOption = optionTokenizer.nextToken();
-                    int equalIndex = mailOptionString.indexOf('=');
+                    int equalIndex = mailOption.indexOf('=');
                     String mailOptionName = mailOption;
                     String mailOptionValue = "";
                     if (equalIndex > 0) {
@@ -961,7 +1013,7 @@ public class SMTPHandler
                 }
             }
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
-                responseString = "501 Syntax error in MAIL command";
+                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command";
                 writeLoggedFlushedResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
@@ -985,7 +1037,7 @@ public class SMTPHandler
                 try {
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
-                    responseString = "501 Syntax error in sender address";
+                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address";
                     writeLoggedFlushedResponse(responseString);
                     if (getLogger().isErrorEnabled()) {
                         StringBuffer errorBuffer =
@@ -1000,7 +1052,7 @@ public class SMTPHandler
                 }
             }
             state.put(SENDER, senderAddress);
-            responseBuffer.append("250 Sender <")
+            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
                           .append(sender)
                           .append("> OK");
             responseString = clearResponseBuffer();
@@ -1020,7 +1072,7 @@ public class SMTPHandler
             size = Integer.parseInt(mailOptionValue);
         } catch (NumberFormatException pe) {
             // This is a malformed option value.  We return an error
-            String responseString = "501 Syntactically incorrect value for SIZE parameter";
+            String responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter";
             writeLoggedFlushedResponse(responseString);
             getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             return false;
@@ -1036,7 +1088,7 @@ public class SMTPHandler
         long maxMessageSize = theConfigData.getMaxMessageSize();
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
             // Let the client know that the size limit has been hit.
-            String responseString = "552 Message size exceeds fixed maximum message size";
+            String responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Message size exceeds fixed maximum message size";
             writeLoggedFlushedResponse(responseString);
             StringBuffer errorBuffer =
                 new StringBuffer(256)
@@ -1077,11 +1129,11 @@ public class SMTPHandler
             argument = argument.substring(0, colonIndex);
         }
         if (!state.containsKey(SENDER)) {
-            responseString = "503 Need MAIL before RCPT";
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT";
             writeLoggedFlushedResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
                    || recipient == null) {
-            responseString = "501 Usage: RCPT TO:<recipient>";
+            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>";
             writeLoggedFlushedResponse(responseString);
         } else {
             Collection rcptColl = (Collection) state.get(RCPT_LIST);
@@ -1092,37 +1144,15 @@ public class SMTPHandler
             int lastChar = recipient.lastIndexOf('>');
             // Check to see if any options are present and, if so, whether they are correctly formatted
             // (separated from the closing angle bracket by a ' ').
+            String rcptOptionString = null;
             if ((lastChar > 0) && (recipient.length() > lastChar + 2) && (recipient.charAt(lastChar + 1) == ' ')) {
-                String rcptOptionString = recipient.substring(lastChar + 2);
+                rcptOptionString = recipient.substring(lastChar + 2);
 
                 // Remove the options from the recipient
                 recipient = recipient.substring(0, lastChar + 1);
-
-                StringTokenizer optionTokenizer = new StringTokenizer(rcptOptionString, " ");
-                while (optionTokenizer.hasMoreElements()) {
-                    String rcptOption = optionTokenizer.nextToken();
-                    int equalIndex = rcptOptionString.indexOf('=');
-                    String rcptOptionName = rcptOption;
-                    String rcptOptionValue = "";
-                    if (equalIndex > 0) {
-                        rcptOptionName = rcptOption.substring(0, equalIndex).toUpperCase(Locale.US);
-                        rcptOptionValue = rcptOption.substring(equalIndex + 1);
-                    }
-                    // Unexpected option attached to the RCPT command
-                    if (getLogger().isDebugEnabled()) {
-                        StringBuffer debugBuffer =
-                            new StringBuffer(128)
-                                .append("RCPT command had unrecognized/unexpected option ")
-                                .append(rcptOptionName)
-                                .append(" with value ")
-                                .append(rcptOptionValue);
-                        getLogger().debug(debugBuffer.toString());
-                    }
-                }
-                optionTokenizer = null;
             }
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
-                responseString = "501 Syntax error in parameters or arguments";
+                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
                 writeLoggedFlushedResponse(responseString);
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
@@ -1143,7 +1173,12 @@ public class SMTPHandler
             try {
                 recipientAddress = new MailAddress(recipient);
             } catch (Exception pe) {
-                responseString = "501 Syntax error in recipient address";
+                /*
+                 * from RFC2822;
+                 * 553 Requested action not taken: mailbox name not allowed
+                 *     (e.g., mailbox syntax incorrect)
+                 */
+                responseString = "553 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address";
                 writeLoggedFlushedResponse(responseString);
 
                 if (getLogger().isErrorEnabled()) {
@@ -1157,13 +1192,23 @@ public class SMTPHandler
                 }
                 return;
             }
-            if (authRequired) {
+
+            if (blocklisted &&                                                // was found in the RBL
+                (!relayingAllowed || (authRequired && getUser() == null)) &&  // Not an authorized IP or SMTP AUTH is enabled and not authenticated
+                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress.getUser().equalsIgnoreCase("abuse"))) {
+                // trying to send e-mail to other than postmaster or abuse
+                responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Rejected: unauthenticated e-mail from " + remoteIP + " is restricted.  Contact the postmaster for details.";
+                writeLoggedFlushedResponse(responseString);
+                return;
+            }
+
+            if (authRequired && !relayingAllowed) {
                 // Make sure the mail is being sent locally if not
                 // authenticated else reject.
                 if (getUser() == null) {
                     String toDomain = recipientAddress.getHost();
                     if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
-                        responseString = "530 Authentication Required";
+                        responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
                         writeLoggedFlushedResponse(responseString);
                         getLogger().error("Rejected message - authentication is required for mail request");
                         return;
@@ -1177,7 +1222,7 @@ public class SMTPHandler
 
                         if ((!authUser.equals(senderAddress.getUser())) ||
                             (!theConfigData.getMailServer().isLocalServer(senderAddress.getHost()))) {
-                            responseString = "503 Incorrect Authentication for Specified Email Address";
+                            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
                             writeLoggedFlushedResponse(responseString);
                             if (getLogger().isErrorEnabled()) {
                                 StringBuffer errorBuffer =
@@ -1195,15 +1240,40 @@ public class SMTPHandler
             } else if (!relayingAllowed) {
                 String toDomain = recipientAddress.getHost();
                 if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
-                    responseString = "550 - Requested action not taken: relaying denied";
+                    responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
                     writeLoggedFlushedResponse(responseString);
                     getLogger().error("Rejected message - " + remoteIP + " not authorized to relay to " + toDomain);
                     return;
                 }
             }
+            if (rcptOptionString != null) {
+
+              StringTokenizer optionTokenizer = new StringTokenizer(rcptOptionString, " ");
+              while (optionTokenizer.hasMoreElements()) {
+                  String rcptOption = optionTokenizer.nextToken();
+                  int equalIndex = rcptOption.indexOf('=');
+                  String rcptOptionName = rcptOption;
+                  String rcptOptionValue = "";
+                  if (equalIndex > 0) {
+                      rcptOptionName = rcptOption.substring(0, equalIndex).toUpperCase(Locale.US);
+                      rcptOptionValue = rcptOption.substring(equalIndex + 1);
+                  }
+                  // Unexpected option attached to the RCPT command
+                  if (getLogger().isDebugEnabled()) {
+                      StringBuffer debugBuffer =
+                          new StringBuffer(128)
+                              .append("RCPT command had unrecognized/unexpected option ")
+                              .append(rcptOptionName)
+                              .append(" with value ")
+                              .append(rcptOptionValue);
+                      getLogger().debug(debugBuffer.toString());
+                  }
+              }
+              optionTokenizer = null;
+            }
             rcptColl.add(recipientAddress);
             state.put(RCPT_LIST, rcptColl);
-            responseBuffer.append("250 Recipient <")
+            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
                           .append(recipient)
                           .append("> OK");
             responseString = clearResponseBuffer();
@@ -1218,7 +1288,7 @@ public class SMTPHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doNOOP(String argument) {
-        String responseString = "250 OK";
+        String responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
         writeLoggedFlushedResponse(responseString);
     }
 
@@ -1231,10 +1301,10 @@ public class SMTPHandler
     private void doRSET(String argument) {
         String responseString = "";
         if ((argument == null) || (argument.length() == 0)) {
-            responseString = "250 OK";
+            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
             resetState();
         } else {
-            responseString = "500 Unexpected argument provided with RSET command";
+            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
         }
         writeLoggedFlushedResponse(responseString);
     }
@@ -1249,14 +1319,14 @@ public class SMTPHandler
     private void doDATA(String argument) {
         String responseString = null;
         if ((argument != null) && (argument.length() > 0)) {
-            responseString = "500 Unexpected argument provided with DATA command";
+            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
             writeLoggedFlushedResponse(responseString);
         }
         if (!state.containsKey(SENDER)) {
-            responseString = "503 No sender specified";
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
             writeLoggedFlushedResponse(responseString);
         } else if (!state.containsKey(RCPT_LIST)) {
-            responseString = "503 No recipients specified";
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
             writeLoggedFlushedResponse(responseString);
         } else {
             responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
@@ -1301,7 +1371,7 @@ public class SMTPHandler
                     state.put(MESG_FAILED, Boolean.TRUE);
                     // then let the client know that the size
                     // limit has been hit.
-                    responseString = "552 Error processing message: "
+                    responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
                                 + e.getMessage();
                     StringBuffer errorBuffer =
                         new StringBuffer(256)
@@ -1315,7 +1385,7 @@ public class SMTPHandler
                             .append(theConfigData.getMaxMessageSize());
                     getLogger().error(errorBuffer.toString());
                 } else {
-                    responseString = "451 Error processing message: "
+                    responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
                                 + me.getMessage();
                     getLogger().error("Unknown error occurred while processing DATA.", me);
                 }
@@ -1332,7 +1402,7 @@ public class SMTPHandler
                 }
             }
             resetState();
-            responseString = "250 Message received";
+            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
             writeLoggedFlushedResponse(responseString);
         }
     }
@@ -1478,12 +1548,12 @@ public class SMTPHandler
 
         String responseString = "";
         if ((argument == null) || (argument.length() == 0)) {
-            responseBuffer.append("221 ")
+            responseBuffer.append("221 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" ")
                           .append(theConfigData.getHelloName())
                           .append(" Service closing transmission channel");
             responseString = clearResponseBuffer();
         } else {
-            responseString = "500 Unexpected argument provided with QUIT command";
+            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command";
         }
         writeLoggedFlushedResponse(responseString);
     }
@@ -1496,7 +1566,7 @@ public class SMTPHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doVRFY(String argument) {
-        String responseString = "502 VRFY is not supported";
+        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported";
         writeLoggedFlushedResponse(responseString);
     }
 
@@ -1509,7 +1579,7 @@ public class SMTPHandler
      */
     private void doEXPN(String argument) {
 
-        String responseString = "502 EXPN is not supported";
+        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported";
         writeLoggedFlushedResponse(responseString);
     }
 
@@ -1522,7 +1592,7 @@ public class SMTPHandler
      */
     private void doHELP(String argument) {
 
-        String responseString = "502 HELP is not supported";
+        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" HELP is not supported";
         writeLoggedFlushedResponse(responseString);
     }
 
@@ -1534,7 +1604,7 @@ public class SMTPHandler
      * @param argument the argument passed in with the command by the SMTP client
      */
     private void doUnknownCmd(String command, String argument) {
-        responseBuffer.append("500 ")
+        responseBuffer.append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.UNDEFINED_STATUS)+" ")
                       .append(theConfigData.getHelloName())
                       .append(" Syntax error, command unrecognized: ")
                       .append(command);

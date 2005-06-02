@@ -72,7 +72,10 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * Whether authentication is required to use
      * this SMTP server.
      */
-    private boolean authRequired = false;
+    private final static int AUTH_DISABLED = 0;
+    private final static int AUTH_REQUIRED = 1;
+    private final static int AUTH_ANNOUNCE = 2;
+    private int authRequired = AUTH_DISABLED;
 
     /**
      * Whether the server verifies that the user
@@ -145,9 +148,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         if (isEnabled()) {
             mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
             Configuration handlerConfiguration = configuration.getChild("handler");
-            authRequired = handlerConfiguration.getChild("authRequired").getValueAsBoolean(false);
+            String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
+            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
+            else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
+            else authRequired = AUTH_DISABLED;
             verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
-            if (authRequired) {
+            if (authRequired != AUTH_DISABLED) {
                 if (verifyIdentity) {
                     getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
                 } else {
@@ -158,7 +164,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             }
 
             String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
-            if (!authRequired && authorizedAddresses == null) {
+            if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
                  * relay e-mail.  Therefore if SMTP AUTH is not
@@ -356,7 +362,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
          */
         public boolean isAuthRequired(String remoteIP) {
-            boolean authRequired = SMTPServer.this.authRequired;
+              if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
@@ -367,7 +374,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
          */
         public boolean isAuthRequired() {
-            return SMTPServer.this.authRequired;
+            return SMTPServer.this.authRequired != AUTH_DISABLED;
         }
 
         /**
