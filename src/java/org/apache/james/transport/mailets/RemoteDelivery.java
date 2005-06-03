@@ -463,14 +463,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     log(logMessageBuffer.toString());
                     return true;
                 } catch (SendFailedException sfe) {
-                    if (sfe.getValidSentAddresses() == null
-                          || sfe.getValidSentAddresses().length < 1) {
-                        if (isDebug) log("Send failed, continuing with any other servers");
+                    if (sfe.getValidUnsentAddresses() != null
+                        && sfe.getValidUnsentAddresses().length > 0) {
+                        if (isDebug) log("Send failed, " + sfe.getValidUnsentAddresses().length() + " valid addresses remain, continuing with any other servers");
                         lastError = sfe;
                         continue;
                     } else {
-                        // If any mail was sent then the outgoing
-                        // server config must be ok, therefore rethrow
+                        // There are no valid addresses left to send, so rethrow                                                                                                  
                         throw sfe;
                     }
                 } catch (MessagingException me) {
