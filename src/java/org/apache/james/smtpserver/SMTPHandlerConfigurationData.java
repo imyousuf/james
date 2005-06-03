@@ -20,6 +20,8 @@ package org.apache.james.smtpserver;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 
+import java.util.List;
+
 /**
  * Provides a number of server-wide constant values to the
  * SMTPHandlers
@@ -93,4 +95,11 @@ public interface SMTPHandlerConfigurationData {
      * @return the local users repository
      */
     UsersRepository getUsersRepository();
+
+    /**
+     * Returns the RBL server list.
+     *
+     * @return the local users repository
+     */
+    String[] getRBLServers();
 }

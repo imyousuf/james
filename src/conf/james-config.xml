@@ -570,7 +570,18 @@
          <helloName autodetect="true">myMailServer</helloName>
          <connectiontimeout>360000</connectiontimeout>
 
-         <!--  Uncomment this if you want to require SMTP authentication. -->
+         <!--  Uncomment this if you want to require SMTP authentication.
+
+               supported values:
+               true: required but announced only to not authorizedAddresses
+               false: don't use AUTH
+               announce: like true, but always announce AUTH capability to clients
+
+               The correct behaviour per RFC value would be false or announce
+               but we still support true for backward compatibility and because
+               some webmail client fails when AUTH is announced but no authentication
+               information has been provided
+          -->
          <!--
          <authRequired>true</authRequired>
          -->
@@ -602,6 +613,16 @@
          <!--  This sets the maximum allowed message size (in kilobytes) for this -->
          <!--  SMTP service. If unspecified, the value defaults to 0, which means no limit. -->
          <maxmessagesize>0</maxmessagesize>
+
+            <!-- Uncomment this if you want to enable antispam dns based RBL services -->
+            <!--
+            <rblservers>
+               <rblserver> sbl-xbl.spamhaus.org </rblserver>
+               <rblserver> list.dsbl.org </rblserver>
+               <rblserver> dul.dnsbl.sorbs.net </rblserver>
+               <rblserver> relays.ordb.org </rblserver>
+            </rblservers>
+            -->
       </handler>
    </smtpserver>
 
