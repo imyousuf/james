@@ -39,6 +39,9 @@ import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.mailet.MailetContext;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
  *
@@ -120,6 +123,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private WatchdogFactory theWatchdogFactory;
 
     /**
+     * The sorted list of rbl servers to be checked to limit spam
+     */
+    private String[] rblServers;
+
+        /**
      * The configuration data to be passed to the handler
      */
     private SMTPHandlerConfigurationData theConfigData
@@ -211,6 +219,24 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             }
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
+            }
+
+            Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers");
+            if ( rblserverConfiguration != null ) {
+                ArrayList rblserverCollection = new ArrayList();
+                Configuration[] children = rblserverConfiguration.getChildren("rblserver");
+                if ( children != null ) {
+                    for ( int i = 0 ; i < children.length ; i++ ) {
+                        String rblServerName = children[i].getValue();
+                        rblserverCollection.add(rblServerName);
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info("Adding RBL server: " + rblServerName);
+                        }
+                    }
+            if (rblserverCollection != null && rblserverCollection.size() > 0) {
+            rblServers = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
+            }
+                }
             }
         } else {
             mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
@@ -396,6 +422,13 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          */
         public UsersRepository getUsersRepository() {
             return SMTPServer.this.users;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getRBLServers()
+         */
+        public String[] getRBLServers() {
+            return SMTPServer.this.rblServers;
         }
     }
 }

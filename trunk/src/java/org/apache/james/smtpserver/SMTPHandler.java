@@ -327,32 +327,31 @@ public class SMTPHandler
      * authenticated.
      */
 
-    static final String[] rblList = {"sbl-xbl.spamhaus.org", "list.dsbl.org", "dul.dnsbl.sorbs.net", "relays.ordb.org"};
-
-    private boolean checkDNSRBL(Socket conn) {
-        String ip = conn.getInetAddress().getHostAddress();
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(ip, " .", false);
-        while (st.hasMoreTokens()) {
-            sb.insert(0, st.nextToken() + ".");
-        }
-        String reversedOctets = sb.toString();
-
-        for (int i = 0 ; i < rblList.length ; i++) try {
-            // hardcode which DNS RBL for the moment
-            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+    private boolean checkDNSRBL(Socket conn, String[] rblList) {
+        if (rblList != null) {
+            String ip = conn.getInetAddress().getHostAddress();
+            StringBuffer sb = new StringBuffer();
+            StringTokenizer st = new StringTokenizer(ip, " .", false);
+            while (st.hasMoreTokens()) {
+                sb.insert(0, st.nextToken() + ".");
             }
-            return true;
-        } catch (java.net.UnknownHostException uhe) {
-            // if it is unknown, it isn't blocked
-        }
+            String reversedOctets = sb.toString();
 
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info("Connection from " + ip + " not restricted by blocklist.");
-        }
+            for (int i = 0 ; i < rblList.length ; i++) try {
+                // hardcode which DNS RBL for the moment
+                org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+                }
+                return true;
+            } catch (java.net.UnknownHostException uhe) {
+                // if it is unknown, it isn't blocked
+            }
 
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Connection from " + ip + " not restricted by blocklist.");
+            }
+        }
         return false;
     }
 
@@ -377,7 +376,7 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
-            blocklisted = checkDNSRBL(connection);
+        blocklisted = checkDNSRBL(connection, theConfigData.getRBLServers());
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
