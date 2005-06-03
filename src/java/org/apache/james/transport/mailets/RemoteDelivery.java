@@ -516,23 +516,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (isDebug) log("Recipients: " + recipients);
 
             /*
-            if (sfe.getValidSentAddresses() != null) {
-                Address[] validSent = sfe.getValidSentAddresses();
-                Collection recipients = mail.getRecipients();
-                //Remove these addresses for the recipients
-                for (int i = 0; i < validSent.length; i++) {
-                    try {
-                        MailAddress addr = new MailAddress(validSent[i].toString());
-                        recipients.remove(addr);
-                    } catch (ParseException pe) {
-                        //ignore once debugging done
-                        pe.printStackTrace();
-                    }
-                }
-            }
-            */
-
-            /*
              * The rest of the recipients failed for one reason or
              * another.
              *
