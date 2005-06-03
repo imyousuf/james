@@ -527,6 +527,15 @@ Legal:
         <zipfileset dir="${conf.dir}" fullpath="conf/james-fetchmail.xml">
           <include name="james-fetchmail.xml"/>
         </zipfileset>
+        <zipfileset dir="${conf.dir}" fullpath="conf/miResources.xml">
+          <include name="miResources.xml"/>
+        </zipfileset>
+        <zipfileset dir="${conf.dir}" fullpath="conf/james-listmanager.xml">
+          <include name="james-listmanager.xml"/>
+        </zipfileset>
+        <zipfileset dir="${conf.dir}" fullpath="conf/james-liststores.xml">
+          <include name="james-liststores.xml"/>
+        </zipfileset>
         <zipfileset dir="${conf.dir}/samples/fetchmail" prefix="conf/samples/fetchmail">
           <include name="*.xml"/>
         </zipfileset>
