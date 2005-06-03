@@ -903,6 +903,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     } catch (Exception e) {
                         // Prevent unexpected exceptions from causing looping by removing
                         // message from outgoing.
+			// DO NOT CHNANGE THIS to catch Error!  For example, if there were an OutOfMemory condition
+                        // caused because something else in the server was abusing memory, we would not want to
+                        // start purging the outgoing spool!
                         outgoing.remove(key);
                         throw e;
                     }
