@@ -327,6 +327,8 @@ public class SMTPHandler
      * authenticated.
      */
 
+    static final String[] rblList = {"sbl-xbl.spamhaus.org", "list.dsbl.org", "dul.dnsbl.sorbs.net", "relays.ordb.org"};
+
     private boolean checkDNSRBL(Socket conn) {
         String ip = conn.getInetAddress().getHostAddress();
         StringBuffer sb = new StringBuffer();
@@ -335,20 +337,22 @@ public class SMTPHandler
             sb.insert(0, st.nextToken() + ".");
         }
         String reversedOctets = sb.toString();
-        try {
+
+        for (int i = 0 ; i < rblList.length ; i++) try {
             // hardcode which DNS RBL for the moment
-            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + "sbl-xbl.spamhaus.org");
+            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+            }
             return true;
         } catch (java.net.UnknownHostException uhe) {
             // if it is unknown, it isn't blocked
         }
-        try {
-            // hardcode which DNS RBL for the moment
-            org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + "dul.dnsbl.sorbs.net");
-            return true;
-        } catch (java.net.UnknownHostException uhe) {
-            // if it is unknown, it isn't blocked
+
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("Connection from " + ip + " not restricted by blocklist.");
         }
+
         return false;
     }
 
