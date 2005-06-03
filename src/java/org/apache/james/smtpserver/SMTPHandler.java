@@ -1524,6 +1524,8 @@ public class SMTPHandler
                         .append(mail.getName())
                         .append(" from ")
                         .append(mail.getSender())
+                        .append(" on ")
+                        .append(remoteIP)
                         .append(" for ")
                         .append(recipientString);
                 getLogger().info(infoBuffer.toString());
