@@ -465,7 +465,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 } catch (SendFailedException sfe) {
                     if (sfe.getValidUnsentAddresses() != null
                         && sfe.getValidUnsentAddresses().length > 0) {
-                        if (isDebug) log("Send failed, " + sfe.getValidUnsentAddresses().length() + " valid addresses remain, continuing with any other servers");
+                        if (isDebug) log("Send failed, " + sfe.getValidUnsentAddresses().length + " valid addresses remain, continuing with any other servers");
                         lastError = sfe;
                         continue;
                     } else {
@@ -903,7 +903,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     } catch (Exception e) {
                         // Prevent unexpected exceptions from causing looping by removing
                         // message from outgoing.
-			// DO NOT CHNANGE THIS to catch Error!  For example, if there were an OutOfMemory condition
+                        // DO NOT CHNANGE THIS to catch Error!  For example, if there were an OutOfMemory condition
                         // caused because something else in the server was abusing memory, we would not want to
                         // start purging the outgoing spool!
                         outgoing.remove(key);
