@@ -46,6 +46,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
+import com.sun.mail.smtp.SMTPSendFailedException;
+import com.sun.mail.smtp.SMTPAddressFailedException;
+import com.sun.mail.smtp.SMTPAddressSucceededException;
+
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -347,6 +351,46 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
     }
 
+    /*
+     * private method to log the extended SendFailedException introduced in JavaMail 1.3.2.
+     */
+    private void logSendFailedException(SendFailedException sfe) {
+        if (isDebug) {
+            MessagingException me = (MessagingException)sfe;
+            if (me instanceof SMTPSendFailedException) {
+                SMTPSendFailedException ssfe = (SMTPSendFailedException)me;
+                log("SMTP SEND FAILED:");
+                log(ssfe.toString());
+                log("  Command: " + ssfe.getCommand());
+                log("  RetCode: " + ssfe.getReturnCode());
+                log("  Response: " + ssfe.getMessage());
+            } else {
+                log("Send failed: " + me.toString());
+            }
+            Exception ne;
+            while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
+                me = (MessagingException)ne;
+                if (me instanceof SMTPAddressFailedException) {
+                    SMTPAddressFailedException e = (SMTPAddressFailedException)me;
+                    log("ADDRESS FAILED:");
+                    log(e.toString());
+                    log("  Address: " + e.getAddress());
+                    log("  Command: " + e.getCommand());
+                    log("  RetCode: " + e.getReturnCode());
+                    log("  Response: " + e.getMessage());
+                } else if (me instanceof SMTPAddressSucceededException) {
+                    log("ADDRESS SUCCEEDED:");
+                    SMTPAddressSucceededException e = (SMTPAddressSucceededException)me;
+                    log(e.toString());
+                    log("  Address: " + e.getAddress());
+                    log("  Command: " + e.getCommand());
+                    log("  RetCode: " + e.getReturnCode());
+                    log("  Response: " + e.getMessage());
+                }
+            }
+        }
+    }
+
     /**
      * We can assume that the recipients of this message are all going to the same
      * mail server.  We will now rely on the DNS server to do DNS MX record lookup
@@ -414,7 +458,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         .append(outgoingMailServer.getHostName())
                         .append(" at ")
                         .append(outgoingMailServer.getHost())
-                        .append(" to addresses ")
+                        .append(" for addresses ")
                         .append(Arrays.asList(addr));
                     log(logMessageBuffer.toString());
 
@@ -459,17 +503,41 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                       .append(") sent successfully to ")
                                       .append(outgoingMailServer.getHostName())
                                       .append(" at ")
-                                      .append(outgoingMailServer.getHost());
+                                      .append(outgoingMailServer.getHost())
+                                      .append(" for ")
+                                      .append(mail.getRecipients());
                     log(logMessageBuffer.toString());
                     return true;
                 } catch (SendFailedException sfe) {
+                    logSendFailedException(sfe);
+
+                    if (sfe.getValidSentAddresses() != null) {
+                        Address[] validSent = sfe.getValidSentAddresses();
+                        if (validSent.length > 0) {
+                            StringBuffer logMessageBuffer =
+                                new StringBuffer(256)
+                                .append("Mail (")
+                                .append(mail.getName())
+                                .append(") sent successfully for ")
+                                .append(Arrays.asList(validSent));
+                            log(logMessageBuffer.toString());
+                        }
+                    }
+
+                    /* SMTPSendFailedException introduced in JavaMail 1.3.2, and provides detailed protocol reply code for the operation */
+                    if (sfe instanceof SMTPSendFailedException) {
+                        SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
+                        // if 5xx, terminate this delivery attempt by re-throwing the exception.
+                        if (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599) throw sfe;
+                    }
+
                     if (sfe.getValidUnsentAddresses() != null
                         && sfe.getValidUnsentAddresses().length > 0) {
                         if (isDebug) log("Send failed, " + sfe.getValidUnsentAddresses().length + " valid addresses remain, continuing with any other servers");
                         lastError = sfe;
                         continue;
                     } else {
-                        // There are no valid addresses left to send, so rethrow                                                                                                  
+                        // There are no valid addresses left to send, so rethrow
                         throw sfe;
                     }
                 } catch (MessagingException me) {
@@ -509,18 +577,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 throw lastError;
             }
         } catch (SendFailedException sfe) {
-            boolean deleteMessage = false;
+        logSendFailedException(sfe);
+
             Collection recipients = mail.getRecipients();
 
-            //Would like to log all the types of email addresses
-            if (isDebug) log("Recipients: " + recipients);
+            boolean deleteMessage = false;
 
             /*
-             * The rest of the recipients failed for one reason or
-             * another.
-             *
-             * SendFailedException actually handles this for us.  For
-             * example, if you send a message that has multiple invalid
+             * If you send a message that has multiple invalid
              * addresses, you'll get a top-level SendFailedException
              * that that has the valid, valid-unsent, and invalid
              * address lists, with all of the server response messages
@@ -532,9 +596,33 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
              * sfe.getValidUnsentAddresses() should be considered temporary.
              *
              * JavaMail v1.3 properly populates those collections based
-             * upon the 4xx and 5xx response codes.
+             * upon the 4xx and 5xx response codes to RCPT TO.  Some
+             * servers, such as Yahoo! don't respond to the RCPT TO,
+             * and provide a 5xx reply after DATA.  In that case, we
+             * will pick up the failure from SMTPSendFailedException.
              *
              */
+
+            /* SMTPSendFailedException introduced in JavaMail 1.3.2, and provides detailed protocol reply code for the operation */
+            if (sfe instanceof SMTPSendFailedException) {
+                // If we got an SMTPSendFailedException, use its RetCode to determine default permanent/temporary failure
+                SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
+                deleteMessage = (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
+            } else {
+                // Sometimes we'll get a normal SendFailedException with nested SMTPAddressFailedException, so use the latter RetCode
+                MessagingException me = (MessagingException)sfe;
+                Exception ne;
+                while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
+                    me = (MessagingException)ne;
+                    if (me instanceof SMTPAddressFailedException) {
+                        SMTPAddressFailedException ssfe = (SMTPAddressFailedException)me;
+                        deleteMessage = (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
+                    }
+                }
+            }
+
+            // log the original set of intended recipients
+            if (isDebug) log("Recipients: " + recipients);
 
             if (sfe.getInvalidAddresses() != null) {
                 Address[] address = sfe.getInvalidAddresses();
@@ -570,7 +658,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                     }
                     if (isDebug) log("Unsent recipients: " + recipients);
-                    deleteMessage = failMessage(mail, sfe, false);
+                    if (sfe instanceof SMTPSendFailedException) {
+                        SMTPSendFailedException ssfe = (SMTPSendFailedException) sfe;
+                        deleteMessage = failMessage(mail, sfe, ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
+                    } else {
+                        deleteMessage = failMessage(mail, sfe, false);
+                    }
                 }
             }
 
@@ -621,7 +714,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 .append(mail.getName())
                 .append(": ");
         out.print(logBuffer.toString());
-        ex.printStackTrace(out);
+        if (isDebug) ex.printStackTrace(out);
         log(sout.toString());
         if (!permanent) {
             if (!mail.getState().equals(Mail.ERROR)) {
@@ -717,7 +810,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         }
         out.println();
-        out.println("The original message is attached.");
 
         log("Sending failure message " + mail.getName());
         try {
