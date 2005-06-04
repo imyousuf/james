@@ -617,10 +617,12 @@
             <!-- Uncomment this if you want to enable antispam dns based RBL services -->
             <!--
             <rblservers>
-               <rblserver> sbl-xbl.spamhaus.org </rblserver>
-               <rblserver> list.dsbl.org </rblserver>
-               <rblserver> dul.dnsbl.sorbs.net </rblserver>
-               <rblserver> relays.ordb.org </rblserver>
+               <whitelist> query.bondedsender.org </whitelist>
+
+               <blacklist> sbl-xbl.spamhaus.org </blacklist>
+               <blacklist> list.dsbl.org </blacklist>
+               <blacklist> dul.dnsbl.sorbs.net </blacklist>
+               <blacklist> relays.ordb.org </blacklist>
             </rblservers>
             -->
       </handler>

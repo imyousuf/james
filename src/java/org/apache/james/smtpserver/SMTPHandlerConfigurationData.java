@@ -98,8 +98,14 @@ public interface SMTPHandlerConfigurationData {
 
     /**
      * Returns the RBL server list.
+     * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
+     * This checks DNSRBL whitelists and blacklists.  If the remote IP is whitelisted
+     * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
+     * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
+     * abuse (RFC 2142), unless authenticated.
      *
-     * @return the local users repository
+     * @return whether the sending IP is restricted
      */
-    String[] getRBLServers();
+
+    boolean checkDNSRBL(java.net.Socket conn);
 }
