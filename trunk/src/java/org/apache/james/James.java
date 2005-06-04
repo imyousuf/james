@@ -637,11 +637,6 @@ public class James
      */
 
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
-        MimeMessage orig = mail.getMessage();
-
-        //Create the reply message
-        MimeMessage reply = (MimeMessage) orig.reply(false);
-
         if (mail.getSender() == null) {
             if (getLogger().isInfoEnabled())
                 getLogger().info("Mail to be bounced contains a null (<>) reverse path.  No bounce will be sent.");
@@ -650,56 +645,15 @@ public class James
             // Bounce message goes to the reverse path, not to the Reply-To address
             if (getLogger().isInfoEnabled())
                 getLogger().info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
-            reply.setRecipient(MimeMessage.RecipientType.TO, mail.getSender().toInternetAddress());
         }
 
-        reply.setSentDate(new Date());
-        //Create the list of recipients in our MailAddress format
-        Collection recipients = new HashSet();
-        Address addresses[] = reply.getAllRecipients();
-        if (addresses != null) {
-            for (int i = 0; i < addresses.length; i++) {
-                // Javamail treats the "newsgroups:" header field as a
-                // recipient, so we want to filter those out.
-                if ( addresses[i] instanceof InternetAddress ) {
-                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
-                }
-            }
-        }
+        Mail reply = ((MailImpl) mail).bounce(message);
         //Change the sender...
-        reply.setFrom(bouncer.toInternetAddress());
-        try {
-            //Create the message body
-            MimeMultipart multipart = new MimeMultipart("mixed");
-
-            // Create the message
-            MimeMultipart mpContent = new MimeMultipart("alternative");
-            MimeBodyPart contentPartRoot = new MimeBodyPart();
-            contentPartRoot.setContent(mpContent);
-
-            multipart.addBodyPart(contentPartRoot);
-
-            MimeBodyPart part = new MimeBodyPart();
-            part.setText(message);
-            mpContent.addBodyPart(part);
-
-            //Add the original message as the second mime body part
-            part = new MimeBodyPart();
-            part.setContent(orig, "message/rfc822");
-            if ((orig.getSubject() != null) && (orig.getSubject().trim().length() > 0)) {
-                part.setFileName(orig.getSubject().trim());
-            } else {
-                part.setFileName("No Subject");
-            }
-            part.setDisposition(javax.mail.Part.ATTACHMENT);
-            multipart.addBodyPart(part);
-            reply.setContent(multipart);
-        } catch (Exception ioe) {
-            throw new MessagingException("Unable to create multipart body", ioe);
-        }
-        reply.saveChanges();
+        reply.getMessage().setFrom(bouncer.toInternetAddress());
+        reply.getMessage().saveChanges();
         //Send it off ... with null reverse-path
-        sendMail(null, recipients, reply);
+        ((MailImpl)reply).setSender(null);
+        sendMail(reply);
     }
 
     /**

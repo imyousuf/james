@@ -456,6 +456,7 @@ public class MailImpl implements Disposable, Mail {
         MimeMessage original = getMessage();
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
+        reply.setSentDate(new Date());
         Collection recipients = new HashSet();
         recipients.add(getSender());
         InternetAddress addr[] = { new InternetAddress(getSender().toString())};
