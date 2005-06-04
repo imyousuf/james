@@ -41,6 +41,7 @@ import org.apache.mailet.MailetContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
@@ -123,9 +124,10 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private WatchdogFactory theWatchdogFactory;
 
     /**
-     * The sorted list of rbl servers to be checked to limit spam
+     * The lists of rbl servers to be checked to limit spam
      */
-    private String[] rblServers;
+    private String[] whitelist;
+    private String[] blacklist;
 
         /**
      * The configuration data to be passed to the handler
@@ -224,18 +226,33 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers");
             if ( rblserverConfiguration != null ) {
                 ArrayList rblserverCollection = new ArrayList();
-                Configuration[] children = rblserverConfiguration.getChildren("rblserver");
+                Configuration[] children = rblserverConfiguration.getChildren("whitelist");
                 if ( children != null ) {
                     for ( int i = 0 ; i < children.length ; i++ ) {
                         String rblServerName = children[i].getValue();
                         rblserverCollection.add(rblServerName);
                         if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Adding RBL server: " + rblServerName);
+                            getLogger().info("Adding RBL server to whitelist: " + rblServerName);
                         }
                     }
-            if (rblserverCollection != null && rblserverCollection.size() > 0) {
-            rblServers = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
-            }
+                    if (rblserverCollection != null && rblserverCollection.size() > 0) {
+                        whitelist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
+                        rblserverCollection.clear();
+                    }
+                }
+                children = rblserverConfiguration.getChildren("blacklist");
+                if ( children != null ) {
+                    for ( int i = 0 ; i < children.length ; i++ ) {
+                        String rblServerName = children[i].getValue();
+                        rblserverCollection.add(rblServerName);
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info("Adding RBL server to blacklist: " + rblServerName);
+                        }
+                    }
+                    if (rblserverCollection != null && rblserverCollection.size() > 0) {
+                        blacklist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
+                        rblserverCollection.clear();
+                    }
                 }
             }
         } else {
@@ -425,10 +442,52 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getRBLServers()
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
          */
-        public String[] getRBLServers() {
-            return SMTPServer.this.rblServers;
+        /*
+         * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
+         * This checks DNSRBL whitelists and blacklists.  If the remote IP is whitelisted
+         * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
+         * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
+         * abuse (RFC 2142), unless authenticated.
+         */
+
+        public boolean checkDNSRBL(java.net.Socket conn) {
+            if (whitelist != null || blacklist != null) {
+                String ip = conn.getInetAddress().getHostAddress();
+                StringBuffer sb = new StringBuffer();
+                StringTokenizer st = new StringTokenizer(ip, " .", false);
+                while (st.hasMoreTokens()) {
+                    sb.insert(0, st.nextToken() + ".");
+                }
+                String reversedOctets = sb.toString();
+
+                if (whitelist != null) {
+                    String[] rblList = SMTPServer.this.whitelist;
+                    for (int i = 0 ; i < rblList.length ; i++) try {
+                        org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info("Connection from " + ip + " whitelisted by " + rblList[i]);
+                        }
+                        return false;
+                    } catch (java.net.UnknownHostException uhe) {
+                    }
+                }
+
+                if (blacklist != null) {
+                    String[] rblList = SMTPServer.this.blacklist;
+                    for (int i = 0 ; i < rblList.length ; i++) try {
+                        org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                        if (getLogger().isInfoEnabled()) {
+                            getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+                        }
+                        return true;
+                    } catch (java.net.UnknownHostException uhe) {
+                        // if it is unknown, it isn't blocked
+                    }
+                }
+            }
+            return false;
         }
     }
 }

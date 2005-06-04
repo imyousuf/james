@@ -320,41 +320,6 @@ public class SMTPHandler
         }
     }
 
-    /*
-     * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
-     * This checks a DNSRBL.  If the remote IP is listed, the sender will only be
-     * permitted to send e-mail to postmaster (RFC 2821) or abuse (RFC 2142), unless
-     * authenticated.
-     */
-
-    private boolean checkDNSRBL(Socket conn, String[] rblList) {
-        if (rblList != null) {
-            String ip = conn.getInetAddress().getHostAddress();
-            StringBuffer sb = new StringBuffer();
-            StringTokenizer st = new StringTokenizer(ip, " .", false);
-            while (st.hasMoreTokens()) {
-                sb.insert(0, st.nextToken() + ".");
-            }
-            String reversedOctets = sb.toString();
-
-            for (int i = 0 ; i < rblList.length ; i++) try {
-                // hardcode which DNS RBL for the moment
-                org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
-                }
-                return true;
-            } catch (java.net.UnknownHostException uhe) {
-                // if it is unknown, it isn't blocked
-            }
-
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Connection from " + ip + " not restricted by blocklist.");
-            }
-        }
-        return false;
-    }
-
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
@@ -376,7 +341,7 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
-        blocklisted = checkDNSRBL(connection, theConfigData.getRBLServers());
+            blocklisted = theConfigData.checkDNSRBL(connection);
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
