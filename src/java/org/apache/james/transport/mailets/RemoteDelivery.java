@@ -749,7 +749,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
 
         if (mail.getSender() == null) {
-            log("Null Sender: no bounce will be generated for " + " mail.getName());
+            log("Null Sender: no bounce will be generated for " + mail.getName());
             return true;
         }
 
