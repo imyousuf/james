@@ -748,7 +748,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         }
 
-        if (mail.getSender() == null) return true;
+        if (mail.getSender() == null) {
+            log("Null Sender: no bounce will be generated for " + " mail.getName());
+            return true;
+        }
 
         if (bounceProcessor != null) {
             // do the new DSN bounce
