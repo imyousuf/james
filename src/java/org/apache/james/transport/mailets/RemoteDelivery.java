@@ -747,6 +747,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 log(logBuffer.toString());
             }
         }
+
+        if (mail.getSender() == null) return true;
+
         if (bounceProcessor != null) {
             // do the new DSN bounce
             // setting attributes for DSN mailet
