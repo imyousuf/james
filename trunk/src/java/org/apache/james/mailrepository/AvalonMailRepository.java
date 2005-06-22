@@ -333,12 +333,20 @@ public class AvalonMailRepository
             MailImpl mc = null;
             try {
                 mc = (MailImpl) or.get(key);
-            } catch (RuntimeException re) {
+            } catch(OutOfMemoryError oome){
+                StringBuffer exceptionBuffer =
+                    new StringBuffer(128)
+                            .append("Exception retrieving mail: ")
+                            .append(oome.toString());
+                getLogger().debug(exceptionBuffer.toString());
+                return null;
+            }
+            catch (RuntimeException re) {
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
                             .append("Exception retrieving mail: ")
                             .append(re.toString())
-                            .append(", so we're deleting it... good riddance!");
+                            .append(", so we're deleting it.");
                 getLogger().debug(exceptionBuffer.toString());
                 remove(key);
                 return null;
