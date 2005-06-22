@@ -336,9 +336,9 @@ public class AvalonMailRepository
             } catch(OutOfMemoryError oome){
                 StringBuffer exceptionBuffer =
                     new StringBuffer(128)
-                            .append("Exception retrieving mail: ")
+                            .append("Out of memory when retrieving mail, not deleting: ")
                             .append(oome.toString());
-                getLogger().debug(exceptionBuffer.toString());
+                getLogger().warn(exceptionBuffer.toString());
                 return null;
             }
             catch (RuntimeException re) {
@@ -347,7 +347,7 @@ public class AvalonMailRepository
                             .append("Exception retrieving mail: ")
                             .append(re.toString())
                             .append(", so we're deleting it.");
-                getLogger().debug(exceptionBuffer.toString());
+                getLogger().warn(exceptionBuffer.toString());
                 remove(key);
                 return null;
             }
