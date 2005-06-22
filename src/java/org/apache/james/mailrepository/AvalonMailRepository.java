@@ -333,22 +333,19 @@ public class AvalonMailRepository
             MailImpl mc = null;
             try {
                 mc = (MailImpl) or.get(key);
-            } catch(OutOfMemoryError oome){
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(128)
-                            .append("Out of memory when retrieving mail, not deleting: ")
-                            .append(oome.toString());
-                getLogger().warn(exceptionBuffer.toString());
-                return null;
-            }
-            catch (RuntimeException re) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(128)
-                            .append("Exception retrieving mail: ")
+            } 
+            catch (RuntimeException re){
+                StringBuffer exceptionBuffer = new StringBuffer(128);
+                if(re.getCause() instanceof Error){
+                    exceptionBuffer.append("Error when retrieving mail, not deleting: ")
+                            .append(re.toString());
+                }else{
+                    exceptionBuffer.append("Exception retrieving mail: ")
                             .append(re.toString())
                             .append(", so we're deleting it.");
+                    remove(key);
+                }
                 getLogger().warn(exceptionBuffer.toString());
-                remove(key);
                 return null;
             }
             MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, destination, key);
