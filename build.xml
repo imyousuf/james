@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <!DOCTYPE project [
-    <!ENTITY check-targets SYSTEM "file:check-targets.ent">
+    <!ENTITY check-targets SYSTEM "./check-targets.ent">
   ]>
 
 <!-- ==========================================================================
