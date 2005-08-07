@@ -431,8 +431,8 @@ public class MBoxMailRepository
                 }
             }
             if (ins != null) try { ins.close(); } catch (IOException e) { getLogger().error("Unable to close file (General I/O problem) " + mboxFile, e); }
-            return foundMessage;
         }
+        return foundMessage;
     }
 
     /**
