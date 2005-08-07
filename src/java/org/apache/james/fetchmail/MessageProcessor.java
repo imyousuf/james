@@ -17,7 +17,6 @@
  
 package org.apache.james.fetchmail;
 
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -28,11 +27,8 @@ import java.util.StringTokenizer;
 
 import javax.mail.Address;
 import javax.mail.Flags;
-import javax.mail.Folder;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
@@ -932,13 +928,13 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isBouncing() throws MessagingException
     {
-        Enumeration enum =
+        Enumeration enumeration =
             getMessageIn().getMatchingHeaderLines(
                 new String[] { "X-fetched-from" });
         int count = 0;
-        while (enum.hasMoreElements())
+        while (enumeration.hasMoreElements())
         {
-            String header = (String) enum.nextElement();
+            String header = (String) enumeration.nextElement();
             if (header.equals(getFetchTaskName()))
                 count++;
         }
@@ -991,11 +987,11 @@ public class MessageProcessor extends ProcessorAbstract
     {
         try
         {
-            Enumeration enum =
+            Enumeration enumeration =
                 msg.getMatchingHeaderLines(new String[] { "Received" });
-            while (enum.hasMoreElements())
+            while (enumeration.hasMoreElements())
             {
-                String received = (String) enum.nextElement();
+                String received = (String) enumeration.nextElement();
 
                 int nextSearchAt = 0;
                 int i = 0;

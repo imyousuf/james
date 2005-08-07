@@ -172,10 +172,10 @@ public class ArticleIDRepository {
                 fin.close();
             }
         }
-        Enumeration enum = prop.keys();
+        Enumeration enumeration = prop.keys();
         NNTPArticle article = null;
-        while ( article == null && enum.hasMoreElements() ) {
-            String groupName = (String)enum.nextElement();
+        while ( article == null && enumeration.hasMoreElements() ) {
+            String groupName = (String)enumeration.nextElement();
             int number = Integer.parseInt(prop.getProperty(groupName));
             NNTPGroup group = repo.getGroup(groupName);
             if ( group != null ) {
