@@ -27,7 +27,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.services.User;
@@ -233,9 +232,9 @@ public class UsersLDAPRepository
             Attribute members
                 = ctx.getAttributes("", attrIDs).get(membersAttr);
             if (members != null) {
-                NamingEnumeration enum = members.getAll();
-                while (enum.hasMore()) {
-                    result.add((String)enum.next());
+                NamingEnumeration enumeration = members.getAll();
+                while (enumeration.hasMore()) {
+                    result.add(enumeration.next());
                 }
             }
         } catch (NamingException e) {
@@ -373,10 +372,10 @@ public class UsersLDAPRepository
                         .append(usersDomain);
             String filter = filterBuffer.toString();
 
-            NamingEnumeration enum  = rootCtx.search("", filter, ctls);
+            NamingEnumeration enumeration  = rootCtx.search("", filter, ctls);
 
-            if (enum.hasMore()) { // ie User is in Directory
-                SearchResult newSr = (SearchResult)enum.next();
+            if (enumeration.hasMore()) { // ie User is in Directory
+                SearchResult newSr = (SearchResult)enumeration.next();
                 String userDN = newSr.getName();
                 Attribute servers = rootCtx.getAttributes(userDN, returnAttrs).get(groupAttr);
 
@@ -500,10 +499,10 @@ public class UsersLDAPRepository
                         .append(usersDomain);
             String filter = filterBuffer.toString();
 
-            NamingEnumeration enum  = rootCtx.search("", filter, ctls);
+            NamingEnumeration enumeration  = rootCtx.search("", filter, ctls);
 
-            if (enum.hasMore()) { // ie User is in Directory
-                SearchResult newSr = (SearchResult)enum.next();
+            if (enumeration.hasMore()) { // ie User is in Directory
+                SearchResult newSr = (SearchResult)enumeration.next();
                 String userDN = newSr.getName();
 
                 System.out.println("Found user entry: " + userDN);
@@ -621,9 +620,9 @@ public class UsersLDAPRepository
             try {
                 rootCtx = new InitialDirContext(env);
     
-                NamingEnumeration enum  = rootCtx.search("", filter, ctls);
-                if (enum.hasMore()) { // ie User is in Directory
-                    SearchResult sr = (SearchResult)enum.next();
+                NamingEnumeration enumeration  = rootCtx.search("", filter, ctls);
+                if (enumeration.hasMore()) { // ie User is in Directory
+                    SearchResult sr = (SearchResult)enumeration.next();
                     String userRDN = sr.getName();
                     StringBuffer userDNBuffer =
                         new StringBuffer(128)
