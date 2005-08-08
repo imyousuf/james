@@ -335,7 +335,7 @@ public class PoolConnEntry implements java.sql.Connection{
         connection.setTypeMap( map );
     }
 
-    /* JDBC_3_ANT_KEY
+    /*-- JDBC_3_ANT_KEY */
     public final void setHoldability(int holdability)
         throws SQLException
     {
@@ -418,6 +418,6 @@ public class PoolConnEntry implements java.sql.Connection{
     {
         throw new SQLException("This is not a Jdbc 3.0 Compliant Connection");
     }
-    JDBC_3_ANT_KEY */
+    /* JDBC_3_ANT_KEY --*/
 
 }

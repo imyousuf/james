@@ -68,14 +68,11 @@ Legal:
 
     <path id="project.class.path">
       <pathelement location="${dns.jar}"/>
-      <pathelement location="${commons-net.jar}"/>
       <pathelement location="${commons-collections.jar}"/>
       <pathelement location="${commons-dbcp.jar}"/>
       <pathelement location="${commons-pool.jar}"/>
       <pathelement location="${jakarta-oro.jar}"/>
       <pathelement location="${avalon-framework.jar}"/>
-      <pathelement location="${excalibur-threadcontext.jar}"/>
-      <pathelement location="${excalibur-collections.jar}"/>
       <pathelement location="${excalibur-pool.jar}"/>
       <pathelement location="${excalibur-thread.jar}"/>
       <pathelement location="${excalibur-datasource.jar}"/>
@@ -99,9 +96,7 @@ Legal:
         <fileset dir="${tools.lib.dir}">
             <include name="*.jar"/>
         </fileset>
-        <fileset dir="${phoenix.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
+      	<pathelement location="${phoenix-client.jar}"/>
     </path>
 
     <taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
@@ -190,16 +185,13 @@ Legal:
       <copy todir="${dist.dir}">
         <fileset dir="${phoenix.dir}">
           <exclude name="CVS/**"/>
-          <!-- exclude the thread and pool jars and use the candidate releases instead -->
-          <exclude name="**/excalibur-thread-1.0.jar"/>
-          <exclude name="**/excalibur-pool-1.0.jar"/>
         </fileset>
       </copy>
 
       <copy todir="${dist.dir}/lib" flatten="true">
         <fileset dir="${candidates.dir}">
           <exclude name="CVS/**"/>
-          <include name="excalibur-thread-1.1.jar"/>
+          <include name="excalibur-thread-1.1.1.jar"/>
           <include name="**/excalibur-pool-1.2.jar"/>
           <include name="**/commons-collections-2.1.jar"/>
         </fileset>
@@ -249,10 +241,10 @@ Legal:
                                    jdbc3
     ===================================================================
     -->
-    <target name="prepare-jdbc3" depends="prepare-common" if="jdbc3.present">
-        <echo message="JDBC v3 in classpath - making code JDBC 3.0 compliant"/>
-        <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY" value=""/>
-        <replace file="${build.src}/${poolconn.file}" token="JDBC_3_ANT_KEY */" value=""/>
+    <target name="prepare-jdbc3" depends="prepare-common" unless="jdbc3.present">
+        <echo message="JDBC v3 not in classpath - making code compliant with older JDBC"/>
+        <replace file="${build.src}/${poolconn.file}" token="/*-- JDBC_3_ANT_KEY */" value="/* JDBC_3_ANT_KEY"/>
+        <replace file="${build.src}/${poolconn.file}" token="/* JDBC_3_ANT_KEY --*/" value="JDBC_3_ANT_KEY */"/>
     </target>
 
     <!--
@@ -486,24 +478,26 @@ Legal:
           <include name="mailet-${mailet-version}.jar"/>
           <include name="james-${version}.jar"/>         
         </lib>
-        <lib dir="lib">
-          <include name="dnsjava-1.6.2.jar"/>
+        <lib dir="${lib.dir}">
+          <include name="dnsjava-2.0.0.jar"/>
           <include name="jakarta-oro-2.0.8.jar"/>
+          <include name="derby.jar"/>
+          <include name="derbytools.jar"/>
           <include name="mm.mysql-2.0.14.jar"/>
           <include name="mm.mysql.LICENCE"/>
-          <include name="avalon-framework-4.1.3.jar"/>
+          <include name="avalon-framework-4.1.4.jar"/>
           <!--<include name="cornerstone.jar"/>-->
           <include name="excalibur-datasource-1.0.jar"/>
           <include name="activation.jar"/>
           <include name="mail-1.3.2.jar"/>
-          <include name="commons-net-1.0.0-dev.jar"/>
+          <!--include name="commons-net-1.0.0-dev.jar"/-->
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
           <include name="bcmail-jdk13-124.jar"/>
           <include name="bcprov-jdk13-124.jar"/>
           <include name="jce-jdk13-124.jar"/>
         </lib>
-        <lib dir="lib/candidates">
+        <lib dir="${candidates.dir}">
           <include name="excalibur-thread-1.1.1.jar"/>
           <include name="excalibur-pool-1.2.jar"/>
           <include name="commons-collections-2.1.jar"/>
@@ -519,7 +513,6 @@ Legal:
           <include name="cornerstone-sockets-impl-1.0.jar"/>
           <include name="cornerstone-datasources-api-1.0.jar"/>
           <include name="cornerstone-datasources-impl-1.0.jar"/>
-
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
