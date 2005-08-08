@@ -871,12 +871,30 @@
            NOTE: DBCP is configured to recover from a database server outage.
                  This, alone, may be reason for you to give it a try.
       -->
-      <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
-      <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
-      <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
+      
+      <!-- Out of the box default configuration uses Apache Derby as the default -->
+      <!-- database, which is easy to embed - but we support all the major SQL   -->
+      <!-- databases - just reconfigure your JDBC configuration                  -->
+      <!--
+      <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
+         <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+         <dburl>jdbc:derby:target/data/derbydb;create=true</dburl>
+         <user></user>
+         <password></password>
+         <poolPreparedStatements>true</poolPreparedStatements>
+         <max>20</max>
+      </data-source>
+      -->
 
       <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
 
+      <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
+      <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
+      <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
+      <!-- -->
+      <!-- You can download latest Connector/J from   -->
+      <!-- http://dev.mysql.com/downloads/connector/j/3.1.html -->
+      <!-- -->
       <!-- Example, connecting to a MySQL database called "mail" on localhost-->
       <!-- -->
       <!-- The max value is the maximum number of concurrent connections James will -->
@@ -885,7 +903,7 @@
       <!-- log files or bounced mail you should increase this value -->
       <!--
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
-         <driver>org.gjt.mm.mysql.Driver</driver>
+         <driver>com.mysql.jdbc.Driver</driver>
          <dburl>jdbc:mysql://127.0.0.1/mail?autoReconnect=true</dburl>
          <user>username</user>
          <password>password</password>
