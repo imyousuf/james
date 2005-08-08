@@ -27,16 +27,15 @@ import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.ExtendedResolver;
-import org.xbill.DNS.FindServer;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.MXRecord;
-import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.RRset;
+import org.xbill.DNS.ResolverConfig;
 import org.xbill.DNS.SetResponse;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
@@ -82,6 +81,12 @@ public class DNSServer
     private Comparator mxComparator = new MXRecordComparator();
 
     /**
+     * If true than the DNS server will return only a single IP per each MX record
+     * when looking up SMTPServers
+     */
+    private boolean singleIPPerMX;
+
+    /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
@@ -90,9 +95,11 @@ public class DNSServer
         final boolean autodiscover =
             configuration.getChild( "autodiscover" ).getValueAsBoolean( true );
 
+        singleIPPerMX = configuration.getChild( "singleIPperMX" ).getValueAsBoolean( false );
+
         if (autodiscover) {
             getLogger().info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
-            String[] serversArray = FindServer.servers();
+            String[] serversArray = ResolverConfig.getCurrentConfig().servers();
             if (serversArray != null) {
                 for ( int i = 0; i < serversArray.length; i++ ) {
                     dnsServers.add(serversArray[ i ]);
@@ -169,7 +176,7 @@ public class DNSServer
     public String[] getDNSServers() {
         return (String[])dnsServers.toArray(new String[0]);
     }
-    
+
     /**
      * <p>Return a prioritized unmodifiable list of MX records
      * obtained from the server.</p>
@@ -304,7 +311,7 @@ public class DNSServer
             return rawDNSLookup(namestr, true, type);
         }
     }
-    
+
     private Record[] processSetResponse(SetResponse sr) {
         Record [] answers;
         int answerCount = 0, n = 0;
@@ -387,7 +394,11 @@ public class DNSServer
                     final String nextHostname = (String)mxHosts.next();
                     InetAddress[] addrs = null;
                     try {
-                        addrs = getAllByName(nextHostname);
+                        if (singleIPPerMX) {
+                            addrs = new InetAddress[] {getByName(nextHostname)};
+                        } else {
+                            addrs = getAllByName(nextHostname);
+                        }
                     } catch (UnknownHostException uhe) {
                         // this should never happen, since we just got
                         // this host from mxHosts, which should have
@@ -471,139 +482,16 @@ public class DNSServer
     }
 
     /**
-     * A way to get mail hosts to try.  If any MX hosts are found for the
-     * domain name with which this is constructed, then these MX hostnames
-     * are returned in priority sorted order, lowest priority numbers coming
-     * first.  And, whenever multiple hosts have the same priority then these
-     * are returned in a randomized order within that priority group, as
-     * specified in RFC 2821, Section 5.
-     *
-     * If no MX hosts are found for the domain name, then a DNS search is
-     * performed for an A record.  If an A record is found then domainName itself
-     * will be returned by the Iterator, and it will be the only object in
-     * the Iterator.  If however no A record is found (in addition to no MX
-     * record) then the Iterator constructed will be empty; the first call to
-     * its hasNext() will return false.
-     *
-     * This behavior attempts to satisfy the requirements of RFC 2821, Section 5.
-     * @since v2.2.0a16-unstable
-     */
-
-    /**** THIS CODE IS BROKEN AND UNUSED ****/
-
-    /* this code was used in getSMTPHostAddresses as:
-       private Iterator mxHosts = new MxSorter(domainName);
-
-       This class effectively replaces findMXRecords.  If
-       it is to be kept, it should replace the body of that
-       method.  The fixes would be to either implement a
-       more robust DNS lookup, or to replace the Type.A
-       lookup with InetAddress.getByName(), which is what
-       findMXRecords uses.  */
-
-    private class MxSorter implements Iterator {
-        private int priorListPriority = Integer.MIN_VALUE;
-        private ArrayList equiPriorityList = new ArrayList();
-        private Record[] mxRecords;
-        private Random rnd = new Random ();
-
-        /* The implementation of this class attempts to achieve efficiency by
-         * performing no more sorting of the rawMxRecords than necessary. In the
-         * large majority of cases the first attempt, made by a client of this class
-         * to connect to an SMTP server for a given domain, will succeed. As such,
-         * in most cases only one call will be made to this Iterator's
-         * next(), and in that majority of cases there will have been no need
-         * to sort the array of MX Records.  This implementation would, however, be
-         * relatively inefficient in the case where all hosts fail, when every
-         * Object is called out of a long Iterator.
-         */
-
-        private MxSorter(String domainName) {
-            mxRecords =  lookup(domainName, Type.MX);
-            if (mxRecords == null || mxRecords.length == 0) {
-                //no MX records were found, so try to use the domainName
-                Record[] aRecords = lookup(domainName, Type.A);
-                if(aRecords != null && aRecords.length > 0) {
-                    equiPriorityList.add(domainName);
-                }
-            }
-        }
-
-        /**
-         * Sets presentPriorityList to contain all hosts
-         * which have the least priority greater than pastPriority.
-         * When this is called, both (rawMxRecords.length > 0) and
-         * (presentPriorityList.size() == 0), by contract.
-         * In the case where this is called repeatedly, so that priorListPriority
-         * has already become the highest of the priorities in the rawMxRecords,
-         * then this returns without having added any elements to
-         * presentPriorityList; presentPriorityList.size remains zero.
-         */
-        private void createPriorityList(){
-            int leastPriorityFound = Integer.MAX_VALUE;
-            /* We loop once through the rawMxRecords, finding the lowest priority
-             * greater than priorListPriority, and collecting all the hostnames
-             * with that priority into equiPriorityList.
-             */
-            for (int i = 0; i < mxRecords.length; i++) {
-                MXRecord thisRecord = (MXRecord)mxRecords[i];
-                int thisRecordPriority = thisRecord.getPriority();
-                if (thisRecordPriority > priorListPriority) {
-                    if (thisRecordPriority < leastPriorityFound) {
-                        equiPriorityList.clear();
-                        leastPriorityFound = thisRecordPriority;
-                        equiPriorityList.add(thisRecord.getTarget().toString());
-                    } else if (thisRecordPriority == leastPriorityFound) {
-                        equiPriorityList.add(thisRecord.getTarget().toString());
-                    }
-                }
-            }
-            priorListPriority = leastPriorityFound;
-        }
-
-        public boolean hasNext(){
-            if (equiPriorityList.size() > 0){
-                return true;
-            }else if (mxRecords != null && mxRecords.length > 0){
-                createPriorityList();
-                return equiPriorityList.size() > 0;
-            } else{
-                return false;
-            }
-        }
-
-        public Object next(){
-            if (hasNext()){
-                /* this randomization is done to comply with RFC-2821 */
-                /* Note: java.util.Random.nextInt(limit) is about twice as fast as (int)(Math.random()*limit) */
-                int getIndex = rnd.nextInt(equiPriorityList.size());
-                Object returnElement = equiPriorityList.get(getIndex);
-                equiPriorityList.remove(getIndex);
-                return returnElement;
-            }else{
-                throw new NoSuchElementException();
-            }
-        }
-
-        public void remove () {
-            throw new UnsupportedOperationException ("remove not supported by this iterator");
-        }
-    }
-
-    
-    /**
      * The dispose operation is called at the end of a components lifecycle.
      * Instances of this class use this method to release and destroy any
      * resources that they own.
      *
-     * This implementation shuts down org.xbill.DNS.Cache
+     * This implementation no longer shuts down org.xbill.DNS.Cache
+     * because dnsjava 2.0.0 removed the need for a cleaner thread! 
      *
      * @throws Exception if an error is encountered during shutdown
      */
     public void dispose()
     {
-        //setting the clean interval to a negative value, will terminate
-        //the Cache cleaner thread.
-        cache.setCleanInterval (-1);
-    } 
+    }
 }
