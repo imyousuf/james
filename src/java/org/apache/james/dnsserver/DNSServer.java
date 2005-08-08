@@ -81,12 +81,6 @@ public class DNSServer
     private Comparator mxComparator = new MXRecordComparator();
 
     /**
-     * If true than the DNS server will return only a single IP per each MX record
-     * when looking up SMTPServers
-     */
-    private boolean singleIPPerMX;
-
-    /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure( final Configuration configuration )
@@ -94,8 +88,6 @@ public class DNSServer
 
         final boolean autodiscover =
             configuration.getChild( "autodiscover" ).getValueAsBoolean( true );
-
-        singleIPPerMX = configuration.getChild( "singleIPperMX" ).getValueAsBoolean( false );
 
         if (autodiscover) {
             getLogger().info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
@@ -176,7 +168,7 @@ public class DNSServer
     public String[] getDNSServers() {
         return (String[])dnsServers.toArray(new String[0]);
     }
-
+    
     /**
      * <p>Return a prioritized unmodifiable list of MX records
      * obtained from the server.</p>
@@ -311,7 +303,7 @@ public class DNSServer
             return rawDNSLookup(namestr, true, type);
         }
     }
-
+    
     private Record[] processSetResponse(SetResponse sr) {
         Record [] answers;
         int answerCount = 0, n = 0;
@@ -394,11 +386,7 @@ public class DNSServer
                     final String nextHostname = (String)mxHosts.next();
                     InetAddress[] addrs = null;
                     try {
-                        if (singleIPPerMX) {
-                            addrs = new InetAddress[] {getByName(nextHostname)};
-                        } else {
-                            addrs = getAllByName(nextHostname);
-                        }
+                        addrs = getAllByName(nextHostname);
                     } catch (UnknownHostException uhe) {
                         // this should never happen, since we just got
                         // this host from mxHosts, which should have
@@ -493,5 +481,5 @@ public class DNSServer
      */
     public void dispose()
     {
-    }
+    } 
 }
