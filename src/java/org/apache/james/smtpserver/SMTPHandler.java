@@ -178,7 +178,7 @@ public class SMTPHandler
      * The mail attribute holding the SMTP AUTH user name, if any.
      */
     private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
-    
+
     /**
      * The thread executing this handler
      */
@@ -587,7 +587,7 @@ public class SMTPHandler
     private boolean parseCommand(String command) throws Exception {
         String argument = null;
         boolean returnValue = true;
-        
+
 
         if (command == null) {
             return false;
@@ -703,6 +703,7 @@ public class SMTPHandler
 
             esmtpextensions.add("PIPELINING");
             esmtpextensions.add("ENHANCEDSTATUSCODES");
+            esmtpextensions.add("8BITMIME");
 
             // Iterator i = esmtpextensions.iterator();
             for (int i = 0; i < esmtpextensions.size(); i++) {
@@ -759,7 +760,7 @@ public class SMTPHandler
      * Carries out the Plain AUTH SASL exchange.
      *
      * According to RFC 2595 the client must send: [authorize-id] \0 authenticate-id \0 password.
-     * 
+     *
      * >>> AUTH PLAIN dGVzdAB0ZXN0QHdpei5leGFtcGxlLmNvbQB0RXN0NDI=
      * Decoded: test\000test@wiz.example.com\000tEst42
      *
@@ -970,9 +971,9 @@ public class SMTPHandler
                     // Handle the SIZE extension keyword
 
                     if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
-                        if (!(doMailSize(mailOptionValue))) {
-                            return;
-                        }
+                      if (!(doMailSize(mailOptionValue))) {
+                          return;
+                      }
                     } else {
                         // Unexpected option attached to the Mail command
                         if (getLogger().isDebugEnabled()) {
@@ -1193,7 +1194,6 @@ public class SMTPHandler
                     if (theConfigData.isVerifyIdentity()) {
                         String authUser = (getUser()).toLowerCase(Locale.US);
                         MailAddress senderAddress = (MailAddress) state.get(SENDER);
-                        boolean domainExists = false;
 
                         if ((!authUser.equals(senderAddress.getUser())) ||
                             (!theConfigData.getMailServer().isLocalServer(senderAddress.getHost()))) {
@@ -1605,4 +1605,5 @@ public class SMTPHandler
         }
 
     }
+
 }
