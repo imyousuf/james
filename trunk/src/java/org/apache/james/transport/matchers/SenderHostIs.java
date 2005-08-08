@@ -22,6 +22,7 @@ import org.apache.mailet.Mail;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -51,7 +52,7 @@ public class SenderHostIs extends GenericMatcher {
         //..into a vector of domain names.
         senderHosts = new java.util.HashSet();
         while (st.hasMoreTokens()) {
-            senderHosts.add(((String)st.nextToken()).toLowerCase());
+            senderHosts.add(st.nextToken().toLowerCase(Locale.US));
         }
         senderHosts = Collections.unmodifiableCollection(senderHosts);
     }
@@ -66,7 +67,7 @@ public class SenderHostIs extends GenericMatcher {
      */
     public Collection match(Mail mail) {
         try {
-            if (mail.getSender() != null && senderHosts.contains(mail.getSender().getHost().toLowerCase())) {
+            if (mail.getSender() != null && senderHosts.contains(mail.getSender().getHost().toLowerCase(Locale.US))) {
                 return mail.getRecipients();
             }
         } catch (Exception e) {

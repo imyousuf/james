@@ -68,7 +68,6 @@ import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
-import java.lang.reflect.Array;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.
@@ -166,7 +165,6 @@ public class MBoxMailRepository
         ByteArrayInputStream mb = new ByteArrayInputStream(emailBody.getBytes());
         Properties props = System.getProperties();
         Session session = Session.getDefaultInstance(props);
-        String toAddr = null;
         try {
             mimeMessage = new MimeMessage(session, mb);
 
@@ -184,6 +182,7 @@ public class MBoxMailRepository
         }
 
         /*
+        String toAddr = null;
         try {
             // Attempt to read the TO field and see if it errors
             toAddr = mimeMessage.getRecipients(javax.mail.Message.RecipientType.TO).toString();
@@ -218,7 +217,7 @@ public class MBoxMailRepository
         byte[] digArray = MessageDigest.getInstance("MD5").digest(emailBody.getBytes());
         StringBuffer digest = new StringBuffer();
         for (int i = 0; i < digArray.length; i++) {
-            digest.append(Integer.toString(digArray[i], Character.MAX_RADIX).toUpperCase());
+            digest.append(Integer.toString(digArray[i], Character.MAX_RADIX).toUpperCase(Locale.US));
         }
         return digest.toString();
     }
@@ -344,7 +343,6 @@ public class MBoxMailRepository
      */
     private MimeMessage findMessage(String key) {
         MimeMessage foundMessage = null;
-        final String keyValue = key;
 
         // See if we can get the message by using the cache position first
         foundMessage = selectMessage(key);
@@ -822,7 +820,7 @@ public class MBoxMailRepository
         mbx.mboxFile = "C:\\java\\test\\1998-05.txt";
         Iterator mList = mbx.list();
         while (mList.hasNext()) {
-            String key = (String) mList.next();
+            //String key = (String) mList.next();
             //System.out.println("key=" + key);
             /*MailImpl mi =  mbx.retrieve(key);
             try
