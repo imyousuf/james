@@ -42,7 +42,7 @@ This directory contains some libraries required to build and run the container s
   <library>
     <filename>dnsjava.jar</filename>
     <url>http://www.xbill.org/dnsjava/</url>
-    <version>1.1.6</version>
+    <version>2.0.0</version>
     <name>dnsjava</name>
     <desc>dnsjava is an implementation of DNS in Java.  Great thanks to Brian Wellington <bwelling@xbill.org> for his contributions</desc>
   </library>
@@ -56,9 +56,9 @@ This directory contains some libraries required to build and run the container s
   </library>
 
   <library>
-    <filename>mail_1_3.jar</filename>
+    <filename>mail-1.3.2.jar</filename>
     <url>http://java.sun.com/products/javamail/</url>
-    <version>1.3</version>
+    <version>1.3.2</version>
     <name>JavaMail</name>
     <desc>Client and message parsing libraries from JavaSoft.  Includes all service providers.</desc>
   </library>
