@@ -18,17 +18,14 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.collections.ListUtils;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.collections.ListUtils;
 
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
@@ -455,11 +452,11 @@ public class POP3Handler
                 getLogger().debug("Command received: PASS <password omitted>");
             }
         }
-        String argument = (String) null;
+        String argument = null;
         if(arguments > 1) {
             argument = commandLine.nextToken();
         }
-        String argument1 = (String) null;
+        String argument1 = null;
         if(arguments > 2) {
             argument1 = commandLine.nextToken();
         }
