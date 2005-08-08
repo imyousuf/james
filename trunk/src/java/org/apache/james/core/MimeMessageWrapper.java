@@ -20,7 +20,6 @@ package org.apache.james.core;
 import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Flags;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -30,6 +29,8 @@ import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.mail.internet.NewsAddress;
+
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -40,9 +41,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.SequenceInputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -84,7 +85,7 @@ public class MimeMessageWrapper
     RFC822DateFormat mailDateFormat = new RFC822DateFormat();
 
     /**
-     * A constructor that instantiates a MimeMessageWrapper based on 
+     * A constructor that instantiates a MimeMessageWrapper based on
      * a MimeMessageSource
      *
      * @param source the MimeMessageSource
@@ -127,7 +128,7 @@ public class MimeMessageWrapper
     /**
      * Load the message headers from the internal source.
      *
-     * @throws MessagingException if an error is encountered while 
+     * @throws MessagingException if an error is encountered while
      *                            loading the headers
      */
     private synchronized void loadHeaders() throws MessagingException {
@@ -150,7 +151,7 @@ public class MimeMessageWrapper
     /**
      * Load the complete MimeMessage from the internal source.
      *
-     * @throws MessagingException if an error is encountered while 
+     * @throws MessagingException if an error is encountered while
      *                            loading the message
      */
     private synchronized void loadMessage() throws MessagingException {
@@ -331,7 +332,7 @@ public class MimeMessageWrapper
                 // Get the message as a stream.  This will encode
                 // objects as necessary, and we have some input from
                 // decoding an re-encoding the stream.  I'd prefer the
-                // raw stream, but see 
+                // raw stream, but see
                 bos = MimeUtility.encode(bodyOs, message.getEncoding());
                 bis = message.getInputStream();
             } catch(javax.activation.UnsupportedDataTypeException udte) {
@@ -385,7 +386,7 @@ public class MimeMessageWrapper
                 copyStream(bis, bos);
             }
             finally {
-                IOUtil.shutdownStream(bis);             
+                IOUtil.shutdownStream(bis);
             }
         }
     }
@@ -476,7 +477,7 @@ public class MimeMessageWrapper
             return null;
         }
         try {
-            return MimeUtility.decodeText(subject);
+            return MimeUtility.decodeText(unfold(subject));
         } catch(UnsupportedEncodingException _ex) {
             return subject;
         }
@@ -761,7 +762,7 @@ public class MimeMessageWrapper
      * Convenience method to copy streams
      */
     private static void copyStream(InputStream in, OutputStream out) throws IOException {
-        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to 
+        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
         //       allow simultaneous read/writes would be a substantial improvement
         byte[] block = new byte[1024];
         int read = 0;
@@ -1043,4 +1044,41 @@ public class MimeMessageWrapper
             ((Disposable)source).dispose();
         }
     }
+
+    /**
+     * To be optimized.
+     * @param s
+     * @return
+     */
+    static String unfold(String message) {
+        if (message == null) return null;
+
+        BufferedReader read = new BufferedReader(new StringReader(message));
+        StringBuffer result = new StringBuffer();
+        boolean unfolded = false;
+        String line;
+        boolean firstLine = true;
+        try {
+            while ((line = read.readLine())!= null && !line.equals("")) {
+              if (line.startsWith("\t") || line.startsWith(" ")) {
+                  result.append(" "+line.trim());
+                  unfolded = true;
+              } else {
+                  if (firstLine) {
+                    firstLine = false;
+                  } else {
+                    result.append("\r\n");
+                  }
+                  result.append(line);
+              }
+            }
+        } catch (IOException e) {
+            // This should never happen as we read from a String.
+          unfolded = false;
+        }
+        if (unfolded) {
+            return result.toString();
+        } else return message;
+    }
+
 }
