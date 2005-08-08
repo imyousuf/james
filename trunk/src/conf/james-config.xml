@@ -353,6 +353,11 @@
 
             <!-- If false the message will not be sent to given server if any recipients fail -->
             <sendpartial>false</sendpartial>
+            
+            <!-- By default we send bounces to the "bounce" processor -->
+            <!-- By removing this configuration James will fallback to hardcoded bounce -->
+            <!-- notifications -->
+            <bounceProcessor>bounces</bounceProcessor>
 
             <!-- A single mail server to deliver all outgoing messages. -->
             <!-- This is useful if this server is a backup or failover machine, -->
@@ -459,6 +464,33 @@
             -->
          </mailet>
       </processor>
+
+      <!-- This processor handle the bounces from RemoteDelivery: As of James v2.3, this is the new -->
+      <!-- Default. -->
+      <!-- -->
+      <!-- DSNBounce properly create a DSN compliant bounce -->
+      <processor name="bounces">
+         <mailet match="All" class="DSNBounce">
+            <passThrough>false</passThrough>
+
+            <!-- optional subject prefix prepended to the original message -->
+            <!--
+            <prefix>[bounce]</prefix>
+            -->
+            
+            <!-- message, heads or none, default=message -->
+            <!--
+            <attachment>heads</attachment>
+            -->
+            
+            <!-- the message sent in the bounce, the first occurrence of the pattern [machine] is -->
+            <!-- replaced with the name of the executing machine -->
+            <!-- Default: Hi. This is the James mail server at [machine] ... -->
+            <!--
+            <messageString>Here is [machine]. I'm not able to deliver this message.</messageString>
+            -->
+          </mailet>
+      </processor>
    </spoolmanager>
 
    <!-- DNS Server Block -->
@@ -553,6 +585,8 @@
       <port>25</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
+      <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
+      <!-- in order to avoid relay check for locallly generated bounces -->
       <!--
       <bind> </bind>
       -->
