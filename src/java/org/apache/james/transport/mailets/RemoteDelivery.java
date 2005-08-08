@@ -40,8 +40,6 @@ import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
@@ -55,7 +53,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.MailetContext;
@@ -210,7 +207,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                         // parameter is supplied, RemoteDeliverySocketFactory
                                         // will be used in this case
     private Collection deliveryThreads = new Vector();
-    private MailServer mailServer;
     private volatile boolean destroyed = false; //Flag that the run method will check and end itself if set to true
     private String bounceProcessor = null; // the processor for creating Bounces
 
@@ -356,7 +352,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     private void logSendFailedException(SendFailedException sfe) {
         if (isDebug) {
-            MessagingException me = (MessagingException)sfe;
+            MessagingException me = sfe;
             if (me instanceof SMTPSendFailedException) {
                 SMTPSendFailedException ssfe = (SMTPSendFailedException)me;
                 log("SMTP SEND FAILED:");
@@ -610,7 +606,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 deleteMessage = (ssfe.getReturnCode() >= 500 && ssfe.getReturnCode() <= 599);
             } else {
                 // Sometimes we'll get a normal SendFailedException with nested SMTPAddressFailedException, so use the latter RetCode
-                MessagingException me = (MessagingException)sfe;
+                MessagingException me = sfe;
                 Exception ne;
                 while ((ne = me.getNextException()) != null && ne instanceof MessagingException) {
                     me = (MessagingException)ne;
@@ -956,12 +952,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         //Set the hostname we'll use as this server
         if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", (String) getMailetContext().getAttribute(Constants.HELLO_NAME));
+            props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
         }
         else {
             Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
             if ((servernames != null) && (servernames.size() > 0)) {
-                props.put("mail.smtp.localhost", (String) servernames.iterator().next());
+                props.put("mail.smtp.localhost", servernames.iterator().next());
             }
         }
 
@@ -1103,7 +1099,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 
                 if (!res.group(3).equals ("")) {
                     //we have a unit
-                    unit = res.group(3).toLowerCase();
+                    unit = res.group(3).toLowerCase(Locale.US);
                 }
             } else {
                 throw new MessagingException(init_string+" does not match "+PATTERN_STRING);

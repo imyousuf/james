@@ -151,7 +151,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @return a {@link IListServCommand} if found, null otherwise
      */
     public IListServCommand getCommand(String name) {
-        return (IListServCommand) commandMap.get(name.toLowerCase());
+        return (IListServCommand) commandMap.get(name.toLowerCase(Locale.US));
     }
 
     /**
