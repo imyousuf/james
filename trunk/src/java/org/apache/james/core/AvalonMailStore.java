@@ -31,11 +31,13 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
@@ -54,13 +56,13 @@ public class AvalonMailStore
     private static long id;
 
     // map of [destinationURL + type]->Repository
-    private HashMap repositories;
+    private Map repositories;
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
-    private HashMap classes;
+    private Map classes;
 
     // map of [protocol(destinationURL) + type ]->default config for repository.
-    private HashMap defaultConfigs;
+    private Map defaultConfigs;
 
     /**
      * The Avalon context used by the instance
@@ -113,14 +115,14 @@ public class AvalonMailStore
         throws Exception {
 
         getLogger().info("JamesMailStore init...");
-        repositories = new HashMap();
+        repositories = new ReferenceMap();
         classes = new HashMap();
         defaultConfigs = new HashMap();
         Configuration[] registeredClasses
             = configuration.getChild("repositories").getChildren("repository");
         for ( int i = 0; i < registeredClasses.length; i++ )
         {
-            registerRepository((Configuration) registeredClasses[i]);
+            registerRepository(registeredClasses[i]);
         }
 
 
