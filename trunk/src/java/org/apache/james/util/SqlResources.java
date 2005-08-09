@@ -114,15 +114,17 @@ public class SqlResources
         NodeList sections = sqlDoc.getElementsByTagName("sqlDefs");
         int sectionsCount = sections.getLength();
         Element sectionElement = null;
+        boolean found = false;
         for (int i = 0; i < sectionsCount; i++ ) {
             sectionElement = (Element)(sections.item(i));
             String sectionName = sectionElement.getAttribute("name");
             if ( sectionName != null && sectionName.equals(sqlDefsSection) ) {
+                found = true;
                 break;
             }
 
         }
-        if ( sectionElement == null ) {
+        if ( !found ) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(64)
                         .append("Error loading sql definition file. ")
