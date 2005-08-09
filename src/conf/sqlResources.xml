@@ -21,6 +21,7 @@
     <dbMatcher db="mysql" databaseProductName="my.*"/>
     <dbMatcher db="derby" databaseProductName="derby.*"/>
     <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
+    <dbMatcher db="hsqldb" databaseProductName="hsql.*"/>
     <dbMatcher db="sapdb" databaseProductName="sap.*"/>
     <dbMatcher db="hypersonic" databaseProductName="HypersonicSQL"/>
     <dbMatcher db="db2" databaseProductName="db2.*"/>
@@ -70,6 +71,8 @@
     <dbOption db="sapdb" name="getAttributes" value="useBytes"/>
     <dbOption db="hypersonic" name="getBody" value="useBytes"/>
     <dbOption db="hypersonic" name="getAttributes" value="useBytes"/>
+    <dbOption db="hsqldb" name="getBody" value="useBytes"/>
+    <dbOption db="hsqldb" name="getAttributes" value="useBytes"/>
     <dbOption db="db2" name="getBody" value="useBlob"/>
     <dbOption db="db2" name="getAttributes" value="useBlob"/>
     <dbOption db="ingres" name="getBody" value="useBytes"/>
@@ -246,6 +249,7 @@
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hsqldb">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -276,6 +280,22 @@
         )
     </sql>
     <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            message_attributes varchar NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="hsqldb">
         CREATE CACHED TABLE ${table} (
             message_name varchar (200) NOT NULL,
             repository_name varchar (255) NOT NULL,
@@ -442,6 +462,7 @@
     <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hsqldb">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="oracle">SELECT dbms_lob.getlength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
     <sql name="retrieveMessageBodySizeSQL" db="db2">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -468,6 +489,22 @@
             message_attributes varchar NULL ,
             last_updated timestamp NOT NULL,
             PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="hsqldb">
+        CREATE CACHED TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            message_attributes varchar NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="mysql">
