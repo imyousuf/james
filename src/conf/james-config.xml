@@ -961,6 +961,19 @@
       </data-source>
       -->
 
+      <!-- Here is a configuration for hsqldb (formerly HypersonicSQL) -->
+      <!-- You can download the db from http://www.hsqldb.org/ . Just put the -->
+      <!-- hsqldb.jar in the lib directory and uncomment the following block -->
+      <!--
+      <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
+         <driver>org.hsqldb.jdbcDriver</driver>
+         <dburl>jdbc:hsqldb:target/data/hsqldb</dburl>
+         <user>sa</user>
+         <password></password>
+         <max>20</max>
+      </data-source>
+      -->
+
    </database-connections>
 
    <!-- Configuration for Cornerstone Services -->
