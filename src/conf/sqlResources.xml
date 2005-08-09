@@ -488,7 +488,7 @@
             message_body varchar NOT NULL ,
             message_attributes varchar NULL ,
             last_updated timestamp NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="hsqldb">
@@ -520,7 +520,7 @@
             message_body longblob NOT NULL ,
             message_attributes longblob NULL ,
             last_updated datetime NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="mssql">
@@ -536,7 +536,7 @@
             [message_body] [image] NOT NULL ,
             [message_attributes] [image] NULL ,
             [last_updated] [datetime] NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="oracle">
@@ -552,7 +552,7 @@
             message_body blob NOT NULL ,
             message_attributes blob NULL ,
             last_updated date NOT NULL ,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="postgresql">
@@ -568,7 +568,7 @@
             message_body bytea NOT NULL ,
             message_attributes bytea NULL ,
             last_updated timestamp NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="sapdb">
@@ -584,7 +584,7 @@
             message_body long byte NOT NULL ,
             message_attributes long byte NULL ,
             last_updated date NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="db2">
@@ -600,7 +600,7 @@
             message_body blob NOT NULL ,
             message_attributes blob ,
             last_updated timestamp NOT NULL ,
-            PRIMARY KEY (repository_name, message_name)        
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
     <sql name="createTable" db="ingres">
@@ -631,7 +631,7 @@
             message_body blob NOT NULL ,
             message_attributes blob ,
             last_updated timestamp NOT NULL,
-            PRIMARY KEY (message_name, repository_name)
+            PRIMARY KEY (repository_name, message_name)
         )
     </sql>
 </sqlDefs>
