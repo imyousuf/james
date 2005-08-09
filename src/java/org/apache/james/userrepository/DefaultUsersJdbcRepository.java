@@ -31,6 +31,9 @@ import java.sql.SQLException;
  * like <CODE>DefaultJamesUser</CODE>, only properties from
  * the DefaultUser class are persisted.
  * 
+ * TODO Please note that default configuration uses JamesUsersJdbcRepository
+ * instead of this class. So we could also delete this implementation.
+ * 
  */
 public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
@@ -46,8 +49,8 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     {
         // Get the username, and build a DefaultUser with it.
         String username = rsUsers.getString(1);
-        String passwordAlg = rsUsers.getString(2);
-        String passwordHash = rsUsers.getString(3);
+        String passwordHash = rsUsers.getString(2);
+        String passwordAlg = rsUsers.getString(3);
         DefaultUser user = new DefaultUser(username, passwordHash, passwordAlg);
         return user;
     }
