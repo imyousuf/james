@@ -34,7 +34,6 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import javax.activation.CommandMap;
 import javax.activation.MailcapCommandMap;
@@ -635,7 +634,6 @@ public class DSNBounce extends AbstractNotify {
             new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        String errorMsg = null;
         String nameType = null;
 
 
@@ -804,7 +802,6 @@ public class DSNBounce extends AbstractNotify {
             // other/unknown error
             return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.UNDEFINED_STATUS);
         } else {
-            String retVal = null;
             Exception ex1 = me.getNextException();
             Perl5Matcher m = new Perl5Matcher ();
             StringBuffer sb = new StringBuffer();
@@ -814,12 +811,52 @@ public class DSNBounce extends AbstractNotify {
                 return sb.toString();
             } else if (ex1 instanceof SendFailedException) {
                 // other/undefined protocol status
+                int smtpCode = 0;
+                try {
+                    smtpCode = Integer.parseInt(ex1.getMessage().substring(0,3));
+                } catch(NumberFormatException e) {
+                }
 
-                // if we get an smtp returncode starting with 4
-                // it is an persistent transient error, else permanent
-                if (ex1.getMessage().startsWith("4")) {
-                    return DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.DELIVERY_OTHER);
-                } else return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_OTHER);
+                switch (smtpCode) {
+                
+                    // Req mail action not taken: mailbox unavailable
+                    case 450: return DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.MAILBOX_OTHER);
+                    // Req action aborted: local error in processing
+                    case 451: return DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.SYSTEM_OTHER);
+                    // Req action not taken: insufficient sys storage
+                    case 452: return DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.SYSTEM_FULL);
+                    // Syntax error, command unrecognized
+                    case 500: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_SYNTAX);
+                    // Syntax error in parameters or arguments
+                    case 501: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG);
+                    // Command not implemented
+                    case 502: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD);
+                    // Bad sequence of commands
+                    case 503: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD);
+                    // Command parameter not implemented
+                    case 504: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG);
+                    // Req mail action not taken: mailbox unavailable
+                    case 550: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.MAILBOX_OTHER);
+                    // User not local; please try <...>
+                    // 5.7.1 Select another host to act as your forwarder
+                    case 551: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH);
+                    // Req mail action aborted: exceeded storage alloc
+                    case 552: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.MAILBOX_FULL);
+                    // Req action not taken: mailbox name not allowed
+                    case 553: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.ADDRESS_SYNTAX);
+                    // Transaction failed
+                    case 554: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.UNDEFINED_STATUS);
+                    // Not authorized. This is not an SMTP code, but many server use it.
+                    case 571: return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH);
+                    
+                    default:
+                        // if we get an smtp returncode starting with 4
+                        // it is an persistent transient error, else permanent
+                        if (ex1.getMessage().startsWith("4")) {
+                            return DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.DELIVERY_OTHER);
+                        } else return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_OTHER);
+                }
+
             } else if (ex1 instanceof UnknownHostException) {
                 // bad destination system address
                 return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.ADDRESS_SYSTEM);
