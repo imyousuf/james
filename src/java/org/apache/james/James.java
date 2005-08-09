@@ -31,14 +31,13 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.collections.ReferenceMap;
 
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.*;
 import org.apache.james.userrepository.DefaultJamesUser;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -46,11 +45,8 @@ import org.apache.mailet.MailetContext;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.net.InetAddress;
@@ -114,11 +110,6 @@ public class James
     private SpoolRepository spool;
 
     /**
-     * The repository that stores the user inboxes.
-     */
-    private MailRepository localInbox;
-
-    /**
      * The root URL used to get mailboxes from the repository
      */
     private String inboxRootURL;
@@ -179,11 +170,6 @@ public class James
     protected Context           myContext;
 
     /**
-     * An RFC822 date formatter used to format dates in mail headers
-     */
-    private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-    /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context) {
@@ -195,7 +181,7 @@ public class James
      */
     public void service(ServiceManager comp) {
         compMgr = new DefaultServiceManager(comp);
-        mailboxes = new HashMap(31);
+        mailboxes = new ReferenceMap();
     }
 
     /**
@@ -328,7 +314,7 @@ public class James
 
         //Get localusers
         try {
-            localusers = (UsersRepository) usersStore.getRepository("LocalUsers");
+            localusers = usersStore.getRepository("LocalUsers");
         } catch (Exception e) {
             getLogger().error("Cannot open private UserRepository");
             throw e;
@@ -339,8 +325,10 @@ public class James
 
         Configuration inboxConf = conf.getChild("inboxRepository");
         Configuration inboxRepConf = inboxConf.getChild("repository");
+        // we could delete this block. I didn't remove this because I'm not sure
+        // wether we need the "check" of the inbox repository here, or not.
         try {
-            localInbox = (MailRepository) mailstore.select(inboxRepConf);
+            mailstore.select(inboxRepConf);
         } catch (Exception e) {
             getLogger().error("Cannot open private MailRepository");
             throw e;
@@ -490,7 +478,7 @@ public class James
      * @return the POP3 inbox for the user
      */
     public synchronized MailRepository getUserInbox(String userName) {
-        MailRepository userInbox = (MailRepository) null;
+        MailRepository userInbox = null;
 
         userInbox = (MailRepository) mailboxes.get(userName);
 
