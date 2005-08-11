@@ -59,7 +59,12 @@
             
             <accounts>
                 <alllocal userprefix="" usersuffix="@myaccount" password="password" recipientprefix="" recipientsuffix="@mydomain.com" ignorercpt-header="true"/>
-                <account user="myglobalaccount" password="password" recipient="postmaster@localhost" ignorercpt-header="false"/>                                            
+                <account user="myglobalaccount" password="password" recipient="postmaster@localhost" ignorercpt-header="false"/>
+                <!-- Custom recipient header handling -->
+                <!-- this example search an header named X-Envelope-To and use the recipient found in that header -->
+                <!-- 
+                <account customrcpt-header="X-Envelope-To" user="myglobalaccount" password="password" recipient="postmaster@localhost" ignorercpt-header="false"/>
+                 -->
             </accounts>
             
             <!-- The address of the server from which to fetch the mail -->
