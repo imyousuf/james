@@ -17,24 +17,31 @@
 
 package org.apache.james.security;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertStore;
+import java.security.cert.CertStoreException;
+import java.security.cert.CertificateException;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
-import java.security.*;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
-import javax.mail.internet.*;
-
-import org.bouncycastle.mail.smime.*;
-
-/* the following 3 imports are needed if support for both jdk 1.3 and jdk 1.4+ is needed */
-import java.security.cert.X509Certificate;      // needed for jdk 1.3
-import java.security.cert.CertificateException; // needed for jdk 1.3
-import org.bouncycastle.jce.*;                  // needed for jdk 1.3
-import org.bouncycastle.jce.cert.*;             // needed for jdk 1.3
-/* the following import should be used instead of the 4 above if no support for jdk 1.3 is needed, but only for jdk 1.4+ */
-//import java.security.cert.*;
-
-import org.bouncycastle.mail.smime.*;
+import org.bouncycastle.mail.smime.SMIMEException;
+import org.bouncycastle.mail.smime.SMIMESignedGenerator;
 
 /**
  * <p>Loads a {@link java.security.KeyStore} in memory and keeps it ready for the
@@ -54,27 +61,6 @@ public class KeyHolder {
      */
     public static String getDefaultType() {
         return KeyStore.getDefaultType();
-    }
-    
-    /**
-     * Security Providers initialization class.
-     * The first call of the init method will have the class loader do the job.
-     * This technique ensures proper initialization without the need of maintaining
-     * the <i>${java_home}/lib/security/java.security</i> file, that would otherwise need
-     * the addition of the following line:
-     * <code>security.provider.<i>n</i>=org.bouncycastle.jce.provider.BouncyCastleProvider</code>.
-     **/
-    public static class InitJCE {
-        private static java.security.Provider bouncyCastleProvider = new org.bouncycastle.jce.provider.BouncyCastleProvider();
-        static {
-            java.security.Security.addProvider(bouncyCastleProvider);
-        }
-        /**
-         * Dummy static method to call in order to trigger the initialization by the class loader.
-         */        
-        public static void init() {
-            // NOP
-        }
     }
     
     /**
@@ -121,7 +107,21 @@ public class KeyHolder {
     throws KeyStoreException, FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
     CertificateException, UnrecoverableKeyException, NoSuchProviderException {
         
-        InitJCE.init();
+        try {
+            InitJCE.init();
+        } catch (InstantiationException e) {
+            NoSuchProviderException ex = new NoSuchProviderException("Error during cryptography provider initialization. Has bcprov-jdkxx-yyy.jar been copied in the lib directory or installed in the system?");
+            ex.initCause(e);
+            throw ex;
+        } catch (IllegalAccessException e) {
+            NoSuchProviderException ex = new NoSuchProviderException("Error during cryptography provider initialization. Has bcprov-jdkxx-yyy.jar been copied in the lib directory or installed in the system?");
+            ex.initCause(e);
+            throw ex;
+        } catch (ClassNotFoundException e) {
+            NoSuchProviderException ex = new NoSuchProviderException("Error during cryptography provider initialization. Has bcprov-jdkxx-yyy.jar been copied in the lib directory or installed in the system?");
+            ex.initCause(e);
+            throw ex;
+        }
 
         if (keyStoreType == null) {
             keyStoreType = KeyStore.getDefaultType();
@@ -132,13 +132,14 @@ public class KeyHolder {
         
         Enumeration aliases = keyStore.aliases();
         if (keyAlias == null) {
-            if (aliases.hasMoreElements()) {
+            if(aliases.hasMoreElements()) {
                 keyAlias = (String) aliases.nextElement();
             } else {
                 throw new KeyStoreException("No alias was found in keystore.");
             }
             if (aliases.hasMoreElements()) {
                 throw new KeyStoreException("No <keyAlias> was given and more than one alias was found in keystore.");
+                
             }
         }
         
@@ -150,6 +151,7 @@ public class KeyHolder {
         if (this.privateKey == null) {
             throw new KeyStoreException("The \"" + keyAlias + "\" PrivateKey alias was not found in keystore.");
         }
+        
         this.certificate = (X509Certificate) keyStore.getCertificate(keyAlias);
         if (this.certificate == null) {
             throw new KeyStoreException("The \"" + keyAlias + "\" X509Certificate alias was not found in keystore.");

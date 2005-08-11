@@ -118,9 +118,11 @@
       <!-- Set the Java packages from which to load mailets and matchers -->
       <mailetpackages>
          <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
+         <mailetpackage>org.apache.james.transport.mailets.smime</mailetpackage>
       </mailetpackages>
       <matcherpackages>
          <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
+         <matcherpackage>org.apache.james.transport.matchers.smime</matcherpackage>
       </matcherpackages>
 
       <!-- The root processor is a required processor - James routes all mail on the spool -->
@@ -248,6 +250,33 @@
             <notice>Spam not accepted</notice>
          </mailet>
          -->
+
+         <!-- sample SMIME mailets configuration -->
+         <!-- In order to use SMIME capabilities you need to install the bouncycastle JCE -->
+         <!-- provider in your environment (james/lib) -->
+         <!-- e.g: bcprov-jdk14-129.jar from http://www.bouncycastle.org/latest_releases.html -->
+         <!-- 
+         <mailet match="IsSMIMEEncrypted" class="SMIMEDecrypt">
+            <keyStoreType>pkcs12</keyStoreType>
+            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
+            <keyStorePassword>myKeyStorePass</keyStorePassword>
+            <keyAlias>myKeyAlias</keyAlias>
+            <keyAliasPassword>myKeyPass</keyAliasPassword>
+         </mailet>
+         
+         <mailet match="IsSMIMESigned" class="SMIMECheckSignature">
+            <keyStoreType>pkcs12</keyStoreType>
+            <keyStoreFileName>c:/path.pfx</keyStoreFileName>
+            <keyStorePassword>myKeyStorePass</keyStorePassword>
+            <strip>true</strip>
+            <onlyTrusted>false</onlyTrusted>
+         </mailet>
+	
+         <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="AddHeader">
+            <name>X-WasSigned</name>
+            <value>true</value>
+         </mailet>
+          -->
      
          <!-- Send remaining mails to the transport processor for either local or remote delivery -->
          <mailet match="All" class="ToProcessor">
