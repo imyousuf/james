@@ -75,8 +75,13 @@ class Account implements Comparable
     /**
      * The JavaMail Session for this Account.
      */ 
-    
     private Session fieldSession;
+
+    /**
+     * A custom header to be used as the recipient address
+     */
+    private String customRecipientHeader;
+
     /**
      * Constructor for Account.
      */
@@ -105,6 +110,7 @@ class Account implements Comparable
         String password,
         String recipient,
         boolean ignoreRecipientHeader,
+        String customRecipientHeader,
         Session session)
         throws ConfigurationException
     {
@@ -115,8 +121,17 @@ class Account implements Comparable
         setPassword(password);
         setRecipient(recipient);
         setIgnoreRecipientHeader(ignoreRecipientHeader);
+        setCustomRecipientHeader(customRecipientHeader);
         setSession(session);
     }   
+
+    /**
+     * Returns the custom recipient header.
+     * @return String
+     */
+    public String getCustomRecipientHeader() {
+        return this.customRecipientHeader;
+    }
 
     /**
      * Returns the password.
@@ -143,6 +158,14 @@ class Account implements Comparable
     public String getUser()
     {
         return fieldUser;
+    }
+
+    /**
+     * Sets the custom recipient header.
+     * @param customRecipientHeader The header to be used
+     */
+    public void setCustomRecipientHeader(String customRecipientHeader) {
+        this.customRecipientHeader = customRecipientHeader;
     }
 
     /**

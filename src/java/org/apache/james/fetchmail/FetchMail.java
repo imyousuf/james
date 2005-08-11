@@ -179,6 +179,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         private boolean fieldIgnoreRecipientHeader;     
         private String fieldRecipientPrefix;
         private String fieldRecipientSuffix;
+        private String customRecipientHeader;
 
         /**
          * Constructor for ParsedDynamicAccountParameters.
@@ -205,7 +206,16 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             setPassword(configuration.getAttribute("password"));
             setIgnoreRecipientHeader(
                 configuration.getAttributeAsBoolean("ignorercpt-header"));
+            setCustomRecipientHeader(configuration.getAttribute("customrcpt-header", ""));
         }                       
+
+        /**
+         * Returns the custom recipient header.
+         * @return String
+         */
+        public String getCustomRecipientHeader() {
+            return this.customRecipientHeader;
+        }
 
         /**
          * Returns the recipientprefix.
@@ -241,6 +251,14 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         public String getUserSuffix()
         {
             return fieldUserSuffix;
+        }
+
+        /**
+         * Sets the custom recipient header.
+         * @param customRecipientHeader The header to be used
+         */
+        public void setCustomRecipientHeader(String customRecipientHeader) {
+            this.customRecipientHeader = customRecipientHeader;
         }
 
         /**
@@ -448,6 +466,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                         accountsChild.getAttribute("recipient"),
                         accountsChild.getAttributeAsBoolean(
                             "ignorercpt-header"),
+                        accountsChild.getAttribute("customrcpt-header"),
                         getSession()));
                 continue;
             }
@@ -833,12 +852,14 @@ protected void setLocalUsers(UsersRepository localUsers)
                         parameters.getRecipientPrefix(),
                         parameters.getRecipientSuffix(),
                         parameters.isIgnoreRecipientHeader(),
+                        parameters.getCustomRecipientHeader(),
                         getSession());
             }
             accounts.put(key, account);
         }
         return accounts;
     }
+    
     /**
      * Resets the dynamicAccounts.
      */

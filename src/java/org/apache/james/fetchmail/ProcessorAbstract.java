@@ -251,6 +251,14 @@ abstract public class ProcessorAbstract
         return getAccount().isIgnoreRecipientHeader();
     }
 
+    /**
+     * Returns the customRecipientHeader.
+     * @return String
+     */
+    protected String getCustomRecipientHeader()
+    {
+        return getAccount().getCustomRecipientHeader();
+    }
 
     /**
      * Returns the leave.
