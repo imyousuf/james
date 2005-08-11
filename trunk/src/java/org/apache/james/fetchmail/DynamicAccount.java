@@ -42,6 +42,7 @@ public class DynamicAccount extends Account
         String password,
         String recipient,
         boolean ignoreRecipientHeader,
+        String customRecipientHeader,
         Session session)
         throws ConfigurationException
     {
@@ -52,6 +53,7 @@ public class DynamicAccount extends Account
             password,
             recipient,
             ignoreRecipientHeader,
+            customRecipientHeader,
             session);
     }
 
@@ -79,6 +81,7 @@ public class DynamicAccount extends Account
         String recipientPrefix,
         String recipientSuffix,
         boolean ignoreRecipientHeader,
+        String customRecipientHeader,
         Session session)
         throws ConfigurationException
     {
@@ -89,6 +92,7 @@ public class DynamicAccount extends Account
             password,
             null,
             ignoreRecipientHeader,
+            customRecipientHeader,
             session);
 
         StringBuffer userBuffer = new StringBuffer(userPrefix);

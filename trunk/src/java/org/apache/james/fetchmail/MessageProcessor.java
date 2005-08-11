@@ -985,68 +985,79 @@ public class MessageProcessor extends ProcessorAbstract
 
     protected String getEnvelopeRecipient(MimeMessage msg) throws MessagingException
     {
-        try
-        {
-            Enumeration enumeration =
-                msg.getMatchingHeaderLines(new String[] { "Received" });
-            while (enumeration.hasMoreElements())
+        String res = getCustomRecipientHeader();
+        if (res != null && res.length() > 0) {
+            String[] headers = msg.getHeader(getCustomRecipientHeader());
+            if (headers != null) {
+                String mailFor = headers[0];
+              if (mailFor.startsWith("<") && mailFor.endsWith(">"))
+                  mailFor = mailFor.substring(1, (mailFor.length() - 1));
+              return mailFor;
+              }
+          } else {
+            try
             {
-                String received = (String) enumeration.nextElement();
-
-                int nextSearchAt = 0;
-                int i = 0;
-                int start = 0;
-                int end = 0;
-                boolean hasBracket = false;
-                boolean usableAddress = false;
-                while (!usableAddress && (i != -1))
+                Enumeration enumeration =
+                    msg.getMatchingHeaderLines(new String[] { "Received" });
+                while (enumeration.hasMoreElements())
                 {
-                    hasBracket = false;
-                    i = received.indexOf("for ", nextSearchAt);
-                    if (i > 0)
+                    String received = (String) enumeration.nextElement();
+    
+                    int nextSearchAt = 0;
+                    int i = 0;
+                    int start = 0;
+                    int end = 0;
+                    boolean hasBracket = false;
+                    boolean usableAddress = false;
+                    while (!usableAddress && (i != -1))
                     {
-                        start = i + 4;
-                        end = 0;
-                        nextSearchAt = start;
-                        for (int c = start; c < received.length(); c++)
+                        hasBracket = false;
+                        i = received.indexOf("for ", nextSearchAt);
+                        if (i > 0)
                         {
-                            char ch = received.charAt(c);
-                            switch (ch)
+                            start = i + 4;
+                            end = 0;
+                            nextSearchAt = start;
+                            for (int c = start; c < received.length(); c++)
                             {
-                                case '<' :
-                                    hasBracket = true;
-                                    continue;
-                                case '@' :
-                                    usableAddress = true;
-                                    continue;
-                                case ' ' :
-                                    end = c;
-                                    break;
-                                case ';' :
-                                    end = c;
+                                char ch = received.charAt(c);
+                                switch (ch)
+                                {
+                                    case '<' :
+                                        hasBracket = true;
+                                        continue;
+                                    case '@' :
+                                        usableAddress = true;
+                                        continue;
+                                    case ' ' :
+                                        end = c;
+                                        break;
+                                    case ';' :
+                                        end = c;
+                                        break;
+                                }
+                                if (end > 0)
                                     break;
                             }
-                            if (end > 0)
-                                break;
                         }
                     }
-                }
-                if (usableAddress)
-                {
-                    // lets try and grab the email address
-                    String mailFor = received.substring(start, end);
-
-                    // strip the <> around the address if there are any
-                    if (mailFor.startsWith("<") && mailFor.endsWith(">"))
-                        mailFor = mailFor.substring(1, (mailFor.length() - 1));
-
-                    return mailFor;
+                    if (usableAddress)
+                    {
+                        // lets try and grab the email address
+                        String mailFor = received.substring(start, end);
+    
+                        // strip the <> around the address if there are any
+                        if (mailFor.startsWith("<") && mailFor.endsWith(">"))
+                            mailFor = mailFor.substring(1, (mailFor.length() - 1));
+    
+                        return mailFor;
+                    }
                 }
             }
-        }
-        catch (MessagingException me)
-        {
-            logStatusWarn("No Received headers found.");
+            catch (MessagingException me)
+            {
+                logStatusWarn("No Received headers found.");
+            }
         }
         return null;
     }
