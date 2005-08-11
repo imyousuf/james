@@ -85,9 +85,8 @@ Legal:
       <pathelement location="${cornerstone-datasources.jar}"/>
       <pathelement location="${javax-mail.jar}"/>
       <pathelement location="${javax-activation.jar}"/>
-      <pathelement location="${lib.dir}/bcmail-jdk13-124.jar"/>
-      <pathelement location="${lib.dir}/bcprov-jdk13-124.jar"/>
-      <pathelement location="${lib.dir}/jce-jdk13-124.jar"/>
+      <pathelement location="${lib.dir}/bcmail-jdk14-129.jar"/>
+      <pathelement location="${lib.dir}/bcmail-jdk14-129-workaround.jar"/>
       <pathelement path="${java.class.path}" />
       <pathelement path="${build.classes}" />
     </path>
@@ -493,9 +492,7 @@ Legal:
           <!--include name="commons-net-1.0.0-dev.jar"/-->
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
-          <include name="bcmail-jdk13-124.jar"/>
-          <include name="bcprov-jdk13-124.jar"/>
-          <include name="jce-jdk13-124.jar"/>
+          <include name="bcmail-jdk14-129.jar"/>
         </lib>
         <lib dir="${candidates.dir}">
           <include name="excalibur-thread-1.1.1.jar"/>
