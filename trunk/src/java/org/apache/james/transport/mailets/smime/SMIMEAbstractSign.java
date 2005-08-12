@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -15,9 +15,8 @@
  * permissions and limitations under the License.                      *
  ***********************************************************************/
 
-package org.apache.james.transport.mailets;
+package org.apache.james.transport.mailets.smime;
 
-import org.apache.james.util.*;
 import org.apache.james.security.*;
 import org.apache.mailet.*;
 
