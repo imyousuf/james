@@ -39,10 +39,10 @@ rem
 if not "%OS%"=="Windows_NT" goto start
 
 rem %~dp0 is name of current script under NT
-set PHOENIX_HOME=%~dp0
+set PHOENIX_HOME=%~dp0*
 
 rem : operator works similar to make : operator
-set PHOENIX_HOME=%PHOENIX_HOME:\bin\=%
+set PHOENIX_HOME=%PHOENIX_HOME:\bin\*=%
 
 :start
 
