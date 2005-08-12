@@ -37,7 +37,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.AddressException;
 
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
@@ -1219,7 +1218,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Utility method for obtaining a string representation of a
      * Message's headers
      */
-    private String getMessageHeaders(MimeMessage message) throws MessagingException {
+    protected String getMessageHeaders(MimeMessage message) throws MessagingException {
         Enumeration heads = message.getAllHeaderLines();
         StringBuffer headBuffer = new StringBuffer(1024);
         while(heads.hasMoreElements()) {
