@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.util.io.IOUtil;
+import org.apache.james.util.io.ResettableFileInputStream;
 
 /**
  * Implementation of a StreamRepository to a File.
