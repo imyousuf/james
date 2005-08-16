@@ -93,7 +93,6 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   PHOENIX_HOME=`cygpath --path --windows "$PHOENIX_HOME"`
-  PHOENIX_TMPDIR=`cygpath --path --windows "$PHOENIX_TMPDIR"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
@@ -162,11 +161,8 @@ case "$ACTION" in
 
         if [ -f $PHOENIX_PID ]
         then
-            if ps -p `cat $PHOENIX_PID ` >/dev/null 2>/dev/null
-            then
-                echo "Already Running!!"
-                exit 1
-            fi
+            echo "Already Running!!"
+            exit 1
         fi
 
         echo "STARTED Phoenix `date`" >> $PHOENIX_CONSOLE
@@ -214,10 +210,10 @@ case "$ACTION" in
         
   check)
         echo "Checking arguments to Phoenix: "
-        echo "PHOENIX_HOME:     $PHOENIX_HOME"
-        echo "PHOENIX_TMPDIR:   $PHOENIX_TMPDIR"
-        echo "PHOENIX_JVM_OPTS: $PHOENIX_JVM_OPTS"
-        echo "JAVA_HOME:        $JAVA_HOME"
+	echo "PHOENIX_HOME:     $PHOENIX_HOME"
+	echo "PHOENIX_TMPDIR:   $PHOENIX_TMPDIR"
+	echo "PHOENIX_JVM_OPTS: $PHOENIX_JVM_OPTS"
+	echo "JAVA_HOME:        $JAVA_HOME"
         echo "JVM_OPTS:         $JVM_OPTS"
         echo "CLASSPATH:        $CLASSPATH"
         echo "RUN_CMD:          $RUN_CMD"

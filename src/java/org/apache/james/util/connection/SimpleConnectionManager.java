@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -255,14 +255,5 @@ public class SimpleConnectionManager
     public int getMaximumNumberOfOpenConnections() {
         return maxOpenConn;
     }
-    /**
-     * NOTE this method is a placeholder required until org.apache.avalon.cornerstone.services.connection.ConnectionManager is updated
-     * @deprecated 
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionManager#connect(java.lang.String, java.net.ServerSocket, org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory, ThreadPool)
-     */
 
-    public void connect(String arg0, ServerSocket arg1, ConnectionHandlerFactory arg2, org.apache.avalon.excalibur.thread.ThreadPool arg3)
-        throws Exception {
-        connect(arg0,arg1,arg2,arg3,getMaximumNumberOfOpenConnections());
-    }
 }

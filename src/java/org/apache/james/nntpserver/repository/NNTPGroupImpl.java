@@ -17,12 +17,12 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.avalon.excalibur.io.AndFileFilter;
-import org.apache.avalon.excalibur.io.ExtensionFileFilter;
-import org.apache.avalon.excalibur.io.InvertedFileFilter;
-import org.apache.avalon.excalibur.io.IOUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
+import org.apache.james.util.io.AndFileFilter;
+import org.apache.james.util.io.ExtensionFileFilter;
+import org.apache.james.util.io.IOUtil;
+import org.apache.james.util.io.InvertedFileFilter;
 
 import java.io.File;
 import java.io.FileOutputStream;

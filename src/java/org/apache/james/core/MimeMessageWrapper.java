@@ -48,11 +48,11 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.io.IOUtil;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 
 import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.excalibur.io.IOUtil;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
