@@ -19,7 +19,7 @@ package org.apache.james.nntpserver.repository;
 
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.NNTPException;
-import org.apache.avalon.excalibur.io.IOUtil;
+import org.apache.james.util.io.IOUtil;
 
 import javax.mail.internet.InternetHeaders;
 import java.io.BufferedReader;

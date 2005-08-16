@@ -28,19 +28,35 @@
               org.apache.avalon.phoenix.components.manager.NoopSystemManager
             
             Alternatively, you could comment the whole SystemManager section out.
-            [This is false.  You get an exception:
-             org.apache.avalon.framework.service.ServiceException: Unable to provide implementation for org.apache.avalon.phoenix.interfaces.SystemManager (Role='org.apache.avalon.phoenix.interfaces.SystemManager')]
         -->
 
         <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
-            class="org.apache.avalon.phoenix.components.manager.NoopSystemManager"
+            class="org.apache.avalon.phoenix.components.manager.MX4JSystemManager"
             logger="manager" >
+            
+          <!--
+            By default the Mx4J Http Adaptor will bind a webserver to all
+            network interfaces. If you wish to restrict it to only one
+            interface (say localhost) then uncomment and edit the next line.
+          -->
+          <!--
+          <manager-adaptor-host>localhost</manager-adaptor-host>
+          -->
+
+          <!--
+            This specifies the IP port which the Http Adaptor will bind on.
+          -->            
           <manager-adaptor-port>8082</manager-adaptor-port>
           <!--
           <enable-rmi-adaptor>true</enable-rmi-adaptor>
           <rmi-naming-factory>com.sun.jndi.rmi.registry.RegistryContextFactory</rmi-naming-factory>
           <stylesheets-dir>conf/xsl</stylesheets-dir>
           -->
+          
+          <!--
+            If you want the HTTPAdaptor to require authentication then you need to specify
+            a username and password in the next xml block.
+          -->          
           <!--
           <user>
             <name>user</name>
