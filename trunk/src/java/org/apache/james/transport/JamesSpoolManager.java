@@ -17,8 +17,6 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-//import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -34,7 +32,11 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.*;
+import org.apache.mailet.Mail;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
 

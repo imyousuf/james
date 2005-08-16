@@ -35,9 +35,19 @@ import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
-import java.io.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 /**
  * The handler class for POP3 connections.

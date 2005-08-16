@@ -29,10 +29,14 @@ import org.apache.mailet.MailetException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Vector;
 
 /**
