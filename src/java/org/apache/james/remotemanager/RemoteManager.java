@@ -31,13 +31,12 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 
 import org.apache.james.core.AbstractJamesService;
-import org.apache.james.services.*;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 
 /**

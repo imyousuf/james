@@ -17,13 +17,27 @@
 
 package org.apache.james.transport.mailets.smime;
 
-import org.apache.james.security.*;
-import org.apache.mailet.*;
+import org.apache.james.security.KeyHolder;
+import org.apache.james.security.SMIMEAttributeNames;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
-import javax.mail.*;
-import javax.mail.internet.*;
-import java.io.*;
-import java.util.*;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.ParseException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * <P>Abstract mailet providing common SMIME signature services.<BR>

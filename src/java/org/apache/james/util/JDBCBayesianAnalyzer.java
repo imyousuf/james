@@ -17,34 +17,17 @@
 
 package org.apache.james.util;
 
-import java.util.Properties;
-import java.util.Hashtable;
 import java.util.HashMap;
-import java.util.Vector;
-import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 
-import java.text.MessageFormat;
+import java.io.File;
 
-import java.io.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.io.StreamTokenizer;
-
-import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.DatabaseMetaData;
-
-import javax.mail.internet.MimeMessage;
 
 /**
  * Manages the persistence of the spam bayesian analysis corpus using a JDBC database.

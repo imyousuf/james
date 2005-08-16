@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -20,11 +20,17 @@ package org.apache.james.transport;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.*;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.GenericMatcher;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
 
 import javax.mail.MessagingException;
 import java.io.PrintWriter;

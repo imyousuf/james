@@ -41,7 +41,6 @@
  *
  */
 
-
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -63,11 +62,24 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetAddress;
-import java.util.*;
-import java.io.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Vector;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.

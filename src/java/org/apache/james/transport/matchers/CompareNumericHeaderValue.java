@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -19,15 +19,14 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import java.lang.NumberFormatException;
 
 import java.util.Collection;
 import java.util.StringTokenizer;
-
-import javax.mail.*;
-import javax.mail.internet.*;
 
 /**
  * <P>Matches mails containing a header with a numeric value whose comparison with the specified value is true.

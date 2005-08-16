@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -19,13 +19,12 @@ package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
-import org.apache.james.services.*;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.User;
+import org.apache.james.services.UsersRepository;
 import org.apache.james.userrepository.DefaultUser;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
@@ -39,10 +38,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -399,7 +396,6 @@ public class RemoteManagerHandler
             command = command.substring(0, breakIndex);
         }
         command = command.toUpperCase(Locale.US);
-        String argument1 = null;
         if (command.equals(COMMAND_ADDUSER)) {
             doADDUSER(argument);
         } else if (command.equals(COMMAND_SETPASSWORD)) {

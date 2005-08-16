@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -23,7 +23,12 @@ import org.apache.james.util.XMLResources;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.oro.text.regex.*;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.StringSubstitution;
+import org.apache.oro.text.regex.Util;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;

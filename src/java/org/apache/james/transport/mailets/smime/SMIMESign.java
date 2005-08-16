@@ -17,11 +17,14 @@
 
 package org.apache.james.transport.mailets.smime;
 
-import org.apache.mailet.*;
+import org.apache.mailet.Mail;
 
-import javax.mail.*;
-import javax.mail.internet.*;
-import java.io.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import java.io.IOException;
 
 /**
  * <p>Puts a <I>server-side</I> SMIME signature on a message.<br>

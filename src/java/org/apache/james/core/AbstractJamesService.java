@@ -17,14 +17,14 @@
 
 package org.apache.james.core;
 
-import java.io.*;
-import java.net.*;
-
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.activity.*;
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 
 import org.apache.excalibur.thread.ThreadPool;
@@ -38,8 +38,11 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
-import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
+
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 
 /**
  * Server which creates connection handlers. All new James service must
@@ -282,8 +285,6 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
                     .append(" connection backlog is: ")
                     .append(backlog);
         getLogger().info(infoBuffer.toString());
-
-        final String location = "generated:" + getServiceType();
 
         if (connectionManager instanceof JamesConnectionManager) {
             String connectionLimitString = conf.getChild("connectionLimit").getValue(null);

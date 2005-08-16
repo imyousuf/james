@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -36,7 +36,14 @@ import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.*;
+import org.apache.james.services.DNSServer;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.MailStore;
+import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -51,7 +58,14 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * Core class for JAMES. Provides three primary services:

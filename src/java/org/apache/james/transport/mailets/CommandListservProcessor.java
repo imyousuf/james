@@ -35,7 +35,10 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.ParseException;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
 
 
 /**

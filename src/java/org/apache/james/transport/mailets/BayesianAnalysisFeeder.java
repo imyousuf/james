@@ -21,25 +21,17 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.io.ByteArrayOutputStream;
 
-import java.sql.DriverManager ;
 import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.Enumeration;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 
-import java.util.*;
-
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailStore;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.james.util.JDBCUtil;
