@@ -18,8 +18,6 @@
 package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.component.ComponentManager;
-import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -28,6 +26,8 @@ import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.Constants;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
@@ -60,9 +60,9 @@ import java.util.List;
  */
 public class UsersLDAPRepository
     extends AbstractLogEnabled
-    implements UsersRepository, Composable, Configurable, Contextualizable, Initializable{
+    implements UsersRepository, Serviceable, Configurable, Contextualizable, Initializable{
 
-    private ComponentManager comp;
+    private ServiceManager comp;
 
     private Logger logger;
     private String path;
@@ -101,9 +101,9 @@ public class UsersLDAPRepository
     }
 
     /**
-     * @see org.apache.avalon.framework.component.Composable#compose(ComponentManager)
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
-    public void compose(ComponentManager compMgr) {
+    public void service(ServiceManager compMgr) {
         this.comp = compMgr;
     }
 
