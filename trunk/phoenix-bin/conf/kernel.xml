@@ -29,9 +29,18 @@
             
             Alternatively, you could comment the whole SystemManager section out.
         -->
+        <!--
+            PLEASE NOTE: We changed the MX4JSystemManager to NoopSystemManager
+            because of the vulnerability described here:
+            http://issues.apache.org/bugzilla/show_bug.cgi?id=17241
+            Furthermore, commenting out the whole block you get an exception:
+            org.apache.avalon.framework.service.ServiceException: Unable to provide 
+                implementation for org.apache.avalon.phoenix.interfaces.SystemManager 
+                (Role='org.apache.avalon.phoenix.interfaces.SystemManager')]
+        -->
 
         <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
-            class="org.apache.avalon.phoenix.components.manager.MX4JSystemManager"
+            class="org.apache.avalon.phoenix.components.manager.NoopSystemManager"
             logger="manager" >
             
           <!--
@@ -45,9 +54,9 @@
 
           <!--
             This specifies the IP port which the Http Adaptor will bind on.
-          -->            
-          <manager-adaptor-port>8082</manager-adaptor-port>
+          -->
           <!--
+          <manager-adaptor-port>8082</manager-adaptor-port>
           <enable-rmi-adaptor>true</enable-rmi-adaptor>
           <rmi-naming-factory>com.sun.jndi.rmi.registry.RegistryContextFactory</rmi-naming-factory>
           <stylesheets-dir>conf/xsl</stylesheets-dir>
