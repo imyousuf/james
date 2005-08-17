@@ -17,6 +17,7 @@
 
 package org.apache.james.transport.mailets;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
@@ -42,11 +43,14 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimePart;
 import javax.mail.internet.ParseException;
 
 import com.sun.mail.smtp.SMTPSendFailedException;
 import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.sun.mail.smtp.SMTPAddressSucceededException;
+import com.sun.mail.smtp.SMTPTransport;
 
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -485,6 +489,35 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             log(me.getMessage());
                             continue;
                         }
+                        // if the transport is a SMTPTransport (from sun) some
+                        // performance enhancement can be done.
+                        if (transport instanceof SMTPTransport)  {
+                            SMTPTransport smtpTransport = (SMTPTransport) transport;
+                            // if the message is alredy 8bit or binary and the
+                            // server doesn't support the 8bit extension it has
+                            // to be converted to 7bit. Javamail api don't do
+                            // that conversion, but it is required to be a
+                            // rfc-compliant smtp server.
+                            if (!smtpTransport.supportsExtension("8BITMIME")) { 
+                                try {
+                                    convertTo7Bit(message);
+                                } catch (IOException e) {
+                                    // An error has occured during the 7bit conversion.
+                                    // The error is logged and the message is sent anyway.
+                                    
+                                	log("Error during the conversion to 7 bit.", e);
+                                }
+                            }
+                        } else {
+                        	// If the transport is not the one
+                        	// developed by Sun we are not sure of how it handles the 8 bit mime stuff, 
+                        	// so I convert the message to 7bit.
+                            try {
+                                convertTo7Bit(message);
+                            } catch (IOException e) {
+                                log("Error during the conversion to 7 bit.", e);
+                            }
+                        }
                         transport.sendMessage(message, addr);
                     } finally {
                         if (transport != null) {
@@ -688,6 +721,31 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return failMessage(mail, new MessagingException("No mail server(s) available at this time."), false);
     }
 
+    /**
+     * Converts a message to 7 bit.
+     * 
+     * @param message
+     * @return
+     */
+    private void convertTo7Bit(MimePart part) throws MessagingException, IOException {
+        if (part.isMimeType("multipart/*")) {
+            MimeMultipart parts = (MimeMultipart) part.getContent();
+            int count = parts.getCount();
+            for (int i = 0; i < count; i++) {
+                convertTo7Bit((MimePart)parts.getBodyPart(i));
+            }
+        } else {
+            if (part.isMimeType("text/*")) {
+                part.setHeader("Content-Transfer-Encoding", "quoted-printable");
+                part.addHeader("X-MIME-Autoconverted", "from 8bit to quoted-printable by "+getMailetContext().getServerInfo());
+            } else {
+                // if the part doesn't contain text it will be base64 encoded.
+                part.setHeader("Content-Transfer-Encoding", "base64");
+                part.addHeader("X-MIME-Autoconverted", "from 8bit to base64 by "+getMailetContext().getServerInfo());
+            }
+        }
+    }
+    
     /**
      * Insert the method's description here.
      * Creation date: (2/25/00 1:14:18 AM)
@@ -942,8 +1000,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         Properties props = new Properties();
         //Not needed for production environment
         props.put("mail.debug", "false");
-        //Prevents problems encountered with 250 OK Messages
-        props.put("mail.smtp.ehlo", "false");
+        // Reactivated: javamail 1.3.2 should no more have problems with "250 OK"
+        // messages (WAS "false": Prevents problems encountered with 250 OK Messages)
+        props.put("mail.smtp.ehlo", "true");
+        // By setting this property the transport is allowed to
+        // send 8 bit data to the server (if it supports the 8bitmime extension). 
+        props.setProperty("mail.smtp.allow8bitmime", "true");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
 
