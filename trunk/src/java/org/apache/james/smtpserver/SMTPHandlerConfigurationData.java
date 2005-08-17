@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -19,8 +19,6 @@ package org.apache.james.smtpserver;
 
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-
-import java.util.List;
 
 /**
  * Provides a number of server-wide constant values to the
@@ -96,16 +94,4 @@ public interface SMTPHandlerConfigurationData {
      */
     UsersRepository getUsersRepository();
 
-    /**
-     * Returns the RBL server list.
-     * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
-     * This checks DNSRBL whitelists and blacklists.  If the remote IP is whitelisted
-     * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
-     * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
-     * abuse (RFC 2142), unless authenticated.
-     *
-     * @return whether the sending IP is restricted
-     */
-
-    boolean checkDNSRBL(java.net.Socket conn);
 }

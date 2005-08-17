@@ -271,7 +271,7 @@
             <strip>true</strip>
             <onlyTrusted>false</onlyTrusted>
          </mailet>
-	
+    
          <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="AddHeader">
             <name>X-WasSigned</name>
             <value>true</value>
@@ -677,17 +677,44 @@
          <!--  SMTP service. If unspecified, the value defaults to 0, which means no limit. -->
          <maxmessagesize>0</maxmessagesize>
 
-            <!-- Uncomment this if you want to enable antispam dns based RBL services -->
-            <!--
-            <rblservers>
-               <whitelist> query.bondedsender.org </whitelist>
-
-               <blacklist> sbl-xbl.spamhaus.org </blacklist>
-               <blacklist> list.dsbl.org </blacklist>
-               <blacklist> dul.dnsbl.sorbs.net </blacklist>
-               <blacklist> relays.ordb.org </blacklist>
-            </rblservers>
+         <!-- The configuration handler chain -->
+         <handlerchain>
+            
+            <!-- The connect handler configuration -->
+            <!--            
+            <handler class="org.apache.james.smtpserver.DNSRBLHandler">
+               <rblservers>
+                  <whitelist> query.bondedsender.org </whitelist>
+                  <blacklist> sbl-xbl.spamhaus.org </blacklist>
+                  <blacklist> list.dsbl.org </blacklist>
+                  <blacklist> dul.dnsbl.sorbs.net </blacklist>
+                  <blacklist> relays.ordb.org </blacklist>
+               </rblservers>
+            </handler>            
+            -->            
+            
+            <!-- The command handler configuration -->
+            <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler"></handler>
+            <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler"></handler>
+            <handler command="AUTH" class="org.apache.james.smtpserver.AuthCmdHandler"></handler>
+            <handler command="VRFY" class="org.apache.james.smtpserver.VrfyCmdHandler"></handler>
+            <handler command="EXPN" class="org.apache.james.smtpserver.ExpnCmdHandler"></handler>
+            <handler command="MAIL" class="org.apache.james.smtpserver.MailCmdHandler"></handler>
+            <handler command="RCPT" class="org.apache.james.smtpserver.RcptCmdHandler"></handler>
+            <handler command="DATA" class="org.apache.james.smtpserver.DataCmdHandler"></handler>
+            <handler command="RSET" class="org.apache.james.smtpserver.RsetCmdHandler"></handler>
+            <handler command="HELP" class="org.apache.james.smtpserver.HelpCmdHandler"></handler>
+            <handler command="QUIT" class="org.apache.james.smtpserver.QuitCmdHandler"></handler>
+         
+            <!-- The message handler configuration -->
+            <!-- 
+            <handler class="org.apache.james.smtpserver.AddHeaderHandler">
+                <headername>SPF-test</headername>
+                <headervalue>passed</headervalue>
+            </handler>
             -->
+         </handlerchain>
+            
       </handler>
    </smtpserver>
 

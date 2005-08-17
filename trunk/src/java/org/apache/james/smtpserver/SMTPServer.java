@@ -26,6 +26,7 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -39,10 +40,6 @@ import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 import org.apache.mailet.MailetContext;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
  *
@@ -55,6 +52,13 @@ import java.util.StringTokenizer;
  * lifecycle methods, you MUST call super.<method> as well.
  */
 public class SMTPServer extends AbstractJamesService implements SMTPServerMBean {
+
+
+    /**
+     * The handler chain - SMTPhandlers can lookup handlerchain to obtain
+     * Command handlers , Message handlers and connection handlers
+     */
+    SMTPHandlerChain handlerChain = new SMTPHandlerChain();
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
@@ -124,12 +128,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private WatchdogFactory theWatchdogFactory;
 
     /**
-     * The lists of rbl servers to be checked to limit spam
-     */
-    private String[] whitelist;
-    private String[] blacklist;
-
-        /**
      * The configuration data to be passed to the handler
      */
     private SMTPHandlerConfigurationData theConfigData
@@ -223,38 +221,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
 
-            Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers");
-            if ( rblserverConfiguration != null ) {
-                ArrayList rblserverCollection = new ArrayList();
-                Configuration[] children = rblserverConfiguration.getChildren("whitelist");
-                if ( children != null ) {
-                    for ( int i = 0 ; i < children.length ; i++ ) {
-                        String rblServerName = children[i].getValue();
-                        rblserverCollection.add(rblServerName);
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Adding RBL server to whitelist: " + rblServerName);
-                        }
-                    }
-                    if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                        whitelist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
-                        rblserverCollection.clear();
-                    }
-                }
-                children = rblserverConfiguration.getChildren("blacklist");
-                if ( children != null ) {
-                    for ( int i = 0 ; i < children.length ; i++ ) {
-                        String rblServerName = children[i].getValue();
-                        rblserverCollection.add(rblServerName);
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Adding RBL server to blacklist: " + rblServerName);
-                        }
-                    }
-                    if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                        blacklist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
-                        rblserverCollection.clear();
-                    }
-                }
-            }
+            //set the logger
+            ContainerUtil.enableLogging(handlerChain,getLogger());
+
+            //read from the XML configuration and create and configure each of the handlers
+            handlerChain.load(handlerConfiguration.getChild("handlerchain"));
+
         } else {
             mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
@@ -319,6 +291,10 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         theHandler.setConfigurationData(theConfigData);
 
         theHandler.setWatchdog(theWatchdog);
+
+        //pass the handler chain to every SMTPhandler
+        theHandler.setHandlerChain(handlerChain);
+
         return theHandler;
     }
 
@@ -441,53 +417,5 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             return SMTPServer.this.users;
         }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#checkDNSRBL(Socket)
-         */
-        /*
-         * TEMPORARY!!! This is a temporary hack until we add flexible fast-fail support.
-         * This checks DNSRBL whitelists and blacklists.  If the remote IP is whitelisted
-         * it will be permitted to send e-mail, otherwise if the remote IP is blacklisted,
-         * the sender will only be permitted to send e-mail to postmaster (RFC 2821) or
-         * abuse (RFC 2142), unless authenticated.
-         */
-
-        public boolean checkDNSRBL(java.net.Socket conn) {
-            if (whitelist != null || blacklist != null) {
-                String ip = conn.getInetAddress().getHostAddress();
-                StringBuffer sb = new StringBuffer();
-                StringTokenizer st = new StringTokenizer(ip, " .", false);
-                while (st.hasMoreTokens()) {
-                    sb.insert(0, st.nextToken() + ".");
-                }
-                String reversedOctets = sb.toString();
-
-                if (whitelist != null) {
-                    String[] rblList = SMTPServer.this.whitelist;
-                    for (int i = 0 ; i < rblList.length ; i++) try {
-                        org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Connection from " + ip + " whitelisted by " + rblList[i]);
-                        }
-                        return false;
-                    } catch (java.net.UnknownHostException uhe) {
-                    }
-                }
-
-                if (blacklist != null) {
-                    String[] rblList = SMTPServer.this.blacklist;
-                    for (int i = 0 ; i < rblList.length ; i++) try {
-                        org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Connection from " + ip + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
-                        }
-                        return true;
-                    } catch (java.net.UnknownHostException uhe) {
-                        // if it is unknown, it isn't blocked
-                    }
-                }
-            }
-            return false;
-        }
     }
 }
