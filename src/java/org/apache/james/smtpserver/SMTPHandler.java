@@ -19,46 +19,37 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
-import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
-import org.apache.james.util.Base64;
 import org.apache.james.util.CRLFTerminatedReader;
-import org.apache.james.util.CharTerminatedInputStream;
-import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.james.util.mail.dsn.DSNStatus;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
 
 import javax.mail.MessagingException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.SequenceInputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.StringTokenizer;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -71,23 +62,23 @@ public class SMTPHandler
     implements ConnectionHandler, Poolable {
 
     /**
+     * The constants to indicate the current processing mode of the session
+     */
+    private final static byte COMMAND_MODE = 1;
+    private final static byte RESPONSE_MODE = 2;
+    private final static byte MESSAGE_RECEIVED_MODE = 3;
+    private final static byte MESSAGE_ABORT_MODE = 4;
+
+    /**
      * SMTP Server identification string used in SMTP headers
      */
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
 
     // Keys used to store/lookup data in the internal state hash map
-
-    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
-    private final static String MESG_SIZE = "MESG_SIZE";       // The size of the message
     private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
-
-    /**
-     * The character array that indicates termination of an SMTP connection
-     */
-    private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
     /**
      * Static Random instance used to generate SMTP ids
@@ -100,84 +91,39 @@ public class SMTPHandler
     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     /**
-     * The text string for the SMTP HELO command.
+     * The name of the currently parsed command
      */
-    private final static String COMMAND_HELO = "HELO";
-
+    String curCommandName =  null;
+    
     /**
-     * The text string for the SMTP EHLO command.
+     * The value of the currently parsed command
      */
-    private final static String COMMAND_EHLO = "EHLO";
-
+    String curCommandArgument =  null;
+    
     /**
-     * The text string for the SMTP AUTH command.
+     * The SMTPHandlerChain object set by SMTPServer
      */
-    private final static String COMMAND_AUTH = "AUTH";
-
+    SMTPHandlerChain handlerChain = null;
+    
     /**
-     * The text string for the SMTP MAIL command.
+     * The per SMTPHandler Session object
      */
-    private final static String COMMAND_MAIL = "MAIL";
-
+    private SMTPSession session = new SMTPSessionImpl();
+    
     /**
-     * The text string for the SMTP RCPT command.
+     * The mode of the current session
      */
-    private final static String COMMAND_RCPT = "RCPT";
-
+    private byte mode;
+    
     /**
-     * The text string for the SMTP NOOP command.
+     * The MailImpl object set by the DATA command
      */
-    private final static String COMMAND_NOOP = "NOOP";
-
+    private MailImpl mail = null;
+    
     /**
-     * The text string for the SMTP RSET command.
+     * The session termination status
      */
-    private final static String COMMAND_RSET = "RSET";
-
-    /**
-     * The text string for the SMTP DATA command.
-     */
-    private final static String COMMAND_DATA = "DATA";
-
-    /**
-     * The text string for the SMTP QUIT command.
-     */
-    private final static String COMMAND_QUIT = "QUIT";
-
-    /**
-     * The text string for the SMTP HELP command.
-     */
-    private final static String COMMAND_HELP = "HELP";
-
-    /**
-     * The text string for the SMTP VRFY command.
-     */
-    private final static String COMMAND_VRFY = "VRFY";
-
-    /**
-     * The text string for the SMTP EXPN command.
-     */
-    private final static String COMMAND_EXPN = "EXPN";
-
-    /**
-     * The text string for the SMTP AUTH type PLAIN.
-     */
-    private final static String AUTH_TYPE_PLAIN = "PLAIN";
-
-    /**
-     * The text string for the SMTP AUTH type LOGIN.
-     */
-    private final static String AUTH_TYPE_LOGIN = "LOGIN";
-
-    /**
-     * The text string for the SMTP MAIL command SIZE option.
-     */
-    private final static String MAIL_OPTION_SIZE = "SIZE";
-
-    /**
-     * The mail attribute holding the SMTP AUTH user name, if any.
-     */
-    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
+    private boolean sessionEnded = false;
 
     /**
      * The thread executing this handler
@@ -257,17 +203,17 @@ public class SMTPHandler
     /**
      * The watchdog being used by this handler to deal with idle timeouts.
      */
-    Watchdog theWatchdog;
+    private Watchdog theWatchdog;
 
     /**
      * The watchdog target that idles out this handler.
      */
-    WatchdogTarget theWatchdogTarget = new SMTPWatchdogTarget();
+    private WatchdogTarget theWatchdogTarget = new SMTPWatchdogTarget();
 
     /**
      * The per-handler response buffer used to marshal responses.
      */
-    StringBuffer responseBuffer = new StringBuffer(256);
+    private StringBuffer responseBuffer = new StringBuffer(256);
 
     /**
      * Set the configuration data for the handler
@@ -341,7 +287,6 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
-            blocklisted = theConfigData.checkDNSRBL(connection);
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
@@ -383,10 +328,94 @@ public class SMTPHandler
                           .append(rfc822DateFormat.format(new Date()));
             String responseString = clearResponseBuffer();
             writeLoggedFlushedResponse(responseString);
+            
+            //the core in protocol handling logic
+            //run all the connection handlers, if it fast fails, end the session
+            //parse the command command, look up for the list command handlers
+            //execute each of the command handlers. If any command handlers writes
+            //response then, end the command handler processing and start parsing new command
+            //Once the message is received, run all the message handlers
+            //the message handlers can either terminate message or terminate session
+
+
+            //Session started - RUN all connect handlers
+            List connectHandlers = handlerChain.getConnectHandlers();
+            if(connectHandlers != null) {
+                int count = connectHandlers.size();
+                for(int i = 0; i < count; i++) {
+                    ((ConnectHandler)connectHandlers.get(i)).onConnect(session);
+                    if(sessionEnded) {
+                        break;
+                    }
+                }
+            }
 
             theWatchdog.start();
-            while (parseCommand(readCommandLine())) {
-                theWatchdog.reset();
+            while(!sessionEnded) {
+              //Reset the current command values
+              curCommandName = null;
+              curCommandArgument = null;
+              mode = COMMAND_MODE;
+
+              //parse the command
+              String cmdString =  readCommandLine();
+              if (cmdString == null) {
+                  break;
+              }
+              int spaceIndex = cmdString.indexOf(" ");
+              if (spaceIndex > 0) {
+                  curCommandName = cmdString.substring(0, spaceIndex);
+                  curCommandArgument = cmdString.substring(spaceIndex + 1);
+              } else {
+                  curCommandName = cmdString;
+              }
+              curCommandName = curCommandName.toUpperCase(Locale.US);
+
+              //fetch the command handlers registered to the command
+              List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
+              if(commandHandlers == null) {
+                  //end the session
+                  break;
+              } else {
+                  int count = commandHandlers.size();
+                  for(int i = 0; i < count; i++) {
+                      ((CommandHandler)commandHandlers.get(i)).onCommand(session);
+                      theWatchdog.reset();
+                      //if the response is received, stop processing of command handlers
+                      if(mode != COMMAND_MODE) {
+                          break;
+                      }
+                  }
+
+              }
+
+              //handle messages
+              if(mode == MESSAGE_RECEIVED_MODE) {
+                  getLogger().info("executing message handlers");
+                  List messageHandlers = handlerChain.getMessageHandlers();
+                  int count = messageHandlers.size();
+                  for(int i =0; i < count; i++) {
+                      ((MessageHandler)messageHandlers.get(i)).onMessage(session);
+                      //if the response is received, stop processing of command handlers
+                      if(mode == MESSAGE_ABORT_MODE) {
+                          break;
+                      }
+                  }
+              }
+
+              //if the message is not aborted, then send Mail
+              if(mode == MESSAGE_RECEIVED_MODE) {
+                  getLogger().info("sending mail");
+                  sendMail(mail);
+              }
+
+              //do the clean up
+              if(mail != null) {
+                  mail.dispose();
+                  mail = null;
+                  resetState();
+              }
+
             }
             theWatchdog.stop();
             getLogger().debug("Closing socket.");
@@ -450,9 +479,7 @@ public class SMTPHandler
         smtpID = null;
 
         if (theWatchdog != null) {
-            if (theWatchdog instanceof Disposable) {
-                ((Disposable)theWatchdog).dispose();
-            }
+            ContainerUtil.dispose(theWatchdog);
             theWatchdog = null;
         }
 
@@ -573,1023 +600,6 @@ public class SMTPHandler
     }
 
     /**
-     * This method parses SMTP commands read off the wire in handleConnection.
-     * Actual processing of the command (possibly including additional back and
-     * forth communication with the client) is delegated to one of a number of
-     * command specific handler methods.  The primary purpose of this method is
-     * to parse the raw command string to determine exactly which handler should
-     * be called.  It returns true if expecting additional commands, false otherwise.
-     *
-     * @param rawCommand the raw command string passed in over the socket
-     *
-     * @return whether additional commands are expected.
-     */
-    private boolean parseCommand(String command) throws Exception {
-        String argument = null;
-        boolean returnValue = true;
-
-
-        if (command == null) {
-            return false;
-        }
-        if ((state.get(MESG_FAILED) == null) && (getLogger().isDebugEnabled())) {
-            getLogger().debug("Command received: " + command);
-        }
-        int spaceIndex = command.indexOf(" ");
-        if (spaceIndex > 0) {
-            argument = command.substring(spaceIndex + 1);
-            command = command.substring(0, spaceIndex);
-        }
-        command = command.toUpperCase(Locale.US);
-        if (command.equals(COMMAND_HELO)) {
-            doHELO(argument);
-        } else if (command.equals(COMMAND_EHLO)) {
-            doEHLO(argument);
-        } else if (command.equals(COMMAND_AUTH)) {
-            doAUTH(argument);
-        } else if (command.equals(COMMAND_MAIL)) {
-            doMAIL(argument);
-        } else if (command.equals(COMMAND_RCPT)) {
-            doRCPT(argument);
-        } else if (command.equals(COMMAND_NOOP)) {
-            doNOOP(argument);
-        } else if (command.equals(COMMAND_RSET)) {
-            doRSET(argument);
-        } else if (command.equals(COMMAND_DATA)) {
-            doDATA(argument);
-        } else if (command.equals(COMMAND_QUIT)) {
-            doQUIT(argument);
-            returnValue = false;
-        } else if (command.equals(COMMAND_VRFY)) {
-            doVRFY(argument);
-        } else if (command.equals(COMMAND_EXPN)) {
-            doEXPN(argument);
-        } else if (command.equals(COMMAND_HELP)) {
-            doHELP(argument);
-        } else {
-            if (state.get(MESG_FAILED) == null)  {
-                doUnknownCmd(command, argument);
-            }
-        }
-        return returnValue;
-    }
-
-    /**
-     * Handler method called upon receipt of a HELO command.
-     * Responds with a greeting and informs the client whether
-     * client authentication is required.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doHELO(String argument) {
-        String responseString = null;
-        if (argument == null) {
-            responseString = "501 Domain address required: " + COMMAND_HELO;
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            resetState();
-            state.put(CURRENT_HELO_MODE, COMMAND_HELO);
-            responseBuffer.append("250 ")
-                          .append(theConfigData.getHelloName())
-                          .append(" Hello ")
-                          .append(argument)
-                          .append(" (")
-                          .append(remoteHost)
-                          .append(" [")
-                          .append(remoteIP)
-                          .append("])");
-            responseString = clearResponseBuffer();
-            writeLoggedFlushedResponse(responseString);
-        }
-    }
-
-    /**
-     * Handler method called upon receipt of a EHLO command.
-     * Responds with a greeting and informs the client whether
-     * client authentication is required.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doEHLO(String argument) {
-        String responseString = null;
-        if (argument == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_EHLO;
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            resetState();
-            state.put(CURRENT_HELO_MODE, COMMAND_EHLO);
-
-            ArrayList esmtpextensions = new ArrayList();
-
-            esmtpextensions.add(new StringBuffer(theConfigData.getHelloName())
-                .append(" Hello ")
-                .append(argument)
-                .append(" (")
-                .append(remoteHost)
-                .append(" [")
-                .append(remoteIP)
-                .append("])").toString());
-
-            // Extension defined in RFC 1870
-            long maxMessageSize = theConfigData.getMaxMessageSize();
-            if (maxMessageSize > 0) {
-                esmtpextensions.add("SIZE " + maxMessageSize);
-            }
-
-            if (authRequired) {
-                esmtpextensions.add("AUTH LOGIN PLAIN");
-                esmtpextensions.add("AUTH=LOGIN PLAIN");
-            }
-
-            esmtpextensions.add("PIPELINING");
-            esmtpextensions.add("ENHANCEDSTATUSCODES");
-            esmtpextensions.add("8BITMIME");
-
-            // Iterator i = esmtpextensions.iterator();
-            for (int i = 0; i < esmtpextensions.size(); i++) {
-                if (i == esmtpextensions.size() - 1) {
-                    responseBuffer.append("250 ");
-                responseBuffer.append((String) esmtpextensions.get(i));
-                writeLoggedFlushedResponse(clearResponseBuffer());
-                } else {
-                    responseBuffer.append("250-");
-                responseBuffer.append((String) esmtpextensions.get(i));
-                writeLoggedResponse(clearResponseBuffer());
-                }
-            }
-        }
-    }
-
-    /**
-     * Handler method called upon receipt of a AUTH command.
-     * Handles client authentication to the SMTP server.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doAUTH(String argument)
-            throws Exception {
-        String responseString = null;
-        if (getUser() != null) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" User has previously authenticated. "
-                        + " Further authentication is not required!";
-            writeLoggedFlushedResponse(responseString);
-        } else if (argument == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: AUTH (authentication type) <challenge>";
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            String initialResponse = null;
-            if ((argument != null) && (argument.indexOf(" ") > 0)) {
-                initialResponse = argument.substring(argument.indexOf(" ") + 1);
-                argument = argument.substring(0,argument.indexOf(" "));
-            }
-            String authType = argument.toUpperCase(Locale.US);
-            if (authType.equals(AUTH_TYPE_PLAIN)) {
-                doPlainAuth(initialResponse);
-                return;
-            } else if (authType.equals(AUTH_TYPE_LOGIN)) {
-                doLoginAuth(initialResponse);
-                return;
-            } else {
-                doUnknownAuth(authType, initialResponse);
-                return;
-            }
-        }
-    }
-
-    /**
-     * Carries out the Plain AUTH SASL exchange.
-     *
-     * According to RFC 2595 the client must send: [authorize-id] \0 authenticate-id \0 password.
-     *
-     * >>> AUTH PLAIN dGVzdAB0ZXN0QHdpei5leGFtcGxlLmNvbQB0RXN0NDI=
-     * Decoded: test\000test@wiz.example.com\000tEst42
-     *
-     * >>> AUTH PLAIN dGVzdAB0ZXN0AHRFc3Q0Mg==
-     * Decoded: test\000test\000tEst42
-     *
-     * @param initialResponse the initial response line passed in with the AUTH command
-     */
-    private void doPlainAuth(String initialResponse)
-            throws IOException {
-        String userpass = null, user = null, pass = null, responseString = null;
-        if (initialResponse == null) {
-            responseString = "334 OK. Continue authentication";
-            writeLoggedFlushedResponse(responseString);
-            userpass = readCommandLine();
-        } else {
-            userpass = initialResponse.trim();
-        }
-        try {
-            if (userpass != null) {
-                userpass = Base64.decodeAsString(userpass);
-            }
-            if (userpass != null) {
-                /*  See: RFC 2595, Section 6
-                    The mechanism consists of a single message from the client to the
-                    server.  The client sends the authorization identity (identity to
-                    login as), followed by a US-ASCII NUL character, followed by the
-                    authentication identity (identity whose password will be used),
-                    followed by a US-ASCII NUL character, followed by the clear-text
-                    password.  The client may leave the authorization identity empty to
-                    indicate that it is the same as the authentication identity.
-
-                    The server will verify the authentication identity and password with
-                    the system authentication database and verify that the authentication
-                    credentials permit the client to login as the authorization identity.
-                    If both steps succeed, the user is logged in.
-                */
-                StringTokenizer authTokenizer = new StringTokenizer(userpass, "\0");
-                String authorize_id = authTokenizer.nextToken();  // Authorization Identity
-                user = authTokenizer.nextToken();                 // Authentication Identity
-                try {
-                    pass = authTokenizer.nextToken();             // Password
-                }
-                catch (java.util.NoSuchElementException _) {
-                    // If we got here, this is what happened.  RFC 2595
-                    // says that "the client may leave the authorization
-                    // identity empty to indicate that it is the same as
-                    // the authentication identity."  As noted above,
-                    // that would be represented as a decoded string of
-                    // the form: "\0authenticate-id\0password".  The
-                    // first call to nextToken will skip the empty
-                    // authorize-id, and give us the authenticate-id,
-                    // which we would store as the authorize-id.  The
-                    // second call will give us the password, which we
-                    // think is the authenticate-id (user).  Then when
-                    // we ask for the password, there are no more
-                    // elements, leading to the exception we just
-                    // caught.  So we need to move the user to the
-                    // password, and the authorize_id to the user.
-                    pass = user;
-                    user = authorize_id;
-                }
-
-                authTokenizer = null;
-            }
-        }
-        catch (Exception e) {
-            // Ignored - this exception in parsing will be dealt
-            // with in the if clause below
-        }
-        // Authenticate user
-        if ((user == null) || (pass == null)) {
-            responseString = "501 Could not decode parameters for AUTH PLAIN";
-            writeLoggedFlushedResponse(responseString);
-        } else if (theConfigData.getUsersRepository().test(user, pass)) {
-            setUser(user);
-            responseString = "235 Authentication Successful";
-            writeLoggedFlushedResponse(responseString);
-            getLogger().info("AUTH method PLAIN succeeded");
-        } else {
-            responseString = "535 Authentication Failed";
-            writeLoggedFlushedResponse(responseString);
-            getLogger().error("AUTH method PLAIN failed");
-        }
-        return;
-    }
-
-    /**
-     * Carries out the Login AUTH SASL exchange.
-     *
-     * @param initialResponse the initial response line passed in with the AUTH command
-     */
-    private void doLoginAuth(String initialResponse)
-            throws IOException {
-        String user = null, pass = null, responseString = null;
-        if (initialResponse == null) {
-            responseString = "334 VXNlcm5hbWU6"; // base64 encoded "Username:"
-            writeLoggedFlushedResponse(responseString);
-            user = readCommandLine();
-        } else {
-            user = initialResponse.trim();
-        }
-        if (user != null) {
-            try {
-                user = Base64.decodeAsString(user);
-            } catch (Exception e) {
-                // Ignored - this parse error will be
-                // addressed in the if clause below
-                user = null;
-            }
-        }
-        responseString = "334 UGFzc3dvcmQ6"; // base64 encoded "Password:"
-        writeLoggedFlushedResponse(responseString);
-        pass = readCommandLine();
-        if (pass != null) {
-            try {
-                pass = Base64.decodeAsString(pass);
-            } catch (Exception e) {
-                // Ignored - this parse error will be
-                // addressed in the if clause below
-                pass = null;
-            }
-        }
-        // Authenticate user
-        if ((user == null) || (pass == null)) {
-            responseString = "501 Could not decode parameters for AUTH LOGIN";
-        } else if (theConfigData.getUsersRepository().test(user, pass)) {
-            setUser(user);
-            responseString = "235 Authentication Successful";
-            if (getLogger().isDebugEnabled()) {
-                // TODO: Make this string a more useful debug message
-                getLogger().debug("AUTH method LOGIN succeeded");
-            }
-        } else {
-            responseString = "535 Authentication Failed";
-            // TODO: Make this string a more useful error message
-            getLogger().error("AUTH method LOGIN failed");
-        }
-        writeLoggedFlushedResponse(responseString);
-        return;
-    }
-
-    /**
-     * Handles the case of an unrecognized auth type.
-     *
-     * @param authType the unknown auth type
-     * @param initialResponse the initial response line passed in with the AUTH command
-     */
-    private void doUnknownAuth(String authType, String initialResponse) {
-        String responseString = "504 Unrecognized Authentication Type";
-        writeLoggedFlushedResponse(responseString);
-        if (getLogger().isErrorEnabled()) {
-            StringBuffer errorBuffer =
-                new StringBuffer(128)
-                    .append("AUTH method ")
-                        .append(authType)
-                        .append(" is an unrecognized authentication type");
-            getLogger().error(errorBuffer.toString());
-        }
-        return;
-    }
-
-    /**
-     * Handler method called upon receipt of a MAIL command.
-     * Sets up handler to deliver mail as the stated sender.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doMAIL(String argument) {
-        String responseString = null;
-
-        String sender = null;
-        if ((argument != null) && (argument.indexOf(":") > 0)) {
-            int colonIndex = argument.indexOf(":");
-            sender = argument.substring(colonIndex + 1);
-            argument = argument.substring(0, colonIndex);
-        }
-        if (state.containsKey(SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
-            writeLoggedFlushedResponse(responseString);
-        } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
-                   || sender == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Usage: MAIL FROM:<sender>";
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            sender = sender.trim();
-            // the next gt after the first lt ... AUTH may add more <>
-            int lastChar = sender.indexOf('>', sender.indexOf('<'));
-            // Check to see if any options are present and, if so, whether they are correctly formatted
-            // (separated from the closing angle bracket by a ' ').
-            if ((lastChar > 0) && (sender.length() > lastChar + 2) && (sender.charAt(lastChar + 1) == ' ')) {
-                String mailOptionString = sender.substring(lastChar + 2);
-
-                // Remove the options from the sender
-                sender = sender.substring(0, lastChar + 1);
-
-                StringTokenizer optionTokenizer = new StringTokenizer(mailOptionString, " ");
-                while (optionTokenizer.hasMoreElements()) {
-                    String mailOption = optionTokenizer.nextToken();
-                    int equalIndex = mailOption.indexOf('=');
-                    String mailOptionName = mailOption;
-                    String mailOptionValue = "";
-                    if (equalIndex > 0) {
-                        mailOptionName = mailOption.substring(0, equalIndex).toUpperCase(Locale.US);
-                        mailOptionValue = mailOption.substring(equalIndex + 1);
-                    }
-
-                    // Handle the SIZE extension keyword
-
-                    if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
-                      if (!(doMailSize(mailOptionValue))) {
-                          return;
-                      }
-                    } else {
-                        // Unexpected option attached to the Mail command
-                        if (getLogger().isDebugEnabled()) {
-                            StringBuffer debugBuffer =
-                                new StringBuffer(128)
-                                    .append("MAIL command had unrecognized/unexpected option ")
-                                    .append(mailOptionName)
-                                    .append(" with value ")
-                                    .append(mailOptionValue);
-                            getLogger().debug(debugBuffer.toString());
-                        }
-                    }
-                }
-            }
-            if (!sender.startsWith("<") || !sender.endsWith(">")) {
-                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command";
-                writeLoggedFlushedResponse(responseString);
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer =
-                        new StringBuffer(128)
-                            .append("Error parsing sender address: ")
-                            .append(sender)
-                            .append(": did not start and end with < >");
-                    getLogger().error(errorBuffer.toString());
-                }
-                return;
-            }
-            MailAddress senderAddress = null;
-            //Remove < and >
-            sender = sender.substring(1, sender.length() - 1);
-            if (sender.length() == 0) {
-                //This is the <> case.  Let senderAddress == null
-            } else {
-                if (sender.indexOf("@") < 0) {
-                    sender = sender + "@localhost";
-                }
-                try {
-                    senderAddress = new MailAddress(sender);
-                } catch (Exception pe) {
-                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address";
-                    writeLoggedFlushedResponse(responseString);
-                    if (getLogger().isErrorEnabled()) {
-                        StringBuffer errorBuffer =
-                            new StringBuffer(256)
-                                    .append("Error parsing sender address: ")
-                                    .append(sender)
-                                    .append(": ")
-                                    .append(pe.getMessage());
-                        getLogger().error(errorBuffer.toString());
-                    }
-                    return;
-                }
-            }
-            state.put(SENDER, senderAddress);
-            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
-                          .append(sender)
-                          .append("> OK");
-            responseString = clearResponseBuffer();
-            writeLoggedFlushedResponse(responseString);
-        }
-    }
-
-    /**
-     * Handles the SIZE MAIL option.
-     *
-     * @param mailOptionValue the option string passed in with the SIZE option
-     * @return true if further options should be processed, false otherwise
-     */
-    private boolean doMailSize(String mailOptionValue) {
-        int size = 0;
-        try {
-            size = Integer.parseInt(mailOptionValue);
-        } catch (NumberFormatException pe) {
-            // This is a malformed option value.  We return an error
-            String responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter";
-            writeLoggedFlushedResponse(responseString);
-            getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
-            return false;
-        }
-        if (getLogger().isDebugEnabled()) {
-            StringBuffer debugBuffer =
-                new StringBuffer(128)
-                    .append("MAIL command option SIZE received with value ")
-                    .append(size)
-                    .append(".");
-                    getLogger().debug(debugBuffer.toString());
-        }
-        long maxMessageSize = theConfigData.getMaxMessageSize();
-        if ((maxMessageSize > 0) && (size > maxMessageSize)) {
-            // Let the client know that the size limit has been hit.
-            String responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Message size exceeds fixed maximum message size";
-            writeLoggedFlushedResponse(responseString);
-            StringBuffer errorBuffer =
-                new StringBuffer(256)
-                    .append("Rejected message from ")
-                    .append(state.get(SENDER).toString())
-                    .append(" from host ")
-                    .append(remoteHost)
-                    .append(" (")
-                    .append(remoteIP)
-                    .append(") of size ")
-                    .append(size)
-                    .append(" exceeding system maximum message size of ")
-                    .append(maxMessageSize)
-                    .append("based on SIZE option.");
-            getLogger().error(errorBuffer.toString());
-            return false;
-        } else {
-            // put the message size in the message state so it can be used
-            // later to restrict messages for user quotas, etc.
-            state.put(MESG_SIZE, new Integer(size));
-        }
-        return true;
-    }
-
-    /**
-     * Handler method called upon receipt of a RCPT command.
-     * Reads recipient.  Does some connection validation.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doRCPT(String argument) {
-        String responseString = null;
-
-        String recipient = null;
-        if ((argument != null) && (argument.indexOf(":") > 0)) {
-            int colonIndex = argument.indexOf(":");
-            recipient = argument.substring(colonIndex + 1);
-            argument = argument.substring(0, colonIndex);
-        }
-        if (!state.containsKey(SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT";
-            writeLoggedFlushedResponse(responseString);
-        } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
-                   || recipient == null) {
-            responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>";
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            Collection rcptColl = (Collection) state.get(RCPT_LIST);
-            if (rcptColl == null) {
-                rcptColl = new ArrayList();
-            }
-            recipient = recipient.trim();
-            int lastChar = recipient.lastIndexOf('>');
-            // Check to see if any options are present and, if so, whether they are correctly formatted
-            // (separated from the closing angle bracket by a ' ').
-            String rcptOptionString = null;
-            if ((lastChar > 0) && (recipient.length() > lastChar + 2) && (recipient.charAt(lastChar + 1) == ' ')) {
-                rcptOptionString = recipient.substring(lastChar + 2);
-
-                // Remove the options from the recipient
-                recipient = recipient.substring(0, lastChar + 1);
-            }
-            if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
-                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
-                writeLoggedFlushedResponse(responseString);
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer =
-                        new StringBuffer(192)
-                                .append("Error parsing recipient address: ")
-                                .append(recipient)
-                                .append(": did not start and end with < >");
-                    getLogger().error(errorBuffer.toString());
-                }
-                return;
-            }
-            MailAddress recipientAddress = null;
-            //Remove < and >
-            recipient = recipient.substring(1, recipient.length() - 1);
-            if (recipient.indexOf("@") < 0) {
-                recipient = recipient + "@localhost";
-            }
-            try {
-                recipientAddress = new MailAddress(recipient);
-            } catch (Exception pe) {
-                /*
-                 * from RFC2822;
-                 * 553 Requested action not taken: mailbox name not allowed
-                 *     (e.g., mailbox syntax incorrect)
-                 */
-                responseString = "553 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address";
-                writeLoggedFlushedResponse(responseString);
-
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer =
-                        new StringBuffer(192)
-                                .append("Error parsing recipient address: ")
-                                .append(recipient)
-                                .append(": ")
-                                .append(pe.getMessage());
-                    getLogger().error(errorBuffer.toString());
-                }
-                return;
-            }
-
-            if (blocklisted &&                                                // was found in the RBL
-                (!relayingAllowed || (authRequired && getUser() == null)) &&  // Not an authorized IP or SMTP AUTH is enabled and not authenticated
-                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress.getUser().equalsIgnoreCase("abuse"))) {
-                // trying to send e-mail to other than postmaster or abuse
-                responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Rejected: unauthenticated e-mail from " + remoteIP + " is restricted.  Contact the postmaster for details.";
-                writeLoggedFlushedResponse(responseString);
-                return;
-            }
-
-            if (authRequired && !relayingAllowed) {
-                // Make sure the mail is being sent locally if not
-                // authenticated else reject.
-                if (getUser() == null) {
-                    String toDomain = recipientAddress.getHost();
-                    if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
-                        responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
-                        writeLoggedFlushedResponse(responseString);
-                        getLogger().error("Rejected message - authentication is required for mail request");
-                        return;
-                    }
-                } else {
-                    // Identity verification checking
-                    if (theConfigData.isVerifyIdentity()) {
-                        String authUser = (getUser()).toLowerCase(Locale.US);
-                        MailAddress senderAddress = (MailAddress) state.get(SENDER);
-
-                        if ((!authUser.equals(senderAddress.getUser())) ||
-                            (!theConfigData.getMailServer().isLocalServer(senderAddress.getHost()))) {
-                            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
-                            writeLoggedFlushedResponse(responseString);
-                            if (getLogger().isErrorEnabled()) {
-                                StringBuffer errorBuffer =
-                                    new StringBuffer(128)
-                                        .append("User ")
-                                        .append(authUser)
-                                        .append(" authenticated, however tried sending email as ")
-                                        .append(senderAddress);
-                                getLogger().error(errorBuffer.toString());
-                            }
-                            return;
-                        }
-                    }
-                }
-            } else if (!relayingAllowed) {
-                String toDomain = recipientAddress.getHost();
-                if (!theConfigData.getMailServer().isLocalServer(toDomain)) {
-                    responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
-                    writeLoggedFlushedResponse(responseString);
-                    getLogger().error("Rejected message - " + remoteIP + " not authorized to relay to " + toDomain);
-                    return;
-                }
-            }
-            if (rcptOptionString != null) {
-
-              StringTokenizer optionTokenizer = new StringTokenizer(rcptOptionString, " ");
-              while (optionTokenizer.hasMoreElements()) {
-                  String rcptOption = optionTokenizer.nextToken();
-                  int equalIndex = rcptOption.indexOf('=');
-                  String rcptOptionName = rcptOption;
-                  String rcptOptionValue = "";
-                  if (equalIndex > 0) {
-                      rcptOptionName = rcptOption.substring(0, equalIndex).toUpperCase(Locale.US);
-                      rcptOptionValue = rcptOption.substring(equalIndex + 1);
-                  }
-                  // Unexpected option attached to the RCPT command
-                  if (getLogger().isDebugEnabled()) {
-                      StringBuffer debugBuffer =
-                          new StringBuffer(128)
-                              .append("RCPT command had unrecognized/unexpected option ")
-                              .append(rcptOptionName)
-                              .append(" with value ")
-                              .append(rcptOptionValue);
-                      getLogger().debug(debugBuffer.toString());
-                  }
-              }
-              optionTokenizer = null;
-            }
-            rcptColl.add(recipientAddress);
-            state.put(RCPT_LIST, rcptColl);
-            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
-                          .append(recipient)
-                          .append("> OK");
-            responseString = clearResponseBuffer();
-            writeLoggedFlushedResponse(responseString);
-        }
-    }
-
-    /**
-     * Handler method called upon receipt of a NOOP command.
-     * Just sends back an OK and logs the command.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doNOOP(String argument) {
-        String responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of a RSET command.
-     * Resets message-specific, but not authenticated user, state.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doRSET(String argument) {
-        String responseString = "";
-        if ((argument == null) || (argument.length() == 0)) {
-            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
-            resetState();
-        } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
-        }
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of a DATA command.
-     * Reads in message data, creates header, and delivers to
-     * mail server service for delivery.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doDATA(String argument) {
-        String responseString = null;
-        if ((argument != null) && (argument.length() > 0)) {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
-            writeLoggedFlushedResponse(responseString);
-        }
-        if (!state.containsKey(SENDER)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
-            writeLoggedFlushedResponse(responseString);
-        } else if (!state.containsKey(RCPT_LIST)) {
-            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            responseString = "354 Ok Send data ending with <CRLF>.<CRLF>";
-            writeLoggedFlushedResponse(responseString);
-            InputStream msgIn = new CharTerminatedInputStream(in, SMTPTerminator);
-            try {
-                msgIn = new BytesReadResetInputStream(msgIn,
-                                                      theWatchdog,
-                                                      theConfigData.getResetLength());
-
-                // if the message size limit has been set, we'll
-                // wrap msgIn with a SizeLimitedInputStream
-                long maxMessageSize = theConfigData.getMaxMessageSize();
-                if (maxMessageSize > 0) {
-                    if (getLogger().isDebugEnabled()) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Using SizeLimitedInputStream ")
-                                    .append(" with max message size: ")
-                                    .append(maxMessageSize);
-                        getLogger().debug(logBuffer.toString());
-                    }
-                    msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
-                }
-                // Removes the dot stuffing
-                msgIn = new DotStuffingInputStream(msgIn);
-                // Parse out the message headers
-                MailHeaders headers = new MailHeaders(msgIn);
-                headers = processMailHeaders(headers);
-                processMail(headers, msgIn);
-                headers = null;
-            } catch (MessagingException me) {
-                // Grab any exception attached to this one.
-                Exception e = me.getNextException();
-                // If there was an attached exception, and it's a
-                // MessageSizeException
-                if (e != null && e instanceof MessageSizeException) {
-                    // Add an item to the state to suppress
-                    // logging of extra lines of data
-                    // that are sent after the size limit has
-                    // been hit.
-                    state.put(MESG_FAILED, Boolean.TRUE);
-                    // then let the client know that the size
-                    // limit has been hit.
-                    responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
-                                + e.getMessage();
-                    StringBuffer errorBuffer =
-                        new StringBuffer(256)
-                            .append("Rejected message from ")
-                            .append(state.get(SENDER).toString())
-                            .append(" from host ")
-                            .append(remoteHost)
-                            .append(" (")
-                            .append(remoteIP)
-                            .append(") exceeding system maximum message size of ")
-                            .append(theConfigData.getMaxMessageSize());
-                    getLogger().error(errorBuffer.toString());
-                } else {
-                    responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
-                                + me.getMessage();
-                    getLogger().error("Unknown error occurred while processing DATA.", me);
-                }
-                writeLoggedFlushedResponse(responseString);
-                return;
-            } finally {
-                if (msgIn != null) {
-                    try {
-                        msgIn.close();
-                    } catch (Exception e) {
-                        // Ignore close exception
-                    }
-                    msgIn = null;
-                }
-            }
-            resetState();
-            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-            writeLoggedFlushedResponse(responseString);
-        }
-    }
-
-    private MailHeaders processMailHeaders(MailHeaders headers)
-        throws MessagingException {
-        // If headers do not contains minimum REQUIRED headers fields,
-        // add them
-        if (!headers.isSet(RFC2822Headers.DATE)) {
-            headers.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
-        }
-        if (!headers.isSet(RFC2822Headers.FROM) && state.get(SENDER) != null) {
-            headers.setHeader(RFC2822Headers.FROM, state.get(SENDER).toString());
-        }
-        // RFC 2821 says that we cannot examine the message to see if
-        // Return-Path headers are present.  If there is one, our
-        // Received: header may precede it, but the Return-Path header
-        // should be removed when making final delivery.
-     // headers.removeHeader(RFC2822Headers.RETURN_PATH);
-        StringBuffer headerLineBuffer = new StringBuffer(512);
-        // We will rebuild the header object to put our Received header at the top
-        Enumeration headerLines = headers.getAllHeaderLines();
-        MailHeaders newHeaders = new MailHeaders();
-        // Put our Received header first
-        headerLineBuffer.append(RFC2822Headers.RECEIVED + ": from ")
-                        .append(remoteHost)
-                        .append(" ([")
-                        .append(remoteIP)
-                        .append("])");
-
-        newHeaders.addHeaderLine(headerLineBuffer.toString());
-        headerLineBuffer.delete(0, headerLineBuffer.length());
-
-        headerLineBuffer.append("          by ")
-                        .append(theConfigData.getHelloName())
-                        .append(" (")
-                        .append(SOFTWARE_TYPE)
-                        .append(") with SMTP ID ")
-                        .append(smtpID);
-
-        if (((Collection) state.get(RCPT_LIST)).size() == 1) {
-            // Only indicate a recipient if they're the only recipient
-            // (prevents email address harvesting and large headers in
-            //  bulk email)
-            newHeaders.addHeaderLine(headerLineBuffer.toString());
-            headerLineBuffer.delete(0, headerLineBuffer.length());
-            headerLineBuffer.append("          for <")
-                            .append(((List) state.get(RCPT_LIST)).get(0).toString())
-                            .append(">;");
-            newHeaders.addHeaderLine(headerLineBuffer.toString());
-            headerLineBuffer.delete(0, headerLineBuffer.length());
-        } else {
-            // Put the ; on the end of the 'by' line
-            headerLineBuffer.append(";");
-            newHeaders.addHeaderLine(headerLineBuffer.toString());
-            headerLineBuffer.delete(0, headerLineBuffer.length());
-        }
-        headerLineBuffer = null;
-        newHeaders.addHeaderLine("          " + rfc822DateFormat.format(new Date()));
-
-        // Add all the original message headers back in next
-        while (headerLines.hasMoreElements()) {
-            newHeaders.addHeaderLine((String) headerLines.nextElement());
-        }
-        return newHeaders;
-    }
-
-    /**
-     * Processes the mail message coming in off the wire.  Reads the
-     * content and delivers to the spool.
-     *
-     * @param headers the headers of the mail being read
-     * @param msgIn the stream containing the message content
-     */
-    private void processMail(MailHeaders headers, InputStream msgIn)
-        throws MessagingException {
-        ByteArrayInputStream headersIn = null;
-        MailImpl mail = null;
-        List recipientCollection = null;
-        try {
-            headersIn = new ByteArrayInputStream(headers.toByteArray());
-            recipientCollection = (List) state.get(RCPT_LIST);
-            mail =
-                new MailImpl(theConfigData.getMailServer().getId(),
-                             (MailAddress) state.get(SENDER),
-                             recipientCollection,
-                             new SequenceInputStream(headersIn, msgIn));
-            // Call mail.getSize() to force the message to be
-            // loaded. Need to do this to enforce the size limit
-            if (theConfigData.getMaxMessageSize() > 0) {
-                mail.getMessageSize();
-            }
-            mail.setRemoteHost(remoteHost);
-            mail.setRemoteAddr(remoteIP);
-            if (getUser() != null) {
-                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, getUser());
-            }
-            theConfigData.getMailServer().sendMail(mail);
-            Collection theRecipients = mail.getRecipients();
-            String recipientString = "";
-            if (theRecipients != null) {
-                recipientString = theRecipients.toString();
-            }
-            if (getLogger().isInfoEnabled()) {
-                StringBuffer infoBuffer =
-                    new StringBuffer(256)
-                        .append("Successfully spooled mail ")
-                        .append(mail.getName())
-                        .append(" from ")
-                        .append(mail.getSender())
-                        .append(" on ")
-                        .append(remoteIP)
-                        .append(" for ")
-                        .append(recipientString);
-                getLogger().info(infoBuffer.toString());
-            }
-        } finally {
-            if (recipientCollection != null) {
-                recipientCollection.clear();
-            }
-            recipientCollection = null;
-            if (mail != null) {
-                mail.dispose();
-            }
-            mail = null;
-            if (headersIn != null) {
-                try {
-                    headersIn.close();
-                } catch (IOException ioe) {
-                    // Ignore exception on close.
-                }
-            }
-            headersIn = null;
-        }
-    }
-
-    /**
-     * Handler method called upon receipt of a QUIT command.
-     * This method informs the client that the connection is
-     * closing.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doQUIT(String argument) {
-
-        String responseString = "";
-        if ((argument == null) || (argument.length() == 0)) {
-            responseBuffer.append("221 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" ")
-                          .append(theConfigData.getHelloName())
-                          .append(" Service closing transmission channel");
-            responseString = clearResponseBuffer();
-        } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with QUIT command";
-        }
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of a VRFY command.
-     * This method informs the client that the command is
-     * not implemented.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doVRFY(String argument) {
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported";
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of a EXPN command.
-     * This method informs the client that the command is
-     * not implemented.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doEXPN(String argument) {
-
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" EXPN is not supported";
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of a HELP command.
-     * This method informs the client that the command is
-     * not implemented.
-     *
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doHELP(String argument) {
-
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" HELP is not supported";
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.
-     *
-     * @param command the command parsed by the SMTP client
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doUnknownCmd(String command, String argument) {
-        responseBuffer.append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.UNDEFINED_STATUS)+" ")
-                      .append(theConfigData.getHelloName())
-                      .append(" Syntax error, command unrecognized: ")
-                      .append(command);
-        String responseString = clearResponseBuffer();
-        writeLoggedFlushedResponse(responseString);
-    }
-
-    /**
      * A private inner class which serves as an adaptor
      * between the WatchdogTarget interface and this
      * handler class.
@@ -1602,6 +612,276 @@ public class SMTPHandler
          */
         public void execute() {
             SMTPHandler.this.idleClose();
+        }
+    }
+
+   /**
+     * Sets the SMTPHandlerChain
+     *
+     * @param handlerChain SMTPHandler object
+     */
+    public void setHandlerChain(SMTPHandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+    }
+
+     /**
+      * delivers the mail to the spool.
+      *
+      * @param Mail the mail object
+      */
+      public void sendMail(MailImpl mail) {
+         String responseString = null;
+         try {
+             session.setMail(mail);
+             theConfigData.getMailServer().sendMail(mail);
+             Collection theRecipients = mail.getRecipients();
+             String recipientString = "";
+             if (theRecipients != null) {
+                 recipientString = theRecipients.toString();
+             }
+             if (getLogger().isInfoEnabled()) {
+                 StringBuffer infoBuffer =
+                     new StringBuffer(256)
+                         .append("Successfully spooled mail ")
+                         .append(mail.getName())
+                         .append(" from ")
+                         .append(mail.getSender())
+                         .append(" on ")
+                         .append(remoteIP)
+                         .append(" for ")
+                         .append(recipientString);
+                 getLogger().info(infoBuffer.toString());
+             }
+         } catch (MessagingException me) {
+             // Grab any exception attached to this one.
+             Exception e = me.getNextException();
+             // If there was an attached exception, and it's a
+             // MessageSizeException
+             if (e != null && e instanceof MessageSizeException) {
+                 // Add an item to the state to suppress
+                 // logging of extra lines of data
+                 // that are sent after the size limit has
+                 // been hit.
+                 state.put(MESG_FAILED, Boolean.TRUE);
+                 // then let the client know that the size
+                 // limit has been hit.
+                 responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
+                             + e.getMessage();
+                 StringBuffer errorBuffer =
+                     new StringBuffer(256)
+                         .append("Rejected message from ")
+                         .append(state.get(SENDER).toString())
+                         .append(" from host ")
+                         .append(remoteHost)
+                         .append(" (")
+                         .append(remoteIP)
+                         .append(") exceeding system maximum message size of ")
+                         .append(theConfigData.getMaxMessageSize());
+                 getLogger().error(errorBuffer.toString());
+             } else {
+                 responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
+                             + me.getMessage();
+                 getLogger().error("Unknown error occurred while processing DATA.", me);
+             }
+             session.writeResponse(responseString);
+             return;
+         }
+         responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
+         session.writeResponse(responseString);
+     }
+  
+
+    /**
+     * The SMTPSession implementation data to be passed to each handler
+     */
+    private class SMTPSessionImpl implements SMTPSession {
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
+         */
+        public void writeResponse(String respString) {
+            SMTPHandler.this.writeLoggedFlushedResponse(respString);
+            //TODO Explain this well
+            if(SMTPHandler.this.mode == COMMAND_MODE) {
+                SMTPHandler.this.mode = SMTPHandler.RESPONSE_MODE;
+            }
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
+         */
+        public String getCommandName() {
+            return SMTPHandler.this.curCommandName;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
+         */
+        public String getCommandArgument() {
+            return SMTPHandler.this.curCommandArgument;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getMail()
+         */
+        public Mail getMail() {
+            return SMTPHandler.this.mail;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#setMail(MailImpl)
+         */
+        public void setMail(MailImpl mail) {
+            SMTPHandler.this.mail = mail;
+            SMTPHandler.this.mode = SMTPHandler.MESSAGE_RECEIVED_MODE;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
+         */
+        public String getRemoteHost() {
+            return SMTPHandler.this.remoteHost;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
+         */
+        public String getRemoteIPAddress() {
+            return SMTPHandler.this.remoteIP;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#endSession()
+         */
+        public void endSession() {
+            SMTPHandler.this.sessionEnded = true;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
+         */
+        public boolean isSessionEnded() {
+            return SMTPHandler.this.sessionEnded;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#resetState()
+         */
+        public void resetState() {
+            SMTPHandler.this.resetState();
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getState()
+         */
+        public HashMap getState() {
+            return SMTPHandler.this.state;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getLogger()
+         */
+        public Logger getLogger() {
+            return SMTPHandler.this.getLogger();
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
+         */
+        public SMTPHandlerConfigurationData getConfigurationData() {
+            return SMTPHandler.this.theConfigData;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#isBlockListed()
+         */
+        public boolean isBlockListed() {
+            return SMTPHandler.this.blocklisted;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#setBlockListed(boolean)
+         */
+        public void setBlockListed(boolean blocklisted ) {
+            SMTPHandler.this.blocklisted = blocklisted;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
+         */
+        public boolean isRelayingAllowed() {
+            return SMTPHandler.this.relayingAllowed;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
+         */
+        public boolean isAuthRequired() {
+            return SMTPHandler.this.authRequired;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getUser()
+         */
+        public String getUser() {
+            return SMTPHandler.this.getUser();
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#setUser()
+         */
+        public void setUser(String user) {
+            SMTPHandler.this.setUser(user);
+        }
+  
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
+         */
+        public StringBuffer getResponseBuffer() {
+            return SMTPHandler.this.responseBuffer;
+        }
+  
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
+         */
+        public String clearResponseBuffer() {
+            return SMTPHandler.this.clearResponseBuffer();
+        }
+
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#readCommandLine()
+         */
+        public String readCommandLine() throws IOException {
+            return SMTPHandler.this.readCommandLine();
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getWatchdog()
+         */
+        public Watchdog getWatchdog() {
+            return SMTPHandler.this.theWatchdog;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getInputStream()
+         */
+        public InputStream getInputStream() {
+            return SMTPHandler.this.in;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
+         */
+        public String getSessionID() {
+            return SMTPHandler.this.smtpID;
+        }
+
+        /**
+         * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
+         */
+        public void abortMessage() {
+            SMTPHandler.this.mode = SMTPHandler.MESSAGE_ABORT_MODE;
         }
 
     }
