@@ -22,7 +22,6 @@ import java.net.URL;
 import java.util.HashMap;
 import org.apache.avalon.cornerstone.services.store.Repository;
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -30,6 +29,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -180,15 +180,8 @@ public class RepositoryManager
                     reply = (Repository)Class.forName( repClass ).newInstance();
                     setupLogger( reply, "repository" );
 
-                    if( reply instanceof Contextualizable )
-                    {
-                        ( (Contextualizable)reply ).contextualize( m_context );
-                    }
-
-                    if( reply instanceof Serviceable )
-                    {
-                        ( (Serviceable)reply ).service( m_componentManager );
-                    }
+                    ContainerUtil.contextualize(reply,m_context);
+                    ContainerUtil.service(reply,m_componentManager);
 
                     if (reply instanceof Composable) {
                         final String error = "no implementation in place to support Composable";
@@ -196,15 +189,8 @@ public class RepositoryManager
                         throw new IllegalArgumentException( error );
                     }
 
-                    if( reply instanceof Configurable )
-                    {
-                        ( (Configurable)reply ).configure( repConf );
-                    }
-
-                    if( reply instanceof Initializable )
-                    {
-                        ( (Initializable)reply ).initialize();
-                    }
+                    ContainerUtil.configure(reply,repConf);
+                    ContainerUtil.initialize(reply);
 
                     m_repositories.put( repID, reply );
                     m_models.put( repID, model );
