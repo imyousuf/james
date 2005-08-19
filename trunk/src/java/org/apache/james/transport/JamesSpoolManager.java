@@ -23,18 +23,17 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.context.Context;
-import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailStore;
+import org.apache.james.services.MailetLoader;
+import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 
@@ -54,9 +53,8 @@ import java.util.Iterator;
  */
 public class JamesSpoolManager
     extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Runnable, Disposable, Contextualizable {
+    implements Serviceable, Configurable, Initializable, Runnable, Disposable {
 
-    private Context context;
     /**
      * Whether 'deep debugging' is turned on.
      */
@@ -73,8 +71,6 @@ public class JamesSpoolManager
     private Configuration conf;
 
     private SpoolRepository spool;
-
-    private MailetContext mailetContext;
 
     /**
      * The map of processor names to processors
@@ -156,29 +152,10 @@ public class JamesSpoolManager
             getLogger().debug("Got spool");
         }
 
-        mailetContext
-            = (MailetContext) compMgr.lookup("org.apache.mailet.MailetContext");
-        MailetLoader mailetLoader = new MailetLoader();
-        MatchLoader matchLoader = new MatchLoader();
-        try {
-            mailetLoader.setLogger(getLogger());
-            matchLoader.setLogger(getLogger());
-            mailetLoader.contextualize(context);
-            matchLoader.contextualize(context);
-            mailetLoader.configure(conf.getChild("mailetpackages"));
-            matchLoader.configure(conf.getChild("matcherpackages"));
-            compMgr.put(Resources.MAILET_LOADER, mailetLoader);
-            compMgr.put(Resources.MATCH_LOADER, matchLoader);
-        } catch (ConfigurationException ce) {
-            final String message =
-                "Unable to configure mailet/matcher Loaders: "
-                + ce.getMessage();
-
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error( message, ce );
-            }
-            throw new RuntimeException( message );
-        }
+        MailetLoader mailetLoader
+        = (MailetLoader) compMgr.lookup("org.apache.james.services.MailetLoader");
+        MatcherLoader matchLoader
+        = (MatcherLoader) compMgr.lookup("org.apache.james.services.MatcherLoader");
 
         //A processor is a Collection of
         processors = new HashMap();
@@ -198,10 +175,8 @@ public class JamesSpoolManager
                 // If this is the root processor, add the PostmasterAlias
                 //  mailet silently to the top
                 if (processorName.equals("root")) {
-                    Matcher matcher = matchLoader.getMatcher("All",
-                                                             mailetContext);
-                    Mailet mailet = mailetLoader.getMailet("PostmasterAlias",
-                                                           mailetContext, null);
+                    Matcher matcher = matchLoader.getMatcher("All");
+                    Mailet mailet = mailetLoader.getMailet("PostmasterAlias", null);
                     processor.add(matcher, mailet);
                 }
 
@@ -218,8 +193,7 @@ public class JamesSpoolManager
                     Mailet mailet = null;
                     Matcher matcher = null;
                     try {
-                        matcher = matchLoader.getMatcher(matcherName,
-                                                         mailetContext);
+                        matcher = matchLoader.getMatcher(matcherName);
                         //The matcher itself should log that it's been inited.
                         if (getLogger().isInfoEnabled()) {
                             StringBuffer infoBuffer =
@@ -249,8 +223,7 @@ public class JamesSpoolManager
                         throw ex;
                     }
                     try {
-                        mailet = mailetLoader.getMailet(mailetClassName,
-                                                        mailetContext, c);
+                        mailet = mailetLoader.getMailet(mailetClassName, c);
                         if (getLogger().isInfoEnabled()) {
                             StringBuffer infoBuffer =
                                 new StringBuffer(64)
@@ -533,10 +506,4 @@ public class JamesSpoolManager
         }
     }
 
-    /**
-     * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
-     */
-    public void contextualize(Context context) {
-        this.context = context;
-    }
 }

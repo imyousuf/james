@@ -18,7 +18,7 @@
 <!-- In case the defaults do not suit you, the items you are most likely to need to change -->
 <!-- are preceded by a CHECKME! or CONFIRM? comment in the left margin. -->
 
-<!-- For production use you will probably need to make more extensive changes, see -->
+<!-- For production use you will probably n"src/conf/james-assembly.xml"eed to make more extensive changes, see -->
 <!-- http://james.apache.org/documentation_2_1.html -->
 
 <!-- $Revision$ Committed on $Date$ by: $Author$ -->
@@ -98,15 +98,25 @@
       -->
    </James>
 
-    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
-    <!-- service that pulls messages from other sources, and inserts them into the -->
-    <!-- spool.  They are then processed normally, although FetchMail generally    -->
-    <!-- has to fabricate some of the envelope information.  FetchMail should be   -->
-    <!-- considered a mail gateway, rather than a relay, in RFC terms.             -->
-    <!-- Fetchmail is a functionally richer replacement for FetchPOP.              -->
-    <!-- CHECKME: FetchMail is disabled by default, and must be configured to use. -->
-    <!-- Edit the file referred to by fetchmailConfig to enable and configure.     -->
-    &fetchmailConfig;
+   <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
+   <!-- service that pulls messages from other sources, and inserts them into the -->
+   <!-- spool.  They are then processed normally, although FetchMail generally    -->
+   <!-- has to fabricate some of the envelope information.  FetchMail should be   -->
+   <!-- considered a mail gateway, rather than a relay, in RFC terms.             -->
+   <!-- Fetchmail is a functionally richer replacement for FetchPOP.              -->
+   <!-- CHECKME: FetchMail is disabled by default, and must be configured to use. -->
+   <!-- Edit the file referred to by fetchmailConfig to enable and configure.     -->
+   &fetchmailConfig;
+
+   <!-- Set the Java packages from which to load mailets and matchers -->
+   <mailetpackages>
+      <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
+      <mailetpackage>org.apache.james.transport.mailets.smime</mailetpackage>
+   </mailetpackages>
+   <matcherpackages>
+      <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
+      <matcherpackage>org.apache.james.transport.matchers.smime</matcherpackage>
+   </matcherpackages>
 
    <!-- The James Spool Manager block  -->
    <!-- -->
@@ -114,16 +124,6 @@
    <spoolmanager>
       <!-- Number of spool threads -->
       <threads> 10 </threads>
-
-      <!-- Set the Java packages from which to load mailets and matchers -->
-      <mailetpackages>
-         <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
-         <mailetpackage>org.apache.james.transport.mailets.smime</mailetpackage>
-      </mailetpackages>
-      <matcherpackages>
-         <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
-         <matcherpackage>org.apache.james.transport.matchers.smime</matcherpackage>
-      </matcherpackages>
 
       <!-- The root processor is a required processor - James routes all mail on the spool -->
       <!-- through this processor first. -->
