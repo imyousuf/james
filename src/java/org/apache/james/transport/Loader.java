@@ -22,27 +22,45 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Vector;
 
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.mailet.MailetContext;
 
 /**
  *
  * $Id$
  */
-public class Loader implements Contextualizable {
+public abstract class Loader extends AbstractLogEnabled implements Contextualizable, Serviceable, Configurable, Initializable {
     protected ClassLoader mailetClassLoader = null;
     protected String baseDirectory = null;
     protected Logger logger;
     protected final String MAILET_PACKAGE = "mailetpackage";
     protected final String MATCHER_PACKAGE = "matcherpackage";
-      /**
+    /**
      * The list of packages that may contain Mailets or matchers
      */
     protected Vector packages;
+
+    /**
+     * System service manager
+     */
+    private ServiceManager serviceManager;
+
+    /**
+     * Mailet context
+     */
+    protected MailetContext mailetContext;
 
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
@@ -114,4 +132,24 @@ public class Loader implements Contextualizable {
         classPath = (URL[]) jarlist.toArray(new URL[jarlist.size()]);
         mailetClassLoader = new URLClassLoader(classPath, this.getClass().getClassLoader());
     }
+
+        /**
+         * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+         */
+        public void service(ServiceManager sm) throws ServiceException {
+        serviceManager = new DefaultServiceManager(sm);
+        }
+
+        /**
+         * @see org.apache.avalon.framework.activity.Initializable#initialize()
+         */
+        public void initialize() throws Exception {
+        mailetContext = (MailetContext) serviceManager.lookup("org.apache.mailet.MailetContext");
+        }
+        
+        /**
+         * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
+         */
+        public abstract void configure(Configuration arg0) throws ConfigurationException;
+
 }
