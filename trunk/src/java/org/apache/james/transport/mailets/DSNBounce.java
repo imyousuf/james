@@ -150,16 +150,16 @@ public class DSNBounce extends AbstractNotify {
 
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        Mail newMail = ((MailImpl) originalMail).duplicate(newName((MailImpl) originalMail));
+        MailImpl newMail = (MailImpl) ((MailImpl) originalMail).duplicate(newName((MailImpl) originalMail));
         // We don't need to use the original Remote Address and Host,
         // and doing so would likely cause a loop with spam detecting
         // matchers.
         try {
-            ((MailImpl)newMail).setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-            ((MailImpl)newMail).setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+            newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+            newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
         } catch (java.net.UnknownHostException _) {
-            ((MailImpl) newMail).setRemoteAddr("127.0.0.1");
-            ((MailImpl) newMail).setRemoteHost("localhost");
+            newMail.setRemoteAddr("127.0.0.1");
+            newMail.setRemoteHost("localhost");
         }
 
         if (originalMail.getSender() == null) {
@@ -177,19 +177,18 @@ public class DSNBounce extends AbstractNotify {
 
         Collection newRecipients = new HashSet();
         newRecipients.add(reversePath);
-        ((MailImpl)newMail).setRecipients(newRecipients);
+        newMail.setRecipients(newRecipients);
 
         if (isDebug) {
-            MailImpl newMailImpl = (MailImpl) newMail;
-            log("New mail - sender: " + newMailImpl.getSender()
+            log("New mail - sender: " + newMail.getSender()
                 + ", recipients: " +
-                arrayToString(newMailImpl.getRecipients().toArray())
-                + ", name: " + newMailImpl.getName()
-                + ", remoteHost: " + newMailImpl.getRemoteHost()
-                + ", remoteAddr: " + newMailImpl.getRemoteAddr()
-                + ", state: " + newMailImpl.getState()
-                + ", lastUpdated: " + newMailImpl.getLastUpdated()
-                + ", errorMessage: " + newMailImpl.getErrorMessage());
+                arrayToString(newMail.getRecipients().toArray())
+                + ", name: " + newMail.getName()
+                + ", remoteHost: " + newMail.getRemoteHost()
+                + ", remoteAddr: " + newMail.getRemoteAddr()
+                + ", state: " + newMail.getState()
+                + ", lastUpdated: " + newMail.getLastUpdated()
+                + ", errorMessage: " + newMail.getErrorMessage());
         }
 
         // create the bounce message
