@@ -505,13 +505,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     // An error has occured during the 7bit conversion.
                                     // The error is logged and the message is sent anyway.
                                     
-                                	log("Error during the conversion to 7 bit.", e);
+                                    log("Error during the conversion to 7 bit.", e);
                                 }
                             }
                         } else {
-                        	// If the transport is not the one
-                        	// developed by Sun we are not sure of how it handles the 8 bit mime stuff, 
-                        	// so I convert the message to 7bit.
+                            // If the transport is not the one
+                            // developed by Sun we are not sure of how it handles the 8 bit mime stuff, 
+                            // so I convert the message to 7bit.
                             try {
                                 convertTo7Bit(message);
                             } catch (IOException e) {
