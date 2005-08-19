@@ -29,8 +29,6 @@
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
-    <provide name="connections"
-             role="org.apache.james.services.JamesConnectionManager"/>
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
     <provide name="database-connections"
@@ -41,14 +39,11 @@
   <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="mailstore" role="org.apache.james.services.MailStore"/>
-    <provide name="thread-manager"
-             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
   </block>
 
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
   <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
-    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -61,7 +56,6 @@
 
   <!-- POP3 Server -->
   <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
-    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -75,7 +69,6 @@
   <!-- SMTP Server -->
   <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
-    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
     <provide name="users-store" role="org.apache.james.services.UsersStore"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
