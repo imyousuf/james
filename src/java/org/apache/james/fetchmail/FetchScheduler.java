@@ -27,6 +27,7 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -97,10 +98,9 @@ public class FetchScheduler
                 FetchMail fetcher = new FetchMail();
                 Configuration fetchConf = fetchConfs[i];
                 String fetchTaskName = fetchConf.getAttribute("name");
-                fetcher.enableLogging(
-                    getLogger().getChildLogger(fetchTaskName));
-                fetcher.service(m_manager);
-                fetcher.configure(fetchConf);
+                ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
+                ContainerUtil.service(fetcher,m_manager);
+                ContainerUtil.configure(fetcher,fetchConf);
                 Integer interval =
                     new Integer(fetchConf.getChild("interval").getValue());
                 PeriodicTimeTrigger fetchTrigger =

@@ -26,6 +26,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
@@ -290,23 +291,18 @@ public class AvalonMailStore
                     if (reply instanceof LogEnabled) {
                        setupLogger(reply);
                     }
-                    if (reply instanceof Contextualizable) {
-                        ((Contextualizable) reply).contextualize(context);
-                    }
-                    if (reply instanceof Serviceable) {
-                        ((Serviceable) reply).service( m_manager );
-                    }
+                    ContainerUtil.contextualize(reply,context);
+                    ContainerUtil.service(reply,m_manager);
+
                     if (reply instanceof Composable) {
                         final String error = "no implementation in place to support Composable";
                         getLogger().error( error );
                         throw new IllegalArgumentException( error );
                     }
-                    if (reply instanceof Configurable) {
-                        ((Configurable) reply).configure(config);
-                    }
-                    if (reply instanceof Initializable) {
-                        ((Initializable) reply).initialize();
-                    }
+                    
+                    ContainerUtil.configure(reply,config);
+                    ContainerUtil.initialize(reply);
+
                     repositories.put(repID, reply);
                     if (getLogger().isInfoEnabled()) {
                         logBuffer =

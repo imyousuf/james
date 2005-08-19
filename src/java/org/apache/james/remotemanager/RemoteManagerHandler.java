@@ -19,7 +19,7 @@ package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.services.JamesUser;
@@ -342,9 +342,7 @@ public class RemoteManagerHandler
 
         // Clear the Watchdog
         if (theWatchdog != null) {
-            if (theWatchdog instanceof Disposable) {
-                ((Disposable)theWatchdog).dispose();
-            }
+            ContainerUtil.dispose(theWatchdog);
             theWatchdog = null;
         }
 

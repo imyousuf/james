@@ -19,18 +19,11 @@ package org.apache.james.nntpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.nntpserver.repository.NNTPRepository;
-import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.ExtraDotOutputStream;
@@ -44,17 +37,14 @@ import org.apache.james.util.watchdog.WatchdogTarget;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.SequenceInputStream;
 import java.net.Socket;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -452,9 +442,7 @@ public class NNTPHandler
 
         // Clear the Watchdog
         if (theWatchdog != null) {
-            if (theWatchdog instanceof Disposable) {
-                ((Disposable)theWatchdog).dispose();
-            }
+            ContainerUtil.dispose(theWatchdog);
             theWatchdog = null;
         }
 

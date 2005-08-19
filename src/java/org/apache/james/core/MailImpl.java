@@ -18,6 +18,7 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.Mail;
@@ -579,9 +580,7 @@ public class MailImpl implements Disposable, Mail {
     public void dispose() {
         try {
             MimeMessage wrapper = getMessage();
-            if (wrapper instanceof Disposable) {
-                ((Disposable)wrapper).dispose();
-            }
+            ContainerUtil.dispose(wrapper);
         } catch (MessagingException me) {
             // Ignored
         }

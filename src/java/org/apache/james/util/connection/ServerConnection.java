@@ -32,10 +32,9 @@ import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.excalibur.thread.ThreadPool ;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 
 
 /**
@@ -136,10 +135,8 @@ public class ServerConnection extends AbstractLogEnabled
      */
     public void initialize() throws Exception {
         runnerPool = new HardResourceLimitingPool(theRunnerFactory, 5, maxOpenConn);
-        if (runnerPool instanceof LogEnabled) {
-            ((LogEnabled)runnerPool).enableLogging(getLogger());
-        }
-        ((Initializable)runnerPool).initialize();
+        ContainerUtil.enableLogging(runnerPool,getLogger());
+        ContainerUtil.initialize(runnerPool);
     }
 
     /**
@@ -180,9 +177,7 @@ public class ServerConnection extends AbstractLogEnabled
                     // Expected - just complete dispose()
                 }
             }
-            if (runnerPool instanceof Disposable) {
-                ((Disposable)runnerPool).dispose();
-            }
+            ContainerUtil.dispose(runnerPool);
             runnerPool = null;
         }
 

@@ -22,6 +22,7 @@ import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
@@ -117,23 +118,16 @@ public class AvalonUsersStore
 
             setupLogger(rep);
 
-            if (rep instanceof Contextualizable) {
-                ((Contextualizable) rep).contextualize(context);
-            }
-            if (rep instanceof Serviceable) {
-                ((Serviceable) rep).service( manager );
-            }
+            ContainerUtil.contextualize(rep,context);
+            ContainerUtil.service(rep,manager);
             if (rep instanceof Composable) {
                 final String error = "no implementation in place to support Composable";
                 getLogger().error( error );
                 throw new IllegalArgumentException( error );
             }
-            if (rep instanceof Configurable) {
-                ((Configurable) rep).configure(repConf);
-            }
-            if (rep instanceof Initializable) {
-                ((Initializable) rep).initialize();
-            }
+            ContainerUtil.configure(rep,repConf);
+            ContainerUtil.initialize(rep);
+            
             repositories.put(repName, rep);
             if (getLogger().isInfoEnabled()) {
                 StringBuffer logBuffer = 

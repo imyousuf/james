@@ -22,13 +22,13 @@ import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 /**
@@ -163,9 +163,7 @@ public class SimpleConnectionManager
         ServerConnection runner =
             new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections);
         setupLogger(runner);
-        if (runner instanceof Initializable) {
-            ((Initializable)runner).initialize();
-        }
+        ContainerUtil.initialize(runner);
         connectionMap.put(name, runner);
         threadPool.execute(runner);
     }

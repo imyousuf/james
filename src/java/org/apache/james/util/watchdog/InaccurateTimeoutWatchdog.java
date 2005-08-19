@@ -19,6 +19,7 @@ package org.apache.james.util.watchdog;
 
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**
@@ -212,9 +213,7 @@ public class InaccurateTimeoutWatchdog
                 watchdogThread = null;
                 notifyAll();
             }
-            if (triggerTarget instanceof Disposable) {
-                ((Disposable)triggerTarget).dispose();
-            }
+            ContainerUtil.dispose(triggerTarget);
             triggerTarget = null;
         }
     }

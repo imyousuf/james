@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Locale;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 
 /**
@@ -57,9 +57,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
                             Object handler = classLoader.loadClass(className).newInstance();
 
                             //configure the handler
-                            if(handler instanceof Configurable) {
-                                ((Configurable)handler).configure(children[i]);
-                            }
+                            ContainerUtil.configure(handler,children[i]);
 
                             //if it is a connect handler add it to list of connect handlers
                             if(handler instanceof ConnectHandler) {
