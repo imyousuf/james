@@ -28,7 +28,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailStore;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
@@ -56,11 +55,6 @@ public class JamesSpoolManager
     implements Serviceable, Configurable, Initializable, Runnable, Disposable {
 
     /**
-     * Whether 'deep debugging' is turned on.
-     */
-    private final static boolean DEEP_DEBUG = false;
-
-    /**
      * System component manager
      */
     private DefaultServiceManager compMgr;
@@ -70,6 +64,9 @@ public class JamesSpoolManager
      */
     private Configuration conf;
 
+    /**
+     * The spool that this manager will process
+     */
     private SpoolRepository spool;
 
     /**
@@ -136,21 +133,7 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        // workerPool = threadManager.getThreadPool( "default" );
-        MailStore mailstore
-            = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
-        spool = mailstore.getInboundSpool();
-        if (null == spool)
-        {
-            String exceptionMessage = "The mailstore's inbound spool is null.  The mailstore is misconfigured";
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error( exceptionMessage );
-            }
-            throw new ConfigurationException(exceptionMessage);
-        }
-        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-            getLogger().debug("Got spool");
-        }
+        spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
 
         MailetLoader mailetLoader
         = (MailetLoader) compMgr.lookup("org.apache.james.services.MailetLoader");
