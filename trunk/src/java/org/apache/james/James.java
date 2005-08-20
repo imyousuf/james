@@ -17,6 +17,7 @@
 
 package org.apache.james;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -40,7 +41,6 @@ import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesUser;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
@@ -111,7 +111,7 @@ public class James
     /**
      * The mail store containing the inbox repository and the spool.
      */
-    private MailStore mailstore;
+    private Store store;
 
     /**
      * The store containing the local user repository.
@@ -215,14 +215,14 @@ public class James
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
-            mailstore = (MailStore) compMgr.lookup( MailStore.ROLE );
+            store = (Store) compMgr.lookup( "org.apache.avalon.cornerstone.services.store.Store" );
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
             }
         }
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Using MailStore: " + mailstore.toString());
+            getLogger().debug("Using Store: " + store.toString());
         }
         try {
             spool = (SpoolRepository) compMgr.lookup( "org.apache.james.services.SpoolRepository" );
@@ -352,7 +352,7 @@ public class James
         // we could delete this block. I didn't remove this because I'm not sure
         // wether we need the "check" of the inbox repository here, or not.
         try {
-            mailstore.select(inboxRepConf);
+            store.select(inboxRepConf);
         } catch (Exception e) {
             getLogger().error("Cannot open private MailRepository");
             throw e;
@@ -523,7 +523,7 @@ public class James
             mboxConf.setAttribute("destinationURL", destination);
             mboxConf.setAttribute("type", "MAIL");
             try {
-                userInbox = (MailRepository) mailstore.select(mboxConf);
+                userInbox = (MailRepository) store.select(mboxConf);
                 mailboxes.put(userName, userInbox);
             } catch (Exception e) {
                 if (getLogger().isErrorEnabled())

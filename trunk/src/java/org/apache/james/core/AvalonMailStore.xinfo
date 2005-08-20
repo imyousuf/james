@@ -9,7 +9,6 @@
 
   <!-- services that are offered by this block -->
   <services>
-    <service name="org.apache.james.services.MailStore" version="1.0" />
     <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0" />
   </services>
 

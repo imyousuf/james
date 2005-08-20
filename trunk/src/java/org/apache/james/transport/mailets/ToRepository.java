@@ -17,13 +17,13 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailStore;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -66,7 +66,7 @@ public class ToRepository extends GenericMailet {
 
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+            Store mailstore = (Store) compMgr.lookup("org.apache.avalon.cornerstone.services.store.Store");
             DefaultConfiguration mailConf
                 = new DefaultConfiguration("repository", "generated:ToRepository");
             mailConf.setAttribute("destinationURL", repositoryPath);
