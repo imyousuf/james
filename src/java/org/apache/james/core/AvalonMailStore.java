@@ -17,6 +17,7 @@
 
 package org.apache.james.core;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.component.Composable;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -34,7 +35,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailStore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public class AvalonMailStore
     extends AbstractLogEnabled
-    implements Contextualizable, Serviceable, Configurable, Initializable, MailStore {
+    implements Contextualizable, Serviceable, Configurable, Initializable, Store {
 
     // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";

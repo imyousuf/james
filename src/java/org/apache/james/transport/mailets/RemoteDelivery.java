@@ -52,12 +52,12 @@ import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.sun.mail.smtp.SMTPAddressSucceededException;
 import com.sun.mail.smtp.SMTPTransport;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.GenericMailet;
@@ -313,7 +313,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         try {
             // Instantiate the a MailRepository for outgoing mails
-            MailStore mailstore = (MailStore) compMgr.lookup("org.apache.james.services.MailStore");
+            Store mailstore = (Store) compMgr.lookup("org.apache.avalon.cornerstone.services.store.Store");
 
             DefaultConfiguration spoolConf
                 = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");

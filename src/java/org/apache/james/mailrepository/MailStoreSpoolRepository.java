@@ -17,6 +17,7 @@
 
 package org.apache.james.mailrepository;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -26,7 +27,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailStore;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -59,7 +59,7 @@ public class MailStoreSpoolRepository
     /**
      * The providing mailStore
      */
-    private MailStore mailStore;
+    private Store mailStore;
 
     /**
      * The repository configuration
@@ -70,7 +70,7 @@ public class MailStoreSpoolRepository
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
-        mailStore = (MailStore) serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store");
+        mailStore = (Store) serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store");
     }
 
 
