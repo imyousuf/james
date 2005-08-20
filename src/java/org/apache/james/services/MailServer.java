@@ -56,6 +56,8 @@ public interface MailServer
      * @param msg - the MimeMessage of the headers and body content of
      * the outgoing message
      * @throws MessagingException - if the message fails to parse
+     * 
+     * @deprecated You can use MailetContext service for this purpose
      */
     void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
         throws MessagingException;
@@ -68,6 +70,8 @@ public interface MailServer
      * @param msg - an InputStream containing the headers and body content of
      * the outgoing message
      * @throws MessagingException - if the message fails to parse
+     * 
+     * @deprecated You can use MailetContext service for this purpose
      */
     void sendMail(MailAddress sender, Collection recipients, InputStream msg)
         throws MessagingException;
@@ -84,6 +88,8 @@ public interface MailServer
      * Pass a MimeMessage to this MailServer for processing
      * @param message the message
      * @throws MessagingException
+     * 
+     * @deprecated You can use MailetContext service for this purpose
      */
     void sendMail(MimeMessage message)
         throws MessagingException;        
