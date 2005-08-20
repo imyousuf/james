@@ -785,6 +785,22 @@
       </spool>
    </nntp-repository>
 
+   <!-- Spool repository configuration -->
+   <!-- The spool repository is the location where incoming mails are temporarily stored -->
+   <!-- before being processed. -->
+   <spoolrepository destinationURL="file://var/mail/spool/" type="SPOOL"/>
+ 
+   <!-- Alternative spool repository definition for JDBC use -->
+   <!--
+   <spoolrepository destinationURL="db://maildb/spool/spool" type="SPOOL"/>
+   -->
+ 
+   <!-- Alternative spool repository definition for JDBC use -->
+   <!-- Stores message body in file system, rest in database -->
+   <!--
+   <spoolrepository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/>
+   -->
+
    <!-- The Mailstore block -->
    <mailstore>
       <repositories>
@@ -874,27 +890,6 @@
          </repository>
       </repositories>
 
-      <!-- Spool repository configuration -->
-      <!-- The spool repository is the location where incoming mails are temporarily stored -->
-      <!-- before being processed. -->
-      <spoolRepository>
-         <repository destinationURL="file://var/mail/spool/" type="SPOOL"/>
-      </spoolRepository>
-
-      <!-- Alternative spool repository definition for JDBC use -->
-      <!--
-      <spoolRepository>
-         <repository destinationURL="db://maildb/spool/spool" type="SPOOL"/>
-      </spoolRepository>
-      -->
-
-      <!-- Alternative spool repository definition for JDBC use -->
-      <!-- Stores message body in file system, rest in database -->
-      <!--
-      <spoolRepository>
-         <repository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/>
-      </spoolRepository>
-      -->
    </mailstore>
 
 

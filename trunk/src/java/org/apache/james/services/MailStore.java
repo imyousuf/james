@@ -44,8 +44,12 @@ public interface MailStore
 
     /**
      * Convenience method to get the inbound spool repository.
+     * TODO: now that we removed the getInboundSpool we can remove
+     * the whole MailStore interface and let other components point to 
+     * the service org.apache.avalon.cornerstone.services.store.Store
+     * also provided by the AvalonMailStore.
      */
-    SpoolRepository getInboundSpool();
+    // SpoolRepository getInboundSpool();
 
 }
  

@@ -225,6 +225,16 @@ public class James
             getLogger().debug("Using MailStore: " + mailstore.toString());
         }
         try {
+            spool = (SpoolRepository) compMgr.lookup( "org.apache.james.services.SpoolRepository" );
+        } catch (Exception e) {
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn("Can't get spoolRepository: " + e);
+            }
+        }
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Using SpoolRepository: " + spool.toString());
+        }
+        try {
             usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
@@ -353,11 +363,6 @@ public class James
 
         // Add this to comp
         compMgr.put( MailServer.ROLE, this);
-
-        spool = mailstore.getInboundSpool();
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Got spool");
-        }
 
         // For mailet engine provide MailetContext
         //compMgr.put("org.apache.mailet.MailetContext", this);

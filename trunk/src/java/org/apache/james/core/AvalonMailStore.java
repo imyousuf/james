@@ -35,7 +35,6 @@ import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailStore;
-import org.apache.james.services.SpoolRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,8 +78,6 @@ public class AvalonMailStore
      * The Avalon component manager used by the instance
      */
     protected ServiceManager       m_manager;
-
-    private SpoolRepository inboundSpool;
 
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
@@ -126,20 +123,6 @@ public class AvalonMailStore
             registerRepository(registeredClasses[i]);
         }
 
-
-        Configuration spoolRepConf
-          = configuration.getChild("spoolRepository").getChild("repository");
-        try {
-           inboundSpool  = (SpoolRepository) select(spoolRepConf);
-        } catch (Exception e) {
-            getLogger().error("Cannot open private SpoolRepository");
-            throw e;
-        }
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info("SpoolRepository inboundSpool opened: "
-                              + inboundSpool.hashCode());
-            getLogger().info("James MailStore ...init");
-        }
     }
 
     /**
@@ -340,22 +323,6 @@ public class AvalonMailStore
     public static final String getName() {
         synchronized (AvalonMailStore.class) {
             return REPOSITORY_NAME + id++;
-        }
-    }
-
-    /**
-     * Returns the mail spool associated with this AvalonMailStore
-     *
-     * @return the mail spool
-     *
-     * @throws IllegalStateException if the inbound spool has not
-     *                               yet been set
-     */
-    public SpoolRepository getInboundSpool() {
-        if (inboundSpool != null) {
-            return inboundSpool;
-        } else {
-            throw new IllegalStateException("Inbound spool not defined");
         }
     }
 

@@ -30,6 +30,9 @@
       <service name="org.apache.james.services.UsersStore" version="1.0"/>
     </dependency>
     <dependency>
+      <service name="org.apache.james.services.SpoolRepository" version="1.0"/>
+    </dependency>
+    <dependency>
       <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
     </dependency>
     <dependency>
