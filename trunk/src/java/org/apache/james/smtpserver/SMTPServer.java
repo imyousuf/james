@@ -34,7 +34,6 @@ import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.NetMatcher;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
@@ -140,12 +139,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         super.service( manager );
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup("org.apache.james.services.MailServer");
-        UsersStore usersStore =
-            (UsersStore) manager.lookup("org.apache.james.services.UsersStore");
-        users = usersStore.getRepository("LocalUsers");
-        if (users == null) {
-            throw new ServiceException("","The user repository could not be found.");
-        }
+        users = (UsersRepository) manager.lookup("org.apache.james.services.UsersRepository");
     }
 
     /**
