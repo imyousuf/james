@@ -33,13 +33,9 @@ import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
  *
@@ -95,12 +91,8 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
         super.service(componentManager);
         mailServer = (MailServer)componentManager.
             lookup( "org.apache.james.services.MailServer" );
-        UsersStore usersStore = (UsersStore)componentManager.
-            lookup( "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");
-        if (users == null) {
-            throw new ServiceException("","The user repository could not be found.");
-        }
+        users = (UsersRepository)componentManager.
+            lookup( "org.apache.james.services.UsersRepository" );
     }
 
     /**
