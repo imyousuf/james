@@ -33,13 +33,8 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
-import org.apache.james.util.watchdog.WatchdogTarget;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * NNTP Server
@@ -89,11 +84,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
-        UsersStore usersStore = (UsersStore)componentManager.lookup(UsersStore.ROLE);
-        userRepository = usersStore.getRepository("LocalUsers");
-        if (userRepository == null) {
-            throw new ServiceException("","The user repository could not be found.");
-        }
+        userRepository = (UsersRepository)componentManager.lookup(UsersRepository.ROLE);
 
         repo = (NNTPRepository)componentManager
             .lookup("org.apache.james.nntpserver.repository.NNTPRepository");

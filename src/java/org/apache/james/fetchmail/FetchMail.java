@@ -38,7 +38,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
@@ -595,13 +594,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             throw new ServiceException("", errorBuffer.toString());
         }
 
-        UsersStore usersStore =
-            (UsersStore) manager.lookup("org.apache.james.services.UsersStore");
-        setLocalUsers(usersStore.getRepository("LocalUsers"));
-        if (getLocalUsers() == null)
-            throw new ServiceException(
-                "",
-                "The user repository could not be found.");
+        UsersRepository usersRepository =
+            (UsersRepository) manager.lookup("org.apache.james.services.UsersRepository");
+        setLocalUsers(usersRepository);
     }
 
 
@@ -678,8 +673,7 @@ protected void setLocalUsers(UsersRepository localUsers)
      */
     protected List getStaticAccounts()
     {
-        List accounts = null;
-        if (null == (accounts = getStaticAccountsBasic()))
+        if (null == getStaticAccountsBasic())
         {
             updateStaticAccounts();
             return getStaticAccounts();
@@ -789,8 +783,7 @@ protected void setLocalUsers(UsersRepository localUsers)
      */
     protected Map getDynamicAccounts() throws ConfigurationException
     {
-        Map accounts = null;
-        if (null == (accounts = getDynamicAccountsBasic()))
+        if (null == getDynamicAccountsBasic())
         {
             updateDynamicAccounts();
             return getDynamicAccounts();
@@ -874,8 +867,7 @@ protected void setLocalUsers(UsersRepository localUsers)
      */
     protected List getParsedDynamicAccountParameters()
     {
-        List accounts = null;
-        if (null == (accounts = getParsedDynamicAccountParametersBasic()))
+        if (null == getParsedDynamicAccountParametersBasic())
         {
             updateParsedDynamicAccountParameters();
             return getParsedDynamicAccountParameters();
