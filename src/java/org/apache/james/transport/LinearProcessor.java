@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
@@ -284,7 +285,7 @@ public class LinearProcessor
         for (int i = 0; i < unprocessed.length; i++) {
             // No need to use synchronization, as this is totally
             // local to the method
-            unprocessed[i] = new ArrayList();
+            unprocessed[i] = new LinkedList();
         }
 
         //Add the object to the bottom of the list
