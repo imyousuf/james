@@ -18,7 +18,7 @@
 package org.apache.james.smtpserver;
 
 import org.apache.james.util.mail.dsn.DSNStatus;
-
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.util.CharTerminatedInputStream;
@@ -45,12 +45,9 @@ import java.util.Enumeration;
 /**
   * handles DATA command
  */
-public class DataCmdHandler implements CommandHandler {
-
-    /**
-     * The name of the command handled by the command handler
-     */
-    private final static String COMMAND_NAME = "DATA";
+public class DataCmdHandler
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
@@ -119,13 +116,13 @@ public class DataCmdHandler implements CommandHandler {
                 // wrap msgIn with a SizeLimitedInputStream
                 long maxMessageSize = session.getConfigurationData().getMaxMessageSize();
                 if (maxMessageSize > 0) {
-                    if (session.getLogger().isDebugEnabled()) {
+                    if (getLogger().isDebugEnabled()) {
                         StringBuffer logBuffer =
                             new StringBuffer(128)
                                     .append("Using SizeLimitedInputStream ")
                                     .append(" with max message size: ")
                                     .append(maxMessageSize);
-                        session.getLogger().debug(logBuffer.toString());
+                        getLogger().debug(logBuffer.toString());
                     }
                     msgIn = new SizeLimitedInputStream(msgIn, maxMessageSize);
                 }
@@ -161,11 +158,11 @@ public class DataCmdHandler implements CommandHandler {
                             .append(session.getRemoteIPAddress())
                             .append(") exceeding system maximum message size of ")
                             .append(session.getConfigurationData().getMaxMessageSize());
-                    session.getLogger().error(errorBuffer.toString());
+                    getLogger().error(errorBuffer.toString());
                 } else {
                     responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
                                 + me.getMessage();
-                    session.getLogger().error("Unknown error occurred while processing DATA.", me);
+                    getLogger().error("Unknown error occurred while processing DATA.", me);
                 }
                 session.writeResponse(responseString);
                 return;

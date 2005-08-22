@@ -17,6 +17,7 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 import java.util.Locale;
@@ -25,9 +26,9 @@ import java.util.StringTokenizer;
 /**
   * Handles MAIL command
   */
-public class MailCmdHandler implements CommandHandler {
-
-    private final static String COMMAND_NAME = "MAIL";
+public class MailCmdHandler
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
@@ -100,14 +101,14 @@ public class MailCmdHandler implements CommandHandler {
                         }
                     } else {
                         // Unexpected option attached to the Mail command
-                        if (session.getLogger().isDebugEnabled()) {
+                        if (getLogger().isDebugEnabled()) {
                             StringBuffer debugBuffer =
                                 new StringBuffer(128)
                                     .append("MAIL command had unrecognized/unexpected option ")
                                     .append(mailOptionName)
                                     .append(" with value ")
                                     .append(mailOptionValue);
-                            session.getLogger().debug(debugBuffer.toString());
+                            getLogger().debug(debugBuffer.toString());
                         }
                     }
                 }
@@ -115,13 +116,13 @@ public class MailCmdHandler implements CommandHandler {
             if (!sender.startsWith("<") || !sender.endsWith(">")) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in MAIL command";
                 session.writeResponse(responseString);
-                if (session.getLogger().isErrorEnabled()) {
+                if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(128)
                             .append("Error parsing sender address: ")
                             .append(sender)
                             .append(": did not start and end with < >");
-                    session.getLogger().error(errorBuffer.toString());
+                    getLogger().error(errorBuffer.toString());
                 }
                 return;
             }
@@ -139,14 +140,14 @@ public class MailCmdHandler implements CommandHandler {
                 } catch (Exception pe) {
                     responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+" Syntax error in sender address";
                     session.writeResponse(responseString);
-                    if (session.getLogger().isErrorEnabled()) {
+                    if (getLogger().isErrorEnabled()) {
                         StringBuffer errorBuffer =
                             new StringBuffer(256)
                                     .append("Error parsing sender address: ")
                                     .append(sender)
                                     .append(": ")
                                     .append(pe.getMessage());
-                        session.getLogger().error(errorBuffer.toString());
+                        getLogger().error(errorBuffer.toString());
                     }
                     return;
                 }
@@ -175,16 +176,16 @@ public class MailCmdHandler implements CommandHandler {
             // This is a malformed option value.  We return an error
             String responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Syntactically incorrect value for SIZE parameter";
             session.writeResponse(responseString);
-            session.getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
+            getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             return false;
         }
-        if (session.getLogger().isDebugEnabled()) {
+        if (getLogger().isDebugEnabled()) {
             StringBuffer debugBuffer =
                 new StringBuffer(128)
                     .append("MAIL command option SIZE received with value ")
                     .append(size)
                     .append(".");
-                    session.getLogger().debug(debugBuffer.toString());
+                    getLogger().debug(debugBuffer.toString());
         }
         long maxMessageSize = session.getConfigurationData().getMaxMessageSize();
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
@@ -204,7 +205,7 @@ public class MailCmdHandler implements CommandHandler {
                     .append(" exceeding system maximum message size of ")
                     .append(maxMessageSize)
                     .append("based on SIZE option.");
-            session.getLogger().error(errorBuffer.toString());
+            getLogger().error(errorBuffer.toString());
             return false;
         } else {
             // put the message size in the message state so it can be used

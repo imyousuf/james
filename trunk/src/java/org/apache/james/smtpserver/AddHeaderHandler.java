@@ -17,16 +17,19 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import javax.mail.internet.MimeMessage;
 
+
 /**
   * Adds the header to the message
   */
-public class AddHeaderHandler implements MessageHandler,
-    Configurable {
+public class AddHeaderHandler
+    extends AbstractLogEnabled
+    implements MessageHandler, Configurable {
 
     /**
      * The header name and value that needs to be added
@@ -65,7 +68,7 @@ public class AddHeaderHandler implements MessageHandler,
             }
 
         } catch (javax.mail.MessagingException me) {
-            session.getLogger().error(me.getMessage());
+            getLogger().error(me.getMessage());
         }
     }
 
