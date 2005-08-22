@@ -25,6 +25,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.LogEnabled;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -37,6 +38,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
     private ArrayList connectHandlers = new ArrayList();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
+
+    private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
 
     /**
@@ -55,6 +58,11 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
                         //load the handler
                         try {
                             Object handler = classLoader.loadClass(className).newInstance();
+
+                            //enable logging
+                            if (handler instanceof LogEnabled) {
+                                ((LogEnabled)handler).enableLogging(getLogger());
+                            }
 
                             //configure the handler
                             ContainerUtil.configure(handler,children[i]);
@@ -102,6 +110,30 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
                     }
                 }
             }
+        }
+
+        //the size must be greater than 1 because we added UnknownCmdHandler to the map
+        if(commandHandlerMap.size() < 2) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("No commandhandlers configured");
+            }
+            throw new ConfigurationException("No commandhandlers configured");
+        } else {
+            boolean found = true;
+            for (int i = 0; i < mandatoryCommands.length; i++) {
+                if(!commandHandlerMap.containsKey(mandatoryCommands[i])) {
+                    if (getLogger().isErrorEnabled()) {
+                        getLogger().error("No commandhandlers configured for the command:" + mandatoryCommands[i]);
+                    }
+                    found = false;
+                    break;
+                }
+            }
+
+            if(!found) {
+                throw new ConfigurationException("No commandhandlers configured for mandatory commands");
+            }
+
         }
     }
 

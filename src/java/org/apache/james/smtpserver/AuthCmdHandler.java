@@ -18,20 +18,19 @@
 package org.apache.james.smtpserver;
 
 import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.james.util.Base64;
 import java.io.IOException;
 
+
 /**
   * handles AUTH command
   */
-public class AuthCmdHandler implements CommandHandler {
-
-    /**
-     * The name of the command handled by the command handler
-     */
-    private final static String COMMAND_NAME = "AUTH";
+public class AuthCmdHandler
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     /**
      * The text string for the SMTP AUTH type PLAIN.
@@ -55,7 +54,7 @@ public class AuthCmdHandler implements CommandHandler {
         try{
             doAUTH(session, session.getCommandArgument());
         } catch (Exception ex) {
-            session.getLogger().error("Exception occured:" + ex.getMessage());
+            getLogger().error("Exception occured:" + ex.getMessage());
             session.endSession();
         }
     }
@@ -183,11 +182,11 @@ public class AuthCmdHandler implements CommandHandler {
             session.setUser(user);
             responseString = "235 Authentication Successful";
             session.writeResponse(responseString);
-            session.getLogger().info("AUTH method PLAIN succeeded");
+            getLogger().info("AUTH method PLAIN succeeded");
         } else {
             responseString = "535 Authentication Failed";
             session.writeResponse(responseString);
-            session.getLogger().error("AUTH method PLAIN failed");
+            getLogger().error("AUTH method PLAIN failed");
         }
         return;
     }
@@ -235,14 +234,14 @@ public class AuthCmdHandler implements CommandHandler {
         } else if (session.getConfigurationData().getUsersRepository().test(user, pass)) {
             session.setUser(user);
             responseString = "235 Authentication Successful";
-            if (session.getLogger().isDebugEnabled()) {
+            if (getLogger().isDebugEnabled()) {
                 // TODO: Make this string a more useful debug message
-                session.getLogger().debug("AUTH method LOGIN succeeded");
+                getLogger().debug("AUTH method LOGIN succeeded");
             }
         } else {
             responseString = "535 Authentication Failed";
             // TODO: Make this string a more useful error message
-            session.getLogger().error("AUTH method LOGIN failed");
+            getLogger().error("AUTH method LOGIN failed");
         }
         session.writeResponse(responseString);
         return;
@@ -258,13 +257,13 @@ public class AuthCmdHandler implements CommandHandler {
     private void doUnknownAuth(SMTPSession session, String authType, String initialResponse) {
         String responseString = "504 Unrecognized Authentication Type";
         session.writeResponse(responseString);
-        if (session.getLogger().isErrorEnabled()) {
+        if (getLogger().isErrorEnabled()) {
             StringBuffer errorBuffer =
                 new StringBuffer(128)
                     .append("AUTH method ")
                         .append(authType)
                         .append(" is an unrecognized authentication type");
-            session.getLogger().error(errorBuffer.toString());
+            getLogger().error(errorBuffer.toString());
         }
         return;
     }

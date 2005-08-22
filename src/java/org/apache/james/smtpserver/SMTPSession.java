@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.james.util.watchdog.Watchdog;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * All the handlers access this interface to communicate with
@@ -41,18 +40,13 @@ public interface SMTPSession {
     void writeResponse(String respString);
 
     /**
-     * Returns the next command string sent by the client
+     * Reads a line of characters off the command line.
      *
-     * @return reads the characters of the commandline
+     * @return the trimmed input line
+     * @throws IOException if an exception is generated reading in the input characters
      */
     String readCommandLine() throws IOException;
 
-    /**
-     * Returns Logger object
-     *
-     * @return Logger object
-     */
-    Logger getLogger();
 
     /**
      * Returns ResponseBuffer, this optimizes the unecessary creation of resources
@@ -63,9 +57,9 @@ public interface SMTPSession {
     StringBuffer getResponseBuffer();
 
     /**
-     * Returns response string and clears the response buffer
+     * Clears the response buffer, returning the String of characters in the buffer.
      *
-     * @return response string
+     * @return the data in the response buffer
      */
     String clearResponseBuffer();
 
@@ -145,7 +139,7 @@ public interface SMTPSession {
     HashMap getState();
 
     /**
-     * Resets the state
+     * Resets message-specific, but not authenticated user, state.
      *
      */
     void resetState();
@@ -186,16 +180,16 @@ public interface SMTPSession {
     boolean isAuthRequired();
 
     /**
-     * Returns currently authenticated user
+     * Returns the user name associated with this SMTP interaction.
      *
-     * @return the authenticated user name
+     * @return the user name
      */
     String getUser();
 
     /**
-     * set the user name after successful authentication
+     * Sets the user name associated with this SMTP interaction.
      *
-     * @param the authenticated user name
+     * @param userID the user name
      */
     void setUser(String user);
 

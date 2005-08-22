@@ -17,6 +17,7 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -26,8 +27,9 @@ import java.util.StringTokenizer;
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler implements ConnectHandler,
-    Configurable {
+public class DNSRBLHandler
+    extends AbstractLogEnabled
+    implements ConnectHandler, Configurable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
@@ -47,9 +49,9 @@ public class DNSRBLHandler implements ConnectHandler,
                 for ( int i = 0 ; i < children.length ; i++ ) {
                     String rblServerName = children[i].getValue();
                     rblserverCollection.add(rblServerName);
-                    //if (getLogger().isInfoEnabled()) {
-                    //    getLogger().info("Adding RBL server to whitelist: " + rblServerName);
-                    //}
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("Adding RBL server to whitelist: " + rblServerName);
+                    }
                 }
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
                     whitelist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
@@ -61,9 +63,9 @@ public class DNSRBLHandler implements ConnectHandler,
                 for ( int i = 0 ; i < children.length ; i++ ) {
                     String rblServerName = children[i].getValue();
                     rblserverCollection.add(rblServerName);
-                    //if (getLogger().isInfoEnabled()) {
-                    //    getLogger().info("Adding RBL server to blacklist: " + rblServerName);
-                    //}
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("Adding RBL server to blacklist: " + rblServerName);
+                    }
                 }
                 if (rblserverCollection != null && rblserverCollection.size() > 0) {
                     blacklist = (String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]);
@@ -108,13 +110,13 @@ public class DNSRBLHandler implements ConnectHandler,
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
                     org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-                    if (session.getLogger().isInfoEnabled()) {
-                        session.getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
                     return false;
                 } catch (java.net.UnknownHostException uhe) {
-                    if (session.getLogger().isInfoEnabled()) {
-                        session.getLogger().info("unknown host exception thrown:" + rblList[i]);
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }
@@ -123,14 +125,14 @@ public class DNSRBLHandler implements ConnectHandler,
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
                     org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
-                    if (session.getLogger().isInfoEnabled()) {
-                        session.getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }
                     return true;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
-                    if (session.getLogger().isInfoEnabled()) {
-                        session.getLogger().info("unknown host exception thrown:" + rblList[i]);
+                    if (getLogger().isInfoEnabled()) {
+                        getLogger().info("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }

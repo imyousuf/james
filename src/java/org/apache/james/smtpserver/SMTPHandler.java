@@ -21,7 +21,6 @@ import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.util.CRLFTerminatedReader;
@@ -59,7 +58,7 @@ import java.util.Random;
  */
 public class SMTPHandler
     extends AbstractLogEnabled
-    implements ConnectionHandler, Poolable {
+    implements ConnectionHandler, Poolable, SMTPSession {
 
     /**
      * The constants to indicate the current processing mode of the session
@@ -94,32 +93,28 @@ public class SMTPHandler
      * The name of the currently parsed command
      */
     String curCommandName =  null;
-    
+
     /**
      * The value of the currently parsed command
      */
     String curCommandArgument =  null;
-    
+
     /**
      * The SMTPHandlerChain object set by SMTPServer
      */
     SMTPHandlerChain handlerChain = null;
-    
-    /**
-     * The per SMTPHandler Session object
-     */
-    private SMTPSession session = new SMTPSessionImpl();
-    
+
+
     /**
      * The mode of the current session
      */
     private byte mode;
-    
+
     /**
      * The MailImpl object set by the DATA command
      */
     private MailImpl mail = null;
-    
+
     /**
      * The session termination status
      */
@@ -328,22 +323,38 @@ public class SMTPHandler
                           .append(rfc822DateFormat.format(new Date()));
             String responseString = clearResponseBuffer();
             writeLoggedFlushedResponse(responseString);
-            
-            //the core in protocol handling logic
-            //run all the connection handlers, if it fast fails, end the session
-            //parse the command command, look up for the list command handlers
-            //execute each of the command handlers. If any command handlers writes
-            //response then, end the command handler processing and start parsing new command
-            //Once the message is received, run all the message handlers
-            //the message handlers can either terminate message or terminate session
 
+            //the core in-protocol handling logic
+            //run all the connection handlers, if it fast fails, end the session
+            //parse the command command, look up for the list of command handlers
+            //Execute each of the command handlers. If any command handlers writes
+            //response then, End the subsequent command handler processing and
+            //start parsing new command. Once the message is received, run all
+            //the message handlers. The message handlers can either terminate
+            //message or terminate session
+
+            //At the beginning
+            //mode = command_mode
+            //once the commandHandler writes response, the mode is changed to RESPONSE_MODE.
+            //This will cause to skip the subsequent command handlers configured for that command.
+            //For instance:
+            //There are 2 commandhandlers MailAddressChecker and MailCmdHandler for
+            //MAIL command. If MailAddressChecker validation of the MAIL FROM
+            //address is successful, the MailCmdHandlers will be executed.
+            //Incase it fails, it has to write response. Once we write response
+            //there is no need to execute the MailCmdHandler.
+            //Next, Once MAIL message is received the DataCmdHandler and any other
+            //equivalent commandHandler will call setMail method. this will change
+            //he mode to MAIL_RECEIVED_MODE. This mode will trigger the message
+            //handlers to be execute. Message handlers can abort message. In that case,
+            //message will not spooled.
 
             //Session started - RUN all connect handlers
             List connectHandlers = handlerChain.getConnectHandlers();
             if(connectHandlers != null) {
                 int count = connectHandlers.size();
                 for(int i = 0; i < count; i++) {
-                    ((ConnectHandler)connectHandlers.get(i)).onConnect(session);
+                    ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
                     if(sessionEnded) {
                         break;
                     }
@@ -379,7 +390,7 @@ public class SMTPHandler
               } else {
                   int count = commandHandlers.size();
                   for(int i = 0; i < count; i++) {
-                      ((CommandHandler)commandHandlers.get(i)).onCommand(session);
+                      ((CommandHandler)commandHandlers.get(i)).onCommand(this);
                       theWatchdog.reset();
                       //if the response is received, stop processing of command handlers
                       if(mode != COMMAND_MODE) {
@@ -395,7 +406,7 @@ public class SMTPHandler
                   List messageHandlers = handlerChain.getMessageHandlers();
                   int count = messageHandlers.size();
                   for(int i =0; i < count; i++) {
-                      ((MessageHandler)messageHandlers.get(i)).onMessage(session);
+                      ((MessageHandler)messageHandlers.get(i)).onMessage(this);
                       //if the response is received, stop processing of command handlers
                       if(mode == MESSAGE_ABORT_MODE) {
                           break;
@@ -502,16 +513,6 @@ public class SMTPHandler
 
     }
 
-    /**
-     * Clears the response buffer, returning the String of characters in the buffer.
-     *
-     * @return the data in the response buffer
-     */
-    private String clearResponseBuffer() {
-        String responseString = responseBuffer.toString();
-        responseBuffer.delete(0,responseBuffer.length());
-        return responseString;
-    }
 
     /**
      * This method logs at a "DEBUG" level the response string that
@@ -551,53 +552,6 @@ public class SMTPHandler
         logResponseString(responseString);
     }
 
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    final String readCommandLine() throws IOException {
-        for (;;) try {
-            String commandLine = inReader.readLine();
-            if (commandLine != null) {
-                commandLine = commandLine.trim();
-            }
-            return commandLine;
-        } catch (CRLFTerminatedReader.TerminationException te) {
-            writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
-        }
-    }
-
-    /**
-     * Sets the user name associated with this SMTP interaction.
-     *
-     * @param userID the user name
-     */
-    private void setUser(String userID) {
-        authenticatedUser = userID;
-    }
-
-    /**
-     * Returns the user name associated with this SMTP interaction.
-     *
-     * @return the user name
-     */
-    private String getUser() {
-        return authenticatedUser;
-    }
-
-    /**
-     * Resets message-specific, but not authenticated user, state.
-     *
-     */
-    private void resetState() {
-        ArrayList recipients = (ArrayList)state.get(RCPT_LIST);
-        if (recipients != null) {
-            recipients.clear();
-        }
-        state.clear();
-    }
 
     /**
      * A private inner class which serves as an adaptor
@@ -624,23 +578,23 @@ public class SMTPHandler
         this.handlerChain = handlerChain;
     }
 
-     /**
-      * delivers the mail to the spool.
-      *
-      * @param Mail the mail object
-      */
-      public void sendMail(MailImpl mail) {
-         String responseString = null;
-         try {
-             session.setMail(mail);
-             theConfigData.getMailServer().sendMail(mail);
-             Collection theRecipients = mail.getRecipients();
-             String recipientString = "";
-             if (theRecipients != null) {
-                 recipientString = theRecipients.toString();
-             }
-             if (getLogger().isInfoEnabled()) {
-                 StringBuffer infoBuffer =
+    /**
+     * delivers the mail to the spool.
+     *
+     * @param Mail the mail object
+     */
+    public void sendMail(MailImpl mail) {
+        String responseString = null;
+        try {
+            setMail(mail);
+            theConfigData.getMailServer().sendMail(mail);
+            Collection theRecipients = mail.getRecipients();
+            String recipientString = "";
+            if (theRecipients != null) {
+                recipientString = theRecipients.toString();
+            }
+            if (getLogger().isInfoEnabled()) {
+                StringBuffer infoBuffer =
                      new StringBuffer(256)
                          .append("Successfully spooled mail ")
                          .append(mail.getName())
@@ -650,24 +604,24 @@ public class SMTPHandler
                          .append(remoteIP)
                          .append(" for ")
                          .append(recipientString);
-                 getLogger().info(infoBuffer.toString());
-             }
+                getLogger().info(infoBuffer.toString());
+            }
          } catch (MessagingException me) {
-             // Grab any exception attached to this one.
-             Exception e = me.getNextException();
-             // If there was an attached exception, and it's a
-             // MessageSizeException
-             if (e != null && e instanceof MessageSizeException) {
-                 // Add an item to the state to suppress
-                 // logging of extra lines of data
-                 // that are sent after the size limit has
-                 // been hit.
-                 state.put(MESG_FAILED, Boolean.TRUE);
-                 // then let the client know that the size
-                 // limit has been hit.
-                 responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
+              // Grab any exception attached to this one.
+              Exception e = me.getNextException();
+              // If there was an attached exception, and it's a
+              // MessageSizeException
+              if (e != null && e instanceof MessageSizeException) {
+                   // Add an item to the state to suppress
+                   // logging of extra lines of data
+                   // that are sent after the size limit has
+                   // been hit.
+                   state.put(MESG_FAILED, Boolean.TRUE);
+                   // then let the client know that the size
+                   // limit has been hit.
+                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
                              + e.getMessage();
-                 StringBuffer errorBuffer =
+                   StringBuffer errorBuffer =
                      new StringBuffer(256)
                          .append("Rejected message from ")
                          .append(state.get(SENDER).toString())
@@ -677,213 +631,213 @@ public class SMTPHandler
                          .append(remoteIP)
                          .append(") exceeding system maximum message size of ")
                          .append(theConfigData.getMaxMessageSize());
-                 getLogger().error(errorBuffer.toString());
-             } else {
-                 responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
+                   getLogger().error(errorBuffer.toString());
+              } else {
+                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
                              + me.getMessage();
-                 getLogger().error("Unknown error occurred while processing DATA.", me);
-             }
-             session.writeResponse(responseString);
-             return;
+                   getLogger().error("Unknown error occurred while processing DATA.", me);
+              }
+              writeResponse(responseString);
+              return;
          }
          responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-         session.writeResponse(responseString);
-     }
-  
+         writeResponse(responseString);
+    }
+
 
     /**
-     * The SMTPSession implementation data to be passed to each handler
+     * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
      */
-    private class SMTPSessionImpl implements SMTPSession {
+    public void writeResponse(String respString) {
+        SMTPHandler.this.writeLoggedFlushedResponse(respString);
+        //TODO Explain this well
+        if(SMTPHandler.this.mode == COMMAND_MODE) {
+            mode = RESPONSE_MODE;
+        }
+    }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
-         */
-        public void writeResponse(String respString) {
-            SMTPHandler.this.writeLoggedFlushedResponse(respString);
-            //TODO Explain this well
-            if(SMTPHandler.this.mode == COMMAND_MODE) {
-                SMTPHandler.this.mode = SMTPHandler.RESPONSE_MODE;
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
+     */
+    public String getCommandName() {
+        return curCommandName;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
+     */
+    public String getCommandArgument() {
+        return curCommandArgument;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getMail()
+     */
+    public Mail getMail() {
+        return mail;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setMail(MailImpl)
+     */
+    public void setMail(MailImpl mail) {
+        this.mail = mail;
+        this.mode = MESSAGE_RECEIVED_MODE;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
+     */
+    public String getRemoteHost() {
+        return remoteHost;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
+     */
+    public String getRemoteIPAddress() {
+        return remoteIP;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#endSession()
+     */
+    public void endSession() {
+        sessionEnded = true;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
+     */
+    public boolean isSessionEnded() {
+        return sessionEnded;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#resetState()
+     */
+    public void resetState() {
+        ArrayList recipients = (ArrayList)state.get(RCPT_LIST);
+        if (recipients != null) {
+            recipients.clear();
+        }
+        state.clear();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getState()
+     */
+    public HashMap getState() {
+        return SMTPHandler.this.state;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
+     */
+    public SMTPHandlerConfigurationData getConfigurationData() {
+        return theConfigData;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#isBlockListed()
+     */
+    public boolean isBlockListed() {
+        return blocklisted;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setBlockListed(boolean)
+     */
+    public void setBlockListed(boolean blocklisted ) {
+        this.blocklisted = blocklisted;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
+     */
+    public boolean isRelayingAllowed() {
+        return relayingAllowed;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
+     */
+    public boolean isAuthRequired() {
+        return SMTPHandler.this.authRequired;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getUser()
+     */
+    public String getUser() {
+        return authenticatedUser;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#setUser()
+     */
+    public void setUser(String userID) {
+        authenticatedUser = userID;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
+     */
+    public StringBuffer getResponseBuffer() {
+        return responseBuffer;
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
+     */
+    public String clearResponseBuffer() {
+        String responseString = responseBuffer.toString();
+        responseBuffer.delete(0,responseBuffer.length());
+        return responseString;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#readCommandLine()
+     */
+    public final String readCommandLine() throws IOException {
+        for (;;) try {
+            String commandLine = inReader.readLine();
+            if (commandLine != null) {
+                commandLine = commandLine.trim();
             }
+            return commandLine;
+        } catch (CRLFTerminatedReader.TerminationException te) {
+            writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
         }
+    }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
-         */
-        public String getCommandName() {
-            return SMTPHandler.this.curCommandName;
-        }
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getWatchdog()
+     */
+    public Watchdog getWatchdog() {
+        return theWatchdog;
+    }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
-         */
-        public String getCommandArgument() {
-            return SMTPHandler.this.curCommandArgument;
-        }
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getInputStream()
+     */
+    public InputStream getInputStream() {
+        return in;
+    }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getMail()
-         */
-        public Mail getMail() {
-            return SMTPHandler.this.mail;
-        }
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
+     */
+    public String getSessionID() {
+        return smtpID;
+    }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#setMail(MailImpl)
-         */
-        public void setMail(MailImpl mail) {
-            SMTPHandler.this.mail = mail;
-            SMTPHandler.this.mode = SMTPHandler.MESSAGE_RECEIVED_MODE;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
-         */
-        public String getRemoteHost() {
-            return SMTPHandler.this.remoteHost;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
-         */
-        public String getRemoteIPAddress() {
-            return SMTPHandler.this.remoteIP;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#endSession()
-         */
-        public void endSession() {
-            SMTPHandler.this.sessionEnded = true;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
-         */
-        public boolean isSessionEnded() {
-            return SMTPHandler.this.sessionEnded;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#resetState()
-         */
-        public void resetState() {
-            SMTPHandler.this.resetState();
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getState()
-         */
-        public HashMap getState() {
-            return SMTPHandler.this.state;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getLogger()
-         */
-        public Logger getLogger() {
-            return SMTPHandler.this.getLogger();
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
-         */
-        public SMTPHandlerConfigurationData getConfigurationData() {
-            return SMTPHandler.this.theConfigData;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#isBlockListed()
-         */
-        public boolean isBlockListed() {
-            return SMTPHandler.this.blocklisted;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#setBlockListed(boolean)
-         */
-        public void setBlockListed(boolean blocklisted ) {
-            SMTPHandler.this.blocklisted = blocklisted;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
-         */
-        public boolean isRelayingAllowed() {
-            return SMTPHandler.this.relayingAllowed;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
-         */
-        public boolean isAuthRequired() {
-            return SMTPHandler.this.authRequired;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getUser()
-         */
-        public String getUser() {
-            return SMTPHandler.this.getUser();
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#setUser()
-         */
-        public void setUser(String user) {
-            SMTPHandler.this.setUser(user);
-        }
-  
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
-         */
-        public StringBuffer getResponseBuffer() {
-            return SMTPHandler.this.responseBuffer;
-        }
-  
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
-         */
-        public String clearResponseBuffer() {
-            return SMTPHandler.this.clearResponseBuffer();
-        }
-
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#readCommandLine()
-         */
-        public String readCommandLine() throws IOException {
-            return SMTPHandler.this.readCommandLine();
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getWatchdog()
-         */
-        public Watchdog getWatchdog() {
-            return SMTPHandler.this.theWatchdog;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getInputStream()
-         */
-        public InputStream getInputStream() {
-            return SMTPHandler.this.in;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
-         */
-        public String getSessionID() {
-            return SMTPHandler.this.smtpID;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
-         */
-        public void abortMessage() {
-            SMTPHandler.this.mode = SMTPHandler.MESSAGE_ABORT_MODE;
-        }
-
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
+     */
+    public void abortMessage() {
+        mode = MESSAGE_ABORT_MODE;
     }
 
 }

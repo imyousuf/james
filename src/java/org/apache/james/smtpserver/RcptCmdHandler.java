@@ -17,6 +17,7 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
 import java.util.Collection;
@@ -27,12 +28,9 @@ import java.util.Locale;
 /**
   * Handles RCPT command
   */
-public class RcptCmdHandler implements CommandHandler {
-
-    /**
-     * The name of the command handled by the command handler
-     */
-    private final static String COMMAND_NAME = "RCPT";
+public class RcptCmdHandler
+    extends AbstractLogEnabled
+    implements CommandHandler {
 
     /**
      * The keys used to store sender and recepients in the SMTPSession state
@@ -94,13 +92,13 @@ public class RcptCmdHandler implements CommandHandler {
             if (!recipient.startsWith("<") || !recipient.endsWith(">")) {
                 responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Syntax error in parameters or arguments";
                 session.writeResponse(responseString);
-                if (session.getLogger().isErrorEnabled()) {
+                if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
                                 .append(recipient)
                                 .append(": did not start and end with < >");
-                    session.getLogger().error(errorBuffer.toString());
+                    getLogger().error(errorBuffer.toString());
                 }
                 return;
             }
@@ -121,14 +119,14 @@ public class RcptCmdHandler implements CommandHandler {
                 responseString = "553 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX)+" Syntax error in recipient address";
                 session.writeResponse(responseString);
 
-                if (session.getLogger().isErrorEnabled()) {
+                if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
                                 .append(recipient)
                                 .append(": ")
                                 .append(pe.getMessage());
-                    session.getLogger().error(errorBuffer.toString());
+                    getLogger().error(errorBuffer.toString());
                 }
                 return;
             }
@@ -151,7 +149,7 @@ public class RcptCmdHandler implements CommandHandler {
                     if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                         responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
                         session.writeResponse(responseString);
-                        session.getLogger().error("Rejected message - authentication is required for mail request");
+                        getLogger().error("Rejected message - authentication is required for mail request");
                         return;
                     }
                 } else {
@@ -159,20 +157,19 @@ public class RcptCmdHandler implements CommandHandler {
                     if (session.getConfigurationData().isVerifyIdentity()) {
                         String authUser = (session.getUser()).toLowerCase(Locale.US);
                         MailAddress senderAddress = (MailAddress) session.getState().get(SENDER);
-                        boolean domainExists = false;
 
                         if ((!authUser.equals(senderAddress.getUser())) ||
                             (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
                             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
                             session.writeResponse(responseString);
-                            if (session.getLogger().isErrorEnabled()) {
+                            if (getLogger().isErrorEnabled()) {
                                 StringBuffer errorBuffer =
                                     new StringBuffer(128)
                                         .append("User ")
                                         .append(authUser)
                                         .append(" authenticated, however tried sending email as ")
                                         .append(senderAddress);
-                                session.getLogger().error(errorBuffer.toString());
+                                getLogger().error(errorBuffer.toString());
                             }
                             return;
                         }
@@ -183,7 +180,7 @@ public class RcptCmdHandler implements CommandHandler {
                 if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                     responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
                     session.writeResponse(responseString);
-                    session.getLogger().error("Rejected message - " + session.getRemoteIPAddress() + " not authorized to relay to " + toDomain);
+                    getLogger().error("Rejected message - " + session.getRemoteIPAddress() + " not authorized to relay to " + toDomain);
                     return;
                 }
             }
@@ -200,14 +197,14 @@ public class RcptCmdHandler implements CommandHandler {
                       rcptOptionValue = rcptOption.substring(equalIndex + 1);
                   }
                   // Unexpected option attached to the RCPT command
-                  if (session.getLogger().isDebugEnabled()) {
+                  if (getLogger().isDebugEnabled()) {
                       StringBuffer debugBuffer =
                           new StringBuffer(128)
                               .append("RCPT command had unrecognized/unexpected option ")
                               .append(rcptOptionName)
                               .append(" with value ")
                               .append(rcptOptionValue);
-                      session.getLogger().debug(debugBuffer.toString());
+                      getLogger().debug(debugBuffer.toString());
                   }
               }
               optionTokenizer = null;
