@@ -71,6 +71,21 @@ public class MailAddress implements java.io.Serializable {
     private int pos = 0;
 
     /**
+     * strip source routing, according to RFC-2821 it is an allowed approach to handle mails
+     * contaning RFC-821 source-route information
+     */
+    private void stripSourceRoute(String address) throws ParseException {
+        if (pos < address.length()) {
+            if(address.charAt(pos)=='@') { 
+                int i = address.indexOf(':');
+                if(i != -1) {
+                    pos = i+1;
+                }
+            }
+        }
+    }
+    
+    /**
      * <p>Construct a MailAddress parsing the provided <code>String</code> object.</p>
      *
      * <p>The <code>personal</code> variable is left empty.</p>
@@ -80,6 +95,11 @@ public class MailAddress implements java.io.Serializable {
      */
     public MailAddress(String address) throws ParseException {
         address = address.trim();
+
+        // Test if mail address has source routing information (RFC-821) and get rid of it!!
+        //must be called first!! (or at least prior to updating pos)
+        stripSourceRoute(address);
+
         StringBuffer userSB = new StringBuffer();
         StringBuffer hostSB = new StringBuffer();
         //Begin parsing
