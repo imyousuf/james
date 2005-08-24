@@ -17,6 +17,15 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.James;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.JamesUser;
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
 import org.apache.mailet.RFC2822Headers;
 
 import org.apache.mailet.GenericMailet;
@@ -25,13 +34,12 @@ import org.apache.mailet.MailAddress;
 
 import javax.mail.Header;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetHeaders;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -41,6 +49,38 @@ import java.util.Vector;
  *
  */
 public class LocalDelivery extends GenericMailet {
+    /**
+     * The number of mails generated.  Access needs to be synchronized for
+     * thread safety and to ensure that all threads see the latest value.
+     */
+    private static long count;
+  
+    /**
+     * The mailserver reference
+     */
+    private MailServer mailServer;
+    
+    /**
+     * The user repository for this mail server.  Contains all the users with inboxes
+     * on this server.
+     */
+    private UsersRepository localusers;
+    
+    /**
+     * Whether to enable aliasing for users on this server
+     */
+    private boolean enableAliases;
+
+    /**
+     * Whether to enable forwarding for users on this server
+     */
+    private boolean enableForwarding;
+
+    /**
+     * Whether to ignore case when looking up user names on this server
+     */
+    private boolean ignoreCase;
+
     /**
      * Delivers a mail to a local mailbox.
      *
@@ -72,7 +112,7 @@ public class LocalDelivery extends GenericMailet {
                 // Add qmail's de facto standard Delivered-To header
                 message.addHeader("Delivered-To", recipient.toString());
 
-                getMailetContext().storeMail(mail.getSender(), recipient, message);
+                storeMail(mail.getSender(), recipient, message);
 
                 if (i.hasNext()) {
                     // Remove headers but leave all placeholders
@@ -111,4 +151,146 @@ public class LocalDelivery extends GenericMailet {
     public String getMailetInfo() {
         return "Local Delivery Mailet";
     }
+
+
+    /**
+     * This method has been moved here from James.java when we removed it from the MailetContext
+     * (2005/08/24)
+     * 
+     * @param sender
+     * @param recipient
+     * @param message
+     * @throws MessagingException
+     */
+    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
+        throws MessagingException {
+        String username;
+        if (recipient == null) {
+            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+        }
+        if (message == null) {
+            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+        }
+        if (ignoreCase) {
+            String originalUsername = recipient.getUser();
+            username = localusers.getRealName(originalUsername);
+            if (username == null) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(128)
+                        .append("The inbox for user ")
+                        .append(originalUsername)
+                        .append(" was not found on this server.");
+                throw new MessagingException(errorBuffer.toString());
+            }
+        } else {
+            username = recipient.getUser();
+        }
+        JamesUser user;
+        if (enableAliases || enableForwarding) {
+            user = (JamesUser) localusers.getUserByName(username);
+            if (enableAliases && user.getAliasing()) {
+                username = user.getAlias();
+            }
+            // Forwarding takes precedence over local aliases
+            if (enableForwarding && user.getForwarding()) {
+                MailAddress forwardTo = user.getForwardingDestination();
+                if (forwardTo == null) {
+                    StringBuffer errorBuffer =
+                        new StringBuffer(128)
+                            .append("Forwarding was enabled for ")
+                            .append(username)
+                            .append(" but no forwarding address was set for this account.");
+                    throw new MessagingException(errorBuffer.toString());
+                }
+                Collection recipients = new HashSet();
+                recipients.add(forwardTo);
+                try {
+                    getMailetContext().sendMail(sender, recipients, message);
+                    StringBuffer logBuffer =
+                      new StringBuffer(128)
+                              .append("Mail for ")
+                              .append(username)
+                              .append(" forwarded to ")
+                              .append(forwardTo.toString());
+                    getMailetContext().log(logBuffer.toString());
+                    return;
+                } catch (MessagingException me) {
+                    StringBuffer logBuffer =
+                      new StringBuffer(128)
+                              .append("Error forwarding mail to ")
+                              .append(forwardTo.toString())
+                              .append("attempting local delivery");
+                    getMailetContext().log(logBuffer.toString());
+                    throw me;
+                }
+            }
+        }
+    
+        Collection recipients = new HashSet();
+        recipients.add(recipient);
+        MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
+        MailRepository userInbox = mailServer.getUserInbox(username);
+        if (userInbox == null) {
+            StringBuffer errorBuffer =
+                new StringBuffer(128)
+                    .append("The inbox for user ")
+                    .append(username)
+                    .append(" was not found on this server.");
+            throw new MessagingException(errorBuffer.toString());
+        }
+        userInbox.store(mailImpl);
+    }
+    
+
+    /**
+     * Return a new mail id.
+     *
+     * @return a new mail id
+     */
+    public String getId() {
+        long localCount = -1;
+        synchronized (James.class) {
+            localCount = count++;
+        }
+        StringBuffer idBuffer =
+            new StringBuffer(64)
+                    .append("Mail")
+                    .append(System.currentTimeMillis())
+                    .append("-")
+                    .append(localCount);
+        return idBuffer.toString();
+    }
+
+    /**
+     * @see org.apache.mailet.GenericMailet#init()
+     */
+    public void init() throws MessagingException {
+            super.init();
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+
+        try {
+            // Instantiate the a MailRepository for outgoing mails
+            mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
+            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve Store component:" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve Store component:" + e.getMessage());
+        }
+
+        String enAliases = getInitParameter("enableAliases");
+        String enForward = getInitParameter("enableForwarding");
+        
+        if (enAliases == null || enAliases.length()==0) {
+            enableAliases = ((Boolean) getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_ALIASES)).booleanValue();
+        } else enableAliases = new Boolean(enAliases).booleanValue();
+        
+        if (enForward == null || enForward.length()==0) {
+            enableForwarding = ((Boolean) getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_FORWARDING)).booleanValue();
+        } else enableForwarding = new Boolean(enForward).booleanValue();
+        
+        ignoreCase = ((Boolean) getMailetContext().getAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE)).booleanValue();
+            
+    }
+
 }
