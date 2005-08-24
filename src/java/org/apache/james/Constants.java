@@ -62,4 +62,22 @@ public class Constants {
      */
     public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
 
+    /**
+     * Context key used to store the enableAliases configuration for the default
+     * LocalUsers Repository.
+     */
+    public static final String DEFAULT_ENABLE_ALIASES = "JAMES_DEFAULT_ENABLE_ALIASES";
+
+    /**
+     * Context key used to store the enableForwarding configuration for the default
+     * LocalUsers Repository.
+     */
+    public static final String DEFAULT_ENABLE_FORWARDING = "JAMES_DEFAULT_ENABLE_FORWARDING";
+
+    /**
+     * Context key used to store the ignoreCase configuration for the 
+     * UserRepository
+     */
+    public static final String DEFAULT_IGNORE_USERNAME_CASE = "JAMES_DEFAULT_IGNORE_USERNAME_CASE";
+
 }

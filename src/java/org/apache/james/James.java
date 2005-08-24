@@ -38,7 +38,6 @@ import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.DNSServer;
-import org.apache.james.services.JamesUser;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
@@ -144,16 +143,6 @@ public class James
      * Whether to ignore case when looking up user names on this server
      */
     private boolean ignoreCase;
-
-    /**
-     * Whether to enable aliasing for users on this server
-     */
-    private boolean enableAliases;
-
-    /**
-     * Whether to enable forwarding for users on this server
-     */
-    private boolean enableForwarding;
 
     /**
      * The number of mails generated.  Access needs to be synchronized for
@@ -333,8 +322,11 @@ public class James
 
         Configuration userNamesConf = conf.getChild("usernames");
         ignoreCase = userNamesConf.getAttributeAsBoolean("ignoreCase", false);
-        enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
-        enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
+        boolean enableAliases = userNamesConf.getAttributeAsBoolean("enableAliases", false);
+        boolean enableForwarding = userNamesConf.getAttributeAsBoolean("enableForwarding", false);
+        attributes.put(Constants.DEFAULT_ENABLE_ALIASES,new Boolean(enableAliases));
+        attributes.put(Constants.DEFAULT_ENABLE_FORWARDING,new Boolean(enableForwarding));
+        attributes.put(Constants.DEFAULT_IGNORE_USERNAME_CASE,new Boolean(ignoreCase));
 
         //Get localusers
         try {
@@ -687,89 +679,6 @@ public class James
         return postmaster;
     }
 
-    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
-        throws MessagingException {
-        String username;
-        if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
-        }
-        if (message == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
-        }
-        if (ignoreCase) {
-            String originalUsername = recipient.getUser();
-            username = localusers.getRealName(originalUsername);
-            if (username == null) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(128)
-                        .append("The inbox for user ")
-                        .append(originalUsername)
-                        .append(" was not found on this server.");
-                throw new MessagingException(errorBuffer.toString());
-            }
-        } else {
-            username = recipient.getUser();
-        }
-        JamesUser user;
-        if (enableAliases || enableForwarding) {
-            user = (JamesUser) localusers.getUserByName(username);
-            if (enableAliases && user.getAliasing()) {
-                username = user.getAlias();
-            }
-            // Forwarding takes precedence over local aliases
-            if (enableForwarding && user.getForwarding()) {
-                MailAddress forwardTo = user.getForwardingDestination();
-                if (forwardTo == null) {
-                    StringBuffer errorBuffer =
-                        new StringBuffer(128)
-                            .append("Forwarding was enabled for ")
-                            .append(username)
-                            .append(" but no forwarding address was set for this account.");
-                    throw new MessagingException(errorBuffer.toString());
-                }
-                Collection recipients = new HashSet();
-                recipients.add(forwardTo);
-                try {
-                    sendMail(sender, recipients, message);
-                    if (getLogger().isInfoEnabled()) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Mail for ")
-                                    .append(username)
-                                    .append(" forwarded to ")
-                                    .append(forwardTo.toString());
-                        getLogger().info(logBuffer.toString());
-                    }
-                    return;
-                } catch (MessagingException me) {
-                    if (getLogger().isErrorEnabled()) {
-                        StringBuffer logBuffer =
-                            new StringBuffer(128)
-                                    .append("Error forwarding mail to ")
-                                    .append(forwardTo.toString())
-                                    .append("attempting local delivery");
-                        getLogger().error(logBuffer.toString());
-                    }
-                    throw me;
-                }
-            }
-        }
-
-        Collection recipients = new HashSet();
-        recipients.add(recipient);
-        MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-        MailRepository userInbox = getUserInbox(username);
-        if (userInbox == null) {
-            StringBuffer errorBuffer =
-                new StringBuffer(128)
-                    .append("The inbox for user ")
-                    .append(username)
-                    .append(" was not found on this server.");
-            throw new MessagingException(errorBuffer.toString());
-        }
-        userInbox.store(mailImpl);
-    }
-
     /**
      * Return the major version number for the server
      *
@@ -883,4 +792,14 @@ public class James
         }
         return dnsServer.getSMTPHostAddresses(domainName);
     }
+
+		/**
+     * This method has been moved to LocalDelivery (the only client of the method).
+     * Now we can safely remove it from the Mailet API and from this implementation of MailetContext.
+     *
+		 * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+		 */
+		public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
+		    throw new UnsupportedOperationException("store mail is no more allowed for MailetContext: please take a reference to the user inbox Repository and store there.");
+		}
 }
