@@ -37,15 +37,18 @@ import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
+import org.apache.james.transport.mailets.LocalDelivery;
 import org.apache.james.userrepository.DefaultJamesUser;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
 
 import javax.mail.Address;
@@ -172,6 +175,12 @@ public class James
      */
     protected Context           myContext;
 
+    /**
+     * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
+     * TODO We should remove this and its initialization when we remove storeMail method.
+     */
+    protected Mailet localDeliveryMailet;
+    
     /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
@@ -365,6 +374,16 @@ public class James
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
         java.io.File configDir = AvalonContextUtilities.getFile(myContext, "file://conf/");
         attributes.put("confDir", configDir.getCanonicalPath());
+
+        // We can safely remove this and the localDeliveryField when we 
+        // remove the storeMail method from James and from the MailetContext
+        DefaultConfiguration conf = new DefaultConfiguration("mailet", "generated:James.initialize()");
+        MailetConfigImpl configImpl = new MailetConfigImpl();
+        configImpl.setMailetName("LocalDelivery");
+        configImpl.setConfiguration(conf);
+        configImpl.setMailetContext(this);
+        localDeliveryMailet = new LocalDelivery();
+        localDeliveryMailet.init(configImpl);
 
         System.out.println(SOFTWARE_NAME_VERSION);
         getLogger().info("JAMES ...init end");
@@ -793,13 +812,25 @@ public class James
         return dnsServer.getSMTPHostAddresses(domainName);
     }
 
-		/**
+    /**
      * This method has been moved to LocalDelivery (the only client of the method).
      * Now we can safely remove it from the Mailet API and from this implementation of MailetContext.
      *
-		 * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
-		 */
-		public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
-		    throw new UnsupportedOperationException("store mail is no more allowed for MailetContext: please take a reference to the user inbox Repository and store there.");
-		}
+     * The local field localDeliveryMailet will be removed when we remove the storeMail method.
+     * 
+     * @deprecated since 2.2.0 look at the LocalDelivery code to find out how to do the local delivery.
+     * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+     */
+    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
+        if (recipient == null) {
+            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+        }
+        if (msg == null) {
+            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+        } 
+        Collection recipients = new HashSet();
+        recipients.add(recipient); 
+        MailImpl m = new MailImpl(getId(),sender,recipients,msg);
+        localDeliveryMailet.service(m);
+    }
 }
