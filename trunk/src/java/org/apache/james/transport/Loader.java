@@ -133,23 +133,23 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
         mailetClassLoader = new URLClassLoader(classPath, this.getClass().getClassLoader());
     }
 
-        /**
-         * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-         */
-        public void service(ServiceManager sm) throws ServiceException {
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
+    public void service(ServiceManager sm) throws ServiceException {
         serviceManager = new DefaultServiceManager(sm);
-        }
+    }
 
-        /**
-         * @see org.apache.avalon.framework.activity.Initializable#initialize()
-         */
-        public void initialize() throws Exception {
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+    public void initialize() throws Exception {
         mailetContext = (MailetContext) serviceManager.lookup("org.apache.mailet.MailetContext");
-        }
+    }
         
-        /**
-         * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-         */
-        public abstract void configure(Configuration arg0) throws ConfigurationException;
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
+     */
+    public abstract void configure(Configuration arg0) throws ConfigurationException;
 
 }
