@@ -44,7 +44,7 @@ public class UnknownCmdHandler implements CommandHandler {
     public void onCommand(SMTPSession session) {
 
         //If there was message failure, don't consider it as an unknown command
-        if (session.getMessageState().get(MESG_FAILED) != null) {
+        if (session.getState().get(MESG_FAILED) != null) {
             return;
         }
 
