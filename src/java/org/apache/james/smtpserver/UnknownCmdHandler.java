@@ -30,6 +30,12 @@ public class UnknownCmdHandler implements CommandHandler {
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
 
     /**
+     * Message failed flag to indicate if there is any failure
+     */
+    private final static String MESG_FAILED = "MESG_FAILED";
+
+
+    /**
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
@@ -37,10 +43,15 @@ public class UnknownCmdHandler implements CommandHandler {
     **/
     public void onCommand(SMTPSession session) {
 
-        session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.UNDEFINED_STATUS)+" ")
-                      .append(session.getConfigurationData().getHelloName())
-                      .append(" Syntax error, command unrecognized: ")
-                      .append(session.getCommandName());
+        //If there was message failure, don't consider it as an unknown command
+        if (session.getMessageState().get(MESG_FAILED) != null) {
+            return;
+        }
+
+        session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
+                      .append(" Command ")
+                      .append(session.getCommandName())
+                      .append(" unrecognized.");
         String responseString = session.clearResponseBuffer();
 
         session.writeResponse(responseString);

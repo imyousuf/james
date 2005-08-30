@@ -210,6 +210,21 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
 
+
+    /**
+     * The per-handler map to store session scope variables
+     * the various handlers use this for storing state information
+     */
+     private HashMap sessionState = new HashMap();
+
+    /**
+     * The per-handler map to store message scope variables
+     * the various handlers use this for storing state information
+     */
+     private HashMap messageState = new HashMap();
+
+
+
     /**
      * Set the configuration data for the handler
      *
@@ -425,6 +440,9 @@ public class SMTPHandler
                   mail.dispose();
                   mail = null;
                   resetState();
+
+                  //reset the message scope state
+                  messageState.clear();
               }
 
             }
@@ -470,6 +488,8 @@ public class SMTPHandler
                                    + e.getMessage(), e );
             }
         } finally {
+            //Clear all the session state variables
+            sessionState.clear();
             resetHandler();
         }
     }
@@ -649,9 +669,9 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
      */
     public void writeResponse(String respString) {
-        SMTPHandler.this.writeLoggedFlushedResponse(respString);
+        writeLoggedFlushedResponse(respString);
         //TODO Explain this well
-        if(SMTPHandler.this.mode == COMMAND_MODE) {
+        if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
         }
     }
@@ -728,7 +748,7 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
     public HashMap getState() {
-        return SMTPHandler.this.state;
+        return state;
     }
 
     /**
@@ -763,7 +783,7 @@ public class SMTPHandler
      * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
      */
     public boolean isAuthRequired() {
-        return SMTPHandler.this.authRequired;
+        return authRequired;
     }
 
     /**
@@ -838,6 +858,23 @@ public class SMTPHandler
      */
     public void abortMessage() {
         mode = MESSAGE_ABORT_MODE;
+    }
+
+
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getMessageState()
+     */
+    public HashMap getMessageState() {
+        return messageState;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getSessionState()
+     */
+    public HashMap getSessionState() {
+        return sessionState;
     }
 
 }
