@@ -207,5 +207,21 @@ public interface SMTPSession {
      */
     String getSessionID();
 
+
+    /**
+     * Used for storing session scope variables
+     *
+     * @return map message scope param-values
+     */
+    HashMap getMessageState();
+
+
+    /**
+     * Used for storing Session scope variables
+     *
+     * @return map of session scope param-values
+     */
+    HashMap getSessionState();
+
 }
 
