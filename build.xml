@@ -192,12 +192,12 @@ Legal:
       <copy todir="${dist.dir}/lib" flatten="true">
         <fileset dir="${lib.dir}">
           <exclude name="CVS/**"/>
-          <include name="excalibur-thread-api-2.1-RC2.jar"/>
-          <include name="excalibur-thread-impl-2.1-RC2.jar"/>
-          <include name="**/excalibur-pool-impl-2.1-RC2.jar"/>
-          <include name="**/excalibur-pool-api-2.1-RC2.jar"/>
+          <include name="excalibur-thread-api-2.1.jar"/>
+          <include name="excalibur-thread-impl-2.1.jar"/>
+          <include name="**/excalibur-pool-impl-2.1.jar"/>
+          <include name="**/excalibur-pool-api-2.1.jar"/>
           <include name="**/commons-collections-2.1.1.jar"/>
-          <!-- needed by excalibur-pool-impl-2.1-RC2.jar -->
+          <!-- needed by excalibur-pool-impl-2.1.jar -->
           <include name="concurrent-1.3.4.jar"/>
         </fileset>
       </copy>
@@ -492,30 +492,30 @@ Legal:
           <include name="derbytools.jar"/>
           <include name="mm.mysql-2.0.14.jar"/>
           <include name="mm.mysql.LICENCE"/>
-          <include name="excalibur-datasource-2.1-RC2.jar"/>
+          <include name="excalibur-datasource-2.1.jar"/>
           <include name="activation.jar"/>
           <include name="mail-1.3.2.jar"/>
           <!--include name="commons-net-1.0.0-dev.jar"/-->
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
           <include name="bcmail-jdk14-129.jar"/>
-          <include name="excalibur-thread-api-2.1-RC2.jar"/>
-          <include name="excalibur-thread-impl-2.1-RC2.jar"/>
-          <include name="excalibur-pool-api-2.1-RC2.jar"/>
-          <include name="excalibur-pool-impl-2.1-RC2.jar"/>
+          <include name="excalibur-thread-api-2.1.jar"/>
+          <include name="excalibur-thread-impl-2.1.jar"/>
+          <include name="excalibur-pool-api-2.1.jar"/>
+          <include name="excalibur-pool-impl-2.1.jar"/>
           <include name="commons-collections-2.1.1.jar"/>
-          <include name="cornerstone-threads-api-2.1-RC2.jar"/>
-          <include name="cornerstone-threads-impl-2.1-RC2.jar"/>
-          <include name="cornerstone-connection-api-2.1-RC2.jar"/>
-          <include name="cornerstone-connection-impl-2.1-RC2.jar"/>
-          <include name="cornerstone-store-api-2.1-RC2.jar"/>
-          <include name="cornerstone-store-impl-2.1-RC2.jar"/>
-          <include name="cornerstone-scheduler-api-2.1-RC2.jar"/>
-          <include name="cornerstone-scheduler-impl-2.1-RC2.jar"/>
-          <include name="cornerstone-sockets-api-2.1-RC2.jar"/>
-          <include name="cornerstone-sockets-impl-2.1-RC2.jar"/>
-          <include name="cornerstone-datasources-api-2.1-RC2.jar"/>
-          <include name="cornerstone-datasources-impl-2.1-RC2.jar"/>
+          <include name="cornerstone-threads-api-2.1.jar"/>
+          <include name="cornerstone-threads-impl-2.1.jar"/>
+          <include name="cornerstone-connection-api-2.1.jar"/>
+          <include name="cornerstone-connection-impl-2.1.jar"/>
+          <include name="cornerstone-store-api-2.1.jar"/>
+          <include name="cornerstone-store-impl-2.1.jar"/>
+          <include name="cornerstone-scheduler-api-2.1.jar"/>
+          <include name="cornerstone-scheduler-impl-2.1.jar"/>
+          <include name="cornerstone-sockets-api-2.1.jar"/>
+          <include name="cornerstone-sockets-impl-2.1.jar"/>
+          <include name="cornerstone-datasources-api-2.1.jar"/>
+          <include name="cornerstone-datasources-impl-2.1.jar"/>
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">
           <include name="sqlResources.xml"/>
