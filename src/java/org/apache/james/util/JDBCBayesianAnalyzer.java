@@ -343,7 +343,7 @@ extends BayesianAnalyzer {
             }
             
             this.sqlFile = new File((String) mailetContext.getAttribute("confDir"), "sqlResources.xml").getCanonicalFile();
-            sqlQueries.init(this.sqlFile, this.getClass().getName(), conn, getSqlParameters());
+            sqlQueries.init(this.sqlFile, JDBCBayesianAnalyzer.class.getName() , conn, getSqlParameters());
             
             checkTables(conn);
         } finally {
