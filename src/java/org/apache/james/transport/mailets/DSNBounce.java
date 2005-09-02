@@ -171,7 +171,7 @@ public class DSNBounce extends AbstractNotify {
             return;
         }
 
-        String reversePath = originalMail.getSender().toString();
+        MailAddress reversePath = originalMail.getSender();
         if (isDebug)
             log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + reversePath);
 
