@@ -508,9 +508,23 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     log("Error during the conversion to 7 bit.", e);
                                 }
                             }
+                            
+                            /*
+                             * Workaround for a javamail 1.3.2 bug: if
+                             * a message is sent without encoding information
+                             * and the 8bit allow property is set an exception
+                             * is trown during the mail delivery.
+                             */
+                            
+                            try {
+                                setEncodingIfMissing(message);
+                            } catch (IOException e) {
+                                log("Error while adding encoding information to the message", e);
+                            }
                         } else {
                             // If the transport is not the one
-                            // developed by Sun we are not sure of how it handles the 8 bit mime stuff, 
+                            // developed by Sun we are not sure of how it
+                            // handles the 8 bit mime stuff,
                             // so I convert the message to 7bit.
                             try {
                                 convertTo7Bit(message);
@@ -742,6 +756,29 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 // if the part doesn't contain text it will be base64 encoded.
                 part.setHeader("Content-Transfer-Encoding", "base64");
                 part.addHeader("X-MIME-Autoconverted", "from 8bit to base64 by "+getMailetContext().getServerInfo());
+            }
+        }
+    }
+    
+    /**
+     * Adds an encoding information to each text mime part. This is a workaround
+     * for a javamail 1.3.2 bug: if a message is sent without encoding
+     * information a null pointer exception is thrown during the message
+     * delivery.
+     * 
+     * @param part
+     * @throws MessagingException
+     * @throws IOException
+     */
+    private void setEncodingIfMissing(MimePart part) throws MessagingException, IOException {
+        if (part.isMimeType("text/*")) {
+            String enc = part.getEncoding();
+            if (enc == null) part.setHeader("Content-Transfer-Encoding", "7bit");
+        } else if (part.isMimeType("multipart/*")) {
+            MimeMultipart parts = (MimeMultipart) part.getContent();
+            int count = parts.getCount();
+            for (int i = 0; i < count; i++) {
+                setEncodingIfMissing((MimePart)parts.getBodyPart(i));
             }
         }
     }
