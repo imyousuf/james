@@ -297,6 +297,7 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
+            sessionEnded = false;
             resetState();
         } catch (Exception e) {
             StringBuffer exceptionBuffer =
