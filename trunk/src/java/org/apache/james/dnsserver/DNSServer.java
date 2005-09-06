@@ -23,6 +23,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.xbill.DNS.CNAMERecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
 import org.xbill.DNS.DClass;
@@ -163,7 +164,7 @@ public class DNSServer
         }
 
         cache = new Cache (DClass.IN);
-
+        
         getLogger().debug("DNSServer ...init end");
     }
 
@@ -175,6 +176,7 @@ public class DNSServer
     public String[] getDNSServers() {
         return (String[])dnsServers.toArray(new String[0]);
     }
+
     
     /**
      * <p>Return a prioritized unmodifiable list of MX records
@@ -182,28 +184,45 @@ public class DNSServer
      *
      * @param hostname domain name to look up
      *
-     * @return a unmodifiable list of MX records corresponding to
+     * @return a list of MX records corresponding to this mail domain
+     */
+    public List findMXRecordsRaw(String hostname) {
+        Record answers[] = lookup(hostname, Type.MX);
+        List servers = new ArrayList();
+        if (answers == null) {
+            return servers;
+        }
+
+        MXRecord mxAnswers[] = new MXRecord[answers.length];
+        for (int i = 0; i < answers.length; i++) {
+            mxAnswers[i] = (MXRecord)answers[i];
+        }
+
+        Arrays.sort(mxAnswers, mxComparator);
+
+        for (int i = 0; i < mxAnswers.length; i++) {
+            servers.add(mxAnswers[i].getTarget ().toString ());
+            getLogger().debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
+        }
+        return servers;
+    }
+    
+    /**
+     * <p>Return a prioritized unmodifiable list of host handling mail
+     * for the domain.</p>
+     * 
+     * <p>First lookup MX hosts, then MX hosts of the CNAME adress, and
+     * if no server is found return the IP of the hostname</p>
+     *
+     * @param hostname domain name to look up
+     *
+     * @return a unmodifiable list of handling servers corresponding to
      *         this mail domain name
      */
     public Collection findMXRecords(String hostname) {
-        Record answers[] = lookup(hostname, Type.MX);
         List servers = new ArrayList();
         try {
-            if (answers == null) {
-                return servers;
-            }
-
-            MXRecord mxAnswers[] = new MXRecord[answers.length];
-            for (int i = 0; i < answers.length; i++) {
-                mxAnswers[i] = (MXRecord)answers[i];
-            }
-
-            Arrays.sort(mxAnswers, mxComparator);
-
-            for (int i = 0; i < mxAnswers.length; i++) {
-                servers.add(mxAnswers[i].getTarget ().toString ());
-                getLogger().debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
-            }
+            servers = findMXRecordsRaw(hostname);
             return Collections.unmodifiableCollection(servers);
         } finally {
             //If we found no results, we'll add the original domain name if
@@ -215,18 +234,33 @@ public class DNSServer
                             .append(hostname)
                             .append(".");
                 getLogger().info(logBuffer.toString());
-                try {
-                    getByName(hostname);
-                    servers.add(hostname);
-                } catch (UnknownHostException uhe) {
-                    // The original domain name is not a valid host,
-                    // so we can't add it to the server list.  In this
-                    // case we return an empty list of servers
+                Record cnames[] = lookup(hostname, Type.CNAME);
+                Collection cnameMXrecords = null;
+                if (cnames!=null && cnames.length > 0) {
+                    cnameMXrecords = findMXRecordsRaw(((CNAMERecord) cnames[0]).getTarget().toString());
+                } else {
                     logBuffer = new StringBuffer(128)
-                                .append("Couldn't resolve IP address for host ")
-                                .append(hostname)
-                                .append(".");
-                    getLogger().error(logBuffer.toString());
+                            .append("Couldn't find CNAME records for domain ")
+                            .append(hostname)
+                            .append(".");
+                    getLogger().info(logBuffer.toString());
+                }
+                if (cnameMXrecords==null) {
+                    try {
+                        getByName(hostname);
+                        servers.add(hostname);
+                    } catch (UnknownHostException uhe) {
+                        // The original domain name is not a valid host,
+                        // so we can't add it to the server list.  In this
+                        // case we return an empty list of servers
+                        logBuffer = new StringBuffer(128)
+                                  .append("Couldn't resolve IP address for host ")
+                                  .append(hostname)
+                                  .append(".");
+                        getLogger().error(logBuffer.toString());
+                    }
+                } else {
+                    return cnameMXrecords;
                 }
             }
         }
