@@ -13,14 +13,7 @@
        (http://www.thaiopensource.com/relaxng/jing.html)
      - the MX4J project (http://mx4j.sourceforge.net/)
      - Sun Microsystems (http://java.sun.com/)
-     - the MySQL project (http://mmmysql.sourceforge.net/)
      - the dnsjava project (http://www.dnsjava.org/)
-
-   The source version of this product includes software used exclusively 
-   during the build process developed by the following:
-     - the JUnit project (http://www.junit.org/)
-     - the JDOM project (http://www.jdom.org/)
-     - the XDoclet project (http://xdoclet.sourceforge.net/)
 
    Please read the different LICENSE files present in the root directory of
    this distribution.   

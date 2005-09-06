@@ -973,10 +973,6 @@
 
       <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
 
-      <!-- James is distributed with a built in relevant copy of the mm.mysql JDBC    -->
-      <!-- driver.  No additional driver is needed for mysql. Read the mm.mysql LGPL  -->
-      <!-- license at apps\james\SAR-INF\lib\mm.mysql.LICENCE                       -->
-      <!-- -->
       <!-- You can download latest Connector/J from   -->
       <!-- http://dev.mysql.com/downloads/connector/j/3.1.html -->
       <!-- -->
