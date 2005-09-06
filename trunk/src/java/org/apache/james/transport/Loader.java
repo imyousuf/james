@@ -30,7 +30,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
@@ -44,7 +43,6 @@ import org.apache.mailet.MailetContext;
 public abstract class Loader extends AbstractLogEnabled implements Contextualizable, Serviceable, Configurable, Initializable {
     protected ClassLoader mailetClassLoader = null;
     protected String baseDirectory = null;
-    protected Logger logger;
     protected final String MAILET_PACKAGE = "mailetpackage";
     protected final String MATCHER_PACKAGE = "matcherpackage";
     /**
@@ -73,17 +71,9 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
         } 
         catch (Throwable e) 
         {
-            logger.error( "can't get base directory for mailet loader" );
+            getLogger().error( "can't get base directory for mailet loader" );
             throw new ContextException("can't contextualise mailet loader " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * Method setLogger.
-     * @param logger
-     */
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     protected void getPackages(Configuration conf, String packageType)
@@ -111,7 +101,7 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
         try {
             jarlist.add(new URL("file:///" + baseDirectory + "/SAR-INF/classes/"));
         } catch (MalformedURLException e) {
-            logger.error(
+            getLogger().error(
                 "can't add "
                     + "file:///"
                     + baseDirectory
@@ -122,10 +112,10 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
                 try {
                     if (flist[i].indexOf("jar") == flist[i].length() - 3) {
                         jarlist.add(new URL("file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i]));
-                        logger.debug("added file:///" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
+                        getLogger().debug("added file:///" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
                     }
                 } catch (MalformedURLException e) {
-                    logger.error("can't add file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
+                    getLogger().error("can't add file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
                 }
             }
         }
