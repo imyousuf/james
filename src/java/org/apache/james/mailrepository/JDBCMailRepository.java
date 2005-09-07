@@ -109,13 +109,6 @@ public class JDBCMailRepository
      */
     private Lock lock;
 
-    // Configuration elements
-
-    /**
-     * Destination URL for the repository.  See class description for more info
-     */
-//    protected String destination;
-
     /**
      * The table name parsed from the destination URL
      */
@@ -127,11 +120,6 @@ public class JDBCMailRepository
     protected String repositoryName;
 
     /**
-     * The name of the filestore to be used to store mail when configured to use dbfile mode.
-     */
-//    protected String filestore;
-
-    /**
      * The name of the SQL configuration file to be used to configure this repository.
      */
     private String sqlFileName;
@@ -140,8 +128,6 @@ public class JDBCMailRepository
      * The stream repository used in dbfile mode
      */
     private StreamRepository sr = null;
-
-    //The data-source for this repository
 
     /**
      * The selector used to obtain the JDBC datasource
@@ -494,7 +480,7 @@ public class JDBCMailRepository
      *
      * @return true if successfully released the lock, false otherwise
      */
-    public synchronized boolean unlock(String key) {
+    public boolean unlock(String key) {
         if (lock.unlock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
                 StringBuffer debugBuffer =
@@ -507,7 +493,9 @@ public class JDBCMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-//            notifyAll();
+            synchronized (this) {
+                notify();
+            }
             return true;
         } else {
             return false;
@@ -521,7 +509,7 @@ public class JDBCMailRepository
      *
      * @return true if successfully obtained the lock, false otherwise
      */
-    public synchronized boolean lock(String key) {
+    public boolean lock(String key) {
         if (lock.lock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
                 StringBuffer debugBuffer =
@@ -546,7 +534,17 @@ public class JDBCMailRepository
      */
     public void store(MailImpl mc) throws MessagingException {
         Connection conn = null;
+        boolean wasLocked = true;
+        String key = mc.getName();
         try {
+            synchronized(this) {
+                  wasLocked = lock.isLocked(key);
+    
+                  if (!wasLocked) {
+                      //If it wasn't locked, we want a lock during the store
+                      lock(key);
+                  }
+            }
             conn = datasource.getConnection();
 
             //Need to determine whether need to insert this record, or update it.
@@ -767,14 +765,14 @@ public class JDBCMailRepository
             conn.commit();
             conn.setAutoCommit(true);
 
-            synchronized (this) {
-//                notifyAll();
-                notify();
-            }
         } catch (Exception e) {
             throw new MessagingException("Exception caught while storing mail Container: " + e);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
+            if (!wasLocked) {
+                // If it wasn't locked, we need to unlock now
+                unlock(key);
+            }
         }
     }
 

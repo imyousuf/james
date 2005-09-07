@@ -28,7 +28,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
 
 /**
@@ -120,7 +119,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * Return a message to process.  This is a message in the spool that is not locked.
      */
-    public Mail accept() throws InterruptedException {
+    public synchronized Mail accept() throws InterruptedException {
         return accept(new SpoolRepository.AcceptFilter () {
             public boolean accept (String _, String __, long ___, String ____) {
                 return true;
@@ -164,7 +163,9 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
 
                 public long getWaitTime () {
                     if (sleepUntil == 0) {
-                        sleepUntil = System.currentTimeMillis();
+                        // in AvalonSpoolRepository we return 0: why do we change sleepUntil?
+                        // sleepUntil = System.currentTimeMillis();
+                        return 0;
                     }
                     long waitTime = sleepUntil - System.currentTimeMillis();
                     sleepUntil = 0;
@@ -217,9 +218,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 wait_time = WAIT_LIMIT;
             }
             try {
-                synchronized (this) {
-                    wait (wait_time);
-                }
+                wait (wait_time);
             } catch (InterruptedException ex) {
                 throw ex;
             }
@@ -244,7 +243,6 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * it's been more than 1 second (should be configurable).
      */
     private PendingMessage getNextPendingMessage() {
-        //System.err.println("Trying to get next message in " + repositoryName);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0 && pendingMessagesLoadTime < System.currentTimeMillis()) {
                 pendingMessagesLoadTime = LOAD_TIME_MININUM + System.currentTimeMillis();
@@ -254,7 +252,6 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
             if (pendingMessages.size() == 0) {
                 return null;
             } else {
-                //System.err.println("Returning a pending message in " + repositoryName);
                 return (PendingMessage)pendingMessages.removeFirst();
             }
         }
@@ -265,7 +262,6 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      */
     private void loadPendingMessages() {
         //Loads a vector with PendingMessage objects
-        //System.err.println("loading pending messages in " + repositoryName);
         synchronized (pendingMessages) {
             pendingMessages.clear();
 
