@@ -64,8 +64,6 @@ public class AvalonMailRepository
      */
     protected final static boolean DEEP_DEBUG = false;
 
-    private static final String TYPE = "MAIL";
-
     private Lock lock;
     private Store store;
     private StreamRepository sr;
@@ -202,9 +200,9 @@ public class AvalonMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-//            synchronized (this) {
-//                notifyAll();
-//            }
+            synchronized (this) {
+                notify();
+            }
             return true;
         } else {
             return false;
@@ -250,11 +248,14 @@ public class AvalonMailRepository
         try {
             String key = mc.getName();
             //Remember whether this key was locked
-            boolean wasLocked = lock.isLocked(key);
-
-            if (!wasLocked) {
-                //If it wasn't locked, we want a lock during the store
-                lock.lock(key);
+            boolean wasLocked = true;
+            synchronized (this) {
+                wasLocked = lock.isLocked(key);
+    
+                if (!wasLocked) {
+                    //If it wasn't locked, we want a lock during the store
+                    lock.lock(key);
+                }
             }
             try {
                 if (keys != null && !keys.contains(key)) {
