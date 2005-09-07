@@ -254,7 +254,7 @@ public class AvalonMailRepository
     
                 if (!wasLocked) {
                     //If it wasn't locked, we want a lock during the store
-                    lock.lock(key);
+                    lock(key);
                 }
             }
             try {
@@ -301,8 +301,8 @@ public class AvalonMailRepository
                 or.put(key, mc);
             } finally {
                 if (!wasLocked) {
-                    //If it wasn't locked, we need to now unlock
-                    lock.unlock(key);
+                    // If it wasn't locked, we need to unlock now
+                    unlock(key);
                 }
             }
 
@@ -315,10 +315,6 @@ public class AvalonMailRepository
                 getLogger().debug(logBuffer.toString());
             }
 
-            synchronized (this) {
-//                notifyAll();
-                notify();
-            }
         } catch (Exception e) {
             getLogger().error("Exception storing mail: " + e);
             throw new MessagingException("Exception caught while storing Message Container: " + e);
