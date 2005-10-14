@@ -110,11 +110,14 @@ public class MailAddress implements java.io.Serializable {
             //<local-part> ::= <dot-string> | <quoted-string>
             if (address.charAt(pos) == '\"') {
                 userSB.append(parseQuotedLocalPart(address));
+                if (userSB.toString().length() == 2) {
+                    throw new ParseException("No quoted local-part (user account) found at position " + (pos + 2));
+                }
             } else {
                 userSB.append(parseUnquotedLocalPart(address));
-            }
-            if (userSB.toString().length() == 0) {
-                throw new ParseException("No local-part (user account) found at position " + (pos + 1));
+                if (userSB.toString().length() == 0) {
+                    throw new ParseException("No local-part (user account) found at position " + (pos + 1));
+                }
             }
 
             //find @
