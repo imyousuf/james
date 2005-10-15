@@ -963,7 +963,7 @@
       <!--
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-         <dburl>jdbc:derby:target/data/derbydb;create=true</dburl>
+         <dburl>jdbc:derby:../apps/james/var/derbydb;create=true</dburl>
          <user></user>
          <password></password>
          <poolPreparedStatements>true</poolPreparedStatements>
