@@ -200,9 +200,6 @@ public class AvalonMailRepository
                             .append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
-            synchronized (this) {
-                notify();
-            }
             return true;
         } else {
             return false;
@@ -303,6 +300,9 @@ public class AvalonMailRepository
                 if (!wasLocked) {
                     // If it wasn't locked, we need to unlock now
                     unlock(key);
+                    synchronized (this) {
+                        notify();
+                    }
                 }
             }
 
