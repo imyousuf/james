@@ -220,6 +220,18 @@ public class ServerConnection extends AbstractLogEnabled
      * @param clientConnectionRunner the ClientConnectionRunner to be removed
      */
     private void removeClientConnectionRunner(ClientConnectionRunner clientConnectionRunner) {
+
+       /*
+        * checking runnerPool avoids 'dead-lock' when service is disposing :
+        * (dispose() calls dispose all runners)
+        * but runner is 'running' and cleans up on exit
+        * this situation will result in a dead-lock on 'clientConnectionRunners'
+        */
+        if( runnerPool == null ) {
+            getLogger().info("ServerConnection.removeClientConnectionRunner - dispose has been called - so just return : " + clientConnectionRunner );
+            return;
+        }
+        
         synchronized (clientConnectionRunners) {
             if (clientConnectionRunners.remove(clientConnectionRunner)) {
                 if (getLogger().isDebugEnabled()) {
