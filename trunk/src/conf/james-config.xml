@@ -62,9 +62,11 @@
 
       <!-- The inbox repository is the location for users inboxes -->
       <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
+      <!--
       <inboxRepository>
          <repository destinationURL="file://var/mail/inboxes/" type="MAIL"/>
       </inboxRepository>
+      -->
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!-- The format for the destinationURL is "db://<data-source>/<table>" -->
@@ -79,11 +81,11 @@
 
       <!-- Alternative inbox repository definition for DB use. -->
       <!-- Stores message body in file system, rest in database -->
-      <!--
+      <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
       <inboxRepository>
          <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
       </inboxRepository>
-      -->
+      <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
 
       <!-- Alternative inbox repository definition for mbox use. -->
       <!-- This method uses UNIX standard mbox files and is meant for people using mbox files -->
@@ -788,7 +790,9 @@
    <!-- Spool repository configuration -->
    <!-- The spool repository is the location where incoming mails are temporarily stored -->
    <!-- before being processed. -->
+   <!--
    <spoolrepository destinationURL="file://var/mail/spool/" type="SPOOL"/>
+   -->
  
    <!-- Alternative spool repository definition for JDBC use -->
    <!--
@@ -797,9 +801,9 @@
  
    <!-- Alternative spool repository definition for JDBC use -->
    <!-- Stores message body in file system, rest in database -->
-   <!--
+   <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
    <spoolrepository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/>
-   -->
+   <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
 
    <!-- The Mailstore block -->
    <mailstore>
@@ -913,9 +917,11 @@
 
       <!-- Default: File-based user repositories  Use these configurations to store user info in the filesystem  -->
       <!-- The LocalUsers repository, for storing James' User info. -->
+      <!--
       <repository name="LocalUsers" class="org.apache.james.userrepository.UsersFileRepository">
          <destination URL="file://var/users/"/>
       </repository>
+      -->
 
       <!-- Database backed user repositories -->
       <!-- -->
@@ -924,11 +930,11 @@
       <!--       in the <database-connections> configuration section. -->
 
       <!-- The LocalUsers repository, for storing James' User info. -->
-      <!--
+      <!-- TEMPORARY DEFAULT: db using Derby  -->
       <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
       </repository>
-      -->
+      <!-- TEMPORARY DEFAULT: db using Derby  -->
 
       <!-- This is an example configuration including configuration for a list server. -->
       <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
@@ -960,7 +966,7 @@
       <!-- Out of the box default configuration uses Apache Derby as the default -->
       <!-- database, which is easy to embed - but we support all the major SQL   -->
       <!-- databases - just reconfigure your JDBC configuration                  -->
-      <!--
+      <!-- -->
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
          <dburl>jdbc:derby:../apps/james/var/derbydb;create=true</dburl>
@@ -969,7 +975,7 @@
          <poolPreparedStatements>true</poolPreparedStatements>
          <max>20</max>
       </data-source>
-      -->
+      <!-- -->
 
       <!-- JDBC driver .jar libraries for other RDBMS can be placed in ~james/lib/  -->
 
