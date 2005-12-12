@@ -162,7 +162,12 @@ extends BayesianAnalyzer {
             
             Map ham = getHamTokenCounts();
             while (rs.next()) {
-                ham.put(rs.getString(1), new Integer(rs.getInt(2)));
+                String token = rs.getString(1);
+                int count = rs.getInt(2);
+                // to reduce memory, use the token only if the count is > 1
+                if (count > 1) {
+                    ham.put(token, new Integer(count));
+                }
             }
             //Verbose.
             delegatedLog("Ham tokens count: " + ham.size());
@@ -176,7 +181,12 @@ extends BayesianAnalyzer {
             
             Map spam = getSpamTokenCounts();
             while (rs.next()) {
-                spam.put(rs.getString(1), new Integer(rs.getInt(2)));
+                String token = rs.getString(1);
+                int count = rs.getInt(2);
+                // to reduce memory, use the token only if the count is > 1
+                if (count > 1) {
+                    spam.put(token, new Integer(count));
+                }
             }
             
             //Verbose.

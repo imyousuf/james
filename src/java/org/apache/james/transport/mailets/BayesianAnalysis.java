@@ -340,8 +340,10 @@ extends GenericMailet {
         try {
             // this is synchronized to avoid concurrent update of the corpus
             synchronized(JDBCBayesianAnalyzer.DATABASE_LOCK) {
+                analyzer.tokenCountsClear();
                 analyzer.loadHamNSpam(conn);
                 analyzer.buildCorpus();
+                analyzer.tokenCountsClear();
             }
             
             log("BayesianAnalysis Corpus loaded");
