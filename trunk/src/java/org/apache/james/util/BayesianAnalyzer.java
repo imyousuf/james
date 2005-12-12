@@ -261,11 +261,18 @@ public class BayesianAnalyzer {
     public void clear() {
         corpus.clear();
         
-        hamTokenCounts.clear();
-        spamTokenCounts.clear();
+        tokenCountsClear();
         
         hamMessageCount = 0;
         spamMessageCount = 0;
+    }
+    
+    /**
+     * Clears token counters.
+     */
+    public void tokenCountsClear() {
+        hamTokenCounts.clear();
+        spamTokenCounts.clear();
     }
     
     /**
@@ -289,17 +296,19 @@ public class BayesianAnalyzer {
      */
     public void buildCorpus() {
         //Combine the known ham & spam tokens.
-        corpus.putAll(hamTokenCounts);
-        corpus.putAll(spamTokenCounts);
+        Set set = new HashSet(hamTokenCounts.size() + spamTokenCounts.size());
+        set.addAll(hamTokenCounts.keySet());
+        set.addAll(spamTokenCounts.keySet());
+        Map tempCorpus = new HashMap(set.size());
         
         //Iterate through all the tokens and compute their new
         //individual probabilities.
-        Iterator i = corpus.keySet().iterator();
+        Iterator i = set.iterator();
         while (i.hasNext()) {
             String token = (String) i.next();
-            
-            corpus.put(token, new Double(computeProbability(token)));
+            tempCorpus.put(token, new Double(computeProbability(token)));
         }
+        setCorpus(tempCorpus);
     }
     
     /**
@@ -335,13 +344,17 @@ public class BayesianAnalyzer {
         //Build a set of the tokens in the Stream.
         Set tokens = parse(stream);
         
+        // Get the corpus to use in this run
+        // A new corpus may be being built in the meantime
+        Map workCorpus = getCorpus();
+        
         //Assign their probabilities from the Corpus (using an additional
         //calculation to determine spamminess).
-        SortedSet tokenProbabilityStrengths = getTokenProbabilityStrengths(tokens);
+        SortedSet tokenProbabilityStrengths = getTokenProbabilityStrengths(tokens, workCorpus);
         
         //Compute and return the overall probability that the
         //stream is SPAM.
-        return computeOverallProbability(tokenProbabilityStrengths);
+        return computeOverallProbability(tokenProbabilityStrengths, workCorpus);
     }
     
     /**
@@ -575,9 +588,10 @@ public class BayesianAnalyzer {
      * The ordering is from the highest strength to the lowest strength.
      *
      * @param tokens
+     * @param workCorpus
      * @return  SortedSet of TokenProbabilityStrength objects.
      */
-    private SortedSet getTokenProbabilityStrengths(Set tokens) {
+    private SortedSet getTokenProbabilityStrengths(Set tokens, Map workCorpus) {
         //Convert to a SortedSet of token probability strengths.
         SortedSet tokenProbabilityStrengths = new TreeSet();
         
@@ -587,14 +601,15 @@ public class BayesianAnalyzer {
             
             tps.token = (String) i.next();
             
-            if (corpus.containsKey(tps.token)) {
-                tps.strength = Math.abs(0.5 - ((Double) corpus.get(tps.token)).doubleValue());
+            if (workCorpus.containsKey(tps.token)) {
+                tps.strength = Math.abs(0.5 - ((Double) workCorpus.get(tps.token)).doubleValue());
             }
             else {
                 //This token has never been seen before,
                 //we'll give it initially the default probability.
                 Double corpusProbability = new Double(DEFAULT_TOKEN_PROBABILITY);
                 tps.strength = Math.abs(0.5 - DEFAULT_TOKEN_PROBABILITY);
+                boolean isTokenDegeneratedFound = false;
                 
                 Collection degeneratedTokens = buildDegenerated(tps.token);
                 Iterator iDegenerated = degeneratedTokens.iterator();
@@ -602,17 +617,21 @@ public class BayesianAnalyzer {
                 double strengthDegenerated;
                 while (iDegenerated.hasNext()) {
                     tokenDegenerated = (String) iDegenerated.next();
-                    if (corpus.containsKey(tokenDegenerated)) {
-                        Double probabilityTemp = (Double) corpus.get(tokenDegenerated);
+                    if (workCorpus.containsKey(tokenDegenerated)) {
+                        Double probabilityTemp = (Double) workCorpus.get(tokenDegenerated);
                         strengthDegenerated = Math.abs(0.5 - probabilityTemp.doubleValue());
                         if (strengthDegenerated > tps.strength) {
+                            isTokenDegeneratedFound = true;
                             tps.strength = strengthDegenerated;
                             corpusProbability = probabilityTemp;
                         }
                     }
                 }
-                synchronized(corpus) {
-                    corpus.put(tps.token, corpusProbability);
+                // to reduce memory usage, put in the corpus only if the probability is different from (stronger than) the default
+                if (isTokenDegeneratedFound) {
+                    synchronized(workCorpus) {
+                        workCorpus.put(tps.token, corpusProbability);
+                    }
                 }
             }
             
@@ -672,9 +691,10 @@ public class BayesianAnalyzer {
      * the tokenProbabilities SortedSet.
      *
      * @param tokenProbabilities
+     * @param workCorpus
      * @return  Computed spamminess.
      */
-    private double computeOverallProbability(SortedSet tokenProbabilityStrengths) {
+    private double computeOverallProbability(SortedSet tokenProbabilityStrengths, Map workCorpus) {
         double p = 1.0;
         double np = 1.0;
         double tempStrength = 0.5;
@@ -686,9 +706,15 @@ public class BayesianAnalyzer {
             
             //      System.out.println(tps);
             
-            p *= ((Double) corpus.get(tps.token)).doubleValue();
-            np *= (1.0 - ((Double) corpus.get(tps.token)).doubleValue());
-            //      System.out.println("Token:" + tps.token + ", p=" + ((Double) corpus.get(tps.token)).doubleValue() + ", overall p=" + p / (p + np));
+            double theDoubleValue = DEFAULT_TOKEN_PROBABILITY; // initialize it to the default
+            Double theDoubleObject = (Double) workCorpus.get(tps.token);
+            // if either the original token or a degeneration was found use the double value, otherwise use the default
+            if (theDoubleObject != null) {
+                theDoubleValue = theDoubleObject.doubleValue();
+            }
+            p *= theDoubleValue;
+            np *= (1.0 - theDoubleValue);
+            // System.out.println("Token:" + tps.token + ", p=" + theDoubleValue + ", overall p=" + p / (p + np));
         }
         
         return (p / (p + np));
