@@ -67,4 +67,11 @@ public interface RemoteManagerHandlerConfigurationData {
      */
     HashMap getAdministrativeAccountData();
 
+    /**
+     * Returns the prompt to be displayed when waiting for input. e.g. "james> ".
+     * 
+     * @return the configured prompt, or an empty string when the prompt is not configured.
+     */
+    String getPrompt();
+
 }

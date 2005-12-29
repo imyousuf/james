@@ -66,6 +66,11 @@ public class RemoteManager
     private UsersRepository users;
 
     /**
+     * The service prompt to be displayed when waiting for input.
+     */
+    private String prompt = "";
+    
+    /**
      * The reference to the internal MailServer service
      */
     private MailServer mailServer;
@@ -122,6 +127,10 @@ public class RemoteManager
                 adminAccounts.put( accounts[ i ].getAttribute( "login" ),
                                    accounts[ i ].getAttribute( "password" ) );
             }
+            Configuration promtConfiguration = handlerConfiguration.getChild("prompt", false);
+            if (promtConfiguration != null) prompt = promtConfiguration.getValue();
+            if (prompt == null) prompt = ""; 
+            else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
         }
     }
 
@@ -259,6 +268,13 @@ public class RemoteManager
          */
         public HashMap getAdministrativeAccountData() {
             return RemoteManager.this.adminAccounts;
+        }
+
+        /**
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getPrompt()
+         */
+        public String getPrompt() {
+            return RemoteManager.this.prompt;
         }
 
     }
