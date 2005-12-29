@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -24,11 +24,13 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
+import javax.mail.Flags.Flag;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.mail.internet.NewsAddress;
+import javax.mail.search.SearchTerm;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -94,7 +96,7 @@ public class MimeMessageWrapper
         super(Session.getDefaultInstance(System.getProperties(), null));
         this.source = source;
     }
-
+    
     /**
      * Returns the source ID of the MimeMessageSource that is supplying this
      * with data.
@@ -169,6 +171,7 @@ public class MimeMessageWrapper
             in = new SequenceInputStream(headersIn, in);
 
             message = new MimeMessage(session, in);
+            
         } catch (IOException ioe) {
             throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
         } finally {
@@ -1036,6 +1039,55 @@ public class MimeMessageWrapper
         message.setRecipients(type, addresses);
     }
 
+    /*
+     * Since JavaMail 1.3
+     */
+    public Address getSender() throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        return message.getSender();
+    }
+
+    public void setSender(Address arg0) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.setSender(arg0);
+    }
+
+    public void addRecipient(RecipientType arg0, Address arg1) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.addRecipient(arg0,arg1);
+    }
+
+    public boolean match(SearchTerm arg0) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        return message.match(arg0);
+    }
+
+    public void setFlag(Flag arg0, boolean arg1) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.setFlag(arg0,arg1);
+    }
+
+    public void setRecipient(RecipientType arg0, Address arg1) throws MessagingException {
+        if (message == null) {
+            loadMessage();
+        }
+        modified = true;
+        message.setRecipient(arg0,arg1);
+    }
+    
     /**
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
@@ -1047,6 +1099,9 @@ public class MimeMessageWrapper
 
     /**
      * To be optimized.
+     * Starting from Javamail 1.3.3/1.4.0 we could use the unfold code 
+     * from the javamail.MimeMessage
+     * 
      * @param s
      * @return
      */
