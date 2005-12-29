@@ -133,6 +133,12 @@
       <!-- This configuration is a sample configuration for the root processor. -->
       <processor name="root">
 
+         <!-- This mailet redirects mail for the user 'postmaster' at any local domain to -->
+         <!-- the postmaster address specified for the server. The postmaster address -->
+         <!-- is required by rfc822. Do not remove this mailet unless you are meeting -->
+         <!-- this requirement through other means (e.g. a XML/JDBCVirtualUserTable mailet) -->
+         <mailet match="All" class="PostmasterAlias"/>
+
          <!-- Checks that the email Sender is associated with a valid domain. -->
          <!-- Useful for detecting and eliminating spam. -->
          <!-- For this block to function, the spam processor must be configured. -->

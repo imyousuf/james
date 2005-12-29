@@ -155,14 +155,6 @@ public class JamesSpoolManager
                 processor.initialize();
                 processors.put(processorName, processor);
 
-                // If this is the root processor, add the PostmasterAlias
-                //  mailet silently to the top
-                if (processorName.equals("root")) {
-                    Matcher matcher = matchLoader.getMatcher("All");
-                    Mailet mailet = mailetLoader.getMailet("PostmasterAlias", null);
-                    processor.add(matcher, mailet);
-                }
-
                 final Configuration[] mailetConfs
                     = processorConf.getChildren( "mailet" );
                 // Loop through the mailet configuration, load
