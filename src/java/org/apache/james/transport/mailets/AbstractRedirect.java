@@ -1171,31 +1171,6 @@ public abstract class AbstractRedirect extends GenericMailet {
     }
 
     /**
-     * Gets the MailAddress corresponding to the existing "Return-Path" of
-     * <I>mail</I>.
-     * If empty returns <CODE>SpecialAddress.NULL</CODE>,
-     * if missing return <CODE>null</CODE>.
-     * @deprecated The Return-Path header is no longer available until local delivery.
-     */
-    protected MailAddress getExistingReturnPath(Mail mail) throws MessagingException {
-        MailAddress mailAddress = null;
-        String[] returnPathHeaders = mail.getMessage().getHeader(RFC2822Headers.RETURN_PATH);
-        String returnPathHeader = null;
-        if (returnPathHeaders != null) {
-            returnPathHeader = returnPathHeaders[0];
-            if (returnPathHeader != null) {
-                returnPathHeader = returnPathHeader.trim();
-                if (returnPathHeader.equals("<>")) {
-                    mailAddress = SpecialAddress.NULL;
-                } else {
-                    mailAddress = new MailAddress(new InternetAddress(returnPathHeader));
-                }
-            }
-        }
-        return mailAddress;
-    }
-
-    /**
      * Utility method for obtaining a string representation of an array of Objects.
      */
     private String arrayToString(Object[] array) {

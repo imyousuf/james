@@ -25,7 +25,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.Constants;
@@ -62,14 +61,6 @@ public class UsersLDAPRepository
     extends AbstractLogEnabled
     implements UsersRepository, Serviceable, Configurable, Contextualizable, Initializable{
 
-    private ServiceManager comp;
-
-    private Logger logger;
-    private String path;
-    private String name;
-    private String destination;
-    private String type;
-    private String model;
     private DirContext ctx;
 
     private String LDAPHost;
@@ -104,7 +95,7 @@ public class UsersLDAPRepository
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager compMgr) {
-        this.comp = compMgr;
+        // this.comp = compMgr;
     }
 
     /**
@@ -238,7 +229,7 @@ public class UsersLDAPRepository
     public Iterator list() {
 
         List result = new ArrayList();
-        String filter = mailAddressAttr + "=*";
+        // String filter = mailAddressAttr + "=*";
         String[] attrIDs = {membersAttr};
 
         try {
@@ -289,10 +280,6 @@ public class UsersLDAPRepository
     }
 
     public boolean updateUser(User user) {
-        return false;
-    }
-
-    public boolean test(String name, String password) {
         return false;
     }
 
@@ -356,9 +343,9 @@ public class UsersLDAPRepository
             addGroupToUser(userName);
         }
 
-        if (managePasswordAttr) {
-            String userPassword = (String) attributes; // Not yet implemented
-        }
+//        if (managePasswordAttr) {
+//            String userPassword = (String) attributes; // Not yet implemented
+//        }
     }
 
     private void addGroupToUser(String userName) {
@@ -430,11 +417,6 @@ public class UsersLDAPRepository
             closeDirContext(rootCtx);
         }
     }
-
-    public synchronized Object getAttributes(String name) {
-        return null;
-    }
-
 
     public synchronized void removeUser(String userName) {
         String[] attrIDs = {membersAttr};
@@ -605,10 +587,9 @@ public class UsersLDAPRepository
     }
 
 
-    public boolean test(String name, Object attributes) {
+    public boolean test(String name, String testPassword) {
         boolean result = false;
         boolean foundFlag = false;
-        String testPassword = (String) attributes;
         String userDN = null;
 
         try {

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -20,14 +20,14 @@ package org.apache.james.userrepository;
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 
@@ -55,9 +55,6 @@ public class UsersFileRepository
      * Whether 'deep debugging' is turned on.
      */
     protected static boolean DEEP_DEBUG = false;
-
-    /** @deprecated what was this for? */
-    private static final String TYPE = "USERS";
 
     private Store store;
     private ObjectRepository or;
@@ -203,10 +200,6 @@ public class UsersFileRepository
         return null;
     }
 
-    public Object getAttributes(String name) {
-        throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
-    }
-
     public boolean updateUser(User user) {
         String username = user.getUserName();
         if (!contains(username)) {
@@ -236,16 +229,6 @@ public class UsersFileRepository
             }
         }
         return false;
-    }
-
-    /**
-     */
-    public boolean test(String name, Object attributes) {
-        try {
-            return attributes.equals(or.get(name));
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public boolean test(String name, String password) {

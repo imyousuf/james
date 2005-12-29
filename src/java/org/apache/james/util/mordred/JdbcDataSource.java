@@ -17,20 +17,18 @@
 
 package org.apache.james.util.mordred;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 /**
@@ -301,18 +299,6 @@ public class JdbcDataSource extends AbstractLogEnabled
         }
         // The various entries will finalize themselves once the reference
         // is removed, so no need to do it here
-    }
-
-    /**
-     * Close all connections.  The connection pooler will recreate these connections if something
-     * starts requesting them again.
-     *
-     * @deprecated This was left over code from Town... but not exposed in Avalon.
-     */
-    public void killAllConnections() {
-        //Just remove the references to all the connections... this will cause them to get
-        // finalized before very long. (not an instant shutdown, but that's ok).
-        synchronized (pool) { pool.clear(); }
     }
 
     /**

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -54,14 +54,6 @@ public interface UsersRepository {
      * @param attributes see decription
      */
     void addUser(String name, Object attributes);
-
-    /**
-     * Gets the attribute for a user.  Not clear on behavior.
-     *
-     * @deprecated As of James 1.2.2 . Use the {@link #getUserByName(String) getUserByName} method.
-     */
-    Object getAttributes(String name);
-
 
     /**
      * Get the user object with the specified user name.  Return null if no
@@ -125,16 +117,6 @@ public interface UsersRepository {
      * @return whether the user is in the repository
      */
     boolean containsCaseInsensitive(String name);
-
-
-    /**
-     * Tests a user with the appropriate attributes.  In current implementations,
-     * this typically means "check the password" where a String password is passed
-     * as the Object attributes.
-     *
-     * @deprecated As of James 1.2.2, use {@link #test(String, String) test(String name, String password)}
-     */
-    boolean test(String name, Object attributes);
 
     /**
      * Test if user with name 'name' has password 'password'.
