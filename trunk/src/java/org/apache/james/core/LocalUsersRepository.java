@@ -52,10 +52,6 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
         users.addUser(name,attributes);
     }
 
-    public Object getAttributes(String name) {
-        return users.getAttributes(name);
-    }
-
     public User getUserByName(String name) {
         return users.getUserByName(name);
     }
@@ -82,10 +78,6 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
 
     public boolean containsCaseInsensitive(String name) {
         return users.containsCaseInsensitive(name);
-    }
-
-    public boolean test(String name, Object attributes) {
-        return users.test(name,attributes);
     }
 
     public boolean test(String name, String password) {

@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -182,15 +182,6 @@ public abstract class AbstractUsersRepository
     }
 
     /**
-     * Gets the attribute for a user.  Not clear on behavior.
-     *
-     * @deprecated As of James 1.2.2 . Use the {@link #getUserByName(String) getUserByName} method.
-     */
-    public Object getAttributes(String name) {
-        throw new RuntimeException("Improper use of deprecated method - read javadocs");
-    }
-
-    /**
      * Get the user object with the specified user name.  Return null if no
      * such user.
      *
@@ -251,22 +242,6 @@ public abstract class AbstractUsersRepository
     public boolean containsCaseInsensitive(String name) {
         User user = getUserByName( name, true );
         return ( user != null );
-    }
-
-    /**
-     * Tests a user with the appropriate attributes.  In current implementations,
-     * this typically means "check the password" where a String password is passed
-     * as the Object attributes.
-     *
-     * @param name the name of the user to be tested
-     * @param attributes the password to be tested
-     *
-     * @throws UnsupportedOperationException always, as this method should not be used
-     *
-     * @deprecated As of James 1.2.2, use {@link #test(String, String) test(String name, String password)}
-     */
-    public boolean test(String name, Object attributes) {
-        throw new UnsupportedOperationException("Improper use of deprecated method - read javadocs");
     }
 
     /**

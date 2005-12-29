@@ -1,5 +1,5 @@
 /* 
- * Copyright 1999-2004 The Apache Software Foundation
+ * Copyright 1999-2005 The Apache Software Foundation
  * Licensed  under the  Apache License,  Version 2.0  (the "License");
  * you may not use  this file  except in  compliance with the License.
  * You may obtain a copy of the License at 
@@ -18,7 +18,6 @@
 package org.apache.james.util.io;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -538,27 +537,6 @@ public final class IOUtil
     {
         output.write( input );
     }
-
-    /**
-     * Copy bytes from an <code>InputStream</code> to an
-     * <code>OutputStream</code>, with buffering.
-     * This is equivalent to passing a
-     * {@link java.io.BufferedInputStream} and
-     * {@link java.io.BufferedOutputStream} to {@link #copy(InputStream, OutputStream)},
-     * and flushing the output stream afterwards. The streams are not closed
-     * after the copy.
-     * @deprecated Buffering streams is actively harmful! See the class description as to why. Use
-     * {@link #copy(InputStream, OutputStream)} instead.
-     */
-    public static void bufferedCopy( final InputStream input, final OutputStream output )
-        throws IOException
-    {
-        final BufferedInputStream in = new BufferedInputStream( input );
-        final BufferedOutputStream out = new BufferedOutputStream( output );
-        copy( in, out );
-        out.flush();
-    }
-
 
     ///////////////////////////////////////////////////////////////
     // String -> byte[]
