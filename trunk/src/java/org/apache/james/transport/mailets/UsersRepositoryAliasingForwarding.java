@@ -39,18 +39,28 @@ import java.util.LinkedList;
 import java.util.Vector;
 
 /**
- * Receives a Mail from JamesSpoolManager and takes care of delivery
- * of the message to local inboxes.
- *
+ * Receives a Mail from JamesSpoolManager and takes care of delivery of the
+ * message to local inboxes.
+ * 
+ * Available configurations are:
+ * 
+ * <enableAliases>true</enableAliases>: specify wether the user aliases should
+ * be looked up or not. Default is false.
+ * 
+ * <enableForwarding>true</enableForwarding>: enable the forwarding. Default to
+ * false.
+ * 
+ * <usersRepository>LocalAdmins</usersRepository>: specific users repository
+ * name. Default to empty. If empty does lookup the default userRepository.
  */
 public class UsersRepositoryAliasingForwarding extends GenericMailet {
-  
+
     /**
-     * The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
+     * The user repository for this mail server. Contains all the users with
+     * inboxes on this server.
      */
     private UsersRepository usersRepository;
-    
+
     /**
      * Whether to enable aliasing for users on this server
      */
@@ -66,17 +76,14 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
      */
     private boolean ignoreCase;
 
-        /**
-         * The name of the repository.
-         */
-        private String repositoryName;
-
     /**
      * Delivers a mail to a local mailbox.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while storing the mail
+     * 
+     * @param mail
+     *            the mail being processed
+     * 
+     * @throws MessagingException
+     *             if an error occurs while storing the mail
      */
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
@@ -84,23 +91,32 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
 
         MimeMessage message = mail.getMessage();
 
-        // Set Return-Path and remove all other Return-Path headers from the message
-        // This only works because there is a placeholder inserted by MimeMessageWrapper
-        message.setHeader(RFC2822Headers.RETURN_PATH, (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">"));
+        // Set Return-Path and remove all other Return-Path headers from the
+        // message
+        // This only works because there is a placeholder inserted by
+        // MimeMessageWrapper
+        message
+                .setHeader(RFC2822Headers.RETURN_PATH,
+                        (mail.getSender() == null ? "<>" : "<"
+                                + mail.getSender() + ">"));
 
         Collection newRecipients = new LinkedList();
-        for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+        for (Iterator i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                String username = processMail(mail.getSender(), recipient, message);
-                
-                // if the username is null or changed we remove it from the remaining recipients
+                String username = processMail(mail.getSender(), recipient,
+                        message);
+
+                // if the username is null or changed we remove it from the
+                // remaining recipients
                 if (username == null) {
                     i.remove();
                 } else if (username.equals(recipient.getUser())) {
                     i.remove();
-                    // if the username has been changed we add a new recipient with the new name.
-                    newRecipients.add(new MailAddress(username,recipient.getHost()));
+                    // if the username has been changed we add a new recipient
+                    // with the new name.
+                    newRecipients.add(new MailAddress(username, recipient
+                            .getHost()));
                 }
 
             } catch (Exception ex) {
@@ -108,64 +124,65 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 errors.add(recipient);
             }
         }
-        
-        if (newRecipients.size()>0) {
+
+        if (newRecipients.size() > 0) {
             recipients.addAll(newRecipients);
         }
 
         if (!errors.isEmpty()) {
-            // If there were errors, we redirect the email to the ERROR processor.
-            // In order for this server to meet the requirements of the SMTP specification,
-            // mails on the ERROR processor must be returned to the sender.  Note that this
-            // email doesn't include any details regarding the details of the failure(s).
+            // If there were errors, we redirect the email to the ERROR
+            // processor.
+            // In order for this server to meet the requirements of the SMTP
+            // specification, mails on the ERROR processor must be returned to
+            // the sender. Note that this email doesn't include any details
+            // regarding the details of the failure(s).
             // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(),
-                                        errors, message, Mail.ERROR);
+            getMailetContext().sendMail(mail.getSender(), errors, message,
+                    Mail.ERROR);
         }
-        
-        if (recipients.size()==0) {
-            //We always consume this message
+
+        if (recipients.size() == 0) {
+            // We always consume this message
             mail.setState(Mail.GHOST);
         }
     }
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
         return "Local User Aliasing and Forwarding Mailet";
     }
 
-
     /**
-     * Return null when the mail should be GHOSTed, the username string when it should be
-     * changed due to the ignoreUser configuration.
+     * Return null when the mail should be GHOSTed, the username string when it
+     * should be changed due to the ignoreUser configuration.
      * 
      * @param sender
      * @param recipient
      * @param message
      * @throws MessagingException
      */
-    public String processMail(MailAddress sender, MailAddress recipient, MimeMessage message)
-        throws MessagingException {
+    public String processMail(MailAddress sender, MailAddress recipient,
+            MimeMessage message) throws MessagingException {
         String username;
         if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+            throw new IllegalArgumentException(
+                    "Recipient for mail to be spooled cannot be null.");
         }
         if (message == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+            throw new IllegalArgumentException(
+                    "Mail message to be spooled cannot be null.");
         }
         if (ignoreCase) {
             String originalUsername = recipient.getUser();
             username = usersRepository.getRealName(originalUsername);
             if (username == null) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(128)
-                        .append("The inbox for user ")
-                        .append(originalUsername)
-                        .append(" was not found on this server.");
+                StringBuffer errorBuffer = new StringBuffer(128).append(
+                        "The inbox for user ").append(originalUsername).append(
+                        " was not found on this server.");
                 throw new MessagingException(errorBuffer.toString());
             }
         } else {
@@ -181,31 +198,27 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
             if (enableForwarding && user.getForwarding()) {
                 MailAddress forwardTo = user.getForwardingDestination();
                 if (forwardTo == null) {
-                    StringBuffer errorBuffer =
-                        new StringBuffer(128)
+                    StringBuffer errorBuffer = new StringBuffer(128)
                             .append("Forwarding was enabled for ")
                             .append(username)
-                            .append(" but no forwarding address was set for this account.");
+                            .append(
+                                    " but no forwarding address was set for this account.");
                     throw new MessagingException(errorBuffer.toString());
                 }
                 Collection recipients = new HashSet();
                 recipients.add(forwardTo);
                 try {
                     getMailetContext().sendMail(sender, recipients, message);
-                    StringBuffer logBuffer =
-                      new StringBuffer(128)
-                              .append("Mail for ")
-                              .append(username)
-                              .append(" forwarded to ")
-                              .append(forwardTo.toString());
+                    StringBuffer logBuffer = new StringBuffer(128).append(
+                            "Mail for ").append(username).append(
+                            " forwarded to ").append(forwardTo.toString());
                     getMailetContext().log(logBuffer.toString());
                     return null;
                 } catch (MessagingException me) {
-                    StringBuffer logBuffer =
-                      new StringBuffer(128)
-                              .append("Error forwarding mail to ")
-                              .append(forwardTo.toString())
-                              .append("attempting local delivery");
+                    StringBuffer logBuffer = new StringBuffer(128).append(
+                            "Error forwarding mail to ").append(
+                            forwardTo.toString()).append(
+                            "attempting local delivery");
                     getMailetContext().log(logBuffer.toString());
                     throw me;
                 }
@@ -213,48 +226,51 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         }
         return username;
     }
-    
 
     /**
      * @see org.apache.mailet.GenericMailet#init()
      */
     public void init() throws MessagingException {
-            super.init();
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        super.init();
+        ServiceManager compMgr = (ServiceManager) getMailetContext()
+                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
         UsersStore usersStore;
         try {
             usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
-            usersRepository = usersStore.getRepository(repositoryName);
 
             String enAliases = getInitParameter("enableAliases");
             String enForward = getInitParameter("enableForwarding");
             String userRep = getInitParameter("usersRepository");
-            
-            if (enAliases == null || enAliases.length()==0) {
+
+            if (enAliases == null || enAliases.length() == 0) {
                 enableAliases = false;
-            } else enableAliases = new Boolean(enAliases).booleanValue();
-            
-            if (enForward == null || enForward.length()==0) {
+            } else
+                enableAliases = new Boolean(enAliases).booleanValue();
+
+            if (enForward == null || enForward.length() == 0) {
                 enableForwarding = false;
-            } else enableForwarding = new Boolean(enForward).booleanValue();
-            
-            if (userRep == null || userRep.length()==0) {
+            } else
+                enableForwarding = new Boolean(enForward).booleanValue();
+
+            if (userRep == null || userRep.length() == 0) {
                 try {
-                                usersRepository = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
-                            } catch (ServiceException e) {
-                    log("Failed to retrieve UsersRepository component:" + e.getMessage());
-                            }
+                    usersRepository = (UsersRepository) compMgr
+                            .lookup(UsersRepository.ROLE);
+                } catch (ServiceException e) {
+                    log("Failed to retrieve UsersRepository component:"
+                            + e.getMessage());
+                }
             } else {
                 usersRepository = usersStore.getRepository(userRep);
             }
-            
-            ignoreCase = ((Boolean) getMailetContext().getAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE)).booleanValue();
-        } catch (ServiceException cnfe) {
-          log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
-      }
 
-            
+            ignoreCase = ((Boolean) getMailetContext().getAttribute(
+                    Constants.DEFAULT_IGNORE_USERNAME_CASE)).booleanValue();
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
+        }
+
     }
 
 }

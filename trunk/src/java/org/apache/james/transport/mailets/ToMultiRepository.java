@@ -17,6 +17,8 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
@@ -42,66 +44,123 @@ import java.util.Iterator;
 import java.util.Vector;
 
 /**
- * Receives a Mail from JamesSpoolManager and takes care of delivery
- * of the message to local inboxes.
+ * Receives a Mail from JamesSpoolManager and takes care of delivery of the
+ * message to local inboxes or a specific repository.
  * 
- * Differently from LocalDelivery this does not lookup the UserRepository
- * This simply store the message in a repository named like the local part
- * of the recipient address.
+ * Differently from LocalDelivery this does not lookup the UserRepository This
+ * simply store the message in a repository named like the local part of the
+ * recipient address.
+ * 
+ * If no repository is specified then this fallback to MailServer.getUserInbox.
+ * Otherwise you can add your own configuration for the repository
+ * 
+ * e.g: <repositoryUrl>file://var/spool/userspools/</repositoryUrl>
+ * <repositoryType>SPOOL</repositoryType>
+ * 
+ * <repositoryUrl>file://var/mail/inboxes/</repositoryUrl> <repositoryType>MAIL</repositoryType>
+ * 
+ * Header "Delivered-To" can be added to every message adding the
+ * <addDeliveryHeader>Delivered-To</addDeliveryHeader>
+ * 
  */
 public class ToMultiRepository extends GenericMailet {
     /**
-     * The number of mails generated.  Access needs to be synchronized for
-     * thread safety and to ensure that all threads see the latest value.
+     * The number of mails generated. Access needs to be synchronized for thread
+     * safety and to ensure that all threads see the latest value.
      */
     private static long count;
-  
+
     /**
      * The mailserver reference
      */
     private MailServer mailServer;
 
     /**
+     * The mailstore
+     */
+    private Store store;
+
+    /**
+     * The optional repositoryUrl
+     */
+    private String repositoryUrl;
+
+    /**
+     * The optional repositoryType
+     */
+    private String repositoryType;
+
+    /**
+     * The delivery header
+     */
+    private String deliveryHeader;
+
+    /**
+     * resetReturnPath
+     */
+    private boolean resetReturnPath;
+
+    /**
      * Delivers a mail to a local mailbox.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while storing the mail
+     * 
+     * @param mail
+     *            the mail being processed
+     * 
+     * @throws MessagingException
+     *             if an error occurs while storing the mail
      */
     public void service(Mail mail) throws MessagingException {
         Collection recipients = mail.getRecipients();
         Collection errors = new Vector();
 
-        MimeMessage message = mail.getMessage();
-
-        // Set Return-Path and remove all other Return-Path headers from the message
-        // This only works because there is a placeholder inserted by MimeMessageWrapper
-        message.setHeader(RFC2822Headers.RETURN_PATH, (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">"));
-
-        // Copy any Delivered-To headers from the message
-        InternetHeaders deliveredTo = new InternetHeaders();
-        Enumeration headers = message.getMatchingHeaders(new String[] {"Delivered-To"});
-        while (headers.hasMoreElements()) {
-            Header header = (Header) headers.nextElement();
-            deliveredTo.addHeader(header.getName(), header.getValue());
+        MimeMessage message = null;
+        if (deliveryHeader != null || resetReturnPath) {
+            message = mail.getMessage();
         }
 
-        for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+        if (resetReturnPath) {
+            // Set Return-Path and remove all other Return-Path headers from the
+            // message
+            // This only works because there is a placeholder inserted by
+            // MimeMessageWrapper
+            message.setHeader(RFC2822Headers.RETURN_PATH,
+                    (mail.getSender() == null ? "<>" : "<" + mail.getSender()
+                            + ">"));
+        }
+
+        Enumeration headers;
+        InternetHeaders deliveredTo = new InternetHeaders();
+        if (deliveryHeader != null) {
+            // Copy any Delivered-To headers from the message
+            headers = message
+                    .getMatchingHeaders(new String[] { deliveryHeader });
+            while (headers.hasMoreElements()) {
+                Header header = (Header) headers.nextElement();
+                deliveredTo.addHeader(header.getName(), header.getValue());
+            }
+        }
+
+        for (Iterator i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                // Add qmail's de facto standard Delivered-To header
-                message.addHeader("Delivered-To", recipient.toString());
+                if (deliveryHeader != null) {
+                    // Add qmail's de facto standard Delivered-To header
+                    message.addHeader(deliveryHeader, recipient.toString());
+                }
 
                 storeMail(mail.getSender(), recipient, message);
 
-                if (i.hasNext()) {
-                    // Remove headers but leave all placeholders
-                    message.removeHeader("Delivered-To");
-                    headers = deliveredTo.getAllHeaders();
-                    // And restore any original Delivered-To headers
-                    while (headers.hasMoreElements()) {
-                        Header header = (Header) headers.nextElement();
-                        message.addHeader(header.getName(), header.getValue());
+                if (deliveryHeader != null) {
+                    if (i.hasNext()) {
+                        // Remove headers but leave all placeholders
+                        message.removeHeader(deliveryHeader);
+                        headers = deliveredTo.getAllHeaders();
+                        // And restore any original Delivered-To headers
+                        while (headers.hasMoreElements()) {
+                            Header header = (Header) headers.nextElement();
+                            message.addHeader(header.getName(), header
+                                    .getValue());
+                        }
                     }
                 }
             } catch (Exception ex) {
@@ -111,27 +170,28 @@ public class ToMultiRepository extends GenericMailet {
         }
 
         if (!errors.isEmpty()) {
-            // If there were errors, we redirect the email to the ERROR processor.
-            // In order for this server to meet the requirements of the SMTP specification,
-            // mails on the ERROR processor must be returned to the sender.  Note that this
-            // email doesn't include any details regarding the details of the failure(s).
+            // If there were errors, we redirect the email to the ERROR
+            // processor.
+            // In order for this server to meet the requirements of the SMTP
+            // specification, mails on the ERROR processor must be returned to
+            // the sender. Note that this email doesn't include any details
+            // regarding the details of the failure(s).
             // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(),
-                                        errors, message, Mail.ERROR);
+            getMailetContext().sendMail(mail.getSender(), errors, message,
+                    Mail.ERROR);
         }
-        //We always consume this message
+        // We always consume this message
         mail.setState(Mail.GHOST);
     }
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
-        return "Local Delivery Mailet";
+        return "ToMultiRepository Mailet";
     }
-
 
     /**
      * 
@@ -140,36 +200,35 @@ public class ToMultiRepository extends GenericMailet {
      * @param message
      * @throws MessagingException
      */
-    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage message)
-        throws MessagingException {
+    public void storeMail(MailAddress sender, MailAddress recipient,
+            MimeMessage message) throws MessagingException {
         String username;
         if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
+            throw new IllegalArgumentException(
+                    "Recipient for mail to be spooled cannot be null.");
         }
         if (message == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
+            throw new IllegalArgumentException(
+                    "Mail message to be spooled cannot be null.");
         }
         username = recipient.getUser();
 
         Collection recipients = new HashSet();
         recipients.add(recipient);
         MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
-        MailRepository userInbox = mailServer.getUserInbox(username);
+        MailRepository userInbox = getRepository(username);
         if (userInbox == null) {
-            StringBuffer errorBuffer =
-                new StringBuffer(128)
-                    .append("The inbox for user ")
-                    .append(username)
-                    .append(" was not found on this server.");
+            StringBuffer errorBuffer = new StringBuffer(128).append(
+                    "The repository for user ").append(username).append(
+                    " was not found on this server.");
             throw new MessagingException(errorBuffer.toString());
         }
         userInbox.store(mailImpl);
     }
-    
 
     /**
      * Return a new mail id.
-     *
+     * 
      * @return a new mail id
      */
     public String getId() {
@@ -177,12 +236,8 @@ public class ToMultiRepository extends GenericMailet {
         synchronized (James.class) {
             localCount = count++;
         }
-        StringBuffer idBuffer =
-            new StringBuffer(64)
-                    .append("Mail")
-                    .append(System.currentTimeMillis())
-                    .append("-")
-                    .append(localCount);
+        StringBuffer idBuffer = new StringBuffer(64).append("Mail").append(
+                System.currentTimeMillis()).append("-").append(localCount);
         return idBuffer.toString();
     }
 
@@ -190,18 +245,68 @@ public class ToMultiRepository extends GenericMailet {
      * @see org.apache.mailet.GenericMailet#init()
      */
     public void init() throws MessagingException {
-            super.init();
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        super.init();
+        ServiceManager compMgr = (ServiceManager) getMailetContext()
+                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
 
         try {
             // Instantiate the a MailRepository for outgoing mails
             mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
         } catch (ServiceException cnfe) {
+            log("Failed to retrieve MailServer component:" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve MailServer component:" + e.getMessage());
+        }
+
+        try {
+            // Instantiate the a MailRepository for outgoing mails
+            store = (Store) compMgr.lookup(Store.ROLE);
+        } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
-            
+
+        repositoryUrl = getInitParameter("repositoryUrl");
+        if (repositoryUrl != null) {
+            repositoryType = getInitParameter("repositoryType");
+            if (repositoryType == null)
+                repositoryType = "MAIL";
+        }
+
+        deliveryHeader = getInitParameter("addDeliveryHeader");
+        String resetReturnPathString = getInitParameter("resetReturnPath");
+        resetReturnPath = "true".equalsIgnoreCase(resetReturnPathString);
+    }
+
+    /**
+     * Get the user inbox: if the repositoryUrl is null then get the userinbox
+     * from the mailserver, otherwise lookup the store with the given 
+     * repositoryurl/type
+     *   
+     * @param userName
+     * @return
+     */
+    private MailRepository getRepository(String userName) {
+        MailRepository userInbox;
+        if (repositoryUrl == null) {
+            userInbox = mailServer.getUserInbox(userName);
+        } else {
+            StringBuffer destinationBuffer = new StringBuffer(192).append(
+                    repositoryUrl).append(userName).append("/");
+            String destination = destinationBuffer.toString();
+            DefaultConfiguration mboxConf = new DefaultConfiguration(
+                    "repository", "generated:ToMultiRepository.getUserInbox()");
+            mboxConf.setAttribute("destinationURL", destination);
+            mboxConf.setAttribute("type", repositoryType);
+            try {
+                userInbox = (MailRepository) store.select(mboxConf);
+            } catch (Exception e) {
+                log("Cannot open repository " + e);
+                userInbox = null;
+            }
+        }
+        return userInbox;
     }
 
 }

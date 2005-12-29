@@ -17,15 +17,25 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MailetContext;
 
 import javax.mail.MessagingException;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
 /**
- * Receives a Mail from JamesSpoolManager and takes care of delivery
- * of the message to local inboxes.
- *
+ * Receives a Mail from JamesSpoolManager and takes care of delivery of the
+ * message to local inboxes.
+ * 
+ * Since James 2.3.0 this mailet is a composition of
+ * UserRepositoryAliasingForwarding and ToMultiRepository
+ * configurated to mimic the old "LocalDelivery" behaviour.
  */
 public class LocalDelivery extends GenericMailet {
 
@@ -33,7 +43,7 @@ public class LocalDelivery extends GenericMailet {
      * Mailet that apply aliasing and forwarding
      */
     private UsersRepositoryAliasingForwarding aliasingMailet;
-    
+
     /**
      * Mailet that actually store the message
      */
@@ -41,10 +51,12 @@ public class LocalDelivery extends GenericMailet {
 
     /**
      * Delivers a mail to a local mailbox.
-     *
-     * @param mail the mail being processed
-     *
-     * @throws MessagingException if an error occurs while storing the mail
+     * 
+     * @param mail
+     *            the mail being processed
+     * 
+     * @throws MessagingException
+     *             if an error occurs while storing the mail
      */
     public void service(Mail mail) throws MessagingException {
         aliasingMailet.service(mail);
@@ -55,7 +67,7 @@ public class LocalDelivery extends GenericMailet {
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
@@ -70,7 +82,50 @@ public class LocalDelivery extends GenericMailet {
         aliasingMailet = new UsersRepositoryAliasingForwarding();
         aliasingMailet.init(getMailetConfig());
         deliveryMailet = new ToMultiRepository();
-        deliveryMailet.init(getMailetConfig());
+        MailetConfig m = new MailetConfig() {
+
+            /**
+             * @see org.apache.mailet.MailetConfig#getInitParameter(java.lang.String)
+             */
+            public String getInitParameter(String name) {
+                if (name == "addDeliveryHeader") {
+                    return "Delivered-To";
+                } else if (name == "resetReturnPath") {
+                    return "true";
+                } else {
+                    return getMailetConfig().getInitParameter(name);
+                }
+            }
+
+            /**
+             * @see org.apache.mailet.MailetConfig#getInitParameterNames()
+             */
+            public Iterator getInitParameterNames() {
+                IteratorChain c = new IteratorChain();
+                Collection h = new ArrayList();
+                h.add("addDeliveryHeader");
+                h.add("resetReturnPath");
+                c.addIterator(getMailetConfig().getInitParameterNames());
+                c.addIterator(h.iterator());
+                return c;
+            }
+
+            /**
+             * @see org.apache.mailet.MailetConfig#getMailetContext()
+             */
+            public MailetContext getMailetContext() {
+                return getMailetConfig().getMailetContext();
+            }
+
+            /**
+             * @see org.apache.mailet.MailetConfig#getMailetName()
+             */
+            public String getMailetName() {
+                return getMailetConfig().getMailetName();
+            }
+
+        };
+        deliveryMailet.init(m);
     }
 
 }
