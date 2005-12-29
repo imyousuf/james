@@ -298,9 +298,13 @@ public class RemoteManagerHandler
             }
 
             try {
+                out.print(theConfigData.getPrompt());
+                out.flush();
                 theWatchdog.start();
                 while (parseCommand(in.readLine())) {
                     theWatchdog.reset();
+                    out.print(theConfigData.getPrompt());
+                    out.flush();
                 }
                 theWatchdog.stop();
             } catch (IOException ioe) {

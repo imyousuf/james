@@ -577,6 +577,10 @@
             <account login="root" password="root"/>
          </administrator_accounts>
          <connectiontimeout> 60000 </connectiontimeout>
+         <!-- The prompt directive adds a prompt to every output from RemoteManager -->
+         <!-- 
+         <prompt>james&gt;</prompt>
+         -->
       </handler>
    </remotemanager>
 
