@@ -1024,10 +1024,10 @@ public class POP3Handler
     public void writeMessageContentTo(MimeMessage message, OutputStream out, int lines)
         throws IOException, MessagingException {
         String line;
-        BufferedReader br = null;
+        BufferedReader br;
         if (message != null) {
+            br = new BufferedReader(new InputStreamReader(message.getInputStream()));
             try {
-                br = new BufferedReader(new InputStreamReader(message.getInputStream()));
                 while (lines-- > 0) {
                     if ((line = br.readLine()) == null) {
                         break;
@@ -1036,9 +1036,7 @@ public class POP3Handler
                     out.write(line.getBytes());
                 }
             } finally {
-                if (br != null) {
-                    br.close();
-                }
+                br.close();
             }
         } else {
             throw new MessagingException("No message set for this MailImpl.");
