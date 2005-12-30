@@ -17,7 +17,7 @@
 
 package org.apache.james.services;
 
-import org.apache.james.core.MailImpl;
+import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
 
@@ -43,7 +43,7 @@ public interface MailRepository {
      *
      * @param mc the mail message to store
      */
-    void store(MailImpl mc) throws MessagingException;
+    void store(Mail mc) throws MessagingException;
 
     /**
      * List string keys of messages in repository.
@@ -60,14 +60,14 @@ public interface MailRepository {
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    MailImpl retrieve(String key) throws MessagingException;
+    Mail retrieve(String key) throws MessagingException;
 
     /**
      * Removes a specified message
      *
      * @param mail the message to be removed from the repository
      */
-    void remove(MailImpl mail) throws MessagingException;
+    void remove(Mail mail) throws MessagingException;
 
     /**
      * Remove an Collection of mails from the repository

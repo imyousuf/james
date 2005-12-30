@@ -26,7 +26,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -121,7 +120,7 @@ public class MailStoreSpoolRepository
     /**
      * @see org.apache.james.services.MailRepository#store(org.apache.james.core.MailImpl)
      */
-    public void store(MailImpl mc) throws MessagingException {
+    public void store(Mail mc) throws MessagingException {
         spoolRep.store(mc);
     }
 
@@ -135,14 +134,14 @@ public class MailStoreSpoolRepository
     /**
      * @see org.apache.james.services.MailRepository#retrieve(java.lang.String)
      */
-    public MailImpl retrieve(String key) throws MessagingException {
+    public Mail retrieve(String key) throws MessagingException {
         return spoolRep.retrieve(key);
     }
 
     /**
      * @see org.apache.james.services.MailRepository#remove(org.apache.james.core.MailImpl)
      */
-    public void remove(MailImpl mail) throws MessagingException {
+    public void remove(Mail mail) throws MessagingException {
         spoolRep.remove(mail);
     }
 

@@ -18,11 +18,10 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -86,8 +85,7 @@ public class ToRepository extends GenericMailet {
      *
      * @param mail the mail to process
      */
-    public void service(Mail genericmail) throws javax.mail.MessagingException {
-        MailImpl mail = (MailImpl)genericmail;
+    public void service(Mail mail) throws javax.mail.MessagingException {
         StringBuffer logBuffer =
             new StringBuffer(160)
                     .append("Storing mail ")

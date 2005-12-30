@@ -19,24 +19,20 @@ package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
-
-import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
@@ -46,9 +42,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
@@ -136,6 +131,36 @@ public class MailImpl implements Disposable, Mail {
             while (theIterator.hasNext()) {
                 this.recipients.add(theIterator.next());
             }
+        }
+    }
+    
+    /**
+     * @param mail
+     * @param newName
+     * @throws MessagingException
+     */
+    public MailImpl(Mail mail, String newName) throws MessagingException {
+        this(newName, mail.getSender(), mail.getRecipients(), mail.getMessage());
+        setRemoteHost(mail.getRemoteHost());
+        setRemoteAddr(mail.getRemoteAddr());
+        setLastUpdated(mail.getLastUpdated());
+        try {
+            if (mail instanceof MailImpl) {
+                setAttributesRaw((HashMap) cloneSerializableObject(((MailImpl) mail).getAttributesRaw()));
+            } else {
+                HashMap attribs = new HashMap();
+                for (Iterator i = mail.getAttributeNames(); i.hasNext(); ) {
+                    String hashKey = (String) i.next();
+                    attribs.put(hashKey,cloneSerializableObject(mail.getAttribute(hashKey)));
+                }
+                setAttributesRaw(attribs);
+            }
+        } catch (IOException e) {
+            // should never happen for in memory streams
+            setAttributesRaw(new HashMap());
+        } catch (ClassNotFoundException e) {
+            // should never happen as we just serialized it
+            setAttributesRaw(new HashMap());
         }
     }
 
@@ -242,20 +267,7 @@ public class MailImpl implements Disposable, Mail {
      */
     public Mail duplicate(String newName) {
         try {
-            MailImpl newMail = new MailImpl(newName, sender, recipients, getMessage());
-            newMail.setRemoteHost(remoteHost);
-            newMail.setRemoteAddr(remoteAddr);
-            newMail.setLastUpdated(lastUpdated);
-            try {
-                newMail.setAttributesRaw((HashMap) cloneSerializableObject(attributes));
-            } catch (IOException e) {
-                // should never happen for in memory streams
-                newMail.setAttributesRaw(new HashMap());
-            } catch (ClassNotFoundException e) {
-                // should never happen as we just serialized it
-                newMail.setAttributesRaw(new HashMap());
-            }
-            return newMail;
+            return new MailImpl(this, newName);
         } catch (MessagingException me) {
             // Ignored.  Return null in the case of an error.
         }
@@ -450,61 +462,6 @@ public class MailImpl implements Disposable, Mail {
     public void writeMessageTo(OutputStream out) throws IOException, MessagingException {
         if (message != null) {
             message.writeTo(out);
-        } else {
-            throw new MessagingException("No message set for this MailImpl.");
-        }
-    }
-    /**
-     * Generates a bounce mail that is a bounce of the original message.
-     *
-     * @param bounceText the text to be prepended to the message to describe the bounce condition
-     *
-     * @return the bounce mail
-     *
-     * @throws MessagingException if the bounce mail could not be created
-     */
-    public Mail bounce(String bounceText) throws MessagingException {
-        //This sends a message to the james component that is a bounce of the sent message
-        MimeMessage original = getMessage();
-        MimeMessage reply = (MimeMessage) original.reply(false);
-        reply.setSubject("Re: " + original.getSubject());
-        reply.setSentDate(new Date());
-        Collection recipients = new HashSet();
-        recipients.add(getSender());
-        InternetAddress addr[] = { new InternetAddress(getSender().toString())};
-        reply.setRecipients(Message.RecipientType.TO, addr);
-        reply.setFrom(new InternetAddress(getRecipients().iterator().next().toString()));
-        reply.setText(bounceText);
-        reply.setHeader(RFC2822Headers.MESSAGE_ID, "replyTo-" + getName());
-        return new MailImpl(
-            "replyTo-" + getName(),
-            new MailAddress(getRecipients().iterator().next().toString()),
-            recipients,
-            reply);
-    }
-    /**
-     * Writes the content of the message, up to a total number of lines, out to 
-     * an OutputStream.
-     *
-     * @param out the OutputStream to which to write the content
-     * @param lines the number of lines to write to the stream
-     *
-     * @throws MessagingException if the MimeMessage is not set for this MailImpl
-     * @throws IOException if an error occurs while reading or writing from the stream
-     */
-    public void writeContentTo(OutputStream out, int lines)
-        throws IOException, MessagingException {
-        String line;
-        BufferedReader br;
-        if (message != null) {
-            br = new BufferedReader(new InputStreamReader(message.getInputStream()));
-            while (lines-- > 0) {
-                if ((line = br.readLine()) == null) {
-                    break;
-                }
-                line += "\r\n";
-                out.write(line.getBytes());
-            }
         } else {
             throw new MessagingException("No message set for this MailImpl.");
         }

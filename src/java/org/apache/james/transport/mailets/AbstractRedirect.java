@@ -463,7 +463,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected void setRecipients(Mail newMail, Collection recipients, Mail originalMail) throws MessagingException {
         if (recipients != null) {
-            ((MailImpl) newMail).setRecipients(recipients);
+            newMail.setRecipients(recipients);
             if (isDebug) {
                 log("recipients set to: " + arrayToString(recipients.toArray()));
             }
@@ -703,12 +703,12 @@ public abstract class AbstractRedirect extends GenericMailet {
      * If the requested value is null does nothing.
      * Is a "setX(Mail, Tx, Mail)" method.
      */
-    protected void setReversePath(Mail newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
+    protected void setReversePath(MailImpl newMail, MailAddress reversePath, Mail originalMail) throws MessagingException {
         if(reversePath != null) {
             if (reversePath == SpecialAddress.NULL) {
                 reversePath = null;
             }
-            ((MailImpl) newMail).setSender(reversePath);
+            newMail.setSender(reversePath);
             if (isDebug) {
                 log("reversePath set to: " + reversePath);
             }
@@ -1003,28 +1003,27 @@ public abstract class AbstractRedirect extends GenericMailet {
         boolean keepMessageId = false;
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        Mail newMail = ((MailImpl) originalMail).duplicate(newName((MailImpl) originalMail));
+        MailImpl newMail = new MailImpl(originalMail,newName(originalMail));
         // We don't need to use the original Remote Address and Host,
         // and doing so would likely cause a loop with spam detecting
         // matchers.
         try {
-            ((MailImpl) newMail).setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
-            ((MailImpl) newMail).setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
+            newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
+            newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
         } catch (java.net.UnknownHostException _) {
-            ((MailImpl) newMail).setRemoteAddr("127.0.0.1");
-            ((MailImpl) newMail).setRemoteHost("localhost");
+            newMail.setRemoteAddr("127.0.0.1");
+            newMail.setRemoteHost("localhost");
         }
 
         if (isDebug) {
-            MailImpl newMailImpl = (MailImpl) newMail;
-            log("New mail - sender: " + newMailImpl.getSender()
-                       + ", recipients: " + arrayToString(newMailImpl.getRecipients().toArray())
-                       + ", name: " + newMailImpl.getName()
-                       + ", remoteHost: " + newMailImpl.getRemoteHost()
-                       + ", remoteAddr: " + newMailImpl.getRemoteAddr()
-                       + ", state: " + newMailImpl.getState()
-                       + ", lastUpdated: " + newMailImpl.getLastUpdated()
-                       + ", errorMessage: " + newMailImpl.getErrorMessage());
+            log("New mail - sender: " + newMail.getSender()
+                       + ", recipients: " + arrayToString(newMail.getRecipients().toArray())
+                       + ", name: " + newMail.getName()
+                       + ", remoteHost: " + newMail.getRemoteHost()
+                       + ", remoteAddr: " + newMail.getRemoteAddr()
+                       + ", state: " + newMail.getState()
+                       + ", lastUpdated: " + newMail.getLastUpdated()
+                       + ", errorMessage: " + newMail.getErrorMessage());
         }
 
         //Create the message
@@ -1089,7 +1088,7 @@ public abstract class AbstractRedirect extends GenericMailet {
             StringBuffer logBuffer = new StringBuffer(256)
                                     .append(getMailetName())
                                     .append(" mailet cannot forward ")
-                                    .append(((MailImpl) originalMail).getName())
+                                    .append(originalMail.getName())
                                     .append(". Invalid sender domain for ")
                                     .append(newMail.getSender())
                                     .append(". Consider using the Resend mailet ")
@@ -1110,7 +1109,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @param mail the mail to use as the basis for the new mail name
      * @return a new name
      */
-    private String newName(MailImpl mail) throws MessagingException {
+    private String newName(Mail mail) throws MessagingException {
         String oldName = mail.getName();
         
         // Checking if the original mail name is too long, perhaps because of a
@@ -1212,60 +1211,60 @@ public abstract class AbstractRedirect extends GenericMailet {
         java.io.ByteArrayOutputStream bodyOs = new java.io.ByteArrayOutputStream();
 
         try {
-            // Get the message as a stream.  This will encode
-            // objects as necessary, and we have some overhead from
-            // decoding and re-encoding the stream.  I'd prefer the
-            // raw stream, but see the WARNING below.
-            bos = javax.mail.internet.MimeUtility.encode(bodyOs, message.getEncoding());
-            bis = message.getInputStream();
-        } catch(javax.activation.UnsupportedDataTypeException udte) {
-            /* If we get an UnsupportedDataTypeException try using
-             * the raw input stream as a "best attempt" at rendering
-             * a message.
-             *
-             * WARNING: JavaMail v1.3 getRawInputStream() returns
-             * INVALID (unchanged) content for a changed message.
-             * getInputStream() works properly, but in this case
-             * has failed due to a missing DataHandler.
-             *
-             * MimeMessage.getRawInputStream() may throw a "no
-             * content" MessagingException.  In JavaMail v1.3, when
-             * you initially create a message using MimeMessage
-             * APIs, there is no raw content available.
-             * getInputStream() works, but getRawInputStream()
-             * throws an exception.  If we catch that exception,
-             * throw the UDTE.  It should mean that someone has
-             * locally constructed a message part for which JavaMail
-             * doesn't have a DataHandler.
-             */
-
             try {
-                bis = message.getRawInputStream();
-                bos = bodyOs;
-            } catch(javax.mail.MessagingException _) {
-                throw udte;
+                // Get the message as a stream.  This will encode
+                // objects as necessary, and we have some overhead from
+                // decoding and re-encoding the stream.  I'd prefer the
+                // raw stream, but see the WARNING below.
+                bos = javax.mail.internet.MimeUtility.encode(bodyOs, message.getEncoding());
+                bis = message.getInputStream();
+            } catch(javax.activation.UnsupportedDataTypeException udte) {
+                /* If we get an UnsupportedDataTypeException try using
+                 * the raw input stream as a "best attempt" at rendering
+                 * a message.
+                 *
+                 * WARNING: JavaMail v1.3 getRawInputStream() returns
+                 * INVALID (unchanged) content for a changed message.
+                 * getInputStream() works properly, but in this case
+                 * has failed due to a missing DataHandler.
+                 *
+                 * MimeMessage.getRawInputStream() may throw a "no
+                 * content" MessagingException.  In JavaMail v1.3, when
+                 * you initially create a message using MimeMessage
+                 * APIs, there is no raw content available.
+                 * getInputStream() works, but getRawInputStream()
+                 * throws an exception.  If we catch that exception,
+                 * throw the UDTE.  It should mean that someone has
+                 * locally constructed a message part for which JavaMail
+                 * doesn't have a DataHandler.
+                 */
+    
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException _) {
+                    throw udte;
+                }
             }
-        }
-        catch(javax.mail.MessagingException me) {
-            /* This could be another kind of MessagingException
-             * thrown by MimeMessage.getInputStream(), such as a
-             * javax.mail.internet.ParseException.
-             *
-             * The ParseException is precisely one of the reasons
-             * why the getRawInputStream() method exists, so that we
-             * can continue to stream the content, even if we cannot
-             * handle it.  Again, if we get an exception, we throw
-             * the one that caused us to call getRawInputStream().
-             */
-            try {
-                bis = message.getRawInputStream();
-                bos = bodyOs;
-            } catch(javax.mail.MessagingException _) {
-                throw me;
+            catch(javax.mail.MessagingException me) {
+                /* This could be another kind of MessagingException
+                 * thrown by MimeMessage.getInputStream(), such as a
+                 * javax.mail.internet.ParseException.
+                 *
+                 * The ParseException is precisely one of the reasons
+                 * why the getRawInputStream() method exists, so that we
+                 * can continue to stream the content, even if we cannot
+                 * handle it.  Again, if we get an exception, we throw
+                 * the one that caused us to call getRawInputStream().
+                 */
+                try {
+                    bis = message.getRawInputStream();
+                    bos = bodyOs;
+                } catch(javax.mail.MessagingException _) {
+                    throw me;
+                }
             }
-        }
 
-        try {
             byte[] block = new byte[1024];
             int read = 0;
             while ((read = bis.read(block)) > -1) {

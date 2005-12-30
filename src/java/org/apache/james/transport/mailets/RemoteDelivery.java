@@ -17,24 +17,27 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.ArrayList;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.services.SpoolRepository;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.HostAddress;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+
+import com.sun.mail.smtp.SMTPAddressFailedException;
+import com.sun.mail.smtp.SMTPAddressSucceededException;
+import com.sun.mail.smtp.SMTPSendFailedException;
+import com.sun.mail.smtp.SMTPTransport;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -47,29 +50,24 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 import javax.mail.internet.ParseException;
 
-import com.sun.mail.smtp.SMTPSendFailedException;
-import com.sun.mail.smtp.SMTPAddressFailedException;
-import com.sun.mail.smtp.SMTPAddressSucceededException;
-import com.sun.mail.smtp.SMTPTransport;
-
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.MailetContext;
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.HostAddress;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.MatchResult;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 
 /**
@@ -402,7 +400,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param session javax.mail.Session
      * @return boolean Whether the delivery was successful and the message can be deleted
      */
-    private boolean deliver(MailImpl mail, Session session) {
+    private boolean deliver(Mail mail, Session session) {
         try {
             if (isDebug) {
                 log("Attempting to deliver " + mail.getName());
@@ -791,7 +789,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param boolean permanent
      * @return boolean Whether the message failed fully and can be deleted
      */
-    private boolean failMessage(MailImpl mail, MessagingException ex, boolean permanent) {
+    private boolean failMessage(Mail mail, MessagingException ex, boolean permanent) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         if (permanent) {
@@ -864,7 +862,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return true;
     }
 
-    private void bounce(MailImpl mail, MessagingException ex) {
+    private void bounce(Mail mail, MessagingException ex) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
@@ -930,9 +928,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      *
      * @param mail org.apache.mailet.Mail
      */
-    public void service(Mail genericmail) throws MessagingException{
-        MailImpl mail = (MailImpl)genericmail;
-
+    public void service(Mail mail) throws MessagingException{
         // Do I want to give the internal key, or the message's Message ID
         if (isDebug) {
             log("Remotely delivering mail " + mail.getName());
@@ -1073,7 +1069,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         try {
             while (!Thread.currentThread().interrupted() && !destroyed) {
                 try {
-                    MailImpl mail = (MailImpl)outgoing.accept(delayFilter);
+                    Mail mail = (Mail)outgoing.accept(delayFilter);
                     String key = mail.getName();
                     try {
                         if (isDebug) {

@@ -20,6 +20,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -36,6 +37,20 @@ public interface Mail extends Serializable, Cloneable {
     String DEFAULT = "root";
     String ERROR = "error";
     String TRANSPORT = "transport";
+    /**
+     * Returns the message name of this message
+     * 
+     * @return the message name
+     * @since Mailet API v2.3
+     */
+    String getName();
+    /**
+     * Set the message name of this message
+     * 
+     * @param newName new name
+     * @since Mailet API v2.3
+     */
+    void setName(String newName);
     /**
      * Returns the MimeMessage stored in this message
      *
@@ -170,4 +185,19 @@ public interface Mail extends Serializable, Cloneable {
      * @since Mailet API v2.1
      */
     Serializable setAttribute(String name, Serializable object);
+    /**
+     * @return message size
+     * @since Mailet API v2.3
+     */
+    long getMessageSize() throws MessagingException;
+    /**
+     * @return the last update date
+     * @since Mailet API v2.3
+     */
+    Date getLastUpdated();
+    /**
+     * @param lastUpdated the new last updated date
+     * @since Mailet API v2.3
+     */
+    void setLastUpdated(Date lastUpdated);
 }

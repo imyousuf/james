@@ -197,7 +197,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
                 
                 if (shouldProcess && lock(next.key)) {
                     try {
-                        MailImpl mail = retrieve(next.key);
+                        Mail mail = retrieve(next.key);
                         // Retrieve can return null if the mail is no longer on the spool
                         // (i.e. another thread has gotten to it first).
                         // In this case we simply continue to the next key

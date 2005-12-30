@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,7 +17,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -26,6 +25,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
+
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -59,7 +59,7 @@ public class AddFooter extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         try {
             MimeMessage message = mail.getMessage();
-//            log("Trying to add footer to mail " + ((MailImpl)mail).getName());
+//            log("Trying to add footer to mail " + mail.getName());
             if (attachFooter(message)) {
                 message.saveChanges();
 //                log("Message after saving: " + message.getContent().toString());
@@ -91,7 +91,7 @@ public class AddFooter extends GenericMailet {
                 log("Message from stream: " + bodyOs.toString());
                 */
             } else {
-                log("Unable to add footer to mail " + ((MailImpl)mail).getName());
+                log("Unable to add footer to mail " + mail.getName());
             }
         } catch (IOException ioe) {
             throw new MessagingException("Could not read message", ioe);

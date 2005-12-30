@@ -50,8 +50,10 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.Address;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -61,6 +63,7 @@ import java.io.SequenceInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -478,12 +481,11 @@ public class James
      *                            on the spool
      */
     public void sendMail(Mail mail) throws MessagingException {
-        MailImpl mailimpl = (MailImpl)mail;
         try {
-            spool.store(mailimpl);
+            spool.store(mail);
         } catch (Exception e) {
             try {
-                spool.remove(mailimpl);
+                spool.remove(mail);
             } catch (Exception ignored) {
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
@@ -492,7 +494,7 @@ public class James
             StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Mail ")
-                        .append(mailimpl.getName())
+                        .append(mail.getName())
                         .append(" pushed in spool");
             getLogger().debug(logBuffer.toString());
         }
@@ -665,13 +667,42 @@ public class James
                 getLogger().info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
         }
 
-        Mail reply = ((MailImpl) mail).bounce(message);
+        MailImpl reply = rawBounce(mail,message);
         //Change the sender...
         reply.getMessage().setFrom(bouncer.toInternetAddress());
         reply.getMessage().saveChanges();
         //Send it off ... with null reverse-path
-        ((MailImpl)reply).setSender(null);
+        reply.setSender(null);
         sendMail(reply);
+    }
+
+    /**
+     * Generates a bounce mail that is a bounce of the original message.
+     *
+     * @param bounceText the text to be prepended to the message to describe the bounce condition
+     *
+     * @return the bounce mail
+     *
+     * @throws MessagingException if the bounce mail could not be created
+     */
+    private MailImpl rawBounce(Mail mail, String bounceText) throws MessagingException {
+        //This sends a message to the james component that is a bounce of the sent message
+        MimeMessage original = mail.getMessage();
+        MimeMessage reply = (MimeMessage) original.reply(false);
+        reply.setSubject("Re: " + original.getSubject());
+        reply.setSentDate(new Date());
+        Collection recipients = new HashSet();
+        recipients.add(mail.getSender());
+        InternetAddress addr[] = { new InternetAddress(mail.getSender().toString())};
+        reply.setRecipients(Message.RecipientType.TO, addr);
+        reply.setFrom(new InternetAddress(mail.getRecipients().iterator().next().toString()));
+        reply.setText(bounceText);
+        reply.setHeader(RFC2822Headers.MESSAGE_ID, "replyTo-" + mail.getName());
+        return new MailImpl(
+            "replyTo-" + mail.getName(),
+            new MailAddress(mail.getRecipients().iterator().next().toString()),
+            recipients,
+            reply);
     }
 
     /**

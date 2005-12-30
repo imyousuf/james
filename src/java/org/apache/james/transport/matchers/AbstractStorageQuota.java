@@ -17,24 +17,21 @@
 
 package org.apache.james.transport.matchers;
 
-import java.util.Iterator;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-
-
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.MailRepository;
-import org.apache.james.services.UsersStore;
-import org.apache.james.services.UsersRepository;
 import org.apache.james.services.JamesUser;
-
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 
 import javax.mail.MessagingException;
+
+import java.util.Iterator;
 
 /**
  * <P>Abstract matcher checking whether a recipient has exceeded a maximum allowed
@@ -101,7 +98,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         MailRepository userInbox = mailServer.getUserInbox(getPrimaryName(recipient.getUser()));
         for (Iterator it = userInbox.list(); it.hasNext(); ) {
             String key = (String) it.next();
-            MailImpl mc = userInbox.retrieve(key);
+            Mail mc = userInbox.retrieve(key);
             // Retrieve can return null if the mail is no longer in the store.
             if (mc != null) try {
                 size += mc.getMessageSize();

@@ -19,15 +19,15 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
 
@@ -113,7 +113,7 @@ public class SMTPHandler
     /**
      * The MailImpl object set by the DATA command
      */
-    private MailImpl mail = null;
+    private Mail mail = null;
 
     /**
      * The session termination status
@@ -438,7 +438,9 @@ public class SMTPHandler
 
               //do the clean up
               if(mail != null) {
-                  mail.dispose();
+                  if (mail instanceof Disposable) {
+                      ((Disposable) mail).dispose();
+                  }
                   mail = null;
                   resetState();
 
@@ -604,7 +606,7 @@ public class SMTPHandler
      *
      * @param Mail the mail object
      */
-    public void sendMail(MailImpl mail) {
+    public void sendMail(Mail mail) {
         String responseString = null;
         try {
             setMail(mail);
@@ -699,9 +701,9 @@ public class SMTPHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setMail(MailImpl)
+     * @see org.apache.james.smtpserver.SMTPSession#setMail(Mail)
      */
-    public void setMail(MailImpl mail) {
+    public void setMail(Mail mail) {
         this.mail = mail;
         this.mode = MESSAGE_RECEIVED_MODE;
     }
