@@ -215,7 +215,7 @@ public class ToMultiRepository extends GenericMailet {
 
         Collection recipients = new HashSet();
         recipients.add(recipient);
-        MailImpl mailImpl = new MailImpl(getId(), sender, recipients, message);
+        Mail mail = new MailImpl(getId(), sender, recipients, message);
         MailRepository userInbox = getRepository(username);
         if (userInbox == null) {
             StringBuffer errorBuffer = new StringBuffer(128).append(
@@ -223,7 +223,7 @@ public class ToMultiRepository extends GenericMailet {
                     " was not found on this server.");
             throw new MessagingException(errorBuffer.toString());
         }
-        userInbox.store(mailImpl);
+        userInbox.store(mail);
     }
 
     /**

@@ -17,6 +17,27 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.Constants;
+import org.apache.james.core.MailImpl;
+import org.apache.james.util.mail.MimeMultipartReport;
+import org.apache.james.util.mail.dsn.DSNStatus;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.RFC2822Headers;
+import org.apache.mailet.dates.RFC822DateFormat;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
@@ -27,28 +48,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.james.core.MailImpl;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.dates.RFC822DateFormat;
-import org.apache.james.Constants;
-import org.apache.james.util.mail.MimeMultipartReport;
-import org.apache.james.util.mail.dsn.DSNStatus;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.MatchResult;
 
 
 
@@ -150,7 +149,7 @@ public class DSNBounce extends AbstractNotify {
 
 
         // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-        MailImpl newMail = (MailImpl) ((MailImpl) originalMail).duplicate(newName((MailImpl) originalMail));
+        MailImpl newMail = new MailImpl(originalMail,newName(originalMail));
         // We don't need to use the original Remote Address and Host,
         // and doing so would likely cause a loop with spam detecting
         // matchers.
@@ -388,7 +387,7 @@ public class DSNBounce extends AbstractNotify {
             
                 //optional: last attempt
                 out.println("Last-Attempt-Date: "+
-                            rfc822DateFormat.format(((MailImpl)originalMail).getLastUpdated()));
+                            rfc822DateFormat.format(originalMail.getLastUpdated()));
 
                 //optional: retry until
                 //only for 'delayed' reports .. but we don't report this (at least until now)
@@ -580,7 +579,7 @@ public class DSNBounce extends AbstractNotify {
      * @param mail the mail to use as the basis for the new mail name
      * @return a new name
      */
-    protected String newName(MailImpl mail) throws MessagingException {
+    protected String newName(Mail mail) throws MessagingException {
         String oldName = mail.getName();
 
         // Checking if the original mail name is too long, perhaps because of a

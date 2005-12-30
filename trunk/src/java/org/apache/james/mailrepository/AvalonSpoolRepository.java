@@ -17,7 +17,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -149,7 +148,7 @@ public class AvalonSpoolRepository
                         getLogger().debug("accept(Filter) has locked: " + s);
                     }
                     try {
-                        MailImpl mail = retrieve(s);
+                        Mail mail = retrieve(s);
                         // Retrieve can return null if the mail is no longer on the spool
                         // (i.e. another thread has gotten to it first).
                         // In this case we simply continue to the next key

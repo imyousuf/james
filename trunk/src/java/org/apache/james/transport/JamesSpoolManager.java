@@ -27,7 +27,6 @@ import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
@@ -294,7 +293,7 @@ public class JamesSpoolManager
         while(active) {
             String key = null;
             try {
-                MailImpl mail = (MailImpl)spool.accept();
+                Mail mail = (Mail)spool.accept();
                 key = mail.getName();
                 if (getLogger().isDebugEnabled()) {
                     StringBuffer debugBuffer =
@@ -363,7 +362,7 @@ public class JamesSpoolManager
      *
      * @param mail the mail message to be processed
      */
-    protected void process(MailImpl mail) {
+    protected void process(Mail mail) {
         while (true) {
             String processorName = mail.getState();
             if (processorName.equals(Mail.GHOST)) {

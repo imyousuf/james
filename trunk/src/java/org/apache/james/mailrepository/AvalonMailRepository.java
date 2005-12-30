@@ -21,18 +21,20 @@ import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.core.MailImpl;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
+import org.apache.mailet.Mail;
+
+import javax.mail.MessagingException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -41,8 +43,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.mail.MessagingException;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -241,7 +241,7 @@ public class AvalonMailRepository
      *
      * @param mc the mail message to store
      */
-    public void store(MailImpl mc) throws MessagingException {
+    public void store(Mail mc) throws MessagingException {
         try {
             String key = mc.getName();
             //Remember whether this key was locked
@@ -289,7 +289,7 @@ public class AvalonMailRepository
                     OutputStream out = null;
                     try {
                         out = sr.put(key);
-                        mc.writeMessageTo(out);
+                        mc.getMessage().writeTo(out);
                     } finally {
                         if (out != null) out.close();
                     }
@@ -328,14 +328,14 @@ public class AvalonMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public MailImpl retrieve(String key) throws MessagingException {
+    public Mail retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             getLogger().debug("Retrieving mail: " + key);
         }
         try {
-            MailImpl mc = null;
+            Mail mc = null;
             try {
-                mc = (MailImpl) or.get(key);
+                mc = (Mail) or.get(key);
             } 
             catch (RuntimeException re){
                 StringBuffer exceptionBuffer = new StringBuffer(128);
@@ -366,7 +366,7 @@ public class AvalonMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(MailImpl mail) throws MessagingException {
+    public void remove(Mail mail) throws MessagingException {
         remove(mail.getName());
     }
 
@@ -380,7 +380,7 @@ public class AvalonMailRepository
     public void remove(Collection mails) throws MessagingException {
         Iterator delList = mails.iterator();
         while (delList.hasNext()) {
-            remove((MailImpl)delList.next());
+            remove((Mail)delList.next());
         }
     }
 

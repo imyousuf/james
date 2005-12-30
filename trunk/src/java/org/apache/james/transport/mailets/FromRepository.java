@@ -18,14 +18,14 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+
 import javax.mail.MessagingException;
 
 import java.util.Iterator;
@@ -104,7 +104,7 @@ public class FromRepository extends GenericMailet {
         while (list.hasNext()) {
             String key = (String) list.next();
             try {
-                MailImpl mail =  repository.retrieve(key);
+                Mail mail =  repository.retrieve(key);
                 if (mail != null && mail.getRecipients() != null) {
                     log((new StringBuffer(160).append("Spooling mail ").append(mail.getName()).append(" from ").append(repositoryPath)).toString());
 

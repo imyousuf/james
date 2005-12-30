@@ -40,6 +40,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
 import org.apache.james.util.Lock;
 import org.apache.james.util.SqlResources;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
@@ -529,7 +530,7 @@ public class JDBCMailRepository
      * Store this message to the database.  Optionally stores the message
      * body to the filesystem and only writes the headers to the database.
      */
-    public void store(MailImpl mc) throws MessagingException {
+    public void store(Mail mc) throws MessagingException {
         Connection conn = null;
         boolean wasLocked = true;
         String key = mc.getName();
@@ -610,7 +611,16 @@ public class JDBCMailRepository
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
-                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            if (mc instanceof MailImpl) {
+                                oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            } else {
+                                HashMap temp = new HashMap();
+                                for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
+                                    String hashKey = (String) i.next();
+                                    temp.put(hashKey,mc.getAttribute(hashKey));
+                                }
+                                oos.writeObject(temp);
+                            }
                             oos.flush();
                             ByteArrayInputStream attrInputStream =
                                 new ByteArrayInputStream(baos.toByteArray());
@@ -737,7 +747,16 @@ public class JDBCMailRepository
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
-                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            if (mc instanceof MailImpl) {
+                                oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            } else {
+                                HashMap temp = new HashMap();
+                                for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
+                                    String hashKey = (String) i.next();
+                                    temp.put(hashKey,mc.getAttribute(hashKey));
+                                }
+                                oos.writeObject(temp);
+                            }
                             oos.flush();
                             ByteArrayInputStream attrInputStream =
                                 new ByteArrayInputStream(baos.toByteArray());
@@ -783,7 +802,7 @@ public class JDBCMailRepository
      * @param key the key of the message to retrieve
      * @return the mail corresponding to this key, null if none exists
      */
-    public MailImpl retrieve(String key) throws MessagingException {
+    public Mail retrieve(String key) throws MessagingException {
         if (DEEP_DEBUG) {
             System.err.println("retrieving " + key);
         }
@@ -932,7 +951,7 @@ public class JDBCMailRepository
      *
      * @param mail the message to be removed from the repository
      */
-    public void remove(MailImpl mail) throws MessagingException {
+    public void remove(Mail mail) throws MessagingException {
         remove(mail.getName());
     }
 
@@ -945,7 +964,7 @@ public class JDBCMailRepository
     public void remove(Collection mails) throws MessagingException {
         Iterator delList = mails.iterator();
         while (delList.hasNext()) {
-            remove((MailImpl)delList.next());
+            remove((Mail)delList.next());
         }
     }
 

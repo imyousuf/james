@@ -1,5 +1,5 @@
 /***********************************************************************
- * Copyright (c) 2000-2004 The Apache Software Foundation.             *
+ * Copyright (c) 2000-2005 The Apache Software Foundation.             *
  * All rights reserved.                                                *
  * ------------------------------------------------------------------- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you *
@@ -17,6 +17,19 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.core.MailImpl;
+import org.apache.james.util.XMLResources;
+import org.apache.mailet.GenericMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,22 +37,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
-
-import org.apache.james.core.MailImpl;
-import org.apache.james.util.XMLResources;
-
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
  * Provides an abstraction of common functionality needed for implementing
@@ -160,7 +157,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
 
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
-            MailImpl newMail = (MailImpl) ((MailImpl) mail).duplicate(newName((MailImpl) mail));
+            MailImpl newMail = new MailImpl(mail,newName(mail));
             try {
                 newMail.setRemoteAddr(java.net.InetAddress.getLocalHost().getHostAddress());
                 newMail.setRemoteHost(java.net.InetAddress.getLocalHost().getHostName());
@@ -281,7 +278,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
    * @param mail the mail to use as the basis for the new mail name
    * @return a new name
    */
-  private String newName(MailImpl mail) throws MessagingException {
+  private String newName(Mail mail) throws MessagingException {
       String oldName = mail.getName();
 
         // Checking if the original mail name is too long, perhaps because of a

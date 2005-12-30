@@ -18,12 +18,12 @@
 package org.apache.james.smtpserver;
 
 
+import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
-import org.apache.james.core.MailImpl;
-import java.util.HashMap;
+
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.james.util.watchdog.Watchdog;
+import java.util.HashMap;
 
 /**
  * All the handlers access this interface to communicate with
@@ -96,7 +96,7 @@ public interface SMTPSession {
      *
      * @param mail MailImpl object
      */
-    void setMail(MailImpl mail);
+    void setMail(Mail mail);
 
     /**
      * Returns host name of the client

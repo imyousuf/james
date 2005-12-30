@@ -53,6 +53,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
+import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Pattern;
@@ -494,7 +495,7 @@ public class MBoxMailRepository
      * Store the given email in the current mbox file
      * @param mc The mail to store
      */
-    public void store(MailImpl mc) {
+    public void store(Mail mc) {
 
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer =
@@ -561,7 +562,7 @@ public class MBoxMailRepository
      * @param key
      * @return The mail found from the key. Returns null if the key is not found
      */
-    public MailImpl retrieve(String key) {
+    public Mail retrieve(String key) {
 
         loadKeys();
         MailImpl res = null;
@@ -592,7 +593,7 @@ public class MBoxMailRepository
      * Remove an existing message
      * @param mail
      */
-    public void remove(MailImpl mail) {
+    public void remove(Mail mail) {
         // Convert the message into a key
         Vector delVec = new Vector();
         delVec.addElement(mail);
@@ -690,7 +691,7 @@ public class MBoxMailRepository
                         String key;
                         while (mailList.hasNext()) {
                             // Attempt to find the current key in the array
-                            key = ((MailImpl)mailList.next()).getName();
+                            key = ((Mail)mailList.next()).getName();
                             if (key.equals(currentKey)) {
                                 // Don't write the message to disk
                                 foundKey = true;
@@ -729,7 +730,7 @@ public class MBoxMailRepository
             String key;
             while (mailList.hasNext()) {
                 // Attempt to find the current key in the array
-                key = ((MailImpl)mailList.next()).getName();
+                key = ((Mail)mailList.next()).getName();
                 mList.remove(key);
             }
 

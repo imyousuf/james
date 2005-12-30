@@ -22,7 +22,6 @@ import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ListUtils;
-
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
@@ -35,10 +34,13 @@ import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -568,7 +570,7 @@ public class POP3Handler
             int count = 0;
             try {
                 for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
-                    MailImpl mc = (MailImpl) i.next();
+                    Mail mc = (Mail) i.next();
                     if (mc != DELETED) {
                         size += mc.getMessageSize();
                         count++;
@@ -611,7 +613,7 @@ public class POP3Handler
                 int count = 0;
                 try {
                     for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
-                        MailImpl mc = (MailImpl) i.next();
+                        Mail mc = (Mail) i.next();
                         if (mc != DELETED) {
                             size += mc.getMessageSize();
                             count++;
@@ -628,7 +630,7 @@ public class POP3Handler
                     writeLoggedFlushedResponse(responseString);
                     count = 0;
                     for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
-                        MailImpl mc = (MailImpl) i.next();
+                        Mail mc = (Mail) i.next();
 
                         if (mc != DELETED) {
                             responseBuffer =
@@ -649,7 +651,7 @@ public class POP3Handler
                 int num = 0;
                 try {
                     num = Integer.parseInt(argument);
-                    MailImpl mc = (MailImpl) userMailbox.get(num);
+                    Mail mc = (Mail) userMailbox.get(num);
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -715,7 +717,7 @@ public class POP3Handler
                 writeLoggedFlushedResponse(responseString);
                 int count = 0;
                 for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
-                    MailImpl mc = (MailImpl) i.next();
+                    Mail mc = (Mail) i.next();
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -731,7 +733,7 @@ public class POP3Handler
                 int num = 0;
                 try {
                     num = Integer.parseInt(argument);
-                    MailImpl mc = (MailImpl) userMailbox.get(num);
+                    Mail mc = (Mail) userMailbox.get(num);
                     if (mc != DELETED) {
                         StringBuffer responseBuffer =
                             new StringBuffer(64)
@@ -817,7 +819,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.get(num);
+                Mail mc = (Mail) userMailbox.get(num);
                 if (mc == DELETED) {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -887,7 +889,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.get(num);
+                Mail mc = (Mail) userMailbox.get(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
@@ -896,7 +898,7 @@ public class POP3Handler
                     nouts = new BytesWrittenResetOutputStream(nouts,
                                                               theWatchdog,
                                                               theConfigData.getResetLength());
-                    mc.writeMessageTo(nouts);
+                    mc.getMessage().writeTo(nouts);
                     nouts.flush();
                     // TODO: Is this an extra CRLF?
                     out.println();
@@ -960,7 +962,7 @@ public class POP3Handler
                 return;
             }
             try {
-                MailImpl mc = (MailImpl) userMailbox.get(num);
+                Mail mc = (Mail) userMailbox.get(num);
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
@@ -973,7 +975,7 @@ public class POP3Handler
                     nouts = new BytesWrittenResetOutputStream(nouts,
                                                               theWatchdog,
                                                               theConfigData.getResetLength());
-                    mc.writeContentTo(nouts, lines);
+                    writeMessageContentTo(mc.getMessage(),nouts,lines);
                     nouts.flush();
                     out.println(".");
                     out.flush();
@@ -1010,6 +1012,40 @@ public class POP3Handler
     }
 
     /**
+     * Writes the content of the message, up to a total number of lines, out to 
+     * an OutputStream.
+     *
+     * @param out the OutputStream to which to write the content
+     * @param lines the number of lines to write to the stream
+     *
+     * @throws MessagingException if the MimeMessage is not set for this MailImpl
+     * @throws IOException if an error occurs while reading or writing from the stream
+     */
+    public void writeMessageContentTo(MimeMessage message, OutputStream out, int lines)
+        throws IOException, MessagingException {
+        String line;
+        BufferedReader br = null;
+        if (message != null) {
+            try {
+                br = new BufferedReader(new InputStreamReader(message.getInputStream()));
+                while (lines-- > 0) {
+                    if ((line = br.readLine()) == null) {
+                        break;
+                    }
+                    line += "\r\n";
+                    out.write(line.getBytes());
+                }
+            } finally {
+                if (br != null) {
+                    br.close();
+                }
+            }
+        } else {
+            throw new MessagingException("No message set for this MailImpl.");
+        }
+    }
+
+    /**
      * Handler method called upon receipt of a QUIT command.
      * This method handles cleanup of the POP3Handler state.
      *
@@ -1028,7 +1064,7 @@ public class POP3Handler
         try {
             userInbox.remove(toBeRemoved);
             // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
-            //    MailImpl mc = (MailImpl) it.next();
+            //    Mail mc = (Mail) it.next();
             //    userInbox.remove(mc.getName());
             //}
             responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";

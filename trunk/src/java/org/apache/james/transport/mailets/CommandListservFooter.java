@@ -19,8 +19,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.util.XMLResources;
-
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -35,6 +33,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
+
 import java.io.IOException;
 
 
@@ -111,7 +110,7 @@ public class CommandListservFooter extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         try {
             MimeMessage message = mail.getMessage();
-//            log("Trying to add footer to mail " + ((MailImpl)mail).getName());
+//            log("Trying to add footer to mail " + mail.getName());
             if (attachFooter(message)) {
                 message.saveChanges();
 //                log("Message after saving: " + message.getContent().toString());
@@ -143,7 +142,7 @@ public class CommandListservFooter extends GenericMailet {
                 log("Message from stream: " + bodyOs.toString());
                 */
             } else {
-                log("Unable to add footer to mail " + ((MailImpl)mail).getName());
+                log("Unable to add footer to mail " + mail.getName());
             }
         } catch (IOException ioe) {
             throw new MessagingException("Could not read message", ioe);
