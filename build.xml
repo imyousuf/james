@@ -739,6 +739,7 @@ Legal:
         <delete file="${dist.dir}/downloads/bin/${name}-MailetSDK-${version}.tar"/>
         <delete dir="${dist.dir}/MailetSDK"/>
     </target>
+
     <!--
     ===================================================================
                                   delete dist/ and build/
@@ -748,6 +749,57 @@ Legal:
         <echo message ="deleting working directories ready for a clean build"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${build.dir}"/>
+    </target>
+
+    <!--
+    ===================================================================
+                                  unit tests
+    ===================================================================
+    -->
+    <target name="unit-tests-classpath" depends="prepare">
+        <path id="unittest.class.path">
+          <pathelement location="tools/lib/optional.jar"/>
+          <pathelement location="tools/lib/junit.jar"/>
+          <pathelement location="tools/lib/ristretto-1.0-all.jar"/>
+          <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+          </fileset>
+        </path>
+    </target>
+        
+    <target name="compile-unit-tests" depends="unit-tests-classpath">
+      <echo message="Compiling James Unit Test Java sources"/>
+      <mkdir dir="${build.test}"/>
+      <mkdir dir="${build.test.classes}"/>
+      <javac destdir="${build.test.classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}">
+        <classpath refid="unittest.class.path"/>
+        <classpath refid="project.class.path"/>
+        <src path="${junitjava.dir}"/>
+        <exclude name="${constants.file}"/>
+        <exclude name="${poolconn.file}"/>
+      </javac>
+    </target>
+
+    <target name="run-unit-tests" depends="unit-tests-classpath, compile-unit-tests">
+        <echo message="Running James Unit Tests"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${build.test.reports}"/>
+        <junit printsummary="yes" haltonfailure="yes"  >
+            <classpath refid="unittest.class.path"/>
+            <classpath refid="project.class.path"/>
+            <classpath>
+              <pathelement location="${build.test.classes}"/>
+            </classpath>
+        
+            <formatter type="plain"/>
+        
+            <batchtest fork="yes" todir="${build.test.reports}">
+              <fileset dir="${junitjava.dir}">
+                <include name="**/*Test.java"/>
+                <exclude name="**/AllTests.java"/>
+              </fileset>
+            </batchtest>
+        </junit>
     </target>
 
     <!--
