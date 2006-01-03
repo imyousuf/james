@@ -27,6 +27,7 @@ public class MockLogger implements Logger {
 
     public void debug(java.lang.String string, java.lang.Throwable throwable) {
         System.out.println(string + throwable.toString());
+        throwable.printStackTrace();
     }
 
     public boolean isDebugEnabled() {
@@ -43,6 +44,7 @@ public class MockLogger implements Logger {
 
     public void info(java.lang.String string, java.lang.Throwable throwable) {
         System.out.println(string + throwable.toString());
+        throwable.printStackTrace();
     }
 
     public boolean isInfoEnabled() {
@@ -55,6 +57,7 @@ public class MockLogger implements Logger {
 
     public void warn(java.lang.String string, java.lang.Throwable throwable) {
         System.out.println(string + throwable.toString());
+        throwable.printStackTrace();
     }
 
     public boolean isWarnEnabled() {
@@ -67,6 +70,7 @@ public class MockLogger implements Logger {
 
     public void error(java.lang.String string, java.lang.Throwable throwable) {
         System.out.println(string + throwable.toString());
+        throwable.printStackTrace();
     }
 
     public boolean isErrorEnabled() {
@@ -79,6 +83,7 @@ public class MockLogger implements Logger {
 
     public void fatalError(java.lang.String string, java.lang.Throwable throwable) {
         System.out.println(string + throwable.toString());
+        throwable.printStackTrace();
     }
 
     public boolean isFatalErrorEnabled() {

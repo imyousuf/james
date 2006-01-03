@@ -893,17 +893,18 @@ public class POP3Handler
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
-                    OutputStream nouts =
-                            new ExtraDotOutputStream(outs);
-                    nouts = new BytesWrittenResetOutputStream(nouts,
-                                                              theWatchdog,
-                                                              theConfigData.getResetLength());
-                    mc.getMessage().writeTo(nouts);
-                    nouts.flush();
-                    // TODO: Is this an extra CRLF?
-                    out.println();
-                    out.println(".");
-                    out.flush();
+                    try {
+                        OutputStream nouts =
+                                new ExtraDotOutputStream(outs);
+                        nouts = new BytesWrittenResetOutputStream(nouts,
+                                                                  theWatchdog,
+                                                                  theConfigData.getResetLength());
+                        mc.getMessage().writeTo(nouts);
+                        nouts.flush();
+                    } finally {
+                        out.println(".");
+                        out.flush();
+                    }
                 } else {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -966,19 +967,22 @@ public class POP3Handler
                 if (mc != DELETED) {
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
-                    for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
-                        out.println(e.nextElement());
+                    try {
+                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
+                            out.println(e.nextElement());
+                        }
+                        out.println();
+                        OutputStream nouts =
+                                new ExtraDotOutputStream(outs);
+                        nouts = new BytesWrittenResetOutputStream(nouts,
+                                                                  theWatchdog,
+                                                                  theConfigData.getResetLength());
+                        writeMessageContentTo(mc.getMessage(),nouts,lines);
+                        nouts.flush();
+                    } finally {
+                        out.println(".");
+                        out.flush();
                     }
-                    out.println();
-                    OutputStream nouts =
-                            new ExtraDotOutputStream(outs);
-                    nouts = new BytesWrittenResetOutputStream(nouts,
-                                                              theWatchdog,
-                                                              theConfigData.getResetLength());
-                    writeMessageContentTo(mc.getMessage(),nouts,lines);
-                    nouts.flush();
-                    out.println(".");
-                    out.flush();
                 } else {
                     StringBuffer responseBuffer =
                         new StringBuffer(64)
@@ -1026,7 +1030,7 @@ public class POP3Handler
         String line;
         BufferedReader br;
         if (message != null) {
-            br = new BufferedReader(new InputStreamReader(message.getInputStream()));
+            br = new BufferedReader(new InputStreamReader(message.getRawInputStream()));
             try {
                 while (lines-- > 0) {
                     if ((line = br.readLine()) == null) {
