@@ -38,6 +38,8 @@ public class MockMailServer implements MailServer {
 
     private final ArrayList mails = new ArrayList();
 
+    private HashMap inboxes;
+
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
         Object[] mailObjects = new Object[]{sender, recipients, msg};
         mails.add(mailObjects);
@@ -76,7 +78,19 @@ public class MockMailServer implements MailServer {
     }
 
     public MailRepository getUserInbox(String userName) {
-        return null; // trivial implementation 
+        if (inboxes==null) {
+            return null;
+        } else {
+            return (MailRepository) inboxes.get(userName);
+        }
+        
+    }
+    
+    public void setUserInbox(String userName, MailRepository inbox) {
+        if (inboxes == null) {
+            inboxes = new HashMap();
+        }
+        inboxes.put(userName,inbox);
     }
 
     public Map getRepositoryCounters() {

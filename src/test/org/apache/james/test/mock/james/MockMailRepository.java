@@ -22,33 +22,40 @@ import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Collection;
 
 public class MockMailRepository implements MailRepository {
+    
+    private HashMap messages = new HashMap();
 
     public void store(Mail mc) throws MessagingException {
-        // trivial implementation
+        this.messages.put(mc.getName(),mc);
     }
 
     public Iterator list() throws MessagingException {
-        return null;  // trivial implementation
+        return messages.keySet().iterator();  // trivial implementation
     }
 
     public Mail retrieve(String key) throws MessagingException {
-        return null;  // trivial implementation
+        return (Mail) messages.get(key);  // trivial implementation
     }
 
     public void remove(Mail mail) throws MessagingException {
-        // trivial implementation
+        messages.remove(mail.getName());
     }
 
     public void remove(Collection mails) throws MessagingException {
-        // trivial implementation
+        for (Iterator i = mails.iterator(); i.hasNext(); ) {
+            Mail m = (Mail) i.next();
+            messages.remove(m.getName());
+        }
     }
 
     public void remove(String key) throws MessagingException {
-        // trivial implementation
+        messages.remove(key);
     }
 
     public boolean lock(String key) throws MessagingException {
