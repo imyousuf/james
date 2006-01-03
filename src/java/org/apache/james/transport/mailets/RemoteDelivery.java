@@ -1152,6 +1152,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @return the next delay time to use, given the retry count
      **/
     private long getNextDelay (int retry_count) {
+        if (retry_count > delayTimes.length) {
+            return DEFAULT_DELAY_TIME;
+        }
         return delayTimes[retry_count-1];
     }
 
