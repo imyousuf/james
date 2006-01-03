@@ -511,7 +511,7 @@ Legal:
           <include name="cornerstone-sockets-api-2.1.jar"/>
           <include name="cornerstone-sockets-impl-2.1.jar"/>
           <include name="cornerstone-datasources-api-2.1.jar"/>
-          <include name="cornerstone-datasources-impl-2.1.jar"/>
+          <include name="cornerstone-datasources-impl-2.1-patched.jar"/>
           <include name="concurrent-1.3.4.jar"/>
         </lib>
         <zipfileset dir="${conf.dir}" fullpath="conf/sqlResources.xml">

@@ -1,0 +1,14 @@
+This differs from the original distributed jar because we removed the relax-ng schema from the DefaultDataSourceSelector.xinfo
+
+Old:
+<block>
+  <version>1.0</version>
+  <schema>relax-ng</schema>
+</block>  
+
+New:
+<block>
+  <version>1.0</version>
+</block>  
+
+
