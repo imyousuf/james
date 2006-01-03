@@ -133,7 +133,7 @@ public class MailImpl implements Disposable, Mail {
             }
         }
     }
-    
+
     /**
      * @param mail
      * @param newName
@@ -177,8 +177,7 @@ public class MailImpl implements Disposable, Mail {
         throws MessagingException {
         this(name, sender, recipients);
         MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
-        MimeMessageWrapper wrapper = new MimeMessageWrapper(source);
-        this.setMessage(wrapper);
+        this.setMessage(new MimeMessageCopyOnWriteProxy(source));
     }
 
     /**
@@ -190,9 +189,9 @@ public class MailImpl implements Disposable, Mail {
      * @param recipients the collection of recipients of this MailImpl
      * @param message the MimeMessage associated with this MailImpl
      */
-    public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) {
+    public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) throws MessagingException {
         this(name, sender, recipients);
-        this.setMessage(message);
+        this.setMessage(new MimeMessageCopyOnWriteProxy(message));
     }
 
     /**
@@ -289,6 +288,7 @@ public class MailImpl implements Disposable, Mail {
     public MimeMessage getMessage() throws MessagingException {
         return message;
     }
+    
     /**
      * Set the name of this MailImpl.
      *
@@ -370,6 +370,10 @@ public class MailImpl implements Disposable, Mail {
         //  message size and skip calculating it
         if (message instanceof MimeMessageWrapper) {
             MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
+            return wrapper.getMessageSize();
+        }
+        if (message instanceof MimeMessageCopyOnWriteProxy) {
+            MimeMessageCopyOnWriteProxy wrapper = (MimeMessageCopyOnWriteProxy) message;
             return wrapper.getMessageSize();
         }
         //SK: Should probably eventually store this as a locally
@@ -535,12 +539,8 @@ public class MailImpl implements Disposable, Mail {
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
-        try {
-            MimeMessage wrapper = getMessage();
-            ContainerUtil.dispose(wrapper);
-        } catch (MessagingException me) {
-            // Ignored
-        }
+        ContainerUtil.dispose(message);
+        message = null;
     }
 
     /**

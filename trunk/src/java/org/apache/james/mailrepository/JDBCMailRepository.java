@@ -35,6 +35,8 @@ import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MimeMessageUtil;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
@@ -612,7 +614,7 @@ public class JDBCMailRepository
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
                             if (mc instanceof MailImpl) {
-                                oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
                             } else {
                                 HashMap temp = new HashMap();
                                 for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
@@ -649,6 +651,11 @@ public class JDBCMailRepository
                 //  updating the database.
                 MimeMessage messageBody = mc.getMessage();
                 boolean saveBody = false;
+                // if the message is a CopyOnWrite proxy we check the modified wrapped object.
+                if (messageBody instanceof MimeMessageCopyOnWriteProxy) {
+                    MimeMessageCopyOnWriteProxy messageCow = (MimeMessageCopyOnWriteProxy) messageBody;
+                    messageBody = messageCow.getWrappedMessage();
+                }
                 if (messageBody instanceof MimeMessageWrapper) {
                     MimeMessageWrapper message = (MimeMessageWrapper)messageBody;
                     saveBody = message.isModified();
@@ -673,7 +680,7 @@ public class JDBCMailRepository
                             }
         
                             //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                            MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
+                            MimeMessageUtil.writeTo(mc.getMessage(), headerOut, bodyOut);
         
                             //Store the headers in the database
                             ByteArrayInputStream headerInputStream =
@@ -732,7 +739,7 @@ public class JDBCMailRepository
                         }
         
                         //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                        MimeMessageWrapper.writeTo(messageBody, headerOut, bodyOut);
+                        MimeMessageUtil.writeTo(messageBody, headerOut, bodyOut);
 
                         ByteArrayInputStream headerInputStream =
                             new ByteArrayInputStream(headerOut.toByteArray());
@@ -748,7 +755,7 @@ public class JDBCMailRepository
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
                             if (mc instanceof MailImpl) {
-                                oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
                             } else {
                                 HashMap temp = new HashMap();
                                 for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
@@ -925,7 +932,7 @@ public class JDBCMailRepository
             mc.setLastUpdated(rsMessage.getTimestamp(7));
 
             MimeMessageJDBCSource source = new MimeMessageJDBCSource(this, key, sr);
-            MimeMessageWrapper message = new MimeMessageWrapper(source);
+            MimeMessageCopyOnWriteProxy message = new MimeMessageCopyOnWriteProxy(source);
             mc.setMessage(message);
             return mc;
         } catch (SQLException sqle) {

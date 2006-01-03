@@ -29,12 +29,14 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -260,8 +262,15 @@ public class AvalonMailRepository
                 }
                 boolean saveStream = true;
 
-                if (mc.getMessage() instanceof MimeMessageWrapper) {
-                    MimeMessageWrapper wrapper = (MimeMessageWrapper) mc.getMessage();
+                MimeMessage message = mc.getMessage();
+                // if the message is a Copy on Write proxy we check the wrapped message
+                // to optimize the behaviour in case of MimeMessageWrapper
+                if (message instanceof MimeMessageCopyOnWriteProxy) {
+                    MimeMessageCopyOnWriteProxy messageCow = (MimeMessageCopyOnWriteProxy) message;
+                    message = messageCow.getWrappedMessage();
+                }
+                if (message instanceof MimeMessageWrapper) {
+                    MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
                     if (DEEP_DEBUG) {
                         System.out.println("Retrieving from: " + wrapper.getSourceId());
                         StringBuffer debugBuffer =
@@ -352,7 +361,7 @@ public class AvalonMailRepository
                 return null;
             }
             MimeMessageAvalonSource source = new MimeMessageAvalonSource(sr, destination, key);
-            mc.setMessage(new MimeMessageWrapper(source));
+            mc.setMessage(new MimeMessageCopyOnWriteProxy(source));
 
             return mc;
         } catch (Exception me) {
