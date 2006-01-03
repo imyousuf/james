@@ -106,6 +106,7 @@ public class LinearProcessorTest extends TestCase {
         System.err.println("Setting body to "+newText);
         message.addHeader("x-Header", newText);
         message.setText(newText);
+        message.setSubject(newText);
         message.saveChanges();
       } catch (javax.mail.MessagingException me) {
          log (me.getMessage());
@@ -151,6 +152,8 @@ public class LinearProcessorTest extends TestCase {
             MimeMessage m1 = ((Mail) a.get(0)).getMessage();
             MimeMessage m2 = ((Mail) a.get(1)).getMessage();
             assertNotSame(m1,m2);
+            assertEquals(m1.getSubject(),"new text 1");
+            assertEquals(m2.getSubject(),"new text 2");
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
