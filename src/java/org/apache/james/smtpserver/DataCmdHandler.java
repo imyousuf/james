@@ -17,29 +17,30 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
+import org.apache.james.fetchmail.ReaderInputStream;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
+import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.watchdog.BytesReadResetInputStream;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
-import org.apache.james.Constants;
 
 import javax.mail.MessagingException;
 
 import java.io.ByteArrayInputStream;
-import java.io.SequenceInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.io.SequenceInputStream;
+import java.io.StringReader;
 import java.util.Collection;
-import java.util.List;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 
 
 /**
@@ -268,7 +269,8 @@ public class DataCmdHandler
                 new MailImpl(session.getConfigurationData().getMailServer().getId(),
                              (MailAddress) session.getState().get(SENDER),
                              recipientCollection,
-                             new SequenceInputStream(headersIn, msgIn));
+                             new SequenceInputStream(new SequenceInputStream(headersIn, msgIn),
+                                     new ReaderInputStream(new StringReader("\r\n"))));
             // Call mail.getSize() to force the message to be
             // loaded. Need to do this to enforce the size limit
             if (session.getConfigurationData().getMaxMessageSize() > 0) {
