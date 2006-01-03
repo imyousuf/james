@@ -96,7 +96,7 @@ public class MailCmdHandler
                     // Handle the SIZE extension keyword
 
                     if (mailOptionName.startsWith(MAIL_OPTION_SIZE)) {
-                        if (!(doMailSize(session, mailOptionValue))) {
+                        if (!(doMailSize(session, mailOptionValue, sender))) {
                             return;
                         }
                     } else {
@@ -166,9 +166,10 @@ public class MailCmdHandler
      *
      * @param session SMTP session object
      * @param mailOptionValue the option string passed in with the SIZE option
+     * @param tempSender the sender specified in this mail command (for logging purpose)
      * @return true if further options should be processed, false otherwise
      */
-    private boolean doMailSize(SMTPSession session, String mailOptionValue) {
+    private boolean doMailSize(SMTPSession session, String mailOptionValue, String tempSender) {
         int size = 0;
         try {
             size = Integer.parseInt(mailOptionValue);
@@ -195,7 +196,7 @@ public class MailCmdHandler
             StringBuffer errorBuffer =
                 new StringBuffer(256)
                     .append("Rejected message from ")
-                    .append(session.getState().get(SENDER).toString())
+                    .append(tempSender != null ? tempSender.toString() : null)
                     .append(" from host ")
                     .append(session.getRemoteHost())
                     .append(" (")
