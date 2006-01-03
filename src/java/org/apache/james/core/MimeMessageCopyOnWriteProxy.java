@@ -773,7 +773,6 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     public synchronized void dispose() {
         if (wrapped != null) {
             refCount.decrementReferenceCount();
-            System.out.println(System.identityHashCode(this)+System.identityHashCode(wrapped)+" => "+refCount.getReferenceCount());
             if (refCount.getReferenceCount()<=0) {
                 if (wrapped instanceof Disposable) {
                     ((Disposable) wrapped).dispose();
