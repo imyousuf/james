@@ -14,7 +14,6 @@
  * implied.  See the License for the specific language governing       *
  * permissions and limitations under the License.                      *
  ***********************************************************************/
-
 package org.apache.james.transport;
 import javax.mail.MessagingException;
 
@@ -33,12 +32,12 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
-           getPackages(conf,MAILET_PACKAGE);
-           configureMailetClassLoader();
+        getPackages(conf,MAILET_PACKAGE);
     }
-    /* (non-Javadoc)
-         * @see org.apache.james.transport.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
-         */
+
+    /**
+     * @see org.apache.james.services.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
+     */
     public Mailet getMailet(String mailetName, Configuration configuration)
         throws MessagingException {
         try {
@@ -49,7 +48,7 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
                     configImpl.setMailetContext(mailetContext);
-                    Mailet mailet = (Mailet) mailetClassLoader.loadClass(className).newInstance();
+                    Mailet mailet = (Mailet) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
                     mailet.init(configImpl);
                     return mailet;
                 } catch (ClassNotFoundException cnfe) {

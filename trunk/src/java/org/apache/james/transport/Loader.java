@@ -14,12 +14,8 @@
  * implied.  See the License for the specific language governing       *
  * permissions and limitations under the License.                      *
  ***********************************************************************/
-
 package org.apache.james.transport;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Vector;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -41,7 +37,7 @@ import org.apache.mailet.MailetContext;
  * $Id$
  */
 public abstract class Loader extends AbstractLogEnabled implements Contextualizable, Serviceable, Configurable, Initializable {
-    protected ClassLoader mailetClassLoader = null;
+
     protected String baseDirectory = null;
     protected final String MAILET_PACKAGE = "mailetpackage";
     protected final String MATCHER_PACKAGE = "matcherpackage";
@@ -89,38 +85,6 @@ public abstract class Loader extends AbstractLogEnabled implements Contextualiza
             }
             packages.addElement(packageName);
         }
-    }
-    /**
-     * Method getMailetClassLoader.
-     */
-    protected void configureMailetClassLoader() {
-        File base = new File(baseDirectory + "/SAR-INF/lib");
-        String[] flist = base.list();
-        Vector jarlist = new Vector();
-        URL[] classPath = null;
-        try {
-            jarlist.add(new URL("file:///" + baseDirectory + "/SAR-INF/classes/"));
-        } catch (MalformedURLException e) {
-            getLogger().error(
-                "can't add "
-                    + "file:///"
-                    + baseDirectory
-                    + "/SAR-INF/classes/ to mailet classloader");
-        }
-        if (flist != null) {
-            for (int i = 0; i < flist.length; i++) {
-                try {
-                    if (flist[i].indexOf("jar") == flist[i].length() - 3) {
-                        jarlist.add(new URL("file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i]));
-                        getLogger().debug("added file:///" + baseDirectory +"/SAR-INF/lib/" + flist[i] + " to mailet Classloader");
-                    }
-                } catch (MalformedURLException e) {
-                    getLogger().error("can't add file:///" + baseDirectory +"/SAR-INF/lib/"+ flist[i] + " to mailet classloader");
-                }
-            }
-        }
-        classPath = (URL[]) jarlist.toArray(new URL[jarlist.size()]);
-        mailetClassLoader = new URLClassLoader(classPath, this.getClass().getClassLoader());
     }
 
     /**
