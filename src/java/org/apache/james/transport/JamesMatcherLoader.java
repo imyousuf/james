@@ -34,7 +34,6 @@ public class JamesMatcherLoader extends Loader implements MatcherLoader {
      */
     public void configure(Configuration conf) throws ConfigurationException {
            getPackages(conf,MATCHER_PACKAGE);
-           configureMailetClassLoader();
     }
 
     /* (non-Javadoc)
@@ -55,7 +54,7 @@ public class JamesMatcherLoader extends Loader implements MatcherLoader {
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(mailetContext);
-                    Matcher matcher = (Matcher) mailetClassLoader.loadClass(className).newInstance();
+                    Matcher matcher = (Matcher) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
                     matcher.init(configImpl);
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {
