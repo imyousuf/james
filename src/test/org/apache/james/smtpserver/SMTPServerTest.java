@@ -16,7 +16,6 @@
  ***********************************************************************/
 package org.apache.james.smtpserver;
 
-import junit.framework.TestCase;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.james.services.JamesConnectionManager;
@@ -32,15 +31,26 @@ import org.apache.james.util.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
 import org.columba.ristretto.composer.MimeTreeRenderer;
 import org.columba.ristretto.io.CharSequenceSource;
-import org.columba.ristretto.message.*;
+import org.columba.ristretto.message.Address;
+import org.columba.ristretto.message.Header;
+import org.columba.ristretto.message.LocalMimePart;
+import org.columba.ristretto.message.MimeHeader;
+import org.columba.ristretto.message.MimeType;
 import org.columba.ristretto.smtp.SMTPException;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
 
+import com.sun.mail.util.SharedByteArrayInputStream;
+
+import javax.mail.internet.MimeMessage;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 /**
  * Tests the org.apache.james.smtpserver.SMTPServer unit 
@@ -111,6 +121,33 @@ public class SMTPServerTest extends TestCase {
         // mail was propagated by SMTPServer
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
+    
+    public void testEmptyMessage() throws Exception {
+        InputStream mSource = new SharedByteArrayInputStream(("").getBytes());
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol.openPort();
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol.mail(new Address("mail@localhost"));
+        smtpProtocol.rcpt(new Address("mail@localhost"));
+
+        smtpProtocol.data(mSource);
+
+        smtpProtocol.quit();
+
+        // mail was propagated by SMTPServer
+        assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+
+        int size = ((MimeMessage) m_mailServer.getLastMail()[2]).getSize();
+
+        assertEquals(size,2);
+    }
+
+
 
     public void testSimpleMailSendWithHELO() throws Exception, SMTPException {
         finishSetUp(m_testConfiguration);
@@ -266,7 +303,11 @@ public class SMTPServerTest extends TestCase {
         SMTPResponse response = smtpProtocol.getResponse();
         assertEquals("expected error: max msg size exceeded", 552, response.getCode());
 
-        smtpProtocol.rcpt(new Address("mail@localhost"));
+        try {
+            smtpProtocol.rcpt(new Address("mail@localhost"));
+        } catch (SMTPException e) {
+            assertEquals("expected error", 552, response.getCode());
+        }
     }
 
     public void testHandleMessageSizeLimitExceeded() throws Exception, SMTPException {

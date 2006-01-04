@@ -90,4 +90,15 @@ public class ExtraDotOutputStream extends FilterOutputStream {
         }
         out.write(b);
     }
+    
+    /**
+     * Ensure that the stream is CRLF terminated.
+     * 
+     * @throws IOException  if an error occurs writing the byte
+     */
+    public void checkCRLFTerminator() throws IOException {
+        if (countLast0A0D != 2) {
+            write('\n');
+        }
+    }
 }

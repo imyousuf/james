@@ -894,13 +894,15 @@ public class POP3Handler
                     responseString = OK_RESPONSE + " Message follows";
                     writeLoggedFlushedResponse(responseString);
                     try {
-                        OutputStream nouts =
+                        ExtraDotOutputStream edouts =
                                 new ExtraDotOutputStream(outs);
-                        nouts = new BytesWrittenResetOutputStream(nouts,
+                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
                                                                   theWatchdog,
                                                                   theConfigData.getResetLength());
                         mc.getMessage().writeTo(nouts);
                         nouts.flush();
+                        edouts.checkCRLFTerminator();
+                        edouts.flush();
                     } finally {
                         out.println(".");
                         out.flush();
@@ -972,13 +974,15 @@ public class POP3Handler
                             out.println(e.nextElement());
                         }
                         out.println();
-                        OutputStream nouts =
+                        ExtraDotOutputStream edouts =
                                 new ExtraDotOutputStream(outs);
-                        nouts = new BytesWrittenResetOutputStream(nouts,
+                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
                                                                   theWatchdog,
                                                                   theConfigData.getResetLength());
                         writeMessageContentTo(mc.getMessage(),nouts,lines);
                         nouts.flush();
+                        edouts.checkCRLFTerminator();
+                        edouts.flush();
                     } finally {
                         out.println(".");
                         out.flush();
