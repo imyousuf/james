@@ -8,17 +8,22 @@
 #
 # Environment Variable Prequisites
 #
-#   PHOENIX_OPTS       (Optional) Java runtime options used when the command is 
+#   PHOENIX_OPTS       (Optional) Java runtime options used when the command is
 #                      executed.
 #
 #   PHOENIX_TMPDIR     (Optional) Directory path location of temporary directory
 #                      the JVM should use (java.io.tmpdir).  Defaults to
-#                      $CATALINA_BASE/temp.
+#                      $PHOENIX_BASE/temp.
 #
 #   JAVA_HOME          Must point at your Java Development Kit installation.
 #
-#   PHOENIX_JVM_OPTS   (Optional) Java runtime options used when the command is 
+#   PHOENIX_JVM_OPTS   (Optional) Java runtime options used when the command is
 #                       executed.
+#
+#   PHOENIX_KILLDELAY  (Optional) When shutting the server this script sends s
+#                      SIGTERM signal then delays for a time before forcefully
+#                      shutting down the process if it is still alive. This
+#                      variable controls the delay and defaults to 5 (seconds)
 #
 # -----------------------------------------------------------------------------
 
@@ -63,6 +68,12 @@ done
 PRGDIR=`dirname "$THIS_PROG"`
 PHOENIX_HOME=`cd "$PRGDIR/.." ; pwd`
 
+#setup time between signals to kill phoenix 
+if [ -z "$PHOENIX_KILLDELAY" ] ; then
+  PHOENIX_KILLDELAY=5
+fi
+      
+
 unset THIS_PROG
 
 if [ -r "$PHOENIX_HOME"/bin/setenv.sh ]; then
@@ -93,6 +104,7 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   PHOENIX_HOME=`cygpath --path --windows "$PHOENIX_HOME"`
+  PHOENIX_TMPDIR=`cygpath --path --windows "$PHOENIX_TMPDIR"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
@@ -110,7 +122,11 @@ echo "Using JAVA_HOME:      $JAVA_HOME"
 # like placing jaxp/jaas/xml-parser jars in ext dir
 # thus breaking Phoenix
 #
-JVM_OPTS="-Djava.ext.dirs=$PHOENIX_HOME/lib"
+JVM_EXT_DIRS="$PHOENIX_HOME/lib:$PHOENIX_HOME/tools/lib"
+if $cygwin; then
+  JVM_EXT_DIRS=`cygpath --path --windows "$JVM_EXT_DIRS"`
+fi
+JVM_OPTS="-Djava.ext.dirs=$JVM_EXT_DIRS"
 
 if [ "$PHOENIX_SECURE" != "false" ] ; then
   # Make phoenix run with security manager enabled
@@ -161,8 +177,11 @@ case "$ACTION" in
 
         if [ -f $PHOENIX_PID ]
         then
-            echo "Already Running!!"
-            exit 1
+           if ps -p `cat $PHOENIX_PID ` >/dev/null 2>/dev/null
+           then
+               echo "Already Running!!"
+               exit 1
+           fi
         fi
 
         echo "STARTED Phoenix `date`" >> $PHOENIX_CONSOLE
@@ -176,7 +195,7 @@ case "$ACTION" in
         PID=`cat $PHOENIX_PID 2>/dev/null`
         echo "Shutting down Phoenix: $PID"
         kill $PID 2>/dev/null
-        sleep 2
+        sleep $PHOENIX_KILLDELAY
         kill -9 $PID 2>/dev/null
         rm -f $PHOENIX_PID
         echo "STOPPED `date`" >>$PHOENIX_CONSOLE
@@ -207,7 +226,7 @@ case "$ACTION" in
 
         exec $RUN_CMD
         ;;
-        
+
   check)
         echo "Checking arguments to Phoenix: "
 	echo "PHOENIX_HOME:     $PHOENIX_HOME"
@@ -226,7 +245,7 @@ case "$ACTION" in
         fi
         exit 1
         ;;
-        
+
 *)
         usage
         ;;

@@ -100,11 +100,6 @@ Legal:
       	<pathelement location="${phoenix-client.jar}"/>
     </path>
 
-    <taskdef name="phoenix-mxinfo" classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet">
-        <classpath refid="tools.class.path"/>
-    </taskdef>
-
-
     <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
         <classpath refid="tools.class.path"/>
     </taskdef>
@@ -218,13 +213,21 @@ Legal:
                                    jmx
     ===================================================================
     -->
+
+    <!-- Make .xinfo, .mxinfo and manifest automatically for blocks -->
     <target name="prepare-mxinfo">
-       <phoenix-mxinfo destdir="${build.classes}">
-         <fileset dir="${java.dir}">
-           <include name="**" />
-         </fileset>
-         <mxinfo/>
-       </phoenix-mxinfo>
+        <taskdef name="generatemeta" classname="org.apache.avalon.phoenix.tools.metagenerate.MetaGenerateTask">
+            <classpath refid="tools.class.path"/>
+        </taskdef>
+
+    	<mkdir dir="${build.classes}" />
+
+        <generatemeta dest="${build.classes}">
+            <fileset dir="${java.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </generatemeta>
+
     </target>
     
     <!--
@@ -365,6 +368,7 @@ Legal:
     ===================================================================
     -->
     <target name="xdocs" depends="prepare">
+      <mkdir dir="${build.docs}" />
       <style style="${docs.src}/stylesheets/site.xsl"
                 basedir="${docs.src}/"
                 destdir="${build.docs}/"

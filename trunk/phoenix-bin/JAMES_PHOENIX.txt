@@ -1,21 +1,14 @@
-This is a custom branch of Phoenix 4.0.4.
+This is Phoenix 4.2 trunk with updated libraries.
 
-Here are the differences between official phoenix 4.0.4 and the one James uses:
+https://svn.apache.org/repos/asf/avalon/cvs-migration-snapshot/avalon-phoenix/
 
-- removed libs
-	- avalon-framework-4.1.3.jar
-	- excalibur-collections-1.0.jar
-	- excalibur-concurrent-1.0.jar
-	- excalibur-instrument-1.0.jar
-	- excalibur-pool-1.0.jar
-	- excalibur-thread-1.1.jar
-	- logkit-1.1.1.jar
-- added libs
-	- avalon-framework-api-4.3-RC2.jar
-	- avalon-framework-impl-4.3-RC2.jar
-	- avalon-logkit-2.1-RC2.jar
+Here are the differences between the svn version and this one:
 
-We also can remove xerces/xalan/xml-apis as we don't need jdk1.3 compatibility anymore.
+- removed xml libraries (we run only in java 1.4+)
+- upgraded avalon libraries to 4.3
+- upgraded cornerstone libraries to 2.1
+- upgraded logkit to 2.1
+- changed the default SystemManager to NoopSystemManager in kernel.xml
 
 Changed the build.xml to reflect the changes.
 
