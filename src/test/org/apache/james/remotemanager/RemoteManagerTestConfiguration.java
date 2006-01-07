@@ -16,76 +16,66 @@
  ***********************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.remotemanager;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.test.util.Util;
 
-public class SMTPTestConfiguration extends DefaultConfiguration {
+public class RemoteManagerTestConfiguration extends DefaultConfiguration {
 
-    private int m_smtpListenerPort;
-    private int m_maxMessageSize = 0;
-    private String m_authorizedAddresses = "127.0.0.0/8";
-    private String m_authorizingMode = "false";
-    private boolean m_verifyIdentity = false;
+    private int m_remoteManagerListenerPort;
     private Integer m_connectionLimit = null;
+    private String m_loginName = "testLogin";
+    private String m_loginPassword = "testPassword";
 
-    public SMTPTestConfiguration(int smtpListenerPort) {
+    public RemoteManagerTestConfiguration(int smtpListenerPort) {
         super("smptserver");
 
-        m_smtpListenerPort = smtpListenerPort;
-    }
-
-    public void setMaxMessageSize(int kilobytes)
-    {
-        m_maxMessageSize = kilobytes;
-    }
-    
-    public int getMaxMessageSize() {
-        return m_maxMessageSize;
-    }
-
-    public String getAuthorizedAddresses() {
-        return m_authorizedAddresses;
-    }
-
-    public void setAuthorizedAddresses(String authorizedAddresses) {
-        m_authorizedAddresses = authorizedAddresses;
-    }
-
-    public void setAuthorizingNotRequired() {
-        m_authorizingMode = "false";
-        m_verifyIdentity = false; 
-    }
-
-    public void setAuthorizingRequired() {
-        m_authorizingMode = "true";
-        m_verifyIdentity = true; 
-    }
-
-    public void setAuthorizingAnnounce() {
-        m_authorizingMode = "announce";
-        m_verifyIdentity = true; 
+        m_remoteManagerListenerPort = smtpListenerPort;
     }
 
     public void setConnectionLimit(int iConnectionLimit) {
         m_connectionLimit = new Integer(iConnectionLimit);
     }
 
+    public String getLoginName() {
+        return m_loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        m_loginName = loginName;
+    }
+
+    public String getLoginPassword() {
+        return m_loginPassword;
+    }
+
+    public void setLoginPassword(String loginPassword) {
+        m_loginPassword = loginPassword;
+    }
+
     public void init() {
 
         setAttribute("enabled", true);
 
-        addChild(Util.getValuedConfiguration("port", "" + m_smtpListenerPort));
+        addChild(Util.getValuedConfiguration("port", "" + m_remoteManagerListenerPort));
         if (m_connectionLimit != null) addChild(Util.getValuedConfiguration("connectionLimit", "" + m_connectionLimit.intValue()));
-        
+
         DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
         handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
-        handlerConfig.addChild(Util.getValuedConfiguration("authorizedAddresses", m_authorizedAddresses));
-        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSize));
-        handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
-        if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
+
+        DefaultConfiguration adminAccounts = new DefaultConfiguration("administrator_accounts");
+        
+        DefaultConfiguration account = new DefaultConfiguration("account");
+        
+        account.setAttribute("login", m_loginName);
+        account.setAttribute("password", m_loginPassword);
+
+        adminAccounts.addChild(account);
+        handlerConfig.addChild(adminAccounts);
+        
+        // handlerConfig.addChild(Util.getValuedConfiguration("prompt", ">"));
 
         handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
         addChild(handlerConfig);

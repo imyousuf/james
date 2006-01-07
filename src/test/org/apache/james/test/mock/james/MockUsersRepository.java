@@ -64,7 +64,7 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public void removeUser(String name) {
-        // trivial implementation
+        m_users.remove(name);
     }
 
     public boolean contains(String name) {

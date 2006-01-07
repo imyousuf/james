@@ -35,20 +35,33 @@ public class MockStore implements Store {
     }
     
     public Object select(Object object) throws ServiceException {
-        if (object instanceof Configuration) {
-            Configuration repConf = (Configuration) object;
-            try {
-                object = repConf.getAttribute("destinationURL");
-            } catch (ConfigurationException e) {
-                throw new RuntimeException("test failed");
-            }
-        }
-        Object result = m_storedObjectMap.get(object);
+        Object result = get(object);
         return result;
     }
 
+    private Object get(Object object) {
+        return m_storedObjectMap.get(extractKeyObject(object));
+    }
+
+    private Object extractKeyObject(Object object) {
+        if (object instanceof Configuration) {
+            Configuration repConf = (Configuration) object;
+            try {
+                String attribute = repConf.getAttribute("destinationURL");
+                String[] strings = attribute.split("/");
+                if (strings.length > 0) {
+                    object = strings[strings.length-1];
+                }
+            } catch (ConfigurationException e) {
+                throw new RuntimeException("test configuration setup failed");
+            }
+            
+        }
+        return object;
+    }
+
     public boolean isSelectable(Object object) {
-        return m_storedObjectMap.get(object) != null; 
+        return get(object) != null;
     }
 
     public void release(Object object) {

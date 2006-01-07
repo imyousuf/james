@@ -788,7 +788,7 @@ Legal:
         <echo message="Running James Unit Tests"/>
         <mkdir dir="${build.test}"/>
         <mkdir dir="${build.test.reports}"/>
-        <junit printsummary="yes" haltonfailure="yes"  >
+        <junit printsummary="yes" haltonfailure="no"  >
             <classpath refid="unittest.class.path"/>
             <classpath refid="project.class.path"/>
             <classpath>

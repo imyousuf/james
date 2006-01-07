@@ -69,7 +69,7 @@ public class MailImplTest extends MailTestAllImplementations {
 
         helperTestInitialState(mail); 
         helperTestMessageSize(mail, mimeMessage.getSize()); // MockMimeMessage default is -1 (accord. to javax.mail javadoc)
-        assertEquals("initial message", mimeMessage, mail.getMessage());
+        assertEquals("initial message", mimeMessage.getMessageID(), mail.getMessage().getMessageID());
         assertEquals("sender", sender, mail.getSender().toString());
         assertEquals("name", name, mail.getName());
     }
