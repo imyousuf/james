@@ -18,14 +18,15 @@
 
 package org.apache.james;
 
-import org.apache.james.services.MailServerTestAllImplementations;
 import org.apache.james.services.MailServer;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.services.MailServerTestAllImplementations;
 import org.apache.james.test.mock.avalon.MockContext;
+import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.test.mock.avalon.MockServiceManager;
+import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockUsersRepository;
 import org.apache.james.test.mock.james.MockUsersStore;
+import org.apache.james.test.mock.james.MockMailRepository;
 
 import java.io.File;
 
@@ -55,7 +56,9 @@ public class JamesTest extends MailServerTestAllImplementations {
         MockUsersRepository mockUsersRepository = new MockUsersRepository();
         serviceManager.put("org.apache.james.services.UsersRepository", mockUsersRepository);
         serviceManager.put("org.apache.james.services.UsersStore", new MockUsersStore(mockUsersRepository));
-        serviceManager.put("org.apache.avalon.cornerstone.services.store.Store", new MockStore());
+        MockStore mockStore = new MockStore();
+        mockStore.add(EXISTING_USER_NAME, new MockMailRepository());
+        serviceManager.put("org.apache.avalon.cornerstone.services.store.Store", mockStore);
         return serviceManager;
     }
 

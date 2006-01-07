@@ -31,7 +31,7 @@ import java.util.*;
 
 public class MockMailServer implements MailServer {
 
-    private final HashMap m_users = new HashMap();
+    private final MockUsersRepository m_users = new MockUsersRepository();
 
     private int m_counter = 0;
     private int m_maxMessageSizeBytes = 0;
@@ -39,6 +39,10 @@ public class MockMailServer implements MailServer {
     private final ArrayList mails = new ArrayList();
 
     private HashMap inboxes;
+    
+    public MockUsersRepository getUsersRepository() {
+        return m_users;
+    }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
         Object[] mailObjects = new Object[]{sender, recipients, msg};
@@ -103,7 +107,7 @@ public class MockMailServer implements MailServer {
     }
 
     public boolean addUser(String userName, String password) {
-        m_users.put(userName, password);
+        m_users.addUser(userName, password);
         return true;
     }
 

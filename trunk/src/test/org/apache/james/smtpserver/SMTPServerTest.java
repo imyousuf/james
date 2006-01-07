@@ -29,6 +29,7 @@ import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.mailet.MailAddress;
 import org.columba.ristretto.composer.MimeTreeRenderer;
 import org.columba.ristretto.io.CharSequenceSource;
 import org.columba.ristretto.message.Address;
@@ -43,12 +44,14 @@ import org.columba.ristretto.smtp.SMTPResponse;
 import com.sun.mail.util.SharedByteArrayInputStream;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -66,6 +69,17 @@ public class SMTPServerTest extends TestCase {
         super("SMTPServerTest");
     }
 
+    public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws ParseException {
+        Object[] mailData = m_mailServer.getLastMail();
+        assertNotNull("mail received by mail server", mailData);
+
+        if (sender == null && recipient == null && msg == null) fail("no verification can be done with all arguments null");
+
+        if (sender != null) assertEquals("sender verfication", sender, ((MailAddress)mailData[0]).toString());
+        if (recipient != null) assertTrue("recipient verfication", ((Collection) mailData[1]).contains(new MailAddress(recipient)));
+        if (msg != null) assertEquals("message verification", msg, ((MimeMessage) mailData[2]));
+    }
+    
     protected void setUp() throws Exception {
         m_smtpServer = new SMTPServer();
         m_smtpServer.enableLogging(new MockLogger());
@@ -95,6 +109,17 @@ public class SMTPServerTest extends TestCase {
         return serviceManager;
     }
 
+    private LocalMimePart createMail() {
+        MimeHeader mimeHeader = new MimeHeader(new Header());
+        mimeHeader.set("Mime-Version", "1.0");
+        LocalMimePart mail = new LocalMimePart(mimeHeader);
+        MimeHeader header = mail.getHeader();
+        header.setMimeType(new MimeType("text", "plain"));
+
+        mail.setBody(new CharSequenceSource("James Unit Test Body"));
+        return mail;
+    }
+
     public void testSimpleMailSendWithEHLO() throws Exception, SMTPException {
         finishSetUp(m_testConfiguration);
 
@@ -121,7 +146,7 @@ public class SMTPServerTest extends TestCase {
         // mail was propagated by SMTPServer
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
-    
+
     public void testEmptyMessage() throws Exception {
         InputStream mSource = new SharedByteArrayInputStream(("").getBytes());
         finishSetUp(m_testConfiguration);
@@ -144,10 +169,8 @@ public class SMTPServerTest extends TestCase {
 
         int size = ((MimeMessage) m_mailServer.getLastMail()[2]).getSize();
 
-        assertEquals(size,2);
+        assertEquals(size, 2);
     }
-
-
 
     public void testSimpleMailSendWithHELO() throws Exception, SMTPException {
         finishSetUp(m_testConfiguration);
@@ -171,15 +194,40 @@ public class SMTPServerTest extends TestCase {
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
 
-    private LocalMimePart createMail() {
-        MimeHeader mimeHeader = new MimeHeader(new Header());
-        mimeHeader.set("Mime-Version", "1.0");
-        LocalMimePart mail = new LocalMimePart(mimeHeader);
-        MimeHeader header = mail.getHeader();
-        header.setMimeType(new MimeType("text", "plain"));
+    public void testTwoSimultaneousMails() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
 
-        mail.setBody(new CharSequenceSource("James Unit Test Body"));
-        return mail;
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        SMTPProtocol smtpProtocol2 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        smtpProtocol2.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+        assertEquals("second connection taken", 1, smtpProtocol2.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@localhost";
+        String recipient1 = "mail_recipient1@localhost";
+        smtpProtocol1.mail(new Address(sender1));
+        smtpProtocol1.rcpt(new Address(recipient1));
+
+        String sender2 = "mail_sender2@localhost";
+        String recipient2 = "mail_recipient2@localhost";
+        smtpProtocol2.mail(new Address(sender2));
+        smtpProtocol2.rcpt(new Address(recipient2));
+
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        verifyLastMail(sender1, recipient1, null);
+            
+        smtpProtocol2.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        verifyLastMail(sender2, recipient2, null);
+
+        smtpProtocol1.quit();
+        smtpProtocol2.quit();
     }
 
     public void testAuth() throws Exception, SMTPException {
@@ -340,7 +388,6 @@ public class SMTPServerTest extends TestCase {
         body.append("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         body.append("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         body.append("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
-        body.append("1234567810123456782012345678301234567840123456785012345678601234567870123456788012345678901234567100");
         body.append("1234567810123456782012345"); // 1025 chars
 
         mail.setBody(new CharSequenceSource(body.toString()));
@@ -352,6 +399,19 @@ public class SMTPServerTest extends TestCase {
             assertEquals("expected 552 error", 552, e.getCode());
         }
 
+    }
+
+    public void testConnectionLimitExceeded() throws Exception, SMTPException {
+        m_testConfiguration.setConnectionLimit(1); // allow no more than one connection at a time 
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        SMTPProtocol smtpProtocol2 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        smtpProtocol2.openPort();
+        assertEquals("second connection not taken", SMTPProtocol.NOT_CONNECTED, smtpProtocol2.getState());
     }
 }
 

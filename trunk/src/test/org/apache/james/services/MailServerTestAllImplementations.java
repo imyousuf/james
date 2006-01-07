@@ -24,6 +24,8 @@ import junit.framework.TestCase;
  * tests all implementations for interface MailServer
  */
 abstract public class MailServerTestAllImplementations extends TestCase {
+    
+    protected static final String EXISTING_USER_NAME = "testExistingUserName";
 
     abstract public MailServer createMailServer();
     abstract public boolean allowsPasswordlessUser();
@@ -61,7 +63,6 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         MailServer mailServer = createMailServer();
 
         String userName = "testUserName";
-        MailRepository userInbox = null;
 
         if (canTestUserExists())
         {
@@ -93,53 +94,21 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         
     }
 
-    public void testGetNonexisitingUserInbox() {
+    public void testGetNonexistingUserInbox() {
 
-        //
-        // TODO fix test (or James) -- test WILL FAIL
-        // 
-        
         MailServer mailServer = createMailServer();
 
         String userName = "testNonexisitingUserName";
         MailRepository userInbox = null;
         
-        try {
-            userInbox = mailServer.getUserInbox(userName);
-            assertEquals("test user does not exist", null, userInbox);
-            fail("found inbox which should be unexistent");
-        } catch (NullPointerException e) {
-            // this is what org.apache.james.James returns  
-            // is this behavior compatible with other implementations?
-            // shouldn't James behave more gracefully?
-        }
+        userInbox = mailServer.getUserInbox(userName);
+        assertEquals("test user does not exist", null, userInbox);
     }
     
     public void testGetExisitingUserInbox() {
-        
-        //
-        // TODO fix test (or James) -- test WILL FAIL
-        // 
-        
         MailServer mailServer = createMailServer();
 
-        String userName = "testUserName";
-        MailRepository userInbox = null;
-        
-        // getUserInbox acts on field mailboxes for class org.apache.james.James
-        // thus, it is unrelated to addUser() for the only known implementation of MailServer
-        // TODO clarify this 
-        mailServer.addUser(userName, "password"); // !! is not retrievable via getUserInbox !!
-        
-        
-        try {
-            userInbox = mailServer.getUserInbox(userName);
-            assertEquals("test user does not exist", null, userInbox);
-            fail("found inbox which should be unexistent");
-        } catch (NullPointerException e) {
-            // this is what org.apache.james.James returns  
-            // is this behavior compatible with other implementations?
-            // shouldn't James behave more gracefully?
-        }
+        MailRepository userInbox = mailServer.getUserInbox(EXISTING_USER_NAME);
+        assertNotNull("existing user exists", userInbox);
     }
 }

@@ -142,7 +142,7 @@ public class POP3ServerTest extends TestCase {
         pop3Protocol.quit();
     }
 
-    public void testknownUserEmptyInbox() throws Exception, POP3Exception {
+    public void testKnownUserEmptyInbox() throws Exception, POP3Exception {
         finishSetUp(m_testConfiguration);
 
         POP3Protocol pop3Protocol = new POP3Protocol("127.0.0.1",
@@ -197,7 +197,7 @@ public class POP3ServerTest extends TestCase {
         pop3Protocol.quit();
     }
 
-    public void testknownUserInboxWithMessages() throws Exception,
+    public void testKnownUserInboxWithMessages() throws Exception,
             POP3Exception {
         finishSetUp(m_testConfiguration);
 

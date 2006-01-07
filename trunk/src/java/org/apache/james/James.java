@@ -537,7 +537,9 @@ public class James
             mboxConf.setAttribute("type", "MAIL");
             try {
                 userInbox = (MailRepository) store.select(mboxConf);
-                mailboxes.put(userName, userInbox);
+                if (userInbox!=null) {
+                    mailboxes.put(userName, userInbox);
+                }
             } catch (Exception e) {
                 if (getLogger().isErrorEnabled())
                 {
