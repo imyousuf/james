@@ -158,7 +158,7 @@ public class RcptCmdHandler
                         String authUser = (session.getUser()).toLowerCase(Locale.US);
                         MailAddress senderAddress = (MailAddress) session.getState().get(SENDER);
 
-                        if ((!authUser.equals(senderAddress.getUser())) ||
+                        if ((senderAddress == null) || (!authUser.equals(senderAddress.getUser())) ||
                             (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
                             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Incorrect Authentication for Specified Email Address";
                             session.writeResponse(responseString);

@@ -295,6 +295,38 @@ public class SMTPServerTest extends TestCase {
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
 
+    public void testAuthWithEmptySender() throws Exception {
+        m_testConfiguration.setAuthorizedAddresses("128.0.0.1/8");
+        m_testConfiguration.setAuthorizingAnnounce();
+        finishSetUp(m_testConfiguration);
+
+        MySMTPProtocol smtpProtocol = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol.openPort();
+
+        smtpProtocol.ehlo(InetAddress.getLocalHost());
+
+        String userName = "test_user_smtp";
+        m_usersRepository.addUser(userName, "pwd");
+
+        smtpProtocol.mail(new Address(""));
+
+        try {
+            smtpProtocol.auth("PLAIN", userName, "pwd".toCharArray());
+        } catch (SMTPException e) {
+            e.printStackTrace(); 
+            fail("authentication failed");
+        }
+
+        try {
+            smtpProtocol.rcpt(new Address("mail@sample.com"));
+            fail("smtpserver allowed an empty sender for an authenticated user");
+        } catch (SMTPException e) {
+            assertEquals("expected error", 503, e.getCode());
+        }
+        
+        smtpProtocol.quit();
+    }
+
     public void testNoRecepientSpecified() throws Exception, SMTPException {
         finishSetUp(m_testConfiguration);
 
