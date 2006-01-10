@@ -41,6 +41,7 @@ import org.columba.ristretto.pop3.ScanListEntry;
 import com.sun.mail.util.SharedByteArrayInputStream;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -208,25 +209,7 @@ public class POP3ServerTest extends TestCase {
         m_usersRepository.addUser("foo2", "bar2");
         MockMailRepository mailRep = new MockMailRepository();
 
-        MimeMessage mw = new MimeMessageWrapper(
-                new MimeMessageInputStreamSource(
-                        "test",
-                        new SharedByteArrayInputStream(
-                                ("Return-path: return@test.com\r\n"+
-                                 "Content-Transfer-Encoding: plain\r\n"+
-                                 "Subject: test\r\n\r\n"+
-                                 "Body Text\r\n").getBytes())));
-        MimeMessage mw2 = new MimeMessageWrapper(
-                new MimeMessageInputStreamSource(
-                        "test2",
-                        new SharedByteArrayInputStream(
-                                ("").getBytes())));
-        ArrayList recipients = new ArrayList();
-        recipients.add(new MailAddress("recipient@test.com"));
-        mailRep.store(new MailImpl("name", new MailAddress("from@test.com"),
-                recipients, mw));
-        mailRep.store(new MailImpl("name2", new MailAddress("from@test.com"),
-                recipients, mw2));
+        setupTestMails(mailRep);
 
         m_mailServer.setUserInbox("foo2", mailRep);
 
@@ -318,6 +301,88 @@ public class POP3ServerTest extends TestCase {
         }
         pop3Protocol.quit();
     }
+
+    private void setupTestMails(MockMailRepository mailRep) throws MessagingException {
+        ArrayList recipients = new ArrayList();
+        recipients.add(new MailAddress("recipient@test.com"));
+        MimeMessage mw = new MimeMessageWrapper(
+                new MimeMessageInputStreamSource(
+                        "test",
+                        new SharedByteArrayInputStream(
+                                ("Return-path: return@test.com\r\n"+
+                                 "Content-Transfer-Encoding: plain\r\n"+
+                                 "Subject: test\r\n\r\n"+
+                                 "Body Text\r\n").getBytes())));
+        mailRep.store(new MailImpl("name", new MailAddress("from@test.com"),
+                recipients, mw));
+        MimeMessage mw2 = new MimeMessageWrapper(
+                new MimeMessageInputStreamSource(
+                        "test2",
+                        new SharedByteArrayInputStream(
+                                ("").getBytes())));
+        mailRep.store(new MailImpl("name2", new MailAddress("from@test.com"),
+                recipients, mw2));
+    }
+
+    public void testTwoSimultaneousMails() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        // make two user/repositories, open both
+        m_usersRepository.addUser("foo1", "bar1");
+        MockMailRepository mailRep1 = new MockMailRepository();
+        setupTestMails(mailRep1);
+        m_mailServer.setUserInbox("foo1", mailRep1);
+
+        m_usersRepository.addUser("foo2", "bar2");
+        MockMailRepository mailRep2 = new MockMailRepository();
+        //do not setupTestMails, this is done later
+        m_mailServer.setUserInbox("foo2", mailRep2);
+
+        // open two connections
+        POP3Protocol pop3Protocol1 = new POP3Protocol("127.0.0.1",
+                m_pop3ListenerPort);
+        POP3Protocol pop3Protocol2 = new POP3Protocol("127.0.0.1",
+                m_pop3ListenerPort);
+        pop3Protocol1.openPort();
+        pop3Protocol2.openPort();
+
+        assertEquals("first connection taken", 1, pop3Protocol1.getState());
+        assertEquals("second connection taken", 1, pop3Protocol2.getState());
+
+        // open two accounts
+        int res = 0;
+        try {
+            pop3Protocol1.userPass("foo1", "bar1".toCharArray());
+        } catch (POP3Exception e) {
+            res = e.getResponse().getType();
+        }
+
+        try {
+            pop3Protocol2.userPass("foo2", "bar2".toCharArray());
+        } catch (POP3Exception e) {
+            res = e.getResponse().getType();
+        }
+
+        ScanListEntry[] entries = null;
+        try {
+            entries = pop3Protocol1.list();
+            assertEquals("foo1 has mails", 2, entries.length);
+        } catch (POP3Exception e) {
+            res = e.getResponse().getType();
+        }
+
+        try {
+            entries = pop3Protocol2.list();
+            assertEquals("foo2 has no mails", 0, entries.length);
+        } catch (POP3Exception e) {
+            res = e.getResponse().getType();
+        }
+
+        // put both to rest
+        pop3Protocol1.quit();
+        pop3Protocol2.quit();
+    }
+
 }
 
 class MyPOP3Protocol extends POP3Protocol {

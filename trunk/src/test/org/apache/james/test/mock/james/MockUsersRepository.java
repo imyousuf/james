@@ -20,24 +20,48 @@ import org.apache.james.security.DigestUtil;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.userrepository.DefaultUser;
+import org.apache.james.userrepository.DefaultJamesUser;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.LinkedList;
 
 public class MockUsersRepository implements UsersRepository {
 
     private final HashMap m_users = new HashMap();
 
+    /**
+     * force the repository to hold implementations of JamesUser interface, instead of User
+     * JamesUser is _not_ required as of the UsersRepository interface, so the necessarity forcing it
+     * is due to code using UsersRepository while at the same time expecting it to hold JamesUsers
+     * (like in RemoteManagerHandler) 
+     */
+    private boolean m_forceUseJamesUser = false;
+
+    public void setForceUseJamesUser() {
+        m_forceUseJamesUser = true;
+    }
+
     public boolean addUser(User user) {
         String key = user.getUserName();
         if (m_users.containsKey(key)) return false;
         m_users.put(key, user);
-        return true; 
+        return true;
     }
 
     public void addUser(String name, Object attributes) {
         try {
-            addUser(new DefaultUser(name, DigestUtil.digestString(((String)attributes), "SHA"), "SHA"));
+            String passwordHash = DigestUtil.digestString(((String) attributes), "SHA");
+
+            User user;
+            if (m_forceUseJamesUser) {
+                user = new DefaultJamesUser(name, passwordHash, "SHA");
+            } else {
+                user = new DefaultUser(name, passwordHash, "SHA");
+            }
+           
+            addUser(user);
         } catch (Exception e) {
             e.printStackTrace();  // encoding failed
         }
@@ -89,7 +113,17 @@ public class MockUsersRepository implements UsersRepository {
         return m_users.size();
     }
 
+    protected List listUserNames() {
+        Iterator users = m_users.values().iterator();
+        List userNames = new LinkedList();
+        while ( users.hasNext() ) {
+            User user = (User)users.next();
+            userNames.add(user.getUserName());
+        }
+
+        return userNames;
+    }
     public Iterator list() {
-        return m_users.values().iterator();
+        return listUserNames().iterator(); 
     }
 }
