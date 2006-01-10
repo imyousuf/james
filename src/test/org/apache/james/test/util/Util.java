@@ -23,7 +23,7 @@ import org.apache.james.smtpserver.*;
 public class Util {
 
     public static int getRandomNonPrivilegedPort() {
-        return ((int)( Math.random() * 1000) + 3000);
+        return ((int)( Math.random() * 3000) + 8000);
     }
 
     public static Configuration getValuedConfiguration(String name, String value) {

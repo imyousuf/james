@@ -38,12 +38,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Tests the org.apache.james.remotemanager.RemoteManager 
+ * Tests the org.apache.james.remotemanager.RemoteManager
+ * TODO: impl missing command tests for: 
+ *       USER 
+ *       SHUTDOWN (hard to test, because it does shutdown the whole (testing) JVM 
  */
+
 public class RemoteManagerTest extends TestCase {
 
     protected int m_remoteManagerListenerPort = Util.getRandomNonPrivilegedPort();
@@ -74,8 +79,12 @@ public class RemoteManagerTest extends TestCase {
     }
 
     protected void login() throws IOException {
-        sendCommand(m_testConfiguration.getLoginName());
-        sendCommand(m_testConfiguration.getLoginPassword());
+        login(m_testConfiguration.getLoginName(), m_testConfiguration.getLoginPassword());
+    }
+
+    protected void login(String name, String password) throws IOException {
+        sendCommand(name);
+        sendCommand(password);
 
         List answers = readAnswer();
         String last = getLastLine(answers);
@@ -86,7 +95,7 @@ public class RemoteManagerTest extends TestCase {
         if (list == null || list.isEmpty()) return null;
         return (String)list.get(list.size()-1);
     }
-    
+
     protected List readAnswer() {
         try {
             while (!m_reader.ready()) { ; }
@@ -169,7 +178,7 @@ public class RemoteManagerTest extends TestCase {
         String last = getLastLine(answers);
         assertTrue(last.startsWith("Login id:")); // login failed, getting new login prompt
     }
-    
+
     public void testUserCount() throws IOException {
         finishSetUp(m_testConfiguration);
         connect();
@@ -189,7 +198,7 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("countusers");
         assertTrue(getLastLine(readAnswer()).endsWith(" 2")); // 2 total
-        
+
         m_mockUsersRepository.removeUser("testCount1");
 
         sendCommand("countusers");
@@ -206,13 +215,13 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("verify testNotAdded");
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
-        
+
         sendCommand("verify testAdd");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
-        
+
         sendCommand("deluser testAdd");
         readAnswer();
-        
+
         sendCommand("verify testAdd");
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
     }
@@ -227,15 +236,83 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("deluser testNotDeletable");
         assertTrue(getLastLine(readAnswer()).endsWith(" doesn't exist"));
-        
+
         sendCommand("verify testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
-        
+
         sendCommand("deluser testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" deleted"));
-        
+
         sendCommand("verify testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
+    }
+
+    public void testQuit() throws IOException {
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("help");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            ; // ignore
+        }
+        assertTrue("command line is effective", readAnswer().size() > 0);
+
+        sendCommand("quit");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            ; // ignore
+        }
+        List answers = readAnswer();
+
+        sendCommand("help");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            ; // ignore
+        }
+        assertNull("connection is closed", m_reader.readLine());
+    }   
+
+    public void testListUsers() throws IOException {
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        String[] users = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
+
+        for (int i = 0; i < users.length; i++) {
+            String user = users[i];
+            sendCommand("adduser " + user + " test");
+        }
+        
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            ; // ignore
+        }
+        readAnswer();
+
+        sendCommand("listusers");
+        List list = readAnswer();
+
+        assertEquals("user count line", "Existing accounts " + users.length, list.get(0));
+        
+        List readUserNames = new ArrayList();
+        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+            String answerLine = (String) iterator.next();
+            if (!answerLine.startsWith("user: ")) continue;
+            readUserNames.add(answerLine.substring(6));
+        }
+        assertEquals("user count", users.length, readUserNames.size());
+
+        for (int i = 0; i < users.length; i++) {
+            String user = users[i];
+            assertTrue("name found", readUserNames.contains(user));
+        }
     }
 
     public void testCommandCaseInsensitive() throws IOException {
@@ -248,10 +325,10 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("verify testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
-        
+
         sendCommand("VERIFY testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
-        
+
         sendCommand("vErIfY testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
     }
@@ -266,11 +343,141 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("verify testDel");
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
-        
+
         sendCommand("verify TESTDEL");
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
-        
+
         sendCommand("verify testdel");
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
+    }
+
+    public void testAlias() throws IOException {
+        m_mockUsersRepository.setForceUseJamesUser();
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        // do some tests when parameter users don't exist
+        sendCommand("setalias testNonExist1 testNonExist2");
+        assertTrue(getLastLine(readAnswer()).equals("No such user testNonExist1"));
+        
+        sendCommand("adduser testAlias1 test");
+        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+
+        sendCommand("showalias testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("User testAlias1 does not currently have an alias"));
+
+        sendCommand("setalias testAlias1 testNonExist2");
+        assertTrue(getLastLine(readAnswer()).equals("Alias unknown to server - create that user first."));
+        
+        sendCommand("setalias testNonExist1 testAlias");
+        assertTrue(getLastLine(readAnswer()).equals("No such user testNonExist1"));
+        
+        sendCommand("adduser testAlias2 test");
+        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+
+        // regular alias
+        sendCommand("setalias testAlias1 testAlias2");
+        assertTrue(getLastLine(readAnswer()).equals("Alias for testAlias1 set to:testAlias2"));
+
+        //TODO: is this correct? even primitive circular aliasing allowed!
+        sendCommand("setalias testAlias2 testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("Alias for testAlias2 set to:testAlias1"));
+
+        // did first one persist?
+        sendCommand("showalias testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("Current alias for testAlias1 is: testAlias2"));
+
+        //TODO: is this correct? setting self as alias!
+        sendCommand("setalias testAlias1 testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("Alias for testAlias1 set to:testAlias1"));
+
+        sendCommand("adduser testAlias3 test");
+        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+
+        // re-set, simply overwrites
+        sendCommand("setalias testAlias1 testAlias3");
+        assertTrue(getLastLine(readAnswer()).equals("Alias for testAlias1 set to:testAlias3"));
+
+        // check overwrite
+        sendCommand("showalias testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("Current alias for testAlias1 is: testAlias3"));
+
+        // retreat
+        sendCommand("unsetalias testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("Alias for testAlias1 unset"));
+
+        // check removed alias
+        sendCommand("showalias testAlias1");
+        assertTrue(getLastLine(readAnswer()).equals("User testAlias1 does not currently have an alias"));
+
+    }
+
+    public void testForward() throws IOException {
+        m_mockUsersRepository.setForceUseJamesUser();
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        // do some tests when parameter users don't exist
+        sendCommand("setforwarding testNonExist1 testForward1@locahost");
+        assertTrue(getLastLine(readAnswer()).equals("No such user testNonExist1"));
+        
+        sendCommand("adduser testForwardUser test");
+        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+
+        sendCommand("showforwarding testForwardUser");
+        assertTrue(getLastLine(readAnswer()).equals("User testForwardUser is not currently being forwarded"));
+
+        sendCommand("setforwarding testForwardUser testForward1@locahost");
+        assertTrue(getLastLine(readAnswer()).equals("Forwarding destination for testForwardUser set to:testForward1@locahost"));
+        
+        // did it persist?
+        sendCommand("showforwarding testForwardUser");
+        assertTrue(getLastLine(readAnswer()).equals("Current forwarding destination for testForwardUser is: testForward1@locahost"));
+
+        // re-set, simply overwrites
+        sendCommand("setforwarding testForwardUser testForward2@locahost");
+        assertTrue(getLastLine(readAnswer()).equals("Forwarding destination for testForwardUser set to:testForward2@locahost"));
+
+        // check overwrite
+        sendCommand("showforwarding testForwardUser");
+        assertTrue(getLastLine(readAnswer()).equals("Current forwarding destination for testForwardUser is: testForward2@locahost"));
+
+        // retreat
+        sendCommand("unsetforwarding testForwardUser");
+        assertTrue(getLastLine(readAnswer()).equals("Forward for testForwardUser unset"));
+
+        // check removed forward
+        sendCommand("showforwarding testForwardUser");
+        assertTrue(getLastLine(readAnswer()).equals("User testForwardUser is not currently being forwarded"));
+
+    }
+
+    public void testSetPassword() throws IOException {
+        finishSetUp(m_testConfiguration);
+        connect();
+        login();
+
+        sendCommand("adduser testPwdUser pwd1");
+        assertTrue(getLastLine(readAnswer()).endsWith(" added"));
+
+        assertTrue("initial password", m_mockUsersRepository.test("testPwdUser", "pwd1"));
+        
+         sendCommand("setpassword testPwdUser     ");
+        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd1"));
+        readAnswer(); // ignore
+
+        // change pwd
+        sendCommand("setpassword testPwdUser pwd2");
+        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd2"));
+        readAnswer(); // ignore
+        
+        // assure case sensitivity
+        sendCommand("setpassword testPwdUser pWD2");
+        assertFalse("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd2"));
+        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pWD2"));
+        readAnswer(); // ignore
+        
     }
 }
