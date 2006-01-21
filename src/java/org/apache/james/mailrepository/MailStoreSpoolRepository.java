@@ -99,21 +99,21 @@ public class MailStoreSpoolRepository
     /**
      * @see org.apache.james.services.SpoolRepository#accept()
      */
-    public synchronized Mail accept() throws InterruptedException {
+    public Mail accept() throws InterruptedException {
         return spoolRep.accept();
     }
 
     /**
      * @see org.apache.james.services.SpoolRepository#accept(long)
      */
-    public synchronized Mail accept(final long delay) throws InterruptedException {
+    public Mail accept(final long delay) throws InterruptedException {
         return spoolRep.accept(delay); 
     }
 
     /**
      * @see org.apache.james.services.SpoolRepository#accept(org.apache.james.services.SpoolRepository.AcceptFilter)
      */
-    public synchronized Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException {
+    public Mail accept(SpoolRepository.AcceptFilter filter) throws InterruptedException {
         return spoolRep.accept(filter);
     }
 
