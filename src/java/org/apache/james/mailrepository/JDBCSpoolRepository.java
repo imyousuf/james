@@ -21,7 +21,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
 
 import java.sql.Connection;
@@ -232,7 +231,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      * is empty... a message that gets added will sit here until that queue
      * time has passed and the list is then reloaded.
      */
-    public void store(MailImpl mc) throws javax.mail.MessagingException {
+    public void store(Mail mc) throws javax.mail.MessagingException {
         pendingMessagesLoadTime = 0;
         super.store(mc);
     }
