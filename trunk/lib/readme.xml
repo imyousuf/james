@@ -42,7 +42,7 @@ This directory contains some libraries required to build and run the container s
   <library>
     <filename>dnsjava.jar</filename>
     <url>http://www.xbill.org/dnsjava/</url>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <name>dnsjava</name>
     <desc>dnsjava is an implementation of DNS in Java.  Great thanks to Brian Wellington <bwelling@xbill.org> for his contributions</desc>
   </library>

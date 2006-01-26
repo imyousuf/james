@@ -490,7 +490,7 @@ Legal:
         <lib dir="${lib.dir}">
           <include name="${avalon-framework.jar}"/>
           <include name="${avalon-framework-impl.jar}"/>
-          <include name="dnsjava-2.0.0.jar"/>
+          <include name="dnsjava-2.0.1.jar"/>
           <include name="jakarta-oro-2.0.8.jar"/>
           <include name="derby.jar"/>
           <include name="excalibur-datasource-2.1.jar"/>
