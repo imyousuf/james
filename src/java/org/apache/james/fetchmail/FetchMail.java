@@ -36,6 +36,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 
@@ -68,7 +69,7 @@ import org.apache.james.services.UsersRepository;
  * <p>Creation Date: 24-May-03</p>
  * 
  */
-public class FetchMail extends AbstractLogEnabled implements Configurable, Target
+public class FetchMail extends AbstractLogEnabled implements Configurable, Target, Serviceable
 {
     /**
      * Key fields for DynamicAccounts.
@@ -465,7 +466,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                         accountsChild.getAttribute("recipient"),
                         accountsChild.getAttributeAsBoolean(
                             "ignorercpt-header"),
-                        accountsChild.getAttribute("customrcpt-header"),
+                        accountsChild.getAttribute("customrcpt-header",""),
                         getSession()));
                 continue;
             }
