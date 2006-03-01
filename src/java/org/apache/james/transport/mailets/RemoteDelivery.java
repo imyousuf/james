@@ -204,6 +204,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private int connectionTimeout = 60000;  // The amount of time JavaMail will wait before giving up on a socket connect()
     private int deliveryThreadCount = 1; // default number of delivery threads
     private Collection gatewayServer = null; // the server(s) to send all email to
+    private String authUser = null; // auth for gateway server
+    private String authPass = null; // password for gateway server
     private String bindAddress = null; // JavaMail delivery socket binds to this local address. If null the JavaMail default will be used.
     private boolean isBindUsed = false; // true, if the bind configuration
                                         // parameter is supplied, RemoteDeliverySocketFactory
@@ -214,6 +216,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private Perl5Matcher delayTimeMatcher; //matcher use at init time to parse delaytime parameters
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter ();//used by accept to selcet the next mail ready for processing
+
     
     /**
      * Initialize the mailet
@@ -301,6 +304,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 if (isDebug) log("Adding SMTP gateway: " + server) ;
                 gatewayServer.add(server);
             }
+            authUser = getInitParameter("gatewayusername");
+            authPass = getInitParameter("gatewayPassword");
         }
 
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
@@ -478,7 +483,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     try {
                         transport = session.getTransport(outgoingMailServer);
                         try {
-                            transport.connect();
+                            if (authUser != null) {
+                                transport.connect(outgoingMailServer.getHostName(), authUser, authPass);
+                            } else {
+                                transport.connect();
+                            }
                         } catch (MessagingException me) {
                             // Any error on connect should cause the mailet to attempt
                             // to connect to the next SMTP server associated with this
@@ -1065,6 +1074,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                       "org.apache.james.transport.mailets.RemoteDeliverySocketFactory");
             // Don't fallback to the standard socket factory on error, do throw an exception
             props.put("mail.smtp.socketFactory.fallback", "false");
+        }
+        
+        if (authUser != null) {
+            props.put("mail.smtp.auth","true");
         }
 
         Session session = Session.getInstance(props, null);
