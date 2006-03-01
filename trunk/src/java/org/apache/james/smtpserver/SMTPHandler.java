@@ -78,6 +78,7 @@ public class SMTPHandler
     private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
     private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
+    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
 
     /**
      * Static Random instance used to generate SMTP ids
@@ -210,12 +211,6 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
 
-
-    /**
-     * The per-handler map to store session scope variables
-     * the various handlers use this for storing state information
-     */
-     private HashMap sessionState = new HashMap();
 
     /**
      * The per-handler map to store message scope variables
@@ -441,11 +436,20 @@ public class SMTPHandler
                   if (mail instanceof Disposable) {
                       ((Disposable) mail).dispose();
                   }
+                  
+                  // remember the ehlo mode
+                  Object currentHeloMode = state.get(CURRENT_HELO_MODE);
+                  
                   mail = null;
                   resetState();
 
                   //reset the message scope state
                   messageState.clear();
+                  
+                  // start again with the old helo mode
+                  if (currentHeloMode != null) {
+                      state.put(CURRENT_HELO_MODE,currentHeloMode);
+                  }
               }
 
             }
@@ -492,7 +496,6 @@ public class SMTPHandler
             }
         } finally {
             //Clear all the session state variables
-            sessionState.clear();
             resetHandler();
         }
     }
@@ -872,12 +875,5 @@ public class SMTPHandler
         return messageState;
     }
 
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getSessionState()
-     */
-    public HashMap getSessionState() {
-        return sessionState;
-    }
 
 }

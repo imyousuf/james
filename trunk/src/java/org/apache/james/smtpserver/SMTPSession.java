@@ -216,12 +216,5 @@ public interface SMTPSession {
     HashMap getMessageState();
 
 
-    /**
-     * Used for storing Session scope variables
-     *
-     * @return map of session scope param-values
-     */
-    HashMap getSessionState();
-
 }
 

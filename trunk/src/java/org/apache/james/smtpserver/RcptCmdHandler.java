@@ -96,8 +96,8 @@ public class RcptCmdHandler
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
-                                .append(recipient)
-                                .append(": did not start and end with < >");
+                                .append("Address did not start and end with < >")
+                                .append(getContext(session,null,recipient));
                     getLogger().error(errorBuffer.toString());
                 }
                 return;
@@ -123,8 +123,7 @@ public class RcptCmdHandler
                     StringBuffer errorBuffer =
                         new StringBuffer(192)
                                 .append("Error parsing recipient address: ")
-                                .append(recipient)
-                                .append(": ")
+                                .append(getContext(session,recipientAddress,recipient))
                                 .append(pe.getMessage());
                     getLogger().error(errorBuffer.toString());
                 }
@@ -149,7 +148,10 @@ public class RcptCmdHandler
                     if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                         responseString = "530 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Authentication Required";
                         session.writeResponse(responseString);
-                        getLogger().error("Rejected message - authentication is required for mail request");
+                        StringBuffer sb = new StringBuffer(128);
+                        sb.append("Rejected message - authentication is required for mail request");
+                        sb.append(getContext(session,recipientAddress,recipient));
+                        getLogger().error(sb.toString());
                         return;
                     }
                 } else {
@@ -168,7 +170,8 @@ public class RcptCmdHandler
                                         .append("User ")
                                         .append(authUser)
                                         .append(" authenticated, however tried sending email as ")
-                                        .append(senderAddress);
+                                        .append(senderAddress)
+                                        .append(getContext(session,recipientAddress,recipient));
                                 getLogger().error(errorBuffer.toString());
                             }
                             return;
@@ -180,7 +183,13 @@ public class RcptCmdHandler
                 if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
                     responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: relaying denied";
                     session.writeResponse(responseString);
-                    getLogger().error("Rejected message - " + session.getRemoteIPAddress() + " not authorized to relay to " + toDomain);
+                    StringBuffer errorBuffer = new StringBuffer(128)
+                        .append("Rejected message - ")
+                        .append(session.getRemoteIPAddress())
+                        .append(" not authorized to relay to ")
+                        .append(toDomain)
+                        .append(getContext(session,recipientAddress,recipient));
+                    getLogger().error(errorBuffer.toString());
                     return;
                 }
             }
@@ -203,7 +212,8 @@ public class RcptCmdHandler
                               .append("RCPT command had unrecognized/unexpected option ")
                               .append(rcptOptionName)
                               .append(" with value ")
-                              .append(rcptOptionValue);
+                              .append(rcptOptionValue)
+                              .append(getContext(session,recipientAddress,recipient));
                       getLogger().debug(debugBuffer.toString());
                   }
               }
@@ -220,4 +230,16 @@ public class RcptCmdHandler
     }
 
 
+    private String getContext(SMTPSession session, MailAddress recipientAddress, String recipient){
+        StringBuffer sb = new StringBuffer(128);
+        if(null!=recipientAddress) {
+            sb.append(" [to:" + (recipientAddress).toInternetAddress().getAddress() + "]");
+        } else if(null!=recipient) {
+            sb.append(" [to:" + recipient + "]");
+        }
+        if (null!=session.getState().get(SENDER)) {
+            sb.append(" [from:" + ((MailAddress)session.getState().get(SENDER)).toInternetAddress().getAddress() + "]");
+        }
+        return sb.toString();
+    } 
 }

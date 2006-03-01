@@ -157,6 +157,8 @@ public class SMTPServerTest extends TestCase {
         // no message there, yet
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
+        smtpProtocol.helo(InetAddress.getLocalHost());
+
         smtpProtocol.mail(new Address("mail@localhost"));
         smtpProtocol.rcpt(new Address("mail@localhost"));
 
@@ -209,6 +211,7 @@ public class SMTPServerTest extends TestCase {
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost());
+        smtpProtocol2.helo(InetAddress.getLocalHost());
 
         String sender1 = "mail_sender1@localhost";
         String recipient1 = "mail_recipient1@localhost";
@@ -228,6 +231,64 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol1.quit();
         smtpProtocol2.quit();
+    }
+
+    public void testTwoMailsInSequence() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@localhost";
+        String recipient1 = "mail_recipient1@localhost";
+        smtpProtocol1.mail(new Address(sender1));
+        smtpProtocol1.rcpt(new Address(recipient1));
+
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        verifyLastMail(sender1, recipient1, null);
+            
+        String sender2 = "mail_sender2@localhost";
+        String recipient2 = "mail_recipient2@localhost";
+        smtpProtocol1.mail(new Address(sender2));
+        smtpProtocol1.rcpt(new Address(recipient2));
+
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        verifyLastMail(sender2, recipient2, null);
+
+        smtpProtocol1.quit();
+    }
+
+    public void testHeloEnforcement() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        String sender1 = "mail_sender1@localhost";
+        try {
+            smtpProtocol1.mail(new Address(sender1));
+            fail("helo not enforced");
+        } catch (SMTPException e) {
+            assertEquals("expected 503 error", 503, e.getCode());
+        }
+        
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+        
+        smtpProtocol1.mail(new Address(sender1));
+        
+        smtpProtocol1.quit();
     }
 
     public void testAuth() throws Exception, SMTPException {

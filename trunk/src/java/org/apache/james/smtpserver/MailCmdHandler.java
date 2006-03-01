@@ -36,6 +36,11 @@ public class MailCmdHandler
 
     private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
 
+    /**
+     * The helo mode set in state object
+     */
+    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
+
     /*
      * handles MAIL command
      *
@@ -65,6 +70,9 @@ public class MailCmdHandler
         }
         if (session.getState().containsKey(SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
+            session.writeResponse(responseString);
+        } else if (!session.getState().containsKey(CURRENT_HELO_MODE)) {
+            responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
             session.writeResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
                    || sender == null) {
