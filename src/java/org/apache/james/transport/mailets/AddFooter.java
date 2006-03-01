@@ -19,6 +19,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
+import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
@@ -39,7 +40,7 @@ public class AddFooter extends GenericMailet {
      * This is the plain text version of the footer we are going to add
      */
     String text = "";
-
+    
     /**
      * Initialize the mailet
      */
@@ -152,12 +153,16 @@ public class AddFooter extends GenericMailet {
      */
     protected void addToText(MimePart part) throws MessagingException, IOException {
 //        log("Trying to add footer to " + part.getContent().toString());
-        String content = part.getContent().toString();
+        String contentType = part.getContentType();
+        String content = (String) part.getContent();
+        
         if (!content.endsWith("\n")) {
             content += "\r\n";
         }
         content += getFooterText();
-        part.setText(content);
+
+        part.setContent(content,contentType);
+        part.setHeader(RFC2822Headers.CONTENT_TYPE,contentType);
 //        log("After adding footer: " + part.getContent().toString());
     }
 
@@ -171,7 +176,8 @@ public class AddFooter extends GenericMailet {
      */
     protected void addToHTML(MimePart part) throws MessagingException, IOException {
 //        log("Trying to add footer to " + part.getContent().toString());
-        String content = part.getContent().toString();
+        String contentType = part.getContentType();
+        String content = (String) part.getContent(); 
 
         /* This HTML part may have a closing <BODY> tag.  If so, we
          * want to insert out footer immediately prior to that tag.
@@ -180,8 +186,9 @@ public class AddFooter extends GenericMailet {
         if (index == -1) index = content.lastIndexOf("</BODY>");
         String insert = "<br>" + getFooterHTML();
         content = index == -1 ? content + insert : content.substring(0, index) + insert + content.substring(index);
-   
-        part.setContent(content, part.getContentType());
+
+        part.setContent(content,contentType);
+        part.setHeader(RFC2822Headers.CONTENT_TYPE,contentType);
 //        log("After adding footer: " + part.getContent().toString());
     }
 
@@ -196,10 +203,10 @@ public class AddFooter extends GenericMailet {
      */
     protected boolean attachFooter(MimePart part) throws MessagingException, IOException {
 //        log("Content type is " + part.getContentType());
-        if (part.isMimeType("text/plain")) {
+        if (part.isMimeType("text/plain") && part.getContent() instanceof String) {
             addToText(part);
             return true;
-        } else if (part.isMimeType("text/html")) {
+        } else if (part.isMimeType("text/html") && part.getContent() instanceof String) {
             addToHTML(part);
             return true;
         } else if (part.isMimeType("multipart/mixed")) {
@@ -207,7 +214,8 @@ public class AddFooter extends GenericMailet {
             MimeMultipart multipart = (MimeMultipart)part.getContent();
             MimeBodyPart firstPart = (MimeBodyPart)multipart.getBodyPart(0);
             boolean isFooterAttached = attachFooter(firstPart);
-            //We have to do this because of a bug in JavaMail (ref id 4404733)
+            //We have to do this because of a bug in JavaMail (ref id 4403733)
+            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
             part.setContent(multipart);
             return isFooterAttached;
         } else if (part.isMimeType("multipart/alternative")) {
@@ -220,7 +228,8 @@ public class AddFooter extends GenericMailet {
                 MimeBodyPart mimeBodyPart = (MimeBodyPart)multipart.getBodyPart(index);
                 isFooterAttached |= attachFooter(mimeBodyPart);
             }
-            //We have to do this because of a bug in JavaMail (ref id 4404733)
+            //We have to do this because of a bug in JavaMail (ref id 4403733)
+            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
             part.setContent(multipart);
             return isFooterAttached;
         } else {
@@ -228,4 +237,5 @@ public class AddFooter extends GenericMailet {
             return false;
         }
     }
+    
 }
