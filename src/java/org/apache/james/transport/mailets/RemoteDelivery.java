@@ -1036,9 +1036,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         // Reactivated: javamail 1.3.2 should no more have problems with "250 OK"
         // messages (WAS "false": Prevents problems encountered with 250 OK Messages)
         props.put("mail.smtp.ehlo", "true");
-        // By setting this property the transport is allowed to
-        // send 8 bit data to the server (if it supports the 8bitmime extension). 
-        props.setProperty("mail.smtp.allow8bitmime", "true");
+        // By setting this property to true the transport is allowed to
+        // send 8 bit data to the server (if it supports the 8bitmime extension).
+        // 2006/03/01 reverted to false because of a javamail bug converting to 8bit
+        // messages created by an inputstream.
+        props.setProperty("mail.smtp.allow8bitmime", "false");
         //Sets timeout on going connections
         props.put("mail.smtp.timeout", smtpTimeout + "");
 
