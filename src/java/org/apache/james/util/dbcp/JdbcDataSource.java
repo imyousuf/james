@@ -17,35 +17,17 @@
 
 package org.apache.james.util.dbcp;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import java.util.Vector;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.InitialContext;
-
-//import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
-//import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
-//import org.apache.commons.pool.impl.GenericObjectPool;
-//import org.apache.commons.dbcp.ConnectionFactory;
-//import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-//import org.apache.commons.dbcp.PoolingDataSource;
-//import org.apache.commons.dbcp.PoolableConnectionFactory;
-
-
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.dbcp.BasicDataSource;
+
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * <p>
@@ -81,6 +63,15 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * <li><b>keep-alive</b> - The SQL query that will be used to validate connections from this pool before returning them to the caller.  If specified, this query <strong>MUST</strong> be an SQL SELECT statement that returns at least one row.</li>
  * <li><b>max</b> - The maximum number of active connections allowed in the pool. 0 means no limit. (default 2)</li>
  * <li><b>max_idle</b> - The maximum number of idle connections.  0 means no limit.  (default 0)</li>
+ * <li><b>initial_size</b> -  The initial number of connections that are created when the pool is started. (default 0)</li>
+ * <li><b>min_idle</b> -  The minimum number of active connections that can remain idle in the pool, without extra ones being created, or zero to create none. (default 0)</li>
+ * <li><b>max_wait</b> -  The maximum number of milliseconds that the pool will wait (when there are no available connections) for a connection to be returned before throwing an exception, or -1 to wait indefinitely. (default -1)</li>
+ * <li><b>testOnBorrow</b> -  The indication of whether objects will be validated before being borrowed from the pool. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another.  (default true)</li>
+ * <li><b>testOnReturn</b> -  The indication of whether objects will be validated before being returned to the pool. (default false)</li>
+ * <li><b>testWhileIdle</b> -  The indication of whether objects will be validated by the idle object evictor (if any). If an object fails to validate, it will be dropped from the pool. (default false)</li>
+ * <li><b>timeBetweenEvictionRunsMillis</b> -  The number of milliseconds to sleep between runs of the idle object evictor thread. When non-positive, no idle object evictor thread will be run. (default -1)</li>
+ * <li><b>numTestsPerEvictionRun</b> -  The number of objects to examine during each run of the idle object evictor thread (if any). (default 3)</li>
+ * <li><b>minEvictableIdleTimeMillis</b> -  The minimum amount of time an object may sit idle in the pool before it is eligable for eviction by the idle object evictor (if any). (default 1000 * 60 * 30)</li>
  * </ul>
  *
  * @version CVS $Revision$
@@ -131,12 +122,21 @@ public class JdbcDataSource extends AbstractLogEnabled
             source.setPassword(password);
             source.setMaxActive(configuration.getChild("max").getValueAsInteger(2));
             source.setMaxIdle(configuration.getChild("max_idle").getValueAsInteger(0));
+            source.setInitialSize(configuration.getChild("initial_size").getValueAsInteger(0));
+            source.setMinIdle(configuration.getChild("min_idle").getValueAsInteger(0));
+            //This is necessary, otherwise a connection could hang forever
+            source.setMaxWait(configuration.getChild("max_wait").getValueAsInteger(5000));
             source.setValidationQuery(configuration.getChild("keep-alive").getValue(null));
+            source.setTestOnBorrow(configuration.getChild("testOnBorrow").getValueAsBoolean(true));
+            source.setTestOnReturn(configuration.getChild("testOnReturn").getValueAsBoolean(false));
+            source.setTestWhileIdle(configuration.getChild("testWhileIdle").getValueAsBoolean(false));
+            source.setTimeBetweenEvictionRunsMillis(configuration.getChild("timeBetweenEvictionRunsMillis").getValueAsInteger(-1));
+            source.setNumTestsPerEvictionRun(configuration.getChild("numTestsPerEvictionRun").getValueAsInteger(3));
+            source.setMinEvictableIdleTimeMillis(configuration.getChild("minEvictableIdleTimeMillis").getValueAsInteger(1000 * 30 * 60));
+
             //Unsupported
             //source.setLoginTimeout(configuration.getChild("login_timeout").getValueAsInteger(0));
 
-            //This is necessary, otherwise a connection could hang forever
-            source.setMaxWait(configuration.getChild("max_wait").getValueAsInteger(5000));
 
             // DBCP uses a PrintWriter approach to logging.  This
             // Writer class will bridge between DBCP and Avalon
@@ -154,17 +154,17 @@ public class JdbcDataSource extends AbstractLogEnabled
 
             source.setLogWriter(new PrintWriter(writer, true));
 
-            /*
-            Extra debug for first cut
-            System.err.println("max wait: " + source.getMaxWait());
-            System.err.println("max idle: " + source.getMaxIdle());
-            System.err.println("max active: " + source.getMaxActive());
-            System.err.println("getRemoveAbandonedTimeout: " + source.getRemoveAbandonedTimeout());
-            System.err.println("getRemoveAbandoned(): " + source.getRemoveAbandoned());
-            System.err.println("getNumTestsPerEvictionRun(): " + source.getNumTestsPerEvictionRun());
-            System.err.println("getMinEvictableIdleTimeMillis(): " + source.getMinEvictableIdleTimeMillis());
-            System.err.println("getTimeBetweenEvictionRunsMillis(): " + source.getTimeBetweenEvictionRunsMillis());
-            */
+            // Extra debug for first cut
+            getLogger().debug("max wait: " + source.getMaxWait());
+            getLogger().debug("max idle: " + source.getMaxIdle());
+            getLogger().debug("max active: " + source.getMaxActive());
+            getLogger().debug("initial size: " + source.getInitialSize());
+            getLogger().debug("TestOnBorrow: " + source.getTestOnBorrow());
+            getLogger().debug("TestOnReturn: " + source.getTestOnReturn());
+            getLogger().debug("TestWhileIdle: " + source.getTestWhileIdle());
+            getLogger().debug("NumTestsPerEvictionRun(): " + source.getNumTestsPerEvictionRun());
+            getLogger().debug("MinEvictableIdleTimeMillis(): " + source.getMinEvictableIdleTimeMillis());
+            getLogger().debug("TimeBetweenEvictionRunsMillis(): " + source.getTimeBetweenEvictionRunsMillis());
 
             /*
             //Another sample that doesn't work
