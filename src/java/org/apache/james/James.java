@@ -808,6 +808,10 @@ public class James
      * an email address before the '@<domain>'.
      * @param password String plaintext password
      * @return boolean true if user added succesfully, else false.
+     * 
+     * @deprecated we deprecated this in the MailServer interface and this is an implementation
+     * this component depends already depends on a UsersRepository: clients could directly 
+     * use the addUser of the usersRepository.
      */
     public boolean addUser(String userName, String password) {
         boolean success;

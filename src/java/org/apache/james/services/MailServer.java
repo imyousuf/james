@@ -116,6 +116,10 @@ public interface MailServer
      *
      * @param sender - the name of the user
      * @return a reference to an initialised mailbox
+     * 
+     * @deprecated addUser should not be considered a property of a MailServer
+     * We could have readonly userbases providing full MailServer implementations.
+     * Look at the UsersRepository.addUser(username, password) method.
      */
     boolean addUser(String userName, String password);
 
