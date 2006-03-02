@@ -45,7 +45,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -86,9 +85,7 @@ public class UsersLDAPRepository
      */
     public void contextualize(Context context)
         throws ContextException {
-        Collection serverNames
-            = (Collection)context.get(Constants.SERVER_NAMES);
-        usersDomain = (String)serverNames.iterator().next();
+        usersDomain = (String)context.get(Constants.DEFAULT_DOMAIN);
     }
 
     /**
