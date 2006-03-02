@@ -342,7 +342,7 @@ public class James
 
         //Get localusers
         try {
-            localusers = usersStore.getRepository("LocalUsers");
+            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
         } catch (Exception e) {
             getLogger().error("Cannot open private UserRepository");
             throw e;

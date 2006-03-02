@@ -24,7 +24,6 @@ import org.apache.james.services.JamesUser;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.services.UsersStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -46,9 +45,6 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     private MailServer mailServer;
 
-    /** The store containing the local user repository. */
-    private UsersStore usersStore;
-
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
      */
@@ -65,13 +61,12 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
             mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
         } catch (ServiceException e) {
             log("Exception in getting the MailServer: " + e.getMessage() + e.getKey());
-        }        
+        }
         try {
-            usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
+            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
         } catch (ServiceException e) {
             log("Exception in getting the UsersStore: " + e.getMessage() + e.getKey());
-        }        
-        localusers = (UsersRepository)usersStore.getRepository("LocalUsers");
+        }
     }
 
     /** 

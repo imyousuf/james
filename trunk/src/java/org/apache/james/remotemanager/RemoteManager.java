@@ -106,7 +106,7 @@ public class RemoteManager
             lookup( "org.apache.james.services.MailServer" );
         usersStore = (UsersStore)componentManager.
             lookup( "org.apache.james.services.UsersStore" );
-        users = usersStore.getRepository("LocalUsers");
+        users = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
         if (users == null) {
             throw new ServiceException("","The user repository could not be found.");
         }
