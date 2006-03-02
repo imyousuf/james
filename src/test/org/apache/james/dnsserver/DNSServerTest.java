@@ -18,15 +18,17 @@ package org.apache.james.dnsserver;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.fetchmail.ReaderInputStream;
+import org.apache.james.test.mock.avalon.MockLogger;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 import java.util.Collection;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
 public class DNSServerTest extends TestCase {
+
+    private DNSServer dnsServer;
 
     /**
      * Please note that this is an hardcoded test that works because
@@ -39,83 +41,44 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testINARecords() throws Exception {
-        DNSServer d = new DNSServer();
-        DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
-
-        Configuration c = db
-                .build(
-                        new ReaderInputStream(
-                                new StringReader(
-                                        "<dnsserver><servers><server>192.168.0.1</server></servers><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>")),
-                        "dnsserver");
-        for (int i = 0; i < c.getAttributeNames().length; i++) {
-            System.out.println(c.getAttributeNames()[i]);
-        }
-
-        d.enableLogging(new Logger() {
-
-            public void debug(String arg0) {
-            }
-
-            public void debug(String arg0, Throwable arg1) {
-            }
-
-            public boolean isDebugEnabled() {
-                return false;
-            }
-
-            public void info(String arg0) {
-            }
-
-            public void info(String arg0, Throwable arg1) {
-            }
-
-            public boolean isInfoEnabled() {
-                return false;
-            }
-
-            public void warn(String arg0) {
-            }
-
-            public void warn(String arg0, Throwable arg1) {
-            }
-
-            public boolean isWarnEnabled() {
-                return false;
-            }
-
-            public void error(String arg0) {
-            }
-
-            public void error(String arg0, Throwable arg1) {
-            }
-
-            public boolean isErrorEnabled() {
-                return false;
-            }
-
-            public void fatalError(String arg0) {
-            }
-
-            public void fatalError(String arg0, Throwable arg1) {
-            }
-
-            public boolean isFatalErrorEnabled() {
-                return false;
-            }
-
-            public Logger getChildLogger(String arg0) {
-                return null;
-            }
-
-        });
-        d.configure(c);
-        d.initialize();
-        Collection records = d.findMXRecords("www.pippo.com.");
+        Collection records = dnsServer.findMXRecords("www.pippo.com.");
         assertEquals(1, records.size());
         assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator()
                 .next());
-        d.dispose();
+    }
+
+    /**
+     * Please note that this is an hardcoded test that works because
+     * brandilyncollins.com. has an MX record that point to mxmail.register.com
+     * and this is a CNAME to the real address.
+     * This test will be invalidated by any change in the brandilyncollins.com dns records
+     * 
+     * @param args
+     * @throws Exception
+     */
+    public void testCNAMEasMXrecords() throws Exception {
+        Iterator records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
+        assertEquals(true, records.hasNext());
+    }
+
+    protected void setUp() throws Exception {
+        dnsServer = new DNSServer();
+        DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
+
+        Configuration c = db.build(
+                new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()),
+                "dnsserver");
+//        for (int i = 0; i < c.getAttributeNames().length; i++) {
+//            System.out.println(c.getAttributeNames()[i]);
+//        }
+
+        dnsServer.enableLogging(new MockLogger());
+        dnsServer.configure(c);
+        dnsServer.initialize();
+    }
+
+    protected void tearDown() throws Exception {
+        dnsServer.dispose();
     }
 
 }
