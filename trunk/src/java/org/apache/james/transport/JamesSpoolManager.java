@@ -132,12 +132,12 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-        spool = (SpoolRepository) compMgr.lookup("org.apache.james.services.SpoolRepository");
+        spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
 
         MailetLoader mailetLoader
-        = (MailetLoader) compMgr.lookup("org.apache.james.services.MailetLoader");
+        = (MailetLoader) compMgr.lookup(MailetLoader.ROLE);
         MatcherLoader matchLoader
-        = (MatcherLoader) compMgr.lookup("org.apache.james.services.MatcherLoader");
+        = (MatcherLoader) compMgr.lookup(MatcherLoader.ROLE);
 
         //A processor is a Collection of
         processors = new HashMap();

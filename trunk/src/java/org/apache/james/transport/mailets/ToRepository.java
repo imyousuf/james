@@ -65,12 +65,12 @@ public class ToRepository extends GenericMailet {
 
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            Store mailstore = (Store) compMgr.lookup("org.apache.avalon.cornerstone.services.store.Store");
+            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
             DefaultConfiguration mailConf
                 = new DefaultConfiguration("repository", "generated:ToRepository");
             mailConf.setAttribute("destinationURL", repositoryPath);
             mailConf.setAttribute("type", "MAIL");
-            mailConf.setAttribute("CACHEKEYS", getInitParameter("CACHEKEYS") == null ? "TRUE" : getInitParameter("CACHEKEYS"));
+            mailConf.setAttribute("CACHEKEYS", getInitParameter("CACHEKEYS","TRUE"));
             repository = (MailRepository) mailstore.select(mailConf);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());

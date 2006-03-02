@@ -80,8 +80,7 @@ public class AvalonMailRepository
      */
     public void service( final ServiceManager componentManager )
             throws ServiceException {
-        store = (Store)componentManager.
-        lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+        store = (Store)componentManager.lookup( Store.ROLE );
     }
 
     /**

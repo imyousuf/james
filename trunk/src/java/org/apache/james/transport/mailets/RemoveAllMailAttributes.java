@@ -19,7 +19,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
 import javax.mail.MessagingException;
 
 /**

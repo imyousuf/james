@@ -103,9 +103,9 @@ public class RemoteManager
         throws ServiceException {
         super.service(componentManager);
         mailServer = (MailServer)componentManager.
-            lookup( "org.apache.james.services.MailServer" );
+            lookup( MailServer.ROLE );
         usersStore = (UsersStore)componentManager.
-            lookup( "org.apache.james.services.UsersStore" );
+            lookup( UsersStore.ROLE );
         users = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
         if (users == null) {
             throw new ServiceException("","The user repository could not be found.");

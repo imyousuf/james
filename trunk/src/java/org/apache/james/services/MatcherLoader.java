@@ -24,6 +24,11 @@ import javax.mail.MessagingException;
 public interface MatcherLoader {
 
     /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.services.MatcherLoader";
+
+    /**
      * Get a new Matcher with the specified name acting
      * in the specified context.
      *

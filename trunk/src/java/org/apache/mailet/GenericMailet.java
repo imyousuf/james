@@ -57,6 +57,27 @@ public abstract class GenericMailet implements Mailet, MailetConfig {
     }
 
     /**
+     * Returns a String containing the value of the named initialization
+     * parameter, or defValue if the parameter does not exist.
+     * <p>
+     * This method is supplied for convenience. It gets the value of the
+     * named parameter from the mailet's MailetConfig object.
+     *
+     * @param name - a String specifying the name of the initialization parameter
+     * @param defValue - a String specifying the default value when the parameter
+     *                    is not present
+     * @return a String containing the value of the initalization parameter
+     */
+    public String getInitParameter(String name, String defValue) {
+        String res = config.getInitParameter(name);
+        if (res == null) {
+            return defValue;
+        } else {
+            return res;
+        }
+    }
+
+    /**
      * Returns the names of the mailet's initialization parameters as an
      * Iterator of String objects, or an empty Iterator if the mailet has no
      * initialization parameters.

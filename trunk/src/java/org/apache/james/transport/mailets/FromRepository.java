@@ -78,7 +78,7 @@ public class FromRepository extends GenericMailet {
 
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            Store mailstore = (Store) compMgr.lookup("org.apache.avalon.cornerstone.services.store.Store");
+            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
             DefaultConfiguration mailConf
                 = new DefaultConfiguration("repository", "generated:ToRepository");
             mailConf.setAttribute("destinationURL", repositoryPath);

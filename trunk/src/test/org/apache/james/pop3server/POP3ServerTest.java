@@ -22,6 +22,8 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.JamesConnectionManager;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -89,8 +91,8 @@ public class POP3ServerTest extends TestCase {
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_mailServer = new MockMailServer();
         serviceManager
-                .put("org.apache.james.services.MailServer", m_mailServer);
-        serviceManager.put("org.apache.james.services.UsersRepository",
+                .put(MailServer.ROLE, m_mailServer);
+        serviceManager.put(UsersRepository.ROLE,
                 m_usersRepository);
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(
                 m_pop3ListenerPort));
@@ -350,17 +352,16 @@ public class POP3ServerTest extends TestCase {
         assertEquals("second connection taken", 1, pop3Protocol2.getState());
 
         // open two accounts
-        int res = 0;
         try {
             pop3Protocol1.userPass("foo1", "bar1".toCharArray());
         } catch (POP3Exception e) {
-            res = e.getResponse().getType();
+            e.getResponse().getType();
         }
 
         try {
             pop3Protocol2.userPass("foo2", "bar2".toCharArray());
         } catch (POP3Exception e) {
-            res = e.getResponse().getType();
+            e.getResponse().getType();
         }
 
         ScanListEntry[] entries = null;
@@ -368,14 +369,14 @@ public class POP3ServerTest extends TestCase {
             entries = pop3Protocol1.list();
             assertEquals("foo1 has mails", 2, entries.length);
         } catch (POP3Exception e) {
-            res = e.getResponse().getType();
+            e.getResponse().getType();
         }
 
         try {
             entries = pop3Protocol2.list();
             assertEquals("foo2 has no mails", 0, entries.length);
         } catch (POP3Exception e) {
-            res = e.getResponse().getType();
+            e.getResponse().getType();
         }
 
         // put both to rest

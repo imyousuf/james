@@ -596,7 +596,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         }
 
         UsersRepository usersRepository =
-            (UsersRepository) manager.lookup("org.apache.james.services.UsersRepository");
+            (UsersRepository) manager.lookup(UsersRepository.ROLE);
         setLocalUsers(usersRepository);
     }
 

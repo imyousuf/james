@@ -26,7 +26,6 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -146,10 +145,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
             }
 
             //Build the query
-            query = getInitParameter("sqlquery");
-            if (query == null) {
-                query = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
-            }
+            query = getInitParameter("sqlquery","select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1");
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {

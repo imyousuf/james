@@ -319,20 +319,4 @@ extends GenericMailet {
         message.saveChanges();
     }
     
-    private String getInitParameter(String name, String toLog) {
-        String value = getInitParameter(name);
-        if (value != null) {
-            value = value.trim();
-            if (toLog == null) {
-                log(name + ": " + value);
-            }
-            else {
-                log(name + ": " + toLog);
-            }
-        }
-        else {
-            log(name + " is null");
-        }
-        return value;
-    }
 }

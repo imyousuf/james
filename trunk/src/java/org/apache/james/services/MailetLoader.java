@@ -25,6 +25,11 @@ import javax.mail.MessagingException;
 public interface MailetLoader {
 
     /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.services.MailetLoader";
+
+    /**
      * Get a new Mailet with the specified name acting
      * in the specified context.
      *

@@ -17,8 +17,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
@@ -110,11 +108,7 @@ public class Forward extends AbstractRedirect {
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
-        boolean error = false;
-        String addressList = getInitParameter("forwardto");
-        if (addressList == null) {
-            addressList = getInitParameter("forwardTo");
-        }
+        String addressList = getInitParameter("forwardto",getInitParameter("forwardTo"));
         
         // if nothing was specified, throw an exception
         if (addressList == null) {

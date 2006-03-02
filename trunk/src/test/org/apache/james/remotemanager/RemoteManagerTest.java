@@ -23,6 +23,9 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.services.JamesConnectionManager;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -115,13 +118,13 @@ public class RemoteManagerTest extends TestCase {
             fail("reading remote manager answer failed");
         }
 
-        allAnswerLines.addAll(Arrays.asList(stringBuffer.toString().split("\n")));
+        allAnswerLines.addAll(Arrays.asList(stringBuffer.toString().split("\r\n")));
         if ("".equals(getLastLine(allAnswerLines))) allAnswerLines.remove(allAnswerLines.size()-1);
         return allAnswerLines;
     }
 
     protected void sendCommand(String command) throws IOException {
-        m_writer.write(command + "\n");
+        m_writer.write(command + "\r\n");
         m_writer.flush();
     }
 
@@ -139,10 +142,10 @@ public class RemoteManagerTest extends TestCase {
         connectionManager.enableLogging(new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         MockMailServer mailServer = new MockMailServer();
-        serviceManager.put("org.apache.james.services.MailServer", mailServer);
+        serviceManager.put(MailServer.ROLE, mailServer);
         m_mockUsersRepository = mailServer.getUsersRepository();
-        serviceManager.put("org.apache.james.services.UsersRepository", m_mockUsersRepository);
-        serviceManager.put("org.apache.james.services.UsersStore", new MockUsersStore(m_mockUsersRepository));
+        serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);
+        serviceManager.put(UsersStore.ROLE, new MockUsersStore(m_mockUsersRepository));
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         return serviceManager;
@@ -266,7 +269,7 @@ public class RemoteManagerTest extends TestCase {
         } catch (InterruptedException e) {
             ; // ignore
         }
-        List answers = readAnswer();
+        readAnswer();
 
         sendCommand("help");
         try {
