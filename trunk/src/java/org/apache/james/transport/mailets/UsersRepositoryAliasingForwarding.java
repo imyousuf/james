@@ -239,20 +239,18 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
         try {
             usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
 
-            String enAliases = getInitParameter("enableAliases");
-            String enForward = getInitParameter("enableForwarding");
+
+            enableAliases = new Boolean(getInitParameter("enableAliases",
+                    getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_ALIASES).toString()
+                    )).booleanValue();
+            enableForwarding = new Boolean(getInitParameter("enableForwarding",
+                    getMailetContext().getAttribute(Constants.DEFAULT_ENABLE_FORWARDING).toString()
+                    )).booleanValue();
+            ignoreCase = new Boolean(getInitParameter("ignoreCase",
+                    getMailetContext().getAttribute(Constants.DEFAULT_IGNORE_USERNAME_CASE).toString()
+                    )).booleanValue();
+            
             String userRep = getInitParameter("usersRepository");
-
-            if (enAliases == null || enAliases.length() == 0) {
-                enableAliases = false;
-            } else
-                enableAliases = new Boolean(enAliases).booleanValue();
-
-            if (enForward == null || enForward.length() == 0) {
-                enableForwarding = false;
-            } else
-                enableForwarding = new Boolean(enForward).booleanValue();
-
             if (userRep == null || userRep.length() == 0) {
                 try {
                     usersRepository = (UsersRepository) compMgr
@@ -265,8 +263,6 @@ public class UsersRepositoryAliasingForwarding extends GenericMailet {
                 usersRepository = usersStore.getRepository(userRep);
             }
 
-            ignoreCase = ((Boolean) getMailetContext().getAttribute(
-                    Constants.DEFAULT_IGNORE_USERNAME_CASE)).booleanValue();
         } catch (ServiceException cnfe) {
             log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
         }

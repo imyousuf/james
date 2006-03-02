@@ -145,12 +145,6 @@ public class RemoteManagerHandler
     private UsersRepository users;
 
     /**
-     * Whether the local users repository should be used to store new
-     * users.
-     */
-    private boolean inLocalUsers = true;
-
-    /**
      * The reader associated with incoming commands.
      */
     private BufferedReader in;
@@ -191,7 +185,6 @@ public class RemoteManagerHandler
 
         // Reset the users repository to the default.
         users = theConfigData.getUsersRepository();
-        inLocalUsers = true;
     }
 
     /**
@@ -371,7 +364,6 @@ public class RemoteManagerHandler
 
         // Reset user repository
         users = theConfigData.getUsersRepository();
-        inLocalUsers = true;
 
         // Clear config data
         theConfigData = null;
@@ -466,10 +458,6 @@ public class RemoteManagerHandler
                         .append(" already exists");
             String response = responseBuffer.toString();
             writeLoggedResponse(response);
-        } else if ( inLocalUsers ) {
-            // TODO: Why does the LocalUsers repository get treated differently?
-            //       What exactly is the LocalUsers repository?
-            success = theConfigData.getMailServer().addUser(username, passwd);
         } else {
             DefaultUser user = new DefaultUser(username, "SHA");
             user.setPassword(passwd);
@@ -946,11 +934,6 @@ public class RemoteManagerHandler
                         .append(repositoryName)
                         .append("'.");
             writeLoggedFlushedResponse(responseBuffer.toString());
-            if ( repositoryName.equals("localusers") ) {
-                inLocalUsers = true;
-            } else {
-                inLocalUsers = false;
-            }
         }
         return true;
     }
