@@ -1061,9 +1061,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
         }
         else {
-            Collection servernames = (Collection) getMailetContext().getAttribute(Constants.SERVER_NAMES);
-            if ((servernames != null) && (servernames.size() > 0)) {
-                props.put("mail.smtp.localhost", servernames.iterator().next());
+            String defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
+            if (defaultDomain != null) {
+                props.put("mail.smtp.localhost", defaultDomain);
             }
         }
 

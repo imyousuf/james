@@ -299,9 +299,10 @@ public class James
                 getLogger().info("Handling mail for: " + i.next());
             }
         }
-        context.put(Constants.SERVER_NAMES, this.serverNames);
-        attributes.put(Constants.SERVER_NAMES, this.serverNames);
-
+        
+        String defaultDomain = (String) serverNames.iterator().next();
+        context.put(Constants.DEFAULT_DOMAIN, defaultDomain);
+        attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
 
         // Get postmaster
         String postMasterAddress = conf.getChild("postmaster").getValue("postmaster").toLowerCase(Locale.US);

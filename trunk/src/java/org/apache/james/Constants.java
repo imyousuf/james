@@ -38,10 +38,10 @@ public class Constants {
     public static final String SOFTWARE_NAME = "@@NAME@@";
 
     /**
-     * Context key used to store the list of mail domains being
+     * Context key used to store the default domain name
      * serviced by this James instance in the context.
      */
-    public static final String SERVER_NAMES = "SERVER_NAMES";
+    public static final String DEFAULT_DOMAIN = "DEFAULT_DOMAIN";
 
     /**
      * Context key used to store the Mailet/SMTP "hello name" for this
