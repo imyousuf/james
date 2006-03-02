@@ -204,10 +204,7 @@ extends GenericMailet {
             throw new MessagingException("repositoryPath is null");
         }
         
-        headerName = getInitParameter("headerName");
-        if (headerName == null) {
-            headerName = HEADER_NAME;
-        }
+        headerName = getInitParameter("headerName",HEADER_NAME);
         
         ignoreLocalSender = Boolean.valueOf(getInitParameter("ignoreLocalSender")).booleanValue();
         

@@ -89,10 +89,8 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
-        mailServer = (MailServer)componentManager.
-            lookup( "org.apache.james.services.MailServer" );
-        users = (UsersRepository)componentManager.
-            lookup( "org.apache.james.services.UsersRepository" );
+        mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
+        users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
     }
 
     /**

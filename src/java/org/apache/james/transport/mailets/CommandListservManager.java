@@ -330,7 +330,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     protected void initUsersRepository() {
         ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+            UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
             String repName = getInitParameter("repositoryName");
 
             usersRepository = usersStore.getRepository(repName);

@@ -125,7 +125,7 @@ public class AvalonListserv extends GenericListserv {
 
         ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            UsersStore usersStore = (UsersStore)compMgr.lookup("org.apache.james.services.UsersStore");
+            UsersStore usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
             String repName = getInitParameter("repositoryName");
 
             members = (UsersRepository)usersStore.getRepository( repName );

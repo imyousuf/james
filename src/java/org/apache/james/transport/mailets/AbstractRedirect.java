@@ -266,8 +266,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getPassThrough()}
      */
     protected boolean getPassThrough(Mail originalMail) throws MessagingException {
-        boolean passThrough = (isStatic()) ? this.passThrough : getPassThrough();
-        return passThrough;
+        return (isStatic()) ? this.passThrough : getPassThrough();
     }
 
     /**
@@ -289,8 +288,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getFakeDomainCheck()}
      */
     protected boolean getFakeDomainCheck(Mail originalMail) throws MessagingException {
-        boolean fakeDomainCheck = (isStatic()) ? this.fakeDomainCheck : getFakeDomainCheck();
-        return fakeDomainCheck;
+        return (isStatic()) ? this.fakeDomainCheck : getFakeDomainCheck();
     }
 
     /**
@@ -309,11 +307,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>inline</CODE> init parameter, or <CODE>UNALTERED</CODE> if missing
      */
     protected int getInLineType() throws MessagingException {
-        if(getInitParameter("inline") == null) {
-            return UNALTERED;
-        } else {
-            return getTypeCode(getInitParameter("inline"));
-        }
+        return getTypeCode(getInitParameter("inline","unaltered"));
     }
     
     /**
@@ -324,8 +318,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getInLineType()}
      */
     protected int getInLineType(Mail originalMail) throws MessagingException {
-        int inLineType = (isStatic()) ? this.inLineType : getInLineType();
-        return inLineType;
+        return (isStatic()) ? this.inLineType : getInLineType();
     }
 
     /** Gets the <CODE>attachment</CODE> property.
@@ -343,11 +336,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>attachment</CODE> init parameter, or <CODE>NONE</CODE> if missing
      */
     protected int getAttachmentType() throws MessagingException {
-        if(getInitParameter("attachment") == null) {
-            return NONE;
-        } else {
-            return getTypeCode(getInitParameter("attachment"));
-        }
+        return getTypeCode(getInitParameter("attachment","none"));
     }
 
     /**
@@ -358,8 +347,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getAttachmentType()}
      */
     protected int getAttachmentType(Mail originalMail) throws MessagingException {
-        int attachmentType = (isStatic()) ? this.attachmentType : getAttachmentType();
-        return attachmentType;
+        return (isStatic()) ? this.attachmentType : getAttachmentType();
     }
 
     /**
@@ -371,11 +359,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>message</CODE> init parameter or an empty string if missing
      */
     protected String getMessage() throws MessagingException {
-        if(getInitParameter("message") == null) {
-            return "";
-        } else {
-            return getInitParameter("message");
-        }
+        return getInitParameter("message","");
     }
 
     /**
@@ -386,8 +370,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getMessage()}
      */
     protected String getMessage(Mail originalMail) throws MessagingException {
-        String messageText = (isStatic()) ? this.messageText : getMessage();
-        return messageText;
+        return (isStatic()) ? this.messageText : getMessage();
     }
 
     /**
@@ -575,10 +558,8 @@ public abstract class AbstractRedirect extends GenericMailet {
      * or <CODE>null</CODE> if missing
      */
     protected MailAddress getReplyTo() throws MessagingException {
-        String addressString = getInitParameter("replyTo");
-        if (addressString == null) {
-            addressString = getInitParameter("replyto");
-        }
+        String addressString = getInitParameter("replyTo",getInitParameter("replyto"));
+
         if(addressString != null) {
             MailAddress specialAddress = getSpecialAddress(addressString,
                                             new String[] {"postmaster", "sender", "null", "unaltered"});
@@ -788,11 +769,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>subject</CODE> init parameter or null if missing
      */
     protected String getSubject() throws MessagingException {
-        if(getInitParameter("subject") == null) {
-            return null;
-        } else {
-            return getInitParameter("subject");
-        }
+        return getInitParameter("subject");
     }
 
     /**
@@ -803,8 +780,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getSubject()}
      */
     protected String getSubject(Mail originalMail) throws MessagingException {
-        String subject = (isStatic()) ? this.subject : getSubject();
-        return subject;
+        return (isStatic()) ? this.subject : getSubject();
     }
 
     /**
@@ -815,11 +791,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>prefix</CODE> init parameter or an empty string if missing
      */
     protected String getSubjectPrefix() throws MessagingException {
-        if(getInitParameter("prefix") == null) {
-            return null;
-        } else {
-            return getInitParameter("prefix");
-        }
+        return getInitParameter("prefix");
     }
 
     /**
@@ -830,8 +802,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #getSubjectPrefix()}
      */
     protected String getSubjectPrefix(Mail originalMail) throws MessagingException {
-        String subjectPrefix = (isStatic()) ? this.subjectPrefix : getSubjectPrefix();
-        return subjectPrefix;
+        return (isStatic()) ? this.subjectPrefix : getSubjectPrefix();
     }
 
     /**
@@ -887,8 +858,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #attachError()}
      */
     protected boolean attachError(Mail originalMail) throws MessagingException {
-        boolean attachError = (isStatic()) ? this.attachError : attachError();
-        return attachError;
+        return (isStatic()) ? this.attachError : attachError();
     }
 
     /**
@@ -912,8 +882,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return {@link #isReply()}
      */
     protected boolean isReply(Mail originalMail) throws MessagingException {
-        boolean isReply = (isStatic()) ? this.isReply : isReply();
-        return isReply;
+        return (isStatic()) ? this.isReply : isReply();
     }
 
     /**
@@ -942,9 +911,9 @@ public abstract class AbstractRedirect extends GenericMailet {
      * using getX(), if {@link #isStatic()} returns true.
      */
     public void init() throws MessagingException {
-        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
+        isDebug = new Boolean(getInitParameter("debug","false")).booleanValue();
 
-        isStatic = (getInitParameter("static") == null) ? false : new Boolean(getInitParameter("static")).booleanValue();
+        isStatic = new Boolean(getInitParameter("static","false")).booleanValue();
 
         if (isDebug) {
             log("Initializing");

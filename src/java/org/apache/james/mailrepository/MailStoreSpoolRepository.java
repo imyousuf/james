@@ -69,7 +69,7 @@ public class MailStoreSpoolRepository
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
     public void service(ServiceManager serviceManager) throws ServiceException {
-        mailStore = (Store) serviceManager.lookup("org.apache.avalon.cornerstone.services.store.Store");
+        mailStore = (Store) serviceManager.lookup(Store.ROLE);
     }
 
 

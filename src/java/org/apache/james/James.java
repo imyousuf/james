@@ -216,7 +216,7 @@ public class James
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
-            store = (Store) compMgr.lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+            store = (Store) compMgr.lookup( Store.ROLE );
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get Store: " + e);
@@ -226,7 +226,7 @@ public class James
             getLogger().debug("Using Store: " + store.toString());
         }
         try {
-            spool = (SpoolRepository) compMgr.lookup( "org.apache.james.services.SpoolRepository" );
+            spool = (SpoolRepository) compMgr.lookup( SpoolRepository.ROLE );
         } catch (Exception e) {
             if (getLogger().isWarnEnabled()) {
                 getLogger().warn("Can't get spoolRepository: " + e);

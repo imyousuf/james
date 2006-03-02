@@ -34,7 +34,7 @@ public class LocalUsersRepository implements UsersRepository, Serviceable, Initi
 
     public void service(ServiceManager serviceManager) throws ServiceException {
         usersStore =
-           (UsersStore) serviceManager.lookup("org.apache.james.services.UsersStore");
+           (UsersStore) serviceManager.lookup(UsersStore.ROLE);
     }
 
     public void initialize() throws Exception {

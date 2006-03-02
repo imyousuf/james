@@ -18,8 +18,11 @@
 
 package org.apache.james;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
+import org.apache.james.services.UsersRepository;
+import org.apache.james.services.UsersStore;
 import org.apache.james.test.mock.avalon.MockContext;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
@@ -54,11 +57,11 @@ public class JamesTest extends MailServerTestAllImplementations {
     private MockServiceManager setUpServiceManager() {
         MockServiceManager serviceManager = new MockServiceManager();
         MockUsersRepository mockUsersRepository = new MockUsersRepository();
-        serviceManager.put("org.apache.james.services.UsersRepository", mockUsersRepository);
-        serviceManager.put("org.apache.james.services.UsersStore", new MockUsersStore(mockUsersRepository));
+        serviceManager.put(UsersRepository.ROLE, mockUsersRepository);
+        serviceManager.put(UsersStore.ROLE, new MockUsersStore(mockUsersRepository));
         MockStore mockStore = new MockStore();
         mockStore.add(EXISTING_USER_NAME, new MockMailRepository());
-        serviceManager.put("org.apache.avalon.cornerstone.services.store.Store", mockStore);
+        serviceManager.put(Store.ROLE, mockStore);
         return serviceManager;
     }
 

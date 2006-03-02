@@ -17,27 +17,12 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.mailet.GenericMailet;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
 
-import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * <P>Sends a notification message to the sender of a message.</P>

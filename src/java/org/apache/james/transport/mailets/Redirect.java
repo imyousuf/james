@@ -17,29 +17,13 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.ArrayList;
 
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
-import org.apache.james.core.MailImpl;
-
-import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -330,11 +314,7 @@ public class Redirect extends AbstractRedirect {
      * @return the <CODE>inline</CODE> init parameter
      */
     protected int getInLineType() throws MessagingException {
-        if(getInitParameter("inline") == null) {
-            return BODY;
-        } else {
-            return getTypeCode(getInitParameter("inline"));
-        }
+        return getTypeCode(getInitParameter("inline","body"));
     }
 
     /**
@@ -348,9 +328,7 @@ public class Redirect extends AbstractRedirect {
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
-        String addressList = (getInitParameter("recipients") == null)
-                                 ? getInitParameter("to")
-                                 : getInitParameter("recipients");
+        String addressList = getInitParameter("recipients",getInitParameter("to"));
                                  
         // if nothing was specified, return <CODE>null</CODE> meaning no change
         if (addressList == null) {
@@ -390,9 +368,7 @@ public class Redirect extends AbstractRedirect {
      */
     protected InternetAddress[] getTo() throws MessagingException {
         InternetAddress[] iaarray = null;
-        String addressList = (getInitParameter("to") == null)
-                                 ? getInitParameter("recipients")
-                                 : getInitParameter("to");
+        String addressList = getInitParameter("to",getInitParameter("recipients"));
 
         // if nothing was specified, return null meaning no change
         if (addressList == null) {

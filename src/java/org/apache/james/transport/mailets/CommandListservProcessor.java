@@ -408,7 +408,7 @@ public class CommandListservProcessor extends GenericMailet {
      */
     protected void initUsersRepository() throws Exception {
         ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        UsersStore usersStore = (UsersStore) compMgr.lookup("org.apache.james.services.UsersStore");
+        UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
         String repName = getInitParameter("repositoryName");
 
         usersRepository = usersStore.getRepository(repName);

@@ -262,8 +262,7 @@ public class JDBCMailRepository
         }
         try {
             if (filestore != null) {
-                Store store = (Store)componentManager.
-                        lookup("org.apache.avalon.cornerstone.services.store.Store");
+                Store store = (Store)componentManager.lookup(Store.ROLE);
                 //prepare Configurations for stream repositories
                 DefaultConfiguration streamConfiguration
                     = new DefaultConfiguration( "repository",

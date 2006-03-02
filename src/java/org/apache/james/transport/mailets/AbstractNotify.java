@@ -18,25 +18,14 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.mailet.RFC2822Headers;
-import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
 
-import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -88,33 +77,21 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * @return the <CODE>passThrough</CODE> init parameter, or true if missing
      */
     protected boolean getPassThrough() throws MessagingException {
-        if(getInitParameter("passThrough") == null) {
-            return true;
-        } else {
-            return new Boolean(getInitParameter("passThrough")).booleanValue();
-        }
+        return new Boolean(getInitParameter("passThrough","true")).booleanValue();
     }
 
     /**
      * @return the <CODE>inline</CODE> init parameter, or <CODE>NONE</CODE> if missing
      */
     protected int getInLineType() throws MessagingException {
-        if(getInitParameter("inline") == null) {
-            return NONE;
-        } else {
-            return getTypeCode(getInitParameter("inline"));
-        }
+        return getTypeCode(getInitParameter("inline","none"));
     }
 
     /**
      * @return the <CODE>attachment</CODE> init parameter, or <CODE>MESSAGE</CODE> if missing
      */
     protected int getAttachmentType() throws MessagingException {
-        if(getInitParameter("attachment") == null) {
-            return MESSAGE;
-        } else {
-            return getTypeCode(getInitParameter("attachment"));
-        }
+        return getTypeCode(getInitParameter("attachment","message"));
     }
 
     /**
@@ -123,15 +100,9 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * or a default string if both are missing
      */
     protected String getMessage() {
-        if(getInitParameter("notice") == null) {
-            if(getInitParameter("message") == null) {
-                return "We were unable to deliver the attached message because of an error in the mail server.";
-            } else {
-                return getInitParameter("message");
-            }
-        } else {
-            return getInitParameter("notice");
-        }
+        return getInitParameter("notice",
+                getInitParameter("message",
+                "We were unable to deliver the attached message because of an error in the mail server."));
     }
 
     /**
@@ -235,13 +206,10 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * and <CODE>SpecialAddress.UNALTERED</CODE>
      */
     protected MailAddress getSender() throws MessagingException {
-        String addressString = getInitParameter("sendingAddress");
+        String addressString = getInitParameter("sendingAddress",getInitParameter("sender"));
         
         if (addressString == null) {
-            addressString = getInitParameter("sender");
-            if (addressString == null) {
-                return getMailetContext().getPostmaster();
-            }
+            return getMailetContext().getPostmaster();
         }
         
         MailAddress specialAddress = getSpecialAddress(addressString,
@@ -268,11 +236,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * @return the <CODE>prefix</CODE> init parameter or "Re:" if missing
      */
     protected String getSubjectPrefix() {
-        if(getInitParameter("prefix") == null) {
-            return "Re:";
-        } else {
-            return getInitParameter("prefix");
-        }
+        return getInitParameter("prefix","Re:");
     }
 
     /**

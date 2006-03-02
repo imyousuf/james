@@ -31,6 +31,11 @@ import java.util.Iterator;
 public interface MailRepository {
 
     /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.services.MailRepository";
+    
+    /**
      * Define a MAIL repository. MAILS are stored in the specified
      * destination.
      */

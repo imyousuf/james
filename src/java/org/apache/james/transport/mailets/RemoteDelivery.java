@@ -316,7 +316,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         try {
             // Instantiate the a MailRepository for outgoing mails
-            Store mailstore = (Store) compMgr.lookup("org.apache.avalon.cornerstone.services.store.Store");
+            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
 
             DefaultConfiguration spoolConf
                 = new DefaultConfiguration("repository", "generated:RemoteDelivery.java");

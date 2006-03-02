@@ -30,6 +30,11 @@ public interface SpoolRepository
     extends MailRepository {
 
     /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.services.SpoolRepository";
+
+    /**
      * Implementations of AcceptFilter can be used to select which mails a SpoolRepository
      * implementation returns from its accept (AcceptFilter) method
      **/

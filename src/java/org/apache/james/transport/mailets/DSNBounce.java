@@ -99,8 +99,7 @@ public class DSNBounce extends AbstractNotify {
 
     private static final String MACHINE_PATTERN = "[machine]";
 
-    private String messageString =
-        "Hi. This is the James mail server at [machine].\nI'm afraid I wasn't able to deliver your message to the following addresses.\nThis is a permanent error; I've given up. Sorry it didn't work out.  Below\nI include the list of recipients and the reason why I was unable to deliver\nyour message.\n";
+    private String messageString = null;
 
     /*
      * Static initializer.<p>
@@ -132,9 +131,7 @@ public class DSNBounce extends AbstractNotify {
      */
     public void init() throws MessagingException {
         super.init();
-        if (getInitParameter("messageString") != null) {
-            messageString = getInitParameter("messageString");
-        }
+        messageString = getInitParameter("messageString","Hi. This is the James mail server at [machine].\nI'm afraid I wasn't able to deliver your message to the following addresses.\nThis is a permanent error; I've given up. Sorry it didn't work out.  Below\nI include the list of recipients and the reason why I was unable to deliver\nyour message.\n");
     }
 
     /**
@@ -636,11 +633,7 @@ public class DSNBounce extends AbstractNotify {
      * @return the <CODE>attachment</CODE> init parameter, or <CODE>MESSAGE</CODE> if missing
      */
     protected int getAttachmentType() throws MessagingException {
-        if(getInitParameter("attachment") == null) {
-            return MESSAGE;
-        } else {
-            return getTypeCode(getInitParameter("attachment"));
-        }
+        return getTypeCode(getInitParameter("attachment","message"));
     }
 
 

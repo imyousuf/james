@@ -71,8 +71,7 @@ public class UsersFileRepository
         throws ServiceException {
 
         try {
-            store = (Store)componentManager.
-                lookup( "org.apache.avalon.cornerstone.services.store.Store" );
+            store = (Store)componentManager.lookup( Store.ROLE );
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error( message, e );

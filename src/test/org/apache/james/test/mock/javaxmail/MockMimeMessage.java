@@ -304,7 +304,7 @@ public class MockMimeMessage extends MimeMessage {
 
     public String getHeader(String name, String delimiter) throws MessagingException {
         String[] header = getHeader(name);
-        if (header.length == 0) return null;
+        if (header == null || header.length == 0) return null;
         return header[0];
     }
 
@@ -385,14 +385,14 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public Enumeration getNonMatchingHeaderLines(String[] names) throws MessagingException {
-        List existingHeaders = Arrays.asList(names);
+        List existingHeaders = names != null ? Arrays.asList(names) : null;
 
         ArrayList nonMatchingHeaders = new ArrayList();
         
         Iterator iterator = m_contentHeaders.keySet().iterator();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
-            if (existingHeaders.contains(name)) continue;
+            if (existingHeaders!=null && existingHeaders.contains(name)) continue;
             String value = getHeader(name, null);
             if (value == null) continue;
             nonMatchingHeaders.add(name + ":" + value);
