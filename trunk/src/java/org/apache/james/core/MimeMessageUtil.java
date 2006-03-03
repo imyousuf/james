@@ -19,6 +19,7 @@ package org.apache.james.core;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
 
+import javax.activation.UnsupportedDataTypeException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
@@ -77,27 +78,13 @@ public class MimeMessageUtil {
         hos.println();
         hos.flush();
 
-        InputStream bis;
-        OutputStream bos;
         // Write the body to the output stream
+        writeMessageTo(message, bodyOs);
+    }
 
-        /*
-        try {
-            bis = message.getRawInputStream();
-            bos = bodyOs;
-        } catch(javax.mail.MessagingException me) {
-            // we may get a "No content" exception
-            // if that happens, try it the hard way
-
-            // Why, you ask?  In JavaMail v1.3, when you initially
-            // create a message using MimeMessage APIs, there is no
-            // raw content available.  getInputStream() works, but
-            // getRawInputStream() throws an exception.
-
-            bos = MimeUtility.encode(bodyOs, message.getEncoding());
-            bis = message.getInputStream();
-        }
-        */
+    public static void writeMessageTo(MimeMessage message, OutputStream bodyOs) throws IOException, UnsupportedDataTypeException, MessagingException {
+        OutputStream bos;
+        InputStream bis;
 
         try {
             // Get the message as a stream.  This will encode
@@ -106,7 +93,7 @@ public class MimeMessageUtil {
             // raw stream, but see
             bos = MimeUtility.encode(bodyOs, message.getEncoding());
             bis = message.getInputStream();
-        } catch(javax.activation.UnsupportedDataTypeException udte) {
+        } catch(UnsupportedDataTypeException udte) {
             /* If we get an UnsupportedDataTypeException try using
              * the raw input stream as a "best attempt" at rendering
              * a message.
