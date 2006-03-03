@@ -41,6 +41,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.mailet.RFC2822Headers;
 import org.apache.mailet.dates.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MimeMessageUtil;
 
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
@@ -1175,76 +1176,9 @@ public abstract class AbstractRedirect extends GenericMailet {
      * Message's body
      */
     private String getMessageBody(MimeMessage message) throws Exception {
-        java.io.InputStream bis = null;
-        java.io.OutputStream bos = null;
         java.io.ByteArrayOutputStream bodyOs = new java.io.ByteArrayOutputStream();
-
-        try {
-            try {
-                // Get the message as a stream.  This will encode
-                // objects as necessary, and we have some overhead from
-                // decoding and re-encoding the stream.  I'd prefer the
-                // raw stream, but see the WARNING below.
-                bos = javax.mail.internet.MimeUtility.encode(bodyOs, message.getEncoding());
-                bis = message.getInputStream();
-            } catch(javax.activation.UnsupportedDataTypeException udte) {
-                /* If we get an UnsupportedDataTypeException try using
-                 * the raw input stream as a "best attempt" at rendering
-                 * a message.
-                 *
-                 * WARNING: JavaMail v1.3 getRawInputStream() returns
-                 * INVALID (unchanged) content for a changed message.
-                 * getInputStream() works properly, but in this case
-                 * has failed due to a missing DataHandler.
-                 *
-                 * MimeMessage.getRawInputStream() may throw a "no
-                 * content" MessagingException.  In JavaMail v1.3, when
-                 * you initially create a message using MimeMessage
-                 * APIs, there is no raw content available.
-                 * getInputStream() works, but getRawInputStream()
-                 * throws an exception.  If we catch that exception,
-                 * throw the UDTE.  It should mean that someone has
-                 * locally constructed a message part for which JavaMail
-                 * doesn't have a DataHandler.
-                 */
-    
-                try {
-                    bis = message.getRawInputStream();
-                    bos = bodyOs;
-                } catch(javax.mail.MessagingException _) {
-                    throw udte;
-                }
-            }
-            catch(javax.mail.MessagingException me) {
-                /* This could be another kind of MessagingException
-                 * thrown by MimeMessage.getInputStream(), such as a
-                 * javax.mail.internet.ParseException.
-                 *
-                 * The ParseException is precisely one of the reasons
-                 * why the getRawInputStream() method exists, so that we
-                 * can continue to stream the content, even if we cannot
-                 * handle it.  Again, if we get an exception, we throw
-                 * the one that caused us to call getRawInputStream().
-                 */
-                try {
-                    bis = message.getRawInputStream();
-                    bos = bodyOs;
-                } catch(javax.mail.MessagingException _) {
-                    throw me;
-                }
-            }
-
-            byte[] block = new byte[1024];
-            int read = 0;
-            while ((read = bis.read(block)) > -1) {
-                bos.write(block, 0, read);
-            }
-            bos.flush();
-            return bodyOs.toString();
-        }
-        finally {
-            bis.close();
-        }
+        MimeMessageUtil.writeMessageTo(message,bodyOs);
+        return bodyOs.toString();
     }
 
     /**
