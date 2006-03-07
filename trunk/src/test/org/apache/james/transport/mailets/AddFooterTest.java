@@ -103,6 +103,39 @@ public class AddFooterTest extends TestCase {
     }
 
     /*
+     * Test for      JAMES-443
+     * This should not add the header and should leave the multipart/mixed Content-Type intact
+     */
+    public void testAddFooterMimeNestedUnsupportedMultipart() throws MessagingException, IOException {
+
+        // quoted printable mimemessage text/plain
+        String asciisource = "MIME-Version: 1.0\r\n"
+            +"Content-Type: multipart/mixed; boundary=\"===============0204599088==\"\r\n"
+                +"\r\n"
+                +"This is a cryptographically signed message in MIME format.\r\n"
+                +"\r\n"
+                +"--===============0204599088==\r\n"
+                +"Content-Type: multipart/unsupported; boundary=\"------------ms050404020900070803030808\"\r\n"
+                +"\r\n"
+                +"--------------ms050404020900070803030808\r\n"
+                +"Content-Type: text/plain; charset=ISO-8859-1\r\n"
+                +"\r\n"
+                +"test\r\n"
+                +"\r\n"
+                +"--------------ms050404020900070803030808--\r\n"
+                +"\r\n"
+                +"--===============0204599088==--\r\n";
+        // String asciisource = "Subject: test\r\nContent-Type: multipart/mixed; boundary=\"===============0204599088==\"\r\nMIME-Version: 1.0\r\n\r\nThis is a cryptographically signed message in MIME format.\r\n\r\n--===============0204599088==\r\nContent-Type: text/plain\r\n\r\ntest\r\n--===============0204599088==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nContent-Disposition: inline\r\n\r\ntest\r\n--===============0204599088==--\r\n";
+
+        String footer = "------ my footer \u00E0/\u20AC ------";
+
+        String res = processAddFooter(asciisource, footer);
+
+        assertEquals(asciisource, res);
+
+    }
+
+    /*
      * Class under test for String getSubject()
      */
     public void testAddFooterTextPlainCP1252toISO8859() throws MessagingException, IOException {
