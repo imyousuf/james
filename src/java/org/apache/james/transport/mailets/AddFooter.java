@@ -214,9 +214,11 @@ public class AddFooter extends GenericMailet {
             MimeMultipart multipart = (MimeMultipart)part.getContent();
             MimeBodyPart firstPart = (MimeBodyPart)multipart.getBodyPart(0);
             boolean isFooterAttached = attachFooter(firstPart);
-            //We have to do this because of a bug in JavaMail (ref id 4403733)
-            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
-            part.setContent(multipart);
+            if (isFooterAttached) {
+                //We have to do this because of a bug in JavaMail (ref id 4403733)
+                //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
+                part.setContent(multipart);
+            }
             return isFooterAttached;
         } else if (part.isMimeType("multipart/alternative")) {
             MimeMultipart multipart = (MimeMultipart)part.getContent();
@@ -228,9 +230,11 @@ public class AddFooter extends GenericMailet {
                 MimeBodyPart mimeBodyPart = (MimeBodyPart)multipart.getBodyPart(index);
                 isFooterAttached |= attachFooter(mimeBodyPart);
             }
-            //We have to do this because of a bug in JavaMail (ref id 4403733)
-            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
-            part.setContent(multipart);
+            if (isFooterAttached) {
+                //We have to do this because of a bug in JavaMail (ref id 4403733)
+                //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4403733
+                part.setContent(multipart);
+            }
             return isFooterAttached;
         } else {
             //Give up... we won't attach the footer to this MimePart
