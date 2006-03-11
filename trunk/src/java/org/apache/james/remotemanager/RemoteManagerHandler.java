@@ -680,11 +680,18 @@ public class RemoteManagerHandler
             writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
             return true;
         }
-        JamesUser user = (JamesUser) users.getUserByName(username);
-        if (user == null) {
+        
+        User baseuser = users.getUserByName(username);
+        if (baseuser == null) {
             writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
+        if (! (baseuser instanceof JamesUser ) ) {
+            writeLoggedFlushedResponse("Can't set alias for this user type.");
+            return true;
+        }
+        
+        JamesUser user = (JamesUser) baseuser;
         JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
         if (aliasUser == null) {
             writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
@@ -785,7 +792,17 @@ public class RemoteManagerHandler
             return true;
         }
 
-        JamesUser user = (JamesUser)users.getUserByName(username);
+
+        User baseuser = users.getUserByName(username);
+        if (baseuser == null) {
+            writeLoggedFlushedResponse("No such user " + username);
+            return true;
+        } else if (! (baseuser instanceof JamesUser ) ) {
+            writeLoggedFlushedResponse("Can't show aliases for this user type.");
+            return true;
+        }
+
+        JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
             writeLoggedFlushedResponse("No such user " + username);
             return true;
@@ -821,7 +838,16 @@ public class RemoteManagerHandler
             return true;
         }
 
-        JamesUser user = (JamesUser)users.getUserByName(username);
+        // Verify user exists
+        User baseuser = users.getUserByName(username);
+        if (baseuser == null) {
+            writeLoggedFlushedResponse("No such user " + username);
+            return true;
+        } else if (! (baseuser instanceof JamesUser ) ) {
+            writeLoggedFlushedResponse("Can't set forwarding for this user type.");
+            return true;
+        }
+        JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
             writeLoggedFlushedResponse("No such user " + username);
             return true;
