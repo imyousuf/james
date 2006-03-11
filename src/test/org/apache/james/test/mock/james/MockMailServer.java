@@ -19,6 +19,7 @@ package org.apache.james.test.mock.james;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.MessageSizeException;
+import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

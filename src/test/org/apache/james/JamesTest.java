@@ -27,9 +27,9 @@ import org.apache.james.test.mock.avalon.MockContext;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.MockUsersRepository;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.mock.james.MockMailRepository;
+import org.apache.james.userrepository.MockUsersRepository;
 
 import java.io.File;
 

@@ -14,18 +14,16 @@
  * implied.  See the License for the specific language governing       *
  * permissions and limitations under the License.                      *
  ***********************************************************************/
-package org.apache.james.test.mock.james;
+package org.apache.james.userrepository;
 
 import org.apache.james.security.DigestUtil;
 import org.apache.james.services.User;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.userrepository.DefaultUser;
-import org.apache.james.userrepository.DefaultJamesUser;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MockUsersRepository implements UsersRepository {
 
@@ -44,6 +42,14 @@ public class MockUsersRepository implements UsersRepository {
     }
 
     public boolean addUser(User user) {
+
+        if (m_forceUseJamesUser && user instanceof DefaultUser ) {
+            DefaultUser aUser = (DefaultUser)user;
+            user = new DefaultJamesUser(aUser.getUserName(),
+                                             aUser.getHashedPassword(),
+                                             aUser.getHashAlgorithm());
+        }
+
         String key = user.getUserName();
         if (m_users.containsKey(key)) return false;
         m_users.put(key, user);
@@ -55,6 +61,7 @@ public class MockUsersRepository implements UsersRepository {
             String passwordHash = DigestUtil.digestString(((String) attributes), "SHA");
 
             User user;
+
             if (m_forceUseJamesUser) {
                 user = new DefaultJamesUser(name, passwordHash, "SHA");
             } else {

@@ -31,9 +31,9 @@ import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.james.test.mock.james.MockUsersRepository;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.util.Util;
+import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.connection.SimpleConnectionManager;
 
 import java.io.BufferedReader;
@@ -359,11 +359,11 @@ public class RemoteManagerTest extends TestCase {
         finishSetUp(m_testConfiguration);
         connect();
         login();
-
+        
         // do some tests when parameter users don't exist
         sendCommand("setalias testNonExist1 testNonExist2");
         assertTrue(getLastLine(readAnswer()).equals("No such user testNonExist1"));
-        
+
         sendCommand("adduser testAlias1 test");
         assertTrue(getLastLine(readAnswer()).endsWith(" added"));
 
@@ -372,10 +372,10 @@ public class RemoteManagerTest extends TestCase {
 
         sendCommand("setalias testAlias1 testNonExist2");
         assertTrue(getLastLine(readAnswer()).equals("Alias unknown to server - create that user first."));
-        
+
         sendCommand("setalias testNonExist1 testAlias");
         assertTrue(getLastLine(readAnswer()).equals("No such user testNonExist1"));
-        
+
         sendCommand("adduser testAlias2 test");
         assertTrue(getLastLine(readAnswer()).endsWith(" added"));
 
