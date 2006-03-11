@@ -18,7 +18,6 @@
 package org.apache.james.mailrepository.filepair;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -39,6 +38,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+
+import com.sun.mail.util.SharedFileInputStream;
 
 /**
  * This an abstract class implementing functionality for creating a file-store.
@@ -257,7 +258,7 @@ public abstract class AbstractFileRepository
     protected InputStream getInputStream( final String key )
         throws IOException
     {
-        return new FileInputStream( getFile( key ) );
+        return new SharedFileInputStream( encode( key ) );
     }
 
     protected OutputStream getOutputStream( final String key )

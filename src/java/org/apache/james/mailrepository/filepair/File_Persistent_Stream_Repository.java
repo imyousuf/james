@@ -23,9 +23,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.util.io.IOUtil;
-import org.apache.james.util.io.ResettableFileInputStream;
 
 /**
  * Implementation of a StreamRepository to a File.
@@ -52,8 +52,7 @@ public class File_Persistent_Stream_Repository
     {
         try
         {
-            final ResettableFileInputStream stream =
-                new ResettableFileInputStream( getFile( key ) );
+            InputStream stream = getInputStream( key );
 
             final Object o = m_inputs.get( key );
             if( null == o )

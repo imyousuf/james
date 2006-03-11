@@ -1177,7 +1177,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     private String getMessageBody(MimeMessage message) throws Exception {
         java.io.ByteArrayOutputStream bodyOs = new java.io.ByteArrayOutputStream();
-        MimeMessageUtil.writeMessageTo(message,bodyOs);
+        MimeMessageUtil.writeMessageBodyTo(message,bodyOs);
         return bodyOs.toString();
     }
 
