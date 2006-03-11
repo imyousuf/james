@@ -25,6 +25,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,38 +53,29 @@ public class MimeMessageUtil {
      * different output streams, with an ignore list
      */
     public static void writeTo(MimeMessage message, OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+        MimeMessage testMessage = message;
         if (message instanceof MimeMessageCopyOnWriteProxy) {
             MimeMessageCopyOnWriteProxy wr = (MimeMessageCopyOnWriteProxy) message;
-            MimeMessage m = wr.getWrappedMessage();
-            if (m instanceof MimeMessageWrapper) {
-                MimeMessageWrapper wrapper = (MimeMessageWrapper)m;
+            testMessage = wr.getWrappedMessage();
+        }
+        if (testMessage instanceof MimeMessageWrapper) {
+            MimeMessageWrapper wrapper = (MimeMessageWrapper)testMessage;
+            if (!wrapper.isModified()) {
                 wrapper.writeTo(headerOs, bodyOs, ignoreList);
                 return;
             }
-        } else if (message instanceof MimeMessageWrapper) {
-            MimeMessageWrapper wrapper = (MimeMessageWrapper)message;
-            wrapper.writeTo(headerOs, bodyOs, ignoreList);
-            return;
         }
         if(message.getMessageID() == null) {
             message.saveChanges();
         }
 
-        //Write the headers (minus ignored ones)
-        Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
-        PrintWriter hos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
-        while (headers.hasMoreElements()) {
-            hos.println((String)headers.nextElement());
-        }
-        // Print header/data separator
-        hos.println();
-        hos.flush();
+        writeHeadersTo(message, headerOs, ignoreList);
 
         // Write the body to the output stream
-        writeMessageTo(message, bodyOs);
+        writeMessageBodyTo(message, bodyOs);
     }
 
-    public static void writeMessageTo(MimeMessage message, OutputStream bodyOs) throws IOException, UnsupportedDataTypeException, MessagingException {
+    public static void writeMessageBodyTo(MimeMessage message, OutputStream bodyOs) throws IOException, UnsupportedDataTypeException, MessagingException {
         OutputStream bos;
         InputStream bis;
 
@@ -160,6 +153,39 @@ public class MimeMessageUtil {
             out.write(block, 0, read);
         }
         out.flush();
+    }
+
+
+    /**
+     * Write the message headers to the given outputstream
+     * 
+     * @param message
+     * @param headerOs
+     * @param ignoreList
+     * @throws MessagingException
+     */
+    private static void writeHeadersTo(MimeMessage message, OutputStream headerOs, String[] ignoreList) throws MessagingException {
+        //Write the headers (minus ignored ones)
+        Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
+        PrintWriter hos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
+        while (headers.hasMoreElements()) {
+            hos.println((String)headers.nextElement());
+        }
+        // Print header/data separator
+        hos.println();
+        hos.flush();
+    }
+    
+    /**
+     * @param message
+     * @param ignoreList
+     * @return
+     * @throws MessagingException
+     */
+    public static InputStream getHeadersInputStream(MimeMessage message, String[] ignoreList) throws MessagingException {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        writeHeadersTo(message,bo,ignoreList);
+        return new ByteArrayInputStream(bo.toByteArray());
     }
 
 

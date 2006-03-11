@@ -19,16 +19,16 @@ package org.apache.james.core;
 
 import javax.mail.MessagingException;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.avalon.framework.activity.Disposable;
+
+import com.sun.mail.util.SharedFileInputStream;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
@@ -116,7 +116,7 @@ public class MimeMessageInputStreamSource
      * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
-        return new BufferedInputStream(new FileInputStream(file));
+        return new SharedFileInputStream(file.getAbsolutePath());
     }
 
     /**

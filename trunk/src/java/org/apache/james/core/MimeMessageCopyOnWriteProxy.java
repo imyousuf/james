@@ -89,7 +89,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
     }
 
-    ReferenceCounter refCount;
+    protected ReferenceCounter refCount;
 
     /**
      * @param original
@@ -756,15 +756,6 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     public void setFlag(Flag arg0, boolean arg1) throws MessagingException {
         checkCopyOnWrite();
         wrapped.setFlag(arg0, arg1);
-    }
-
-    /**
-     * @see javax.mail.Message#setRecipient(javax.mail.Message.RecipientType, javax.mail.Address)
-     */
-    public void setRecipient(RecipientType arg0, Address arg1)
-            throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setRecipient(arg0, arg1);
     }
 
     /**

@@ -19,7 +19,6 @@ package org.apache.james.transport.mailets;
 
 import javax.mail.internet.MimeMessage ;
 
-import org.apache.james.core.MailImpl ;
 import org.apache.mailet.GenericMailet ;
 import org.apache.mailet.Mail ;
 

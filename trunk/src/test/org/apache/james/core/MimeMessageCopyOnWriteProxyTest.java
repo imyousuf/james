@@ -19,16 +19,15 @@ package org.apache.james.core;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import com.sun.mail.util.SharedByteArrayInputStream;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
-
-public class MimeMessageCopyOnWriteProxyTest extends TestCase {
+public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
 
     MimeMessageWrapper mw = null;
     String content = "Subject: foo\r\nContent-Transfer-Encoding2: plain";
@@ -36,16 +35,20 @@ public class MimeMessageCopyOnWriteProxyTest extends TestCase {
     String body = "bar\r\n.\r\n";
     MailImpl mail;
 
-    public MimeMessageCopyOnWriteProxyTest(String arg0) throws MessagingException {
-        super(arg0);
-
+    protected MimeMessage getMessageFromSources(String sources) throws Exception {
         MimeMessageInputStreamSource mmis = null;
         try {
-            mmis = new MimeMessageInputStreamSource("test", new ByteArrayInputStream((content+sep+body).getBytes()));
+            mmis = new MimeMessageInputStreamSource("test", new SharedByteArrayInputStream(sources.getBytes()));
         } catch (MessagingException e) {
         }
-        mw = new MimeMessageWrapper(mmis);
+        return new MimeMessageWrapper(mmis);
+//        return new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
     }
+
+    protected void setUp() throws Exception {
+        mw = (MimeMessageWrapper) getMessageFromSources(content+sep+body);
+    }
+
     
     public void testMessageCloning1() throws MessagingException, IOException {
         ArrayList r = new ArrayList();
@@ -171,14 +174,6 @@ public class MimeMessageCopyOnWriteProxyTest extends TestCase {
     private static boolean isSameMimeMessage(MimeMessage first, MimeMessage second) {
         return getWrappedMessage(first) == getWrappedMessage(second);
         
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
 
 }
