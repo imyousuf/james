@@ -789,12 +789,8 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         if (wrapped instanceof MimeMessageWrapper) {
             return ((MimeMessageWrapper) wrapped).getMessageSize();
         } else {
-            long size = wrapped.getSize();
-            Enumeration e = wrapped.getAllHeaderLines();
-            while (e.hasMoreElements()) {
-                size += ((String) e.nextElement()).length();
-            }
-            return size;
+            // this is already handled by MailImpl.
+            return -1;
         }
     }
 
