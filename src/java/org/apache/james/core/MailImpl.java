@@ -58,6 +58,31 @@ import java.util.Iterator;
  * @version CVS $Revision$ $Date$
  */
 public class MailImpl implements Disposable, Mail {
+    
+    /**
+     * Slow method to calculate the exact size of a message!
+     */
+    private final class SizeCalculatorOutputStream extends OutputStream {
+        long size = 0;
+
+        public void write(int arg0) throws IOException {
+            size++;
+        }
+
+        public long getSize() {
+            return size;
+        }
+
+        public void write(byte[] arg0, int arg1, int arg2) throws IOException {
+            size += arg2;
+        }
+
+        public void write(byte[] arg0) throws IOException {
+            size += arg0.length;
+        }
+    }
+
+
     /**
      * We hardcode the serialVersionUID so that from James 1.2 on,
      * MailImpl will be deserializable (so your mail doesn't get lost)
@@ -368,24 +393,44 @@ public class MailImpl implements Disposable, Mail {
     public long getMessageSize() throws MessagingException {
         //If we have a MimeMessageWrapper, then we can ask it for just the
         //  message size and skip calculating it
+        long size = -1;
+        
         if (message instanceof MimeMessageWrapper) {
             MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
-            return wrapper.getMessageSize();
-        }
-        if (message instanceof MimeMessageCopyOnWriteProxy) {
+            size = wrapper.getMessageSize();
+        } else if (message instanceof MimeMessageCopyOnWriteProxy) {
             MimeMessageCopyOnWriteProxy wrapper = (MimeMessageCopyOnWriteProxy) message;
-            return wrapper.getMessageSize();
+            size = wrapper.getMessageSize();
+        } else {
+            //SK: Should probably eventually store this as a locally
+            //  maintained value (so we don't have to load and reparse
+            //  messages each time).
+            size = message.getSize();
+            if (size != -1) {
+                Enumeration e = message.getAllHeaderLines();
+                if (e.hasMoreElements()) {
+                    size += 2;
+                }
+                while (e.hasMoreElements()) {
+                    // add 2 bytes for the CRLF
+                    size += ((String) e.nextElement()).length()+2;
+                }
+            }
         }
-        //SK: Should probably eventually store this as a locally
-        //  maintained value (so we don't have to load and reparse
-        //  messages each time).
-        long size = message.getSize();
-        Enumeration e = message.getAllHeaderLines();
-        while (e.hasMoreElements()) {
-            size += ((String) e.nextElement()).length();
+        
+        if (size == -1) {
+            SizeCalculatorOutputStream out = new SizeCalculatorOutputStream();
+            try {
+                message.writeTo(out);
+            } catch (IOException e) {
+                // should never happen as SizeCalculator does not actually throw IOExceptions.
+                throw new MessagingException("IOException wrapped by getMessageSize",e);
+            }
+            size = out.getSize();
         }
         return size;
     }
+    
     /**
      * Set the error message associated with this MailImpl.
      *
