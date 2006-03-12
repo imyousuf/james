@@ -36,7 +36,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
-import org.apache.james.core.MimeMessageUtil;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.JDBCUtil;
@@ -47,13 +46,13 @@ import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -661,40 +660,23 @@ public class JDBCMailRepository
                 } else {
                     saveBody = true;
                 }
-
+                
                 if (saveBody) {
+                    PreparedStatement updateMessageBody = 
+                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
                     try {
-                        updateMessage =
-                            conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
-                        ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-                        OutputStream bodyOut = null;
-                        try {
-                            if (sr == null) {
-                                //If there is no filestore, use the byte array to store headers
-                                //  and the body
-                                bodyOut = headerOut;
-                            } else {
-                                //Store the body in the stream repository
-                                bodyOut = sr.put(mc.getName());
-                            }
-        
-                            //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                            MimeMessageUtil.writeTo(mc.getMessage(), headerOut, bodyOut);
-        
-                            //Store the headers in the database
-                            ByteArrayInputStream headerInputStream =
-                                new ByteArrayInputStream(headerOut.toByteArray());
-                            updateMessage.setBinaryStream(1, headerInputStream, headerOut.size());
-                        } finally {
-                            closeOutputStreams(headerOut, bodyOut);
-                        }
-                        updateMessage.setString(2, mc.getName());
-                        updateMessage.setString(3, repositoryName);
-                        updateMessage.execute();
+                        MessageInputStream is = new MessageInputStream(mc,sr);
+                        updateMessageBody.setBinaryStream(1,is,(int) is.getSize());
+                        updateMessageBody.setString(2, mc.getName());
+                        updateMessageBody.setString(3, repositoryName);
+                        updateMessageBody.execute();
+                        
                     } finally {
-                        theJDBCUtil.closeJDBCStatement(updateMessage);
+                        theJDBCUtil.closeJDBCStatement(updateMessageBody);
                     }
                 }
+                
+
             } else {
                 //Insert the record into the database
                 PreparedStatement insertMessage = null;
@@ -723,31 +705,11 @@ public class JDBCMailRepository
                     insertMessage.setString(7, mc.getRemoteHost());
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
-                    MimeMessage messageBody = mc.getMessage();
-    
-                    ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-                    OutputStream bodyOut = null;
-                    try {
-                        if (sr == null) {
-                            //If there is no sr, then use the same byte array to hold the headers
-                            //  and the body
-                            bodyOut = headerOut;
-                        } else {
-                            //Store the body in the file system.
-                            bodyOut = sr.put(mc.getName());
-                        }
-        
-                        //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                        MimeMessageUtil.writeTo(messageBody, headerOut, bodyOut);
 
-                        ByteArrayInputStream headerInputStream =
-                            new ByteArrayInputStream(headerOut.toByteArray());
-                        insertMessage.setBinaryStream(10, headerInputStream, headerOut.size());
-                    } finally {
-                        closeOutputStreams(headerOut, bodyOut);
-                    }
-                    //Store the headers in the database
+                    MessageInputStream is = new MessageInputStream(mc,sr);
 
+                    insertMessage.setBinaryStream(10, is, (int) is.getSize());
+                    
                     //Store attributes
                     if (number_of_parameters > 10) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -784,11 +746,13 @@ public class JDBCMailRepository
                 }
             }
 
+
             conn.commit();
             conn.setAutoCommit(true);
 
         } catch (Exception e) {
-            throw new MessagingException("Exception caught while storing mail Container: " + e);
+            getLogger().error("Exception caught while storing mail Container",e);
+            throw new MessagingException("Exception caught while storing mail Container: ",e);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
             if (!wasLocked) {
@@ -860,7 +824,7 @@ public class JDBCMailRepository
                         try {
                             byte[] serialized_attr = null;
                             String getAttributesOption = sqlQueries.getDbOption("getAttributes");
-                            if (getAttributesOption != null && getAttributesOption.equalsIgnoreCase("useBlob")) {
+                            if (getAttributesOption != null && (getAttributesOption.equalsIgnoreCase("useBlob") || getAttributesOption.equalsIgnoreCase("useBinaryStream"))) {
                                 Blob b = rsMessageAttr.getBlob(1);
                                 serialized_attr = b.getBytes(1, (int)b.length());
                             } else {
@@ -1091,31 +1055,5 @@ public class JDBCMailRepository
             count += chars[i]=='?' ? 1 : 0;
         }
         return count;
-    }
-
-    /**
-     * Closes output streams used to update message
-     * 
-     * @param headerStream the stream containing header information - potentially the same
-     *               as the body stream
-     * @param bodyStream the stream containing body information
-     */
-    private void closeOutputStreams(OutputStream headerStream, OutputStream bodyStream) {
-        try {
-            // If the header stream is not the same as the body stream,
-            // close the header stream here.
-            if ((headerStream != null) && (headerStream != bodyStream)) {
-                headerStream.close();
-            }
-        } catch (IOException ioe) {
-            getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
-        }
-        try {
-            if (bodyStream != null) {
-                bodyStream.close();
-            }
-        } catch (IOException ioe) {
-            getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
-        }
     }
 }
