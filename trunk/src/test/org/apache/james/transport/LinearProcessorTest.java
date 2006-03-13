@@ -23,6 +23,7 @@ import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.test.mock.james.MockSpoolRepository;
 import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.james.test.mock.mailet.MockMailetConfig;
 import org.apache.james.transport.mailets.debug.DumpSystemErr;
 import org.apache.james.transport.matchers.All;
 import org.apache.james.transport.matchers.RecipientIs;
@@ -44,7 +45,6 @@ import javax.mail.internet.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -75,25 +75,8 @@ public class LinearProcessorTest extends TestCase {
         
     }
     
-    private MailetConfig mockMailetConfig = new MailetConfig() {
-
-        public String getInitParameter(String name) {
-            return "";
-        }
-
-        public Iterator getInitParameterNames() {
-            return null;
-        }
-
-        public MailetContext getMailetContext() {
-            return mockContext;
-        }
-
-        public String getMailetName() {
-            return "Dummy";
-        }
-        
-    };
+    private MailetConfig mockMailetConfig = new MockMailetConfig("Dummy",mockContext);
+    
     private CheckerMailet checkerMailet;
     
     private class MyMailet extends GenericMailet {
