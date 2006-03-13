@@ -17,8 +17,8 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.core.MailetConfigImpl;
 import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.james.test.mock.mailet.MockMailetConfig;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 
@@ -266,24 +266,10 @@ public class AddFooterTest extends TestCase {
 
     private String processAddFooter(String asciisource, String footer)
             throws MessagingException, IOException {
-        Mailet mailet = new AddFooter() {
-            private String footer;
+        Mailet mailet = new AddFooter();
 
-            public String getInitParameter(String name) {
-                if ("text".equals(name)) {
-                    return footer;
-                }
-                return null;
-            }
-
-            public Mailet setFooter(String string) {
-                this.footer = string;
-                return this;
-            };
-        }.setFooter(footer);
-
-        MailetConfigImpl mci = new MailetConfigImpl();
-        mci.setMailetContext(new MockMailContext());
+        MockMailetConfig mci = new MockMailetConfig("Test",new MockMailContext());
+        mci.setProperty("text",footer);
 
         mailet.init(mci);
 

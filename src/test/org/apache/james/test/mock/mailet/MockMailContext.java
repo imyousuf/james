@@ -72,11 +72,12 @@ public class MockMailContext implements MailetContext {
     }
 
     public void log(String message) {
-        // trivial implementation
+        System.out.println(message);
     }
 
     public void log(String message, Throwable t) {
-        // trivial implementation
+        System.out.println(message);
+        t.printStackTrace(System.out);
     }
 
     public void removeAttribute(String name) {
