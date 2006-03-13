@@ -88,9 +88,9 @@ public class LocalDelivery extends GenericMailet {
              * @see org.apache.mailet.MailetConfig#getInitParameter(java.lang.String)
              */
             public String getInitParameter(String name) {
-                if (name == "addDeliveryHeader") {
+                if ("addDeliveryHeader".equals(name)) {
                     return "Delivered-To";
-                } else if (name == "resetReturnPath") {
+                } else if ("resetReturnPath".equals(name)) {
                     return "true";
                 } else {
                     return getMailetConfig().getInitParameter(name);
