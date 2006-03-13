@@ -444,7 +444,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         {
             Configuration accountsChild = accountsChildren[i];
 
-            if (accountsChild.getName() == "alllocal")
+            if ("alllocal".equals(accountsChild.getName()))
             {
                 // <allLocal> is dynamic, save the parameters for accounts to
                 // be created when the task is triggered
@@ -453,7 +453,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 continue;
             }
 
-            if (accountsChild.getName() == "account")
+            if ("account".equals(accountsChild.getName()))
             {
                 // Create an Account for the named user and
                 // add it to the list of static accounts
