@@ -209,7 +209,7 @@ public class AddFooter extends GenericMailet {
         } else if (part.isMimeType("text/html") && part.getContent() instanceof String) {
             addToHTML(part);
             return true;
-        } else if (part.isMimeType("multipart/mixed")) {
+        } else if (part.isMimeType("multipart/mixed") || part.isMimeType("multipart/related")) {
             //Find the first body part, and determine what to do then.
             MimeMultipart multipart = (MimeMultipart)part.getContent();
             MimeBodyPart firstPart = (MimeBodyPart)multipart.getBodyPart(0);
