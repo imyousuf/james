@@ -134,6 +134,57 @@ public class AddFooterTest extends TestCase {
         assertEquals(asciisource, res);
 
     }
+    
+    /*
+     * Test for      JAMES-368
+     * AddFooter couldn't process mails which MimeType is multipart/related
+     */
+    public void testAddFooterMultipartRelated() throws MessagingException, IOException {
+
+        // quoted printable mimemessage text/plain
+        String asciisource = "MIME-Version: 1.0\r\n"
+            +"Subject: test\r\n"
+            +"Content-Type: multipart/related;\r\n"
+            +"  boundary=\"------------050206010102010306090507\"\r\n"
+            +"\r\n"
+            +"--------------050206010102010306090507\r\n"
+            +"Content-Type: text/html; charset=ISO-8859-15\r\n"
+            +"Content-Transfer-Encoding: quoted-printable\r\n"
+            +"\r\n"
+            +"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n"
+            +"<html>\r\n"
+            +"<head>\r\n"
+            +"<meta content=3D\"text/html;charset=3DISO-8859-15\" http-equiv=3D\"Content-Typ=\r\n"
+            +"e\">\r\n"
+            +"</head>\r\n"
+            +"<body bgcolor=3D\"#ffffff\" text=3D\"#000000\">\r\n"
+            +"<br>\r\n"
+            +"<div class=3D\"moz-signature\">-- <br>\r\n"
+            +"<img src=3D\"cid:part1.02060605.123@zzz.com\" border=3D\"0\"></div>\r\n";
+        String asciifoot = "</body>\r\n"
+            +"</html>\r\n"
+            +"\r\n"
+            +"--------------050206010102010306090507\r\n"
+            +"Content-Type: image/gif\r\n"
+            +"Content-Transfer-Encoding: base64\r\n"
+            +"Content-ID: <part1.02060605.123@zzz.com>\r\n"
+            +"Content-Disposition: inline;\r\n"
+            +"\r\n"
+            +"YQ==\r\n"
+            +"--------------050206010102010306090507--\r\n";
+
+        // String asciisource = "Subject: test\r\nContent-Type: multipart/mixed; boundary=\"===============0204599088==\"\r\nMIME-Version: 1.0\r\n\r\nThis is a cryptographically signed message in MIME format.\r\n\r\n--===============0204599088==\r\nContent-Type: text/plain\r\n\r\ntest\r\n--===============0204599088==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nContent-Disposition: inline\r\n\r\ntest\r\n--===============0204599088==--\r\n";
+
+        String footer = "------ my footer \u00E0/\u20AC ------";
+        String expectedFooter = "<br>------ my footer =E0/=A4 ------";
+
+        String res = processAddFooter(asciisource+asciifoot, footer);
+
+        assertEquals(asciisource+expectedFooter+asciifoot, res);
+
+    }
+    
+    
 
     /*
      * Class under test for String getSubject()
