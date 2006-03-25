@@ -102,6 +102,23 @@ public class AddFooterTest extends TestCase {
 
     }
 
+    public void testUnsupportedEncoding() throws MessagingException, IOException {
+
+        // quoted printable mimemessage text/plain
+        String asciisource = "Subject: test\r\nContent-Type: text/plain; charset=UNSUPPORTED_ENCODING\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nTest=E0 and one\r\n";
+
+        String footer = "------ my footer \u00E0/\u20AC ------";
+
+        try {
+            String res = processAddFooter(asciisource, footer);
+            assertEquals(asciisource, res);
+        } catch (Exception e) {
+            fail("should not throw an exception: "+e.getMessage());
+        }
+
+
+    }
+
     /*
      * Test for      JAMES-443
      * This should not add the header and should leave the multipart/mixed Content-Type intact
