@@ -28,6 +28,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 
 /**
@@ -94,6 +95,8 @@ public class AddFooter extends GenericMailet {
             } else {
                 log("Unable to add footer to mail " + mail.getName());
             }
+        } catch (UnsupportedEncodingException e) {
+            log("UnsupportedEncoding Unable to add footer to mail " +  mail.getName());
         } catch (IOException ioe) {
             throw new MessagingException("Could not read message", ioe);
         }
