@@ -53,6 +53,8 @@ import java.util.List;
  */
 
 public class RemoteManagerTest extends TestCase {
+    
+    public static final String LINE_SEPARATOR = System.getProperties().getProperty("line.separator"); 
 
     protected int m_remoteManagerListenerPort = Util.getRandomNonPrivilegedPort();
     protected RemoteManager m_remoteManager;
@@ -118,13 +120,13 @@ public class RemoteManagerTest extends TestCase {
             fail("reading remote manager answer failed");
         }
 
-        allAnswerLines.addAll(Arrays.asList(stringBuffer.toString().split("\r\n")));
+        allAnswerLines.addAll(Arrays.asList(stringBuffer.toString().split(LINE_SEPARATOR)));
         if ("".equals(getLastLine(allAnswerLines))) allAnswerLines.remove(allAnswerLines.size()-1);
         return allAnswerLines;
     }
 
     protected void sendCommand(String command) throws IOException {
-        m_writer.write(command + "\r\n");
+        m_writer.write(command + LINE_SEPARATOR);
         m_writer.flush();
     }
 
