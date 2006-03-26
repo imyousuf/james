@@ -206,12 +206,12 @@ public class AddFooterTest extends TestCase {
     /*
      * Class under test for String getSubject()
      */
-    public void testAddFooterTextPlainCP1252toISO8859() throws MessagingException, IOException {
+    public void testAddFooterTextPlainISO8859() throws MessagingException, IOException {
 
         // quoted printable mimemessage text/plain
-        String asciisource = "Subject: test\r\nContent-Type: text/plain; charset=CP1252\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nTest=E0 and one =80\r\n";
+        String asciisource = "Subject: test\r\nContent-Type: text/plain; charset=iso-8859-15\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nTest=E0 and one =A4\r\n";
 
-        String iso885915qpheader = "------ my footer =E0/=80 ------";
+        String iso885915qpheader = "------ my footer =E0/=A4 ------";
         String footer = "------ my footer \u00E0/\u20AC ------";
 
         String res = processAddFooter(asciisource, footer);
