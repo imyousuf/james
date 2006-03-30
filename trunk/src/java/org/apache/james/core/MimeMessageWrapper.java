@@ -294,7 +294,12 @@ public class MimeMessageWrapper
         //Wrap input stream in LineNumberReader
         //Not sure what encoding to use really...
         try {
-            LineNumberReader counter = new LineNumberReader(new InputStreamReader(in, getEncoding()));
+            LineNumberReader counter;
+            if (getEncoding() != null) {
+                counter = new LineNumberReader(new InputStreamReader(in, getEncoding()));
+            } else {
+                counter = new LineNumberReader(new InputStreamReader(in));
+            }
             //Read through all the data
             char[] block = new char[4096];
             while (counter.read(block) > -1) {
