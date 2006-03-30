@@ -706,7 +706,11 @@
             -->            
             
             <!-- The command handler configuration -->
-            <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler"></handler>
+            <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler">
+                <!-- If is set to true helo is only accepted if it can be resolved
+                <checkValidHelo> false </checkValidHelo>
+                -->
+            </handler>
             <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler"></handler>
             <handler command="AUTH" class="org.apache.james.smtpserver.AuthCmdHandler"></handler>
             <handler command="VRFY" class="org.apache.james.smtpserver.VrfyCmdHandler"></handler>

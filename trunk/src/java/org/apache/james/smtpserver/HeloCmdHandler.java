@@ -17,10 +17,18 @@
 
 package org.apache.james.smtpserver;
 
+
+import java.net.UnknownHostException;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
+
 /**
   * Handles HELO command
   */
-public class HeloCmdHandler implements CommandHandler {
+public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler,Configurable {
 
     /**
      * The name of the command handled by the command handler
@@ -32,6 +40,21 @@ public class HeloCmdHandler implements CommandHandler {
      */
     private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
 
+    /**
+     * set checkValidHelo to false as default value
+     */
+    private boolean checkValidHelo = false;
+    
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        Configuration configuration = handlerConfiguration.getChild("checkValidHelo",false);
+        if(configuration != null) {
+           checkValidHelo = configuration.getValueAsBoolean();
+        }
+    }
+       
     /*
      * process HELO command
      *
@@ -52,10 +75,28 @@ public class HeloCmdHandler implements CommandHandler {
      */
     private void doHELO(SMTPSession session, String argument) {
         String responseString = null;
+        boolean badHelo = false;
+                
+        
+        // check for helo if its set in config
+        if (checkValidHelo == true) {
+             
+            // try to resolv the provided helo. If it can not resolved do not accept it.
+            try {
+                org.apache.james.dnsserver.DNSServer.getByName(argument);
+            } catch (UnknownHostException e) {
+                badHelo = true;
+                responseString = "501 Helo can not resolved";
+                session.writeResponse(responseString);
+                getLogger().info(responseString);
+            }
+        }
+        
         if (argument == null) {
             responseString = "501 Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
-        } else {
+            getLogger().info(responseString);
+        } else if (badHelo == false) {
             session.resetState();
             session.getState().put(CURRENT_HELO_MODE, COMMAND_NAME);
             session.getResponseBuffer().append("250 ")
