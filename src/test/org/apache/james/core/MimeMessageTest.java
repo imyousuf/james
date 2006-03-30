@@ -60,7 +60,7 @@ public class MimeMessageTest extends TestCase {
     public void testSimpleMessage() throws Exception {
         assertEquals(getSimpleMessageCleanedSource(), getCleanedMessageSource(getSimpleMessage()));
     }
-
+    
     
     protected MimeMessage getMultipartMessage() throws Exception {
         MimeMessage mmCreated = new MimeMessage(Session.getDefaultInstance(new Properties()));
@@ -265,6 +265,42 @@ public class MimeMessageTest extends TestCase {
         System.out.println("-------------------");
     }
     
+
+    protected MimeMessage getMissingEncodingMessage() throws Exception {
+        MimeMessage mmCreated = new MimeMessage(Session.getDefaultInstance(new Properties()));
+        mmCreated.setSubject("test");
+        MimeMultipart mm = new MimeMultipart("alternative");
+        mm.addBodyPart(new MimeBodyPart(new InternetHeaders(new ByteArrayInputStream("X-header: test2\r\nContent-Type: text/plain; charset=Cp1252\r\nContent-Transfer-Encoding: quoted-printable\r\n".getBytes())),"second part =E8=E8".getBytes()));
+        mmCreated.setContent(mm);
+        mmCreated.saveChanges();
+        return mmCreated;
+    }
     
+
+    protected String getMissingEncodingMessageSource() {
+        return "Subject: test\r\n"
+        +"MIME-Version: 1.0\r\n"
+        +"Content-Type: multipart/alternative; \r\n" 
+        +"\tboundary=\"----=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX\"\r\n"
+        +"\r\n"
+        +"------=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX\r\n"
+        +"X-header: test2\r\n"
+        +"Content-Type: text/plain; charset=Cp1252\r\n"
+        +"Content-Transfer-Encoding: quoted-printable\r\n"
+        +"\r\n"
+        +"second part =E8=E8\r\n"
+        +"------=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX--\r\n";
+    }
+    
+
+    public void testGetLineCount() throws Exception {
+        MimeMessage mm = getMissingEncodingMessage();
+        try {
+            int count = mm.getLineCount();
+            assertTrue(count == -1 || count == 7);
+        } catch (Exception e) {
+            fail("Unexpected exception in getLineCount");
+        }
+    }
     
 }
