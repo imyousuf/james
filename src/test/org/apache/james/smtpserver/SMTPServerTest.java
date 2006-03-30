@@ -266,6 +266,7 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol1.quit();
     }
+    
     public void testHeloResolv() throws Exception, SMTPException {
         m_testConfiguration.setHeloResolv();
         finishSetUp(m_testConfiguration);
@@ -305,6 +306,49 @@ public class SMTPServerTest extends TestCase {
         SMTPResponse response = smtpProtocol1.getResponse();
         // helo should not be checked. so this should give a 250 code
         assertEquals("Helo accepted", 250, response.getCode());
+
+        smtpProtocol1.quit();
+    }
+    
+    public void testEhloResolv() throws Exception, SMTPException {
+        m_testConfiguration.setEhloResolv();
+        finishSetUp(m_testConfiguration);
+
+
+        MySMTPProtocol smtpProtocol1 = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        String[] ehlo1 = new String[] { "abgsfe3rsf.de"};
+        String[] ehlo2 = new String[] { "james.apache.org" };
+        
+        smtpProtocol1.sendCommand("ehlo",ehlo1);
+        SMTPResponse response = smtpProtocol1.getResponse();
+        // this should give a 501 code cause the ehlo could not resolved
+        assertEquals("expected error: ehlo could not resolved", 501, response.getCode());
+            
+        smtpProtocol1.sendCommand("ehlo", ehlo2);
+        SMTPResponse response2 = smtpProtocol1.getResponse();
+        // ehlo is resolvable. so this should give a 250 code
+        assertEquals("ehlo accepted", 250, response2.getCode());
+
+        smtpProtocol1.quit();
+    }
+    
+    public void testEhloResolvDefault() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        MySMTPProtocol smtpProtocol1 = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        
+        smtpProtocol1.sendCommand("ehlo",new String[]{"abgsfe3rsf.de"});
+        SMTPResponse response = smtpProtocol1.getResponse();
+        // ehlo should not be checked. so this should give a 250 code
+        assertEquals("ehlo accepted", 250, response.getCode());
 
         smtpProtocol1.quit();
     }
