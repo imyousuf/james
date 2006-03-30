@@ -17,13 +17,19 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
+
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
   * Handles EHLO command
   */
-public class EhloCmdHandler implements CommandHandler {
+public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler,Configurable {
 
     /**
      * The name of the command handled by the command handler
@@ -35,6 +41,20 @@ public class EhloCmdHandler implements CommandHandler {
      */
     private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
 
+    /**
+     * set checkValidHelo to false as default value
+     */
+    private boolean checkValidEhlo = false;
+    
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        Configuration configuration = handlerConfiguration.getChild("checkValidEhlo",false);
+        if(configuration != null) {
+           checkValidEhlo = configuration.getValueAsBoolean();
+        }
+    }
 
     /*
      * processes EHLO command
@@ -56,11 +76,26 @@ public class EhloCmdHandler implements CommandHandler {
     private void doEHLO(SMTPSession session, String argument) {
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
-
+        boolean badEhlo = false;
+        
+        // check for helo if its set in config
+        if (checkValidEhlo == true) {
+             
+            // try to resolv the provided helo. If it can not resolved do not accept it.
+            try {
+                org.apache.james.dnsserver.DNSServer.getByName(argument);
+            } catch (UnknownHostException e) {
+                badEhlo = true;
+                responseString = "501 Ehlo can not resolved";
+                session.writeResponse(responseString);
+                getLogger().info(responseString);
+            }
+        }
+        
         if (argument == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
-        } else {
+        } else if (badEhlo == false){
             session.resetState();
             session.getState().put(CURRENT_HELO_MODE, COMMAND_NAME);
 

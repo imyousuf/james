@@ -30,7 +30,8 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_verifyIdentity = false;
     private Integer m_connectionLimit = null;
     private boolean m_heloResolv = false;
-
+    private boolean m_ehloResolv = false;
+    
     public SMTPTestConfiguration(int smtpListenerPort) {
         super("smptserver");
 
@@ -76,6 +77,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setHeloResolv() {
         m_heloResolv = true; 
     }
+    
+    public void setEhloResolv() {
+        m_ehloResolv = true; 
+    }
 
     public void init() {
 
@@ -94,10 +99,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         
         handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
         
-        // Add Configuration for Helo checks
-
+        // Add Configuration for Helo checks and Ehlo checks
         DefaultConfiguration heloConfig = (DefaultConfiguration) handlerConfig.getChild("handlerchain").getChild("handler");
         heloConfig.addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
+        heloConfig.addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));  
         
         addChild(handlerConfig);
     }
