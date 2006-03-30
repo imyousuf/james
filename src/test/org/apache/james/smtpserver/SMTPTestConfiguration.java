@@ -29,6 +29,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private String m_authorizingMode = "false";
     private boolean m_verifyIdentity = false;
     private Integer m_connectionLimit = null;
+    private boolean m_heloResolv = false;
 
     public SMTPTestConfiguration(int smtpListenerPort) {
         super("smptserver");
@@ -71,6 +72,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setConnectionLimit(int iConnectionLimit) {
         m_connectionLimit = new Integer(iConnectionLimit);
     }
+    
+    public void setHeloResolv() {
+        m_heloResolv = true; 
+    }
 
     public void init() {
 
@@ -86,8 +91,14 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSize));
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
-
+        
         handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
+        
+        // Add Configuration for Helo checks
+
+        DefaultConfiguration heloConfig = (DefaultConfiguration) handlerConfig.getChild("handlerchain").getChild("handler");
+        heloConfig.addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
+        
         addChild(handlerConfig);
     }
 

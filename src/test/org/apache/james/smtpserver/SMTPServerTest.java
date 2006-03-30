@@ -266,7 +266,49 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol1.quit();
     }
+    public void testHeloResolv() throws Exception, SMTPException {
+        m_testConfiguration.setHeloResolv();
+        finishSetUp(m_testConfiguration);
 
+
+        MySMTPProtocol smtpProtocol1 = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        String[] helo1 = new String[] { "abgsfe3rsf.de"};
+        String[] helo2 = new String[] { "james.apache.org" };
+        
+        smtpProtocol1.sendCommand("helo",helo1);
+        SMTPResponse response = smtpProtocol1.getResponse();
+        // this should give a 501 code cause the helo could not resolved
+        assertEquals("expected error: helo could not resolved", 501, response.getCode());
+            
+        smtpProtocol1.sendCommand("helo", helo2);
+        SMTPResponse response2 = smtpProtocol1.getResponse();
+        // helo is resolvable. so this should give a 250 code
+        assertEquals("Helo accepted", 250, response2.getCode());
+
+        smtpProtocol1.quit();
+    }
+    
+    public void testHeloResolvDefault() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        MySMTPProtocol smtpProtocol1 = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        
+        smtpProtocol1.sendCommand("helo",new String[]{"abgsfe3rsf.de"});
+        SMTPResponse response = smtpProtocol1.getResponse();
+        // helo should not be checked. so this should give a 250 code
+        assertEquals("Helo accepted", 250, response.getCode());
+
+        smtpProtocol1.quit();
+    }
+    
     public void testHeloEnforcement() throws Exception, SMTPException {
         finishSetUp(m_testConfiguration);
 
