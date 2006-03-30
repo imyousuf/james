@@ -18,6 +18,8 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.test.util.Util;
 
@@ -82,7 +84,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_ehloResolv = true; 
     }
 
-    public void init() {
+    public void init() throws ConfigurationException {
 
         setAttribute("enabled", true);
 
@@ -100,9 +102,17 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
         
         // Add Configuration for Helo checks and Ehlo checks
-        DefaultConfiguration heloConfig = (DefaultConfiguration) handlerConfig.getChild("handlerchain").getChild("handler");
-        heloConfig.addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
-        heloConfig.addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));  
+        Configuration[] heloConfig = handlerConfig.getChild("handlerchain").getChildren("handler");
+        for (int i = 0; i < heloConfig.length; i++) {
+            if (heloConfig[i] instanceof DefaultConfiguration) {
+                String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command");
+                if ("HELO".equals(cmd)) {
+                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
+                } else if ("EHLO".equals(cmd)) {
+                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
+                }
+            }
+        }
         
         addChild(handlerConfig);
     }
