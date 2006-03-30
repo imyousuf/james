@@ -711,7 +711,11 @@
                 <checkValidHelo> false </checkValidHelo>
                 -->
             </handler>
-            <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler"></handler>
+            <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler">
+                <!-- If is set to true ehlo is only accepted if it can be resolved
+                <checkValidEhlo> false </checkValidEhlo>
+                -->
+            </handler>
             <handler command="AUTH" class="org.apache.james.smtpserver.AuthCmdHandler"></handler>
             <handler command="VRFY" class="org.apache.james.smtpserver.VrfyCmdHandler"></handler>
             <handler command="EXPN" class="org.apache.james.smtpserver.ExpnCmdHandler"></handler>
