@@ -86,7 +86,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                 org.apache.james.dnsserver.DNSServer.getByName(argument);
             } catch (UnknownHostException e) {
                 badHelo = true;
-                responseString = "501 Helo can not resolved";
+                responseString = "501 Provided HELO " + argument + " can not resolved";
                 session.writeResponse(responseString);
                 getLogger().info(responseString);
             }

@@ -86,7 +86,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
                 org.apache.james.dnsserver.DNSServer.getByName(argument);
             } catch (UnknownHostException e) {
                 badEhlo = true;
-                responseString = "501 Ehlo can not resolved";
+                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Provided EHLO " + argument + " can not resolved";
                 session.writeResponse(responseString);
                 getLogger().info(responseString);
             }
