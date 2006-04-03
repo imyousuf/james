@@ -33,6 +33,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private Integer m_connectionLimit = null;
     private boolean m_heloResolv = false;
     private boolean m_ehloResolv = false;
+    private boolean m_senderDomainResolv = false;
     
     public SMTPTestConfiguration(int smtpListenerPort) {
         super("smptserver");
@@ -83,6 +84,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setEhloResolv() {
         m_ehloResolv = true; 
     }
+    
+    public void setSenderDomainResolv() {
+        m_senderDomainResolv = true; 
+    }
 
     public void init() throws ConfigurationException {
 
@@ -110,7 +115,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                     ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
                 } else if ("EHLO".equals(cmd)) {
                     ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
+                } else if ("MAIL".equals(cmd)) {
+                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
                 }
+                
             }
         }
         

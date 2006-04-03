@@ -310,6 +310,52 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.quit();
     }
     
+    public void testSenderDomainResolv() throws Exception, SMTPException {
+        m_testConfiguration.setSenderDomainResolv();
+        finishSetUp(m_testConfiguration);
+
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@xfwrqqfgfe.de";
+        String sender2 = "mail_sender2@james.apache.org";
+        
+        try {
+            smtpProtocol1.mail(new Address(sender1));
+            fail("sender should not accept");
+        } catch (SMTPException e) {
+            assertEquals("expected 501 error", 501, e.getCode());
+        }
+    
+        smtpProtocol1.mail(new Address(sender2));
+
+        smtpProtocol1.quit();
+        
+    }
+ 
+    public void testSenderDomainResolvDefault() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+        
+        String sender1 = "mail_sender1@xfwrqqfgfe.de";
+        
+        smtpProtocol1.mail(new Address(sender1));
+
+        smtpProtocol1.quit();
+    }
+    
     public void testEhloResolv() throws Exception, SMTPException {
         m_testConfiguration.setEhloResolv();
         finishSetUp(m_testConfiguration);
@@ -326,7 +372,7 @@ public class SMTPServerTest extends TestCase {
         String[] ehlo1 = new String[] { "abgsfe3rsf.de"};
         String[] ehlo2 = new String[] { "james.apache.org" };
         
-        smtpProtocol1.sendCommand("ehlo",ehlo1);
+        smtpProtocol1.sendCommand("ehlo", ehlo1);
         SMTPResponse response = smtpProtocol1.getResponse();
         // this should give a 501 code cause the ehlo could not resolved
         assertEquals("expected error: ehlo could not resolved", 501, response.getCode());
@@ -394,12 +440,12 @@ public class SMTPServerTest extends TestCase {
 
         String userName = "test_user_smtp";
         String noexistUserName = "noexist_test_user_smtp";
-        
+        String sender ="test_user_smtp@localhost";
         smtpProtocol.sendCommand("AUTH FOO", null);
         SMTPResponse response = smtpProtocol.getResponse();
         assertEquals("expected error: unrecognized authentication type", 504, response.getCode());
 
-        smtpProtocol.mail(new Address(userName));
+        smtpProtocol.mail(new Address(sender));
 
         try {
             smtpProtocol.rcpt(new Address("mail@sample.com"));
