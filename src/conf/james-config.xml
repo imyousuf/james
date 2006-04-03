@@ -719,7 +719,11 @@
             <handler command="AUTH" class="org.apache.james.smtpserver.AuthCmdHandler"></handler>
             <handler command="VRFY" class="org.apache.james.smtpserver.VrfyCmdHandler"></handler>
             <handler command="EXPN" class="org.apache.james.smtpserver.ExpnCmdHandler"></handler>
-            <handler command="MAIL" class="org.apache.james.smtpserver.MailCmdHandler"></handler>
+            <handler command="MAIL" class="org.apache.james.smtpserver.MailCmdHandler">
+                <!-- If is set to true mail is only accepted if the sender contains a resolvable domain
+                <checkValidSenderDomain> false </checkValidSenderDomain>
+                -->
+            </handler>
             <handler command="RCPT" class="org.apache.james.smtpserver.RcptCmdHandler"></handler>
             <handler command="DATA" class="org.apache.james.smtpserver.DataCmdHandler"></handler>
             <handler command="RSET" class="org.apache.james.smtpserver.RsetCmdHandler"></handler>

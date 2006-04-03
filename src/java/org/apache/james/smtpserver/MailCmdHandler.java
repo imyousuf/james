@@ -17,9 +17,17 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.Type;
+
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -28,7 +36,7 @@ import java.util.StringTokenizer;
   */
 public class MailCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler {
+    implements CommandHandler,Configurable {
 
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
@@ -41,6 +49,18 @@ public class MailCmdHandler
      */
     private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
 
+    private boolean checkValidSenderDomain = false;
+    
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        Configuration configuration = handlerConfiguration.getChild("checkValidSenderDomain",false);
+        if(configuration != null) {
+           checkValidSenderDomain = configuration.getValueAsBoolean();
+        }
+    }
+    
     /*
      * handles MAIL command
      *
@@ -61,8 +81,9 @@ public class MailCmdHandler
     private void doMAIL(SMTPSession session, String argument) {
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
-
         String sender = null;
+        boolean badSenderDomain = false;
+        
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
             sender = argument.substring(colonIndex + 1);
@@ -140,9 +161,11 @@ public class MailCmdHandler
             if (sender.length() == 0) {
                 //This is the <> case.  Let senderAddress == null
             } else {
+                 
                 if (sender.indexOf("@") < 0) {
                     sender = sender + "@localhost";
                 }
+                
                 try {
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
@@ -160,12 +183,39 @@ public class MailCmdHandler
                     return;
                 }
             }
-            session.getState().put(SENDER, senderAddress);
-            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
-                          .append(sender)
-                          .append("> OK");
-            responseString = session.clearResponseBuffer();
-            session.writeResponse(responseString);
+            
+            if (checkValidSenderDomain == true) {
+     
+                // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
+                Record[] records;
+                
+                try {
+                    records = new Lookup(senderAddress.getHost(), Type.MX).run();
+                    getLogger().info("rec: "+ records);
+                    if (records == null) {
+                        badSenderDomain = true;
+                    }
+                } catch (TextParseException e) {
+                    // no validdomain
+                    badSenderDomain = true;
+                }
+                
+                // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
+                if (badSenderDomain) {
+                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains no valid domain";
+                    session.writeResponse(responseString);
+                    getLogger().info(responseString);
+                }
+            }
+            
+            if (!badSenderDomain) {
+                session.getState().put(SENDER, senderAddress);
+                responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
+                              .append(sender)
+                              .append("> OK");
+                responseString = session.clearResponseBuffer();
+                session.writeResponse(responseString);
+            }
         }
     }
 
