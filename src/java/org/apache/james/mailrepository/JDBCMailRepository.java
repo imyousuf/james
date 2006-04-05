@@ -631,7 +631,7 @@ public class JDBCMailRepository
                                     oos.close();
                                 }
                             } catch (IOException ioe) {
-                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
+                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.",ioe);
                             }
                         }
                         updateMessageAttr.setString(2, mc.getName());
@@ -735,7 +735,7 @@ public class JDBCMailRepository
                                     oos.close();
                                 }
                             } catch (IOException ioe) {
-                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.");
+                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.",ioe);
                             }
                         }                        
                     }
