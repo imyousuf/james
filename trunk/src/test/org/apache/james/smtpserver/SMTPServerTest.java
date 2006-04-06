@@ -356,6 +356,69 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.quit();
     }
     
+    public void testMaxRcpt() throws Exception, SMTPException {
+        m_testConfiguration.setMaxRcpt(1);
+        finishSetUp(m_testConfiguration);
+
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@james.apache.org";
+        String rcpt1 = "test@localhost";
+        String rcpt2 = "test2@localhost";
+    
+        smtpProtocol1.mail(new Address(sender1));
+        smtpProtocol1.rcpt(new Address(rcpt1));
+
+        try {
+            smtpProtocol1.rcpt(new Address(rcpt2));
+            fail("rcpt should not accepted");
+        } catch (SMTPException e) {
+            assertEquals("expected 550 error", 550, e.getCode());
+        }
+        
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        
+        // After the data is send the rcpt count is set back to 0.. So a new mail with rcpt should be accepted
+        
+        smtpProtocol1.mail(new Address(sender1));
+ 
+        smtpProtocol1.rcpt(new Address(rcpt1));
+        
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        
+        smtpProtocol1.quit();
+        
+    }
+
+    public void testMaxRcptDefault() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+        
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+        
+        String sender1 = "mail_sender1@james.apache.org";
+        String rcpt1 = "test@localhost";
+        
+        smtpProtocol1.mail(new Address(sender1));
+        
+        smtpProtocol1.rcpt(new Address(rcpt1));
+        
+        smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));
+        
+        smtpProtocol1.quit();
+    }
+  
     public void testEhloResolv() throws Exception, SMTPException {
         m_testConfiguration.setEhloResolv();
         finishSetUp(m_testConfiguration);

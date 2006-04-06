@@ -17,6 +17,9 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
@@ -30,14 +33,26 @@ import java.util.Locale;
   */
 public class RcptCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler {
+    implements CommandHandler,Configurable {
 
     /**
      * The keys used to store sender and recepients in the SMTPSession state
      */
     private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
-
+    private final static String RCPTCOUNT = "RCPT_COUNT";
+    private int maxRcpt = 0;
+    
+    /**
+     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     */
+    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        Configuration configuration = handlerConfiguration.getChild("maxRcpt",false);
+        if(configuration != null) {
+           maxRcpt = configuration.getValueAsInteger();
+        }
+    }
+    
     /*
      * handles RCPT command
      *
@@ -59,7 +74,8 @@ public class RcptCmdHandler
     private void doRCPT(SMTPSession session, String argument) {
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
-
+        boolean maxRcptReached = false;
+        
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
             int colonIndex = argument.indexOf(":");
@@ -108,6 +124,7 @@ public class RcptCmdHandler
             if (recipient.indexOf("@") < 0) {
                 recipient = recipient + "@localhost";
             }
+            
             try {
                 recipientAddress = new MailAddress(recipient);
             } catch (Exception pe) {
@@ -129,7 +146,6 @@ public class RcptCmdHandler
                 }
                 return;
             }
-
 
             if (session.isBlockListed() &&                                                // was found in the RBL
                 (!session.isRelayingAllowed() || (session.isAuthRequired() && session.getUser() == null)) &&  // Not an authorized IP or SMTP AUTH is enabled and not authenticated
@@ -219,13 +235,40 @@ public class RcptCmdHandler
               }
               optionTokenizer = null;
             }
-            rcptColl.add(recipientAddress);
-            session.getState().put(RCPT_LIST, rcptColl);
-            responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
-                          .append(recipient)
-                          .append("> OK");
-            responseString = session.clearResponseBuffer();
-            session.writeResponse(responseString);
+            
+            // check if we should check for max recipients
+            if (maxRcpt > 0) {
+                int rcptCount = 0;
+            
+                // check if the key exists
+                if (session.getState().get(RCPTCOUNT) != null) {
+                    Integer rcptCountInteger = Integer.valueOf(session.getState().get(RCPTCOUNT).toString());
+                    rcptCount = rcptCountInteger.intValue();
+                }
+                
+                rcptCount++;
+        
+                // check if the max recipients has reached
+                if (rcptCount > maxRcpt) {
+                    maxRcptReached = true;
+                    responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: max recipients reached";
+                    session.writeResponse(responseString);
+                    getLogger().error(responseString);
+                }
+                
+                // put the recipient cound in session hashtable
+                session.getState().put(RCPTCOUNT,Integer.toString(rcptCount));
+            }
+            
+            if (maxRcptReached == false) {
+                rcptColl.add(recipientAddress);
+                session.getState().put(RCPT_LIST, rcptColl);
+                responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
+                              .append(recipient)
+                              .append("> OK");
+                responseString = session.clearResponseBuffer();
+                session.writeResponse(responseString);
+            }
         }
     }
 

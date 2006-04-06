@@ -724,7 +724,12 @@
                 <checkValidSenderDomain> false </checkValidSenderDomain>
                 -->
             </handler>
-            <handler command="RCPT" class="org.apache.james.smtpserver.RcptCmdHandler"></handler>
+            <handler command="RCPT" class="org.apache.james.smtpserver.RcptCmdHandler">
+                <!-- If is set to a bigger value as 0 you can limit the maximal recipients per email.
+                     Default is set to 0.
+                <maxRcpt> 0 </maxRcpt>
+                -->
+            </handler>
             <handler command="DATA" class="org.apache.james.smtpserver.DataCmdHandler"></handler>
             <handler command="RSET" class="org.apache.james.smtpserver.RsetCmdHandler"></handler>
             <handler command="HELP" class="org.apache.james.smtpserver.HelpCmdHandler"></handler>
