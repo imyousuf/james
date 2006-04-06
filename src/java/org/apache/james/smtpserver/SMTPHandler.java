@@ -211,15 +211,6 @@ public class SMTPHandler
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
 
-
-    /**
-     * The per-handler map to store message scope variables
-     * the various handlers use this for storing state information
-     */
-     private HashMap messageState = new HashMap();
-
-
-
     /**
      * Set the configuration data for the handler
      *
@@ -443,9 +434,6 @@ public class SMTPHandler
                   mail = null;
                   resetState();
 
-                  //reset the message scope state
-                  messageState.clear();
-                  
                   // start again with the old helo mode
                   if (currentHeloMode != null) {
                       state.put(CURRENT_HELO_MODE,currentHeloMode);
@@ -864,15 +852,6 @@ public class SMTPHandler
      */
     public void abortMessage() {
         mode = MESSAGE_ABORT_MODE;
-    }
-
-
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getMessageState()
-     */
-    public HashMap getMessageState() {
-        return messageState;
     }
 
 
