@@ -25,13 +25,10 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
-
-import javax.mail.MessagingException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -43,7 +40,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -73,12 +69,6 @@ public class SMTPHandler
      */
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
-
-    // Keys used to store/lookup data in the internal state hash map
-    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
-    private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
-    private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
-    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
 
     /**
      * Static Random instance used to generate SMTP ids
@@ -416,12 +406,6 @@ public class SMTPHandler
                   }
               }
 
-              //if the message is not aborted, then send Mail
-              if(mode == MESSAGE_RECEIVED_MODE) {
-                  getLogger().info("sending mail");
-                  sendMail(mail);
-              }
-
               //do the clean up
               if(mail != null) {
                   if (mail instanceof Disposable) {
@@ -591,73 +575,6 @@ public class SMTPHandler
     public void setHandlerChain(SMTPHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
-
-    /**
-     * delivers the mail to the spool.
-     *
-     * @param Mail the mail object
-     */
-    public void sendMail(Mail mail) {
-        String responseString = null;
-        try {
-            setMail(mail);
-            theConfigData.getMailServer().sendMail(mail);
-            Collection theRecipients = mail.getRecipients();
-            String recipientString = "";
-            if (theRecipients != null) {
-                recipientString = theRecipients.toString();
-            }
-            if (getLogger().isInfoEnabled()) {
-                StringBuffer infoBuffer =
-                     new StringBuffer(256)
-                         .append("Successfully spooled mail ")
-                         .append(mail.getName())
-                         .append(" from ")
-                         .append(mail.getSender())
-                         .append(" on ")
-                         .append(remoteIP)
-                         .append(" for ")
-                         .append(recipientString);
-                getLogger().info(infoBuffer.toString());
-            }
-         } catch (MessagingException me) {
-              // Grab any exception attached to this one.
-              Exception e = me.getNextException();
-              // If there was an attached exception, and it's a
-              // MessageSizeException
-              if (e != null && e instanceof MessageSizeException) {
-                   // Add an item to the state to suppress
-                   // logging of extra lines of data
-                   // that are sent after the size limit has
-                   // been hit.
-                   state.put(MESG_FAILED, Boolean.TRUE);
-                   // then let the client know that the size
-                   // limit has been hit.
-                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
-                             + e.getMessage();
-                   StringBuffer errorBuffer =
-                     new StringBuffer(256)
-                         .append("Rejected message from ")
-                         .append(state.get(SENDER).toString())
-                         .append(" from host ")
-                         .append(remoteHost)
-                         .append(" (")
-                         .append(remoteIP)
-                         .append(") exceeding system maximum message size of ")
-                         .append(theConfigData.getMaxMessageSize());
-                   getLogger().error(errorBuffer.toString());
-              } else {
-                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
-                             + me.getMessage();
-                   getLogger().error("Unknown error occurred while processing DATA.", me);
-              }
-              writeResponse(responseString);
-              return;
-         }
-         responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-         writeResponse(responseString);
-    }
-
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
@@ -853,6 +770,5 @@ public class SMTPHandler
     public void abortMessage() {
         mode = MESSAGE_ABORT_MODE;
     }
-
 
 }

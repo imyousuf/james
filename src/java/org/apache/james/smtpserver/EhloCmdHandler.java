@@ -37,11 +37,6 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private final static String COMMAND_NAME = "EHLO";
 
     /**
-     * The helo mode set in state object
-     */
-    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
-
-    /**
      * set checkValidHelo to false as default value
      */
     private boolean checkValidEhlo = false;
@@ -97,7 +92,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
             session.writeResponse(responseString);
         } else if (badEhlo == false){
             session.resetState();
-            session.getState().put(CURRENT_HELO_MODE, COMMAND_NAME);
+            session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 
             ArrayList esmtpextensions = new ArrayList();
 

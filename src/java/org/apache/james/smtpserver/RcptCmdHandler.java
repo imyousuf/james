@@ -38,8 +38,6 @@ public class RcptCmdHandler
     /**
      * The keys used to store sender and recepients in the SMTPSession state
      */
-    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
-    private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     private final static String RCPTCOUNT = "RCPT_COUNT";
     private int maxRcpt = 0;
     
@@ -82,7 +80,7 @@ public class RcptCmdHandler
             recipient = argument.substring(colonIndex + 1);
             argument = argument.substring(0, colonIndex);
         }
-        if (!session.getState().containsKey(SENDER)) {
+        if (!session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need MAIL before RCPT";
             session.writeResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("TO")
@@ -90,7 +88,7 @@ public class RcptCmdHandler
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_SYNTAX)+" Usage: RCPT TO:<recipient>";
             session.writeResponse(responseString);
         } else {
-            Collection rcptColl = (Collection) session.getState().get(RCPT_LIST);
+            Collection rcptColl = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
             if (rcptColl == null) {
                 rcptColl = new ArrayList();
             }
@@ -174,7 +172,7 @@ public class RcptCmdHandler
                     // Identity verification checking
                     if (session.getConfigurationData().isVerifyIdentity()) {
                         String authUser = (session.getUser()).toLowerCase(Locale.US);
-                        MailAddress senderAddress = (MailAddress) session.getState().get(SENDER);
+                        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
 
                         if ((senderAddress == null) || (!authUser.equals(senderAddress.getUser())) ||
                             (!session.getConfigurationData().getMailServer().isLocalServer(senderAddress.getHost()))) {
@@ -262,7 +260,7 @@ public class RcptCmdHandler
             
             if (maxRcptReached == false) {
                 rcptColl.add(recipientAddress);
-                session.getState().put(RCPT_LIST, rcptColl);
+                session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
                 responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_VALID)+" Recipient <")
                               .append(recipient)
                               .append("> OK");
@@ -280,8 +278,8 @@ public class RcptCmdHandler
         } else if(null!=recipient) {
             sb.append(" [to:" + recipient + "]");
         }
-        if (null!=session.getState().get(SENDER)) {
-            sb.append(" [from:" + ((MailAddress)session.getState().get(SENDER)).toInternetAddress().getAddress() + "]");
+        if (null!=session.getState().get(SMTPSession.SENDER)) {
+            sb.append(" [from:" + ((MailAddress)session.getState().get(SMTPSession.SENDER)).toInternetAddress().getAddress() + "]");
         }
         return sb.toString();
     } 

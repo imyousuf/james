@@ -21,32 +21,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Locale;
+
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 
 /**
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractLogEnabled {
+public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
 
     private HashMap commandHandlerMap = new HashMap();
     private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
+    private ServiceManager serviceManager;
 
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
+
+    public void service(ServiceManager arg0) throws ServiceException {
+        serviceManager = arg0;
+    }
 
 
     /**
      * loads the various handlers from the configuration
      * @param configuration configuration under handlerchain node
      */
-    void load(Configuration configuration) throws  ConfigurationException {
+    public void configure(Configuration configuration) throws  ConfigurationException {
         addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
         if(configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
@@ -63,6 +73,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
                             if (handler instanceof LogEnabled) {
                                 ((LogEnabled)handler).enableLogging(getLogger());
                             }
+
+                            //servicing the handler
+                            ContainerUtil.service(handler,serviceManager);
 
                             //configure the handler
                             ContainerUtil.configure(handler,children[i]);
@@ -96,16 +109,20 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
 
                         } catch (ClassNotFoundException ex) {
                            if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className);
+                               getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
                         } catch (IllegalAccessException ex) {
                            if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className);
+                               getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
                         } catch (InstantiationException ex) {
                            if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className);
+                               getLogger().error("Failed to add Commandhandler: " + className,ex);
                            }
+                        } catch (ServiceException e) {
+                            if (getLogger().isErrorEnabled()) {
+                                getLogger().error("Failed to service Commandhandler: " + className,e);
+                            }
                         }
                     }
                 }
@@ -132,6 +149,13 @@ public class SMTPHandlerChain extends AbstractLogEnabled {
 
             if(!found) {
                 throw new ConfigurationException("No commandhandlers configured for mandatory commands");
+            }
+            
+            if (messageHandlers.size() == 0) {
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error("No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
+                }
+                throw new ConfigurationException("No messageHandler configured");
             }
 
         }

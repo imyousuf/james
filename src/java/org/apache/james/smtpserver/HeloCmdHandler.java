@@ -36,11 +36,6 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private final static String COMMAND_NAME = "HELO";
 
     /**
-     * The key used to store helo mode
-     */
-    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
-
-    /**
      * set checkValidHelo to false as default value
      */
     private boolean checkValidHelo = false;
@@ -98,7 +93,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
             getLogger().info(responseString);
         } else if (badHelo == false) {
             session.resetState();
-            session.getState().put(CURRENT_HELO_MODE, COMMAND_NAME);
+            session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
             session.getResponseBuffer().append("250 ")
                           .append(session.getConfigurationData().getHelloName())
                           .append(" Hello ")

@@ -42,13 +42,6 @@ public class MailCmdHandler
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the message
 
-    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
-
-    /**
-     * The helo mode set in state object
-     */
-    private final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
-
     private boolean checkValidSenderDomain = false;
     
     /**
@@ -89,10 +82,10 @@ public class MailCmdHandler
             sender = argument.substring(colonIndex + 1);
             argument = argument.substring(0, colonIndex);
         }
-        if (session.getState().containsKey(SENDER)) {
+        if (session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
             session.writeResponse(responseString);
-        } else if (!session.getState().containsKey(CURRENT_HELO_MODE)) {
+        } else if (!session.getState().containsKey(SMTPSession.CURRENT_HELO_MODE)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
             session.writeResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
@@ -209,7 +202,7 @@ public class MailCmdHandler
             }
             
             if (!badSenderDomain) {
-                session.getState().put(SENDER, senderAddress);
+                session.getState().put(SMTPSession.SENDER, senderAddress);
                 responseBuffer.append("250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.ADDRESS_OTHER)+" Sender <")
                               .append(sender)
                               .append("> OK");
@@ -254,7 +247,7 @@ public class MailCmdHandler
             StringBuffer errorBuffer =
                 new StringBuffer(256)
                     .append("Rejected message from ")
-                    .append(tempSender != null ? tempSender.toString() : null)
+                    .append(tempSender != null ? tempSender : null)
                     .append(" from host ")
                     .append(session.getRemoteHost())
                     .append(" (")
