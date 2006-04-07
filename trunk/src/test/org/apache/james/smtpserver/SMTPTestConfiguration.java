@@ -109,23 +109,24 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
         
-        handlerConfig.addChild(Util.createRemoteManagerHandlerChainConfiguration());
+        handlerConfig.addChild(Util.createSMTPHandlerChainConfiguration());
         
         // Add Configuration for Helo checks and Ehlo checks
         Configuration[] heloConfig = handlerConfig.getChild("handlerchain").getChildren("handler");
         for (int i = 0; i < heloConfig.length; i++) {
             if (heloConfig[i] instanceof DefaultConfiguration) {
-                String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command");
-                if ("HELO".equals(cmd)) {
-                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
-                } else if ("EHLO".equals(cmd)) {
-                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
-                } else if ("MAIL".equals(cmd)) {
-                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
-                } else if ("RCPT".equals(cmd)) {
-                    ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
+                String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command",null);
+                if (cmd != null) {
+                    if ("HELO".equals(cmd)) {
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
+                    } else if ("EHLO".equals(cmd)) {
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
+                    } else if ("MAIL".equals(cmd)) {
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
+                    } else if ("RCPT".equals(cmd)) {
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
+                    }
                 }
-                
             }
         }
         

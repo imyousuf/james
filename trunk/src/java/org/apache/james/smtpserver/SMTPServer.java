@@ -132,11 +132,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private SMTPHandlerConfigurationData theConfigData
         = new SMTPHandlerConfigurationDataImpl();
 
+    private ServiceManager serviceManager;
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager manager ) throws ServiceException {
         super.service( manager );
+        serviceManager = manager;
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
@@ -218,8 +221,17 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             //set the logger
             ContainerUtil.enableLogging(handlerChain,getLogger());
 
+            try {
+                ContainerUtil.service(handlerChain,serviceManager);
+            } catch (ServiceException e) {
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error("Failed to service handlerChain",e);
+                }
+                throw new ConfigurationException("Failed to service handlerChain");
+            }
+            
             //read from the XML configuration and create and configure each of the handlers
-            handlerChain.load(handlerConfiguration.getChild("handlerchain"));
+            ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
 
         } else {
             mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");

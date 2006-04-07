@@ -60,10 +60,6 @@ public class DataCmdHandler
 
     // Keys used to store/lookup data in the internal state hash map
 
-    private final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
-    private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
-    private final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
-
     /**
      * The mail attribute holding the SMTP AUTH user name, if any.
      */
@@ -74,11 +70,11 @@ public class DataCmdHandler
      */
     private final static char[] SMTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
-    /*
+    /**
      * process DATA command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
+     */
     public void onCommand(SMTPSession session) {
         doDATA(session, session.getCommandArgument());
     }
@@ -98,10 +94,10 @@ public class DataCmdHandler
             responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with DATA command";
             session.writeResponse(responseString);
         }
-        if (!session.getState().containsKey(SENDER)) {
+        if (!session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No sender specified";
             session.writeResponse(responseString);
-        } else if (!session.getState().containsKey(RCPT_LIST)) {
+        } else if (!session.getState().containsKey(SMTPSession.RCPT_LIST)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" No recipients specified";
             session.writeResponse(responseString);
         } else {
@@ -144,7 +140,7 @@ public class DataCmdHandler
                     // logging of extra lines of data
                     // that are sent after the size limit has
                     // been hit.
-                    session.getState().put(MESG_FAILED, Boolean.TRUE);
+                    session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
                     // then let the client know that the size
                     // limit has been hit.
                     responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
@@ -152,7 +148,7 @@ public class DataCmdHandler
                     StringBuffer errorBuffer =
                         new StringBuffer(256)
                             .append("Rejected message from ")
-                            .append(session.getState().get(SENDER).toString())
+                            .append(session.getState().get(SMTPSession.SENDER).toString())
                             .append(" from host ")
                             .append(session.getRemoteHost())
                             .append(" (")
@@ -193,8 +189,8 @@ public class DataCmdHandler
         if (!headers.isSet(RFC2822Headers.DATE)) {
             headers.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new Date()));
         }
-        if (!headers.isSet(RFC2822Headers.FROM) && session.getState().get(SENDER) != null) {
-            headers.setHeader(RFC2822Headers.FROM, session.getState().get(SENDER).toString());
+        if (!headers.isSet(RFC2822Headers.FROM) && session.getState().get(SMTPSession.SENDER) != null) {
+            headers.setHeader(RFC2822Headers.FROM, session.getState().get(SMTPSession.SENDER).toString());
         }
         // RFC 2821 says that we cannot examine the message to see if
         // Return-Path headers are present.  If there is one, our
@@ -222,14 +218,14 @@ public class DataCmdHandler
                         .append(") with SMTP ID ")
                         .append(session.getSessionID());
 
-        if (((Collection) session.getState().get(RCPT_LIST)).size() == 1) {
+        if (((Collection) session.getState().get(SMTPSession.RCPT_LIST)).size() == 1) {
             // Only indicate a recipient if they're the only recipient
             // (prevents email address harvesting and large headers in
             //  bulk email)
             newHeaders.addHeaderLine(headerLineBuffer.toString());
             headerLineBuffer.delete(0, headerLineBuffer.length());
             headerLineBuffer.append("          for <")
-                            .append(((List) session.getState().get(RCPT_LIST)).get(0).toString())
+                            .append(((List) session.getState().get(SMTPSession.RCPT_LIST)).get(0).toString())
                             .append(">;");
             newHeaders.addHeaderLine(headerLineBuffer.toString());
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -264,10 +260,10 @@ public class DataCmdHandler
         List recipientCollection = null;
         try {
             headersIn = new ByteArrayInputStream(headers.toByteArray());
-            recipientCollection = (List) session.getState().get(RCPT_LIST);
+            recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
             mail =
                 new MailImpl(session.getConfigurationData().getMailServer().getId(),
-                             (MailAddress) session.getState().get(SENDER),
+                             (MailAddress) session.getState().get(SMTPSession.SENDER),
                              recipientCollection,
                              new SequenceInputStream(new SequenceInputStream(headersIn, msgIn),
                                      new ReaderInputStream(new StringReader("\r\n"))));

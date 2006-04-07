@@ -30,12 +30,6 @@ public class UnknownCmdHandler implements CommandHandler {
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
 
     /**
-     * Message failed flag to indicate if there is any failure
-     */
-    private final static String MESG_FAILED = "MESG_FAILED";
-
-
-    /**
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
@@ -44,7 +38,7 @@ public class UnknownCmdHandler implements CommandHandler {
     public void onCommand(SMTPSession session) {
 
         //If there was message failure, don't consider it as an unknown command
-        if (session.getState().get(MESG_FAILED) != null) {
+        if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
             return;
         }
 

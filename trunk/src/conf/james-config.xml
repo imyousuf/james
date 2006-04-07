@@ -742,6 +742,12 @@
                 <headervalue>passed</headervalue>
             </handler>
             -->
+            
+            <!--  The default message receiving handler -->
+            <!--  The default behaviour is to put the message in the root processor of -->
+            <!--  the spooler -->
+            <handler class="org.apache.james.smtpserver.SendMailHandler">
+            </handler>
          </handlerchain>
             
       </handler>

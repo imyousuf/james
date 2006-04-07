@@ -33,6 +33,10 @@ public class Util {
     }
 
     public static DefaultConfiguration createRemoteManagerHandlerChainConfiguration() {
+        DefaultConfiguration handlerChainConfig = new DefaultConfiguration("test");
+        return handlerChainConfig;
+    }
+    public static DefaultConfiguration createSMTPHandlerChainConfiguration() {
         DefaultConfiguration handlerChainConfig = new DefaultConfiguration("handlerchain");
         handlerChainConfig.addChild(createCommandHandlerConfiguration("HELO", HeloCmdHandler.class));
         handlerChainConfig.addChild(createCommandHandlerConfiguration("EHLO", EhloCmdHandler.class));
@@ -45,14 +49,19 @@ public class Util {
         handlerChainConfig.addChild(createCommandHandlerConfiguration("RSET", RsetCmdHandler.class));
         handlerChainConfig.addChild(createCommandHandlerConfiguration("HELP", HelpCmdHandler.class));
         handlerChainConfig.addChild(createCommandHandlerConfiguration("QUIT", QuitCmdHandler.class));
+        // mail sender
+        handlerChainConfig.addChild(createCommandHandlerConfiguration(null, SendMailHandler.class));
         return handlerChainConfig;
     }
 
     private static DefaultConfiguration createCommandHandlerConfiguration(String command, Class commandClass) {
         DefaultConfiguration cmdHandlerConfig = new DefaultConfiguration("handler");
-        cmdHandlerConfig.setAttribute("command", command);
+        if (command != null) {
+            cmdHandlerConfig.setAttribute("command", command);
+        }
         String classname = commandClass.getName();
         cmdHandlerConfig.setAttribute("class", classname);
         return cmdHandlerConfig;
     }
+
 }
