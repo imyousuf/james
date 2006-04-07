@@ -41,7 +41,7 @@ public class DNSRBLHandler
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
 
-        Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers");
+        Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers", false);
         if ( rblserverConfiguration != null ) {
             ArrayList rblserverCollection = new ArrayList();
             Configuration[] children = rblserverConfiguration.getChildren("whitelist");
