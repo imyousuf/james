@@ -40,6 +40,8 @@ public class RcptCmdHandler
      */
     private final static String RCPTCOUNT = "RCPT_COUNT";
     private int maxRcpt = 0;
+    private int tarpitRcptCount = 0;
+    private long tarpitSleepTime = 0;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -48,6 +50,16 @@ public class RcptCmdHandler
         Configuration configuration = handlerConfiguration.getChild("maxRcpt",false);
         if(configuration != null) {
            maxRcpt = configuration.getValueAsInteger();
+        }
+        
+        Configuration configTarpitRcptCount = handlerConfiguration.getChild("tarpitRcptCount",false);
+        if(configTarpitRcptCount != null) {
+           tarpitRcptCount = configTarpitRcptCount.getValueAsInteger();
+        }
+        
+        Configuration configTarpitSleepTime = handlerConfiguration.getChild("tarpitSleepTime",false);
+        if(configTarpitSleepTime != null) {
+           tarpitSleepTime = configTarpitSleepTime.getValueAsLong();
         }
     }
     
@@ -73,6 +85,7 @@ public class RcptCmdHandler
         String responseString = null;
         StringBuffer responseBuffer = session.getResponseBuffer();
         boolean maxRcptReached = false;
+        boolean useTarpit = false;
         
         String recipient = null;
         if ((argument != null) && (argument.indexOf(":") > 0)) {
@@ -239,10 +252,7 @@ public class RcptCmdHandler
                 int rcptCount = 0;
             
                 // check if the key exists
-                if (session.getState().get(RCPTCOUNT) != null) {
-                    Integer rcptCountInteger = Integer.valueOf(session.getState().get(RCPTCOUNT).toString());
-                    rcptCount = rcptCountInteger.intValue();
-                }
+                rcptCount = getRcptCount(session);
                 
                 rcptCount++;
         
@@ -258,6 +268,21 @@ public class RcptCmdHandler
                 session.getState().put(RCPTCOUNT,Integer.toString(rcptCount));
             }
             
+            // check if we should use tarpit
+            if (tarpitRcptCount > 0) {
+                int rcptCount = 0;
+                rcptCount = getRcptCount(session);
+                rcptCount++;
+                
+                if (rcptCount > tarpitRcptCount) {
+                    useTarpit = true;                   
+                }
+                
+                // put the recipient cound in session hashtable
+                session.getState().put(RCPTCOUNT,Integer.toString(rcptCount));
+                 
+            }
+            
             if (maxRcptReached == false) {
                 rcptColl.add(recipientAddress);
                 session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
@@ -265,6 +290,12 @@ public class RcptCmdHandler
                               .append(recipient)
                               .append("> OK");
                 responseString = session.clearResponseBuffer();
+                
+                if (useTarpit == true) {
+                    try {
+                        sleep(tarpitSleepTime);
+                    } catch (InterruptedException e) { }
+                }
                 session.writeResponse(responseString);
             }
         }
@@ -283,4 +314,22 @@ public class RcptCmdHandler
         }
         return sb.toString();
     } 
+    
+    
+    private int getRcptCount(SMTPSession session) {
+        int startCount = 0;
+        
+        // check if the key exists
+        if (session.getState().get(RCPTCOUNT) != null) {
+            Integer rcptCountInteger = Integer.valueOf(session.getState().get(RCPTCOUNT).toString());
+            return rcptCountInteger.intValue();
+        } else {
+            return startCount;
+        }
+    }
+    
+    
+    public void sleep(float timeInMillis) throws InterruptedException {
+        Thread.sleep( (long) timeInMillis );
+    }
 }
