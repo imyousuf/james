@@ -16,16 +16,17 @@
  ***********************************************************************/
 package org.apache.james.core;
 
+import com.sun.mail.util.SharedByteArrayInputStream;
+
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import java.io.ByteArrayInputStream;
 import java.util.Properties;
 
 public class MimeMessageFromSharedStreamTest extends MimeMessageFromStreamTest {
     
     protected MimeMessage getMessageFromSources(String sources) throws Exception {
-        return new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        return new MimeMessage(Session.getDefaultInstance(new Properties()),new SharedByteArrayInputStream(sources.getBytes()));
     }
 
 }

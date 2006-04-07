@@ -147,19 +147,8 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         synchronized (refCount) {
             if (refCount.getReferenceCount() > 1) {
                 refCount.decrementReferenceCount();
-
                 refCount = new ReferenceCounter(1);
-                if (wrapped instanceof MimeMessageWrapper) {
-                    MimeMessageWrapper mmw = (MimeMessageWrapper) wrapped;
-                    if (!mmw.isModified()) {
-                        wrapped = new MimeMessageWrapper(mmw.source);
-                    } else {
-                        wrapped = new MimeMessage(wrapped);
-                    }
-                } else {
-                    // Not sure this will really clone the MimeMessage!
-                    wrapped = new MimeMessage(wrapped);
-                }
+                wrapped = new MimeMessageWrapper(wrapped);
             }
         }
     }
