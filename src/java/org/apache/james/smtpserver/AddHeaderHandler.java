@@ -42,12 +42,12 @@ public class AddHeaderHandler
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
 
-        Configuration configuration = handlerConfiguration.getChild("headername");
+        Configuration configuration = handlerConfiguration.getChild("headername", false);
         if(configuration != null) {
             headerName = configuration.getValue();
         }
 
-        configuration = handlerConfiguration.getChild("headervalue");
+        configuration = handlerConfiguration.getChild("headervalue", false);
         if(configuration != null) {
             headerValue = configuration.getValue();
         }
