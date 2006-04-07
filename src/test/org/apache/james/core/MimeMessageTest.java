@@ -16,6 +16,7 @@
  ***********************************************************************/
 package org.apache.james.core;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.mailet.RFC2822Headers;
 
 import javax.mail.BodyPart;
@@ -301,6 +302,25 @@ public class MimeMessageTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception in getLineCount");
         }
+    }
+    
+    /**
+     * This test throw a NullPointerException when the original message was created by
+     * a MimeMessageInputStreamSource.
+     */
+    public void testMessageCloningViaCoW() throws Exception {
+        MimeMessage mmorig = getSimpleMessage();
+        
+        MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
+        
+        MimeMessage mm2 = new MimeMessageCopyOnWriteProxy(mm);
+        
+        mm2.setHeader("Subject", "Modified");
+        ContainerUtil.dispose(mm2);
+        //((Disposable)mail_dup.getMessage()).dispose();
+        
+        mm.setHeader("Subject", "Modified");
+        
     }
     
 }

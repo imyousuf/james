@@ -106,6 +106,7 @@ public class MimeMessageWrapper
         
         // if the original is an unmodified MimeMessageWrapped we clone the headers and
         // take its source.
+        /* Temporary commented out because of JAMES-474
         if (original instanceof MimeMessageWrapper && !((MimeMessageWrapper) original).bodyModified) {
             source = ((MimeMessageWrapper) original).source;
             // this probably speed up things
@@ -116,6 +117,7 @@ public class MimeMessageWrapper
                 headersModified = ((MimeMessageWrapper) original).headersModified;
             }
         }
+        */
         
         if (source == null) {
             ByteArrayOutputStream bos;
