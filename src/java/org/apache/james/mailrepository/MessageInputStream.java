@@ -51,7 +51,9 @@ final class MessageInputStream extends InputStream {
         caughtException = null;
         streamRep = srep;
         size = mc.getMessageSize();
-        if (size > 4096) {
+        // we use the pipes only when streamRep is null and the message size is greater than 4096
+        // Otherwise we should calculate the header size and not the message size when streamRep is not null (JAMES-475)
+        if (streamRep == null && size > 4096) {
             PipedOutputStream headerOut = new PipedOutputStream();
             new Thread() {
                 private Mail mail;
@@ -79,6 +81,7 @@ final class MessageInputStream extends InputStream {
             ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
             writeStream(mc,headerOut);
             wrapped = new ByteArrayInputStream(headerOut.toByteArray());
+            size = headerOut.size();
         }
     }
     
