@@ -147,8 +147,8 @@ public class MimeMessageWrapper
      * with data.
      * @see MimeMessageSource
      */
-    public String getSourceId() {
-        return source.getSourceId();
+    public synchronized String getSourceId() {
+        return source != null ? source.getSourceId() : null;
     }
 
     /**
@@ -161,16 +161,19 @@ public class MimeMessageWrapper
         if (headers != null) {
             //Another thread has already loaded these headers
             return;
-        }
-        try {
-            InputStream in = source.getInputStream();
+        } else if (source != null) { 
             try {
-                headers = createInternetHeaders(in);
-            } finally {
-                IOUtil.shutdownStream(in);
+                InputStream in = source.getInputStream();
+                try {
+                    headers = createInternetHeaders(in);
+                } finally {
+                    IOUtil.shutdownStream(in);
+                }
+            } catch (IOException ioe) {
+                throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
             }
-        } catch (IOException ioe) {
-            throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
+        } else {
+            throw new MessagingException("loadHeaders called for a message with no source, contentStream or stream");
         }
     }
 
@@ -205,14 +208,14 @@ public class MimeMessageWrapper
      *
      * @return whether the message has been modified
      */
-    public boolean isModified() {
+    public synchronized boolean isModified() {
         return headersModified || bodyModified || modified;
     }
 
     /**
      * Rewritten for optimization purposes
      */
-    public void writeTo(OutputStream os) throws IOException, MessagingException {
+    public synchronized void writeTo(OutputStream os) throws IOException, MessagingException {
         if (!isModified()) {
             // We do not want to instantiate the message... just read from source
             // and write to this outputstream
@@ -241,7 +244,7 @@ public class MimeMessageWrapper
         writeTo(headerOs, bodyOs, new String[0]);
     }
 
-    public void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+    public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
         if (!isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
@@ -391,7 +394,7 @@ public class MimeMessageWrapper
     }
 
 
-    private void checkModifyHeaders() throws MessagingException {
+    private synchronized void checkModifyHeaders() throws MessagingException {
         if (headers == null) {
             loadHeaders();
         }
@@ -442,10 +445,9 @@ public class MimeMessageWrapper
     }
 
     /**
-     * TODO fixme
      * @see javax.mail.internet.MimeMessage#parse(java.io.InputStream)
      */
-    protected void parse(InputStream is) throws MessagingException {
+    protected synchronized void parse(InputStream is) throws MessagingException {
         // the super implementation calls
         // headers = createInternetHeaders(is);
         super.parse(is);
@@ -458,7 +460,7 @@ public class MimeMessageWrapper
      * 
      * @see javax.mail.internet.MimeMessage#createInternetHeaders(java.io.InputStream)
      */
-    protected InternetHeaders createInternetHeaders(InputStream is) throws MessagingException {
+    protected synchronized InternetHeaders createInternetHeaders(InputStream is) throws MessagingException {
 
         // Keep this: skip the headers from the stream
         // we could put that code in the else and simple write an "header" skipping
