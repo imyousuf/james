@@ -89,8 +89,7 @@ public class SendMailHandler
                    session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
                    // then let the client know that the size
                    // limit has been hit.
-                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message: "
-                             + e.getMessage();
+                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.";
                    StringBuffer errorBuffer =
                      new StringBuffer(256)
                          .append("Rejected message from ")
@@ -103,8 +102,7 @@ public class SendMailHandler
                          .append(session.getConfigurationData().getMaxMessageSize());
                    getLogger().error(errorBuffer.toString());
               } else {
-                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message: "
-                             + me.getMessage();
+                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.";
                    getLogger().error("Unknown error occurred while processing DATA.", me);
               }
               session.writeResponse(responseString);
