@@ -18,6 +18,7 @@
 
 package org.apache.james.test.mock.james;
 
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 
@@ -32,7 +33,7 @@ public class MockMailRepository implements MailRepository {
     private HashMap messages = new HashMap();
 
     public void store(Mail mc) throws MessagingException {
-        this.messages.put(mc.getName(),mc);
+        this.messages.put(mc.getName(),new MailImpl(mc,mc.getName()));
     }
 
     public Iterator list() throws MessagingException {
@@ -40,7 +41,7 @@ public class MockMailRepository implements MailRepository {
     }
 
     public Mail retrieve(String key) throws MessagingException {
-        return (Mail) messages.get(key);  // trivial implementation
+        return new MailImpl((Mail) messages.get(key),key);  // trivial implementation
     }
 
     public void remove(Mail mail) throws MessagingException {
