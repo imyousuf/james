@@ -19,8 +19,8 @@ package org.apache.james.transport;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.test.mock.james.MockSpoolRepository;
 import org.apache.james.test.mock.mailet.MockMailContext;
 import org.apache.james.test.mock.mailet.MockMailetConfig;
@@ -105,7 +105,7 @@ public class LinearProcessorTest extends TestCase {
             mmis = new MimeMessageInputStreamSource("test", new SharedByteArrayInputStream((content+sep+body).getBytes()));
         } catch (MessagingException e) {
         }
-        mw = new MimeMessageWrapper(mmis);
+        mw = new MimeMessageCopyOnWriteProxy(mmis);
         setUp();
   }
 

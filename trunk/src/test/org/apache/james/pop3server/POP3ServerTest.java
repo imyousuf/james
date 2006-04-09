@@ -19,8 +19,8 @@ package org.apache.james.pop3server;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.james.core.MailImpl;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
@@ -307,7 +307,7 @@ public class POP3ServerTest extends TestCase {
     private void setupTestMails(MockMailRepository mailRep) throws MessagingException {
         ArrayList recipients = new ArrayList();
         recipients.add(new MailAddress("recipient@test.com"));
-        MimeMessage mw = new MimeMessageWrapper(
+        MimeMessage mw = new MimeMessageCopyOnWriteProxy(
                 new MimeMessageInputStreamSource(
                         "test",
                         new SharedByteArrayInputStream(
@@ -317,7 +317,7 @@ public class POP3ServerTest extends TestCase {
                                  "Body Text\r\n").getBytes())));
         mailRep.store(new MailImpl("name", new MailAddress("from@test.com"),
                 recipients, mw));
-        MimeMessage mw2 = new MimeMessageWrapper(
+        MimeMessage mw2 = new MimeMessageCopyOnWriteProxy(
                 new MimeMessageInputStreamSource(
                         "test2",
                         new SharedByteArrayInputStream(
