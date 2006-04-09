@@ -62,7 +62,7 @@ public class MailImpl implements Disposable, Mail {
     /**
      * Slow method to calculate the exact size of a message!
      */
-    private final class SizeCalculatorOutputStream extends OutputStream {
+    private static final class SizeCalculatorOutputStream extends OutputStream {
         long size = 0;
 
         public void write(int arg0) throws IOException {
@@ -378,6 +378,7 @@ public class MailImpl implements Disposable, Mail {
     public Date getLastUpdated() {
         return lastUpdated;
     }
+    
     /**
      * <p>Return the size of the message including its headers.
      * MimeMessage.getSize() method only returns the size of the
@@ -391,6 +392,15 @@ public class MailImpl implements Disposable, Mail {
      * @throws MessagingException if a problem occurs while computing the message size
      */
     public long getMessageSize() throws MessagingException {
+        return getMessageSize(message);
+    }
+    
+    /**
+     * @return size of full message including headers
+     * 
+     * @throws MessagingException if a problem occours while computing the message size
+     */
+    public static long getMessageSize(MimeMessage message) throws MessagingException {
         //If we have a MimeMessageWrapper, then we can ask it for just the
         //  message size and skip calculating it
         long size = -1;
@@ -515,6 +525,7 @@ public class MailImpl implements Disposable, Mail {
             throw new MessagingException("No message set for this MailImpl.");
         }
     }
+    
     // Serializable Methods
     // TODO: These need some work.  Currently very tightly coupled to
     //       the internal representation.
