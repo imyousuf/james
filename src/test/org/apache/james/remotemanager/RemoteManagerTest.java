@@ -470,18 +470,18 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("initial password", m_mockUsersRepository.test("testPwdUser", "pwd1"));
         
          sendCommand("setpassword testPwdUser     ");
-        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd1"));
+        assertTrue("password changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd1"));
         readAnswer(); // ignore
 
         // change pwd
         sendCommand("setpassword testPwdUser pwd2");
-        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd2"));
+        assertTrue("password not changed to pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
         readAnswer(); // ignore
         
         // assure case sensitivity
         sendCommand("setpassword testPwdUser pWD2");
-        assertFalse("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pwd2"));
-        assertTrue("password not changed to empty", m_mockUsersRepository.test("testPwdUser", "pWD2"));
+        assertFalse("password not changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
+        assertTrue("password not changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pWD2"));
         readAnswer(); // ignore
         
     }
