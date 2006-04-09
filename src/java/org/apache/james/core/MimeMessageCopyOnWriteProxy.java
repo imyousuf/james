@@ -47,7 +47,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     /**
      * Used internally to track the reference count
      */
-    class ReferenceCounter {
+    protected static class ReferenceCounter {
 
         /**
          * reference counter
