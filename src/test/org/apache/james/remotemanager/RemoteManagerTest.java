@@ -56,7 +56,7 @@ public class RemoteManagerTest extends TestCase {
     
     public static final String LINE_SEPARATOR = System.getProperties().getProperty("line.separator"); 
 
-    protected int m_remoteManagerListenerPort = Util.getRandomNonPrivilegedPort();
+    protected int m_remoteManagerListenerPort = Util.getNonPrivilegedPort();
     protected RemoteManager m_remoteManager;
     protected RemoteManagerTestConfiguration m_testConfiguration;
     protected String m_host = "127.0.0.1";

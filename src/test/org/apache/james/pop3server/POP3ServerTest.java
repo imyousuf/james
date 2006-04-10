@@ -55,7 +55,7 @@ import junit.framework.TestCase;
  * Tests the org.apache.james.smtpserver.SMTPServer unit
  */
 public class POP3ServerTest extends TestCase {
-    private int m_pop3ListenerPort = Util.getRandomNonPrivilegedPort();
+    private int m_pop3ListenerPort = Util.getNonPrivilegedPort();
 
     private MockMailServer m_mailServer;
 
