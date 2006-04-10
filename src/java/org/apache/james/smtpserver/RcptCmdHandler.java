@@ -41,7 +41,7 @@ public class RcptCmdHandler
     private final static String RCPTCOUNT = "RCPT_COUNT";
     private int maxRcpt = 0;
     private int tarpitRcptCount = 0;
-    private long tarpitSleepTime = 0;
+    private long tarpitSleepTime = 5000;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -259,7 +259,7 @@ public class RcptCmdHandler
                 // check if the max recipients has reached
                 if (rcptCount > maxRcpt) {
                     maxRcptReached = true;
-                    responseString = "550 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH)+" Requested action not taken: max recipients reached";
+                    responseString = "452 "+DSNStatus.getStatus(DSNStatus.NETWORK,DSNStatus.DELIVERY_TOO_MANY_REC)+" Requested action not taken: max recipients reached";
                     session.writeResponse(responseString);
                     getLogger().error(responseString);
                 }
