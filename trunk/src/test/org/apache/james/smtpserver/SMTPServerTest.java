@@ -61,7 +61,7 @@ import junit.framework.TestCase;
  * Tests the org.apache.james.smtpserver.SMTPServer unit 
  */
 public class SMTPServerTest extends TestCase {
-    private int m_smtpListenerPort = Util.getRandomNonPrivilegedPort();
+    private int m_smtpListenerPort = Util.getNonPrivilegedPort();
     private MockMailServer m_mailServer;
     private SMTPTestConfiguration m_testConfiguration;
     private SMTPServer m_smtpServer;

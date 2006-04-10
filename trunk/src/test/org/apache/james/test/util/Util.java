@@ -20,10 +20,39 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.*;
 
+/**
+ * some utilities for James unit testing
+ */
 public class Util {
 
-    public static int getRandomNonPrivilegedPort() {
-        return ((int)( Math.random() * 3000) + 8000);
+    private static final int PORT_RANGE_START =  8000; // the lowest possible port number assigned for testing
+    private static final int PORT_RANGE_END   = 11000; // the highest possible port number assigned for testing
+    private static int PORT_LAST_USED = PORT_RANGE_START;
+
+    /**
+     * assigns a port from the range of test ports
+     * @return port number
+     */
+    public static int getNonPrivilegedPort() {
+        return getNextNonPrivilegedPort(); // uses sequential assignment of ports
+    }
+
+    /**
+     * assigns a random port from the range of test ports
+     * @return port number
+     */
+    protected static int getRandomNonPrivilegedPortInt() {
+        return ((int)( Math.random() * (PORT_RANGE_END - PORT_RANGE_START) + PORT_RANGE_START));
+    }
+
+    /**
+     * assigns ports sequentially from the range of test ports
+     * @return port number
+     */
+    protected synchronized static int getNextNonPrivilegedPort() {
+        PORT_LAST_USED++;
+        if (PORT_LAST_USED > PORT_RANGE_END) PORT_LAST_USED = PORT_RANGE_START;
+        return PORT_LAST_USED;
     }
 
     public static Configuration getValuedConfiguration(String name, String value) {
