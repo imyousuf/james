@@ -21,13 +21,14 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
 import org.apache.james.util.mail.dsn.DSNStatus;
 import org.apache.mailet.MailAddress;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.TextParseException;
-import org.xbill.DNS.Type;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -36,13 +37,15 @@ import java.util.StringTokenizer;
   */
 public class MailCmdHandler
     extends AbstractLogEnabled
-    implements CommandHandler,Configurable {
+    implements CommandHandler,Configurable, Serviceable {
 
     private final static String MAIL_OPTION_SIZE = "SIZE";
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the message
 
     private boolean checkValidSenderDomain = false;
+    
+    private DNSServer dnsServer = null;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -51,14 +54,24 @@ public class MailCmdHandler
         Configuration configuration = handlerConfiguration.getChild("checkValidSenderDomain",false);
         if(configuration != null) {
            checkValidSenderDomain = configuration.getValueAsBoolean();
+           if (checkValidSenderDomain && dnsServer == null) {
+               throw new ConfigurationException("checkValidSenderDomain enabled but no DNSServer service provided to SMTPServer");
+           }
         }
     }
     
-    /*
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceMan) throws ServiceException {
+        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+    }
+    
+    /**
      * handles MAIL command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
+     */
     public void onCommand(SMTPSession session) {
         doMAIL(session, session.getCommandArgument());
     }
@@ -180,22 +193,16 @@ public class MailCmdHandler
             if (checkValidSenderDomain == true) {
      
                 // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
-                Record[] records;
+                Collection records;
                 
-                try {
-                    records = new Lookup(senderAddress.getHost(), Type.MX).run();
-                    getLogger().info("rec: "+ records);
-                    if (records == null) {
-                        badSenderDomain = true;
-                    }
-                } catch (TextParseException e) {
-                    // no validdomain
+                records = dnsServer.findMXRecords(senderAddress.getHost());
+                if (records == null || records.size() == 0) {
                     badSenderDomain = true;
                 }
                 
                 // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
                 if (badSenderDomain) {
-                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains no valid domain";
+                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
                     session.writeResponse(responseString);
                     getLogger().info(responseString);
                 }
@@ -266,5 +273,6 @@ public class MailCmdHandler
         }
         return true;
     }
+
 
 }
