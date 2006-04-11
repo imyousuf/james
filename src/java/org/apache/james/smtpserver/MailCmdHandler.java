@@ -45,6 +45,8 @@ public class MailCmdHandler
 
     private boolean checkValidSenderDomain = false;
     
+    private boolean ignoreRelay = true;
+    
     private DNSServer dnsServer = null;
     
     /**
@@ -57,6 +59,11 @@ public class MailCmdHandler
            if (checkValidSenderDomain && dnsServer == null) {
                throw new ConfigurationException("checkValidSenderDomain enabled but no DNSServer service provided to SMTPServer");
            }
+        }
+        
+        Configuration configRelay = handlerConfiguration.getChild("ignoreRelayClients",false);
+        if(configRelay != null) {
+            ignoreRelay = configRelay.getValueAsBoolean();
         }
     }
     
@@ -191,20 +198,26 @@ public class MailCmdHandler
             }
             
             if (checkValidSenderDomain == true) {
+                
+                /**
+                 * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
+                 */
+                if (!session.isRelayingAllowed() || !ignoreRelay) {
      
-                // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
-                Collection records;
+                    // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
+                    Collection records;
                 
-                records = dnsServer.findMXRecords(senderAddress.getHost());
-                if (records == null || records.size() == 0) {
-                    badSenderDomain = true;
-                }
+                    records = dnsServer.findMXRecords(senderAddress.getHost());
+                    if (records == null || records.size() == 0) {
+                        badSenderDomain = true;
+                    }
                 
-                // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-                if (badSenderDomain) {
-                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
-                    session.writeResponse(responseString);
-                    getLogger().info(responseString);
+                    // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
+                    if (badSenderDomain) {
+                        responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records";
+                        session.writeResponse(responseString);
+                        getLogger().info(responseString);
+                    }
                 }
             }
             

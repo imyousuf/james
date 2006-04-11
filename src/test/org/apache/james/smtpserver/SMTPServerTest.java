@@ -335,12 +335,13 @@ public class SMTPServerTest extends TestCase {
     
     public void testSenderDomainResolv() throws Exception, SMTPException {
         m_testConfiguration.setSenderDomainResolv();
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");
         finishSetUp(m_testConfiguration);
-
 
         SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
         smtpProtocol1.openPort();
 
+        
         assertEquals("first connection taken", 1, smtpProtocol1.getState());
 
         // no message there, yet
@@ -377,6 +378,62 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.mail(new Address(sender1));
 
         smtpProtocol1.quit();
+    }
+    
+    public void testSenderDomainResolvRelayClientDefault() throws Exception, SMTPException {
+        m_testConfiguration.setSenderDomainResolv();
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@xfwrqqfgfe.de";
+        
+        // Both mail shold
+        smtpProtocol1.mail(new Address(sender1));
+
+        smtpProtocol1.quit();
+        
+    }
+    
+    public void testSenderDomainResolvRelayClient() throws Exception, SMTPException {
+        m_testConfiguration.setSenderDomainResolv();
+        m_testConfiguration.setIgnoreRelayClients(false);
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol1.helo(InetAddress.getLocalHost());
+
+        String sender1 = "mail_sender1@xfwrqqfgfe.de";
+        String sender2 = "mail_sender2@james.apache.org";
+        
+        try {
+            smtpProtocol1.mail(new Address(sender1));
+            fail("sender should not accept");
+        } catch (SMTPException e) {
+            assertEquals("expected 501 error", 501, e.getCode());
+        }
+    
+        smtpProtocol1.mail(new Address(sender2));
+
+        smtpProtocol1.quit();
+        
     }
     
     public void testMaxRcpt() throws Exception, SMTPException {
