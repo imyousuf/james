@@ -34,7 +34,9 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_heloResolv = false;
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
+    private boolean m_ignoreRelayClients = true;
     private int m_maxRcpt = 0;
+
     
     public SMTPTestConfiguration(int smtpListenerPort) {
         super("smptserver");
@@ -90,6 +92,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_senderDomainResolv = true; 
     }
     
+    public void setIgnoreRelayClients(boolean ignore) {
+        m_ignoreRelayClients = ignore; 
+    }
+    
     public void setMaxRcpt(int maxRcpt) {
         m_maxRcpt = maxRcpt; 
     }
@@ -123,6 +129,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
                     } else if ("MAIL".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("ignoreRelayClients",m_ignoreRelayClients+""));
                     } else if ("RCPT".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("maxRcpt",m_maxRcpt+""));
                     }
