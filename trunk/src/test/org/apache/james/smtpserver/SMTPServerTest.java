@@ -18,6 +18,7 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
@@ -51,9 +52,11 @@ import javax.mail.internet.ParseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -97,7 +100,7 @@ public class SMTPServerTest extends TestCase {
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize());
     }
 
-    private MockServiceManager setUpServiceManager() {
+    private MockServiceManager setUpServiceManager() throws Exception {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         connectionManager.enableLogging(new MockLogger());
@@ -108,6 +111,26 @@ public class SMTPServerTest extends TestCase {
         serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        // Mock DNS Server
+        DNSServer dns = new DNSServer() {
+
+            public Collection findMXRecords(String hostname) {
+                List res = new ArrayList();
+                if (hostname == null) {
+                    return res;
+                };
+                if ("james.apache.org".equals(hostname)) {
+                    res.add("nagoya.apache.org");
+                }
+                return res;
+            }
+
+            public Iterator getSMTPHostAddresses(String domainName) {
+                throw new UnsupportedOperationException("Unimplemented mock service");
+            }
+            
+        };
+        serviceManager.put(DNSServer.ROLE, dns);
         return serviceManager;
     }
 
@@ -382,7 +405,7 @@ public class SMTPServerTest extends TestCase {
             smtpProtocol1.rcpt(new Address(rcpt2));
             fail("rcpt should not accepted");
         } catch (SMTPException e) {
-            assertEquals("expected 550 error", 550, e.getCode());
+            assertEquals("expected 452 error", 452, e.getCode());
         }
         
         smtpProtocol1.data(MimeTreeRenderer.getInstance().renderMimePart(createMail()));

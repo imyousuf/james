@@ -82,6 +82,7 @@
   <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
