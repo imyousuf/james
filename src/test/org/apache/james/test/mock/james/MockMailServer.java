@@ -16,6 +16,7 @@
  ***********************************************************************/
 package org.apache.james.test.mock.james;
 
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.MessageSizeException;
@@ -46,7 +47,7 @@ public class MockMailServer implements MailServer {
     }
 
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
-        Object[] mailObjects = new Object[]{sender, recipients, msg};
+        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
         mails.add(mailObjects);
     }
 
