@@ -725,9 +725,9 @@
                 <checkValidSenderDomain> false </checkValidSenderDomain>
                 -->
                 <!-- If is set to true sender domain from clients that are allowed to -->
-                <!-- relay will not checked. Default is true. -->
+                <!-- relay will be checked, too. Default is false. -->
                 <!-- 
-                <ignoreRelayClients> true </ignoreRelayClients>
+                <checkAuthClients> false </checkAuthClients>
                 -->
             </handler>
             <handler command="RCPT" class="org.apache.james.smtpserver.RcptCmdHandler">

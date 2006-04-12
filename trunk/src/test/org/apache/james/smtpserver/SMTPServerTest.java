@@ -406,7 +406,7 @@ public class SMTPServerTest extends TestCase {
     
     public void testSenderDomainResolvRelayClient() throws Exception, SMTPException {
         m_testConfiguration.setSenderDomainResolv();
-        m_testConfiguration.setIgnoreRelayClients(false);
+        m_testConfiguration.setCheckAuthClients(true);
         finishSetUp(m_testConfiguration);
 
         SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);

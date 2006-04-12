@@ -45,7 +45,7 @@ public class MailCmdHandler
 
     private boolean checkValidSenderDomain = false;
     
-    private boolean ignoreRelay = true;
+    private boolean checkAuthClients = false;
     
     private DNSServer dnsServer = null;
     
@@ -61,9 +61,9 @@ public class MailCmdHandler
            }
         }
         
-        Configuration configRelay = handlerConfiguration.getChild("ignoreRelayClients",false);
+        Configuration configRelay = handlerConfiguration.getChild("checkAuthClients",false);
         if(configRelay != null) {
-            ignoreRelay = configRelay.getValueAsBoolean();
+            checkAuthClients = configRelay.getValueAsBoolean();
         }
     }
     
@@ -202,7 +202,7 @@ public class MailCmdHandler
                 /**
                  * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
                  */
-                if (!session.isRelayingAllowed() || !ignoreRelay) {
+                if (checkAuthClients || !session.isRelayingAllowed()) {
      
                     // Maybe we should build a static method in org.apache.james.dnsserver.DNSServer ?
                     Collection records;
