@@ -183,8 +183,9 @@ public class SMTPServerTest extends TestCase {
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
         smtpProtocol.helo(InetAddress.getLocalHost());
-
+        
         smtpProtocol.mail(new Address("mail@localhost"));
+        
         smtpProtocol.rcpt(new Address("mail@localhost"));
 
         smtpProtocol.data(mSource);
@@ -193,6 +194,10 @@ public class SMTPServerTest extends TestCase {
 
         // mail was propagated by SMTPServer
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+
+        // added to check a NPE in the test (JAMES-474) due to MockMailServer
+        // not cloning the message (added a MimeMessageCopyOnWriteProxy there)
+        System.gc();
 
         int size = ((MimeMessage) m_mailServer.getLastMail()[2]).getSize();
 
