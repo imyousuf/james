@@ -722,6 +722,7 @@
             <handler command="MAIL" class="org.apache.james.smtpserver.MailCmdHandler">
                 <!-- If is set to true mail is only accepted if the sender contains -->
                 <!-- a resolvable domain having a valid MX Record associated! -->
+                <!--
                 <checkValidSenderDomain> false </checkValidSenderDomain>
                 -->
                 <!-- If is set to true sender domain from clients that are allowed to -->
