@@ -35,6 +35,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
     private boolean m_checkAuthClients = false;
+    private boolean m_heloEhloEnforcement = true;
     private int m_maxRcpt = 0;
 
     
@@ -99,6 +100,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setMaxRcpt(int maxRcpt) {
         m_maxRcpt = maxRcpt; 
     }
+    
+    public void setHeloEhloEnforcement(boolean heloEhloEnforcement) {
+        m_heloEhloEnforcement = heloEhloEnforcement; 
+    }
 
     public void init() throws ConfigurationException {
 
@@ -113,6 +118,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("authorizedAddresses", m_authorizedAddresses));
         handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSize));
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
+        handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
         
         handlerConfig.addChild(Util.createSMTPHandlerChainConfiguration());

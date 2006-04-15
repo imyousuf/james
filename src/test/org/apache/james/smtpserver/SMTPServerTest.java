@@ -572,6 +572,25 @@ public class SMTPServerTest extends TestCase {
         
         smtpProtocol1.quit();
     }
+    
+    public void testHeloEnforcementDisabled() throws Exception, SMTPException {
+        m_testConfiguration.setHeloEhloEnforcement(false);
+        finishSetUp(m_testConfiguration);
+
+        SMTPProtocol smtpProtocol1 = new SMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        String sender1 = "mail_sender1@localhost";
+        
+        smtpProtocol1.mail(new Address(sender1));
+        
+        smtpProtocol1.quit();
+    }
 
     public void testAuth() throws Exception, SMTPException {
         m_testConfiguration.setAuthorizedAddresses("128.0.0.1/8");
