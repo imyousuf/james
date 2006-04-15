@@ -93,6 +93,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private boolean verifyIdentity = false;
 
     /**
+     * Whether the server needs helo to be send first
+     */
+    private boolean heloEhloEnforcement = false;
+    
+    /**
      * This is a Network Matcher that should be configured to contain
      * authorized networks that bypass SMTP AUTH requirements.
      */
@@ -217,6 +222,10 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
+            
+            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean();
+            
+            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
             //set the logger
             ContainerUtil.enableLogging(handlerChain,getLogger());
@@ -421,6 +430,13 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          */
         public UsersRepository getUsersRepository() {
             return SMTPServer.this.users;
+        }
+        
+        /**
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEnforcement()
+         */
+        public boolean useHeloEhloEnforcement() {
+            return SMTPServer.this.heloEhloEnforcement;
         }
 
     }

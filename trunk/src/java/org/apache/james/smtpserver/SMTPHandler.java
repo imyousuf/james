@@ -163,6 +163,11 @@ public class SMTPHandler
     private boolean relayingAllowed;
 
     /**
+     * Whether the remote Server must send HELO/EHLO 
+     */
+    private boolean heloEhloEnforcement;
+    
+    /**
      * TEMPORARY: is the sending address blocklisted
      */
     private boolean blocklisted;
@@ -273,6 +278,7 @@ public class SMTPHandler
             smtpID = random.nextInt(1024) + "";
             relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
             authRequired = theConfigData.isAuthRequired(remoteIP);
+            heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
             sessionEnded = false;
             resetState();
         } catch (Exception e) {
@@ -697,6 +703,12 @@ public class SMTPHandler
         return authRequired;
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
+     */
+    public boolean useHeloEhloEnforcement() {
+        return heloEhloEnforcement;
+    }
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getUser()
      */
