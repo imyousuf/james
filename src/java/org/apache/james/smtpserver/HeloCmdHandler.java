@@ -93,6 +93,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
             getLogger().info(responseString);
         } else if (badHelo == false) {
             session.resetState();
+            session.setHeloEhloSend(true);
             session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
             session.getResponseBuffer().append("250 ")
                           .append(session.getConfigurationData().getHelloName())

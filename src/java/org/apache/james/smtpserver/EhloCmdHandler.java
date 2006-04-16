@@ -92,6 +92,7 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
             session.writeResponse(responseString);
         } else if (badEhlo == false){
             session.resetState();
+            session.setHeloEhloSend(true);
             session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 
             ArrayList esmtpextensions = new ArrayList();
