@@ -105,7 +105,7 @@ public class MailCmdHandler
         if (session.getState().containsKey(SMTPSession.SENDER)) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Sender already specified";
             session.writeResponse(responseString);
-        } else if (!session.isHeloEhloSend() && session.useHeloEhloEnforcement()) {
+        } else if (!session.getState().containsKey(SMTPSession.CURRENT_HELO_MODE) && session.useHeloEhloEnforcement()) {
             responseString = "503 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_OTHER)+" Need HELO or EHLO before MAIL";
             session.writeResponse(responseString);
         } else if (argument == null || !argument.toUpperCase(Locale.US).equals("FROM")
