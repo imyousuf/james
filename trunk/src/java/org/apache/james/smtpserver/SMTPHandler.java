@@ -168,11 +168,6 @@ public class SMTPHandler
     private boolean heloEhloEnforcement;
     
     /**
-     * Whether the remote Server has send HELO/EHLO
-     */
-    private boolean heloEhloSend;
-    
-    /**
      * TEMPORARY: is the sending address blocklisted
      */
     private boolean blocklisted;
@@ -714,21 +709,6 @@ public class SMTPHandler
     public boolean useHeloEhloEnforcement() {
         return heloEhloEnforcement;
     }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#isHeloEhloSend()
-     */
-    public boolean isHeloEhloSend() {
-        return heloEhloSend;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setHeloEhloSend()
-     */
-    public void setHeloEhloSend(boolean heloEhloSend ) {
-        this.heloEhloSend = heloEhloSend;
-    }
-    
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getUser()
      */

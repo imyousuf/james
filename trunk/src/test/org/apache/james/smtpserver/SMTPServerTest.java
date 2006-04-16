@@ -714,6 +714,26 @@ public class SMTPServerTest extends TestCase {
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
     }
 
+    public void testMultipleMailsAndRset() throws Exception, SMTPException {
+        finishSetUp(m_testConfiguration);
+
+        MySMTPProtocol smtpProtocol = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol.openPort();
+
+        smtpProtocol.ehlo(InetAddress.getLocalHost());
+
+        smtpProtocol.mail(new Address("mail@sample.com"));
+        
+        smtpProtocol.reset();
+        
+        smtpProtocol.mail(new Address("mail@sample.com"));
+
+        smtpProtocol.quit();
+
+        // mail was propagated by SMTPServer
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+    }
+
     public void testRelayingDenied() throws Exception, SMTPException {
         m_testConfiguration.setAuthorizedAddresses("128.0.0.1/8");
         finishSetUp(m_testConfiguration);
@@ -807,6 +827,8 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol2.openPort();
         assertEquals("second connection not taken", SMTPProtocol.NOT_CONNECTED, smtpProtocol2.getState());
     }
+    
+    
 }
 
 class MySMTPProtocol extends SMTPProtocol
