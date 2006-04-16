@@ -193,6 +193,18 @@ public interface SMTPSession {
     boolean useHeloEhloEnforcement();
 
     /**
+     * Identify if a HELO/EHLO was send in this session
+     * 
+     * @return HELO/EHLO was send
+     */
+    boolean isHeloEhloSend();
+    
+    /**
+     * Get called if HELO/EHLO was send
+     */
+    void setHeloEhloSend(boolean heloEhloSend);
+    
+    /**
      * Returns the user name associated with this SMTP interaction.
      *
      * @return the user name
