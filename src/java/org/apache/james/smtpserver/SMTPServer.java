@@ -223,7 +223,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
             
-            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean();
+            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
             
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
