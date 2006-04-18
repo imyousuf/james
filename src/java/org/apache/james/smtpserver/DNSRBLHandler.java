@@ -98,6 +98,16 @@ public class DNSRBLHandler
      */
 
     public boolean checkDNSRBL(SMTPSession session, String ipAddress) {
+        
+        /*
+         * don't check against rbllists if the client is allowed to relay..
+         * This whould make no sense.
+         */
+        if (session.isRelayingAllowed()) {
+            getLogger().info("Ipaddress " + session.getRemoteIPAddress() + " is allowed to relay. Don't check it");
+            return false;
+        }
+        
         if (whitelist != null || blacklist != null) {
             StringBuffer sb = new StringBuffer();
             StringTokenizer st = new StringTokenizer(ipAddress, " .", false);
