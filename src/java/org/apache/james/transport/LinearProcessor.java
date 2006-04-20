@@ -395,6 +395,7 @@ public class LinearProcessor
                 // and store it in the next spot
                 Mail notMail = new MailImpl(mail,newName(mail));
                 notMail.setRecipients(notRecipients);
+                notMail.setState(mail.getState());
                 unprocessed[i + 1].add(notMail);
                 //We have to set the reduce possible recipients on the old message
                 mail.setRecipients(recipients);

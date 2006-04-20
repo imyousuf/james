@@ -40,7 +40,6 @@ import com.sun.mail.util.SharedByteArrayInputStream;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +69,9 @@ public class LinearProcessorTest extends TestCase {
         public ArrayList receivedMails = new ArrayList();
 
         public void service(Mail mail) throws MessagingException {
-            receivedMails.add(mail);
+            Mail m2 = new MailImpl(mail,mail.getName());
+            m2.setState(mail.getState());
+            receivedMails.add(m2);
         }
         
     }
@@ -110,8 +111,13 @@ public class LinearProcessorTest extends TestCase {
   }
 
     private class DummyMatcherConfig implements MatcherConfig {
+        private String condition;
+
+        public DummyMatcherConfig(String config) {
+            this.condition = config;
+        }
         public String getCondition() {
-            return "";
+            return condition;
         }
         
         public MailetContext getMailetContext() {
@@ -123,7 +129,30 @@ public class LinearProcessorTest extends TestCase {
         }
     }
     
-    public void testCopyOnWrite() throws ParseException, IOException {
+    public void testCopyOnWrite() throws IOException, MessagingException {
+        t.setSpool(new MockSpoolRepository());
+        Matcher recipientIs = new RecipientIs();
+        recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
+        
+        Matcher all = new All();
+        all.init(new DummyMatcherConfig(""));
+        
+        Mailet changeBody = new MyMailet();
+        Mailet changeBody2 = new MyMailet();
+
+        changeBody.init(mockMailetConfig);
+        changeBody2.init(mockMailetConfig);
+        
+        Mailet dumpSystemErr = new DumpSystemErr();
+        changeBody.init(mockMailetConfig);
+        
+        checkerMailet = new CheckerMailet();
+        t.add(recipientIs,changeBody);
+        t.add(all,changeBody);
+        t.add(all,dumpSystemErr);
+        t.add(all,checkerMailet);
+        t.closeProcessorLists();
+
         Collection recipients = new ArrayList();
         recipients.add(new MailAddress("rec1","domain.com"));
         recipients.add(new MailAddress("rec2","domain.com"));
@@ -143,40 +172,57 @@ public class LinearProcessorTest extends TestCase {
         }
     }
 
+    public void testStateChange() throws IOException, MessagingException {
+        t.setSpool(new MockSpoolRepository() {
+
+            public void store(Mail mc) throws MessagingException {
+                assertEquals("MYSTATE",mc.getState());
+                System.err.println("STORE: "+mc.getName()+" state: "+mc.getState());
+                super.store(mc);
+            }
+            
+            
+        });
+        Matcher recipientIs = new RecipientIs();
+        recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
+        
+        Matcher all = new All();
+        all.init(new DummyMatcherConfig(""));
+        
+        Mailet dumpSystemErr = new DumpSystemErr();
+        
+        checkerMailet = new CheckerMailet();
+        t.add(recipientIs,dumpSystemErr);
+        t.add(all,dumpSystemErr);
+        t.add(all,checkerMailet);
+        t.closeProcessorLists();
+
+        Collection recipients = new ArrayList();
+        recipients.add(new MailAddress("rec1","domain.com"));
+        recipients.add(new MailAddress("rec2","domain.com"));
+        try {
+            MailImpl m = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mw);
+            m.setState("MYSTATE");
+            t.service(m);
+            ArrayList a = checkerMailet.receivedMails;
+            assertEquals(2,a.size());
+            MimeMessage m1 = ((Mail) a.get(0)).getMessage();
+            MimeMessage m2 = ((Mail) a.get(1)).getMessage();
+            assertNotSame(m1,m2);
+            assertEquals("MYSTATE",((Mail) a.get(0)).getState());
+            assertEquals("MYSTATE",((Mail) a.get(1)).getState());
+        } catch (MessagingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     public void setUp() throws Exception {
         super.setUp();
         t = new LinearProcessor();
         Logger l = new ConsoleLogger();
         t.enableLogging(l);
         t.initialize();
-        t.setSpool(new MockSpoolRepository());
-        Matcher recipientIs = new RecipientIs();
-        recipientIs.init(new DummyMatcherConfig() {
-
-            public String getCondition() {
-                return "rec1@domain.com";
-            }
-            
-        });
-        
-        Matcher all = new All();
-        all.init(new DummyMatcherConfig());
-        
-        Mailet changeBody = new MyMailet();
-        Mailet changeBody2 = new MyMailet();
-
-        changeBody.init(mockMailetConfig);
-        changeBody2.init(mockMailetConfig);
-        
-        Mailet dumpSystemErr = new DumpSystemErr();
-        changeBody.init(mockMailetConfig);
-        
-        checkerMailet = new CheckerMailet();
-        t.add(recipientIs,changeBody);
-        t.add(all,changeBody);
-        t.add(all,dumpSystemErr);
-        t.add(all,checkerMailet);
-        t.closeProcessorLists();
         
     }
     
