@@ -33,7 +33,9 @@ public class MockMailRepository implements MailRepository {
     private HashMap messages = new HashMap();
 
     public void store(Mail mc) throws MessagingException {
-        this.messages.put(mc.getName(),new MailImpl(mc,mc.getName()));
+        MailImpl m = new MailImpl(mc,mc.getName());
+        m.setState(mc.getState());
+        this.messages.put(mc.getName(),m);
     }
 
     public Iterator list() throws MessagingException {
@@ -41,7 +43,9 @@ public class MockMailRepository implements MailRepository {
     }
 
     public Mail retrieve(String key) throws MessagingException {
-        return new MailImpl((Mail) messages.get(key),key);  // trivial implementation
+        Mail m2 = new MailImpl((Mail) messages.get(key),key);
+        m2.setState(((Mail) messages.get(key)).getState());
+        return m2;  // trivial implementation
     }
 
     public void remove(Mail mail) throws MessagingException {
