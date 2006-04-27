@@ -1293,43 +1293,49 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                  * situation where the next gateway didn't have any
                  * valid addresses.
                  */
-                if ((addresses == null || !addresses.hasNext()) && gateways.hasNext()) do {
-                    String server = (String) gateways.next();
-                    String port = "25";
+                if (!hasNextAddress() && gateways.hasNext()) {
+                    do {
+                        String server = (String) gateways.next();
+                        String port = "25";
 
-                    int idx = server.indexOf(':'); 
-                    if ( idx > 0) { 
-                        port = server.substring(idx+1); 
-                        server = server.substring(0,idx);
-                    }
+                        int idx = server.indexOf(':');
+                        if ( idx > 0) {
+                            port = server.substring(idx+1);
+                            server = server.substring(0,idx);
+                        }
 
-                    final String nextGateway = server;
-                    final String nextGatewayPort = port;
-                    try {
-                        final InetAddress[] ips = org.apache.james.dnsserver.DNSServer.getAllByName(nextGateway);
-                        addresses = new Iterator() {
-                            private InetAddress[] ipAddresses = ips;
-                            int i = 0;
+                        final String nextGateway = server;
+                        final String nextGatewayPort = port;
+                        try {
+                            final InetAddress[] ips = org.apache.james.dnsserver.DNSServer.getAllByName(nextGateway);
+                            addresses = new Iterator() {
+                                private InetAddress[] ipAddresses = ips;
+                                int i = 0;
 
-                            public boolean hasNext() {
-                                return i < ipAddresses.length;
-                            }
+                                public boolean hasNext() {
+                                    return i < ipAddresses.length;
+                                }
 
-                            public Object next() {
-                                return new org.apache.mailet.HostAddress(nextGateway, "smtp://" + (ipAddresses[i++]).getHostAddress() + ":" + nextGatewayPort);
-                            }
+                                public Object next() {
+                                    return new org.apache.mailet.HostAddress(nextGateway, "smtp://" + (ipAddresses[i++]).getHostAddress() + ":" + nextGatewayPort);
+                                }
 
-                            public void remove() {
-                                throw new UnsupportedOperationException ("remove not supported by this iterator");
-                            }
-                        };
-                    }
-                    catch (java.net.UnknownHostException uhe) {
-                        log("Unknown gateway host: " + uhe.getMessage().trim());
-                        log("This could be a DNS server error or configuration error.");
-                    }
-                } while (!addresses.hasNext() && gateways.hasNext());
+                                public void remove() {
+                                    throw new UnsupportedOperationException ("remove not supported by this iterator");
+                                }
+                            };
+                        }
+                        catch (java.net.UnknownHostException uhe) {
+                            log("Unknown gateway host: " + uhe.getMessage().trim());
+                            log("This could be a DNS server error or configuration error.");
+                        }
+                    } while (!hasNextAddress() && gateways.hasNext());
+                } 
 
+                return hasNextAddress();
+            }
+
+            private boolean hasNextAddress() {
                 return addresses != null && addresses.hasNext();
             }
 
