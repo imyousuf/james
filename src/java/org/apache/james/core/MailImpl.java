@@ -41,7 +41,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -59,30 +58,6 @@ import java.util.Iterator;
  */
 public class MailImpl implements Disposable, Mail {
     
-    /**
-     * Slow method to calculate the exact size of a message!
-     */
-    private static final class SizeCalculatorOutputStream extends OutputStream {
-        long size = 0;
-
-        public void write(int arg0) throws IOException {
-            size++;
-        }
-
-        public long getSize() {
-            return size;
-        }
-
-        public void write(byte[] arg0, int arg1, int arg2) throws IOException {
-            size += arg2;
-        }
-
-        public void write(byte[] arg0) throws IOException {
-            size += arg0.length;
-        }
-    }
-
-
     /**
      * We hardcode the serialVersionUID so that from James 1.2 on,
      * MailImpl will be deserializable (so your mail doesn't get lost)
@@ -392,53 +367,7 @@ public class MailImpl implements Disposable, Mail {
      * @throws MessagingException if a problem occurs while computing the message size
      */
     public long getMessageSize() throws MessagingException {
-        return getMessageSize(message);
-    }
-    
-    /**
-     * @return size of full message including headers
-     * 
-     * @throws MessagingException if a problem occours while computing the message size
-     */
-    public static long getMessageSize(MimeMessage message) throws MessagingException {
-        //If we have a MimeMessageWrapper, then we can ask it for just the
-        //  message size and skip calculating it
-        long size = -1;
-        
-        if (message instanceof MimeMessageWrapper) {
-            MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
-            size = wrapper.getMessageSize();
-        } else if (message instanceof MimeMessageCopyOnWriteProxy) {
-            MimeMessageCopyOnWriteProxy wrapper = (MimeMessageCopyOnWriteProxy) message;
-            size = wrapper.getMessageSize();
-        } else {
-            //SK: Should probably eventually store this as a locally
-            //  maintained value (so we don't have to load and reparse
-            //  messages each time).
-            size = message.getSize();
-            if (size != -1) {
-                Enumeration e = message.getAllHeaderLines();
-                if (e.hasMoreElements()) {
-                    size += 2;
-                }
-                while (e.hasMoreElements()) {
-                    // add 2 bytes for the CRLF
-                    size += ((String) e.nextElement()).length()+2;
-                }
-            }
-        }
-        
-        if (size == -1) {
-            SizeCalculatorOutputStream out = new SizeCalculatorOutputStream();
-            try {
-                message.writeTo(out);
-            } catch (IOException e) {
-                // should never happen as SizeCalculator does not actually throw IOExceptions.
-                throw new MessagingException("IOException wrapped by getMessageSize",e);
-            }
-            size = out.getSize();
-        }
-        return size;
+        return MimeMessageUtil.getMessageSize(message);
     }
     
     /**
