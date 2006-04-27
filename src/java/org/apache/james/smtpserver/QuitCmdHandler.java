@@ -29,11 +29,11 @@ public class QuitCmdHandler implements CommandHandler {
      */
     private final static String COMMAND_NAME = "QUIT";
 
-    /*
+    /**
      * handles QUIT command
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
+     */
     public void onCommand(SMTPSession session) {
         doQUIT(session, session.getCommandArgument());
 
