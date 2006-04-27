@@ -41,6 +41,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private boolean checkValidEhlo = false;
     
+    private boolean checkAuthNetworks = false;
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -48,6 +50,11 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
         Configuration configuration = handlerConfiguration.getChild("checkValidEhlo",false);
         if(configuration != null) {
            checkValidEhlo = configuration.getValueAsBoolean();
+        }
+        
+        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
+        if(configRelay != null) {
+            checkAuthNetworks = configRelay.getValueAsBoolean();
         }
     }
 
@@ -74,23 +81,30 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
         boolean badEhlo = false;
         
         // check for helo if its set in config
-        if (checkValidEhlo == true) {
+        if (checkValidEhlo) {
+            
+            /**
+             * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
+             */
+            if (!session.isRelayingAllowed() || checkAuthNetworks) {
+
              
-            // try to resolv the provided helo. If it can not resolved do not accept it.
-            try {
-                org.apache.james.dnsserver.DNSServer.getByName(argument);
-            } catch (UnknownHostException e) {
-                badEhlo = true;
-                responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Provided EHLO " + argument + " can not resolved";
-                session.writeResponse(responseString);
-                getLogger().info(responseString);
+                // try to resolv the provided helo. If it can not resolved do not accept it.
+                try {
+                    org.apache.james.dnsserver.DNSServer.getByName(argument);
+                } catch (UnknownHostException e) {
+                    badEhlo = true;
+                    responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Provided EHLO " + argument + " can not resolved";
+                    session.writeResponse(responseString);
+                    getLogger().info(responseString);
+                }
             }
         }
         
         if (argument == null) {
             responseString = "501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
-        } else if (badEhlo == false){
+        } else if (!badEhlo){
             session.resetState();
             session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
 

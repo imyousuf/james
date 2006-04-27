@@ -40,6 +40,8 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
      */
     private boolean checkValidHelo = false;
     
+    private boolean checkAuthNetworks = false;
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -48,6 +50,12 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         if(configuration != null) {
            checkValidHelo = configuration.getValueAsBoolean();
         }
+        
+        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
+        if(configRelay != null) {
+            checkAuthNetworks = configRelay.getValueAsBoolean();
+        }
+        
     }
        
     /*
@@ -57,7 +65,6 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     **/
     public void onCommand(SMTPSession session) {
         doHELO(session, session.getCommandArgument());
-
     }
 
     /**
@@ -74,16 +81,23 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
                 
         
         // check for helo if its set in config
-        if (checkValidHelo == true) {
-             
-            // try to resolv the provided helo. If it can not resolved do not accept it.
-            try {
-                org.apache.james.dnsserver.DNSServer.getByName(argument);
-            } catch (UnknownHostException e) {
-                badHelo = true;
-                responseString = "501 Provided HELO " + argument + " can not resolved";
-                session.writeResponse(responseString);
-                getLogger().info(responseString);
+        if (checkValidHelo) {
+            
+            /**
+             * don't check if the ip address is allowed to relay. Only check if it is set in the config. ed.
+             */
+            if (!session.isRelayingAllowed() || checkAuthNetworks) {
+
+                // try to resolv the provided helo. If it can not resolved do not accept it.
+                try {
+                    org.apache.james.dnsserver.DNSServer.getByName(argument);
+                } catch (UnknownHostException e) {
+                    badHelo = true;
+                    responseString = "501 Provided HELO " + argument + " can not resolved";
+                    session.writeResponse(responseString);
+                    getLogger().info(responseString);
+                } 
+
             }
         }
         
@@ -91,7 +105,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
             responseString = "501 Domain address required: " + COMMAND_NAME;
             session.writeResponse(responseString);
             getLogger().info(responseString);
-        } else if (badHelo == false) {
+        } else if (!badHelo) {
             session.resetState();
             session.getState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
             session.getResponseBuffer().append("250 ")
@@ -107,8 +121,4 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
             session.writeResponse(responseString);
         }
     }
-
-
-
-
 }

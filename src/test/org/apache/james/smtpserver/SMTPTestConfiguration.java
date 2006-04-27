@@ -34,6 +34,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_heloResolv = false;
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
+    private boolean m_checkAuthNetworks = false;
     private boolean m_checkAuthClients = false;
     private boolean m_heloEhloEnforcement = true;
     private int m_maxRcpt = 0;
@@ -44,6 +45,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
         m_smtpListenerPort = smtpListenerPort;
     }
+    
+    public void setCheckAuthNetworks(boolean checkAuth) {
+        m_checkAuthNetworks = checkAuth; 
+    }
+
 
     public void setMaxMessageSize(int kilobytes)
     {
@@ -130,9 +136,11 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
                 String cmd = ((DefaultConfiguration) heloConfig[i]).getAttribute("command",null);
                 if (cmd != null) {
                     if ("HELO".equals(cmd)) {
-                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));     
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidHelo",m_heloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("EHLO".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidEhlo",m_ehloResolv+""));
+                        ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthNetworks",m_checkAuthNetworks+""));
                     } else if ("MAIL".equals(cmd)) {
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkValidSenderDomain",m_senderDomainResolv+""));
                         ((DefaultConfiguration) heloConfig[i]).addChild(Util.getValuedConfiguration("checkAuthClients",m_checkAuthClients+""));

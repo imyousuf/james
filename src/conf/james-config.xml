@@ -713,13 +713,27 @@
             
             <!-- The command handler configuration -->
             <handler command="HELO" class="org.apache.james.smtpserver.HeloCmdHandler">
-                <!-- If is set to true helo is only accepted if it can be resolved
+                <!-- If is set to true helo is only accepted if it can be resolved -->
+                <!--
                 <checkValidHelo> false </checkValidHelo>
+                -->
+                
+                <!-- If is set to true sender domain will be checked also for clients that -->
+                <!-- are allowed to relay. Default is false. -->
+                <!--
+                <checkAuthNetworks> false </checkAuthNetworks>
                 -->
             </handler>
             <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler">
                 <!-- If is set to true ehlo is only accepted if it can be resolved
+                <!--
                 <checkValidEhlo> false </checkValidEhlo>
+                -->
+                
+                <!-- If is set to true sender domain will be checked also for clients that -->
+                <!-- are allowed to relay. Default is false. -->
+                <!--
+                <checkAuthNetworks> false </checkAuthNetworks>
                 -->
             </handler>
             <handler command="AUTH" class="org.apache.james.smtpserver.AuthCmdHandler"></handler>
@@ -900,6 +914,13 @@
             </types>
             <config>
                <sqlFile>file://conf/sqlResources.xml</sqlFile>
+               <!-- Set the size threshold for in memory handling of storing operations -->
+               <!-- Default is currently 409600000 due to a bug with mysql and binary stream -->
+               <!-- currently under investigation. Please change this only if you know what -->
+               <!-- you do. -->
+               <!--
+               <inMemorySizeLimit>4096</inMemorySizeLimit>
+                -->
             </config>
          </repository>
 

@@ -155,11 +155,11 @@ public class SMTPServerTest extends TestCase {
         assertNull("no mail received by mail server", m_mailServer.getLastMail());
 
         String[] capabilityStrings = smtpProtocol.ehlo(InetAddress.getLocalHost());
-        assertEquals("capabilities", 3, capabilityStrings.length);
+        assertEquals("capabilities", 2, capabilityStrings.length);
         List capabilitieslist = Arrays.asList(capabilityStrings);
         assertTrue("capabilities present PIPELINING", capabilitieslist.contains("PIPELINING"));
         assertTrue("capabilities present ENHANCEDSTATUSCODES", capabilitieslist.contains("ENHANCEDSTATUSCODES"));
-        assertTrue("capabilities present 8BITMIME", capabilitieslist.contains("8BITMIME"));
+        //assertTrue("capabilities present 8BITMIME", capabilitieslist.contains("8BITMIME"));
 
         smtpProtocol.mail(new Address("mail@localhost"));
         smtpProtocol.rcpt(new Address("mail@localhost"));
@@ -297,6 +297,7 @@ public class SMTPServerTest extends TestCase {
     
     public void testHeloResolv() throws Exception, SMTPException {
         m_testConfiguration.setHeloResolv();
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
 
@@ -506,6 +507,7 @@ public class SMTPServerTest extends TestCase {
   
     public void testEhloResolv() throws Exception, SMTPException {
         m_testConfiguration.setEhloResolv();
+        m_testConfiguration.setAuthorizedAddresses("192.168.0.1");
         finishSetUp(m_testConfiguration);
 
 
@@ -543,6 +545,36 @@ public class SMTPServerTest extends TestCase {
         SMTPResponse response = smtpProtocol1.getResponse();
         // ehlo should not be checked. so this should give a 250 code
         assertEquals("ehlo accepted", 250, response.getCode());
+
+        smtpProtocol1.quit();
+    }
+    
+    public void testEhloResolvIgnoreClientDisabled() throws Exception, SMTPException {
+        m_testConfiguration.setEhloResolv();
+        m_testConfiguration.setCheckAuthNetworks(true);
+        finishSetUp(m_testConfiguration);
+
+
+        MySMTPProtocol smtpProtocol1 = new MySMTPProtocol("127.0.0.1", m_smtpListenerPort);
+        smtpProtocol1.openPort();
+
+        assertEquals("first connection taken", 1, smtpProtocol1.getState());
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        String[] ehlo1 = new String[] { "abgsfe3rsf.de"};
+        String[] ehlo2 = new String[] { "james.apache.org" };
+        
+        smtpProtocol1.sendCommand("ehlo", ehlo1);
+        SMTPResponse response = smtpProtocol1.getResponse();
+        // this should give a 501 code cause the ehlo could not resolved
+        assertEquals("expected error: ehlo could not resolved", 501, response.getCode());
+            
+        smtpProtocol1.sendCommand("ehlo", ehlo2);
+        SMTPResponse response2 = smtpProtocol1.getResponse();
+        // ehlo is resolvable. so this should give a 250 code
+        assertEquals("ehlo accepted", 250, response2.getCode());
 
         smtpProtocol1.quit();
     }
