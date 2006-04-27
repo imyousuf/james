@@ -174,15 +174,12 @@ public class LinearProcessorTest extends TestCase {
 
     public void testStateChange() throws IOException, MessagingException {
         t.setSpool(new MockSpoolRepository() {
-
             public void store(Mail mc) throws MessagingException {
                 assertEquals("MYSTATE",mc.getState());
-                System.err.println("STORE: "+mc.getName()+" state: "+mc.getState());
                 super.store(mc);
             }
-            
-            
         });
+        
         Matcher recipientIs = new RecipientIs();
         recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
         
