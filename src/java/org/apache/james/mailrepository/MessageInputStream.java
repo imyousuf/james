@@ -46,14 +46,14 @@ final class MessageInputStream extends InputStream {
      * Main constructor. If srep is not null than we are using dbfiles and we stream
      * the body to file and only the header to db.
      */
-    public MessageInputStream(Mail mc, StreamRepository srep) throws IOException, MessagingException {
+    public MessageInputStream(Mail mc, StreamRepository srep, int sizeLimit) throws IOException, MessagingException {
         super();
         caughtException = null;
         streamRep = srep;
         size = mc.getMessageSize();
         // we use the pipes only when streamRep is null and the message size is greater than 4096
         // Otherwise we should calculate the header size and not the message size when streamRep is not null (JAMES-475)
-        if (streamRep == null && size > 4096) {
+        if (streamRep == null && size > sizeLimit) {
             PipedOutputStream headerOut = new PipedOutputStream();
             new Thread() {
                 private Mail mail;
