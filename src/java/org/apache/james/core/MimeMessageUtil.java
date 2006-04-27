@@ -228,22 +228,37 @@ public class MimeMessageUtil {
         } else if (message instanceof MimeMessageCopyOnWriteProxy) {
             MimeMessageCopyOnWriteProxy wrapper = (MimeMessageCopyOnWriteProxy) message;
             size = wrapper.getMessageSize();
-        } else {
-            //SK: Should probably eventually store this as a locally
-            //  maintained value (so we don't have to load and reparse
-            //  messages each time).
-            size = message.getSize();
-            if (size != -1) {
-                Enumeration e = message.getAllHeaderLines();
-                if (e.hasMoreElements()) {
-                    size += 2;
-                }
-                while (e.hasMoreElements()) {
-                    // add 2 bytes for the CRLF
-                    size += ((String) e.nextElement()).length()+2;
-                }
+        }
+        
+        if (size == -1) {
+            size = calculateMessageSize(message);
+        }
+        
+        return size;
+    }
+
+    /**
+     * @param message
+     * @return the calculated size
+     * @throws MessagingException
+     */
+    public static long calculateMessageSize(MimeMessage message) throws MessagingException {
+        long size;
+        //SK: Should probably eventually store this as a locally
+        //  maintained value (so we don't have to load and reparse
+        //  messages each time).
+        size = message.getSize();
+        if (size != -1) {
+            Enumeration e = message.getAllHeaderLines();
+            if (e.hasMoreElements()) {
+                size += 2;
+            }
+            while (e.hasMoreElements()) {
+                // add 2 bytes for the CRLF
+                size += ((String) e.nextElement()).length()+2;
             }
         }
+        
         
         if (size == -1) {
             SizeCalculatorOutputStream out = new SizeCalculatorOutputStream();

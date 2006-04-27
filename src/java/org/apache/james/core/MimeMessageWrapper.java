@@ -329,7 +329,7 @@ public class MimeMessageWrapper
                 throw new MessagingException("Error retrieving message size", ioe);
             }
         } else {
-            return MimeMessageUtil.getMessageSize(this);
+            return MimeMessageUtil.calculateMessageSize(this);
         }
     }
     

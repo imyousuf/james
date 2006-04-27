@@ -775,11 +775,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @throws MessagingException 
      */
     public long getMessageSize() throws MessagingException {
-        if (wrapped instanceof MimeMessageWrapper) {
-            return ((MimeMessageWrapper) wrapped).getMessageSize();
-        } else {
-            return MimeMessageUtil.getMessageSize(this);
-        }
+        return MimeMessageUtil.getMessageSize(wrapped);
     }
 
     /**
