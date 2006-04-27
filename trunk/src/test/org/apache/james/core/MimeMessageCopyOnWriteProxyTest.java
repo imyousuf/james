@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
 
-    MimeMessageWrapper mw = null;
+    MimeMessageCopyOnWriteProxy mw = null;
     String content = "Subject: foo\r\nContent-Transfer-Encoding2: plain";
     String sep = "\r\n\r\n";
     String body = "bar\r\n.\r\n";
@@ -41,12 +41,12 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
             mmis = new MimeMessageInputStreamSource("test", new SharedByteArrayInputStream(sources.getBytes()));
         } catch (MessagingException e) {
         }
-        return new MimeMessageWrapper(mmis);
+        return new MimeMessageCopyOnWriteProxy(mmis);
 //        return new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
     }
 
     protected void setUp() throws Exception {
-        mw = (MimeMessageWrapper) getMessageFromSources(content+sep+body);
+        mw = (MimeMessageCopyOnWriteProxy) getMessageFromSources(content+sep+body);
     }
 
     
@@ -60,7 +60,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         assertNotSame(m2.getMessage(),mail.getMessage());
         // test that the wrapped message is the same
         assertTrue(isSameMimeMessage(m2.getMessage(),mail.getMessage()));
-        // test it is the same after real only operations!
+        // test it is the same after read only operations!
         mail.getMessage().getSubject();
         assertTrue(isSameMimeMessage(m2.getMessage(),mail.getMessage()));
         mail.getMessage().setText("new body");
