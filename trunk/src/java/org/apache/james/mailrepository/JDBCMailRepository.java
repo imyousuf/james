@@ -162,6 +162,11 @@ public class JDBCMailRepository
     protected boolean jdbcMailAttributesReady = false;
 
     /**
+     * The size threshold for in memory handling of storing operations
+     */
+    private int inMemorySizeLimit;
+
+    /**
      * @see org.apache.avalon.framework.context.Contextualizable#contextualize(Context)
      */
     public void contextualize(final Context context)
@@ -252,6 +257,8 @@ public class JDBCMailRepository
                         .append("'");
             getLogger().debug(logBuffer.toString());
         }
+        
+        inMemorySizeLimit = conf.getChild("inMemorySizeLimit").getValueAsInteger(409600000); 
 
         String filestore = conf.getChild("filestore").getValue(null);
         sqlFileName = conf.getChild("sqlFile").getValue();
@@ -665,7 +672,7 @@ public class JDBCMailRepository
                     PreparedStatement updateMessageBody = 
                         conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
                     try {
-                        MessageInputStream is = new MessageInputStream(mc,sr);
+                        MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit);
                         updateMessageBody.setBinaryStream(1,is,(int) is.getSize());
                         updateMessageBody.setString(2, mc.getName());
                         updateMessageBody.setString(3, repositoryName);
@@ -706,7 +713,7 @@ public class JDBCMailRepository
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
 
-                    MessageInputStream is = new MessageInputStream(mc,sr);
+                    MessageInputStream is = new MessageInputStream(mc, sr, inMemorySizeLimit);
 
                     insertMessage.setBinaryStream(10, is, (int) is.getSize());
                     
