@@ -319,18 +319,19 @@ public class MimeMessageWrapper
     }
 
     /**
-     * Returns size of message, ie headers and content. Current implementation
-     * actually returns number of characters in headers plus number of bytes
-     * in the internal content byte array.
+     * Returns size of message, ie headers and content
      */
     public long getMessageSize() throws MessagingException {
-        try {
-            return source.getMessageSize();
-        } catch (IOException ioe) {
-            throw new MessagingException("Error retrieving message size", ioe);
+        if (!isModified()) {
+            try {
+                return source.getMessageSize();
+            } catch (IOException ioe) {
+                throw new MessagingException("Error retrieving message size", ioe);
+            }
+        } else {
+            return MimeMessageUtil.getMessageSize(this);
         }
     }
-    
     
     /**
      * We override all the "headers" access methods to be sure that we
