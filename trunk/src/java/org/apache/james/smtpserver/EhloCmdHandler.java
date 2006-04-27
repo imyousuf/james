@@ -118,7 +118,8 @@ public class EhloCmdHandler extends AbstractLogEnabled implements CommandHandler
 
             esmtpextensions.add("PIPELINING");
             esmtpextensions.add("ENHANCEDSTATUSCODES");
-            esmtpextensions.add("8BITMIME");
+            // see http://issues.apache.org/jira/browse/JAMES-419 
+            //esmtpextensions.add("8BITMIME");
 
 
             // Iterator i = esmtpextensions.iterator();
