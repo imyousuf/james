@@ -485,9 +485,11 @@ public class James
         try {
             spool.store(mail);
         } catch (Exception e) {
+            getLogger().error("Error storing message: " + e.getMessage(),e);
             try {
                 spool.remove(mail);
             } catch (Exception ignored) {
+                getLogger().error("Error removing message after an error storing it: " + e.getMessage(),e);
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
