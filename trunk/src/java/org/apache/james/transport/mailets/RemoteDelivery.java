@@ -782,10 +782,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             String enc = part.getEncoding();
             if (enc == null) part.setHeader("Content-Transfer-Encoding", "7bit");
         } else if (part.isMimeType("multipart/*")) {
-            MimeMultipart parts = (MimeMultipart) part.getContent();
-            int count = parts.getCount();
-            for (int i = 0; i < count; i++) {
-                setEncodingIfMissing((MimePart)parts.getBodyPart(i));
+            Object content = part.getContent();
+            if (content instanceof MimeMultipart) {
+                MimeMultipart parts = (MimeMultipart) content;
+                int count = parts.getCount();
+                for (int i = 0; i < count; i++) {
+                    setEncodingIfMissing((MimePart)parts.getBodyPart(i));
+                }
             }
         }
     }
