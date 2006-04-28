@@ -65,7 +65,7 @@ public class DNSServer
      * A resolver instance used to retrieve DNS records.  This
      * is a reference to a third party library object.
      */
-    private Resolver resolver;
+    protected Resolver resolver;
 
     /**
      * A TTL cache of results received from the DNS server.  This
@@ -260,12 +260,56 @@ public class DNSServer
                         getLogger().error(logBuffer.toString());
                     }
                 } else {
-                    return cnameMXrecords;
+                    servers.addAll(cnameMXrecords);
                 }
             }
         }
     }
-
+/*
+    public Collection findMXRecords(String hostname) {
+        List servers = new ArrayList();
+        try {
+            servers = findMXRecordsRaw(hostname);
+            return Collections.unmodifiableCollection(servers);
+        } finally {
+            //If we found no results, we'll add the original domain name if
+            //it's a valid DNS entry
+            if (servers.size () == 0) {
+                StringBuffer logBuffer =
+                    new StringBuffer(128)
+                            .append("Couldn't resolve MX records for domain ")
+                            .append(hostname)
+                            .append(".");
+                getLogger().info(logBuffer.toString());
+                Record cnames[] = lookup(hostname, Type.CNAME);
+                if (cnames!=null && cnames.length > 0) {
+                    servers = findMXRecordsRaw(((CNAMERecord) cnames[0]).getTarget().toString());
+                } else {
+                    logBuffer = new StringBuffer(128)
+                            .append("Couldn't find CNAME records for domain ")
+                            .append(hostname)
+                            .append(".");
+                    getLogger().info(logBuffer.toString());
+                }
+                if (servers.size() == 0) {
+                    try {
+                        getByName(hostname);
+                        servers.add(hostname);
+                    } catch (UnknownHostException uhe) {
+                        // The original domain name is not a valid host,
+                        // so we can't add it to the server list.  In this
+                        // case we return an empty list of servers
+                        logBuffer = new StringBuffer(128)
+                                  .append("Couldn't resolve IP address for host ")
+                                  .append(hostname)
+                                  .append(".");
+                        getLogger().error(logBuffer.toString());
+                    }
+                }
+            }
+        }
+    }
+*/
     /**
      * Looks up DNS records of the specified type for the specified name.
      *
@@ -345,7 +389,7 @@ public class DNSServer
         }
     }
     
-    private Record[] processSetResponse(SetResponse sr) {
+    protected Record[] processSetResponse(SetResponse sr) {
         Record [] answers;
         int answerCount = 0, n = 0;
 

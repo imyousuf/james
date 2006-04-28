@@ -19,6 +19,12 @@ package org.apache.james.dnsserver;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.Resolver;
+import org.xbill.DNS.SetResponse;
+import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.Zone;
 
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
@@ -28,7 +34,7 @@ import junit.framework.TestCase;
 
 public class DNSServerTest extends TestCase {
 
-    private DNSServer dnsServer;
+    private TestableDNSServer dnsServer;
 
     /**
      * Please note that this is an hardcoded test that works because
@@ -41,12 +47,32 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testINARecords() throws Exception {
+        Zone z = new Zone(Name.fromString("pippo.com."),getClass().getResource("pippo-com.zone").getFile());
+        dnsServer.setResolver(null);
+        dnsServer.setLookupper(new ZoneLookupper(z));
         Collection records = dnsServer.findMXRecords("www.pippo.com.");
         assertEquals(1, records.size());
         assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator()
                 .next());
     }
 
+    /**
+     * @throws Exception
+     */
+    public void testMXCatches() throws Exception {
+        Zone z = new Zone(Name.fromString("test-zone.com."),getClass().getResource("test-zone-com.zone").getFile());
+        dnsServer.setResolver(null);
+        dnsServer.setLookupper(new ZoneLookupper(z));
+        Collection res = dnsServer.findMXRecords("test-zone.com.");
+        try {
+            res.add(new Object());
+            fail("MX Collection should not be modifiable");
+        } catch (UnsupportedOperationException e) {
+        }
+        assertEquals(1,res.size());
+        assertEquals("mail.test-zone.com.",res.iterator().next());
+    }
+    
     /**
      * Please note that this is an hardcoded test that works because
      * brandilyncollins.com. has an MX record that point to mxmail.register.com
@@ -57,28 +83,82 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testCNAMEasMXrecords() throws Exception {
+        Zone z = new Zone(Name.fromString("brandilyncollins.com."),getClass().getResource("brandilyncollins-com.zone").getFile());
+        dnsServer.setResolver(null);
+        dnsServer.setLookupper(new ZoneLookupper(z));
         Iterator records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
         assertEquals(true, records.hasNext());
     }
 
     protected void setUp() throws Exception {
-        dnsServer = new DNSServer();
+        dnsServer = new TestableDNSServer();
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
 
         Configuration c = db.build(
                 new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()),
                 "dnsserver");
-//        for (int i = 0; i < c.getAttributeNames().length; i++) {
-//            System.out.println(c.getAttributeNames()[i]);
-//        }
-
         dnsServer.enableLogging(new MockLogger());
         dnsServer.configure(c);
         dnsServer.initialize();
     }
 
     protected void tearDown() throws Exception {
+        dnsServer.setLookupper(null);
         dnsServer.dispose();
+    }
+
+    private class ZoneLookupper implements Lookupper {
+        private final Zone z;
+
+        private ZoneLookupper(Zone z) {
+            super();
+            this.z = z;
+        }
+
+        public SetResponse lookup(Name name, int type) {
+            SetResponse s = z.findRecords(name,type);
+            System.out.println("Zone Lookup: "+name+" "+type+" = "+s);
+            return s; 
+        }
+    }
+
+    private interface Lookupper {
+        SetResponse lookup(Name name, int type);
+    }
+    
+    private final class TestableDNSServer extends DNSServer {
+        
+        private Lookupper lookupper;
+
+        public void setLookupper(Lookupper l) {
+            this.lookupper = l;
+        }
+        
+        public Record[] lookup(String name, int type) {
+            if (lookupper != null) {
+                try {
+                    SetResponse lookup = lookupper.lookup(Name.fromString(name), type);
+                    if (lookup != null && lookup.isSuccessful()) {
+                        return processSetResponse(lookup);
+                    } else {
+                        return null;
+                    }
+                } catch (TextParseException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            } else {
+                return super.lookup(name, type);
+            }
+        }
+
+        public void setResolver(Resolver r) {
+            resolver = r;
+        }
+
+        public Resolver getResolver() {
+            return resolver;
+        }
     }
 
 }
