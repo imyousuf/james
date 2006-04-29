@@ -783,6 +783,9 @@ Legal:
         <exclude name="${constants.file}"/>
         <exclude name="${poolconn.file}"/>
       </javac>
+    	<copy todir="${build.test.classes}">
+    		<fileset dir="${junitjava.dir}" includes="**/*.zone" />
+    	</copy>
     </target>
 
     <target name="run-unit-tests" depends="unit-tests-classpath, compile-unit-tests">
