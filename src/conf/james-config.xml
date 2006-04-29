@@ -558,6 +558,9 @@
       <!-- and set the DNS servers manually in the <servers> section -->
       <autodiscover>true</autodiscover>
       <authoritative>false</authoritative>
+
+      <!-- Maximum number of entries to maintain in the DNS cache -->
+      <maxcachesize>50000</maxcachesize>
    </dnsserver>
 
    <remotemanager>

@@ -74,6 +74,12 @@ public class DNSServer
     private Cache cache;
 
     /**
+     * Maximum number of RR to cache.
+     */
+
+    private int maxCacheSize = 50000;
+
+    /**
      * Whether the DNS response is required to be authoritative
      */
     private int dnsCredibility;
@@ -127,6 +133,8 @@ public class DNSServer
         // TODO: Check to see if the credibility field is being used correctly.  From the
         //       docs I don't think so
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
+
+        maxCacheSize = (int) configuration.getChild( "maxcachesize" ).getValueAsLong( maxCacheSize );
     }
 
     /**
@@ -164,6 +172,8 @@ public class DNSServer
         }
 
         cache = new Cache (DClass.IN);
+        cache.setMaxEntries(maxCacheSize);
+        Lookup.setDefaultCache(cache, DClass.IN);
         
         getLogger().debug("DNSServer ...init end");
     }
