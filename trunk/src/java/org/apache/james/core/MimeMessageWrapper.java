@@ -40,7 +40,7 @@ import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
 import org.apache.mailet.RFC2822Headers;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
+import javax.mail.util.SharedByteArrayInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage

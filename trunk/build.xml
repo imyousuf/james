@@ -495,7 +495,7 @@ Legal:
           <include name="derby.jar"/>
           <include name="excalibur-datasource-2.1.jar"/>
           <include name="activation.jar"/>
-          <include name="mail-1.3.2.jar"/>
+          <include name="mail-1.4.0.jar"/>
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
           <include name="bcmail-jdk14-129.jar"/>

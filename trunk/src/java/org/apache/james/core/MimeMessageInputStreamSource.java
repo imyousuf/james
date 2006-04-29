@@ -28,7 +28,7 @@ import java.io.OutputStream;
 
 import org.apache.avalon.framework.activity.Disposable;
 
-import com.sun.mail.util.SharedFileInputStream;
+import javax.mail.util.SharedFileInputStream;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
