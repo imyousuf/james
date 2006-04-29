@@ -39,7 +39,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 
-import com.sun.mail.util.SharedFileInputStream;
+import javax.mail.util.SharedFileInputStream;
 
 /**
  * This an abstract class implementing functionality for creating a file-store.
