@@ -19,7 +19,7 @@ package org.apache.james.core;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;

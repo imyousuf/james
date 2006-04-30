@@ -40,9 +40,8 @@ import org.columba.ristretto.pop3.POP3Protocol;
 import org.columba.ristretto.pop3.POP3Response;
 import org.columba.ristretto.pop3.ScanListEntry;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
-
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.SharedByteArrayInputStream;
 import javax.mail.MessagingException;
 
 import java.io.IOException;

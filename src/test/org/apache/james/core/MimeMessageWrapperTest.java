@@ -16,10 +16,9 @@
  ***********************************************************************/
 package org.apache.james.core;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
