@@ -728,7 +728,7 @@
                 -->
             </handler>
             <handler command="EHLO" class="org.apache.james.smtpserver.EhloCmdHandler">
-                <!-- If is set to true ehlo is only accepted if it can be resolved
+                <!-- If is set to true ehlo is only accepted if it can be resolved -->
                 <!--
                 <checkValidEhlo> false </checkValidEhlo>
                 -->
