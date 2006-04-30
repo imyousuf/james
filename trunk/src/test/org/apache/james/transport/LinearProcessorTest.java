@@ -36,10 +36,9 @@ import org.apache.mailet.MailetContext;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.IOException;
 import java.util.ArrayList;

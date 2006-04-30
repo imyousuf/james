@@ -44,10 +44,9 @@ import org.columba.ristretto.smtp.SMTPException;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
-
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

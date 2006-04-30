@@ -16,7 +16,7 @@
  ***********************************************************************/
 package org.apache.james.core;
 
-import com.sun.mail.util.SharedByteArrayInputStream;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
