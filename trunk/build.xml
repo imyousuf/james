@@ -494,7 +494,7 @@ Legal:
           <include name="jakarta-oro-2.0.8.jar"/>
           <include name="derby.jar"/>
           <include name="excalibur-datasource-2.1.jar"/>
-          <include name="activation.jar"/>
+          <include name="activation-1.1.jar"/>
           <include name="mail-1.4.0.jar"/>
           <include name="commons-dbcp-1.2.1.jar"/>
           <include name="commons-pool-1.2.jar"/>
