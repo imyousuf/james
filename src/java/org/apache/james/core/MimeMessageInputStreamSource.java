@@ -18,6 +18,7 @@
 package org.apache.james.core;
 
 import javax.mail.MessagingException;
+import javax.mail.util.SharedFileInputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,8 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.avalon.framework.activity.Disposable;
-
-import javax.mail.util.SharedFileInputStream;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
@@ -47,12 +46,12 @@ public class MimeMessageInputStreamSource
     /**
      * A temporary file used to hold the message stream
      */
-    File file = null;
+    File file;
 
     /**
      * The full path of the temporary file
      */
-    String sourceId = null;
+    String sourceId;
 
     /**
      * Construct a new MimeMessageInputStreamSource from an
@@ -116,7 +115,7 @@ public class MimeMessageInputStreamSource
      * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
-        return new SharedFileInputStream(file.getAbsolutePath());
+        return new SharedFileInputStream(file);
     }
 
     /**
@@ -148,9 +147,13 @@ public class MimeMessageInputStreamSource
      * <p>Finalizer that closes and deletes the temp file.  Very bad.</p>
      * We're leaving this in temporarily, while also establishing a more
      * formal mechanism for cleanup through use of the dispose() method.
+     * @throws Throwable 
      *
      */
-    public void finalize() {
+    public void finalize() throws Throwable {
         dispose();
+        super.finalize();
     }
+    
+
 }
