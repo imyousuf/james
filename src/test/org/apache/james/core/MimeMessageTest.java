@@ -188,6 +188,8 @@ public class MimeMessageTest extends TestCase {
         
         assertEquals(getMultipartMessageExpected3(),getCleanedMessageSource(mm));
         
+        ContainerUtil.dispose(mm);
+        
     }
 
     protected MimeMessage getMissingEncodingAddHeaderMessage() throws Exception {
@@ -302,6 +304,7 @@ public class MimeMessageTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception in getLineCount");
         }
+        ContainerUtil.dispose(mm);
     }
     
     /**
@@ -320,6 +323,9 @@ public class MimeMessageTest extends TestCase {
         //((Disposable)mail_dup.getMessage()).dispose();
         
         mm.setHeader("Subject", "Modified");
+        
+        ContainerUtil.dispose(mmorig);
+        ContainerUtil.dispose(mm);
         
     }
     
