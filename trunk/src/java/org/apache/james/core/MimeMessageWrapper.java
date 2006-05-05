@@ -71,6 +71,12 @@ public class MimeMessageWrapper
      */
     protected boolean bodyModified = false;
 
+    /**
+     * Keep a reference to the sourceIn so we can close it
+     * only when we dispose the message.
+     */
+    private InputStream sourceIn;
+
     
     /**
      * A constructor that instantiates a MimeMessageWrapper based on
@@ -99,7 +105,7 @@ public class MimeMessageWrapper
     public MimeMessageWrapper(MimeMessageSource source) throws MessagingException {
         this(Session.getDefaultInstance(System.getProperties()),source);
     }
-    
+
     public MimeMessageWrapper(MimeMessage original) throws MessagingException {
         super(Session.getDefaultInstance(System.getProperties()));
         flags = original.getFlags();
@@ -188,18 +194,18 @@ public class MimeMessageWrapper
             //Another thread has already loaded this message
             return;
         }
-        InputStream in = null;
+        sourceIn = null;
         try {
-            in = source.getInputStream();
+            sourceIn = source.getInputStream();
 
-            parse(in);
+            parse(sourceIn);
             // TODO is it ok?
             saved = true;
             
         } catch (IOException ioe) {
+            IOUtil.shutdownStream(sourceIn);
+            sourceIn = null;
             throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
-        } finally {
-            IOUtil.shutdownStream(in);
         }
     }
 
@@ -440,6 +446,9 @@ public class MimeMessageWrapper
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
+        if (sourceIn != null) {
+            IOUtil.shutdownStream(sourceIn);
+        }
         if (source instanceof Disposable) {
             ((Disposable)source).dispose();
         }

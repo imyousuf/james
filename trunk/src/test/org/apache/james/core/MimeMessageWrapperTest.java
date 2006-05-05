@@ -16,6 +16,8 @@
  ***********************************************************************/
 package org.apache.james.core;
 
+import org.apache.avalon.framework.container.ContainerUtil;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
@@ -108,6 +110,10 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
 
     protected void setUp() throws Exception {
         mw = (TestableMimeMessageWrapper) getMessageFromSources(content+sep+body);
+    }
+
+    protected void tearDown() throws Exception {
+        ContainerUtil.dispose(mw);
     }
 
     

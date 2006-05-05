@@ -16,6 +16,7 @@
  ***********************************************************************/
 package org.apache.james.core;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -47,6 +48,11 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
 
     protected void setUp() throws Exception {
         mw = (MimeMessageCopyOnWriteProxy) getMessageFromSources(content+sep+body);
+    }
+
+
+    protected void tearDown() throws Exception {
+        ContainerUtil.dispose(mw);
     }
 
     
