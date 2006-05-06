@@ -17,10 +17,8 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
@@ -28,11 +26,11 @@ import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.mailet.dates.RFC977DateFormat;
 import org.apache.mailet.dates.RFC2980DateFormat;
+import org.apache.mailet.dates.RFC977DateFormat;
 import org.apache.mailet.dates.SimplifiedDateFormat;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
+
+import javax.mail.MessagingException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -42,7 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.SequenceInputStream;
 import java.net.Socket;
 import java.text.ParseException;
@@ -53,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import javax.mail.MessagingException;
 
 /**
  * The NNTP protocol is defined by RFC 977.
@@ -63,8 +59,7 @@ import javax.mail.MessagingException;
  * Common NNTP extensions are in RFC 2980.
  */
 public class NNTPHandler
-    extends AbstractLogEnabled
-    implements ConnectionHandler, Poolable {
+    extends AbstractJamesHandler {
 
     /**
      * used to calculate DATE from - see 11.3
@@ -227,11 +222,6 @@ public class NNTPHandler
     private final static char[] NNTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
     /**
-     * The thread executing this handler 
-     */
-    private Thread handlerThread;
-
-    /**
      * The remote host name obtained by lookup on the socket.
      */
     private String remoteHost;
@@ -240,12 +230,6 @@ public class NNTPHandler
      * The remote IP address of the socket.
      */
     private String remoteIP;
-
-    /**
-     * The TCP/IP socket over which the POP3 interaction
-     * is occurring
-     */
-    private Socket socket;
 
     /**
      * The incoming stream of bytes coming from the socket.
@@ -261,11 +245,6 @@ public class NNTPHandler
      * The socket's output stream
      */
     private OutputStream outs;
-
-    /**
-     * The writer to which outgoing messages are written.
-     */
-    private PrintWriter writer;
 
     /**
      * The current newsgroup.
@@ -300,66 +279,15 @@ public class NNTPHandler
     boolean isAlreadyAuthenticated = false;
 
     /**
-     * The watchdog being used by this handler to deal with idle timeouts.
-     */
-    private Watchdog theWatchdog;
-
-    /**
-     * The watchdog target that idles out this handler.
-     */
-    private WatchdogTarget theWatchdogTarget = new NNTPWatchdogTarget();
-
-    /**
      * Set the configuration data for the handler
      *
      * @param theData configuration data for the handler
      */
-    void setConfigurationData(NNTPHandlerConfigurationData theData) {
-        theConfigData = theData;
-    }
-
-    /**
-     * Set the Watchdog for use by this handler.
-     *
-     * @param theWatchdog the watchdog
-     */
-    void setWatchdog(Watchdog theWatchdog) {
-        this.theWatchdog = theWatchdog;
-    }
-
-    /**
-     * Gets the Watchdog Target that should be used by Watchdogs managing
-     * this connection.
-     *
-     * @return the WatchdogTarget
-     */
-    WatchdogTarget getWatchdogTarget() {
-        return theWatchdogTarget;
-    }
-
-    /**
-     * Idle out this connection
-     */
-    void idleClose() {
-        if (getLogger() != null) {
-            getLogger().error("NNTP Connection has idled out.");
-        }
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (Exception e) {
-            // ignored
-        } finally {
-            socket = null;
-        }
-
-        synchronized (this) {
-            // Interrupt the thread to recover from internal hangs
-            if (handlerThread != null) {
-                handlerThread.interrupt();
-                handlerThread = null;
-            }
+    public void setConfigurationData(Object theData) {
+        if (theData instanceof NNTPHandlerConfigurationData) {
+            theConfigData = (NNTPHandlerConfigurationData) theData;
+        } else {
+            throw new IllegalArgumentException("Configuration object does not implement NNTPHandlerConfigurationData");
         }
     }
 
@@ -380,7 +308,7 @@ public class NNTPHandler
             // to be ASCII
             reader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
             outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
-            writer = new InternetPrintWriter(outs, true);
+            out = new InternetPrintWriter(outs, true);
         } catch (Exception e) {
             StringBuffer exceptionBuffer = 
                 new StringBuffer(256)
@@ -459,9 +387,9 @@ public class NNTPHandler
 
         in = null;
 
-        if (writer != null) {
-            writer.close();
-            writer = null;
+        if (out != null) {
+            out.close();
+            out = null;
         }
         outs = null;
 
@@ -1039,7 +967,7 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            writer.flush();
+            out.flush();
             article.writeBody(new ExtraDotOutputStream(outs));
             writeLoggedFlushedResponse("\r\n.");
         }
@@ -1107,7 +1035,7 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            writer.flush();
+            out.flush();
             article.writeHead(new ExtraDotOutputStream(outs));
             writeLoggedFlushedResponse(".");
         }
@@ -1175,7 +1103,7 @@ public class NNTPHandler
             }
         }
         if (article != null) {
-            writer.flush();
+            out.flush();
             article.writeArticle(new ExtraDotOutputStream(outs));
             // see jira JAMES-311 for an explanation of the "\r\n"
             writeLoggedFlushedResponse("\r\n.");
@@ -1564,7 +1492,6 @@ public class NNTPHandler
         String date = tok.nextToken();
         String time = tok.nextToken();
         boolean utc = ( tok.hasMoreTokens() );
-        Date d = new Date();
         try {
             StringBuffer dateStringBuffer =
                 new StringBuffer(64)
@@ -1689,58 +1616,4 @@ public class NNTPHandler
         }
    }
 
-    /**
-     * This method logs at a "DEBUG" level the response string that 
-     * was sent to the SMTP client.  The method is provided largely
-     * as syntactic sugar to neaten up the code base.  It is declared
-     * private and final to encourage compiler inlining.
-     *
-     * @param responseString the response string sent to the client
-     */
-    private final void logResponseString(String responseString) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Sent: " + responseString);
-        }
-    }
-
-    /**
-     * Write and flush a response string.  The response is also logged.
-     * Should be used for the last line of a multi-line response or
-     * for a single line response.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedFlushedResponse(String responseString) {
-        writer.println(responseString);
-        writer.flush();
-        logResponseString(responseString);
-    }
-
-    /**
-     * Write a response string.  The response is also logged. 
-     * Used for multi-line responses.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedResponse(String responseString) {
-        writer.println(responseString);
-        logResponseString(responseString);
-    }
-
-    /**
-     * A private inner class which serves as an adaptor
-     * between the WatchdogTarget interface and this
-     * handler class.
-     */
-    private class NNTPWatchdogTarget
-        implements WatchdogTarget {
-
-        /**
-         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
-         */
-        public void execute() {
-            NNTPHandler.this.idleClose();
-        }
-
-    }
 }

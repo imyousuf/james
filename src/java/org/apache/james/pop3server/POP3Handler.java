@@ -17,20 +17,16 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ListUtils;
 import org.apache.james.Constants;
+import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
@@ -42,7 +38,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -56,8 +51,7 @@ import java.util.StringTokenizer;
  *
  */
 public class POP3Handler
-    extends AbstractLogEnabled
-    implements ConnectionHandler, Poolable {
+    extends AbstractJamesHandler {
 
     // POP3 Server identification string used in POP3 headers
     private static final String softwaretype        = "JAMES POP3 Server "
@@ -102,25 +96,9 @@ public class POP3Handler
     private MailRepository userInbox;
 
     /**
-     * The thread executing this handler
-     */
-    private Thread handlerThread;
-
-    /**
-     * The TCP/IP socket over which the POP3 interaction
-     * is occurring
-     */
-    private Socket socket;
-
-    /**
      * The reader associated with incoming characters.
      */
     private CRLFTerminatedReader in;
-
-    /**
-     * The writer to which outgoing messages are written.
-     */
-    private PrintWriter out;
 
     /**
      * The socket's output stream
@@ -149,70 +127,18 @@ public class POP3Handler
                                                  // of the transaction
 
     /**
-     * The watchdog being used by this handler to deal with idle timeouts.
-     */
-    private Watchdog theWatchdog;
-
-    /**
-     * The watchdog target that idles out this handler.
-     */
-    private WatchdogTarget theWatchdogTarget = new POP3WatchdogTarget();
-
-    /**
      * Set the configuration data for the handler.
      *
      * @param theData the configuration data
      */
-    void setConfigurationData(POP3HandlerConfigurationData theData) {
-        theConfigData = theData;
-    }
-
-    /**
-     * Set the Watchdog for use by this handler.
-     *
-     * @param theWatchdog the watchdog
-     */
-    void setWatchdog(Watchdog theWatchdog) {
-        this.theWatchdog = theWatchdog;
-    }
-
-    /**
-     * Gets the Watchdog Target that should be used by Watchdogs managing
-     * this connection.
-     *
-     * @return the WatchdogTarget
-     */
-    WatchdogTarget getWatchdogTarget() {
-        return theWatchdogTarget;
-    }
-
-    /**
-     * Idle out this connection
-     */
-    void idleClose() {
-        if (getLogger() != null) {
-            getLogger().error("POP3 Connection has idled out.");
+    public void setConfigurationData(Object theData) {
+        if (theData instanceof POP3HandlerConfigurationData) {
+            theConfigData = (POP3HandlerConfigurationData) theData;
+        } else {
+            throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
         }
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (Exception e) {
-            // ignored
-        } finally {
-            socket = null;
-        }
-
-        synchronized (this) {
-            // Interrupt the thread to recover from internal hangs
-            if (handlerThread != null) {
-                handlerThread.interrupt();
-                handlerThread = null;
-            }
-        }
-
     }
-
+    
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
@@ -270,6 +196,7 @@ public class POP3Handler
                         .append(POP3Handler.softwaretype)
                         .append(") ready ");
             out.println(responseBuffer.toString());
+            out.flush();
 
             theWatchdog.start();
             while (parseCommand(readCommandLine())) {
@@ -1093,61 +1020,5 @@ public class POP3Handler
     private void doUnknownCmd(String command,String argument,String argument1) {
         writeLoggedFlushedResponse(ERR_RESPONSE);
     }
-
-    /**
-     * This method logs at a "DEBUG" level the response string that
-     * was sent to the POP3 client.  The method is provided largely
-     * as syntactic sugar to neaten up the code base.  It is declared
-     * private and final to encourage compiler inlining.
-     *
-     * @param responseString the response string sent to the client
-     */
-    private final void logResponseString(String responseString) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Sent: " + responseString);
-        }
-    }
-
-    /**
-     * Write and flush a response string.  The response is also logged.
-     * Should be used for the last line of a multi-line response or
-     * for a single line response.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedFlushedResponse(String responseString) {
-        out.println(responseString);
-        out.flush();
-        logResponseString(responseString);
-    }
-
-    /**
-     * Write a response string.  The response is also logged.
-     * Used for multi-line responses.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedResponse(String responseString) {
-        out.println(responseString);
-        logResponseString(responseString);
-    }
-
-    /**
-     * A private inner class which serves as an adaptor
-     * between the WatchdogTarget interface and this
-     * handler class.
-     */
-    private class POP3WatchdogTarget
-        implements WatchdogTarget {
-
-        /**
-         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
-         */
-        public void execute() {
-            POP3Handler.this.idleClose();
-        }
-
-    }
-
 }
 
