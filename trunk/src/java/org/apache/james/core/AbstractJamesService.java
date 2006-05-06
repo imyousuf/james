@@ -17,6 +17,10 @@
 
 package org.apache.james.core;
 
+import org.apache.avalon.excalibur.pool.DefaultPool;
+import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
+import org.apache.avalon.excalibur.pool.ObjectFactory;
+import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -157,6 +161,22 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * Flag holding the disposed state of the component.
      */
     private boolean m_disposed = false;
+
+
+    /**
+     * The pool used to provide POP3 Handler objects
+     */
+    protected Pool theHandlerPool = null;
+
+    /**
+     * The factory used to provide Handler objects
+     */
+    protected ObjectFactory theHandlerFactory = null;
+
+    /**
+     * The factory used to generate Watchdog objects
+     */
+    protected WatchdogFactory theWatchdogFactory = null;
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -374,6 +394,23 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         String logString = logBuffer.toString();
         System.out.println(logString);
         getLogger().info(logString);
+
+        if (connectionLimit != null) {
+            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Using a bounded pool for "+getServiceType()+" handlers with upper limit " + connectionLimit.intValue());
+            }
+        } else {
+            // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
+            //       provide handlers beyond this value.
+            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
+            getLogger().debug("Using an unbounded pool for "+getServiceType()+" handlers.");
+        }
+        ContainerUtil.enableLogging(theHandlerPool, getLogger());
+        ContainerUtil.initialize(theHandlerPool);
+
+        theWatchdogFactory = getWatchdogFactory();
+
     }
 
     /**

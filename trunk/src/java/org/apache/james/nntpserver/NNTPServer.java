@@ -18,21 +18,16 @@
 package org.apache.james.nntpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.DefaultPool;
-import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogFactory;
 
 /**
  * NNTP Server
@@ -54,21 +49,6 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
      * The repository that stores the local users.  Used for authentication.
      */
     private UsersRepository userRepository = null;
-
-    /**
-     * The pool used to provide NNTP Handler objects
-     */
-    private Pool theHandlerPool = null;
-
-    /**
-     * The pool used to provide NNTP Handler objects
-     */
-    private ObjectFactory theHandlerFactory = new NNTPHandlerFactory();
-
-    /**
-     * The factory used to generate Watchdog objects
-     */
-    private WatchdogFactory theWatchdogFactory;
 
     /**
      * The configuration data to be passed to the handler
@@ -106,30 +86,7 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
                 }
             }
         }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        super.initialize();
-        if (!isEnabled()) {
-            return;
-        }
-
-        if (connectionLimit != null) {
-            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
-            getLogger().debug("Using a bounded pool for NNTP handlers with upper limit " + connectionLimit.intValue());
-        } else {
-            // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
-            //       provide handlers beyond this value.
-            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
-            getLogger().debug("Using an unbounded pool for NNTP handlers.");
-        }
-        ContainerUtil.enableLogging(theHandlerPool, getLogger());
-        ContainerUtil.initialize(theHandlerPool);
-
-        theWatchdogFactory = getWatchdogFactory();
+        theHandlerFactory = new NNTPHandlerFactory();
     }
 
     /**
