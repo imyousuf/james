@@ -18,10 +18,7 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.DefaultPool;
-import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -33,7 +30,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
 import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogFactory;
 
 import java.util.HashMap;
 
@@ -72,21 +68,6 @@ public class RemoteManager
      * The reference to the internal MailServer service
      */
     private MailServer mailServer;
-
-    /**
-     * The pool used to provide RemoteManager Handler objects
-     */
-    private Pool theHandlerPool = null;
-
-    /**
-     * The pool used to provide RemoteManager Handler objects
-     */
-    private ObjectFactory theHandlerFactory = new RemoteManagerHandlerFactory();
-
-    /**
-     * The factory used to generate Watchdog objects
-     */
-    private WatchdogFactory theWatchdogFactory;
 
     /**
      * The configuration data to be passed to the handler
@@ -130,30 +111,7 @@ public class RemoteManager
             if (prompt == null) prompt = ""; 
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
         }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        super.initialize();
-        if (!isEnabled()) {
-            return;
-        }
-
-        if (connectionLimit != null) {
-            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
-            getLogger().debug("Using a bounded pool for RemoteManager handlers with upper limit " + connectionLimit.intValue());
-        } else {
-            // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
-            //       provide handlers beyond this value.
-            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
-            getLogger().debug("Using an unbounded pool for RemoteManager handlers.");
-        }
-        ContainerUtil.enableLogging(theHandlerPool, getLogger());
-        ContainerUtil.initialize(theHandlerPool);
-
-        theWatchdogFactory = getWatchdogFactory();
+        theHandlerFactory = new RemoteManagerHandlerFactory();
     }
 
     /**

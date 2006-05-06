@@ -18,21 +18,16 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.DefaultPool;
-import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogFactory;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -59,21 +54,6 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
      * 20 KB.
      */
     private int lengthReset = 20 * 1024;
-
-    /**
-     * The pool used to provide POP3 Handler objects
-     */
-    private Pool theHandlerPool = null;
-
-    /**
-     * The factory used to provide POP3 Handler objects
-     */
-    private ObjectFactory theHandlerFactory = new POP3HandlerFactory();
-
-    /**
-     * The factory used to generate Watchdog objects
-     */
-    private WatchdogFactory theWatchdogFactory;
 
     /**
      * The configuration data to be passed to the handler
@@ -103,30 +83,7 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
         }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        super.initialize();
-        if (!isEnabled()) {
-            return;
-        }
-
-        if (connectionLimit != null) {
-            theHandlerPool = new HardResourceLimitingPool(theHandlerFactory, 5, connectionLimit.intValue());
-            getLogger().debug("Using a bounded pool for POP3 handlers with upper limit " + connectionLimit.intValue());
-        } else {
-            // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
-            //       provide handlers beyond this value.
-            theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
-            getLogger().debug("Using an unbounded pool for POP3 handlers.");
-        }
-        ContainerUtil.enableLogging(theHandlerPool, getLogger());
-        ContainerUtil.initialize(theHandlerPool);
-
-        theWatchdogFactory = getWatchdogFactory();
+        theHandlerFactory = new POP3HandlerFactory();
     }
 
     /**
