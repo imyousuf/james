@@ -17,15 +17,12 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
+import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
 
@@ -35,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -52,8 +48,8 @@ import java.util.Random;
  * @version CVS $Revision$ $Date$
  */
 public class SMTPHandler
-    extends AbstractLogEnabled
-    implements ConnectionHandler, Poolable, SMTPSession {
+    extends AbstractJamesHandler
+    implements SMTPSession {
 
     /**
      * The constants to indicate the current processing mode of the session
@@ -111,25 +107,9 @@ public class SMTPHandler
     private boolean sessionEnded = false;
 
     /**
-     * The thread executing this handler
-     */
-    private Thread handlerThread;
-
-    /**
-     * The TCP/IP socket over which the SMTP
-     * dialogue is occurring.
-     */
-    private Socket socket;
-
-    /**
      * The incoming stream of bytes coming from the socket.
      */
     private InputStream in;
-
-    /**
-     * The writer to which outgoing messages are written.
-     */
-    private PrintWriter out;
 
     /**
      * A Reader wrapper for the incoming stream of bytes coming from the socket.
@@ -191,16 +171,6 @@ public class SMTPHandler
     private HashMap state = new HashMap();
 
     /**
-     * The watchdog being used by this handler to deal with idle timeouts.
-     */
-    private Watchdog theWatchdog;
-
-    /**
-     * The watchdog target that idles out this handler.
-     */
-    private WatchdogTarget theWatchdogTarget = new SMTPWatchdogTarget();
-
-    /**
      * The per-handler response buffer used to marshal responses.
      */
     private StringBuffer responseBuffer = new StringBuffer(256);
@@ -210,52 +180,14 @@ public class SMTPHandler
      *
      * @param theData the per-service configuration data for this handler
      */
-    void setConfigurationData(SMTPHandlerConfigurationData theData) {
-        theConfigData = theData;
-    }
-
-    /**
-     * Set the Watchdog for use by this handler.
-     *
-     * @param theWatchdog the watchdog
-     */
-    void setWatchdog(Watchdog theWatchdog) {
-        this.theWatchdog = theWatchdog;
-    }
-
-    /**
-     * Gets the Watchdog Target that should be used by Watchdogs managing
-     * this connection.
-     *
-     * @return the WatchdogTarget
-     */
-    WatchdogTarget getWatchdogTarget() {
-        return theWatchdogTarget;
-    }
-
-    /**
-     * Idle out this connection
-     */
-    void idleClose() {
-        if (getLogger() != null) {
-            getLogger().error("SMTP Connection has idled out.");
-        }
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (Exception e) {
-            // ignored
-        }
-
-        synchronized (this) {
-            // Interrupt the thread to recover from internal hangs
-            if (handlerThread != null) {
-                handlerThread.interrupt();
-            }
+    public void setConfigurationData(Object theData) {
+        if (theData instanceof SMTPHandlerConfigurationData) {
+            theConfigData = (SMTPHandlerConfigurationData) theData;
+        } else {
+            throw new IllegalArgumentException("Configuration object does not implement SMTPHandlerConfigurationData");
         }
     }
-
+    
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
@@ -512,62 +444,6 @@ public class SMTPHandler
             handlerThread = null;
         }
 
-    }
-
-
-    /**
-     * This method logs at a "DEBUG" level the response string that
-     * was sent to the SMTP client.  The method is provided largely
-     * as syntactic sugar to neaten up the code base.  It is declared
-     * private and final to encourage compiler inlining.
-     *
-     * @param responseString the response string sent to the client
-     */
-    private final void logResponseString(String responseString) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Sent: " + responseString);
-        }
-    }
-
-    /**
-     * Write and flush a response string.  The response is also logged.
-     * Should be used for the last line of a multi-line response or
-     * for a single line response.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedFlushedResponse(String responseString) {
-        out.println(responseString);
-        out.flush();
-        logResponseString(responseString);
-    }
-
-    /**
-     * Write a response string.  The response is also logged.
-     * Used for multi-line responses.
-     *
-     * @param responseString the response string sent to the client
-     */
-    final void writeLoggedResponse(String responseString) {
-        out.println(responseString);
-        logResponseString(responseString);
-    }
-
-
-    /**
-     * A private inner class which serves as an adaptor
-     * between the WatchdogTarget interface and this
-     * handler class.
-     */
-    private class SMTPWatchdogTarget
-        implements WatchdogTarget {
-
-        /**
-         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
-         */
-        public void execute() {
-            SMTPHandler.this.idleClose();
-        }
     }
 
    /**

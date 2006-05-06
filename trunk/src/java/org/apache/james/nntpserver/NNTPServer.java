@@ -17,9 +17,7 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
@@ -27,7 +25,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.util.watchdog.Watchdog;
 
 /**
  * NNTP Server
@@ -104,30 +101,6 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
-     */
-    protected ConnectionHandler newHandler()
-            throws Exception {
-        NNTPHandler theHandler = (NNTPHandler)theHandlerPool.get();
-
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
-
-        theHandler.setConfigurationData(theConfigData);
-        theHandler.setWatchdog(theWatchdog);
-        return theHandler;
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
-     */
-    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
-        if (!(connectionHandler instanceof NNTPHandler)) {
-            throw new IllegalArgumentException("Attempted to return non-NNTPHandler to pool.");
-        }
-        theHandlerPool.put((Poolable)connectionHandler);
-    }
-
-    /**
      * The factory for producing handlers.
      */
     private static class NNTPHandlerFactory
@@ -189,5 +162,12 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
             return NNTPServer.this.repo;
         }
 
+    }
+
+    /**
+     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     */
+    protected Object getConfigurationData() {
+        return theConfigData;
     }
 }

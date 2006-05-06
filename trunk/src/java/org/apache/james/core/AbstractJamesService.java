@@ -17,10 +17,17 @@
 
 package org.apache.james.core;
 
+import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
+import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
+import org.apache.avalon.cornerstone.services.sockets.SocketManager;
+import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.excalibur.pool.DefaultPool;
 import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
+import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -30,18 +37,10 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-
 import org.apache.excalibur.thread.ThreadPool;
-import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-
-import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.avalon.cornerstone.services.sockets.ServerSocketFactory;
-import org.apache.avalon.cornerstone.services.sockets.SocketManager;
-
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
+import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogFactory;
 
 import java.net.InetAddress;
@@ -497,8 +496,33 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @return the new ConnectionHandler
      * @exception Exception if an error occurs
      */
-    protected abstract ConnectionHandler newHandler()
-        throws Exception;
+    protected ConnectionHandler newHandler()
+            throws Exception {
+        AbstractJamesHandler theHandler = (AbstractJamesHandler)theHandlerPool.get();
+        
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Getting Handler from pool.");
+        }
+
+        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
+
+        theHandler.setConfigurationData(getConfigurationData());
+        theHandler.setWatchdog(theWatchdog);
+        return theHandler;
+    }
+
+    protected abstract Object getConfigurationData();
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
+     */
+    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Returning Handler to pool.");
+        }
+        theHandlerPool.put((Poolable)connectionHandler);
+    }
+
 
     /**
      * Get the default port for this server type.

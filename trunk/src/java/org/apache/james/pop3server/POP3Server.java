@@ -17,9 +17,7 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
@@ -27,7 +25,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
-import org.apache.james.util.watchdog.Watchdog;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -101,32 +98,6 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
-     */
-    protected ConnectionHandler newHandler()
-            throws Exception {
-        POP3Handler theHandler = (POP3Handler)theHandlerPool.get();
-
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
-
-        theHandler.setConfigurationData(theConfigData);
-
-        theHandler.setWatchdog(theWatchdog);
-
-        return theHandler;
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
-     */
-    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
-        if (!(connectionHandler instanceof POP3Handler)) {
-            throw new IllegalArgumentException("Attempted to return non-POP3Handler to pool.");
-        }
-        theHandlerPool.put((Poolable)connectionHandler);
-    }
-
-    /**
      * The factory for producing handlers.
      */
     private static class POP3HandlerFactory
@@ -187,5 +158,12 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
         public UsersRepository getUsersRepository() {
             return POP3Server.this.users;
         }
+    }
+
+    /**
+     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     */
+    protected Object getConfigurationData() {
+        return theConfigData;
     }
 }

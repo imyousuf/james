@@ -19,7 +19,6 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -30,7 +29,6 @@ import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.util.NetMatcher;
-import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -246,34 +244,13 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      */
     protected ConnectionHandler newHandler()
             throws Exception {
-        SMTPHandler theHandler = (SMTPHandler)theHandlerPool.get();
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Getting SMTPHandler from pool.");
-        }
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
-
-        theHandler.setConfigurationData(theConfigData);
-
-        theHandler.setWatchdog(theWatchdog);
+        
+        SMTPHandler theHandler = (SMTPHandler) super.newHandler();
 
         //pass the handler chain to every SMTPhandler
         theHandler.setHandlerChain(handlerChain);
 
         return theHandler;
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
-     */
-    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
-        if (!(connectionHandler instanceof SMTPHandler)) {
-            throw new IllegalArgumentException("Attempted to return non-SMTPHandler to pool.");
-        }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Returning SMTPHandler to pool.");
-        }
-        theHandlerPool.put((Poolable)connectionHandler);
     }
 
     /**
@@ -389,5 +366,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             return SMTPServer.this.heloEhloEnforcement;
         }
 
+    }
+
+    /**
+     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     */
+    protected Object getConfigurationData() {
+        return theConfigData;
     }
 }

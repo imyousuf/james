@@ -17,19 +17,15 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.services.UsersStore;
-import org.apache.james.util.watchdog.Watchdog;
 
 import java.util.HashMap;
 
@@ -129,31 +125,6 @@ public class RemoteManager
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
-     */
-    protected ConnectionHandler newHandler()
-            throws Exception {
-        RemoteManagerHandler theHandler = (RemoteManagerHandler)theHandlerPool.get();
-        ContainerUtil.enableLogging(theHandler, getLogger());
-
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
-
-        theHandler.setConfigurationData(theConfigData);
-        theHandler.setWatchdog(theWatchdog);
-        return theHandler;
-    }
-
-    /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
-     */
-    public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
-        if (!(connectionHandler instanceof RemoteManagerHandler)) {
-            throw new IllegalArgumentException("Attempted to return non-RemoteManagerHandler to pool.");
-        }
-        theHandlerPool.put((Poolable)connectionHandler);
-    }
-
-    /**
      * The factory for producing handlers.
      */
     private static class RemoteManagerHandlerFactory
@@ -229,5 +200,12 @@ public class RemoteManager
             return RemoteManager.this.prompt;
         }
 
+    }
+
+    /**
+     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
+     */
+    protected Object getConfigurationData() {
+        return theConfigData;
     }
 }
