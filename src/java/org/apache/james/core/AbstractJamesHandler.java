@@ -38,7 +38,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     protected Thread handlerThread;
 
     /**
-     * The TCP/IP socket over which the POP3 interaction
+     * The TCP/IP socket over which the service interaction
      * is occurring
      */
     protected Socket socket;
@@ -86,7 +86,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     void idleClose() {
         if (getLogger() != null) {
-            getLogger().error("POP3 Connection has idled out.");
+            getLogger().error("Service Connection has idled out.");
         }
         try {
             if (socket != null) {
@@ -110,7 +110,7 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
 
     /**
      * This method logs at a "DEBUG" level the response string that
-     * was sent to the POP3 client.  The method is provided largely
+     * was sent to the service client.  The method is provided largely
      * as syntactic sugar to neaten up the code base.  It is declared
      * private and final to encourage compiler inlining.
      *
