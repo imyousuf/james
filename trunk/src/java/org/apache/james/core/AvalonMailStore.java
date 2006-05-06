@@ -32,7 +32,6 @@ import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.commons.collections.ReferenceMap;
 import org.apache.james.services.MailRepository;
 
@@ -271,9 +270,7 @@ public class AvalonMailStore
 
                 try {
                     reply = (MailRepository) this.getClass().getClassLoader().loadClass(repClass).newInstance();
-                    if (reply instanceof LogEnabled) {
-                       setupLogger(reply);
-                    }
+                    ContainerUtil.enableLogging(reply,getLogger());
                     ContainerUtil.contextualize(reply,context);
                     ContainerUtil.service(reply,m_manager);
 

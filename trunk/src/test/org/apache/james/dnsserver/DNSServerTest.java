@@ -18,6 +18,7 @@ package org.apache.james.dnsserver;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
@@ -97,14 +98,14 @@ public class DNSServerTest extends TestCase {
         Configuration c = db.build(
                 new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()),
                 "dnsserver");
-        dnsServer.enableLogging(new MockLogger());
-        dnsServer.configure(c);
-        dnsServer.initialize();
+        ContainerUtil.enableLogging(dnsServer, new MockLogger());
+        ContainerUtil.configure(dnsServer, c);
+        ContainerUtil.initialize(dnsServer);
     }
 
     protected void tearDown() throws Exception {
         dnsServer.setLookupper(null);
-        dnsServer.dispose();
+        ContainerUtil.dispose(dnsServer);
     }
 
     private class ZoneLookupper implements Lookupper {

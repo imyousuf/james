@@ -18,6 +18,7 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
@@ -86,23 +87,22 @@ public class SMTPServerTest extends TestCase {
     
     protected void setUp() throws Exception {
         m_smtpServer = new SMTPServer();
-        m_smtpServer.enableLogging(new MockLogger());
-
-        m_smtpServer.service(setUpServiceManager());
+        ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
+        ContainerUtil.service(m_smtpServer, setUpServiceManager());
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
     private void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        m_smtpServer.configure(testConfiguration);
-        m_smtpServer.initialize();
+        ContainerUtil.configure(m_smtpServer, testConfiguration);
+        ContainerUtil.initialize(m_smtpServer);
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize());
     }
 
     private MockServiceManager setUpServiceManager() throws Exception {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
-        connectionManager.enableLogging(new MockLogger());
+        ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         serviceManager.put("org.apache.mailet.MailetContext", new MockMailContext());
         m_mailServer = new MockMailServer();

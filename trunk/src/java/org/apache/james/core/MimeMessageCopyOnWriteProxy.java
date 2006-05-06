@@ -18,6 +18,7 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 
 import javax.activation.DataHandler;
 import javax.mail.Address;
@@ -754,9 +755,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         if (wrapped != null) {
             refCount.decrementReferenceCount();
             if (refCount.getReferenceCount()<=0) {
-                if (wrapped instanceof Disposable) {
-                    ((Disposable) wrapped).dispose();
-                }
+                ContainerUtil.dispose(wrapped);
             }
             wrapped = null;
         }

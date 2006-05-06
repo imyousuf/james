@@ -21,16 +21,17 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.context.Context;
 import org.apache.avalon.framework.context.ContextException;
 import org.apache.avalon.framework.context.Contextualizable;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.james.context.AvalonContextUtilities;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
 
 import javax.mail.internet.MimeMessage;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,9 +116,7 @@ class NNTPSpooler extends AbstractLogEnabled
 
         for ( int i = 0 ; i < worker.length ; i++ ) {
             worker[i] = new SpoolerRunnable(threadIdleTime,spoolPath);
-            if ( worker[i] instanceof LogEnabled ) {
-                ((LogEnabled)worker[i]).enableLogging(getLogger());
-            }
+            ContainerUtil.enableLogging(worker[i], getLogger());
         }
 
         // TODO: Replace this with a standard Avalon thread pool
