@@ -16,6 +16,7 @@
  ***********************************************************************/
 package org.apache.james.transport;
 
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.core.MailImpl;
@@ -217,13 +218,13 @@ public class LinearProcessorTest extends TestCase {
         super.setUp();
         t = new LinearProcessor();
         Logger l = new ConsoleLogger();
-        t.enableLogging(l);
-        t.initialize();
+        ContainerUtil.enableLogging(t, l);
+        ContainerUtil.initialize(t);
         
     }
     
     public void tearDown() throws Exception {
-        t.dispose();
+        ContainerUtil.dispose(t);
         super.tearDown();
     }
     

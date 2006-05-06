@@ -18,9 +18,9 @@
 
 package org.apache.james.remotemanager;
 
-import junit.framework.TestCase;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
@@ -45,6 +45,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 /**
  * Tests the org.apache.james.remotemanager.RemoteManager
  * TODO: impl missing command tests for: 
@@ -67,17 +69,16 @@ public class RemoteManagerTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
-        m_remoteManager.enableLogging(new MockLogger());
-
-        m_remoteManager.service(setUpServiceManager());
+        ContainerUtil.enableLogging(m_remoteManager, new MockLogger());
+        ContainerUtil.service(m_remoteManager, setUpServiceManager());
         m_testConfiguration = new RemoteManagerTestConfiguration(m_remoteManagerListenerPort);
     }
 
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) {
         testConfiguration.init();
         try {
-            m_remoteManager.configure(testConfiguration);
-            m_remoteManager.initialize();
+            ContainerUtil.configure(m_remoteManager, testConfiguration);
+            ContainerUtil.initialize(m_remoteManager);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -141,7 +142,7 @@ public class RemoteManagerTest extends TestCase {
     private MockServiceManager setUpServiceManager() {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
-        connectionManager.enableLogging(new MockLogger());
+        ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         MockMailServer mailServer = new MockMailServer();
         serviceManager.put(MailServer.ROLE, mailServer);

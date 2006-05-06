@@ -23,13 +23,11 @@ import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.LogEnabled;
-
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
@@ -152,12 +150,8 @@ public class RemoteManager
             theHandlerPool = new DefaultPool(theHandlerFactory, null, 5, 30);
             getLogger().debug("Using an unbounded pool for RemoteManager handlers.");
         }
-        if (theHandlerPool instanceof LogEnabled) {
-            ((LogEnabled)theHandlerPool).enableLogging(getLogger());
-        }
-        if (theHandlerPool instanceof Initializable) {
-            ((Initializable)theHandlerPool).initialize();
-        }
+        ContainerUtil.enableLogging(theHandlerPool, getLogger());
+        ContainerUtil.initialize(theHandlerPool);
 
         theWatchdogFactory = getWatchdogFactory();
     }
@@ -182,7 +176,7 @@ public class RemoteManager
     protected ConnectionHandler newHandler()
             throws Exception {
         RemoteManagerHandler theHandler = (RemoteManagerHandler)theHandlerPool.get();
-        theHandler.enableLogging(getLogger());
+        ContainerUtil.enableLogging(theHandler, getLogger());
 
         Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
 

@@ -107,7 +107,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         MimeMessage mm3 = getWrappedMessage(m2clone.getMessage());
         assertNotNull(mm3);
         // dispose m2 and check that the clone has still a valid message and it is the same!
-        ((MailImpl) m2).dispose();
+        ContainerUtil.dispose(m2);
         assertEquals(mm3,getWrappedMessage(m2clone.getMessage()));
         // change the message that should be not referenced by m2 that has
         // been disposed, so it should not clone it!
@@ -126,7 +126,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         MimeMessage mm = getWrappedMessage(mail.getMessage());
         assertNotSame(mail.getMessage(),mailClone.getMessage());
         // dispose mail and check that the clone has still a valid message and it is the same!
-        ((MailImpl) mail).dispose();
+        ContainerUtil.dispose(mail);
         // dumb test
         assertTrue(isSameMimeMessage(mailClone.getMessage(),mailClone.getMessage()));
         // change the message that should be not referenced by mail that has
@@ -143,12 +143,12 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         mail = new MailImpl("test",new MailAddress("test@test.com"),r,mw);
         // cloning the message
         MailImpl mailClone = (MailImpl) mail.duplicate();
-        mail.dispose();
+        ContainerUtil.dispose(mail);
 
         assertNotNull(getWrappedMessage(mailClone.getMessage()));
         assertNull(mail.getMessage());
 
-        mailClone.dispose();
+        ContainerUtil.dispose(mailClone);
         
         assertNull(mailClone.getMessage());
         assertNull(mail.getMessage());

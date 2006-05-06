@@ -18,6 +18,7 @@ package org.apache.james.pop3server;
 
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -70,23 +71,22 @@ public class POP3ServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_pop3Server = new POP3Server();
-        m_pop3Server.enableLogging(new MockLogger());
-
-        m_pop3Server.service(setUpServiceManager());
+        ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
+        ContainerUtil.service(m_pop3Server, setUpServiceManager());
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
     private void finishSetUp(POP3TestConfiguration testConfiguration)
             throws Exception {
         testConfiguration.init();
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.initialize();
+        ContainerUtil.configure(m_pop3Server, testConfiguration);
+        ContainerUtil.initialize(m_pop3Server);
     }
 
     private MockServiceManager setUpServiceManager() {
         MockServiceManager serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
-        connectionManager.enableLogging(new MockLogger());
+        ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_mailServer = new MockMailServer();
         serviceManager

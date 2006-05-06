@@ -17,16 +17,9 @@
 
 package org.apache.james.util.watchdog;
 
-import org.apache.avalon.excalibur.pool.DefaultPool;
-import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
-import org.apache.avalon.excalibur.pool.ObjectFactory;
-import org.apache.avalon.excalibur.pool.Pool;
-import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.excalibur.thread.ThreadPool;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.excalibur.thread.ThreadPool;
 
 /**
  * This class is a factory to produce Watchdogs, each of which is associated
@@ -65,7 +58,7 @@ public class ThreadPerWatchdogFactory
     public Watchdog getWatchdog(WatchdogTarget theTarget)
             throws Exception {
         InaccurateTimeoutWatchdog watchdog = new InaccurateTimeoutWatchdog(timeout, theTarget, myThreadPool);
-        watchdog.enableLogging(getLogger());
+        ContainerUtil.enableLogging(watchdog, getLogger());
         return watchdog;
     }
 }

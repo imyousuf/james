@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 
 import org.apache.avalon.framework.activity.Disposable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
 import org.apache.mailet.RFC2822Headers;
@@ -449,9 +450,7 @@ public class MimeMessageWrapper
         if (sourceIn != null) {
             IOUtil.shutdownStream(sourceIn);
         }
-        if (source instanceof Disposable) {
-            ((Disposable)source).dispose();
-        }
+        ContainerUtil.dispose(source);
     }
 
     /**

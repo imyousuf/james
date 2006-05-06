@@ -19,6 +19,7 @@
 package org.apache.james;
 
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MailServerTestAllImplementations;
 import org.apache.james.services.UsersRepository;
@@ -40,13 +41,13 @@ public class JamesTest extends MailServerTestAllImplementations {
         james.service(setUpServiceManager());
         MockLogger mockLogger = new MockLogger();
         mockLogger.disableDebug();
-        james.enableLogging(mockLogger);
+        ContainerUtil.enableLogging(james, mockLogger);
         try {
             JamesTestConfiguration conf = new JamesTestConfiguration();
             conf.init();
-            james.configure(conf);
-            james.contextualize(new MockContext(File.createTempFile("james_test", "tmp")));
-            james.initialize();
+            ContainerUtil.configure(james, conf);
+            ContainerUtil.contextualize(james, new MockContext(File.createTempFile("james_test", "tmp")));
+            ContainerUtil.initialize(james);
         } catch (Exception e) {
             e.printStackTrace();
             fail("James.initialize() failed");

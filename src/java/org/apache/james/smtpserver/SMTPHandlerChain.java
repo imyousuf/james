@@ -17,20 +17,19 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Locale;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -70,9 +69,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                             Object handler = classLoader.loadClass(className).newInstance();
 
                             //enable logging
-                            if (handler instanceof LogEnabled) {
-                                ((LogEnabled)handler).enableLogging(getLogger());
-                            }
+                            ContainerUtil.enableLogging(handler, getLogger());
 
                             //servicing the handler
                             ContainerUtil.service(handler,serviceManager);

@@ -22,7 +22,7 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
@@ -441,9 +441,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     protected WatchdogFactory getWatchdogFactory() {
         WatchdogFactory theWatchdogFactory = null;
         theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
-        if (theWatchdogFactory instanceof LogEnabled) {
-            ((LogEnabled)theWatchdogFactory).enableLogging(getLogger());
-        }
+        ContainerUtil.enableLogging(theWatchdogFactory,getLogger());
         return theWatchdogFactory;
      }
 

@@ -19,7 +19,6 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
@@ -414,9 +413,7 @@ public class SMTPHandler
 
               //do the clean up
               if(mail != null) {
-                  if (mail instanceof Disposable) {
-                      ((Disposable) mail).dispose();
-                  }
+                  ContainerUtil.dispose(mail);
                   
                   // remember the ehlo mode
                   Object currentHeloMode = state.get(CURRENT_HELO_MODE);
