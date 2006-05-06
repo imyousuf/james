@@ -163,7 +163,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
 
     /**
-     * The pool used to provide POP3 Handler objects
+     * The pool used to provide Protocol Handler objects
      */
     protected Pool theHandlerPool = null;
 
