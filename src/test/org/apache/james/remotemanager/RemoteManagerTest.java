@@ -94,7 +94,7 @@ public class RemoteManagerTest extends TestCase {
 
         List answers = readAnswer();
         String last = getLastLine(answers);
-        assertTrue(last.startsWith("Welcome"));
+        assertTrue("Last line does not start with Welcome: "+last,last.startsWith("Welcome"));
     }
 
     protected String getLastLine(List list) {
