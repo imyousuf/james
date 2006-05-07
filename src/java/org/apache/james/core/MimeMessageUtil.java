@@ -65,6 +65,19 @@ public class MimeMessageUtil {
                 return;
             }
         }
+        writeToInternal(message, headerOs, bodyOs, ignoreList);
+    }
+
+    /**
+     * @param message
+     * @param headerOs
+     * @param bodyOs
+     * @param ignoreList
+     * @throws MessagingException
+     * @throws IOException
+     * @throws UnsupportedDataTypeException
+     */
+    public static void writeToInternal(MimeMessage message, OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws MessagingException, IOException, UnsupportedDataTypeException {
         if(message.getMessageID() == null) {
             message.saveChanges();
         }
@@ -167,6 +180,18 @@ public class MimeMessageUtil {
     private static void writeHeadersTo(MimeMessage message, OutputStream headerOs, String[] ignoreList) throws MessagingException {
         //Write the headers (minus ignored ones)
         Enumeration headers = message.getNonMatchingHeaderLines(ignoreList);
+        writeHeadersTo(headers, headerOs);
+    }
+
+    /**
+     * Write the message headers to the given outputstream
+     * 
+     * @param message
+     * @param headerOs
+     * @param ignoreList
+     * @throws MessagingException
+     */
+    public static void writeHeadersTo(Enumeration headers, OutputStream headerOs) throws MessagingException {
         PrintWriter hos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
         while (headers.hasMoreElements()) {
             hos.println((String)headers.nextElement());

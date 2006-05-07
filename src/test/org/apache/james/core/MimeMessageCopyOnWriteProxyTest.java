@@ -210,6 +210,31 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         ContainerUtil.dispose(mw);
     }
 
+    
+    /**
+     * This test throw a NullPointerException when the original message was created by
+     * a MimeMessageInputStreamSource.
+     */
+    public void testMessageCloningViaCoW3() throws Exception {
+        MimeMessage mmorig = getSimpleMessage();
+        
+        MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
+        
+        ContainerUtil.dispose(mmorig);
+        mmorig = null;
+        System.gc();
+        Thread.sleep(200);
+
+        try {
+            mm.writeTo(System.out);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception while writing the message to output");
+        }
+        
+        ContainerUtil.dispose(mmorig);
+    }
+
     private static String getReferences(MimeMessage m) {
         StringBuffer ref = new StringBuffer("/");
         while (m instanceof MimeMessageCopyOnWriteProxy) {

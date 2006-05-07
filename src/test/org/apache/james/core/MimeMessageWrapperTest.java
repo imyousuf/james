@@ -147,6 +147,19 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         }
     }
 
+    /**
+     * See JAMES-474
+     * MimeMessageWrapper(MimeMessage) should clone the original message.
+     */
+    public void testMessageCloned() throws MessagingException, IOException, InterruptedException {
+        MimeMessageWrapper mmw = new MimeMessageWrapper(mw);
+        ContainerUtil.dispose(mw);
+        mw = null;
+        System.gc();
+        Thread.sleep(200);
+        mmw.writeTo(System.out);
+    }
+
     /*
      * Class under test for String getSubject()
      */

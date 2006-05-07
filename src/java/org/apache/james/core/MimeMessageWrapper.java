@@ -119,7 +119,8 @@ public class MimeMessageWrapper
             // this probably speed up things
             if (((MimeMessageWrapper) original).headers != null) {
                 ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                ((MailHeaders) ((MimeMessageWrapper) original).headers).writeTo(temp);
+                InternetHeaders ih = ((MimeMessageWrapper) original).headers;
+                MimeMessageUtil.writeHeadersTo(ih.getAllHeaderLines(),temp);
                 headers = createInternetHeaders(new ByteArrayInputStream(temp.toByteArray()));
                 headersModified = ((MimeMessageWrapper) original).headersModified;
             }
@@ -194,19 +195,22 @@ public class MimeMessageWrapper
         if (messageParsed) {
             //Another thread has already loaded this message
             return;
-        }
-        sourceIn = null;
-        try {
-            sourceIn = source.getInputStream();
-
-            parse(sourceIn);
-            // TODO is it ok?
-            saved = true;
-            
-        } catch (IOException ioe) {
-            IOUtil.shutdownStream(sourceIn);
+        } else if (source != null) {
             sourceIn = null;
-            throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
+            try {
+                sourceIn = source.getInputStream();
+    
+                parse(sourceIn);
+                // TODO is it ok?
+                saved = true;
+                
+            } catch (IOException ioe) {
+                IOUtil.shutdownStream(sourceIn);
+                sourceIn = null;
+                throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
+            }
+        } else {
+            throw new MessagingException("loadHeaders called for an unparsed message with no source");
         }
     }
 
@@ -223,7 +227,7 @@ public class MimeMessageWrapper
      * Rewritten for optimization purposes
      */
     public synchronized void writeTo(OutputStream os) throws IOException, MessagingException {
-        if (!isModified()) {
+        if (source != null && !isModified()) {
             // We do not want to instantiate the message... just read from source
             // and write to this outputstream
             InputStream in = source.getInputStream();
@@ -252,7 +256,7 @@ public class MimeMessageWrapper
     }
 
     public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
-        if (!isModified()) {
+        if (source != null && !isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
 
@@ -272,7 +276,7 @@ public class MimeMessageWrapper
                 IOUtil.shutdownStream(in);
             }
         } else {
-            MimeMessageUtil.writeTo(this, headerOs, bodyOs, ignoreList);
+            MimeMessageUtil.writeToInternal(this, headerOs, bodyOs, ignoreList);
         }
     }
 
@@ -329,7 +333,7 @@ public class MimeMessageWrapper
      * Returns size of message, ie headers and content
      */
     public long getMessageSize() throws MessagingException {
-        if (!isModified()) {
+        if (source != null && !isModified()) {
             try {
                 return source.getMessageSize();
             } catch (IOException ioe) {
@@ -450,7 +454,9 @@ public class MimeMessageWrapper
         if (sourceIn != null) {
             IOUtil.shutdownStream(sourceIn);
         }
-        ContainerUtil.dispose(source);
+        if (source != null) {
+            ContainerUtil.dispose(source);
+        }
     }
 
     /**
