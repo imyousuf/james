@@ -125,6 +125,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         super(Session.getDefaultInstance(System.getProperties(), null));
 
         this.wrapped = original;
+
         if (wrapped instanceof MimeMessageCopyOnWriteProxy) {
             refCount = ((MimeMessageCopyOnWriteProxy) wrapped).refCount;
             wrapped = ((MimeMessageCopyOnWriteProxy) wrapped).getWrappedMessage();
@@ -132,9 +133,12 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
             refCount = new ReferenceCounter();
         }
         
+        refCount.incrementReferenceCount();
+        /* Experimental: See JAMES-474
         if (!writeable) {
             refCount.incrementReferenceCount();
         }
+				*/
     }
 
     /**
