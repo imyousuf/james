@@ -47,33 +47,23 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
     /**
      * Used internally to track the reference count
+     * It is important that this is static otherwise it will keep a reference to
+     * the parent object.
      */
-    protected static class ReferenceCounter {
+    protected static class MessageReferenceTracker {
 
         /**
          * reference counter
          */
         private int referenceCount = 1;
-
+        
         /**
-         * @param original
-         *            MimeMessageWrapper
-         * @throws MessagingException
+         * The mime message in memory
          */
-        public ReferenceCounter() throws MessagingException {
-            this(0);
-        }
-
-        /**
-         * @param original
-         *            MimeMessage to wrap
-         * @param writable
-         *            if true we can alter the message itself, otherwise copy on
-         *            write it.
-         * @throws MessagingException
-         */
-        public ReferenceCounter(int startCounter) throws MessagingException {
-            referenceCount = startCounter;
+        private MimeMessage wrapped = null;
+        
+        public MessageReferenceTracker(MimeMessage ref) {
+            wrapped = ref;
         }
 
         protected synchronized void incrementReferenceCount() {
@@ -82,15 +72,23 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
         protected synchronized void decrementReferenceCount() {
             referenceCount--;
+            if (referenceCount<=0) {
+                ContainerUtil.dispose(wrapped);
+                wrapped = null;
+            }
         }
 
         protected synchronized int getReferenceCount() {
             return referenceCount;
         }
 
+        public MimeMessage getWrapped() {
+            return wrapped;
+        }
+
     }
 
-    protected ReferenceCounter refCount;
+    protected MessageReferenceTracker refCount;
 
     /**
      * @param original
@@ -124,14 +122,10 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
             throws MessagingException {
         super(Session.getDefaultInstance(System.getProperties(), null));
 
-        this.wrapped = original;
-
-        if (wrapped instanceof MimeMessageCopyOnWriteProxy) {
-            refCount = ((MimeMessageCopyOnWriteProxy) wrapped).refCount;
-            wrapped = ((MimeMessageCopyOnWriteProxy) wrapped).getWrappedMessage();
+        if (original instanceof MimeMessageCopyOnWriteProxy) {
+            refCount = ((MimeMessageCopyOnWriteProxy) original).refCount;
         } else {
-            // Experimental: Seel JAMES-474
-            refCount = new ReferenceCounter(1);
+            refCount = new MessageReferenceTracker(original);
         }
         
         if (!writeable) {
@@ -141,31 +135,44 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
     /**
      * Check the number of references over the MimeMessage and clone it if
-     * needed.
+     * needed before returning the reference
      * 
      * @throws MessagingException
      *             exception
      */
-    protected void checkCopyOnWrite() throws MessagingException {
+    protected MimeMessage getWrappedMessageForWriting() throws MessagingException {
         synchronized (refCount) {
             if (refCount.getReferenceCount() > 1) {
                 refCount.decrementReferenceCount();
-                refCount = new ReferenceCounter(1);
-                wrapped = new MimeMessageWrapper(wrapped);
+                refCount = new MessageReferenceTracker(new MimeMessageWrapper(refCount.getWrapped()));
             }
         }
+        return refCount.getWrapped();
+    }
+    
+    /**
+     * @return
+     */
+    public MimeMessage getWrappedMessage() {
+        return refCount.getWrapped();
     }
 
+
     /**
-     * The mime message in memory
+     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
-    protected MimeMessage wrapped = null;
+    public synchronized void dispose() {
+        if (refCount != null) {
+            refCount.decrementReferenceCount();
+            refCount = null;
+        }
+    }
 
     /**
      * Rewritten for optimization purposes
      */
     public void writeTo(OutputStream os) throws IOException, MessagingException {
-        wrapped.writeTo(os);
+        getWrappedMessage().writeTo(os);
     }
 
     /**
@@ -173,7 +180,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void writeTo(OutputStream os, String[] ignoreList)
             throws IOException, MessagingException {
-        wrapped.writeTo(os, ignoreList);
+        getWrappedMessage().writeTo(os, ignoreList);
     }
 
     /**
@@ -184,7 +191,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @see javax.mail.Message#getFrom()
      */
     public Address[] getFrom() throws MessagingException {
-        return wrapped.getFrom();
+        return getWrappedMessage().getFrom();
     }
 
     /**
@@ -192,154 +199,154 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public Address[] getRecipients(Message.RecipientType type)
             throws MessagingException {
-        return wrapped.getRecipients(type);
+        return getWrappedMessage().getRecipients(type);
     }
 
     /**
      * @see javax.mail.Message#getAllRecipients()
      */
     public Address[] getAllRecipients() throws MessagingException {
-        return wrapped.getAllRecipients();
+        return getWrappedMessage().getAllRecipients();
     }
 
     /**
      * @see javax.mail.Message#getReplyTo()
      */
     public Address[] getReplyTo() throws MessagingException {
-        return wrapped.getReplyTo();
+        return getWrappedMessage().getReplyTo();
     }
 
     /**
      * @see javax.mail.Message#getSubject()
      */
     public String getSubject() throws MessagingException {
-        return wrapped.getSubject();
+        return getWrappedMessage().getSubject();
     }
 
     /**
      * @see javax.mail.Message#getSentDate()
      */
     public Date getSentDate() throws MessagingException {
-        return wrapped.getSentDate();
+        return getWrappedMessage().getSentDate();
     }
 
     /**
      * @see javax.mail.Message#getReceivedDate()
      */
     public Date getReceivedDate() throws MessagingException {
-        return wrapped.getReceivedDate();
+        return getWrappedMessage().getReceivedDate();
     }
 
     /**
      * @see javax.mail.Part#getSize()
      */
     public int getSize() throws MessagingException {
-        return wrapped.getSize();
+        return getWrappedMessage().getSize();
     }
 
     /**
      * @see javax.mail.Part#getLineCount()
      */
     public int getLineCount() throws MessagingException {
-        return wrapped.getLineCount();
+        return getWrappedMessage().getLineCount();
     }
 
     /**
      * @see javax.mail.Part#getContentType()
      */
     public String getContentType() throws MessagingException {
-        return wrapped.getContentType();
+        return getWrappedMessage().getContentType();
     }
 
     /**
      * @see javax.mail.Part#isMimeType(java.lang.String)
      */
     public boolean isMimeType(String mimeType) throws MessagingException {
-        return wrapped.isMimeType(mimeType);
+        return getWrappedMessage().isMimeType(mimeType);
     }
 
     /**
      * @see javax.mail.Part#getDisposition()
      */
     public String getDisposition() throws MessagingException {
-        return wrapped.getDisposition();
+        return getWrappedMessage().getDisposition();
     }
 
     /**
      * @see javax.mail.internet.MimePart#getEncoding()
      */
     public String getEncoding() throws MessagingException {
-        return wrapped.getEncoding();
+        return getWrappedMessage().getEncoding();
     }
 
     /**
      * @see javax.mail.internet.MimePart#getContentID()
      */
     public String getContentID() throws MessagingException {
-        return wrapped.getContentID();
+        return getWrappedMessage().getContentID();
     }
 
     /**
      * @see javax.mail.internet.MimePart#getContentMD5()
      */
     public String getContentMD5() throws MessagingException {
-        return wrapped.getContentMD5();
+        return getWrappedMessage().getContentMD5();
     }
 
     /**
      * @see javax.mail.Part#getDescription()
      */
     public String getDescription() throws MessagingException {
-        return wrapped.getDescription();
+        return getWrappedMessage().getDescription();
     }
 
     /**
      * @see javax.mail.internet.MimePart#getContentLanguage()
      */
     public String[] getContentLanguage() throws MessagingException {
-        return wrapped.getContentLanguage();
+        return getWrappedMessage().getContentLanguage();
     }
 
     /**
      * @see javax.mail.internet.MimeMessage#getMessageID()
      */
     public String getMessageID() throws MessagingException {
-        return wrapped.getMessageID();
+        return getWrappedMessage().getMessageID();
     }
 
     /**
      * @see javax.mail.Part#getFileName()
      */
     public String getFileName() throws MessagingException {
-        return wrapped.getFileName();
+        return getWrappedMessage().getFileName();
     }
 
     /**
      * @see javax.mail.Part#getInputStream()
      */
     public InputStream getInputStream() throws IOException, MessagingException {
-        return wrapped.getInputStream();
+        return getWrappedMessage().getInputStream();
     }
 
     /**
      * @see javax.mail.Part#getDataHandler()
      */
     public DataHandler getDataHandler() throws MessagingException {
-        return wrapped.getDataHandler();
+        return getWrappedMessage().getDataHandler();
     }
 
     /**
      * @see javax.mail.Part#getContent()
      */
     public Object getContent() throws IOException, MessagingException {
-        return wrapped.getContent();
+        return getWrappedMessage().getContent();
     }
 
     /**
      * @see javax.mail.Part#getHeader(java.lang.String)
      */
     public String[] getHeader(String name) throws MessagingException {
-        return wrapped.getHeader(name);
+        return getWrappedMessage().getHeader(name);
     }
 
     /**
@@ -347,14 +354,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public String getHeader(String name, String delimiter)
             throws MessagingException {
-        return wrapped.getHeader(name, delimiter);
+        return getWrappedMessage().getHeader(name, delimiter);
     }
 
     /**
      * @see javax.mail.Part#getAllHeaders()
      */
     public Enumeration getAllHeaders() throws MessagingException {
-        return wrapped.getAllHeaders();
+        return getWrappedMessage().getAllHeaders();
     }
 
     /**
@@ -362,7 +369,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public Enumeration getMatchingHeaders(String[] names)
             throws MessagingException {
-        return wrapped.getMatchingHeaders(names);
+        return getWrappedMessage().getMatchingHeaders(names);
     }
 
     /**
@@ -370,14 +377,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public Enumeration getNonMatchingHeaders(String[] names)
             throws MessagingException {
-        return wrapped.getNonMatchingHeaders(names);
+        return getWrappedMessage().getNonMatchingHeaders(names);
     }
 
     /**
      * @see javax.mail.internet.MimePart#getAllHeaderLines()
      */
     public Enumeration getAllHeaderLines() throws MessagingException {
-        return wrapped.getAllHeaderLines();
+        return getWrappedMessage().getAllHeaderLines();
     }
 
     /**
@@ -385,7 +392,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public Enumeration getMatchingHeaderLines(String[] names)
             throws MessagingException {
-        return wrapped.getMatchingHeaderLines(names);
+        return getWrappedMessage().getMatchingHeaderLines(names);
     }
 
     /**
@@ -393,84 +400,84 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public Enumeration getNonMatchingHeaderLines(String[] names)
             throws MessagingException {
-        return wrapped.getNonMatchingHeaderLines(names);
+        return getWrappedMessage().getNonMatchingHeaderLines(names);
     }
 
     /**
      * @see javax.mail.Message#getFlags()
      */
     public Flags getFlags() throws MessagingException {
-        return wrapped.getFlags();
+        return getWrappedMessage().getFlags();
     }
 
     /**
      * @see javax.mail.Message#isSet(javax.mail.Flags.Flag)
      */
     public boolean isSet(Flags.Flag flag) throws MessagingException {
-        return wrapped.isSet(flag);
+        return getWrappedMessage().isSet(flag);
     }
 
     /**
      * @see javax.mail.internet.MimeMessage#getSender()
      */
     public Address getSender() throws MessagingException {
-        return wrapped.getSender();
+        return getWrappedMessage().getSender();
     }
 
     /**
      * @see javax.mail.Message#match(javax.mail.search.SearchTerm)
      */
     public boolean match(SearchTerm arg0) throws MessagingException {
-        return wrapped.match(arg0);
+        return getWrappedMessage().match(arg0);
     }
 
     /**
      * @see javax.mail.internet.MimeMessage#getRawInputStream()
      */
     public InputStream getRawInputStream() throws MessagingException {
-        return wrapped.getRawInputStream();
+        return getWrappedMessage().getRawInputStream();
     }
 
     /**
      * @see javax.mail.Message#getFolder()
      */
     public Folder getFolder() {
-        return wrapped.getFolder();
+        return getWrappedMessage().getFolder();
     }
 
     /**
      * @see javax.mail.Message#getMessageNumber()
      */
     public int getMessageNumber() {
-        return wrapped.getMessageNumber();
+        return getWrappedMessage().getMessageNumber();
     }
 
     /**
      * @see javax.mail.Message#isExpunged()
      */
     public boolean isExpunged() {
-        return wrapped.isExpunged();
+        return getWrappedMessage().isExpunged();
     }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object arg0) {
-        return wrapped.equals(arg0);
+        return getWrappedMessage().equals(arg0);
     }
 
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return wrapped.hashCode();
+        return getWrappedMessage().hashCode();
     }
 
     /**
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return wrapped.toString();
+        return getWrappedMessage().toString();
     }
 
     /*
@@ -481,24 +488,21 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @see javax.mail.Message#setFrom(javax.mail.Address)
      */
     public void setFrom(Address address) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setFrom(address);
+        getWrappedMessageForWriting().setFrom(address);
     }
 
     /**
      * @see javax.mail.Message#setFrom()
      */
     public void setFrom() throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setFrom();
+        getWrappedMessageForWriting().setFrom();
     }
 
     /**
      * @see javax.mail.Message#addFrom(javax.mail.Address[])
      */
     public void addFrom(Address[] addresses) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addFrom(addresses);
+        getWrappedMessageForWriting().addFrom(addresses);
     }
 
     /**
@@ -506,8 +510,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setRecipients(Message.RecipientType type, Address[] addresses)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setRecipients(type, addresses);
+        getWrappedMessageForWriting().setRecipients(type, addresses);
     }
 
     /**
@@ -515,24 +518,21 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void addRecipients(Message.RecipientType type, Address[] addresses)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addRecipients(type, addresses);
+        getWrappedMessageForWriting().addRecipients(type, addresses);
     }
 
     /**
      * @see javax.mail.Message#setReplyTo(javax.mail.Address[])
      */
     public void setReplyTo(Address[] addresses) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setReplyTo(addresses);
+        getWrappedMessageForWriting().setReplyTo(addresses);
     }
 
     /**
      * @see javax.mail.Message#setSubject(java.lang.String)
      */
     public void setSubject(String subject) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setSubject(subject);
+        getWrappedMessageForWriting().setSubject(subject);
     }
 
     /**
@@ -540,48 +540,42 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setSubject(String subject, String charset)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setSubject(subject, charset);
+        getWrappedMessageForWriting().setSubject(subject, charset);
     }
 
     /**
      * @see javax.mail.Message#setSentDate(java.util.Date)
      */
     public void setSentDate(Date d) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setSentDate(d);
+        getWrappedMessageForWriting().setSentDate(d);
     }
 
     /**
      * @see javax.mail.Part#setDisposition(java.lang.String)
      */
     public void setDisposition(String disposition) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setDisposition(disposition);
+        getWrappedMessageForWriting().setDisposition(disposition);
     }
 
     /**
      * @see javax.mail.internet.MimeMessage#setContentID(java.lang.String)
      */
     public void setContentID(String cid) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setContentID(cid);
+        getWrappedMessageForWriting().setContentID(cid);
     }
 
     /**
      * @see javax.mail.internet.MimePart#setContentMD5(java.lang.String)
      */
     public void setContentMD5(String md5) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setContentMD5(md5);
+        getWrappedMessageForWriting().setContentMD5(md5);
     }
 
     /**
      * @see javax.mail.Part#setDescription(java.lang.String)
      */
     public void setDescription(String description) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setDescription(description);
+        getWrappedMessageForWriting().setDescription(description);
     }
 
     /**
@@ -589,8 +583,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setDescription(String description, String charset)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setDescription(description, charset);
+        getWrappedMessageForWriting().setDescription(description, charset);
     }
 
     /**
@@ -598,109 +591,99 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setContentLanguage(String[] languages)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setContentLanguage(languages);
+        getWrappedMessageForWriting().setContentLanguage(languages);
     }
 
     /**
      * @see javax.mail.Part#setFileName(java.lang.String)
      */
     public void setFileName(String filename) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setFileName(filename);
+        getWrappedMessageForWriting().setFileName(filename);
     }
 
     /**
      * @see javax.mail.Part#setDataHandler(javax.activation.DataHandler)
      */
     public void setDataHandler(DataHandler dh) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setDataHandler(dh);
+        getWrappedMessageForWriting().setDataHandler(dh);
     }
 
     /**
      * @see javax.mail.Part#setContent(java.lang.Object, java.lang.String)
      */
     public void setContent(Object o, String type) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setContent(o, type);
+        getWrappedMessageForWriting().setContent(o, type);
     }
 
     /**
      * @see javax.mail.Part#setText(java.lang.String)
      */
     public void setText(String text) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setText(text);
+        getWrappedMessageForWriting().setText(text);
     }
 
     /**
      * @see javax.mail.internet.MimePart#setText(java.lang.String, java.lang.String)
      */
     public void setText(String text, String charset) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setText(text, charset);
+        getWrappedMessageForWriting().setText(text, charset);
     }
 
     /**
      * @see javax.mail.Part#setContent(javax.mail.Multipart)
      */
     public void setContent(Multipart mp) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setContent(mp);
+        getWrappedMessageForWriting().setContent(mp);
     }
 
+    /**
+     * This does not need a writable message
+     * @see javax.mail.Message#reply(boolean)
+     */
     public Message reply(boolean replyToAll) throws MessagingException {
-        checkCopyOnWrite();
-        return wrapped.reply(replyToAll);
+        return getWrappedMessage().reply(replyToAll);
     }
 
     /**
      * @see javax.mail.Part#setHeader(java.lang.String, java.lang.String)
      */
     public void setHeader(String name, String value) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setHeader(name, value);
+        getWrappedMessageForWriting().setHeader(name, value);
     }
 
     /**
      * @see javax.mail.Part#addHeader(java.lang.String, java.lang.String)
      */
     public void addHeader(String name, String value) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addHeader(name, value);
+        getWrappedMessageForWriting().addHeader(name, value);
     }
 
     /**
      * @see javax.mail.Part#removeHeader(java.lang.String)
      */
     public void removeHeader(String name) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.removeHeader(name);
+        getWrappedMessageForWriting().removeHeader(name);
     }
 
     /**
      * @see javax.mail.internet.MimePart#addHeaderLine(java.lang.String)
      */
     public void addHeaderLine(String line) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addHeaderLine(line);
+        getWrappedMessageForWriting().addHeaderLine(line);
     }
 
     /**
      * @see javax.mail.Message#setFlags(javax.mail.Flags, boolean)
      */
     public void setFlags(Flags flag, boolean set) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setFlags(flag, set);
+        getWrappedMessageForWriting().setFlags(flag, set);
     }
 
     /**
      * @see javax.mail.Message#saveChanges()
      */
     public void saveChanges() throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.saveChanges();
+        getWrappedMessageForWriting().saveChanges();
     }
 
     /*
@@ -712,8 +695,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void addRecipients(Message.RecipientType type, String addresses)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addRecipients(type, addresses);
+        getWrappedMessageForWriting().addRecipients(type, addresses);
     }
 
     /**
@@ -721,16 +703,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void setRecipients(Message.RecipientType type, String addresses)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setRecipients(type, addresses);
+        getWrappedMessageForWriting().setRecipients(type, addresses);
     }
 
     /**
      * @see javax.mail.internet.MimeMessage#setSender(javax.mail.Address)
      */
     public void setSender(Address arg0) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setSender(arg0);
+        getWrappedMessageForWriting().setSender(arg0);
     }
 
     /**
@@ -738,29 +718,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
     public void addRecipient(RecipientType arg0, Address arg1)
             throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.addRecipient(arg0, arg1);
+        getWrappedMessageForWriting().addRecipient(arg0, arg1);
     }
 
     /**
      * @see javax.mail.Message#setFlag(javax.mail.Flags.Flag, boolean)
      */
     public void setFlag(Flag arg0, boolean arg1) throws MessagingException {
-        checkCopyOnWrite();
-        wrapped.setFlag(arg0, arg1);
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
-     */
-    public synchronized void dispose() {
-        if (wrapped != null) {
-            refCount.decrementReferenceCount();
-            if (refCount.getReferenceCount()<=0) {
-                ContainerUtil.dispose(wrapped);
-            }
-            wrapped = null;
-        }
+        getWrappedMessageForWriting().setFlag(arg0, arg1);
     }
 
     /**
@@ -776,14 +741,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @throws MessagingException 
      */
     public long getMessageSize() throws MessagingException {
-        return MimeMessageUtil.getMessageSize(wrapped);
-    }
-
-    /**
-     * @return
-     */
-    public MimeMessage getWrappedMessage() {
-        return wrapped;
+        return MimeMessageUtil.getMessageSize(getWrappedMessage());
     }
 
 }
