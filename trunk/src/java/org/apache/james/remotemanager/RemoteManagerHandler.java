@@ -17,7 +17,6 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.services.JamesUser;
@@ -28,12 +27,7 @@ import org.apache.mailet.MailAddress;
 
 import javax.mail.internet.ParseException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.Locale;
@@ -141,11 +135,6 @@ public class RemoteManagerHandler
     private UsersRepository users;
 
     /**
-     * The reader associated with incoming commands.
-     */
-    private BufferedReader in;
-
-    /**
      * Set the configuration data for the handler.
      *
      * @param theData the configuration data
@@ -164,133 +153,86 @@ public class RemoteManagerHandler
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
-    public void handleConnection( final Socket connection )
-        throws IOException {
+    protected void handleProtocol() throws IOException {
+        writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
+        writeLoggedResponse("Please enter your login and password");
+        String login = null;
+        String password = null;
+        do {
+            if (login != null) {
+                final String message = "Login failed for " + login;
+                writeLoggedFlushedResponse(message);
+            }
+            writeLoggedFlushedResponse("Login id:");
+            login = inReader.readLine().trim();
+            writeLoggedFlushedResponse("Password:");
+            password = inReader.readLine().trim();
+        } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
-        socket = connection;
-        String remoteIP = socket.getInetAddress().getHostAddress();
-        String remoteHost = socket.getInetAddress().getHostName();
-
-        synchronized (this) {
-            handlerThread = Thread.currentThread();
+        StringBuffer messageBuffer =
+            new StringBuffer(64)
+                    .append("Welcome ")
+                    .append(login)
+                    .append(". HELP for a list of commands");
+        out.println( messageBuffer.toString() );
+        out.flush();
+        if (getLogger().isInfoEnabled()) {
+            StringBuffer infoBuffer =
+                new StringBuffer(128)
+                        .append("Login for ")
+                        .append(login)
+                        .append(" successful");
+            getLogger().info(infoBuffer.toString());
         }
 
         try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 512), false);
-            if (getLogger().isInfoEnabled()) {
-                StringBuffer infoBuffer =
-                    new StringBuffer(128)
-                            .append("Access from ")
-                            .append(remoteHost)
-                            .append("(")
-                            .append(remoteIP)
-                            .append(")");
-                getLogger().info( infoBuffer.toString() );
-            }
-            writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
-            writeLoggedResponse("Please enter your login and password");
-            String login = null;
-            String password = null;
-            do {
-                if (login != null) {
-                    final String message = "Login failed for " + login;
-                    writeLoggedFlushedResponse(message);
-                }
-                writeLoggedFlushedResponse("Login id:");
-                login = in.readLine().trim();
-                writeLoggedFlushedResponse("Password:");
-                password = in.readLine().trim();
-            } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
-
-            StringBuffer messageBuffer =
-                new StringBuffer(64)
-                        .append("Welcome ")
-                        .append(login)
-                        .append(". HELP for a list of commands");
-            out.println( messageBuffer.toString() );
+            out.print(theConfigData.getPrompt());
             out.flush();
-            if (getLogger().isInfoEnabled()) {
-                StringBuffer infoBuffer =
-                    new StringBuffer(128)
-                            .append("Login for ")
-                            .append(login)
-                            .append(" successful");
-                getLogger().info(infoBuffer.toString());
-            }
-
-            try {
+            theWatchdog.start();
+            while (parseCommand(inReader.readLine())) {
+                theWatchdog.reset();
                 out.print(theConfigData.getPrompt());
                 out.flush();
-                theWatchdog.start();
-                while (parseCommand(in.readLine())) {
-                    theWatchdog.reset();
-                    out.print(theConfigData.getPrompt());
-                    out.flush();
-                }
-                theWatchdog.stop();
-            } catch (IOException ioe) {
-                //We can cleanly ignore this as it's probably a socket timeout
-            } catch (Throwable thr) {
-                System.out.println("Exception: " + thr.getMessage());
-                getLogger().error("Encountered exception in handling the remote manager connection.", thr);
             }
-            StringBuffer infoBuffer =
-                new StringBuffer(64)
-                        .append("Logout for ")
-                        .append(login)
-                        .append(".");
-            getLogger().info(infoBuffer.toString());
+            theWatchdog.stop();
+        } catch (IOException ioe) {
+            //We can cleanly ignore this as it's probably a socket timeout
+        } catch (Throwable thr) {
+            System.out.println("Exception: " + thr.getMessage());
+            getLogger().error("Encountered exception in handling the remote manager connection.", thr);
+        }
+        StringBuffer infoBuffer =
+            new StringBuffer(64)
+                    .append("Logout for ")
+                    .append(login)
+                    .append(".");
+        getLogger().info(infoBuffer.toString());
 
-        } catch ( final IOException e ) {
-            out.println("Error. Closing connection");
-            out.flush();
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(128)
-                            .append("Exception during connection from ")
-                            .append(remoteHost)
-                            .append(" (")
-                            .append(remoteIP)
-                            .append("): ")
-                            .append(e.getMessage());
-                getLogger().error(exceptionBuffer.toString());
-            }
-        } finally {
-            resetHandler();
+    }
+    
+    /**
+     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     */
+    protected void errorHandler(RuntimeException e) {
+        out.println("Unexpected Error: "+e.getMessage());
+        out.flush();
+        if (getLogger().isErrorEnabled()) {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128)
+                        .append("Exception during connection from ")
+                        .append(remoteHost)
+                        .append(" (")
+                        .append(remoteIP)
+                        .append("): ")
+                        .append(e.getMessage());
+            getLogger().error(exceptionBuffer.toString(),e);
         }
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    private void resetHandler() {
-
-        // Clear the Watchdog
-        if (theWatchdog != null) {
-            ContainerUtil.dispose(theWatchdog);
-            theWatchdog = null;
-        }
-
-        in = null;
-        out = null;
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Exception closing socket: "
-                                  + e.getMessage());
-            }
-        } finally {
-            socket = null;
-        }
-
-        synchronized (this) {
-            handlerThread = null;
-        }
-
+    protected void resetHandler() {
         // Reset user repository
         users = theConfigData.getUsersRepository();
 

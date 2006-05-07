@@ -17,7 +17,6 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.collections.ListUtils;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
@@ -25,20 +24,16 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.CRLFTerminatedReader;
 import org.apache.james.util.ExtraDotOutputStream;
-import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -96,16 +91,6 @@ public class POP3Handler
     private MailRepository userInbox;
 
     /**
-     * The reader associated with incoming characters.
-     */
-    private CRLFTerminatedReader in;
-
-    /**
-     * The socket's output stream
-     */
-    private OutputStream outs;
-
-    /**
      * The current transaction state of the handler
      */
     private int state;
@@ -140,155 +125,58 @@ public class POP3Handler
     }
     
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
+     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
      */
-    public void handleConnection( Socket connection )
-            throws IOException {
+    protected void handleProtocol() throws IOException {
+        state = AUTHENTICATION_READY;
+        user = "unknown";
+        StringBuffer responseBuffer =
+            new StringBuffer(256)
+                    .append(OK_RESPONSE)
+                    .append(" ")
+                    .append(theConfigData.getHelloName())
+                    .append(" POP3 server (")
+                    .append(POP3Handler.softwaretype)
+                    .append(") ready ");
+        out.println(responseBuffer.toString());
+        out.flush();
 
-        String remoteHost = "";
-        String remoteIP = "";
-
-        try {
-            this.socket = connection;
-            synchronized (this) {
-                handlerThread = Thread.currentThread();
-            }
-            // in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ASCII"), 512);
-            in = new CRLFTerminatedReader(new BufferedInputStream(socket.getInputStream(), 512), "ASCII");
-            remoteIP = socket.getInetAddress().getHostAddress ();
-            remoteHost = socket.getInetAddress().getHostName ();
-        } catch (Exception e) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(256)
-                            .append("Cannot open connection from ")
-                            .append(remoteHost)
-                            .append(" (")
-                            .append(remoteIP)
-                            .append("): ")
-                            .append(e.getMessage());
-                getLogger().error( exceptionBuffer.toString(), e );
-            }
+        theWatchdog.start();
+        while (parseCommand(readCommandLine())) {
+            theWatchdog.reset();
         }
-
+        theWatchdog.stop();
         if (getLogger().isInfoEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
-                        .append("Connection from ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(") ");
+                    .append("Connection for ")
+                    .append(user)
+                    .append(" from ")
+                    .append(remoteHost)
+                    .append(" (")
+                    .append(remoteIP)
+                    .append(") closed.");
             getLogger().info(logBuffer.toString());
         }
-
+    }
+    
+    /**
+     * @see org.apache.james.core.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     */
+    protected void errorHandler(RuntimeException e) {
+        super.errorHandler(e);
         try {
-            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
-            out = new InternetPrintWriter(outs, true);
-            state = AUTHENTICATION_READY;
-            user = "unknown";
-            StringBuffer responseBuffer =
-                new StringBuffer(256)
-                        .append(OK_RESPONSE)
-                        .append(" ")
-                        .append(theConfigData.getHelloName())
-                        .append(" POP3 server (")
-                        .append(POP3Handler.softwaretype)
-                        .append(") ready ");
-            out.println(responseBuffer.toString());
-            out.flush();
-
-            theWatchdog.start();
-            while (parseCommand(readCommandLine())) {
-                theWatchdog.reset();
-            }
-            theWatchdog.stop();
-            if (getLogger().isInfoEnabled()) {
-                StringBuffer logBuffer =
-                    new StringBuffer(128)
-                        .append("Connection for ")
-                        .append(user)
-                        .append(" from ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(") closed.");
-                getLogger().info(logBuffer.toString());
-            }
-        } catch (Exception e) {
             out.println(ERR_RESPONSE + " Error closing connection.");
             out.flush();
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128)
-                        .append("Exception during connection from ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(") : ")
-                        .append(e.getMessage());
-            getLogger().error(exceptionBuffer.toString(), e );
-        } finally {
-            resetHandler();
+        } catch (Throwable t) {
+            
         }
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    private void resetHandler() {
-
-        if (theWatchdog != null) {
-            ContainerUtil.dispose(theWatchdog);
-            theWatchdog = null;
-        }
-
-        // Close and clear streams, sockets
-
-        try {
-            if (socket != null) {
-                socket.close();
-                socket = null;
-            }
-        } catch (IOException ioe) {
-            // Ignoring exception on close
-        } finally {
-            socket = null;
-        }
-
-        try {
-            if (in != null) {
-                in.close();
-            }
-        } catch (Exception e) {
-            // Ignored
-        } finally {
-            in = null;
-        }
-
-        try {
-            if (out != null) {
-                out.close();
-            }
-        } catch (Exception e) {
-            // Ignored
-        } finally {
-            out = null;
-        }
-
-        try {
-           if (outs != null) {
-               outs.close();
-            }
-        } catch (Exception e) {
-            // Ignored
-        } finally {
-            outs = null;
-        }
-
-        synchronized (this) {
-            handlerThread = null;
-        }
-
+    protected void resetHandler() {
         // Clear user data
         user = null;
         userInbox = null;
@@ -346,7 +234,7 @@ public class POP3Handler
      */
     final String readCommandLine() throws IOException {
         for (;;) try {
-            String commandLine = in.readLine();
+            String commandLine = inReader.readLine();
             if (commandLine != null) {
                 commandLine = commandLine.trim();
             }
@@ -1020,5 +908,6 @@ public class POP3Handler
     private void doUnknownCmd(String command,String argument,String argument1) {
         writeLoggedFlushedResponse(ERR_RESPONSE);
     }
+
 }
 
