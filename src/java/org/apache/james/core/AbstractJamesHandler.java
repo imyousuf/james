@@ -19,12 +19,22 @@ package org.apache.james.core;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.util.CRLFTerminatedReader;
+import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.james.util.watchdog.WatchdogTarget;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * Common Handler code
@@ -49,6 +59,21 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
     protected PrintWriter out;
     
     /**
+     * The incoming stream of bytes coming from the socket.
+     */
+    protected InputStream in;
+
+    /**
+     * The reader associated with incoming characters.
+     */
+    protected CRLFTerminatedReader inReader;
+
+    /**
+     * The socket's output stream
+     */
+    protected OutputStream outs;
+    
+    /**
      * The watchdog being used by this handler to deal with idle timeouts.
      */
     protected Watchdog theWatchdog;
@@ -58,8 +83,199 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
      */
     private WatchdogTarget theWatchdogTarget = new JamesWatchdogTarget();
 
-
+    /**
+     * This method will be implemented checking for the correct class
+     * type.
+     * 
+     * @param theData Configuration Bean.
+     */
     public abstract void setConfigurationData(Object theData);
+    
+
+    /**
+     * The remote host name obtained by lookup on the socket.
+     */
+    protected String remoteHost = null;
+
+    /**
+     * The remote IP address of the socket.
+     */
+    protected String remoteIP = null;
+
+    /**
+     * Helper method for accepting connections.
+     * This MUST be called in the specializations.
+     */
+    protected void initHandler( Socket connection ) throws IOException {
+        this.socket = connection;
+        remoteIP = socket.getInetAddress().getHostAddress();
+        remoteHost = socket.getInetAddress().getHostName();
+        try {
+            synchronized (this) {
+                handlerThread = Thread.currentThread();
+            }
+            in = new BufferedInputStream(socket.getInputStream(), 1024);
+            // An ASCII encoding can be used because all transmissions other
+            // that those in the message body command are guaranteed
+            // to be ASCII
+            inReader = new CRLFTerminatedReader(in, "ASCII");
+            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
+            out = new InternetPrintWriter(outs, true);
+        } catch (RuntimeException e) {
+            StringBuffer exceptionBuffer = 
+                new StringBuffer(256)
+                    .append("Unexpected exception opening from ")
+                    .append(remoteHost)
+                    .append(" (")
+                    .append(remoteIP)
+                    .append("): ")
+                    .append(e.getMessage());
+            String exceptionString = exceptionBuffer.toString();
+            getLogger().error(exceptionString, e);
+            throw e;
+        } catch (IOException e) {
+            StringBuffer exceptionBuffer = 
+                new StringBuffer(256)
+                    .append("Cannot open connection from ")
+                    .append(remoteHost)
+                    .append(" (")
+                    .append(remoteIP)
+                    .append("): ")
+                    .append(e.getMessage());
+            String exceptionString = exceptionBuffer.toString();
+            getLogger().error(exceptionString, e);
+            throw e;
+        }
+        
+        if (getLogger().isInfoEnabled()) {
+            StringBuffer infoBuffer =
+                new StringBuffer(128)
+                        .append("Connection from ")
+                        .append(remoteHost)
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(")");
+            getLogger().info(infoBuffer.toString());
+        }
+    }
+
+    /**
+     * The method clean up and close the allocated resources
+     */
+    private void cleanHandler() {
+        // Clear the Watchdog
+        if (theWatchdog != null) {
+            ContainerUtil.dispose(theWatchdog);
+            theWatchdog = null;
+        }
+
+        // Clear the streams
+        try {
+            if (inReader != null) {
+                inReader.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().warn("Handler: Unexpected exception occurred while closing reader: " + ioe);
+        } finally {
+            inReader = null;
+        }
+
+        in = null;
+
+        if (out != null) {
+            out.close();
+            out = null;
+        }
+        outs = null;
+
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException ioe) {
+            getLogger().warn("Handler: Unexpected exception occurred while closing socket: " + ioe);
+        } finally {
+            socket = null;
+        }
+        
+        remoteIP = null;
+        remoteHost = null;
+
+        synchronized (this) {
+            handlerThread = null;
+        }
+    }
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(java.net.Socket)
+     */
+    public void handleConnection(Socket connection) throws IOException {
+        initHandler(connection);
+
+        try {
+            
+            // Do something:
+            handleProtocol();
+            
+            getLogger().debug("Closing socket.");
+        } catch (SocketException se) {
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(64)
+                        .append("Socket to ")
+                        .append(remoteHost)
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(") closed remotely.");
+                getLogger().error(errorBuffer.toString(), se );
+            }
+        } catch ( InterruptedIOException iioe ) {
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(64)
+                        .append("Socket to ")
+                        .append(remoteHost)
+                        .append(" (")
+                        .append(remoteIP)
+                        .append(") timeout.");
+                getLogger().error( errorBuffer.toString(), iioe );
+            }
+        } catch ( IOException ioe ) {
+            if (getLogger().isErrorEnabled()) {
+                StringBuffer errorBuffer =
+                    new StringBuffer(256)
+                            .append("Exception handling socket to ")
+                            .append(remoteHost)
+                            .append(" (")
+                            .append(remoteIP)
+                            .append(") : ")
+                            .append(ioe.getMessage());
+                getLogger().error( errorBuffer.toString(), ioe );
+            }
+        } catch (RuntimeException e) {
+            errorHandler(e);
+        } finally {
+            //Clear all the session state variables
+            cleanHandler();
+            resetHandler();
+        }
+    }
+
+    /**
+     * @param e 
+     */
+    protected void errorHandler(RuntimeException e) {
+        if (getLogger().isErrorEnabled()) {
+            getLogger().error( "Unexpected runtime exception: "
+                               + e.getMessage(), e );
+        }
+    }
+
+
+    protected abstract void handleProtocol() throws IOException;
+
+
+    protected abstract void resetHandler();
 
 
     /**
@@ -163,6 +379,5 @@ public abstract class AbstractJamesHandler extends AbstractLogEnabled implements
         }
 
     }
-
 
 }

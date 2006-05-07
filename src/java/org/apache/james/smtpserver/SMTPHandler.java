@@ -21,19 +21,12 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.util.CRLFTerminatedReader;
-import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.dates.RFC822DateFormat;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -107,26 +100,6 @@ public class SMTPHandler
     private boolean sessionEnded = false;
 
     /**
-     * The incoming stream of bytes coming from the socket.
-     */
-    private InputStream in;
-
-    /**
-     * A Reader wrapper for the incoming stream of bytes coming from the socket.
-     */
-    private CRLFTerminatedReader inReader;
-
-    /**
-     * The remote host name obtained by lookup on the socket.
-     */
-    private String remoteHost;
-
-    /**
-     * The remote IP address of the socket.
-     */
-    private String remoteIP;
-
-    /**
      * The user name of the authenticated user associated with this SMTP transaction.
      */
     private String authenticatedUser;
@@ -189,261 +162,151 @@ public class SMTPHandler
     }
     
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
+     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
      */
-    public void handleConnection(Socket connection) throws IOException {
+    protected void handleProtocol() throws IOException {
+        smtpID = random.nextInt(1024) + "";
+        relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
+        authRequired = theConfigData.isAuthRequired(remoteIP);
+        heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
+        sessionEnded = false;
+        resetState();
 
-        try {
-            this.socket = connection;
-            synchronized (this) {
-                handlerThread = Thread.currentThread();
-            }
-            in = new BufferedInputStream(socket.getInputStream(), 1024);
-            // An ASCII encoding can be used because all transmissions other
-            // that those in the DATA command are guaranteed
-            // to be ASCII
-            // inReader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
-            inReader = new CRLFTerminatedReader(in, "ASCII");
-            remoteIP = socket.getInetAddress().getHostAddress();
-            remoteHost = socket.getInetAddress().getHostName();
-            smtpID = random.nextInt(1024) + "";
-            relayingAllowed = theConfigData.isRelayingAllowed(remoteIP);
-            authRequired = theConfigData.isAuthRequired(remoteIP);
-            heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
-            sessionEnded = false;
-            resetState();
-        } catch (Exception e) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(256)
-                    .append("Cannot open connection from ")
-                    .append(remoteHost)
-                    .append(" (")
-                    .append(remoteIP)
-                    .append("): ")
-                    .append(e.getMessage());
-            String exceptionString = exceptionBuffer.toString();
-            getLogger().error(exceptionString, e );
-            throw new RuntimeException(exceptionString);
-        }
+        // Initially greet the connector
+        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
 
-        if (getLogger().isInfoEnabled()) {
-            StringBuffer infoBuffer =
-                new StringBuffer(128)
-                        .append("Connection from ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(")");
-            getLogger().info(infoBuffer.toString());
-        }
+        responseBuffer.append("220 ")
+                      .append(theConfigData.getHelloName())
+                      .append(" SMTP Server (")
+                      .append(SOFTWARE_TYPE)
+                      .append(") ready ")
+                      .append(rfc822DateFormat.format(new Date()));
+        String responseString = clearResponseBuffer();
+        writeLoggedFlushedResponse(responseString);
 
-        try {
+        //the core in-protocol handling logic
+        //run all the connection handlers, if it fast fails, end the session
+        //parse the command command, look up for the list of command handlers
+        //Execute each of the command handlers. If any command handlers writes
+        //response then, End the subsequent command handler processing and
+        //start parsing new command. Once the message is received, run all
+        //the message handlers. The message handlers can either terminate
+        //message or terminate session
 
-            out = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()), 1024), false);
+        //At the beginning
+        //mode = command_mode
+        //once the commandHandler writes response, the mode is changed to RESPONSE_MODE.
+        //This will cause to skip the subsequent command handlers configured for that command.
+        //For instance:
+        //There are 2 commandhandlers MailAddressChecker and MailCmdHandler for
+        //MAIL command. If MailAddressChecker validation of the MAIL FROM
+        //address is successful, the MailCmdHandlers will be executed.
+        //Incase it fails, it has to write response. Once we write response
+        //there is no need to execute the MailCmdHandler.
+        //Next, Once MAIL message is received the DataCmdHandler and any other
+        //equivalent commandHandler will call setMail method. this will change
+        //he mode to MAIL_RECEIVED_MODE. This mode will trigger the message
+        //handlers to be execute. Message handlers can abort message. In that case,
+        //message will not spooled.
 
-            // Initially greet the connector
-            // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-
-            responseBuffer.append("220 ")
-                          .append(theConfigData.getHelloName())
-                          .append(" SMTP Server (")
-                          .append(SOFTWARE_TYPE)
-                          .append(") ready ")
-                          .append(rfc822DateFormat.format(new Date()));
-            String responseString = clearResponseBuffer();
-            writeLoggedFlushedResponse(responseString);
-
-            //the core in-protocol handling logic
-            //run all the connection handlers, if it fast fails, end the session
-            //parse the command command, look up for the list of command handlers
-            //Execute each of the command handlers. If any command handlers writes
-            //response then, End the subsequent command handler processing and
-            //start parsing new command. Once the message is received, run all
-            //the message handlers. The message handlers can either terminate
-            //message or terminate session
-
-            //At the beginning
-            //mode = command_mode
-            //once the commandHandler writes response, the mode is changed to RESPONSE_MODE.
-            //This will cause to skip the subsequent command handlers configured for that command.
-            //For instance:
-            //There are 2 commandhandlers MailAddressChecker and MailCmdHandler for
-            //MAIL command. If MailAddressChecker validation of the MAIL FROM
-            //address is successful, the MailCmdHandlers will be executed.
-            //Incase it fails, it has to write response. Once we write response
-            //there is no need to execute the MailCmdHandler.
-            //Next, Once MAIL message is received the DataCmdHandler and any other
-            //equivalent commandHandler will call setMail method. this will change
-            //he mode to MAIL_RECEIVED_MODE. This mode will trigger the message
-            //handlers to be execute. Message handlers can abort message. In that case,
-            //message will not spooled.
-
-            //Session started - RUN all connect handlers
-            List connectHandlers = handlerChain.getConnectHandlers();
-            if(connectHandlers != null) {
-                int count = connectHandlers.size();
-                for(int i = 0; i < count; i++) {
-                    ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
-                    if(sessionEnded) {
-                        break;
-                    }
+        //Session started - RUN all connect handlers
+        List connectHandlers = handlerChain.getConnectHandlers();
+        if(connectHandlers != null) {
+            int count = connectHandlers.size();
+            for(int i = 0; i < count; i++) {
+                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
+                if(sessionEnded) {
+                    break;
                 }
             }
-
-            theWatchdog.start();
-            while(!sessionEnded) {
-              //Reset the current command values
-              curCommandName = null;
-              curCommandArgument = null;
-              mode = COMMAND_MODE;
-
-              //parse the command
-              String cmdString =  readCommandLine();
-              if (cmdString == null) {
-                  break;
-              }
-              int spaceIndex = cmdString.indexOf(" ");
-              if (spaceIndex > 0) {
-                  curCommandName = cmdString.substring(0, spaceIndex);
-                  curCommandArgument = cmdString.substring(spaceIndex + 1);
-              } else {
-                  curCommandName = cmdString;
-              }
-              curCommandName = curCommandName.toUpperCase(Locale.US);
-
-              //fetch the command handlers registered to the command
-              List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
-              if(commandHandlers == null) {
-                  //end the session
-                  break;
-              } else {
-                  int count = commandHandlers.size();
-                  for(int i = 0; i < count; i++) {
-                      ((CommandHandler)commandHandlers.get(i)).onCommand(this);
-                      theWatchdog.reset();
-                      //if the response is received, stop processing of command handlers
-                      if(mode != COMMAND_MODE) {
-                          break;
-                      }
-                  }
-
-              }
-
-              //handle messages
-              if(mode == MESSAGE_RECEIVED_MODE) {
-                  getLogger().info("executing message handlers");
-                  List messageHandlers = handlerChain.getMessageHandlers();
-                  int count = messageHandlers.size();
-                  for(int i =0; i < count; i++) {
-                      ((MessageHandler)messageHandlers.get(i)).onMessage(this);
-                      //if the response is received, stop processing of command handlers
-                      if(mode == MESSAGE_ABORT_MODE) {
-                          break;
-                      }
-                  }
-              }
-
-              //do the clean up
-              if(mail != null) {
-                  ContainerUtil.dispose(mail);
-                  
-                  // remember the ehlo mode
-                  Object currentHeloMode = state.get(CURRENT_HELO_MODE);
-                  
-                  mail = null;
-                  resetState();
-
-                  // start again with the old helo mode
-                  if (currentHeloMode != null) {
-                      state.put(CURRENT_HELO_MODE,currentHeloMode);
-                  }
-              }
-
-            }
-            theWatchdog.stop();
-            getLogger().debug("Closing socket.");
-        } catch (SocketException se) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(64)
-                        .append("Socket to ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(") closed remotely.");
-                getLogger().error(errorBuffer.toString(), se );
-            }
-        } catch ( InterruptedIOException iioe ) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(64)
-                        .append("Socket to ")
-                        .append(remoteHost)
-                        .append(" (")
-                        .append(remoteIP)
-                        .append(") timeout.");
-                getLogger().error( errorBuffer.toString(), iioe );
-            }
-        } catch ( IOException ioe ) {
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(256)
-                            .append("Exception handling socket to ")
-                            .append(remoteHost)
-                            .append(" (")
-                            .append(remoteIP)
-                            .append(") : ")
-                            .append(ioe.getMessage());
-                getLogger().error( errorBuffer.toString(), ioe );
-            }
-        } catch (Exception e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error( "Exception opening socket: "
-                                   + e.getMessage(), e );
-            }
-        } finally {
-            //Clear all the session state variables
-            resetHandler();
         }
+
+        theWatchdog.start();
+        while(!sessionEnded) {
+          //Reset the current command values
+          curCommandName = null;
+          curCommandArgument = null;
+          mode = COMMAND_MODE;
+
+          //parse the command
+          String cmdString =  readCommandLine();
+          if (cmdString == null) {
+              break;
+          }
+          int spaceIndex = cmdString.indexOf(" ");
+          if (spaceIndex > 0) {
+              curCommandName = cmdString.substring(0, spaceIndex);
+              curCommandArgument = cmdString.substring(spaceIndex + 1);
+          } else {
+              curCommandName = cmdString;
+          }
+          curCommandName = curCommandName.toUpperCase(Locale.US);
+
+          //fetch the command handlers registered to the command
+          List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
+          if(commandHandlers == null) {
+              //end the session
+              break;
+          } else {
+              int count = commandHandlers.size();
+              for(int i = 0; i < count; i++) {
+                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
+                  theWatchdog.reset();
+                  //if the response is received, stop processing of command handlers
+                  if(mode != COMMAND_MODE) {
+                      break;
+                  }
+              }
+
+          }
+
+          //handle messages
+          if(mode == MESSAGE_RECEIVED_MODE) {
+              getLogger().info("executing message handlers");
+              List messageHandlers = handlerChain.getMessageHandlers();
+              int count = messageHandlers.size();
+              for(int i =0; i < count; i++) {
+                  ((MessageHandler)messageHandlers.get(i)).onMessage(this);
+                  //if the response is received, stop processing of command handlers
+                  if(mode == MESSAGE_ABORT_MODE) {
+                      break;
+                  }
+              }
+          }
+
+          //do the clean up
+          if(mail != null) {
+              ContainerUtil.dispose(mail);
+              
+              // remember the ehlo mode
+              Object currentHeloMode = state.get(CURRENT_HELO_MODE);
+              
+              mail = null;
+              resetState();
+
+              // start again with the old helo mode
+              if (currentHeloMode != null) {
+                  state.put(CURRENT_HELO_MODE,currentHeloMode);
+              }
+          }
+
+        }
+        theWatchdog.stop();
+        getLogger().debug("Closing socket.");
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    private void resetHandler() {
+    protected void resetHandler() {
         resetState();
 
         clearResponseBuffer();
-        in = null;
-        inReader = null;
-        out = null;
+
         remoteHost = null;
         remoteIP = null;
         authenticatedUser = null;
         smtpID = null;
-
-        if (theWatchdog != null) {
-            ContainerUtil.dispose(theWatchdog);
-            theWatchdog = null;
-        }
-
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Exception closing socket: "
-                                  + e.getMessage());
-            }
-        } finally {
-            socket = null;
-        }
-
-        synchronized (this) {
-            handlerThread = null;
-        }
-
     }
 
    /**

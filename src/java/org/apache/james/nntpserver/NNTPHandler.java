@@ -17,7 +17,6 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
@@ -25,23 +24,16 @@ import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.util.CharTerminatedInputStream;
 import org.apache.james.util.DotStuffingInputStream;
 import org.apache.james.util.ExtraDotOutputStream;
-import org.apache.james.util.InternetPrintWriter;
 import org.apache.mailet.dates.RFC2980DateFormat;
 import org.apache.mailet.dates.RFC977DateFormat;
 import org.apache.mailet.dates.SimplifiedDateFormat;
 
 import javax.mail.MessagingException;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.SequenceInputStream;
-import java.net.Socket;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -222,31 +214,6 @@ public class NNTPHandler
     private final static char[] NNTPTerminator = { '\r', '\n', '.', '\r', '\n' };
 
     /**
-     * The remote host name obtained by lookup on the socket.
-     */
-    private String remoteHost;
-
-    /**
-     * The remote IP address of the socket.
-     */
-    private String remoteIP;
-
-    /**
-     * The incoming stream of bytes coming from the socket.
-     */
-    private InputStream in;
-
-    /**
-     * The reader associated with incoming characters.
-     */
-    private BufferedReader reader;
-
-    /**
-     * The socket's output stream
-     */
-    private OutputStream outs;
-
-    /**
      * The current newsgroup.
      */
     private NNTPGroup group;
@@ -292,123 +259,52 @@ public class NNTPHandler
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
+     * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
      */
-    public void handleConnection( Socket connection ) throws IOException {
-        try {
-            this.socket = connection;
-            synchronized (this) {
-                handlerThread = Thread.currentThread();
-            }
-            remoteIP = socket.getInetAddress().getHostAddress();
-            remoteHost = socket.getInetAddress().getHostName();
-            in = new BufferedInputStream(socket.getInputStream(), 1024);
-            // An ASCII encoding can be used because all transmissions other
-            // that those in the message body command are guaranteed
-            // to be ASCII
-            reader = new BufferedReader(new InputStreamReader(in, "ASCII"), 512);
-            outs = new BufferedOutputStream(socket.getOutputStream(), 1024);
-            out = new InternetPrintWriter(outs, true);
-        } catch (Exception e) {
-            StringBuffer exceptionBuffer = 
-                new StringBuffer(256)
-                    .append("Cannot open connection from ")
-                    .append(remoteHost)
-                    .append(" (")
-                    .append(remoteIP)
-                    .append("): ")
-                    .append(e.getMessage());
-            String exceptionString = exceptionBuffer.toString();
-            getLogger().error(exceptionString, e );
+    protected void handleProtocol() throws IOException {
+        // section 7.1
+        if ( theConfigData.getNNTPRepository().isReadOnly() ) {
+            StringBuffer respBuffer =
+                new StringBuffer(128)
+                    .append("201 ")
+                    .append(theConfigData.getHelloName())
+                    .append(" NNTP Service Ready, posting prohibited");
+            writeLoggedFlushedResponse(respBuffer.toString());
+        } else {
+            StringBuffer respBuffer =
+                new StringBuffer(128)
+                        .append("200 ")
+                        .append(theConfigData.getHelloName())
+                        .append(" NNTP Service Ready, posting permitted");
+            writeLoggedFlushedResponse(respBuffer.toString());
         }
 
-        try {
-            // section 7.1
-            if ( theConfigData.getNNTPRepository().isReadOnly() ) {
-                StringBuffer respBuffer =
-                    new StringBuffer(128)
-                        .append("201 ")
-                        .append(theConfigData.getHelloName())
-                        .append(" NNTP Service Ready, posting prohibited");
-                writeLoggedFlushedResponse(respBuffer.toString());
-            } else {
-                StringBuffer respBuffer =
-                    new StringBuffer(128)
-                            .append("200 ")
-                            .append(theConfigData.getHelloName())
-                            .append(" NNTP Service Ready, posting permitted");
-                writeLoggedFlushedResponse(respBuffer.toString());
-            }
+        theWatchdog.start();
+        while (parseCommand(inReader.readLine())) {
+            theWatchdog.reset();
+        }
+        theWatchdog.stop();
 
-            theWatchdog.start();
-            while (parseCommand(reader.readLine())) {
-                theWatchdog.reset();
-            }
-            theWatchdog.stop();
-
-            getLogger().info("Connection closed");
-        } catch (Exception e) {
-            // If the connection has been idled out, the
-            // socket will be closed and null.  Do NOT
-            // log the exception or attempt to send the
-            // closing connection message
-            if (socket != null) {
-                try {
-                    doQUIT(null);
-                } catch (Throwable t) {}
-                getLogger().error( "Exception during connection:" + e.getMessage(), e );
-            }
-        } finally {
-            resetHandler();
+        getLogger().info("Connection closed");
+    }
+    
+    protected void errorHandler(RuntimeException e) {
+        super.errorHandler(e);
+        // If the connection has been idled out, the
+        // socket will be closed and null.  Do NOT
+        // log the exception or attempt to send the
+        // closing connection message
+        if (socket != null) {
+            try {
+                doQUIT(null);
+            } catch (Throwable t) {}
         }
     }
 
     /**
      * Resets the handler data to a basic state.
      */
-    private void resetHandler() {
-
-        // Clear the Watchdog
-        if (theWatchdog != null) {
-            ContainerUtil.dispose(theWatchdog);
-            theWatchdog = null;
-        }
-
-        // Clear the streams
-        try {
-            if (reader != null) {
-                reader.close();
-            }
-        } catch (IOException ioe) {
-            getLogger().warn("NNTPHandler: Unexpected exception occurred while closing reader: " + ioe);
-        } finally {
-            reader = null;
-        }
-
-        in = null;
-
-        if (out != null) {
-            out.close();
-            out = null;
-        }
-        outs = null;
-
-        remoteHost = null;
-        remoteIP = null;
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (IOException ioe) {
-            getLogger().warn("NNTPHandler: Unexpected exception occurred while closing socket: " + ioe);
-        } finally {
-            socket = null;
-        }
-
-        synchronized (this) {
-            handlerThread = null;
-        }
-
+    protected void resetHandler() {
         // Clear the selected group, article info
         group = null;
         currentArticleNumber = -1;
