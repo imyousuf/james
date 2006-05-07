@@ -21,10 +21,12 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
 
@@ -109,6 +111,10 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         ContainerUtil.dispose(messageFromSources);
     }
     
+    /**
+     * If I create a new MimeMessageCopyOnWriteProxy from another MimeMessageCopyOnWriteProxy,
+     * I remove references to the first and I change the second, then it should not clone
+     */
     public void testMessageAvoidCloning() throws Exception {
         ArrayList r = new ArrayList();
         r.add(new MailAddress("recipient@test.com"));
@@ -134,6 +140,31 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         assertTrue(isSameMimeMessage(mailClone.getMessage(),mm));
         ContainerUtil.dispose(mailClone);
         ContainerUtil.dispose(mm);
+    }
+
+    
+    /**
+     * If I create a new MimeMessageCopyOnWriteProxy from a MimeMessage and I change the new 
+     * message, the original should be unaltered and the proxy should clone the message.
+     */
+    public void testMessageCloning3() throws Exception {
+        ArrayList r = new ArrayList();
+        r.add(new MailAddress("recipient@test.com"));
+        MimeMessage m = new MimeMessage(Session.getDefaultInstance(new Properties(null)));
+        m.setText("CIPS");
+        MailImpl mail = new MailImpl("test",new MailAddress("test@test.com"),r,m);
+        assertTrue(isSameMimeMessage(m,mail.getMessage()));
+        // change the message that should be not referenced by mail that has
+        // been disposed, so it should not clone it!
+        System.gc();
+        Thread.sleep(100);
+        mail.getMessage().setSubject("new Subject 2");
+        mail.getMessage().setText("new Body 3");
+        System.gc();
+        Thread.sleep(100);
+        assertFalse(isSameMimeMessage(m,mail.getMessage()));
+        ContainerUtil.dispose(mail);
+        ContainerUtil.dispose(m);
     }
 
     
