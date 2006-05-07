@@ -130,15 +130,13 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
             refCount = ((MimeMessageCopyOnWriteProxy) wrapped).refCount;
             wrapped = ((MimeMessageCopyOnWriteProxy) wrapped).getWrappedMessage();
         } else {
-            refCount = new ReferenceCounter();
+            // Experimental: Seel JAMES-474
+            refCount = new ReferenceCounter(1);
         }
         
-        refCount.incrementReferenceCount();
-        /* Experimental: See JAMES-474
         if (!writeable) {
             refCount.incrementReferenceCount();
         }
-				*/
     }
 
     /**
