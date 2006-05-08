@@ -17,63 +17,60 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesHandler;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.CRLFTerminatedReader;
-import org.apache.james.util.ExtraDotOutputStream;
-import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
+import org.apache.james.util.watchdog.Watchdog;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 /**
  * The handler class for POP3 connections.
  *
  */
 public class POP3Handler
-    extends AbstractJamesHandler {
+    extends AbstractJamesHandler implements POP3Session {
+
+    private final static byte COMMAND_MODE = 1;
+    private final static byte RESPONSE_MODE = 2;
 
     // POP3 Server identification string used in POP3 headers
     private static final String softwaretype        = "JAMES POP3 Server "
                                                         + Constants.SOFTWARE_VERSION;
 
     // POP3 response prefixes
-    private final static String OK_RESPONSE = "+OK";    // OK response.  Requested content
+    final static String OK_RESPONSE = "+OK";    // OK response.  Requested content
                                                         // will follow
 
-    private final static String ERR_RESPONSE = "-ERR";  // Error response.  Requested content
+    final static String ERR_RESPONSE = "-ERR";  // Error response.  Requested content
                                                         // will not be provided.  This prefix
                                                         // is followed by a more detailed
                                                         // error message
 
     // Authentication states for the POP3 interaction
 
-    private final static int AUTHENTICATION_READY = 0;    // Waiting for user id
+    final static int AUTHENTICATION_READY = 0;    // Waiting for user id
 
-    private final static int AUTHENTICATION_USERSET = 1;  // User id provided, waiting for
+    final static int AUTHENTICATION_USERSET = 1;  // User id provided, waiting for
                                                           // password
 
-    private final static int TRANSACTION = 2;             // A valid user id/password combination
+    final static int TRANSACTION = 2;             // A valid user id/password combination
                                                           // has been provided.  In this state
                                                           // the client can access the mailbox
                                                           // of the specified user
 
-    private static final Mail DELETED = new MailImpl();   // A placeholder for emails deleted
+    static final Mail DELETED = new MailImpl();   // A placeholder for emails deleted
                                                           // during the course of the POP3
                                                           // transaction.  This Mail instance
                                                           // is used to enable fast checks as
@@ -93,12 +90,7 @@ public class POP3Handler
     /**
      * The current transaction state of the handler
      */
-    private int state;
-
-    /**
-     * The user id associated with the POP3 dialogue
-     */
-    private String user;
+    private int handlerState;
 
     /**
      * A dynamic list representing the set of
@@ -111,6 +103,53 @@ public class POP3Handler
                                                  // emails in the user's inbox at the beginning
                                                  // of the transaction
 
+    /**
+     * The per-handler response buffer used to marshal responses.
+     */
+    private StringBuffer responseBuffer = new StringBuffer(256);
+
+
+    /**
+     * The name of the currently parsed command
+     */
+    String curCommandName =  null;
+
+    /**
+     * The value of the currently parsed command
+     */
+    String curCommandArgument =  null;
+
+    /**
+     * The POP3HandlerChain object set by POP3Server
+     */
+    POP3HandlerChain handlerChain = null;
+
+    /**
+     * The session termination status
+     */
+    private boolean sessionEnded = false;
+
+
+    /**
+     * The hash map that holds variables for the POP3 message transfer in progress.
+     *
+     * This hash map should only be used to store variable set in a particular
+     * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
+     * connection values should be stored as member variables in this class.
+     */
+    private HashMap state = new HashMap();
+
+    /**
+     * The user name of the authenticated user associated with this POP3 transaction.
+     */
+    private String authenticatedUser;
+
+    /**
+     * The mode of the current session
+     */
+    private byte mode;
+    
+    
     /**
      * Set the configuration data for the handler.
      *
@@ -128,29 +167,89 @@ public class POP3Handler
      * @see org.apache.james.core.AbstractJamesHandler#handleProtocol()
      */
     protected void handleProtocol() throws IOException {
-        state = AUTHENTICATION_READY;
-        user = "unknown";
-        StringBuffer responseBuffer =
-            new StringBuffer(256)
-                    .append(OK_RESPONSE)
+        handlerState = AUTHENTICATION_READY;
+        authenticatedUser = "unknown";
+        
+        resetState();
+
+        // Initially greet the connector
+        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
+        responseBuffer.append(OK_RESPONSE)
                     .append(" ")
                     .append(theConfigData.getHelloName())
                     .append(" POP3 server (")
                     .append(POP3Handler.softwaretype)
                     .append(") ready ");
-        out.println(responseBuffer.toString());
-        out.flush();
+        String responseString = clearResponseBuffer();
+        writeLoggedFlushedResponse(responseString);
 
+        //Session started - RUN all connect handlers
+        List connectHandlers = handlerChain.getConnectHandlers();
+        if(connectHandlers != null) {
+            int count = connectHandlers.size();
+            for(int i = 0; i < count; i++) {
+                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
+                if(sessionEnded) {
+                    break;
+                }
+            }
+        }
+
+        
         theWatchdog.start();
-        while (parseCommand(readCommandLine())) {
-            theWatchdog.reset();
+        while(!sessionEnded) {
+          //Reset the current command values
+          curCommandName = null;
+          curCommandArgument = null;
+          mode = COMMAND_MODE;
+
+          //parse the command
+          String cmdString =  readCommandLine();
+          if (cmdString == null) {
+              break;
+          }
+          int spaceIndex = cmdString.indexOf(" ");
+          if (spaceIndex > 0) {
+              curCommandName = cmdString.substring(0, spaceIndex);
+              curCommandArgument = cmdString.substring(spaceIndex + 1);
+          } else {
+              curCommandName = cmdString;
+          }
+          curCommandName = curCommandName.toUpperCase(Locale.US);
+
+          if (getLogger().isDebugEnabled()) {
+              // Don't display password in logger
+              if (!curCommandName.equals("PASS")) {
+                  getLogger().debug("Command received: " + cmdString);
+              } else {
+                  getLogger().debug("Command received: PASS <password omitted>");
+              }
+          }
+
+          //fetch the command handlers registered to the command
+          List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
+          if(commandHandlers == null) {
+              //end the session
+              break;
+          } else {
+              int count = commandHandlers.size();
+              for(int i = 0; i < count; i++) {
+                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
+                  theWatchdog.reset();
+                  //if the response is received, stop processing of command handlers
+                  if(mode != COMMAND_MODE) {
+                      break;
+                  }
+              }
+
+          }
         }
         theWatchdog.stop();
         if (getLogger().isInfoEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
                     .append("Connection for ")
-                    .append(user)
+                    .append(getUser())
                     .append(" from ")
                     .append(remoteHost)
                     .append(" (")
@@ -178,7 +277,7 @@ public class POP3Handler
      */
     protected void resetHandler() {
         // Clear user data
-        user = null;
+        authenticatedUser = null;
         userInbox = null;
         if (userMailbox != null) {
             userMailbox.clear();
@@ -203,7 +302,7 @@ public class POP3Handler
      * user inbox.
      *
      */
-    private void stat() {
+    public void stat() {
         userMailbox = new ArrayList();
         userMailbox.add(DELETED);
         try {
@@ -232,7 +331,7 @@ public class POP3Handler
      * @return the trimmed input line
      * @throws IOException if an exception is generated reading in the input characters
      */
-    final String readCommandLine() throws IOException {
+    public final String readCommandLine() throws IOException {
         for (;;) try {
             String commandLine = inReader.readLine();
             if (commandLine != null) {
@@ -251,663 +350,182 @@ public class POP3Handler
      * command specific handler methods.  The primary purpose of this method is
      * to parse the raw command string to determine exactly which handler should
      * be called.  It returns true if expecting additional commands, false otherwise.
-     *
-     * @param rawCommand the raw command string passed in over the socket
-     *
-     * @return whether additional commands are expected.
      */
-    private boolean parseCommand(String rawCommand) {
-        if (rawCommand == null) {
-            return false;
-        }
-        boolean returnValue = true;
-        String command = rawCommand;
-        StringTokenizer commandLine = new StringTokenizer(command, " ");
-        int arguments = commandLine.countTokens();
-        if (arguments == 0) {
-            return true;
-        } else if(arguments > 0) {
-            command = commandLine.nextToken().toUpperCase(Locale.US);
-        }
-        if (getLogger().isDebugEnabled()) {
-            // Don't display password in logger
-            if (!command.equals("PASS")) {
-                getLogger().debug("Command received: " + rawCommand);
-            } else {
-                getLogger().debug("Command received: PASS <password omitted>");
-            }
-        }
-        String argument = null;
-        if(arguments > 1) {
-            argument = commandLine.nextToken();
-        }
-        String argument1 = null;
-        if(arguments > 2) {
-            argument1 = commandLine.nextToken();
-        }
-
-        if (command.equals("USER")) {
-            doUSER(command,argument,argument1);
-        } else if (command.equals("PASS")) {
-            doPASS(command,argument,argument1);
-        } else if (command.equals("STAT")) {
-            doSTAT(command,argument,argument1);
-        } else if (command.equals("LIST")) {
-            doLIST(command,argument,argument1);
-        } else if (command.equals("UIDL")) {
-            doUIDL(command,argument,argument1);
-        } else if (command.equals("RSET")) {
-            doRSET(command,argument,argument1);
-        } else if (command.equals("DELE")) {
-            doDELE(command,argument,argument1);
-        } else if (command.equals("NOOP")) {
-            doNOOP(command,argument,argument1);
-        } else if (command.equals("RETR")) {
-            doRETR(command,argument,argument1);
-        } else if (command.equals("TOP")) {
-            doTOP(command,argument,argument1);
-        } else if (command.equals("QUIT")) {
-            returnValue = false;
-            doQUIT(command,argument,argument1);
-        } else {
-            doUnknownCmd(command,argument,argument1);
-        }
-        return returnValue;
+    
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getRemoteHost()
+     */
+    public String getRemoteHost() {
+        return remoteHost;
     }
 
     /**
-     * Handler method called upon receipt of a USER command.
-     * Reads in the user id.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getRemoteIPAddress()
      */
-    private void doUSER(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == AUTHENTICATION_READY && argument != null) {
-            user = argument;
-            state = AUTHENTICATION_USERSET;
-            responseString = OK_RESPONSE;
-        } else {
-            responseString = ERR_RESPONSE;
-        }
-        writeLoggedFlushedResponse(responseString);
+    public String getRemoteIPAddress() {
+        return remoteIP;
     }
 
     /**
-     * Handler method called upon receipt of a PASS command.
-     * Reads in and validates the password.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#endSession()
      */
-    private void doPASS(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == AUTHENTICATION_USERSET && argument != null) {
-            String passArg = argument;
-            if (theConfigData.getUsersRepository().test(user, passArg)) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append(OK_RESPONSE)
-                            .append(" Welcome ")
-                            .append(user);
-                responseString = responseBuffer.toString();
-                state = TRANSACTION;
-                writeLoggedFlushedResponse(responseString);
-                userInbox = theConfigData.getMailServer().getUserInbox(user);
-                stat();
-            } else {
-                responseString = ERR_RESPONSE + " Authentication failed.";
-                state = AUTHENTICATION_READY;
-                writeLoggedFlushedResponse(responseString);
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
+    public void endSession() {
+        sessionEnded = true;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#isSessionEnded()
+     */
+    public boolean isSessionEnded() {
+        return sessionEnded;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#resetState()
+     */
+    public void resetState() {
+        state.clear();
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getState()
+     */
+    public HashMap getState() {
+        return state;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getUser()
+     */
+    public String getUser() {
+        return authenticatedUser;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#setUser(java.lang.String)
+     */
+    public void setUser(String userID) {
+        authenticatedUser = userID;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getResponseBuffer()
+     */
+    public StringBuffer getResponseBuffer() {
+        return responseBuffer;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#clearResponseBuffer()
+     */
+    public String clearResponseBuffer() {
+        String responseString = responseBuffer.toString();
+        responseBuffer.delete(0,responseBuffer.length());
+        return responseString;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getWatchdog()
+     */
+    public Watchdog getWatchdog() {
+        return theWatchdog;
+    }
+
+    /**
+     * Sets the POP3HandlerChain
+     *
+     * @param handlerChain POP3Handler object
+     */
+    public void setHandlerChain(POP3HandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+    }
+
+    /**
+     * @see org.apache.james.pop3server.POP3Session#writeResponse(java.lang.String)
+     */
+    public void writeResponse(String respString) {
+        writeLoggedFlushedResponse(respString);
+        //TODO Explain this well
+        if(mode == COMMAND_MODE) {
+            mode = RESPONSE_MODE;
         }
     }
 
     /**
-     * Handler method called upon receipt of a STAT command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getCommandName()
      */
-    private void doSTAT(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            long size = 0;
-            int count = 0;
-            try {
-                for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
-                    Mail mc = (Mail) i.next();
-                    if (mc != DELETED) {
-                        size += mc.getMessageSize();
-                        count++;
-                    }
-                }
-                StringBuffer responseBuffer =
-                    new StringBuffer(32)
-                            .append(OK_RESPONSE)
-                            .append(" ")
-                            .append(count)
-                            .append(" ")
-                            .append(size);
-                responseString = responseBuffer.toString();
-                writeLoggedFlushedResponse(responseString);
-            } catch (MessagingException me) {
-                responseString = ERR_RESPONSE;
-                writeLoggedFlushedResponse(responseString);
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public String getCommandName() {
+        return curCommandName;
     }
 
     /**
-     * Handler method called upon receipt of a LIST command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size, or optionally, the number and size of
-     * a single message.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getCommandArgument()
      */
-    private void doLIST(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            if (argument == null) {
-                long size = 0;
-                int count = 0;
-                try {
-                    for (Iterator i = userMailbox.iterator(); i.hasNext(); ) {
-                        Mail mc = (Mail) i.next();
-                        if (mc != DELETED) {
-                            size += mc.getMessageSize();
-                            count++;
-                        }
-                    }
-                    StringBuffer responseBuffer =
-                        new StringBuffer(32)
-                                .append(OK_RESPONSE)
-                                .append(" ")
-                                .append(count)
-                                .append(" ")
-                                .append(size);
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                    count = 0;
-                    for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
-                        Mail mc = (Mail) i.next();
-
-                        if (mc != DELETED) {
-                            responseBuffer =
-                                new StringBuffer(16)
-                                        .append(count)
-                                        .append(" ")
-                                        .append(mc.getMessageSize());
-                            out.println(responseBuffer.toString());
-                        }
-                    }
-                    out.println(".");
-                    out.flush();
-                } catch (MessagingException me) {
-                    responseString = ERR_RESPONSE;
-                    writeLoggedFlushedResponse(responseString);
-                }
-            } else {
-                int num = 0;
-                try {
-                    num = Integer.parseInt(argument);
-                    Mail mc = (Mail) userMailbox.get(num);
-                    if (mc != DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
-                                    .append(OK_RESPONSE)
-                                    .append(" ")
-                                    .append(num)
-                                    .append(" ")
-                                    .append(mc.getMessageSize());
-                        responseString = responseBuffer.toString();
-                        writeLoggedFlushedResponse(responseString);
-                    } else {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
-                                    .append(ERR_RESPONSE)
-                                    .append(" Message (")
-                                    .append(num)
-                                    .append(") already deleted.");
-                        responseString = responseBuffer.toString();
-                        writeLoggedFlushedResponse(responseString);
-                    }
-                } catch (IndexOutOfBoundsException npe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" Message (")
-                                .append(num)
-                                .append(") does not exist.");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                } catch (NumberFormatException nfe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" ")
-                                .append(argument)
-                                .append(" is not a valid number");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                } catch (MessagingException me) {
-                    responseString = ERR_RESPONSE;
-                    writeLoggedFlushedResponse(responseString);
-               }
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public String getCommandArgument() {
+        return curCommandArgument;
     }
 
     /**
-     * Handler method called upon receipt of a UIDL command.
-     * Returns a listing of message ids to the client.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getConfigurationData()
      */
-    private void doUIDL(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            if (argument == null) {
-                responseString = OK_RESPONSE + " unique-id listing follows";
-                writeLoggedFlushedResponse(responseString);
-                int count = 0;
-                for (Iterator i = userMailbox.iterator(); i.hasNext(); count++) {
-                    Mail mc = (Mail) i.next();
-                    if (mc != DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
-                                    .append(count)
-                                    .append(" ")
-                                    .append(mc.getName());
-                        out.println(responseBuffer.toString());
-                    }
-                }
-                out.println(".");
-                out.flush();
-            } else {
-                int num = 0;
-                try {
-                    num = Integer.parseInt(argument);
-                    Mail mc = (Mail) userMailbox.get(num);
-                    if (mc != DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
-                                    .append(OK_RESPONSE)
-                                    .append(" ")
-                                    .append(num)
-                                    .append(" ")
-                                    .append(mc.getName());
-                        responseString = responseBuffer.toString();
-                        writeLoggedFlushedResponse(responseString);
-                    } else {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
-                                    .append(ERR_RESPONSE)
-                                    .append(" Message (")
-                                    .append(num)
-                                    .append(") already deleted.");
-                        responseString = responseBuffer.toString();
-                        writeLoggedFlushedResponse(responseString);
-                    }
-                } catch (IndexOutOfBoundsException npe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" Message (")
-                                .append(num)
-                                .append(") does not exist.");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                } catch (NumberFormatException nfe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" ")
-                                .append(argument)
-                                .append(" is not a valid number");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                }
-            }
-        } else {
-            writeLoggedFlushedResponse(ERR_RESPONSE);
-        }
+    public POP3HandlerConfigurationData getConfigurationData() {
+        return theConfigData;
     }
 
     /**
-     * Handler method called upon receipt of a RSET command.
-     * Calls stat() to reset the mailbox.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getHandlerState()
      */
-    private void doRSET(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            stat();
-            responseString = OK_RESPONSE;
-        } else {
-            responseString = ERR_RESPONSE;
-        }
-        writeLoggedFlushedResponse(responseString);
+    public int getHandlerState() {
+        return handlerState;
     }
 
     /**
-     * Handler method called upon receipt of a DELE command.
-     * This command deletes a particular mail message from the
-     * mailbox.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#setHandlerState(int)
      */
-    private void doDELE(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            int num = 0;
-            try {
-                num = Integer.parseInt(argument);
-            } catch (Exception e) {
-                responseString = ERR_RESPONSE + " Usage: DELE [mail number]";
-                writeLoggedFlushedResponse(responseString);
-                return;
-            }
-            try {
-                Mail mc = (Mail) userMailbox.get(num);
-                if (mc == DELETED) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" Message (")
-                                .append(num)
-                                .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                } else {
-                    userMailbox.set(num, DELETED);
-                    writeLoggedFlushedResponse(OK_RESPONSE + " Message deleted");
-                }
-            } catch (IndexOutOfBoundsException iob) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append(ERR_RESPONSE)
-                            .append(" Message (")
-                            .append(num)
-                            .append(") does not exist.");
-                responseString = responseBuffer.toString();
-                writeLoggedFlushedResponse(responseString);
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public void setHandlerState(int handlerState) {
+        this.handlerState = handlerState;
     }
 
     /**
-     * Handler method called upon receipt of a NOOP command.
-     * Like all good NOOPs, does nothing much.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getUserInbox()
      */
-    private void doNOOP(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            responseString = OK_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public MailRepository getUserInbox() {
+        return userInbox;
     }
 
     /**
-     * Handler method called upon receipt of a RETR command.
-     * This command retrieves a particular mail message from the
-     * mailbox.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#setUserInbox(org.apache.james.services.MailRepository)
      */
-    private void doRETR(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            int num = 0;
-            try {
-                num = Integer.parseInt(argument.trim());
-            } catch (Exception e) {
-                responseString = ERR_RESPONSE + " Usage: RETR [mail number]";
-                writeLoggedFlushedResponse(responseString);
-                return;
-            }
-            try {
-                Mail mc = (Mail) userMailbox.get(num);
-                if (mc != DELETED) {
-                    responseString = OK_RESPONSE + " Message follows";
-                    writeLoggedFlushedResponse(responseString);
-                    try {
-                        ExtraDotOutputStream edouts =
-                                new ExtraDotOutputStream(outs);
-                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
-                                                                  theWatchdog,
-                                                                  theConfigData.getResetLength());
-                        mc.getMessage().writeTo(nouts);
-                        nouts.flush();
-                        edouts.checkCRLFTerminator();
-                        edouts.flush();
-                    } finally {
-                        out.println(".");
-                        out.flush();
-                    }
-                } else {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" Message (")
-                                .append(num)
-                                .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                }
-            } catch (IOException ioe) {
-                responseString = ERR_RESPONSE + " Error while retrieving message.";
-                writeLoggedFlushedResponse(responseString);
-            } catch (MessagingException me) {
-                responseString = ERR_RESPONSE + " Error while retrieving message.";
-                writeLoggedFlushedResponse(responseString);
-            } catch (IndexOutOfBoundsException iob) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append(ERR_RESPONSE)
-                            .append(" Message (")
-                            .append(num)
-                            .append(") does not exist.");
-                responseString = responseBuffer.toString();
-                writeLoggedFlushedResponse(responseString);
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public void setUserInbox(MailRepository userInbox) {
+        this.userInbox = userInbox;
     }
 
     /**
-     * Handler method called upon receipt of a TOP command.
-     * This command retrieves the top N lines of a specified
-     * message in the mailbox.
-     *
-     * The expected command format is
-     *  TOP [mail message number] [number of lines to return]
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
-    private void doTOP(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == TRANSACTION) {
-            int num = 0;
-            int lines = 0;
-            try {
-                num = Integer.parseInt(argument);
-                lines = Integer.parseInt(argument1);
-            } catch (NumberFormatException nfe) {
-                responseString = ERR_RESPONSE + " Usage: TOP [mail number] [Line number]";
-                writeLoggedFlushedResponse(responseString);
-                return;
-            }
-            try {
-                Mail mc = (Mail) userMailbox.get(num);
-                if (mc != DELETED) {
-                    responseString = OK_RESPONSE + " Message follows";
-                    writeLoggedFlushedResponse(responseString);
-                    try {
-                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
-                            out.println(e.nextElement());
-                        }
-                        out.println();
-                        ExtraDotOutputStream edouts =
-                                new ExtraDotOutputStream(outs);
-                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
-                                                                  theWatchdog,
-                                                                  theConfigData.getResetLength());
-                        writeMessageContentTo(mc.getMessage(),nouts,lines);
-                        nouts.flush();
-                        edouts.checkCRLFTerminator();
-                        edouts.flush();
-                    } finally {
-                        out.println(".");
-                        out.flush();
-                    }
-                } else {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
-                                .append(ERR_RESPONSE)
-                                .append(" Message (")
-                                .append(num)
-                                .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    writeLoggedFlushedResponse(responseString);
-                }
-            } catch (IOException ioe) {
-                responseString = ERR_RESPONSE + " Error while retrieving message.";
-                writeLoggedFlushedResponse(responseString);
-            } catch (MessagingException me) {
-                responseString = ERR_RESPONSE + " Error while retrieving message.";
-                writeLoggedFlushedResponse(responseString);
-            } catch (IndexOutOfBoundsException iob) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(64)
-                            .append(ERR_RESPONSE)
-                            .append(" Message (")
-                            .append(num)
-                            .append(") does not exist.");
-                responseString = exceptionBuffer.toString();
-                writeLoggedFlushedResponse(responseString);
-            }
-        } else {
-            responseString = ERR_RESPONSE;
-            writeLoggedFlushedResponse(responseString);
-        }
+    public ArrayList getUserMailbox() {
+        return userMailbox;
     }
 
     /**
-     * Writes the content of the message, up to a total number of lines, out to 
-     * an OutputStream.
-     *
-     * @param out the OutputStream to which to write the content
-     * @param lines the number of lines to write to the stream
-     *
-     * @throws MessagingException if the MimeMessage is not set for this MailImpl
-     * @throws IOException if an error occurs while reading or writing from the stream
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.ArrayList)
      */
-    public void writeMessageContentTo(MimeMessage message, OutputStream out, int lines)
-        throws IOException, MessagingException {
-        String line;
-        BufferedReader br;
-        if (message != null) {
-            br = new BufferedReader(new InputStreamReader(message.getRawInputStream()));
-            try {
-                while (lines-- > 0) {
-                    if ((line = br.readLine()) == null) {
-                        break;
-                    }
-                    line += "\r\n";
-                    out.write(line.getBytes());
-                }
-            } finally {
-                br.close();
-            }
-        } else {
-            throw new MessagingException("No message set for this MailImpl.");
-        }
+    public void setUserMailbox(ArrayList userMailbox) {
+        this.userMailbox = userMailbox;
     }
 
     /**
-     * Handler method called upon receipt of a QUIT command.
-     * This method handles cleanup of the POP3Handler state.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getBackupUserMailbox()
      */
-    private void doQUIT(String command,String argument,String argument1) {
-        String responseString = null;
-        if (state == AUTHENTICATION_READY ||  state == AUTHENTICATION_USERSET) {
-            responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
-            writeLoggedFlushedResponse(responseString);
-            return;
-        }
-        List toBeRemoved =  ListUtils.subtract(backupUserMailbox, userMailbox);
-        try {
-            userInbox.remove(toBeRemoved);
-            // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
-            //    Mail mc = (Mail) it.next();
-            //    userInbox.remove(mc.getName());
-            //}
-            responseString = OK_RESPONSE + " Apache James POP3 Server signing off.";
-            writeLoggedFlushedResponse(responseString);
-        } catch (Exception ex) {
-            responseString = ERR_RESPONSE + " Some deleted messages were not removed";
-            writeLoggedFlushedResponse(responseString);
-            getLogger().error("Some deleted messages were not removed: " + ex.getMessage());
-        }
+    public List getBackupUserMailbox() {
+        return backupUserMailbox;
     }
 
     /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.
-     *
-     * @param command the command parsed by the parseCommand method
-     * @param argument the first argument parsed by the parseCommand method
-     * @param argument1 the second argument parsed by the parseCommand method
+     * @see org.apache.james.pop3server.POP3Session#getOutputStream()
      */
-    private void doUnknownCmd(String command,String argument,String argument1) {
-        writeLoggedFlushedResponse(ERR_RESPONSE);
+    public OutputStream getOutputStream() {
+        return outs;
     }
 
 }
-

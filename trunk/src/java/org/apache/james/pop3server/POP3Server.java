@@ -17,9 +17,11 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.core.AbstractJamesService;
@@ -34,6 +36,12 @@ import org.apache.james.services.UsersRepository;
  * @version 1.0.0, 24/04/1999
  */
 public class POP3Server extends AbstractJamesService implements POP3ServerMBean {
+
+    /**
+     * The handler chain - POP3handlers can lookup handlerchain to obtain
+     * Command handlers , Message handlers and connection handlers
+     */
+    POP3HandlerChain handlerChain = new POP3HandlerChain();
 
     /**
      * The internal mail server service
@@ -58,12 +66,15 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     private POP3HandlerConfigurationData theConfigData
         = new POP3HandlerConfigurationDataImpl();
 
+    private ServiceManager serviceManager;
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#compose(ServiceManager)
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
+        serviceManager = componentManager;
         mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
         users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
     }
@@ -79,6 +90,21 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
+            //set the logger
+            ContainerUtil.enableLogging(handlerChain,getLogger());
+
+            try {
+                ContainerUtil.service(handlerChain,serviceManager);
+            } catch (ServiceException e) {
+                if (getLogger().isErrorEnabled()) {
+                    getLogger().error("Failed to service handlerChain",e);
+                }
+                throw new ConfigurationException("Failed to service handlerChain");
+            }
+            
+            //read from the XML configuration and create and configure each of the handlers
+            ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
+
         }
         theHandlerFactory = new POP3HandlerFactory();
     }
@@ -95,6 +121,21 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
      */
     public String getServiceType() {
         return "POP3 Service";
+    }
+
+
+    /**
+     * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#newHandler()
+     */
+    protected ConnectionHandler newHandler()
+            throws Exception {
+        
+        POP3Handler theHandler = (POP3Handler) super.newHandler();
+
+        //pass the handler chain to every POP3handler
+        theHandler.setHandlerChain(handlerChain);
+
+        return theHandler;
     }
 
     /**
