@@ -28,8 +28,10 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Zone;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.net.URL;
 
 import junit.framework.TestCase;
 
@@ -48,7 +50,7 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testINARecords() throws Exception {
-        Zone z = new Zone(Name.fromString("pippo.com."),getClass().getResource("pippo-com.zone").getFile());
+        Zone z = loadZone("pippo.com.");
         dnsServer.setResolver(null);
         dnsServer.setLookupper(new ZoneLookupper(z));
         Collection records = dnsServer.findMXRecords("www.pippo.com.");
@@ -61,7 +63,7 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testMXCatches() throws Exception {
-        Zone z = new Zone(Name.fromString("test-zone.com."),getClass().getResource("test-zone-com.zone").getFile());
+        Zone z = loadZone("test-zone.com.");
         dnsServer.setResolver(null);
         dnsServer.setLookupper(new ZoneLookupper(z));
         Collection res = dnsServer.findMXRecords("test-zone.com.");
@@ -73,7 +75,7 @@ public class DNSServerTest extends TestCase {
         assertEquals(1,res.size());
         assertEquals("mail.test-zone.com.",res.iterator().next());
     }
-    
+
     /**
      * Please note that this is an hardcoded test that works because
      * brandilyncollins.com. has an MX record that point to mxmail.register.com
@@ -84,7 +86,7 @@ public class DNSServerTest extends TestCase {
      * @throws Exception
      */
     public void testCNAMEasMXrecords() throws Exception {
-        Zone z = new Zone(Name.fromString("brandilyncollins.com."),getClass().getResource("brandilyncollins-com.zone").getFile());
+        Zone z = loadZone("brandilyncollins.com.");
         dnsServer.setResolver(null);
         dnsServer.setLookupper(new ZoneLookupper(z));
         Iterator records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
@@ -106,6 +108,15 @@ public class DNSServerTest extends TestCase {
     protected void tearDown() throws Exception {
         dnsServer.setLookupper(null);
         ContainerUtil.dispose(dnsServer);
+    }
+
+    private Zone loadZone(String zoneName) throws IOException {
+        String zoneFilename = zoneName + "zone";
+        URL zoneResource = getClass().getResource(zoneFilename);
+        assertNotNull("test resource for zone could not be loaded: " + zoneFilename, zoneResource);
+        String zoneFile = zoneResource.getFile();
+        Zone zone = new Zone(Name.fromString(zoneName),zoneFile);
+        return zone;
     }
 
     private class ZoneLookupper implements Lookupper {
