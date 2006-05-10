@@ -144,6 +144,7 @@ Legal:
       <fixcrlf srcdir="${java.dir}" includes="**/*.minfo" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${java.dir}" includes="**/*.xinfo" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${java.dir}" includes="**/*.html" eol="lf" tab="remove" tablength="4" />
+      <fixcrlf srcdir="${junitjava.dir}" includes="**/*.java" eol="lf" tab="remove" tablength="4" />
       <!-- fixcrlf srcdir="${xdocs.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" / -->
       <fixcrlf srcdir="${conf.dir}" includes="**/*.xml" eol="lf" tab="remove" tablength="4" />
       <fixcrlf srcdir="${metainf.dir}" includes="**/*" eol="lf" tab="remove" tablength="4" />      

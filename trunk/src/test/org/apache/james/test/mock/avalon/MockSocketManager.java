@@ -23,11 +23,10 @@ import org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory;
 import org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory;
 
 public class MockSocketManager implements SocketManager {
-    private int m_port;
 
     public MockSocketManager(int port)
     {
-        m_port = port;
+        // m_port = port;
     }
 
     public ServerSocketFactory getServerSocketFactory(String string) throws Exception {

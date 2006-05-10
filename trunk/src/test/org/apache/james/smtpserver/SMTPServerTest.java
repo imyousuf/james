@@ -125,11 +125,10 @@ public class SMTPServerTest extends TestCase {
                 return res;
             }
 
-            
             public Iterator getSMTPHostAddresses(String domainName) {
                 throw new UnsupportedOperationException("Unimplemented mock service");
             }
-
+            
 
             public InetAddress[] getAllByName(String host) throws UnknownHostException
             {
