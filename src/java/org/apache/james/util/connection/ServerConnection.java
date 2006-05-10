@@ -23,6 +23,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
@@ -96,12 +97,23 @@ public class ServerConnection extends AbstractLogEnabled
      * connection will allow.
      */
     private int maxOpenConn;
+    
+    /**
+     * The maximum number of open client connections per IP that this server
+     * connection will allow.
+     */
+    private int maxOpenConnPerIP;
 
     /**
      * A collection of client connection runners.
      */
     private final ArrayList clientConnectionRunners = new ArrayList();
-
+    
+    /**
+     * A HashMap of clientip and connections
+     */
+    private final HashMap connectionPerIP = new HashMap();
+    
     /**
      * The thread used to manage this server connection.
      */
@@ -117,17 +129,20 @@ public class ServerConnection extends AbstractLogEnabled
      * @param timeout the client idle timeout for this ServerConnection's client connections
      * @param maxOpenConn the maximum number of open client connections allowed for this
      *                    ServerConnection
+     * @param maxOpenConnPerIP the maximum number of open client connections allowed for this
+     *                    ServerConnection per IP
      */
     public ServerConnection(ServerSocket serverSocket,
                             ConnectionHandlerFactory handlerFactory,
                             ThreadPool threadPool,
                             int timeout,
-                            int maxOpenConn) {
+                            int maxOpenConn, int maxOpenConnPerIP) {
         this.serverSocket = serverSocket;
         this.handlerFactory = handlerFactory;
         connThreadPool = threadPool;
         socketTimeout = timeout;
         this.maxOpenConn = maxOpenConn;
+        this.maxOpenConnPerIP = maxOpenConnPerIP;
     }
 
     /**
@@ -159,7 +174,9 @@ public class ServerConnection extends AbstractLogEnabled
                 serverConnectionThread = null;
                 thread.interrupt();
                 try {
+                    
                     serverSocket.close();
+                    
                 } catch (IOException ie) {
                     // Ignored - we're doing this to break out of the
                     // accept.  This minimizes the time required to
@@ -191,6 +208,8 @@ public class ServerConnection extends AbstractLogEnabled
                 runner = null;
             }
             clientConnectionRunners.clear();
+            clearConnectionPerIP();
+            
         }
 
         getLogger().debug("Cleaned up clients - " + this.toString());
@@ -242,6 +261,57 @@ public class ServerConnection extends AbstractLogEnabled
         }
     }
 
+    /**
+     * Raise the connectionCount for the given ipAdrress
+     * @param ip raise the connectionCount for the given ipAddress
+     */
+    private synchronized void addConnectionPerIP (String ip) {
+        connectionPerIP.put(ip,Integer.toString(getConnectionPerIP(ip) +1));
+    }
+    
+    /**
+     * Get the count of connections for the given ip
+     * @param ip the ipAddress to get the connections for. 
+     * @return count
+     */
+    private synchronized int getConnectionPerIP(String ip) {
+        int count = 0;
+        String curCount = null;
+        Object c = connectionPerIP.get(ip);
+        
+        if (c != null) {
+            curCount = c.toString();
+            
+            if (curCount != null) {
+                return Integer.parseInt(curCount);
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * Set the connection count for the given ipAddress
+     * @param ip ipAddres for which we want to set the count
+     */
+    private synchronized void removeConnectionPerIP (String ip) {
+
+        int count = getConnectionPerIP(ip);
+        if (count > 1) {
+            connectionPerIP.put(ip,Integer.toString(count -1));
+        } else {
+            // not need this entry any more
+            connectionPerIP.remove(ip);
+        }
+
+    }
+    
+    /**
+     * Clear the connection count map
+     */
+    private synchronized void clearConnectionPerIP () {
+        connectionPerIP.clear();
+    }
+    
     /**
      * Provides the body for the thread of execution for a ServerConnection.
      * Connections made to the server socket are passed to an appropriate,
@@ -304,10 +374,26 @@ public class ServerConnection extends AbstractLogEnabled
                             // We ignore this exception, as we already have an error condition.
                         }
                         continue;
+                    } else if ((maxOpenConnPerIP > 0) && (getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()) >= maxOpenConnPerIP)) {
+                        getLogger().info("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
+                            
+                        if (getLogger().isWarnEnabled()) {
+                                
+                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections is " + getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
+                        }
+                        try {
+                            clientSocket.close();
+                        } catch (IOException ignored) {
+                            // We ignore this exception, as we already have an error condition.
+                        }
+                        continue;
+                        
                     } else {
+                        addConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
                         clientSocket.setSoTimeout(socketTimeout);
                         runner = addClientConnectionRunner();
                         runner.setSocket(clientSocket);
+                        
                     }
                 }
                 setupLogger( runner );
@@ -320,6 +406,7 @@ public class ServerConnection extends AbstractLogEnabled
                     getLogger().error("Internal error - insufficient threads available to service request.  " +
                                       Thread.activeCount() + " threads in service request pool.", e);
                     try {
+                        removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
                         clientSocket.close();
                     } catch (IOException ignored) {
                         // We ignore this exception, as we already have an error condition.
@@ -368,7 +455,7 @@ public class ServerConnection extends AbstractLogEnabled
 
         public ClientConnectionRunner() {
         }
-
+        
         /**
          * The dispose operation that terminates the runner.  Should only be
          * called by the ServerConnection that owns the ClientConnectionRunner
@@ -430,6 +517,9 @@ public class ServerConnection extends AbstractLogEnabled
                 getLogger().error( "Error handling connection", e );
             } finally {
 
+                // remove this connection from map!
+                removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
+                
                 // Close the underlying socket
                 try {
                     if (clientSocket != null) {

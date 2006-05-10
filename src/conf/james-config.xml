@@ -1178,9 +1178,17 @@
    <!-- Resource limitations imposed by other components (i.e. max # of threads) may -->
    <!-- serve to limit the number of open connections. -->
    <!-- -->
+   <!-- The max-connections-per-ip parameter specifies the default maximum number of client -->
+   <!-- connections per ip that this connection manager will allow per managed server socket. -->
+   <!-- This value can be overridden by each individual service. -->
+   <!-- If no value is specified, the value defaults to 0 ( disabled) . -->
+   <!-- -->
    <connections>
       <idle-timeout>300000</idle-timeout>
       <max-connections>30</max-connections>
+      <!--
+      <max-connections-per-ip>0</max-connections-per-ip>
+      -->
    </connections>
 
    <!-- The Socket Manager block -->

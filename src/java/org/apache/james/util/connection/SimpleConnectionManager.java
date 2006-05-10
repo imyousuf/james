@@ -56,6 +56,12 @@ public class SimpleConnectionManager
      */
     private static final int DEFAULT_MAX_CONNECTIONS = 30;
     /**
+     * The default value for the maximum number of allowed client
+     * connections.
+     */
+    private static final int DEFAULT_MAX_CONNECTIONS_PER_IP = 0;
+    
+    /**
      * The map of connection name / server connections managed by this connection
      * manager.
      */
@@ -68,6 +74,10 @@ public class SimpleConnectionManager
      * The maximum number of client connections allowed per server connection.
      */
     protected int maxOpenConn = 0;
+    /**
+     * The maximum number of client connections allowed per server connection per IP.
+     */
+    protected int maxOpenConnPerIP = 0;
     /**
      * The ThreadManager component that is used to provide a default thread pool.
      */
@@ -82,6 +92,7 @@ public class SimpleConnectionManager
     public void configure(final Configuration configuration) throws ConfigurationException {
         timeout = configuration.getChild("idle-timeout").getValueAsInteger(DEFAULT_SOCKET_TIMEOUT);
         maxOpenConn = configuration.getChild("max-connections").getValueAsInteger(DEFAULT_MAX_CONNECTIONS);
+        maxOpenConnPerIP = configuration.getChild("max-connections-per-ip").getValueAsInteger(DEFAULT_MAX_CONNECTIONS_PER_IP);
         if (timeout < 0) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128).append("Specified socket timeout value of ").append(timeout).append(
@@ -92,6 +103,13 @@ public class SimpleConnectionManager
             StringBuffer exceptionBuffer =
                 new StringBuffer(128).append("Specified maximum number of open connections of ").append(
                     maxOpenConn).append(
+                    " is not a legal value.");
+            throw new ConfigurationException(exceptionBuffer.toString());
+        }
+        if (maxOpenConnPerIP < 0) {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(128).append("Specified maximum number of open connections per IP of ").append(
+                    maxOpenConnPerIP).append(
                     " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
@@ -159,9 +177,12 @@ public class SimpleConnectionManager
         }
         if (maxOpenConnections < 0) {
             throw new IllegalArgumentException("The maximum number of client connections per server socket cannot be less that zero.");
+        } 
+        if (maxOpenConnPerIP < 0) {
+            throw new IllegalArgumentException("The maximum number of client connections (per IP) per server socket cannot be less that zero.");
         }
         ServerConnection runner =
-            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections);
+            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections, maxOpenConnPerIP);
         setupLogger(runner);
         ContainerUtil.initialize(runner);
         connectionMap.put(name, runner);
@@ -207,6 +228,7 @@ public class SimpleConnectionManager
      * @param socket the ServerSocket from which to
      * @param handlerFactory the factory from which to acquire handlers
      * @param maxOpenConnections the maximum number of open connections allowed for this server socket.
+     * @param maxOpenConnections the maximum number of open connections per IP allowed for this server socket.
      * @exception Exception if an error occurs
      */
     public void connect(
@@ -253,5 +275,16 @@ public class SimpleConnectionManager
     public int getMaximumNumberOfOpenConnections() {
         return maxOpenConn;
     }
+    
+    /**
+     * Returns the default maximum number of open connections per IP supported by this
+     * SimpleConnectionManager
+     *
+     * @return the maximum number of connections
+     */
+    public int getMaximumNumberOfOpenConnectionsPerIP() {
+        return maxOpenConnPerIP;
+    }
+
 
 }
