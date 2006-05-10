@@ -17,10 +17,13 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.services.MailRepository;
+
 /**
   * Handles PASS command
   */
-public class PassCmdHandler implements CommandHandler {
+public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler {
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -41,16 +44,27 @@ public class PassCmdHandler implements CommandHandler {
         if (session.getHandlerState() == POP3Handler.AUTHENTICATION_USERSET && argument != null) {
             String passArg = argument;
             if (session.getConfigurationData().getUsersRepository().test(session.getUser(), passArg)) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
-                            .append(POP3Handler.OK_RESPONSE)
-                            .append(" Welcome ")
-                            .append(session.getUser());
-                responseString = responseBuffer.toString();
-                session.setHandlerState(POP3Handler.TRANSACTION);
-                session.writeResponse(responseString);
-                session.setUserInbox(session.getConfigurationData().getMailServer().getUserInbox(session.getUser()));
-                session.stat();
+                try {
+                    MailRepository inbox = session.getConfigurationData().getMailServer().getUserInbox(session.getUser());
+                    if (inbox == null) {
+                        throw new IllegalStateException("MailServer returned a null inbox for "+session.getUser());
+                    }
+                    session.setUserInbox(inbox);
+                    session.stat();
+                    StringBuffer responseBuffer =
+                        new StringBuffer(64)
+                                .append(POP3Handler.OK_RESPONSE)
+                                .append(" Welcome ")
+                                .append(session.getUser());
+                    responseString = responseBuffer.toString();
+                    session.setHandlerState(POP3Handler.TRANSACTION);
+                    session.writeResponse(responseString);
+                } catch (RuntimeException e) {
+                    getLogger().error("Unexpected error accessing mailbox for "+session.getUser(),e);
+                    responseString = POP3Handler.ERR_RESPONSE + " Unexpected error accessing mailbox";
+                    session.setHandlerState(POP3Handler.AUTHENTICATION_READY);
+                    session.writeResponse(responseString);
+                }
             } else {
                 responseString = POP3Handler.ERR_RESPONSE + " Authentication failed.";
                 session.setHandlerState(POP3Handler.AUTHENTICATION_READY);

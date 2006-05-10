@@ -41,9 +41,9 @@ import org.columba.ristretto.pop3.POP3Protocol;
 import org.columba.ristretto.pop3.POP3Response;
 import org.columba.ristretto.pop3.ScanListEntry;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
-import javax.mail.MessagingException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -152,12 +152,15 @@ public class POP3ServerTest extends TestCase {
         pop3Protocol.openPort();
 
         m_usersRepository.addUser("foo", "bar");
+        m_mailServer.setUserInbox("foo", new MockMailRepository());
 
         int res = 0;
+        
         try {
             pop3Protocol.userPass("foo", "bar".toCharArray());
         } catch (POP3Exception e) {
             res = e.getResponse().getType();
+            fail("pass failed");
         }
 
         assertEquals(0, res);
@@ -186,6 +189,7 @@ public class POP3ServerTest extends TestCase {
 
         String pass = "bar" + (new String(new char[] { 200, 210 })) + "foo";
         m_usersRepository.addUser("foo", pass);
+        m_mailServer.setUserInbox("foo", new MockMailRepository());
 
         int res = 0;
         try {
@@ -281,6 +285,16 @@ public class POP3ServerTest extends TestCase {
 
         res = 0;
         entries = null;
+        
+        try {
+            int[] stats = pop3Protocol.stat();
+            assertEquals(2, stats.length);
+            assertEquals(1, stats[0]);
+            assertEquals(92, stats[1]);
+        } catch (POP3Exception e) {
+            fail("stat failed");
+        }
+        
         try {
             entries = pop3Protocol.list();
         } catch (POP3Exception e) {
