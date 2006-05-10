@@ -23,12 +23,16 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.DNSServer;
 
 
 /**
   * Handles HELO command
   */
-public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler,Configurable {
+public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler,Configurable, Serviceable {
 
     /**
      * The name of the command handled by the command handler
@@ -41,6 +45,8 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
     private boolean checkValidHelo = false;
     
     private boolean checkAuthNetworks = false;
+    
+    private DNSServer dnsServer = null;
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -57,6 +63,14 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
         }
         
     }
+    
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceMan) throws ServiceException {
+        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+    }
+
        
     /*
      * process HELO command
@@ -90,7 +104,7 @@ public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler
 
                 // try to resolv the provided helo. If it can not resolved do not accept it.
                 try {
-                    org.apache.james.dnsserver.DNSServer.getByName(argument);
+                    dnsServer.getByName(argument);
                 } catch (UnknownHostException e) {
                     badHelo = true;
                     responseString = "501 Provided HELO " + argument + " can not resolved";

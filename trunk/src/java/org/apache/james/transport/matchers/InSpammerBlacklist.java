@@ -17,6 +17,10 @@
 
 package org.apache.james.transport.matchers;
 
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.services.DNSServer;
 import org.apache.mailet.GenericMatcher;
 import org.apache.mailet.Mail;
 
@@ -43,9 +47,23 @@ import java.util.StringTokenizer;
  */
 public class InSpammerBlacklist extends GenericMatcher {
     String network = null;
+    
+    private DNSServer dnsServer;
 
     public void init() throws MessagingException {
         network = getCondition();
+        
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        
+        try {
+            // Instantiate DNSService
+            dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve DNSService" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve DNSService:" + e.getMessage());
+        }
+
     }
 
     public Collection match(Mail mail) {
@@ -63,7 +81,7 @@ public class InSpammerBlacklist extends GenericMatcher {
             sb.append(network);
 
             //Try to look it up
-            org.apache.james.dnsserver.DNSServer.getByName(sb.toString());
+            dnsServer.getByName(sb.toString());
 
             //If we got here, that's bad... it means the host
             //  was found in the blacklist

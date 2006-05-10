@@ -17,6 +17,8 @@
 
 package org.apache.james.services;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -57,4 +59,13 @@ public interface DNSServer {
      */
     Iterator getSMTPHostAddresses(String domainName);
     
+    /**
+     * @see java.net.InetAddress#getByAllName(String)
+     */
+    public InetAddress[] getAllByName(String host) throws UnknownHostException;
+ 
+    /**
+     * @see java.net.InetAddress#getByName(String)
+     */
+    public InetAddress getByName(String host) throws UnknownHostException;
 }

@@ -18,9 +18,14 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.james.services.DNSServer;
+
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -29,12 +34,14 @@ import java.util.StringTokenizer;
   */
 public class DNSRBLHandler
     extends AbstractLogEnabled
-    implements ConnectHandler, Configurable {
+    implements ConnectHandler, Configurable, Serviceable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
     private String[] whitelist;
     private String[] blacklist;
+    
+    private DNSServer dnsServer = null;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -76,6 +83,13 @@ public class DNSRBLHandler
 
     }
 
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     */
+    public void service(ServiceManager serviceMan) throws ServiceException {
+        dnsServer = (DNSServer) serviceMan.lookup(DNSServer.ROLE);
+    }
+    
     /*
      * check if the remote Ip address is block listed
      *
@@ -119,7 +133,7 @@ public class DNSRBLHandler
             if (whitelist != null) {
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                    dnsServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
@@ -134,7 +148,7 @@ public class DNSRBLHandler
             if (blacklist != null) {
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    org.apache.james.dnsserver.DNSServer.getByName(reversedOctets + rblList[i]);
+                    dnsServer.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }

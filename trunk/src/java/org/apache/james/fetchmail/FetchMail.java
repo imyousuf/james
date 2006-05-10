@@ -39,6 +39,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.DNSServer;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
@@ -394,8 +395,13 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
    /**
      * The Local Users repository
      */
-    private UsersRepository fieldLocalUsers;        
-
+    private UsersRepository fieldLocalUsers;     
+    
+    /**
+     * The DNSServer
+     */
+    private DNSServer dnsServer;
+    
     /**
      * Constructor for POP3mail.
      */
@@ -424,7 +430,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 configuration,
                 getLogger(),
                 getServer(),
-                getLocalUsers());
+                getLocalUsers(),
+                getDNSServer());
         setConfiguration(parsedConfiguration);
 
         // Setup the Accounts
@@ -594,7 +601,10 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                     "does not implement the required interface.");
             throw new ServiceException("", errorBuffer.toString());
         }
-
+        
+        DNSServer dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE);
+        setDNSServer(dnsServer);
+        
         UsersRepository usersRepository =
             (UsersRepository) manager.lookup(UsersRepository.ROLE);
         setLocalUsers(usersRepository);
@@ -667,6 +677,25 @@ protected void setLocalUsers(UsersRepository localUsers)
 {
     fieldLocalUsers = localUsers;
 }
+
+/**
+ * Returns the DNSServer.
+ * @return DNSServer 
+ */
+protected DNSServer getDNSServer()
+{
+    return dnsServer;
+}
+
+/**
+ * Sets the DNSServer.
+ * @param dnsServer The DNSServer to set
+ */
+protected void setDNSServer(DNSServer dnsServer)
+{
+    this.dnsServer = dnsServer;
+}
+
 
     /**
      * Returns the accounts. Initializes if required.

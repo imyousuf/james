@@ -52,6 +52,7 @@ import javax.mail.util.SharedByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -124,8 +125,23 @@ public class SMTPServerTest extends TestCase {
                 return res;
             }
 
+            
             public Iterator getSMTPHostAddresses(String domainName) {
                 throw new UnsupportedOperationException("Unimplemented mock service");
+            }
+
+
+            public InetAddress[] getAllByName(String host) throws UnknownHostException
+            {
+                // TODO Add the right values
+                return null;
+            }
+
+
+            public InetAddress getByName(String host) throws UnknownHostException
+            {
+                // TODO Add the right values
+                return null;
             }
             
         };

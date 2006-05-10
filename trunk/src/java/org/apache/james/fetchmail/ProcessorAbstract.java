@@ -27,6 +27,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.MailAddress;
 import org.apache.james.services.UsersRepository;
+import org.apache.james.services.DNSServer;
 
 /**
  * <p>Class <code>ProcessorAbstract</code> is an abstract class that
@@ -192,6 +193,15 @@ abstract public class ProcessorAbstract
     protected MailServer getServer()
     {
         return getConfiguration().getServer();
+    }
+    
+    /**
+     * Returns the DNSServer
+     * @return DNSServer
+     */
+    protected DNSServer getDNSServer()
+    {
+        return getConfiguration().getDNSServer();
     }
     
     /**
@@ -582,6 +592,7 @@ abstract public class ProcessorAbstract
     protected int getMaxMessageSizeLimit()
     {
         return getConfiguration().getMaxMessageSizeLimit();
-    }    
+    }
+    
 
 }

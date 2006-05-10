@@ -509,14 +509,14 @@ public class DNSServer
     /**
      * @see java.net.InetAddress#getByName(String)
      */
-    public static InetAddress getByName(String host) throws UnknownHostException {
+    public InetAddress getByName(String host) throws UnknownHostException {
         return org.xbill.DNS.Address.getByName(allowIPLiteral(host));
     }
 
     /**
      * @see java.net.InetAddress#getByAllName(String)
      */
-    public static InetAddress[] getAllByName(String host) throws UnknownHostException {
+    public InetAddress[] getAllByName(String host) throws UnknownHostException {
         return org.xbill.DNS.Address.getAllByName(allowIPLiteral(host));
     }
 
