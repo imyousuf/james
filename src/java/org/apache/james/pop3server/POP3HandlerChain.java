@@ -72,6 +72,7 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
             cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
             cmds.setProperty("RETR",RetrCmdHandler.class.getName());
             cmds.setProperty("TOP" ,TopCmdHandler.class.getName());
+            cmds.setProperty("STAT",StatCmdHandler.class.getName());
             cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
             Enumeration e = cmds.keys();
             while (e.hasMoreElements()) {
