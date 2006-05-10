@@ -155,6 +155,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (state.equals(Mail.ERROR)) {
                 //Test the time...
                 int retries = Integer.parseInt(errorMessage);
+                
+                // If the retries count is 0 we should try to send the mail now!
+                if (retries == 0) return true;
+                
                 long delay = getNextDelay (retries);
                 long timeToProcess = delay + lastUpdated;
 
@@ -1172,7 +1176,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private long getNextDelay (int retry_count) {
         if (retry_count > delayTimes.length) {
             return DEFAULT_DELAY_TIME;
-        }
+        } 
         return delayTimes[retry_count-1];
     }
 
