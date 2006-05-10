@@ -114,6 +114,7 @@
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      
     <provide name="localusersrepository" role="org.apache.james.services.UsersRepository"/>
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
   </block>
 
   <!-- The High Level Storage block -->

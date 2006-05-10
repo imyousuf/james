@@ -22,6 +22,7 @@ import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.HostAddress;
@@ -103,7 +104,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private static Pattern PATTERN = null; //the compiled pattern of the above String
     private static final HashMap MULTIPLIERS = new HashMap (10); //holds allowed units for delaytime together with
                                                                 //the factor to turn it into the equivalent time in msec
-
+    // The DNSServer
+    private DNSServer dnsServer;
+    
     /*
      * Static initializer.<p>
      * Compiles pattern for processing delaytime entries.<p>
@@ -332,6 +335,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
+        
+            // Instantiate the a MailRepository for outgoing mails
+             try
+            {
+                dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+            }
+            catch (ServiceException e1)
+            {
+                log("Failed to retrieve DNSServer" + e1.getMessage());
+            }
 
         //Start up a number of threads
         try {
@@ -1314,7 +1327,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         final String nextGateway = server;
                         final String nextGatewayPort = port;
                         try {
-                            final InetAddress[] ips = org.apache.james.dnsserver.DNSServer.getAllByName(nextGateway);
+                            final InetAddress[] ips = dnsServer.getAllByName(nextGateway);
                             addresses = new Iterator() {
                                 private InetAddress[] ipAddresses = ips;
                                 int i = 0;

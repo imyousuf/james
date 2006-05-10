@@ -21,7 +21,10 @@
     </dependency>
     <dependency>
       <service name="org.apache.james.services.UsersRepository" version="1.0"/>
-    </dependency>    
+    </dependency> 
+    <dependency>
+      <service name="org.apache.james.services.DNSServer" version="1.0"/>
+    </dependency>       
     <dependency> 
       <service name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" version="1.0"/>
     </dependency> 

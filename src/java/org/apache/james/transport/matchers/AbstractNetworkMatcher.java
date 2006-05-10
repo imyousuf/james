@@ -17,6 +17,10 @@
 
 package org.apache.james.transport.matchers;
 
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.james.Constants;
+import org.apache.james.services.DNSServer;
 import org.apache.james.util.NetMatcher;
 import javax.mail.MessagingException;
 import java.util.StringTokenizer;
@@ -49,11 +53,29 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.GenericMa
      * authorized networks
      */
     private NetMatcher authorizedNetworks = null;
+    
+    /**
+     * The DNSServer
+     */
+    private DNSServer dnsServer;
 
     public void init() throws MessagingException {
+        
+        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
+        
+        try {
+            // Instantiate DNSServer
+            dnsServer = (DNSServer) compMgr.lookup(DNSServer.ROLE);
+        } catch (ServiceException cnfe) {
+            log("Failed to retrieve DNSServer" + cnfe.getMessage());
+        } catch (Exception e) {
+            log("Failed to retrieve DNSServer:" + e.getMessage());
+        }
+        
         Collection nets = allowedNetworks();
+        
         if (nets != null) {
-            authorizedNetworks = new NetMatcher() {
+            authorizedNetworks = new NetMatcher(dnsServer) {
                 protected void log(String s) {
                     AbstractNetworkMatcher.this.log(s);
                 }

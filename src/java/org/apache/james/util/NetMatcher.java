@@ -22,16 +22,23 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.james.services.DNSServer;
+
 public class NetMatcher
 {
+    private DNSServer dnsServer;
+    
     private ArrayList networks;
 
     public void initInetNetworks(final Collection nets)
     {
         networks = new ArrayList();
+        
+        InetNetwork in = new InetNetwork(dnsServer);
+        
         for (Iterator iter = nets.iterator(); iter.hasNext(); ) try
         {
-            InetNetwork net = InetNetwork.getFromString((String) iter.next());
+            InetNetwork net = in.getFromString((String) iter.next());
             if (!networks.contains(net)) networks.add(net);
         }
         catch (java.net.UnknownHostException uhe)
@@ -43,10 +50,14 @@ public class NetMatcher
 
     public void initInetNetworks(final String[] nets)
     {
+        
         networks = new ArrayList();
+        
+        InetNetwork in = new InetNetwork(dnsServer);
+        
         for (int i = 0; i < nets.length; i++) try
         {
-            InetNetwork net = InetNetwork.getFromString(nets[i]);
+            InetNetwork net = in.getFromString(nets[i]);
             if (!networks.contains(net)) networks.add(net);
         }
         catch (java.net.UnknownHostException uhe)
@@ -62,7 +73,7 @@ public class NetMatcher
 
         try
         {
-            ip = org.apache.james.dnsserver.DNSServer.getByName(hostIP);
+            ip = dnsServer.getByName(hostIP);
         }
         catch (java.net.UnknownHostException uhe)
         {
@@ -94,14 +105,21 @@ public class NetMatcher
     public NetMatcher()
     {
     }
-
-    public NetMatcher(final String[] nets)
+    
+    public NetMatcher(DNSServer dnsServer)
     {
+        this.dnsServer = dnsServer;
+    }
+
+    public NetMatcher(final String[] nets,DNSServer dnsServer)
+    {
+        this.dnsServer = dnsServer;
         initInetNetworks(nets);
     }
 
-    public NetMatcher(final Collection nets)
+    public NetMatcher(final Collection nets,DNSServer dnsServer)
     {
+        this.dnsServer = dnsServer;
         initInetNetworks(nets);
     }
 
@@ -114,6 +132,7 @@ public class NetMatcher
 
 class InetNetwork
 {
+
     /*
      * Implements network masking, and is compatible with RFC 1518 and
      * RFC 1519, which describe CIDR: Classless Inter-Domain Routing.
@@ -121,6 +140,11 @@ class InetNetwork
 
     private InetAddress network;
     private InetAddress netmask;
+    private DNSServer dnsServer;
+    
+    InetNetwork(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
     public InetNetwork(InetAddress ip, InetAddress netmask)
     {
@@ -130,7 +154,7 @@ class InetNetwork
 
     public boolean contains(final String name) throws java.net.UnknownHostException
     {
-        return network.equals(maskIP(org.apache.james.dnsserver.DNSServer.getByName(name), netmask));
+        return network.equals(maskIP(dnsServer.getByName(name), netmask));
     }
 
     public boolean contains(final InetAddress ip)
@@ -154,7 +178,7 @@ class InetNetwork
                 ((((InetNetwork)obj).network.equals(network)) && (((InetNetwork)obj).netmask.equals(netmask)));
     }
 
-    public static InetNetwork getFromString(String netspec) throws java.net.UnknownHostException
+    public InetNetwork getFromString(String netspec) throws java.net.UnknownHostException
     {
         if (netspec.endsWith("*")) netspec = normalizeFromAsterisk(netspec);
         else
@@ -164,8 +188,8 @@ class InetNetwork
             else if (netspec.indexOf('.', iSlash) == -1) netspec = normalizeFromCIDR(netspec);
         }
 
-        return new InetNetwork(org.apache.james.dnsserver.DNSServer.getByName(netspec.substring(0, netspec.indexOf('/'))),
-                               org.apache.james.dnsserver.DNSServer.getByName(netspec.substring(netspec.indexOf('/') + 1)));
+        return new InetNetwork(dnsServer.getByName(netspec.substring(0, netspec.indexOf('/'))),
+                               dnsServer.getByName(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
     public static InetAddress maskIP(final byte[] ip, final byte[] mask)

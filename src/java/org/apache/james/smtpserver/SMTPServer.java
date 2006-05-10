@@ -26,6 +26,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.core.AbstractJamesService;
+import org.apache.james.services.DNSServer;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.UsersRepository;
 import org.apache.james.util.NetMatcher;
@@ -66,7 +67,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The internal mail server service.
      */
     private MailServer mailServer;
-
+    
+    /**
+     * The DNSServer to use for queries
+     */
+    private DNSServer dnsServer;
+    
     /**
      * Whether authentication is required to use
      * this SMTP server.
@@ -125,6 +131,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
+        dnsServer = (DNSServer) manager.lookup(DNSServer.ROLE); 
     }
 
     /**
@@ -176,7 +183,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
                     String addr = st.nextToken();
                     networks.add(addr);
                 }
-                authorizedNetworks = new NetMatcher(networks);
+                authorizedNetworks = new NetMatcher(networks,dnsServer);
             }
 
             if (authorizedNetworks != null) {
@@ -365,6 +372,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;
         }
+        
+        //TODO: IF we create here an interface to get DNSServer
+        //      we should access it from the SMTPHandlers
 
     }
 
