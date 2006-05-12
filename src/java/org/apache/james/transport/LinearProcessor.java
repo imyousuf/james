@@ -27,6 +27,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MailetConfigImpl;
+import org.apache.james.services.MailProcessor;
 import org.apache.james.services.MailetLoader;
 import org.apache.james.services.MatcherLoader;
 import org.apache.james.services.SpoolRepository;
@@ -86,7 +87,7 @@ import java.util.Random;
  */
 public class LinearProcessor 
     extends AbstractLogEnabled
-    implements Disposable, Configurable, Serviceable {
+    implements Disposable, Configurable, Serviceable, MailProcessor {
 
     private static final Random random = new Random();  // Used to generate new mail names
 
