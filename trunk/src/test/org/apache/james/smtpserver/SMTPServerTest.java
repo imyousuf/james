@@ -17,8 +17,11 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.Constants;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.DNSServer;
 import org.apache.james.services.JamesConnectionManager;
 import org.apache.james.services.MailServer;
@@ -26,10 +29,14 @@ import org.apache.james.services.UsersRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
+import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.mailet.MockMailContext;
+import org.apache.james.test.mock.mailet.MockMailetConfig;
 import org.apache.james.test.util.Util;
+import org.apache.james.transport.mailets.RemoteDelivery;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.Base64;
 import org.apache.james.util.connection.SimpleConnectionManager;
@@ -45,10 +52,13 @@ import org.columba.ristretto.smtp.SMTPException;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
 import javax.mail.util.SharedByteArrayInputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -58,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -75,7 +86,7 @@ public class SMTPServerTest extends TestCase {
         super("SMTPServerTest");
     }
 
-    public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws ParseException {
+    public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {
         Object[] mailData = m_mailServer.getLastMail();
         assertNotNull("mail received by mail server", mailData);
 
@@ -83,13 +94,21 @@ public class SMTPServerTest extends TestCase {
 
         if (sender != null) assertEquals("sender verfication", sender, ((MailAddress)mailData[0]).toString());
         if (recipient != null) assertTrue("recipient verfication", ((Collection) mailData[1]).contains(new MailAddress(recipient)));
-        if (msg != null) assertEquals("message verification", msg, ((MimeMessage) mailData[2]));
+        if (msg != null) {
+            ByteArrayOutputStream bo1 = new ByteArrayOutputStream();
+            msg.writeTo(bo1);
+            ByteArrayOutputStream bo2 = new ByteArrayOutputStream();
+            ((MimeMessage) mailData[2]).writeTo(bo2);
+            assertEquals(bo1.toString(),bo2.toString());
+            assertEquals("message verification", msg, ((MimeMessage) mailData[2]));
+        }
     }
     
     protected void setUp() throws Exception {
         m_smtpServer = new SMTPServer();
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
-        ContainerUtil.service(m_smtpServer, setUpServiceManager());
+        m_serviceManager = setUpServiceManager();
+        ContainerUtil.service(m_smtpServer, m_serviceManager);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
@@ -101,16 +120,16 @@ public class SMTPServerTest extends TestCase {
     }
 
     private MockServiceManager setUpServiceManager() throws Exception {
-        MockServiceManager serviceManager = new MockServiceManager();
+        m_serviceManager = new MockServiceManager();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        serviceManager.put("org.apache.mailet.MailetContext", new MockMailContext());
+        m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+        m_serviceManager.put("org.apache.mailet.MailetContext", new MockMailContext());
         m_mailServer = new MockMailServer();
-        serviceManager.put(MailServer.ROLE, m_mailServer);
-        serviceManager.put(UsersRepository.ROLE, m_usersRepository);
-        serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
-        serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        m_serviceManager.put(MailServer.ROLE, m_mailServer);
+        m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
+        m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
+        m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         // Mock DNS Server
         DNSServer dns = new DNSServer() {
 
@@ -132,20 +151,21 @@ public class SMTPServerTest extends TestCase {
 
             public InetAddress[] getAllByName(String host) throws UnknownHostException
             {
-                // TODO Add the right values
-                return null;
+                return new InetAddress[] {getByName(host)};
+//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
             }
 
 
             public InetAddress getByName(String host) throws UnknownHostException
             {
-                // TODO Add the right values
-                return null;
+                return InetAddress.getByName(host);
+//                throw new UnsupportedOperationException("getByName not implemented in mock for host: "+host);
             }
             
         };
-        serviceManager.put(DNSServer.ROLE, dns);
-        return serviceManager;
+        m_serviceManager.put(DNSServer.ROLE, dns);
+        m_serviceManager.put(Store.ROLE, new MockStore());
+        return m_serviceManager;
     }
 
     private LocalMimePart createMail() {
@@ -872,6 +892,69 @@ public class SMTPServerTest extends TestCase {
 
         smtpProtocol2.openPort();
         assertEquals("second connection not taken", SMTPProtocol.NOT_CONNECTED, smtpProtocol2.getState());
+    }
+    
+    // RemoteDelivery tests.
+    
+    InMemorySpoolRepository outgoingSpool;
+    private MockServiceManager m_serviceManager;
+    
+    private Properties getStandardParameters() {
+        Properties parameters = new Properties();
+        parameters.put("delayTime", "500 msec, 500 msec, 500 msec"); // msec, sec, minute, hour
+        parameters.put("maxRetries", "3");
+        parameters.put("deliveryThreads", "1");
+        parameters.put("debug", "true");
+        parameters.put("sendpartial", "false");
+        parameters.put("bounceProcessor", "bounce");
+        parameters.put("outgoing", "mocked://outgoing/");
+        return parameters;
+    }
+    
+
+    
+    /**
+     * This is useful code to run tests on javamail bugs 
+     * http://issues.apache.org/jira/browse/JAMES-52
+     * 
+     * This 
+     * @throws Exception
+     */
+    public void test8bitmimeFromStream() throws Exception {
+        finishSetUp(m_testConfiguration);
+        outgoingSpool = new InMemorySpoolRepository();
+        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
+        
+        RemoteDelivery rd = new RemoteDelivery();
+        
+        MockMailContext mmc = new MockMailContext();
+        mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
+        mmc.setAttribute(Constants.HELLO_NAME,"localhost");
+        MockMailetConfig mci = new MockMailetConfig("Test",mmc,getStandardParameters());
+        mci.setProperty("gateway","127.0.0.1");
+        mci.setProperty("gatewayPort",""+m_smtpListenerPort);
+        rd.init(mci);
+        
+        String sources = "Content-Type: text/plain;\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: quoted-printable\r\nSubject: test\r\n\r\nBody=80\r\n";
+        //String sources = "Content-Type: text/plain; charset=iso-8859-15\r\nContent-Transfer-Encoding: 8bit\r\nSubject: test\r\n\r\nBody\u20AC\r\n";
+        String sender = "test@localhost";
+        String recipient = "test@localhost";
+        MimeMessage mm = new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        MailImpl mail = new MailImpl("name",new MailAddress(sender),Arrays.asList(new MailAddress[] {new MailAddress(recipient)}),mm);
+        
+        rd.service(mail);
+        
+        while (outgoingSpool.size() > 0) {
+            Thread.sleep(1000);
+        }
+
+        // verifyLastMail(sender, recipient, mm);
+        verifyLastMail(sender, recipient, null);
+        
+        // THIS WOULD FAIL BECAUSE OF THE JAVAMAIL BUG
+        // assertEquals(mm.getContent(),((MimeMessage) m_mailServer.getLastMail()[2]).getContent());
+
     }
     
     
