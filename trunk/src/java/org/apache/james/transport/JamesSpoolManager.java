@@ -27,14 +27,11 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.services.MailProcessor;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
-
-import javax.mail.MessagingException;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -55,19 +52,9 @@ public class JamesSpoolManager
     private ServiceManager compMgr;
 
     /**
-     * The configuration object used by this spool manager.
-     */
-    private Configuration conf;
-
-    /**
      * The spool that this manager will process
      */
     private SpoolRepository spool;
-
-    /**
-     * The map of processor names to processors
-     */
-    private HashMap processors;
 
     /**
      * The number of threads used to move mail through the spool.
@@ -107,6 +94,11 @@ public class JamesSpoolManager
     private Collection spoolThreads;
 
     /**
+     * The mail processor 
+     */
+    private MailProcessor processorList;
+
+    /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
@@ -119,8 +111,24 @@ public class JamesSpoolManager
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
         numThreads = conf.getChild("threads").getValueAsInteger(1);
+        
+        String processorClass = conf.getChild("processorClass").getValue("org.apache.james.transport.StateAwareProcessorList");
+        try {
+            processorList = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();
+        } catch (Exception e1) {
+            getLogger().error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
+            throw new ConfigurationException("Instantiation exception: "+processorClass, e1);
+        }
+        
+        try {
+            ContainerUtil.service(processorList, compMgr);
+        } catch (ServiceException e) {
+            getLogger().error(e.getMessage(), e);
+            throw new ConfigurationException("Servicing failed with error: "+e.getMessage(),e);
+        }
+        
+        ContainerUtil.configure(processorList, conf);
     }
 
     /**
@@ -129,44 +137,9 @@ public class JamesSpoolManager
     public void initialize() throws Exception {
 
         getLogger().info("JamesSpoolManager init...");
-
-        //A processor is a Collection of
-        processors = new HashMap();
-
-        final Configuration[] processorConfs = conf.getChildren( "processor" );
-        for ( int i = 0; i < processorConfs.length; i++ )
-        {
-            Configuration processorConf = processorConfs[i];
-            String processorName = processorConf.getAttribute("name");
-            try {
-                LinearProcessor processor = new LinearProcessor();
-                processors.put(processorName, processor);
-                
-                setupLogger(processor, processorName);
-                ContainerUtil.service(processor, compMgr);
-                ContainerUtil.configure(processor, processorConf);
-                
-                if (getLogger().isInfoEnabled()) {
-                    StringBuffer infoBuffer =
-                        new StringBuffer(64)
-                                .append("Processor ")
-                                .append(processorName)
-                                .append(" instantiated.");
-                    getLogger().info(infoBuffer.toString());
-                }
-            } catch (Exception ex) {
-                if (getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer =
-                       new StringBuffer(256)
-                               .append("Unable to init processor ")
-                               .append(processorName)
-                               .append(": ")
-                               .append(ex.toString());
-                    getLogger().error( errorBuffer.toString(), ex );
-                }
-                throw ex;
-            }
-        }
+        
+        ContainerUtil.initialize(processorList);
+        
         if (getLogger().isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(64)
@@ -213,7 +186,9 @@ public class JamesSpoolManager
                                 .append("====");
                     getLogger().debug(debugBuffer.toString());
                 }
-                process(mail);
+
+                processorList.service(mail);
+
                 // Only remove an email from the spool is processing is
                 // complete, or if it has no recipients
                 if ((Mail.GHOST.equals(mail.getState())) ||
@@ -267,92 +242,6 @@ public class JamesSpoolManager
     }
 
     /**
-     * Process this mail message by the appropriate processor as designated
-     * in the state of the Mail object.
-     *
-     * @param mail the mail message to be processed
-     */
-    protected void process(Mail mail) {
-        while (true) {
-            String processorName = mail.getState();
-            if (processorName.equals(Mail.GHOST)) {
-                //This message should disappear
-                return;
-            }
-            try {
-                LinearProcessor processor
-                    = (LinearProcessor)processors.get(processorName);
-                if (processor == null) {
-                    StringBuffer exceptionMessageBuffer =
-                        new StringBuffer(128)
-                            .append("Unable to find processor ")
-                            .append(processorName)
-                            .append(" requested for processing of ")
-                            .append(mail.getName());
-                    String exceptionMessage = exceptionMessageBuffer.toString();
-                    getLogger().debug(exceptionMessage);
-                    mail.setState(Mail.ERROR);
-                    throw new MailetException(exceptionMessage);
-                }
-                StringBuffer logMessageBuffer = null;
-                if (getLogger().isDebugEnabled()) {
-                    logMessageBuffer =
-                        new StringBuffer(64)
-                                .append("Processing ")
-                                .append(mail.getName())
-                                .append(" through ")
-                                .append(processorName);
-                    getLogger().debug(logMessageBuffer.toString());
-                }
-                processor.service(mail);
-                if (getLogger().isDebugEnabled()) {
-                    logMessageBuffer =
-                        new StringBuffer(128)
-                                .append("Processed ")
-                                .append(mail.getName())
-                                .append(" through ")
-                                .append(processorName);
-                    getLogger().debug(logMessageBuffer.toString());
-                    getLogger().debug("Result was " + mail.getState());
-                }
-                return;
-            } catch (Throwable e) {
-                // This is a strange error situation that shouldn't ordinarily
-                // happen
-                StringBuffer exceptionBuffer = 
-                    new StringBuffer(64)
-                            .append("Exception in processor <")
-                            .append(processorName)
-                            .append(">");
-                getLogger().error(exceptionBuffer.toString(), e);
-                if (processorName.equals(Mail.ERROR)) {
-                    // We got an error on the error processor...
-                    // kill the message
-                    mail.setState(Mail.GHOST);
-                    mail.setErrorMessage(e.getMessage());
-                } else {
-                    //We got an error... send it to the requested processor
-                    if (!(e instanceof MessagingException)) {
-                        //We got an error... send it to the error processor
-                        mail.setState(Mail.ERROR);
-                    }
-                    mail.setErrorMessage(e.getMessage());
-                }
-            }
-            if (getLogger().isErrorEnabled()) {
-                StringBuffer logMessageBuffer =
-                    new StringBuffer(128)
-                            .append("An error occurred processing ")
-                            .append(mail.getName())
-                            .append(" through ")
-                            .append(processorName);
-                getLogger().error(logMessageBuffer.toString());
-                getLogger().error("Result was " + mail.getState());
-            }
-        }
-    }
-
-    /**
      * The dispose operation is called at the end of a components lifecycle.
      * Instances of this class use this method to release and destroy any
      * resources that they own.
@@ -377,17 +266,8 @@ public class JamesSpoolManager
             } catch (Exception ignored) {}
         }
         getLogger().info("JamesSpoolManager thread shutdown completed.");
-
-        Iterator it = processors.keySet().iterator();
-        while (it.hasNext()) {
-            String processorName = (String)it.next();
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Processor " + processorName);
-            }
-            LinearProcessor processor = (LinearProcessor)processors.get(processorName);
-            processor.dispose();
-            processors.remove(processor);
-        }
+        
+        ContainerUtil.dispose(processorList);
     }
 
 }
