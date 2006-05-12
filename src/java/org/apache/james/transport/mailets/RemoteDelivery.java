@@ -1102,7 +1102,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         Session session = Session.getInstance(props, null);
         try {
-            while (!Thread.currentThread().interrupted() && !destroyed) {
+            while (!Thread.interrupted() && !destroyed) {
                 try {
                     Mail mail = (Mail)outgoing.accept(delayFilter);
                     String key = mail.getName();
@@ -1121,6 +1121,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         } else {
                             //Something happened that will delay delivery.  Store any updates
                             outgoing.store(mail);
+                            // This is an update, we have to unlock and notify or this mail
+                            // is kept locked by this thread
+                            outgoing.unlock(key);
+                            synchronized(outgoing) {
+                                outgoing.notify();
+                            }
                         }
                         //Clear the object handle to make sure it recycles this object.
                         mail = null;
@@ -1139,7 +1145,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         } finally {
             // Restore the thread state to non-interrupted.
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
         }
     }
 
