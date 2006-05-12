@@ -90,10 +90,12 @@ public class RemoteManagerTest extends TestCase {
 
     protected void login(String name, String password) throws IOException {
         sendCommand(name);
-        sendCommand(password);
-
         List answers = readAnswer();
         String last = getLastLine(answers);
+        assertTrue("Last line does not start with Password: "+last,last.startsWith("Password:"));
+        sendCommand(password);
+        answers = readAnswer();
+        last = getLastLine(answers);
         assertTrue("Last line does not start with Welcome: "+last,last.startsWith("Welcome"));
     }
 
